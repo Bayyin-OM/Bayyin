@@ -1632,7 +1632,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       </p>
       <!-- ⬇️ استبدل هذا الرابط برابط Stripe الخاص بك -->
       <button class="auth-btn pay-btn"
-              onclick="window.open('https://bayyin.lemonsqueezy.com/checkout/buy/81b22cfe-948c-480f-b468-001903cff84c', '_blank')">
+      onclick="window.open('https://bayyin.lemonsqueezy.com/checkout/buy/81b22cfe-948c-480f-b468-001903cff84c', '_blank')">
         اشترك الآن 🚀
       </button>
       <p class="pay-note">بعد الدفع يُفعَّل حسابك تلقائياً خلال ثوانٍ ✅</p>
@@ -2682,6 +2682,14 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
     <div class="panel-title">وحدات الصف الثامن</div>
     <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
     <div class="units-grid">
+      <div class="unit-card" onclick="openUnit('u8circ', this)">
+        <div class="unit-num-badge">٧</div>
+        <div>
+          <div class="unit-title">الجهاز الدوري وتبادل الغازات</div>
+          <div class="unit-topics">الجهاز الدوري · القلب · الدم · الأوعية الدموية · الجهاز التنفسي · تبادل الغازات · التنفس الهوائي · اللياقة البدنية</div>
+          <div class="unit-pill avail">❤️ ٧ استقصاء متاح</div>
+        </div>
+      </div>
       <div class="unit-card" onclick="openUnit('u8mag', this)">
         <div class="unit-num-badge">١١</div>
         <div>
@@ -2689,6 +2697,86 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
           <div class="unit-topics">المغناطيس وأقطابه · المجال المغناطيسي · الكهرومغناطيس · الكهرباء الساكنة · الشحنات · التيار الكهربائي · الدوائر</div>
           <div class="unit-pill avail">🧲 ١٢ استقصاء متاح</div>
         </div>
+      </div>
+    </div>
+
+    <div class="sims-wrap" id="sims-u8circ" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٧ — الجهاز الدوري وتبادل الغازات</div>
+        <div class="sims-count">٧ استقصاء</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('circsystem')">
+          <div class="sim-thumb t2">❤️</div>
+          <div class="sim-body">
+            <div class="sim-num">7-1 · الجهاز الدوري</div>
+            <div class="sim-name">رحلة الدم في الجسم</div>
+            <div class="sim-desc">تتبّع مسار الدم من القلب إلى الرئتين وباقي أجزاء الجسم وعُد مجدداً</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('heart8')">
+          <div class="sim-thumb t1">🫀</div>
+          <div class="sim-body">
+            <div class="sim-num">7-2 · القلب</div>
+            <div class="sim-name">كيف يعمل القلب؟</div>
+            <div class="sim-desc">شاهد الحجرات الأربعة والصمّامات وكيف ينقبض القلب لضخّ الدم</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('blood8')">
+          <div class="sim-thumb t3">🩸</div>
+          <div class="sim-body">
+            <div class="sim-num">7-3 · الدم</div>
+            <div class="sim-name">مكوّنات الدم</div>
+            <div class="sim-desc">اكتشف البلازما وخلايا الدم الحمراء والبيضاء والصفائح الدموية ووظيفة كل منها</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('vessels8')">
+          <div class="sim-thumb t4">🔬</div>
+          <div class="sim-body">
+            <div class="sim-num">7-4 · الأوعية الدموية</div>
+            <div class="sim-name">شرايين وأوردة وشعيرات</div>
+            <div class="sim-desc">قارن تركيب الشرايين والأوردة والشعيرات الدموية واكتشف وظيفة كلٍّ منها</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('gasexchange8')">
+          <div class="sim-thumb t5">🫁</div>
+          <div class="sim-body">
+            <div class="sim-num">7-6 · تبادل الغازات</div>
+            <div class="sim-name">الحويصلات الهوائية</div>
+            <div class="sim-desc">شاهد كيف ينتشر الأكسجين من الهواء إلى الدم وثاني أكسيد الكربون في الاتجاه المعاكس</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('respiration8')">
+          <div class="sim-thumb t6">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">7-7 · التنفس الهوائي</div>
+            <div class="sim-name">جلوكوز + أكسجين = طاقة</div>
+            <div class="sim-desc">تتبّع تفاعل التنفس الخلوي واكتشف كيف تحصل خلاياك على الطاقة من الغذاء</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('pulse8')">
+          <div class="sim-thumb t8">🏃</div>
+          <div class="sim-body">
+            <div class="sim-num">7-8 · اللياقة البدنية</div>
+            <div class="sim-name">معدّل النبض والتمارين</div>
+            <div class="sim-desc">اكتشف كيف تؤثر التمارين الرياضية على معدّل النبض وتدفّق الدم للعضلات</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
       </div>
     </div>
 
@@ -3152,7 +3240,8 @@ function openUnit(id, el) {
     u9:'وحدة القوى 🪂 — المظلة تُبطّئ السقوط بزيادة مقاومة الهواء. جرّب!',
     u10:'وحدة التصنيف 🌸 — قِس الزهور وارسم مخطط التوزيع التكراري.',
     u11:'وحدة الأحماض 🍋 — الليمون حمضي والصابون قلويّ! اختبرهما.',
-    u8mag:'وحدة المغناطيسية 🧲 — القطبان المختلفان يتجاذبان! جرّب الكهرومغناطيس.'
+    u8mag:'وحدة المغناطيسية 🧲 — القطبان المختلفان يتجاذبان! جرّب الكهرومغناطيس.',
+    u8circ:'وحدة الجهاز الدوري ❤️ — قلبك ينبض ٧٠ مرة في الدقيقة! اكتشف كيف يضخّ الدم.'
   };
   if(hints[id]) setTimeout(function(){ buddySay(hints[id], 6000); }, 400);
 }
@@ -3194,6 +3283,14 @@ const SIM_META = {
   g6circuit:        { title: '5-5 · مختبر الدوائر الكهربائية', badge: '⚡ 6', tabs: ['ابنِ دائرتك 🔌', 'رموز الدائرة 📐'] },
   g6circuitchange:  { title: '5-6 · تغيير مكونات الدائرة', badge: '⚡ 6', tabs: ['إضافة مصابيح 💡', 'إضافة خلايا 🔋'] },
   g6wirelength:     { title: '5-8 · طول وسُمك السلك', badge: '⚡ 6', tabs: ['طول السلك 📏', 'سُمك السلك 🔗'] },
+  // ── الصف 8 — الجهاز الدوري وتبادل الغازات ──
+  circsystem:   { title: 'نشاط 1-7 · الجهاز الدوري', badge: '❤️ 8', tabs: ['رحلة الدم 🔴', 'الدم المؤكسج وغير المؤكسج 🔵'] },
+  heart8:       { title: 'نشاط 2-7 · القلب', badge: '❤️ 8', tabs: ['تركيب القلب 🫀', 'الانقباض والانبساط ⏩'] },
+  blood8:       { title: 'نشاط 3-7 · الدم', badge: '❤️ 8', tabs: ['مكوّنات الدم 🩸', 'وظائف الخلايا 🔬'] },
+  vessels8:     { title: 'نشاط 4-7 · الأوعية الدموية', badge: '❤️ 8', tabs: ['الشرايين 🔴', 'الأوردة 🔵', 'الشعيرات 🔬'] },
+  gasexchange8: { title: 'نشاط 6-7 · تبادل الغازات', badge: '❤️ 8', tabs: ['الحويصلة الهوائية 🫁', 'الانتشار 🔄'] },
+  respiration8: { title: 'نشاط 7-7 · التنفس الهوائي', badge: '❤️ 8', tabs: ['معادلة التنفس ⚡', 'الطاقة الحرارية 🌡️'] },
+  pulse8:       { title: 'نشاط 8-7 · اللياقة البدنية', badge: '❤️ 8', tabs: ['معدّل النبض 💓', 'التمارين والقلب 🏃'] },
   // ── الصف 8 — المغناطيسيّة والكهرباء ──
   magnets:      { title: 'نشاط 1-11 · المغناطيس وأقطابه', badge: '🧲 8', tabs: ['الجذب والتنافر 🧲', 'المواد المغناطيسية 🔬'] },
   magfield:     { title: 'نشاط 3-11 · المجال المغناطيسيّ', badge: '🧲 8', tabs: ['خطوط المجال 🔮', 'بوصلة تفاعلية 🧭'] },
@@ -3842,9 +3939,16 @@ function startSim(type, tab) {
     g6circuit:        [simCircuitBuilder1, simCircuitBuilder2],
     g6circuitchange:  [simCircuitChange1, simCircuitChange2],
     g6wirelength:     [simWireLength1, simWireLength2],
+    // ── الصف 8 — الجهاز الدوري وتبادل الغازات ──
+    circsystem:   [simCircSystem1, simCircSystem2],
+    heart8:       [simHeart1, simHeart2],
+    blood8:       [simBlood1, simBlood2],
+    vessels8:     [simVessels1, simVessels2, simVessels3],
+    gasexchange8: [simGasExchange1, simGasExchange2],
+    respiration8: [simRespiration1, simRespiration2],
+    pulse8:       [simPulse1, simPulse2],
     // ── الصف 8 — المغناطيسيّة والكهرباء ──
     magnets:      [simMagnets1, simMagnets2],
-    magfield:     [simMagField1, simMagField2],
     electromagnet:[simElectromagnet1, simElectromagnet2],
     staticelec:   [simStaticElec1, simStaticElec2],
     circuit8:     [simCircuit8Series, simCircuit8Parallel],
@@ -21119,6 +21223,1256 @@ async function _checkSubscription() {
   } catch (err) {
     console.error('checkSubscription error:', err);
   }
+}
+
+
+// ══════════════════════════════════════════════════════════
+// الصف الثامن — وحدة ٧: الجهاز الدوري وتبادل الغازات
+// ══════════════════════════════════════════════════════════
+
+// ── 7-1 TAB 0: رحلة الدم في الجهاز الدوري ──
+function simCircSystem1() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, phase: 'idle', particles: [], selectedPath: null };
+  const W = cv.width, H = cv.height;
+  const cx = W/2, cy = H*0.48;
+
+  // Heart center
+  const hx = cx, hy = cy;
+  const lungX = cx - W*0.28, lungY = cy - H*0.18;
+  const bodyX = cx + W*0.28, bodyY = cy + H*0.15;
+
+  function spawnParticle(x,y,path,oxygenated) {
+    simState.particles.push({ x,y, path, step:0, oxygenated, alpha:1 });
+  }
+
+  cv.onclick = null;
+  cv.onmousemove = null;
+
+  // Buttons
+  const btns = document.querySelectorAll('.ctrl-btn');
+  if(btns[0]) { btns[0].textContent = '🔴 أرسل الدم'; btns[0].onclick = () => {
+    for(let i=0;i<6;i++) setTimeout(()=>spawnParticle(hx,hy,'toLungs',false),i*200);
+  };}
+  if(btns[1]) { btns[1].textContent = '🔁 إعادة'; btns[1].onclick = () => { simState.particles=[]; simState.t=0; }; }
+
+  // Paths: toLungs, fromLungs, toBody, fromBody
+  const paths = {
+    toLungs:   [[hx,hy],[cx-W*0.12,cy-H*0.05],[lungX+30,lungY+20],[lungX,lungY]],
+    fromLungs: [[lungX,lungY],[lungX+30,lungY+50],[cx-W*0.08,cy+H*0.04],[hx,hy]],
+    toBody:    [[hx,hy],[cx+W*0.1,cy+H*0.04],[bodyX-30,bodyY-20],[bodyX,bodyY]],
+    fromBody:  [[bodyX,bodyY],[bodyX-40,bodyY+20],[cx+W*0.12,cy+H*0.1],[hx,hy]]
+  };
+
+  function lerp(a,b,t){ return {x:a[0]+(b[0]-a[0])*t, y:a[1]+(b[1]-a[1])*t}; }
+  function getPathPos(pathArr, t) {
+    const segments = pathArr.length-1;
+    const seg = Math.min(Math.floor(t*segments), segments-1);
+    const segT = (t*segments)-seg;
+    return lerp(pathArr[seg], pathArr[seg+1], segT);
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    // Background
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    // Draw vessels
+    const drawPath = (pts, color, w=4) => {
+      ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+      for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+      ctx.strokeStyle=color; ctx.lineWidth=w; ctx.lineCap='round'; ctx.stroke();
+    };
+    drawPath(paths.toLungs,   '#5B9BD5', 5);
+    drawPath(paths.fromLungs, '#C0392B', 5);
+    drawPath(paths.toBody,    '#C0392B', 5);
+    drawPath(paths.fromBody,  '#5B9BD5', 5);
+
+    // Heart
+    ctx.save();
+    const pulse = 1 + Math.sin(simState.t*4)*0.06;
+    ctx.translate(hx,hy); ctx.scale(pulse,pulse);
+    ctx.fillStyle='#C0392B';
+    ctx.beginPath();
+    ctx.arc(-13,-8,15,0,Math.PI*2);
+    ctx.arc(13,-8,15,0,Math.PI*2);
+    ctx.moveTo(0,24); ctx.lineTo(-26,-2); ctx.lineTo(26,-2); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.25)';
+    ctx.font='bold 11px Tajawal'; ctx.textAlign='center'; ctx.fillText('القلب',0,40);
+    ctx.restore();
+
+    // Lungs
+    const drawLung = (x,y,label) => {
+      ctx.save(); ctx.translate(x,y);
+      ctx.fillStyle='rgba(255,182,182,0.7)'; ctx.strokeStyle='#C0392B'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.ellipse(0,0,32,42,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#7A2020'; ctx.font='11px Tajawal'; ctx.textAlign='center';
+      ctx.fillText(label,0,60); ctx.restore();
+    };
+    drawLung(lungX,lungY,'الرئتان');
+
+    // Body organs box
+    ctx.save(); ctx.translate(bodyX,bodyY);
+    ctx.fillStyle='rgba(255,220,180,0.7)'; ctx.strokeStyle='#D4901A'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(-38,-28,76,56,10); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#7A4A10'; ctx.font='11px Tajawal'; ctx.textAlign='center';
+    ctx.fillText('أنسجة الجسم',0,0); ctx.fillText('(عضلات، أعضاء)',0,16);
+    ctx.restore();
+
+    // Labels
+    ctx.font='bold 12px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle='#5B9BD5'; ctx.fillText('دم غير مؤكسج',cx-W*0.22,cy-H*0.02);
+    ctx.fillStyle='#C0392B'; ctx.fillText('دم مؤكسج',cx+W*0.02,cy-H*0.16);
+
+    // Particles
+    simState.particles.forEach(p => {
+      p.step = Math.min(p.step+0.008, 1);
+      const pathArr = paths[p.path];
+      const pos = getPathPos(pathArr, p.step);
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 6, 0, Math.PI*2);
+      ctx.fillStyle = p.oxygenated ? 'rgba(192,57,43,0.95)' : 'rgba(91,155,213,0.95)';
+      ctx.fill();
+      ctx.strokeStyle='white'; ctx.lineWidth=1; ctx.stroke();
+      if(p.step >= 0.99) {
+        // Chain reactions
+        if(p.path==='toLungs')   { p.path='fromLungs'; p.step=0; p.oxygenated=true; }
+        else if(p.path==='fromLungs') { p.path='toBody'; p.step=0; }
+        else if(p.path==='toBody')    { p.path='fromBody'; p.step=0; p.oxygenated=false; }
+        else p.alpha=0;
+      }
+    });
+    simState.particles = simState.particles.filter(p=>p.alpha>0);
+
+    // Instruction
+    ctx.font='13px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='var(--text-secondary,#7A8A98)';
+    ctx.fillText('اضغط "أرسل الدم" لمتابعة دورة الدم الكاملة',cx,H-20);
+
+    simState.t += 0.025;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-1 TAB 1: الدم المؤكسج وغير المؤكسج ──
+function simCircSystem2() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0 };
+  const W = cv.width, H = cv.height;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    const pulse = 1 + Math.sin(simState.t*3)*0.04;
+    // Two columns
+    const col1x = W*0.28, col2x = W*0.72, rowY = H*0.4;
+
+    // Oxygenated side
+    ctx.save(); ctx.translate(col1x, rowY);
+    ctx.fillStyle='rgba(255,200,200,0.3)'; ctx.strokeStyle='#C0392B'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(-80,-120,160,240,16); ctx.fill(); ctx.stroke();
+    // RBC cluster
+    for(let i=0;i<12;i++){
+      const ax=Math.cos(i/12*Math.PI*2)*38*pulse, ay=Math.sin(i/12*Math.PI*2)*38*pulse;
+      ctx.beginPath(); ctx.ellipse(ax,ay,10,7,0,0,Math.PI*2);
+      ctx.fillStyle='#C0392B'; ctx.fill();
+      ctx.beginPath(); ctx.ellipse(ax,ay,4,3,0,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,120,120,0.6)'; ctx.fill();
+    }
+    ctx.fillStyle='rgba(255,80,80,0.8)';
+    ctx.font='bold 13px Tajawal'; ctx.textAlign='center';
+    ctx.fillText('دم مؤكسج',0,80);
+    ctx.fillStyle='#444'; ctx.font='12px Tajawal';
+    ctx.fillText('أحمر فاتح',0,98);
+    ctx.fillText('هيموجلوبين مؤكسج',0,114);
+    ctx.restore();
+
+    // Non-oxygenated side
+    ctx.save(); ctx.translate(col2x, rowY);
+    ctx.fillStyle='rgba(180,200,240,0.3)'; ctx.strokeStyle='#5B9BD5'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(-80,-120,160,240,16); ctx.fill(); ctx.stroke();
+    for(let i=0;i<12;i++){
+      const ax=Math.cos(i/12*Math.PI*2)*38*pulse, ay=Math.sin(i/12*Math.PI*2)*38*pulse;
+      ctx.beginPath(); ctx.ellipse(ax,ay,10,7,0,0,Math.PI*2);
+      ctx.fillStyle='#34495E'; ctx.fill();
+      ctx.beginPath(); ctx.ellipse(ax,ay,4,3,0,0,Math.PI*2);
+      ctx.fillStyle='rgba(80,100,140,0.6)'; ctx.fill();
+    }
+    ctx.fillStyle='#5B9BD5';
+    ctx.font='bold 13px Tajawal'; ctx.textAlign='center';
+    ctx.fillText('دم غير مؤكسج',0,80);
+    ctx.fillStyle='#444'; ctx.font='12px Tajawal';
+    ctx.fillText('أحمر داكن مائل للزرقة',0,98);
+    ctx.fillText('هيموجلوبين فقط',0,114);
+    ctx.restore();
+
+    // Title
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle= getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('الدم المؤكسج مقابل غير المؤكسج',W/2,38);
+
+    // O2 CO2 arrows
+    ctx.font='20px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle='#27AE60'; ctx.fillText('O₂ ←',W*0.5,rowY-60);
+    ctx.fillStyle='#E67E22'; ctx.fillText('→ CO₂',W*0.5,rowY-30);
+    ctx.font='11px Tajawal'; ctx.fillStyle='#7A8A98';
+    ctx.fillText('في الرئتين ينتشر الأكسجين إلى الدم',W*0.5,rowY+10);
+    ctx.fillText('وينتشر ثاني أكسيد الكربون للخارج',W*0.5,rowY+26);
+
+    simState.t += 0.03;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-2 TAB 0: تركيب القلب ──
+function simHeart1() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, hover: null };
+  const W = cv.width, H = cv.height;
+  const cx = W/2, cy = H*0.48;
+
+  const chambers = [
+    { id:'RA', x:cx+55, y:cy-55, w:70, h:60, color:'rgba(91,155,213,0.85)', label:'الأذين الأيمن', sub:'يستقبل الدم من الجسم' },
+    { id:'RV', x:cx+55, y:cy+25, w:70, h:70, color:'rgba(91,155,213,0.7)',  label:'البطين الأيمن', sub:'يضخ الدم للرئتين' },
+    { id:'LA', x:cx-55, y:cy-55, w:70, h:60, color:'rgba(192,57,43,0.85)',  label:'الأذين الأيسر', sub:'يستقبل الدم من الرئتين' },
+    { id:'LV', x:cx-55, y:cy+25, w:70, h:70, color:'rgba(192,57,43,0.7)',   label:'البطين الأيسر', sub:'يضخ الدم لكل الجسم' }
+  ];
+
+  cv.onmousemove = e => {
+    const r = cv.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
+    simState.hover = null;
+    chambers.forEach(ch => { if(Math.abs(mx-ch.x)<ch.w/2 && Math.abs(my-ch.y)<ch.h/2) simState.hover=ch.id; });
+    cv.style.cursor = simState.hover?'pointer':'default';
+  };
+  cv.onclick = null;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    // Heart outline
+    const s = 1+Math.sin(simState.t*4)*0.025;
+    ctx.save(); ctx.translate(cx,cy); ctx.scale(s,s); ctx.translate(-cx,-cy);
+
+    // Outer heart shape
+    ctx.fillStyle='rgba(180,60,60,0.15)'; ctx.strokeStyle='#C0392B'; ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.arc(cx-45,cy-30,70,Math.PI,0);
+    ctx.arc(cx+45,cy-30,70,Math.PI,0);
+    ctx.lineTo(cx,cy+120); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    // Chambers
+    chambers.forEach(ch => {
+      const isHov = simState.hover===ch.id;
+      ctx.save();
+      ctx.translate(ch.x,ch.y);
+      ctx.beginPath(); ctx.roundRect(-ch.w/2,-ch.h/2,ch.w,ch.h,10);
+      ctx.fillStyle = isHov ? ch.color.replace('0.85','1').replace('0.7','0.95') : ch.color;
+      ctx.fill();
+      ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle='white'; ctx.font='bold 11px Tajawal'; ctx.textAlign='center';
+      ctx.fillText(ch.label,0,4);
+      ctx.restore();
+    });
+
+    // Septum line
+    ctx.beginPath(); ctx.moveTo(cx,cy-95); ctx.lineTo(cx,cy+95);
+    ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=3; ctx.setLineDash([6,4]);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // Valves dots
+    [[cx,cy-10],[cx+55,cy-5],[cx-55,cy-5]].forEach(([vx,vy])=>{
+      ctx.beginPath(); ctx.arc(vx,vy,8,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,220,50,0.9)'; ctx.fill();
+      ctx.strokeStyle='#8B6914'; ctx.lineWidth=1.5; ctx.stroke();
+    });
+    ctx.font='10px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#8B6914';
+    ctx.fillText('صمّام',cx,cy+22);
+
+    ctx.restore(); // unscale
+
+    // Tooltip
+    if(simState.hover) {
+      const ch = chambers.find(c=>c.id===simState.hover);
+      ctx.fillStyle='rgba(0,0,0,0.75)'; ctx.beginPath(); ctx.roundRect(cx-130,H-75,260,55,10); ctx.fill();
+      ctx.fillStyle='white'; ctx.font='bold 13px Tajawal'; ctx.textAlign='center';
+      ctx.fillText(ch.label,cx,H-52);
+      ctx.font='11px Tajawal'; ctx.fillStyle='rgba(255,255,255,0.8)';
+      ctx.fillText(ch.sub,cx,H-34);
+    }
+
+    // Labels
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('تركيب القلب — حرّك الماوس فوق الحجرات',cx,28);
+    ctx.font='12px Tajawal'; ctx.fillStyle='#7A8A98';
+    ctx.fillText('الجانب الأيمن: دم غير مؤكسج  |  الجانب الأيسر: دم مؤكسج',cx,H-10);
+
+    simState.t += 0.025;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-2 TAB 1: الانقباض والانبساط ──
+function simHeart2() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, bpm: 70, playing: true };
+  const W = cv.width, H = cv.height;
+  const cx = W/2, cy = H*0.45;
+
+  const btns = document.querySelectorAll('.ctrl-btn');
+  if(btns[0]) { btns[0].textContent='⏸ إيقاف'; btns[0].onclick=()=>{ simState.playing=!simState.playing; btns[0].textContent=simState.playing?'⏸ إيقاف':'▶ تشغيل'; }; }
+  if(btns[1]) { btns[1].textContent='🏃 بعد الرياضة'; btns[1].onclick=()=>{ simState.bpm=130; }; }
+  if(btns[2]) { btns[2].textContent='😴 أثناء الراحة'; btns[2].onclick=()=>{ simState.bpm=65; }; }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    const period = 60/simState.bpm;
+    const phase = (simState.t % period) / period;
+    const isContract = phase < 0.4;
+    const contractScale = isContract ? 1 - (Math.sin(phase/0.4*Math.PI)*0.12) : 1;
+
+    ctx.save(); ctx.translate(cx,cy); ctx.scale(contractScale,contractScale);
+    // Heart
+    ctx.fillStyle = isContract ? '#C0392B' : '#E74C3C';
+    ctx.beginPath();
+    ctx.arc(-40,-25,52,Math.PI,0);
+    ctx.arc(40,-25,52,Math.PI,0);
+    ctx.lineTo(0,85); ctx.closePath(); ctx.fill();
+    // Highlight
+    ctx.fillStyle='rgba(255,180,180,0.3)';
+    ctx.beginPath(); ctx.ellipse(-20,-30,25,18,Math.PI/6,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // Phase label
+    ctx.font='bold 18px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle = isContract ? '#C0392B' : '#27AE60';
+    ctx.fillText(isContract ? '💥 انقباض — الدم يُضخّ خارجاً' : '💧 انبساط — الدم يتدفق للداخل', cx, cy+130);
+
+    // BPM display
+    ctx.font='bold 26px Tajawal'; ctx.fillStyle='#C0392B';
+    ctx.fillText(`${simState.bpm} نبضة/دقيقة`,cx,H-60);
+    ctx.font='13px Tajawal'; ctx.fillStyle='#7A8A98';
+    ctx.fillText('معدّل النبض',cx,H-38);
+
+    // ECG-style line
+    const ecgY = H-110, ecgW=W*0.7, ecgX=(W-ecgW)/2;
+    ctx.beginPath(); ctx.moveTo(ecgX,ecgY);
+    for(let i=0;i<ecgW;i++) {
+      const t2=(i/ecgW + simState.t*simState.bpm/60)%1;
+      let y=ecgY;
+      if(t2<0.15) y=ecgY;
+      else if(t2<0.2) y=ecgY-15;
+      else if(t2<0.22) y=ecgY+10;
+      else if(t2<0.26) y=ecgY-60;
+      else if(t2<0.3) y=ecgY+20;
+      else if(t2<0.35) y=ecgY-10;
+      else y=ecgY;
+      ctx.lineTo(ecgX+i,y);
+    }
+    ctx.strokeStyle='#27AE60'; ctx.lineWidth=2; ctx.stroke();
+
+    ctx.font='bold 16px Tajawal'; ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('الانقباض والانبساط — دقّة القلب',cx,28);
+
+    if(simState.playing) simState.t += 0.016;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-3 TAB 0: مكوّنات الدم ──
+function simBlood1() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, selected: null };
+  const W = cv.width, H = cv.height;
+
+  const components = [
+    { id:'rbc', x:W*0.22, y:H*0.42, r:28, color:'#C0392B', label:'خلايا الدم الحمراء', pct:'45%',
+      facts:['تحمل الأكسجين', 'تحتوي على الهيموجلوبين', 'صغيرة ومقعّرة من المنتصف','لا تحتوي على نواة'] },
+    { id:'wbc', x:W*0.5,  y:H*0.38, r:36, color:'#5B9BD5', label:'خلايا الدم البيضاء', pct:'< 1%',
+      facts:['تحارب البكتيريا والفيروسات', 'أكبر من الحمراء', 'تحتوي على نواة','تنتج أجساماً مضادة'] },
+    { id:'plt', x:W*0.77, y:H*0.45, r:18, color:'#F39C12', label:'الصفائح الدموية', pct:'< 1%',
+      facts:['تساعد في تجلّط الدم', 'قطع صغيرة من الخلايا','تلتئم الجروح','تنتج ألياف في الدم'] },
+    { id:'plasma',x:W*0.5, y:H*0.7,  r:0,  color:'rgba(255,240,180,0.8)', label:'البلازما (55%)', pct:'55%',
+      facts:['الجزء السائل من الدم','تتكون أساساً من الماء','تحمل السكر والأملاح','ذات لون أصفر باهت'] }
+  ];
+
+  cv.onmousemove = null;
+  cv.onclick = e => {
+    const r=cv.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
+    simState.selected = null;
+    components.forEach(c=>{
+      if(c.r>0 && Math.hypot(mx-c.x,my-c.y)<c.r+10) simState.selected=c.id;
+    });
+    if(Math.abs(mx-W*0.5)<120 && my>H*0.6) simState.selected='plasma';
+  };
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    // Blood tube background
+    ctx.fillStyle='rgba(255,230,230,0.3)'; ctx.strokeStyle='rgba(180,60,60,0.3)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(W*0.1,H*0.1,W*0.8,H*0.75,20); ctx.fill(); ctx.stroke();
+
+    // Plasma layer
+    const sel = components.find(c=>c.id===simState.selected);
+    ctx.fillStyle = simState.selected==='plasma' ? 'rgba(255,220,80,0.6)' : 'rgba(255,240,180,0.55)';
+    ctx.beginPath(); ctx.roundRect(W*0.1,H*0.62,W*0.8,H*0.23,16); ctx.fill();
+    ctx.fillStyle='#8B6914'; ctx.font='bold 13px Tajawal'; ctx.textAlign='center';
+    ctx.fillText('البلازما 55%',W*0.5,H*0.76);
+
+    // RBC cluster (many small)
+    for(let i=0;i<40;i++) {
+      const angle=i/40*Math.PI*2, radius=20+Math.sin(simState.t+i)*5;
+      const bx=W*0.22+Math.cos(angle+simState.t*0.3)*radius;
+      const by=H*0.42+Math.sin(angle+simState.t*0.3)*radius*0.7;
+      ctx.beginPath(); ctx.ellipse(bx,by,8,5.5,angle,0,Math.PI*2);
+      ctx.fillStyle=simState.selected==='rbc'?'#FF4444':'#C0392B'; ctx.fill();
+    }
+
+    // WBC
+    const wbc = components[1];
+    ctx.beginPath(); ctx.arc(wbc.x,wbc.y,wbc.r,0,Math.PI*2);
+    ctx.fillStyle=simState.selected==='wbc'?'rgba(91,155,213,0.95)':'rgba(91,155,213,0.75)';
+    ctx.fill(); ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+    // Nucleus
+    ctx.beginPath(); ctx.arc(wbc.x+5,wbc.y-5,15,0,Math.PI*2);
+    ctx.fillStyle='rgba(30,50,100,0.5)'; ctx.fill();
+
+    // Platelets (small)
+    for(let i=0;i<8;i++) {
+      const px=W*0.77+Math.cos(i*0.8+simState.t)*35, py=H*0.45+Math.sin(i*0.8+simState.t*0.7)*20;
+      ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+      ctx.fillStyle=simState.selected==='plt'?'#E67E22':'#F39C12'; ctx.fill();
+    }
+
+    // Labels
+    [components[0],components[1],components[2]].forEach(c=>{
+      ctx.font='bold 11px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#2C3A4A';
+      ctx.fillText(c.label,c.x,c.y+c.r+18);
+      ctx.fillStyle='#7A8A98'; ctx.font='10px Tajawal';
+      ctx.fillText(c.pct,c.x,c.y+c.r+30);
+    });
+
+    // Info panel
+    if(sel) {
+      ctx.fillStyle='rgba(0,0,0,0.78)'; ctx.beginPath(); ctx.roundRect(W*0.12,H*0.1,W*0.76,130,12); ctx.fill();
+      ctx.fillStyle='white'; ctx.font='bold 14px Tajawal'; ctx.textAlign='center';
+      ctx.fillText(sel.label,W*0.5,H*0.1+24);
+      sel.facts.forEach((f,i)=>{
+        ctx.font='12px Tajawal'; ctx.fillStyle='rgba(255,255,255,0.85)';
+        ctx.fillText('• '+f, W*0.5, H*0.1+46+i*20);
+      });
+    }
+
+    ctx.font='bold 15px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('مكوّنات الدم — اضغط على أي مكوّن لمعرفة وظيفته',W*0.5,22);
+
+    simState.t += 0.022;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-3 TAB 1: وظائف الخلايا ──
+function simBlood2() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, step: 0 };
+  const W = cv.width, H = cv.height;
+
+  const btns = document.querySelectorAll('.ctrl-btn');
+  if(btns[0]) { btns[0].textContent='🔴 وظيفة الخلايا الحمراء'; btns[0].onclick=()=>simState.step=0; }
+  if(btns[1]) { btns[1].textContent='🔵 وظيفة الخلايا البيضاء'; btns[1].onclick=()=>simState.step=1; }
+  if(btns[2]) { btns[2].textContent='🟡 وظيفة الصفائح'; btns[2].onclick=()=>simState.step=2; }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    const cx=W/2, cy=H/2;
+
+    if(simState.step===0) {
+      // RBC carrying O2
+      ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+      ctx.fillStyle='#C0392B'; ctx.fillText('خلايا الدم الحمراء — نقل الأكسجين',cx,30);
+      // Vessel
+      ctx.fillStyle='rgba(255,220,220,0.4)'; ctx.strokeStyle='#C0392B'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(50,cy-40,W-100,80,40); ctx.fill(); ctx.stroke();
+      // Moving RBCs with O2
+      for(let i=0;i<5;i++) {
+        const bx=((simState.t*120+i*160)%(W+60))-30+50;
+        ctx.beginPath(); ctx.ellipse(bx,cy,18,13,0,0,Math.PI*2);
+        ctx.fillStyle='#C0392B'; ctx.fill();
+        ctx.beginPath(); ctx.ellipse(bx,cy,8,6,0,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,100,100,0.5)'; ctx.fill();
+        ctx.font='11px sans-serif'; ctx.fillStyle='white'; ctx.textAlign='center';
+        ctx.fillText('O₂',bx,cy+4);
+      }
+      ctx.font='13px Tajawal'; ctx.fillStyle='#444'; ctx.textAlign='center';
+      ctx.fillText('تحمل خلايا الدم الحمراء الأكسجين بفضل الهيموجلوبين',cx,H-30);
+      ctx.fillText('وتنقله من الرئتين إلى خلايا الجسم المختلفة',cx,H-12);
+    }
+    else if(simState.step===1) {
+      // WBC attacking bacteria
+      ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+      ctx.fillStyle='#5B9BD5'; ctx.fillText('خلايا الدم البيضاء — الدفاع عن الجسم',cx,30);
+      // Bacteria (green blobs)
+      const bacts = [[cx-120,cy-40],[cx+80,cy+30],[cx-50,cy+60],[cx+150,cy-20]];
+      bacts.forEach(([bx,by])=>{
+        ctx.beginPath(); ctx.arc(bx,by,14,0,Math.PI*2);
+        ctx.fillStyle='rgba(39,174,96,0.8)'; ctx.fill();
+        ctx.strokeStyle='#1A6B40'; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.font='10px sans-serif'; ctx.fillStyle='white'; ctx.textAlign='center';
+        ctx.fillText('🦠',bx,by+4);
+      });
+      // WBC chasing
+      const wbcX = cx + Math.cos(simState.t*1.5)*100;
+      const wbcY = cy + Math.sin(simState.t)*50;
+      ctx.beginPath(); ctx.arc(wbcX,wbcY,24,0,Math.PI*2);
+      ctx.fillStyle='rgba(91,155,213,0.9)'; ctx.fill();
+      ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+      // Pseudopods
+      for(let i=0;i<6;i++){
+        const ang=i/6*Math.PI*2+simState.t;
+        ctx.beginPath(); ctx.arc(wbcX+Math.cos(ang)*28, wbcY+Math.sin(ang)*28,8,0,Math.PI*2);
+        ctx.fillStyle='rgba(91,155,213,0.6)'; ctx.fill();
+      }
+      ctx.font='12px Tajawal'; ctx.fillStyle='#444'; ctx.textAlign='center';
+      ctx.fillText('• تمتلك خلايا الدم البيضاء "زوائد" تمسك بالبكتيريا وتقتلها',cx,H-42);
+      ctx.fillText('• تنتج أجساماً مضادة (Antibodies) للقضاء على الميكروبات',cx,H-22);
+    }
+    else {
+      // Platelets clotting
+      ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+      ctx.fillStyle='#E67E22'; ctx.fillText('الصفائح الدموية — تجلّط الدم وإغلاق الجروح',cx,30);
+      // Torn vessel
+      ctx.fillStyle='rgba(255,200,200,0.4)'; ctx.strokeStyle='#C0392B'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(60,cy-30,W-120,60,30); ctx.fill(); ctx.stroke();
+      // Tear
+      ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+      ctx.beginPath(); ctx.arc(cx,cy-30,20,0,Math.PI*2); ctx.fill();
+      // Platelets aggregating
+      for(let i=0;i<12;i++){
+        const ang=i/12*Math.PI*2;
+        const dist = Math.max(0, 30-simState.t*8);
+        const px=cx+Math.cos(ang)*(dist+8*Math.sin(simState.t*3+i));
+        const py=cy-30+Math.sin(ang)*(dist+4*Math.sin(simState.t*3+i))*0.5;
+        ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+        ctx.fillStyle='rgba(243,156,18,0.9)'; ctx.fill();
+      }
+      // Fibrin threads
+      ctx.strokeStyle='rgba(200,130,0,0.7)'; ctx.lineWidth=1.5;
+      for(let i=0;i<8;i++){
+        const ang=i/8*Math.PI*2;
+        ctx.beginPath(); ctx.moveTo(cx,cy-30);
+        ctx.lineTo(cx+Math.cos(ang)*22,cy-30+Math.sin(ang)*12); ctx.stroke();
+      }
+      ctx.font='12px Tajawal'; ctx.fillStyle='#444'; ctx.textAlign='center';
+      ctx.fillText('تتجمع الصفائح عند موضع الجرح وتنتج ألياف الفيبرين',cx,H-30);
+      ctx.fillText('لتكوين جلطة تمنع نزيف الدم وتلتئم الجرح',cx,H-12);
+    }
+
+    simState.t += 0.022;
+    if(simState.t > 50) simState.t = 0;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-4 TAB 0: الشرايين ──
+function simVessels1() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0 };
+  const W = cv.width, H = cv.height;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+    const cx=W/2, cy=H*0.48;
+
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('الشرايين — تحمل الدم من القلب',cx,28);
+
+    // Cross-section of artery
+    const pulse = 1 + Math.sin(simState.t*4)*0.05;
+    // Outer wall
+    ctx.beginPath(); ctx.arc(cx,cy,80*pulse,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,140,140,0.4)'; ctx.fill();
+    ctx.strokeStyle='#C0392B'; ctx.lineWidth=18*pulse; ctx.stroke();
+    // Inner lumen
+    ctx.beginPath(); ctx.arc(cx,cy,44*pulse,0,Math.PI*2);
+    ctx.fillStyle='rgba(192,57,43,0.7)'; ctx.fill();
+    // Flow particles
+    for(let i=0;i<8;i++) {
+      const ang = i/8*Math.PI*2 + simState.t*2;
+      const r = 20+Math.sin(simState.t*3+i)*8;
+      ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*r,cy+Math.sin(ang)*r,5,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,200,200,0.9)'; ctx.fill();
+    }
+
+    // Labels with arrows
+    const labelData = [
+      {x:cx+130,y:cy-40, txt:'جدار سميك ومرن', color:'#C0392B'},
+      {x:cx+130,y:cy,    txt:'طبقة عضلية قوية', color:'#8B3030'},
+      {x:cx+130,y:cy+40, txt:'تجويف ضيّق', color:'#C0392B'}
+    ];
+    labelData.forEach(l=>{
+      ctx.font='12px Tajawal'; ctx.textAlign='right'; ctx.fillStyle=l.color;
+      ctx.fillText(l.txt, l.x, l.y+4);
+      ctx.beginPath(); ctx.moveTo(l.x-5,l.y); ctx.lineTo(cx+88,l.y);
+      ctx.strokeStyle=l.color; ctx.lineWidth=1.5; ctx.stroke();
+    });
+
+    ctx.font='13px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#555';
+    ctx.fillText('⚡ الشرايين تتمدد وتنقبض مع كل دقة قلب — هذا هو النبض!',cx,H-30);
+    ctx.fillStyle='#7A8A98'; ctx.font='12px Tajawal';
+    ctx.fillText('مقطع عرضي في الشريان',cx,H-12);
+
+    simState.t += 0.025;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-4 TAB 1: الأوردة ──
+function simVessels2() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, valveOpen: true };
+  const W = cv.width, H = cv.height;
+  const cx=W/2, cy=H*0.45;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('الأوردة — تحمل الدم إلى القلب',cx,28);
+
+    // Cross-section
+    ctx.beginPath(); ctx.arc(cx,cy,80,0,Math.PI*2);
+    ctx.fillStyle='rgba(180,200,240,0.3)'; ctx.fill();
+    ctx.strokeStyle='#5B9BD5'; ctx.lineWidth=10; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx,cy,58,0,Math.PI*2);
+    ctx.fillStyle='rgba(52,73,94,0.65)'; ctx.fill();
+    // Slow flow particles
+    for(let i=0;i<5;i++){
+      const ang=i/5*Math.PI*2+simState.t*0.6;
+      ctx.beginPath(); ctx.arc(cx+Math.cos(ang)*28,cy+Math.sin(ang)*28,5,0,Math.PI*2);
+      ctx.fillStyle='rgba(150,180,220,0.9)'; ctx.fill();
+    }
+
+    // Valve illustration (longitudinal)
+    const vx=cx+W*0.27, vy=cy;
+    const phase=Math.sin(simState.t*2);
+    // Vessel tube
+    ctx.fillStyle='rgba(180,200,240,0.3)'; ctx.strokeStyle='#5B9BD5'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(vx-30,vy-70,60,140,8); ctx.fill(); ctx.stroke();
+    // Valve flaps
+    ctx.fillStyle = phase>0 ? 'rgba(91,155,213,0.9)':'rgba(91,155,213,0.4)';
+    ctx.beginPath(); ctx.moveTo(vx-28,vy+phase*5); ctx.lineTo(vx,vy-8+phase*5);
+    ctx.lineTo(vx,vy+8+phase*5); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(vx+28,vy+phase*5); ctx.lineTo(vx,vy-8+phase*5);
+    ctx.lineTo(vx,vy+8+phase*5); ctx.closePath(); ctx.fill();
+    // Arrow direction
+    ctx.strokeStyle='white'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(vx,vy+55); ctx.lineTo(vx,vy+20); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(vx-8,vy+28); ctx.lineTo(vx,vy+18); ctx.lineTo(vx+8,vy+28); ctx.stroke();
+    ctx.font='11px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#5B9BD5';
+    ctx.fillText('نحو القلب ↑',vx,vy+90);
+    ctx.fillText('صمّام',vx,vy-80);
+
+    // Labels
+    const labels=[
+      {x:cx+130,y:cy-30,txt:'جدار أرقّ من الشريان'},
+      {x:cx+130,y:cy+5, txt:'تجويف أوسع'},
+      {x:cx+130,y:cy+40,txt:'يحتوي على صمّامات'}
+    ];
+    labels.forEach(l=>{
+      ctx.font='12px Tajawal'; ctx.textAlign='right'; ctx.fillStyle='#34495E';
+      ctx.fillText(l.txt,l.x,l.y+4);
+    });
+
+    ctx.font='13px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#555';
+    ctx.fillText('الصمّامات تمنع رجوع الدم وتجعله يتدفق باتجاه واحد نحو القلب',cx,H-16);
+
+    simState.t += 0.025;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-4 TAB 2: الشعيرات الدموية ──
+function simVessels3() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0 };
+  const W = cv.width, H = cv.height;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+    const cx=W/2, cy=H*0.5;
+
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('الشعيرات الدموية — الربط بين الشرايين والأوردة',cx,28);
+
+    // Artery (left)
+    ctx.fillStyle='rgba(255,200,200,0.5)'; ctx.strokeStyle='#C0392B'; ctx.lineWidth=10;
+    ctx.beginPath(); ctx.moveTo(80,H*0.3); ctx.lineTo(80,H*0.7); ctx.stroke();
+    ctx.font='12px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#C0392B';
+    ctx.fillText('شريان',80,H*0.25);
+
+    // Vein (right)
+    ctx.strokeStyle='#5B9BD5'; ctx.lineWidth=10;
+    ctx.beginPath(); ctx.moveTo(W-80,H*0.3); ctx.lineTo(W-80,H*0.7); ctx.stroke();
+    ctx.fillStyle='#5B9BD5'; ctx.fillText('وريد',W-80,H*0.25);
+
+    // Network of capillaries
+    const capPts = [
+      [80,cy-60],[170,cy-80],[cx-40,cy-40],[cx,cy-70],[cx+50,cy-50],[W-170,cy-70],[W-80,cy-60],
+      [80,cy],[W-80,cy],
+      [80,cy+60],[170,cy+80],[cx-40,cy+40],[cx,cy+70],[cx+50,cy+50],[W-170,cy+70],[W-80,cy+60]
+    ];
+    // Draw thin capillary lines
+    ctx.strokeStyle='rgba(180,80,80,0.5)'; ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.moveTo(80,cy-60); ctx.bezierCurveTo(160,cy-100,cx-60,cy-20,cx,cy-50);
+    ctx.bezierCurveTo(cx+60,cy-80,W-170,cy-50,W-80,cy-60); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(80,cy); ctx.bezierCurveTo(150,cy-30,cx-50,cy+20,cx,cy);
+    ctx.bezierCurveTo(cx+50,cy-20,W-150,cy+30,W-80,cy); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(80,cy+60); ctx.bezierCurveTo(160,cy+100,cx-60,cy+20,cx,cy+50);
+    ctx.bezierCurveTo(cx+60,cy+80,W-170,cy+50,W-80,cy+60); ctx.stroke();
+
+    // O2/CO2 exchange arrows
+    const exchangePoints=[[cx-30,cy-20],[cx+20,cy+10]];
+    exchangePoints.forEach(([ex,ey])=>{
+      ctx.beginPath(); ctx.moveTo(ex,ey-20); ctx.lineTo(ex-20,ey+20);
+      ctx.strokeStyle='rgba(39,174,96,0.7)'; ctx.lineWidth=2; ctx.stroke();
+      ctx.font='10px sans-serif'; ctx.fillStyle='#27AE60'; ctx.textAlign='center';
+      ctx.fillText('O₂',ex-10,ey-10);
+      ctx.beginPath(); ctx.moveTo(ex-10,ey+30); ctx.lineTo(ex+20,ey-5);
+      ctx.strokeStyle='rgba(230,126,34,0.7)'; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle='#E67E22'; ctx.fillText('CO₂',ex+22,ey+30);
+    });
+
+    // RBC moving through capillary
+    const bx = 80 + ((simState.t*40)%(W-160));
+    const by = cy + Math.sin(simState.t*2)*25;
+    ctx.beginPath(); ctx.ellipse(bx,by,9,6,0.3,0,Math.PI*2);
+    ctx.fillStyle='#C0392B'; ctx.fill();
+
+    // Tissue cells around
+    for(let i=0;i<6;i++){
+      const tx=cx-80+i*30, ty=cy+85;
+      ctx.beginPath(); ctx.roundRect(tx-12,ty-10,24,20,6);
+      ctx.fillStyle='rgba(255,220,150,0.6)'; ctx.strokeStyle='#C88020'; ctx.lineWidth=1; ctx.fill(); ctx.stroke();
+    }
+    ctx.font='11px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#8B6914';
+    ctx.fillText('خلايا الأنسجة',cx,cy+115);
+
+    ctx.font='12px Tajawal'; ctx.fillStyle='#555';
+    ctx.fillText('الشعيرات رقيقة جداً (طبقة خلية واحدة) لتسهيل مرور الغازات والمواد',cx,H-16);
+
+    simState.t += 0.025;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-6 TAB 0: الحويصلة الهوائية وتبادل الغازات ──
+function simGasExchange1() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, o2particles: [], co2particles: [] };
+  const W = cv.width, H = cv.height;
+  const cx=W/2, cy=H*0.47;
+
+  // Spawn particles
+  function spawnO2() { simState.o2particles.push({x:cx-50+Math.random()*100,y:cy-30,vy:1.5+Math.random(),alpha:1,r:5}); }
+  function spawnCO2(){ simState.co2particles.push({x:cx-30+Math.random()*60,y:cy+60,vy:-(1.5+Math.random()),alpha:1,r:5}); }
+
+  setInterval(()=>{ if(simState.o2particles.length<18) spawnO2(); },200);
+  setInterval(()=>{ if(simState.co2particles.length<12) spawnCO2(); },300);
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('تبادل الغازات في الحويصلة الهوائية',cx,28);
+
+    // Alveolus (air sac)
+    ctx.beginPath(); ctx.arc(cx,cy-30,75,0,Math.PI*2);
+    ctx.fillStyle='rgba(200,230,255,0.5)'; ctx.fill();
+    ctx.strokeStyle='rgba(100,150,200,0.6)'; ctx.lineWidth=3; ctx.stroke();
+    ctx.font='12px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#2C5A8A';
+    ctx.fillText('الحويصلة الهوائية',cx,cy-110);
+    ctx.fillStyle='rgba(91,155,213,0.3)'; ctx.font='11px Tajawal';
+    ctx.fillText('هواء (O₂ كثير / CO₂ قليل)',cx,cy-94);
+
+    // Capillary (blood vessel)
+    ctx.beginPath(); ctx.roundRect(cx-90,cy+30,180,70,15);
+    ctx.fillStyle='rgba(255,180,180,0.5)'; ctx.fill();
+    ctx.strokeStyle='#C0392B'; ctx.lineWidth=3; ctx.stroke();
+    ctx.font='12px Tajawal'; ctx.fillStyle='#8B2020';
+    ctx.fillText('شعيرة دموية',cx,cy+50);
+    ctx.fillStyle='rgba(180,60,60,0.5)'; ctx.font='11px Tajawal';
+    ctx.fillText('دم (CO₂ كثير / O₂ قليل)',cx,cy+66);
+
+    // Thin wall between them
+    ctx.beginPath(); ctx.moveTo(cx-90,cy+30); ctx.lineTo(cx+90,cy+30);
+    ctx.strokeStyle='rgba(100,100,200,0.5)'; ctx.lineWidth=5; ctx.stroke();
+    ctx.font='10px Tajawal'; ctx.textAlign='right'; ctx.fillStyle='#444';
+    ctx.fillText('جدار رقيق (خلية واحدة)',cx-95,cy+28);
+
+    // O2 particles moving down
+    simState.o2particles.forEach(p => {
+      p.y += p.vy; p.alpha = Math.max(0, p.alpha-(p.y>cy+25?0.04:0));
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(50,130,240,${p.alpha})`; ctx.fill();
+      ctx.font='9px sans-serif'; ctx.textAlign='center'; ctx.fillStyle=`rgba(255,255,255,${p.alpha})`;
+      ctx.fillText('O₂',p.x,p.y+3);
+    });
+    simState.o2particles = simState.o2particles.filter(p=>p.alpha>0.05);
+
+    // CO2 particles moving up
+    simState.co2particles.forEach(p => {
+      p.y += p.vy; p.alpha = Math.max(0, p.alpha-(p.y<cy-15?0.04:0));
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(230,120,30,${p.alpha})`; ctx.fill();
+      ctx.font='8px sans-serif'; ctx.textAlign='center'; ctx.fillStyle=`rgba(255,255,255,${p.alpha})`;
+      ctx.fillText('CO₂',p.x,p.y+3);
+    });
+    simState.co2particles = simState.co2particles.filter(p=>p.alpha>0.05);
+
+    // Legend
+    ctx.beginPath(); ctx.arc(80,H-35,7,0,Math.PI*2); ctx.fillStyle='rgba(50,130,240,0.9)'; ctx.fill();
+    ctx.font='12px Tajawal'; ctx.textAlign='right'; ctx.fillStyle='#2C5A8A'; ctx.fillText('أكسجين (O₂)',150,H-31);
+    ctx.beginPath(); ctx.arc(W-150,H-35,7,0,Math.PI*2); ctx.fillStyle='rgba(230,120,30,0.9)'; ctx.fill();
+    ctx.textAlign='left'; ctx.fillStyle='#A04010'; ctx.fillText('ثاني أكسيد الكربون (CO₂)',W-140,H-31);
+
+    simState.t += 0.02;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-6 TAB 1: الانتشار ──
+function simGasExchange2() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, highO2: true };
+  const W = cv.width, H = cv.height;
+
+  const btns = document.querySelectorAll('.ctrl-btn');
+  if(btns[0]) { btns[0].textContent='🫁 جانب الرئة'; btns[0].onclick=()=>simState.highO2=true; }
+  if(btns[1]) { btns[1].textContent='💪 جانب الأنسجة'; btns[1].onclick=()=>simState.highO2=false; }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+    const cx=W/2, cy=H/2;
+
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText(simState.highO2?'الانتشار في الرئتين':'الانتشار في أنسجة الجسم',cx,28);
+
+    const leftColor = simState.highO2 ? 'rgba(180,220,255,0.6)' : 'rgba(255,200,180,0.6)';
+    const rightColor = simState.highO2 ? 'rgba(255,200,180,0.6)' : 'rgba(180,220,255,0.6)';
+    const leftLabel = simState.highO2 ? 'هواء الرئة\nO₂ كثير' : 'خلايا الجسم\nO₂ قليل';
+    const rightLabel = simState.highO2 ? 'الدم\nO₂ قليل' : 'الدم\nO₂ كثير';
+
+    ctx.fillStyle=leftColor; ctx.beginPath(); ctx.roundRect(40,cy-120,W*0.38,240,16); ctx.fill();
+    ctx.fillStyle=rightColor; ctx.beginPath(); ctx.roundRect(W*0.6,cy-120,W*0.38,240,16); ctx.fill();
+
+    // Membrane
+    ctx.fillStyle='rgba(150,100,200,0.4)'; ctx.beginPath(); ctx.roundRect(W*0.48,cy-130,W*0.04,260,8); ctx.fill();
+    ctx.font='11px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#5A3A8A';
+    ctx.fillText('غشاء',W*0.5,cy-140); ctx.fillText('رقيق',W*0.5,cy-126);
+
+    // Particles in left (high O2) side
+    const leftCount = simState.highO2 ? 18 : 6;
+    const rightCount = simState.highO2 ? 6 : 18;
+    for(let i=0;i<leftCount;i++){
+      const px=80+Math.sin(simState.t+i*1.2)*60+Math.random()*20;
+      const py=cy-80+((i*29+simState.t*20)%(160));
+      ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+      ctx.fillStyle=simState.highO2?'rgba(50,130,240,0.8)':'rgba(230,120,30,0.8)'; ctx.fill();
+    }
+    for(let i=0;i<rightCount;i++){
+      const px=W*0.62+Math.sin(simState.t+i*1.4)*50+Math.random()*20;
+      const py=cy-80+((i*33+simState.t*15)%(160));
+      ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+      ctx.fillStyle=simState.highO2?'rgba(50,130,240,0.5)':'rgba(230,120,30,0.5)'; ctx.fill();
+    }
+
+    // Moving arrow through membrane
+    const arrowPhase = (simState.t*0.5)%1;
+    const ax = W*0.48 + arrowPhase*(W*0.12);
+    ctx.beginPath(); ctx.arc(ax,cy,10,0,Math.PI*2);
+    ctx.fillStyle=simState.highO2?'rgba(50,130,240,0.9)':'rgba(230,120,30,0.9)'; ctx.fill();
+
+    ctx.font='13px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#444';
+    ctx.fillText(simState.highO2?'O₂ ينتشر من التركيز العالي (رئة) → التركيز المنخفض (دم)':
+      'O₂ ينتشر من التركيز العالي (دم) → التركيز المنخفض (أنسجة)',cx,H-20);
+
+    ctx.font='bold 13px Tajawal'; ctx.fillStyle='#2C3A4A';
+    ctx.fillText(leftLabel.split('\n')[0], W*0.25, cy-130); ctx.fillText(leftLabel.split('\n')[1], W*0.25, cy-114);
+    ctx.fillText(rightLabel.split('\n')[0], W*0.78, cy-130); ctx.fillText(rightLabel.split('\n')[1], W*0.78, cy-114);
+
+    simState.t += 0.022;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-7 TAB 0: معادلة التنفس الهوائي ──
+function simRespiration1() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, energy: 0, running: false };
+  const W = cv.width, H = cv.height;
+  const cx=W/2;
+
+  const btns = document.querySelectorAll('.ctrl-btn');
+  if(btns[0]) { btns[0].textContent='⚡ تنشيط التنفس الخلوي'; btns[0].onclick=()=>{ simState.running=true; simState.energy=0; }; }
+  if(btns[1]) { btns[1].textContent='🔄 إعادة تعيين'; btns[1].onclick=()=>{ simState.running=false; simState.energy=0; simState.t=0; }; }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    ctx.font='bold 17px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('التنفس الهوائي — تحرير الطاقة من الغذاء',cx,30);
+
+    // Equation display
+    const items = [
+      {icon:'🍬',label:'جلوكوز\nC₆H₁₂O₆', x:W*0.12},
+      {icon:'+',label:'', x:W*0.24, isOp:true},
+      {icon:'💨',label:'أكسجين\n6O₂', x:W*0.36},
+      {icon:'→',label:'', x:W*0.5, isOp:true},
+      {icon:'💧',label:'ماء\n6H₂O', x:W*0.64},
+      {icon:'+',label:'', x:W*0.76, isOp:true},
+      {icon:'🌫️',label:'ثاني أكسيد\nالكربون 6CO₂', x:W*0.88},
+    ];
+
+    const progress = simState.running ? Math.min(simState.energy/100,1) : 0;
+
+    items.forEach((item,i) => {
+      if(item.isOp) {
+        ctx.font='bold 26px Tajawal'; ctx.fillStyle='#2C3A4A'; ctx.textAlign='center';
+        ctx.fillText(item.icon,item.x,H*0.42);
+        return;
+      }
+      const isProduct = i >= 4;
+      const fade = simState.running ? (isProduct ? progress : 1-progress*0.3) : 1;
+      ctx.save(); ctx.globalAlpha = 0.4+0.6*fade;
+      ctx.font='34px Tajawal'; ctx.textAlign='center';
+      ctx.fillText(item.icon,item.x,H*0.38);
+      const lines=item.label.split('\n');
+      ctx.font='11px Tajawal'; ctx.fillStyle='#2C3A4A';
+      lines.forEach((l,li)=>ctx.fillText(l,item.x,H*0.47+li*14));
+      ctx.restore();
+    });
+
+    // Energy arrow
+    const energyX = W*0.5 + progress*(W*0.15);
+    ctx.beginPath(); ctx.moveTo(W*0.5,H*0.58); ctx.lineTo(energyX,H*0.58);
+    ctx.strokeStyle='#F39C12'; ctx.lineWidth=5; ctx.stroke();
+    if(simState.running && progress>0.1) {
+      ctx.font='bold 14px Tajawal'; ctx.textAlign='center';
+      ctx.fillStyle='#E67E22'; ctx.fillText('⚡ طاقة محررة',W*0.5+progress*W*0.06,H*0.54);
+    }
+
+    // Energy bar
+    ctx.fillStyle='rgba(0,0,0,0.08)'; ctx.beginPath(); ctx.roundRect(cx-130,H*0.65,260,28,8); ctx.fill();
+    ctx.fillStyle='#F39C12';
+    const barW = Math.min(260*progress,260);
+    if(barW>0){ ctx.beginPath(); ctx.roundRect(cx-130,H*0.65,barW,28,8); ctx.fill(); }
+    ctx.font='bold 13px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#1E2D3D';
+    ctx.fillText(`الطاقة المحررة: ${Math.round(progress*100)}%`, cx, H*0.65+20);
+
+    // Cell illustration
+    ctx.beginPath(); ctx.ellipse(cx,H*0.82,55,35,0,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,220,150,0.4)'; ctx.strokeStyle='#C88020'; ctx.lineWidth=2; ctx.fill(); ctx.stroke();
+    // Mitochondria
+    for(let i=0;i<3;i++){
+      const mx=cx-30+i*30, my=H*0.82;
+      ctx.beginPath(); ctx.ellipse(mx,my,10,6,i*0.5,0,Math.PI*2);
+      ctx.fillStyle='rgba(200,80,30,0.7)'; ctx.fill();
+    }
+    ctx.font='11px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#8B5010';
+    ctx.fillText('خلية حية (التنفس يحدث في الميتوكوندريا)',cx,H*0.82+50);
+
+    if(simState.running) {
+      simState.energy = Math.min(simState.energy+0.5, 100);
+    }
+    simState.t += 0.02;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-7 TAB 1: التنفس والطاقة الحرارية ──
+function simRespiration2() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, heat: 0 };
+  const W = cv.width, H = cv.height;
+  const cx=W/2;
+
+  const btns = document.querySelectorAll('.ctrl-btn');
+  if(btns[0]) { btns[0].textContent='🌡️ زِد النشاط'; btns[0].onclick=()=>simState.heat=Math.min(simState.heat+20,100); }
+  if(btns[1]) { btns[1].textContent='❄️ خفِّف النشاط'; btns[1].onclick=()=>simState.heat=Math.max(simState.heat-20,0); }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('التنفس الخلوي وإنتاج الطاقة الحرارية',cx,28);
+
+    // Thermometer
+    const thX=cx-W*0.3, thY=H*0.25, thH=H*0.45;
+    ctx.fillStyle='rgba(200,200,200,0.5)'; ctx.strokeStyle='#888'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(thX-12,thY,24,thH,12); ctx.fill(); ctx.stroke();
+    const tempH = (simState.heat/100)*thH;
+    const tempColor = `hsl(${30-simState.heat*0.3},90%,50%)`;
+    ctx.fillStyle=tempColor;
+    ctx.beginPath(); ctx.roundRect(thX-8,thY+thH-tempH,16,tempH,8); ctx.fill();
+    ctx.beginPath(); ctx.arc(thX,thY+thH+12,16,0,Math.PI*2);
+    ctx.fillStyle=tempColor; ctx.fill(); ctx.strokeStyle='#888'; ctx.stroke();
+    // Temp label
+    const temp = (36.5 + simState.heat*0.04).toFixed(1);
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#2C3A4A';
+    ctx.fillText(`${temp}°C`,thX,thY-16);
+    ctx.font='11px Tajawal'; ctx.fillStyle='#7A8A98';
+    ctx.fillText('درجة حرارة الجسم',thX,thY+thH+38);
+
+    // Heat waves
+    const heatCount = Math.floor(simState.heat/12);
+    for(let i=0;i<heatCount;i++){
+      const wx=cx+Math.cos(simState.t+i*1.2)*(40+i*15);
+      const wy=H*0.5+Math.sin(simState.t*1.3+i)*(20+i*8)-simState.t*15%100;
+      ctx.beginPath(); ctx.arc(wx,wy,6+i*2,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,${120-i*20},0,${0.7-i*0.1})`; ctx.fill();
+    }
+
+    // Body silhouette (simple)
+    ctx.fillStyle=`rgba(255,${180-simState.heat},${150-simState.heat},0.4)`;
+    ctx.strokeStyle=`rgba(200,${60+simState.heat/2},40,0.6)`;
+    ctx.lineWidth=2;
+    // Head
+    ctx.beginPath(); ctx.arc(cx+W*0.15,H*0.28,28,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // Body
+    ctx.beginPath(); ctx.roundRect(cx+W*0.04,H*0.36,W*0.22,H*0.28,10); ctx.fill(); ctx.stroke();
+
+    ctx.font='13px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#555';
+    ctx.fillText(`مستوى النشاط الخلوي: ${simState.heat}%`,cx,H-40);
+    ctx.fillText('كل الكائنات الحية تنتج طاقة حرارية كناتج للتنفس الخلوي',cx,H-20);
+
+    simState.t += 0.025;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-8 TAB 0: معدّل النبض ──
+function simPulse1() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, bpm: 70, ecgHistory: [], exercising: false, timer: 0 };
+  const W = cv.width, H = cv.height;
+  const cx=W/2;
+
+  const btns = document.querySelectorAll('.ctrl-btn');
+  if(btns[0]) { btns[0].textContent='🏃 ابدأ التمرين'; btns[0].onclick=()=>{ simState.exercising=true; simState.timer=0; }; }
+  if(btns[1]) { btns[1].textContent='💤 توقف - تعافَ'; btns[1].onclick=()=>{ simState.exercising=false; }; }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    // Update BPM
+    const targetBpm = simState.exercising ? 140 : 70;
+    simState.bpm += (targetBpm - simState.bpm) * 0.01;
+    if(simState.exercising) simState.timer += 1/60;
+
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('استقصاء تأثير التمارين على معدّل النبض',cx,28);
+
+    // BPM display
+    const bpmColor = simState.bpm > 100 ? '#C0392B' : '#27AE60';
+    ctx.font='bold 48px Tajawal'; ctx.textAlign='center'; ctx.fillStyle=bpmColor;
+    ctx.fillText(Math.round(simState.bpm),cx,H*0.38);
+    ctx.font='16px Tajawal'; ctx.fillStyle='#7A8A98'; ctx.fillText('نبضة / دقيقة',cx,H*0.44);
+
+    // Status
+    ctx.font='bold 14px Tajawal'; ctx.fillStyle= simState.exercising?'#C0392B':'#27AE60';
+    ctx.fillText(simState.exercising?`🏃 يمارس الرياضة — ${Math.round(simState.timer)} ثانية`:'😌 حالة الراحة',cx,H*0.5);
+
+    // ECG line
+    const period = 60/simState.bpm;
+    const ecgY = H*0.65, ecgW=W*0.8, ecgX=(W-ecgW)/2;
+    ctx.strokeStyle='#27AE60'; ctx.lineWidth=2.5;
+    ctx.beginPath();
+    for(let i=0;i<ecgW;i++){
+      const t2=(i/ecgW*2+simState.t*simState.bpm/60)%1;
+      let y=ecgY;
+      if(t2<0.15)      y=ecgY;
+      else if(t2<0.2)  y=ecgY-12;
+      else if(t2<0.22) y=ecgY+8;
+      else if(t2<0.26) y=ecgY-55;
+      else if(t2<0.3)  y=ecgY+18;
+      else if(t2<0.35) y=ecgY-8;
+      else             y=ecgY;
+      i===0?ctx.moveTo(ecgX,y):ctx.lineTo(ecgX+i,y);
+    }
+    ctx.stroke();
+
+    ctx.font='12px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#555';
+    const explanation = simState.bpm>100
+      ? 'القلب يضخ الدم بسرعة أكبر لإيصال الأكسجين والجلوكوز للعضلات'
+      : 'القلب يعمل ببطء أثناء الراحة — يستهلك طاقة أقل';
+    ctx.fillText(explanation,cx,H-18);
+
+    simState.t += 0.016;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
+}
+
+// ── 7-8 TAB 1: التمارين والقلب والرئتين ──
+function simPulse2() {
+  const cv = document.getElementById('simCanvas');
+  const ctx = cv.getContext('2d');
+  simState = { t: 0, intensity: 0 };
+  const W = cv.width, H = cv.height;
+  const cx=W/2;
+
+  const btns = document.querySelectorAll('.ctrl-btn');
+  if(btns[0]) { btns[0].textContent='😴 راحة'; btns[0].onclick=()=>simState.intensity=0; }
+  if(btns[1]) { btns[1].textContent='🚶 مشي'; btns[1].onclick=()=>simState.intensity=1; }
+  if(btns[2]) { btns[2].textContent='🏃 جري'; btns[2].onclick=()=>simState.intensity=2; }
+
+  const levels=[
+    {bpm:65, breath:14, label:'راحة',         heartColor:'#E74C3C', flow:1},
+    {bpm:100,breath:20, label:'مشي خفيف',    heartColor:'#C0392B', flow:2},
+    {bpm:150,breath:28, label:'جري سريع',    heartColor:'#8B0000', flow:3.5},
+  ];
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#EEE9E2';
+    ctx.fillRect(0,0,W,H);
+
+    const lv = levels[simState.intensity];
+    const hpulse = 1+Math.sin(simState.t*lv.bpm/60*Math.PI*2)*0.09;
+    const lpulse = 1+Math.sin(simState.t*lv.breath/30*Math.PI)*0.08;
+
+    ctx.font='bold 16px Tajawal'; ctx.textAlign='center';
+    ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--text-heading').trim()||'#1E2D3D';
+    ctx.fillText('تأثير التمارين على القلب والرئتين',cx,28);
+
+    // Heart
+    const hx=cx-W*0.2, hy=H*0.43;
+    ctx.save(); ctx.translate(hx,hy); ctx.scale(hpulse,hpulse);
+    ctx.fillStyle=lv.heartColor;
+    ctx.beginPath();
+    ctx.arc(-22,-15,32,Math.PI,0); ctx.arc(22,-15,32,Math.PI,0);
+    ctx.lineTo(0,50); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.font='12px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#C0392B';
+    ctx.fillText(`❤️ ${lv.bpm} نبضة/دقيقة`,hx,hy+90);
+
+    // Lungs
+    const lx=cx+W*0.2, ly=H*0.43;
+    ctx.save(); ctx.translate(lx,ly); ctx.scale(lpulse,lpulse);
+    ctx.fillStyle='rgba(255,180,180,0.7)'; ctx.strokeStyle='#C0392B'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(-25,0,28,38,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(25,0,28,38,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    ctx.font='12px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#C0392B';
+    ctx.fillText(`🫁 ${lv.breath} نفَس/دقيقة`,lx,ly+90);
+
+    // Status label
+    ctx.font='bold 18px Tajawal'; ctx.fillStyle='#1E2D3D';
+    ctx.fillText(`المستوى: ${lv.label}`,cx,H*0.78);
+
+    // Blood flow arrows (more = faster)
+    for(let i=0;i<Math.round(lv.flow*2);i++){
+      const arrowT = (simState.t*lv.flow*0.3+i/6)%1;
+      const ax = hx+30 + arrowT*(lx-hx-60);
+      ctx.beginPath(); ctx.arc(ax,H*0.42,5,0,Math.PI*2);
+      ctx.fillStyle='rgba(192,57,43,0.8)'; ctx.fill();
+    }
+    ctx.beginPath(); ctx.moveTo(hx+35,H*0.42); ctx.lineTo(lx-35,H*0.42);
+    ctx.strokeStyle='rgba(192,57,43,0.3)'; ctx.lineWidth=2; ctx.stroke();
+
+    // Info
+    ctx.font='12px Tajawal'; ctx.textAlign='center'; ctx.fillStyle='#555';
+    ctx.fillText('عند التمرين: القلب يضخ أسرع ← المزيد من O₂ والجلوكوز للعضلات',cx,H-18);
+
+    simState.t += 0.016;
+    animFrame = requestAnimationFrame(draw);
+  }
+  if(animFrame) cancelAnimationFrame(animFrame);
+  draw();
 }
 
 window.addEventListener('DOMContentLoaded', function() {
