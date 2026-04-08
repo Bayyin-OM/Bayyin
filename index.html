@@ -3355,47 +3355,23 @@ async function _showSubscriptionDays() {
     if (!user) return;
 
     var resp = await _db.from('profiles')
-      .select('subscription_status, subscription_end')
+      .select('subscription_status')
       .eq('id', user.id)
       .single();
 
     var data = resp && resp.data;
-    if (!data) return;
+    if (!data || resp.error) return;
 
     var badge = document.getElementById('sub-badge');
     if (!badge) return;
 
-    function toAr(n){ return n.toString().replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]); }
-
-    if (data.subscription_status !== 'active') {
-      badge.className = 'sub-expire';
-      badge.textContent = '⚠️ الاشتراك منتهٍ';
-      badge.style.display = 'inline-flex';
-      return;
-    }
-
-    if (data.subscription_end) {
-      var endDate = new Date(data.subscription_end);
-      var now = new Date();
-      var diffMs = endDate - now;
-      var diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-      badge.style.display = 'inline-flex';
-
-      if (diffDays <= 0) {
-        badge.className = 'sub-expire';
-        badge.textContent = '⚠️ انتهى الاشتراك';
-      } else if (diffDays <= 7) {
-        badge.className = 'sub-warn';
-        badge.textContent = '⏳ متبقٍّ ' + toAr(diffDays) + ' أيام';
-      } else {
-        badge.className = 'sub-ok';
-        badge.textContent = '✅ متبقٍّ ' + toAr(diffDays) + ' يوم';
-      }
-    } else {
-      // اشتراك نشط بدون تاريخ انتهاء محدد
+    if (data.subscription_status === 'active') {
       badge.className = 'sub-ok';
       badge.textContent = '✅ اشتراك نشط';
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.className = 'sub-expire';
+      badge.textContent = '⚠️ الاشتراك منتهٍ';
       badge.style.display = 'inline-flex';
     }
   } catch(e) {
@@ -21448,36 +21424,30 @@ async function _checkSubscription() {
   try {
     var userResp = await _db.auth.getUser();
     var user = userResp.data.user;
-    if (!user) { console.warn('[بيّن] لا يوجد مستخدم مسجّل'); return; }
-
-    console.log('[بيّن] ID المستخدم:', user.id);
+    if (!user) return;
 
     var resp = await _db.from('profiles')
-      .select('subscription_status, subscription_end')
+      .select('subscription_status')
       .eq('id', user.id)
       .single();
 
-    console.log('[بيّن] استجابة Supabase:', JSON.stringify(resp));
-
     if (resp.error) {
-      console.error('[بيّن] خطأ Supabase:', resp.error);
-      // إذا الخطأ هو PGRST116 (no rows) أو RLS — أظهر خيار الدفع
-      _authStatus('❌ خطأ في قراءة الاشتراك: ' + resp.error.message, false);
+      console.error('[بيّن] خطأ Supabase:', resp.error.message);
+      _authStatus('❌ خطأ: ' + resp.error.message, false);
       document.getElementById('payment-section').style.display = 'block';
       return;
     }
 
     var status = resp.data && resp.data.subscription_status;
-    console.log('[بيّن] حالة الاشتراك:', status);
 
     if (status === 'active') {
       _unlockPlatform();
     } else {
       document.getElementById('payment-section').style.display = 'block';
-      _authStatus('يرجى الاشتراك للوصول إلى المنصة (الحالة: ' + status + ')', false);
+      _authStatus('يرجى الاشتراك للوصول إلى المنصة', false);
     }
   } catch (err) {
-    console.error('[بيّن] checkSubscription error:', err);
+    console.error('checkSubscription error:', err);
     _authStatus('❌ خطأ غير متوقع: ' + err.message, false);
   }
 }
