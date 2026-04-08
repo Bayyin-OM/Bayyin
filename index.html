@@ -98,6 +98,100 @@ html.dark-mode {
 }
 
 /* ===== DARK MODE BUTTON ===== */
+/* ===== SUBSCRIPTION BADGE ===== */
+#sub-badge {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 50px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+#sub-badge.sub-ok {
+  background: rgba(39,174,96,0.1);
+  border: 1.5px solid rgba(39,174,96,0.25);
+  color: #1e8c4c;
+}
+#sub-badge.sub-warn {
+  background: rgba(212,144,26,0.1);
+  border: 1.5px solid rgba(212,144,26,0.3);
+  color: #a0700a;
+}
+#sub-badge.sub-expire {
+  background: rgba(192,57,43,0.1);
+  border: 1.5px solid rgba(192,57,43,0.25);
+  color: #C0392B;
+}
+html.dark-mode #sub-badge.sub-ok {
+  background: rgba(39,174,96,0.12);
+  border-color: rgba(39,174,96,0.3);
+  color: #4DC88A;
+}
+html.dark-mode #sub-badge.sub-warn {
+  background: rgba(212,144,26,0.12);
+  border-color: rgba(212,144,26,0.35);
+  color: #D4A040;
+}
+html.dark-mode #sub-badge.sub-expire {
+  background: rgba(192,57,43,0.12);
+  border-color: rgba(192,57,43,0.3);
+  color: #E06050;
+}
+
+/* ===== VISITOR COUNTER ===== */
+#visitor-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 50px;
+  background: rgba(107,78,154,0.08);
+  border: 1.5px solid rgba(107,78,154,0.2);
+  color: #6B4E9A;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+}
+html.dark-mode #visitor-counter {
+  background: rgba(107,78,154,0.12);
+  border-color: rgba(107,78,154,0.3);
+  color: #A888D8;
+}
+
+/* ===== HOME BUTTON IN TOPBAR ===== */
+#topbar-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: rgba(192,57,43,0.07);
+  border: 1.5px solid rgba(192,57,43,0.2);
+  color: #C0392B;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+#topbar-home-btn:hover {
+  background: rgba(192,57,43,0.14);
+  transform: translateY(-1px);
+}
+html.dark-mode #topbar-home-btn {
+  background: rgba(192,57,43,0.1);
+  border-color: rgba(192,57,43,0.3);
+  color: #E07060;
+}
+
 #dm-toggle {
   display: inline-flex;
   align-items: center;
@@ -1630,9 +1724,8 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       <p style="color:#C0392B;font-size:14px;margin:0 0 10px">
         ⚠️ تحتاج اشتراكاً نشطاً للوصول إلى المنصة
       </p>
-      <!-- ⬇️ استبدل هذا الرابط برابط Stripe الخاص بك -->
       <button class="auth-btn pay-btn"
-      onclick="window.open('https://bayyin.lemonsqueezy.com/checkout/buy/28dfca90-bacc-4361-bd3e-536fd6c47389', '_blank')">
+      onclick="window.open('https://bayyin.lemonsqueezy.com/checkout/buy/81b22cfe-948c-480f-b468-001903cff84c', '_blank')">
         اشترك الآن 🚀
       </button>
       <p class="pay-note">بعد الدفع يُفعَّل حسابك تلقائياً خلال ثوانٍ ✅</p>
@@ -2122,7 +2215,16 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       <button class="topbar-tab" id="tab-8" onclick="switchGrade(8)">📖 الصف الثامن</button>
       <button class="topbar-tab" id="tab-9" onclick="switchGrade(9)">📕 الصف التاسع</button>
     </div>
-    <button class="topbar-home" onclick="goHome()">⬅ الرئيسية</button>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+      <!-- subscription remaining badge -->
+      <span id="sub-badge" class="sub-ok"></span>
+      <!-- visitor counter -->
+      <span id="visitor-counter" title="إجمالي زوار المنصة">👁 <span id="visit-count">٠</span> زيارة</span>
+      <!-- home button -->
+      <button id="topbar-home-btn" onclick="goToLanding()" title="العودة للصفحة الرئيسية">
+        🏠 الرئيسية
+      </button>
+    </div>
   </div>
 
   <div id="content-area">
@@ -3203,6 +3305,102 @@ function goHome() {
   if(_bw){_bw.classList.remove('visible');_bw.classList.add('hidden');}
   if(_br) _br.classList.remove('show');
   hideBubble();
+}
+
+// ── زر "الرئيسية" في الـ topbar → يرجع للصفحة الرئيسية (landing)
+function goToLanding() {
+  closeSim();
+  const app = document.getElementById('app');
+  app.style.display = 'none';
+  app.classList.remove('open');
+  document.body.classList.remove('app-mode');
+  document.getElementById('grade-picker').style.display = 'none';
+  var landing = document.getElementById('landing');
+  landing.style.removeProperty('display');
+  var _bw = document.getElementById('buddy-wrap');
+  var _br = document.getElementById('buddy-restore-btn');
+  if(_bw){_bw.classList.remove('visible');_bw.classList.add('hidden');}
+  if(_br) _br.classList.remove('show');
+  hideBubble();
+}
+
+// ══════════════════════════════════════════════════════════
+// عداد الزوار — يستخدم localStorage لتتبّع عدد الزيارات
+// ══════════════════════════════════════════════════════════
+(function initVisitorCounter(){
+  try {
+    var KEY = 'bayyin-visit-count';
+    var visits = parseInt(localStorage.getItem(KEY) || '0', 10);
+    // هل هذه جلسة جديدة؟ نتحقق بـ sessionStorage
+    var SESSION_KEY = 'bayyin-session-counted';
+    if(!sessionStorage.getItem(SESSION_KEY)){
+      visits += 1;
+      localStorage.setItem(KEY, visits);
+      sessionStorage.setItem(SESSION_KEY, '1');
+    }
+    // تحويل الأرقام للعربية
+    function toAr(n){ return n.toString().replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]); }
+    var el = document.getElementById('visit-count');
+    if(el) el.textContent = toAr(visits);
+  } catch(e){}
+})();
+
+// ══════════════════════════════════════════════════════════
+// عرض مدة الاشتراك المتبقية في الـ topbar
+// ══════════════════════════════════════════════════════════
+async function _showSubscriptionDays() {
+  try {
+    var userResp = await _db.auth.getUser();
+    var user = userResp && userResp.data && userResp.data.user;
+    if (!user) return;
+
+    var resp = await _db.from('profiles')
+      .select('subscription_status, subscription_end')
+      .eq('id', user.id)
+      .single();
+
+    var data = resp && resp.data;
+    if (!data) return;
+
+    var badge = document.getElementById('sub-badge');
+    if (!badge) return;
+
+    function toAr(n){ return n.toString().replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]); }
+
+    if (data.subscription_status !== 'active') {
+      badge.className = 'sub-expire';
+      badge.textContent = '⚠️ الاشتراك منتهٍ';
+      badge.style.display = 'inline-flex';
+      return;
+    }
+
+    if (data.subscription_end) {
+      var endDate = new Date(data.subscription_end);
+      var now = new Date();
+      var diffMs = endDate - now;
+      var diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      badge.style.display = 'inline-flex';
+
+      if (diffDays <= 0) {
+        badge.className = 'sub-expire';
+        badge.textContent = '⚠️ انتهى الاشتراك';
+      } else if (diffDays <= 7) {
+        badge.className = 'sub-warn';
+        badge.textContent = '⏳ متبقٍّ ' + toAr(diffDays) + ' أيام';
+      } else {
+        badge.className = 'sub-ok';
+        badge.textContent = '✅ متبقٍّ ' + toAr(diffDays) + ' يوم';
+      }
+    } else {
+      // اشتراك نشط بدون تاريخ انتهاء محدد
+      badge.className = 'sub-ok';
+      badge.textContent = '✅ اشتراك نشط';
+      badge.style.display = 'inline-flex';
+    }
+  } catch(e) {
+    console.log('subscription display error:', e);
+  }
 }
 function switchGrade(g) {
   if (window._stopNatureSound) window._stopNatureSound();
@@ -21184,6 +21382,8 @@ function _unlockPlatform() {
   var overlay = document.getElementById('auth-overlay');
   if (overlay) overlay.style.display = 'none';
   if (typeof openApp === 'function') openApp();
+  // عرض مدة الاشتراك بعد فتح المنصة
+  setTimeout(function(){ _showSubscriptionDays(); }, 800);
 }
 
 async function handleLogin() {
@@ -21251,7 +21451,7 @@ async function _checkSubscription() {
     if (!user) return;
 
     var resp = await _db.from('profiles')
-      .select('subscription_status')
+      .select('subscription_status, subscription_end')
       .eq('id', user.id)
       .single();
 
