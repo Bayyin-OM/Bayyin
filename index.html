@@ -21931,47 +21931,268 @@ function simCircSystem2(){
 // ══════════════════════════════════════════════════════════
 // 7-2 · القلب — تركيبه وكيف يعمل
 // ══════════════════════════════════════════════════════════
+
+// ─── دالة رسم القلب التشريحي الحقيقي ───────────────────
+// drawAnatomicalHeart(c, cx, cy, size, beatPhase)
+// beatPhase: 0=diastole(مرتخي), 1=systole(منقبض)
+function drawAnatomicalHeart(c, cx, cy, size, beatPhase, showLabels, highlighted) {
+  const S = size;
+  const bp = beatPhase; // 0..1  1=fully contracted
+
+  // scale factor: ينقبض إلى 88% ثم يرتد
+  const sc = 1 - bp * 0.12;
+
+  c.save();
+  c.translate(cx, cy);
+  c.scale(sc, sc);
+
+  // ── الظل الخارجي ─────────────────────────────────────
+  c.shadowBlur = 28 + bp * 14;
+  c.shadowColor = 'rgba(160,20,20,0.35)';
+
+  // ── الجسم الخارجي للقلب (silhouette) ─────────────────
+  // شكل القلب الحقيقي: قوس علوي ذو فصّين + قمة سفلية
+  function heartPath(s) {
+    c.beginPath();
+    // نقطة القمة السفلية
+    c.moveTo(0, s * 0.82);
+    // الجانب الأيسر (من الناحية التشريحية = يمين الشاشة لأن القلب مقلوب)
+    c.bezierCurveTo( s*0.05, s*0.55,  s*0.55, s*0.35,  s*0.55,  s*0.05);
+    c.bezierCurveTo( s*0.55,-s*0.28,  s*0.25,-s*0.42,  s*0.08, -s*0.38);
+    c.bezierCurveTo(-s*0.08,-s*0.34,  0,     -s*0.18,  0,      -s*0.18);
+    // الجانب الأيمن
+    c.bezierCurveTo( 0,     -s*0.18, -s*0.08,-s*0.34, -s*0.08, -s*0.38);
+    c.bezierCurveTo(-s*0.25,-s*0.42, -s*0.55,-s*0.28, -s*0.55,  s*0.05);
+    c.bezierCurveTo(-s*0.55, s*0.35, -s*0.05, s*0.55,  0,       s*0.82);
+    c.closePath();
+  }
+
+  // تدرج خارجي
+  const outerG = c.createRadialGradient(-S*0.1,-S*0.25, S*0.05, 0, 0, S*0.85);
+  outerG.addColorStop(0, '#e05050');
+  outerG.addColorStop(0.45,'#b82020');
+  outerG.addColorStop(1,  '#7a1010');
+  c.fillStyle = outerG;
+  heartPath(S);
+  c.fill();
+  c.shadowBlur = 0;
+
+  // حدود خارجية
+  c.strokeStyle = 'rgba(80,0,0,0.55)';
+  c.lineWidth = 2.2;
+  heartPath(S);
+  c.stroke();
+
+  // ── تفاصيل الأخاديد (grooves) ──────────────────────
+  c.strokeStyle = 'rgba(90,0,0,0.38)';
+  c.lineWidth = 2.8;
+  c.setLineDash([]);
+  // الأخدود التاجي (coronary sulcus) — يفصل الأذينين عن البطينين
+  c.beginPath();
+  c.moveTo(-S*0.52, S*0.04);
+  c.bezierCurveTo(-S*0.4,-S*0.04, S*0.4,-S*0.04, S*0.52, S*0.04);
+  c.stroke();
+
+  // الأخدود الأمامي البيني (anterior interventricular sulcus)
+  c.beginPath();
+  c.moveTo(S*0.04,-S*0.14);
+  c.bezierCurveTo(S*0.06, S*0.18, S*0.04, S*0.5, 0, S*0.82);
+  c.stroke();
+
+  // ── الأذين الأيمن (RA) — يمين الشاشة ─────────────
+  const raHl = highlighted==='RA';
+  const raG = c.createRadialGradient(-S*0.32,-S*0.28, 0, -S*0.32,-S*0.28, S*0.28);
+  raG.addColorStop(0, raHl?'#5b8dd9':'#3a6ab5');
+  raG.addColorStop(1, raHl?'#2455a0':'#1a3a7a');
+  c.fillStyle = raG;
+  c.beginPath();
+  c.ellipse(-S*0.32,-S*0.2, S*0.21, S*0.17, -0.2, 0, Math.PI*2);
+  c.fill();
+  if(raHl){ c.strokeStyle='white'; c.lineWidth=2.5; c.stroke(); }
+
+  // ── الأذين الأيسر (LA) — يسار الشاشة ──────────────
+  const laHl = highlighted==='LA';
+  const laG = c.createRadialGradient(S*0.3,-S*0.28, 0, S*0.3,-S*0.28, S*0.28);
+  laG.addColorStop(0, laHl?'#e86060':'#c0392b');
+  laG.addColorStop(1, laHl?'#a02020':'#7b1818');
+  c.fillStyle = laG;
+  c.beginPath();
+  c.ellipse(S*0.3,-S*0.2, S*0.2, S*0.17, 0.2, 0, Math.PI*2);
+  c.fill();
+  if(laHl){ c.strokeStyle='white'; c.lineWidth=2.5; c.stroke(); }
+
+  // ── حاجز بين الأذينين ──────────────────────────────
+  c.strokeStyle='rgba(80,0,0,0.5)'; c.lineWidth=2;
+  c.setLineDash([3,2]);
+  c.beginPath(); c.moveTo(0,-S*0.38); c.lineTo(0,-S*0.02); c.stroke();
+  c.setLineDash([]);
+
+  // ── البطين الأيمن (RV) ─────────────────────────────
+  const rvHl = highlighted==='RV';
+  // ينقبض أكثر من الأذينين
+  const rvSc = 1 - bp*0.08;
+  c.save(); c.scale(rvSc,rvSc);
+  const rvG = c.createRadialGradient(-S*0.26, S*0.25, 0, -S*0.26, S*0.25, S*0.36);
+  rvG.addColorStop(0, rvHl?'#6090e0':'#2c6eb5');
+  rvG.addColorStop(1, rvHl?'#1a45a0':'#0e2d70');
+  c.fillStyle = rvG;
+  c.beginPath();
+  c.moveTo(-S*0.04, S*0.01);
+  c.bezierCurveTo(-S*0.06, S*0.15, -S*0.5, S*0.22, -S*0.46, S*0.42);
+  c.bezierCurveTo(-S*0.36, S*0.58, -S*0.14, S*0.62, 0, S*0.82);
+  c.bezierCurveTo(-S*0.02, S*0.5, -S*0.01, S*0.2, S*0.04*rvSc, S*0.01/rvSc);
+  c.closePath();
+  c.fill();
+  if(rvHl){ c.strokeStyle='white'; c.lineWidth=2.5; c.stroke(); }
+  c.restore();
+
+  // ── البطين الأيسر (LV) ─────────────────────────────
+  const lvHl = highlighted==='LV';
+  const lvSc = 1 - bp*0.1; // LV أقوى = ينقبض أكثر
+  c.save(); c.scale(lvSc,lvSc);
+  const lvG = c.createRadialGradient(S*0.22, S*0.25, 0, S*0.22, S*0.25, S*0.38);
+  lvG.addColorStop(0, lvHl?'#ff7070':'#e74c3c');
+  lvG.addColorStop(1, lvHl?'#c02020':'#8b1a1a');
+  c.fillStyle = lvG;
+  c.beginPath();
+  c.moveTo(S*0.04, S*0.01);
+  c.bezierCurveTo(S*0.06, S*0.15, S*0.5, S*0.22, S*0.46, S*0.42);
+  c.bezierCurveTo(S*0.36, S*0.58, S*0.14, S*0.62, 0, S*0.82);
+  c.bezierCurveTo(S*0.02, S*0.5, S*0.01, S*0.2, -S*0.04/lvSc, S*0.01/lvSc);
+  c.closePath();
+  c.fill();
+  if(lvHl){ c.strokeStyle='white'; c.lineWidth=2.5; c.stroke(); }
+  c.restore();
+
+  // ── حاجز بين البطينين ──────────────────────────────
+  c.strokeStyle='rgba(60,0,0,0.55)'; c.lineWidth=2.5;
+  c.setLineDash([4,3]);
+  c.beginPath(); c.moveTo(0, S*0.02); c.bezierCurveTo(S*0.02,S*0.38, S*0.01,S*0.62, 0,S*0.82); c.stroke();
+  c.setLineDash([]);
+
+  // ── الأوردة الرئوية (الداخلة إلى LA) ──────────────
+  c.strokeStyle='rgba(220,60,60,0.75)'; c.lineWidth=5;
+  c.beginPath(); c.moveTo(S*0.5,-S*0.18); c.lineTo(S*0.42,-S*0.22); c.stroke();
+  c.beginPath(); c.moveTo(S*0.5,-S*0.28); c.lineTo(S*0.42,-S*0.26); c.stroke();
+
+  // ── الوريد الأجوف العلوي (إلى RA) ─────────────────
+  c.strokeStyle='rgba(50,80,180,0.8)'; c.lineWidth=7;
+  c.beginPath(); c.moveTo(-S*0.34,-S*0.5); c.lineTo(-S*0.34,-S*0.36); c.stroke();
+  // رأس السهم
+  c.fillStyle='rgba(50,80,180,0.8)';
+  c.beginPath(); c.moveTo(-S*0.34,-S*0.34); c.lineTo(-S*0.39,-S*0.44); c.lineTo(-S*0.29,-S*0.44); c.closePath(); c.fill();
+
+  // ── الوريد الأجوف السفلي (إلى RA) ─────────────────
+  c.strokeStyle='rgba(50,80,180,0.75)'; c.lineWidth=6;
+  c.beginPath(); c.moveTo(-S*0.5, S*0.12); c.lineTo(-S*0.4, S*0.06); c.stroke();
+
+  // ── الشريان الرئوي (من RV) ─────────────────────────
+  c.strokeStyle='rgba(60,110,210,0.85)'; c.lineWidth=8;
+  c.beginPath(); c.moveTo(-S*0.18,-S*0.02); c.bezierCurveTo(-S*0.28,-S*0.25,-S*0.12,-S*0.48, S*0.05,-S*0.5); c.stroke();
+  // نهاية مفتوحة
+  c.strokeStyle='rgba(60,110,210,0.6)'; c.lineWidth=5;
+  c.beginPath(); c.moveTo(S*0.05,-S*0.5); c.lineTo(S*0.14,-S*0.5); c.stroke();
+  c.beginPath(); c.moveTo(S*0.05,-S*0.5); c.lineTo(-S*0.02,-S*0.5); c.stroke();
+
+  // ── الشريان الأبهر (من LV) ─────────────────────────
+  c.strokeStyle='rgba(220,50,50,0.85)'; c.lineWidth=9;
+  c.beginPath(); c.moveTo(S*0.16,-S*0.0); c.bezierCurveTo(S*0.25,-S*0.22, S*0.1,-S*0.5,-S*0.1,-S*0.52); c.stroke();
+  // قوس الأبهر
+  c.strokeStyle='rgba(200,40,40,0.75)'; c.lineWidth=7;
+  c.beginPath(); c.moveTo(-S*0.1,-S*0.52); c.bezierCurveTo(-S*0.28,-S*0.58,-S*0.44,-S*0.42,-S*0.44,-S*0.18); c.stroke();
+
+  // ── تدفق الدم داخل الحجرات (نبضات) ───────────────
+  if(bp > 0.3) {
+    // جسيمات تخرج مع الانقباض من LV
+    const alpha = Math.min(1,(bp-0.3)*2.5);
+    for(let i=0;i<3;i++){
+      const ang = -Math.PI*0.55 + i*0.22;
+      const dist = S*(0.2 + bp*0.35);
+      c.fillStyle = `rgba(220,50,50,${alpha*0.7})`;
+      c.beginPath(); c.arc(S*0.16+Math.cos(ang)*dist, S*0.0+Math.sin(ang)*dist, 4+i, 0, Math.PI*2); c.fill();
+    }
+    // جسيمات من RV
+    for(let i=0;i<2;i++){
+      const ang = -Math.PI*0.75 + i*0.3;
+      const dist = S*(0.15 + bp*0.3);
+      c.fillStyle = `rgba(60,110,200,${alpha*0.65})`;
+      c.beginPath(); c.arc(-S*0.18+Math.cos(ang)*dist, -S*0.02+Math.sin(ang)*dist, 3+i, 0, Math.PI*2); c.fill();
+    }
+  }
+
+  // ── تأثير اللمعة (highlight) ──────────────────────
+  const hl = c.createRadialGradient(-S*0.2,-S*0.3, 0, -S*0.1,-S*0.15, S*0.55);
+  hl.addColorStop(0,'rgba(255,255,255,0.18)');
+  hl.addColorStop(0.5,'rgba(255,255,255,0.04)');
+  hl.addColorStop(1,'rgba(255,255,255,0)');
+  c.fillStyle=hl; heartPath(S); c.fill();
+
+  // ── تسميات الحجرات ─────────────────────────────────
+  if(showLabels) {
+    const lbl=(txt,x,y,col,sz=11)=>{
+      c.fillStyle='rgba(0,0,0,0.45)'; c.font=`bold ${sz}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(txt,x+1,y+1);
+      c.fillStyle=col; c.fillText(txt,x,y);
+    };
+    lbl('RA',-S*0.32,-S*0.2,'#a0c4ff',11);
+    lbl('LA', S*0.30,-S*0.2,'#ffaaaa',11);
+    lbl('RV',-S*0.26, S*0.28,'#6aabff',11);
+    lbl('LV', S*0.24, S*0.28,'#ff8888',11);
+  }
+
+  c.restore();
+}
+
+// ── TAB 0: تركيب القلب ───────────────────────────────────
 function simHeart1(){
   cancelAnimationFrame(animFrame);
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
-  if(!simState.h1) simState.h1={t:0,highlighted:null,showFlow:true};
+  if(!simState.h1) simState.h1={t:0, highlighted:null, showFlow:true, beatPhase:0};
   const S=simState.h1;
 
   const chambers=[
-    {id:'RA', label:'الأذين الأيمن', desc:'يستقبل الدم غير المؤكسج من الجسم',     color:'#2C3E6B', bx:-0.18, by:-0.12, r:0.09},
-    {id:'LA', label:'الأذين الأيسر', desc:'يستقبل الدم المؤكسج من الرئتين',      color:'#C0392B', bx:0.06,  by:-0.12, r:0.09},
-    {id:'RV', label:'البطين الأيمن', desc:'يضخ الدم غير المؤكسج إلى الرئتين',     color:'#2980B9', bx:-0.18, by:0.08,  r:0.11},
-    {id:'LV', label:'البطين الأيسر', desc:'يضخ الدم المؤكسج إلى باقي الجسم',    color:'#E74C3C', bx:0.08,  by:0.08,  r:0.11},
+    {id:'RA', label:'الأذين الأيمن',  desc:'يستقبل الدم غير المؤكسج القادم من الجسم عبر الوريد الأجوف',   color:'#2C3E6B'},
+    {id:'LA', label:'الأذين الأيسر',  desc:'يستقبل الدم المؤكسج القادم من الرئتين عبر الأوردة الرئوية',  color:'#C0392B'},
+    {id:'RV', label:'البطين الأيمن',  desc:'يضخ الدم غير المؤكسج إلى الرئتين عبر الشريان الرئوي',       color:'#2980B9'},
+    {id:'LV', label:'البطين الأيسر',  desc:'يضخ الدم المؤكسج إلى سائر أعضاء الجسم عبر الشريان الأبهر', color:'#E74C3C'},
   ];
 
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🫀 تركيب القلب</div>
-      <div style="font-size:12px;color:#888">اضغط على حجرة للتفاصيل</div>
+      <div class="ctrl-label">🫀 تشريح القلب الحقيقي</div>
+      <div style="font-size:12px;color:#888">اضغط على حجرة لعرض تفاصيلها</div>
     </div>
     ${chambers.map(ch=>`
-      <button class="ctrl-btn" onclick="simState.h1.highlighted='${ch.id}'" style="background:${ch.color};color:white;border:none;font-size:12px;margin-bottom:3px">
-        ${ch.label}
+      <button class="ctrl-btn" onclick="simState.h1.highlighted='${ch.id}'" style="background:${ch.color};color:white;border:none;font-size:12px;margin-bottom:3px;display:flex;align-items:center;gap:6px">
+        <span style="font-size:10px;opacity:0.8">${ch.id}</span> ${ch.label}
       </button>`).join('')}
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-top:6px">
-      <input type="checkbox" ${S.showFlow?'checked':''} onchange="simState.h1.showFlow=this.checked"> إظهار تدفق الدم
+      <input type="checkbox" ${S.showFlow?'checked':''} onchange="simState.h1.showFlow=this.checked"> إظهار التدفق
     </label>
     <button class="ctrl-btn reset" onclick="simState.h1.highlighted=null">↺ مسح التحديد</button>
-    <div class="info-box" style="font-size:12px;line-height:1.9;margin-top:8px">
-      القلب = عضلة مجوّفة بـ 4 حجرات<br>
-      الصمامات تمنع رجوع الدم<br>
-      ❤️ 70 نبضة/دقيقة في الراحة
+    <div class="info-box" style="font-size:11.5px;line-height:2;margin-top:8px">
+      🔵 RA/RV — دم غير مؤكسج<br>
+      🔴 LA/LV — دم مؤكسج<br>
+      ⚡ الصمامات تمنع الرجوع<br>
+      💓 ٧٠ نبضة/دقيقة في الراحة
     </div>`);
 
+  // Click detection على الحجرات
   cv.onclick=function(e){
     const rect=cv.getBoundingClientRect();
     const mx=(e.clientX-rect.left)*(cv.width/rect.width);
     const my=(e.clientY-rect.top)*(cv.height/rect.height);
-    const cx=cv.width/2, cy=cv.height*0.5;
-    chambers.forEach(ch=>{
-      const dx=mx-(cx+ch.bx*cv.width), dy=my-(cy+ch.by*cv.height);
-      if(Math.sqrt(dx*dx+dy*dy)<ch.r*cv.width) S.highlighted=ch.id;
+    const cx=cv.width/2, cy=cv.height*0.50;
+    const sz=Math.min(cv.width,cv.height)*0.38;
+    const pts={
+      RA:[-sz*0.32*0.88, -sz*0.2*0.88, sz*0.22],
+      LA:[ sz*0.30*0.88, -sz*0.2*0.88, sz*0.22],
+      RV:[-sz*0.24*0.88,  sz*0.28*0.88, sz*0.25],
+      LV:[ sz*0.22*0.88,  sz*0.28*0.88, sz*0.25],
+    };
+    Object.entries(pts).forEach(([id,[dx,dy,r]])=>{
+      if(Math.hypot(mx-(cx+dx), my-(cy+dy))<r) S.highlighted=id;
     });
   };
 
@@ -21982,84 +22203,63 @@ function simHeart1(){
     c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#FFF5F5';
     c.fillRect(0,0,w,h);
     U7.grid(c,w,h,'rgba(200,50,50,0.04)',45);
-    const cx=w/2, cy=h*0.5;
 
-    U7.txt(c,'تركيب القلب — الحجرات الأربع',w/2,22,'#7A0000',14,true);
+    const cx=w/2, cy=h*0.50;
+    const heartSize=Math.min(w,h)*0.38;
 
-    // Outer heart silhouette
-    const pulse=1+Math.sin(S.t*4.5)*0.04;
-    c.save(); c.translate(cx,cy); c.scale(pulse*1.1,pulse*1.1);
-    c.fillStyle='rgba(180,40,40,0.12)'; c.strokeStyle='rgba(180,40,40,0.25)'; c.lineWidth=3;
-    c.beginPath();
-    c.moveTo(0,38); c.bezierCurveTo(-6,-8,-36,-8,-36,-24);
-    c.bezierCurveTo(-36,-44,-6,-44,0,-30);
-    c.bezierCurveTo(6,-44,36,-44,36,-24);
-    c.bezierCurveTo(36,-8,6,-8,0,38); c.fill(); c.stroke();
-    c.restore();
+    U7.txt(c,'تشريح القلب الحقيقي — الحجرات الأربع',w/2,22,'#7A0000',14,true);
 
-    // Draw chambers
-    chambers.forEach(ch=>{
-      const bx=cx+ch.bx*w, by=cy+ch.by*h;
-      const r=ch.r*Math.min(w,h);
-      const isHl=S.highlighted===ch.id;
-      const glow=c.createRadialGradient(bx-r*0.2,by-r*0.2,0,bx,by,r);
-      glow.addColorStop(0,ch.color+(isHl?'FF':'CC'));
-      glow.addColorStop(1,ch.color+'44');
-      c.fillStyle=glow;
-      c.strokeStyle=isHl?'white':ch.color;
-      c.lineWidth=isHl?3:1.5;
-      c.beginPath(); c.ellipse(bx,by,r,r*0.82,0,0,Math.PI*2); c.fill(); c.stroke();
-      if(isHl){
-        c.shadowBlur=18; c.shadowColor=ch.color; c.stroke(); c.shadowBlur=0;
-      }
-      // Label
-      c.fillStyle='white'; c.font=`bold ${Math.max(9,r*0.22)}px Tajawal`;
-      c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(ch.id,bx,by);
-    });
+    // نبضة هادئة في تاب التشريح
+    const gentleBeat=0.4+Math.sin(S.t*4.5)*0.4; // 0..0.8 — نبض خفيف
+    drawAnatomicalHeart(c, cx, cy, heartSize, gentleBeat*0.3, true, S.highlighted);
 
-    // Septum
-    c.strokeStyle='rgba(255,255,255,0.6)'; c.lineWidth=3; c.setLineDash([4,3]);
-    c.beginPath(); c.moveTo(cx-w*0.03,cy-h*0.26); c.lineTo(cx-w*0.03,cy+h*0.26); c.stroke();
-    c.setLineDash([]);
-
-    // Blood flow arrows if enabled
+    // تدفق الدم (نقاط متحركة)
     if(S.showFlow){
-      const arrowT=(S.t*0.4)%1;
-      [[cx-w*0.18,cy-h*0.12,cx-w*0.18,cy+h*0.08,'#2980B9'],
-       [cx+w*0.06,cy-h*0.12,cx+w*0.08,cy+h*0.08,'#C0392B']].forEach(([x1,y1,x2,y2,col])=>{
-        const ax=x1+(x2-x1)*arrowT, ay=y1+(y2-y1)*arrowT;
-        c.fillStyle=col; c.beginPath(); c.arc(ax,ay,6,0,Math.PI*2); c.fill();
-        c.strokeStyle='white'; c.lineWidth=1; c.stroke();
-      });
+      const ft=(S.t*0.35)%1;
+      // من RA إلى RV (أزرق)
+      const rax=cx-heartSize*0.28, ray=cy-heartSize*0.18;
+      const rvx=cx-heartSize*0.22, rvy=cy+heartSize*0.26;
+      const rfx=rax+(rvx-rax)*ft, rfy=ray+(rvy-ray)*ft;
+      c.fillStyle='rgba(60,110,210,0.85)'; c.beginPath(); c.arc(rfx,rfy,5,0,Math.PI*2); c.fill();
+      c.strokeStyle='rgba(60,110,210,0.25)'; c.lineWidth=1.5; c.setLineDash([3,3]);
+      c.beginPath(); c.moveTo(rax,ray); c.lineTo(rvx,rvy); c.stroke(); c.setLineDash([]);
+      // من LA إلى LV (أحمر)
+      const lax=cx+heartSize*0.27, lay=cy-heartSize*0.18;
+      const lvx=cx+heartSize*0.20, lvy=cy+heartSize*0.26;
+      const lfx=lax+(lvx-lax)*ft, lfy=lay+(lvy-lay)*ft;
+      c.fillStyle='rgba(220,60,60,0.85)'; c.beginPath(); c.arc(lfx,lfy,5,0,Math.PI*2); c.fill();
+      c.strokeStyle='rgba(220,60,60,0.25)'; c.lineWidth=1.5; c.setLineDash([3,3]);
+      c.beginPath(); c.moveTo(lax,lay); c.lineTo(lvx,lvy); c.stroke(); c.setLineDash([]);
     }
 
-    // Valve labels
-    U7.txt(c,'صمام',cx-w*0.04,cy-h*0.02,'rgba(255,220,100,0.9)',10,true);
-
-    // Info box if highlighted
+    // Info box للحجرة المحددة
     if(S.highlighted){
-      const ch=chambers.find(c=>c.id===S.highlighted);
+      const ch=chambers.find(x=>x.id===S.highlighted);
       if(ch){
-        c.fillStyle='rgba(255,255,255,0.93)'; c.strokeStyle=ch.color; c.lineWidth=2.5;
-        c.beginPath(); c.roundRect(w*0.05,h*0.82,w*0.9,h*0.14,10); c.fill(); c.stroke();
-        U7.txt(c,ch.label,w/2,h*0.855,ch.color,13,true);
-        U7.txt(c,ch.desc,w/2,h*0.88,ch.color,11,false);
+        c.fillStyle='rgba(255,255,255,0.94)'; c.strokeStyle=ch.color; c.lineWidth=2.5;
+        c.beginPath(); c.roundRect(w*0.04,h*0.80,w*0.92,h*0.17,10); c.fill(); c.stroke();
+        U7.txt(c,ch.id+' — '+ch.label,w/2,h*0.838,ch.color,13,true);
+        U7.txt(c,ch.desc,w/2,h*0.872,'#444',10.5,false);
       }
     }
 
-    S.t+=0.025;
+    // أسماء الأوعية
+    U7.txt(c,'الوريد الأجوف',   cx-heartSize*0.33,cy-heartSize*0.62,'#5080d0',9,true);
+    U7.txt(c,'الشريان الأبهر',  cx+heartSize*0.05,cy-heartSize*0.62,'#d04040',9,true);
+    U7.txt(c,'الشريان الرئوي',  cx-heartSize*0.28,cy-heartSize*0.72,'#4070c0',9,true);
+
+    S.t+=0.022;
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ── 7-2 TAB 1: الانقباض والانبساط ──
+// ── TAB 1: الانقباض والانبساط ────────────────────────────
 function simHeart2(){
   cancelAnimationFrame(animFrame);
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
-  if(!simState.h2) simState.h2={t:0,running:true,bpm:70,phase:'lub'};
+  if(!simState.h2) simState.h2={t:0,running:true,bpm:70};
   const S=simState.h2;
 
   controls(`
@@ -22090,83 +22290,81 @@ function simHeart2(){
     U7.grid(c,w,h,'rgba(200,50,50,0.04)',40);
 
     const cx=w/2, cy=h*0.45;
-    // Beat cycle
+    const heartSize=Math.min(w,h)*0.36;
+
+    // ── حساب مرحلة الدورة ──────────────────────────
     const cycleDur=60/S.bpm;
-    const phase=(S.t%(cycleDur));
-    const systole=phase<cycleDur*0.4;
-    const contractionScale=systole?Math.max(0.75,1-Math.sin((phase/(cycleDur*0.4))*Math.PI)*0.25):Math.min(1,0.75+((phase-cycleDur*0.4)/(cycleDur*0.6))*0.25);
-    const phaseName=systole?'انقباض (Systole)':'انبساط (Diastole)';
+    const phase=(S.t % cycleDur) / cycleDur; // 0..1
 
-    // Title
-    U7.txt(c,'دقة القلب: الانقباض والانبساط',w/2,22,'#7A0000',14,true);
+    // منحنى النبضة: ارتفاع حاد ثم هبوط ناعم (مثل موجة P-QRS-T)
+    // 0..0.12: انقباض سريع, 0.12..0.45: ارتخاء, 0.45..1: دياستول
+    let beatPhase;
+    if(phase < 0.12)      beatPhase = Math.sin((phase/0.12)*Math.PI);        // صعود وهبوط سريع
+    else if(phase < 0.45) beatPhase = Math.max(0,1-((phase-0.12)/0.33)*1.4)*0.25; // تلاشٍ ناعم
+    else                   beatPhase = 0;                                      // دياستول كامل
 
-    // Draw heart (contracting/expanding)
-    const hs=contractionScale*Math.min(w,h)*0.22;
-    c.save(); c.translate(cx,cy);
-    const g=c.createRadialGradient(-hs*0.15,-hs*0.2,0,0,0,hs);
-    g.addColorStop(0,'#E74C3C'); g.addColorStop(0.5,'#C0392B'); g.addColorStop(1,'#7B241C');
-    c.fillStyle=g;
-    c.beginPath();
-    c.moveTo(0,hs*0.85);
-    c.bezierCurveTo(-hs*0.15,-hs*0.15,-hs,-hs*0.15,-hs,-hs*0.55);
-    c.bezierCurveTo(-hs,-hs,-hs*0.15,-hs,0,-hs*0.7);
-    c.bezierCurveTo(hs*0.15,-hs,hs,-hs,hs,-hs*0.55);
-    c.bezierCurveTo(hs,-hs*0.15,hs*0.15,-hs*0.15,0,hs*0.85);
-    c.fill();
-    // Highlight
-    c.fillStyle='rgba(255,255,255,0.12)';
-    c.beginPath(); c.ellipse(-hs*0.25,-hs*0.35,hs*0.35,hs*0.2,-0.4,0,Math.PI*2); c.fill();
-    c.restore();
+    const systole = phase < 0.35;
+    const phaseName = systole ? 'انقباض (Systole)' : 'انبساط (Diastole)';
+    const phaseColor = systole ? '#C0392B' : '#2980B9';
 
-    // Phase label (big)
-    const phaseColor=systole?'#C0392B':'#2980B9';
-    U7.pill(c,cx,cy+hs+20,200,30,phaseColor,phaseName,'white');
+    U7.txt(c,'دقة القلب — القلب الحقيقي',w/2,22,'#7A0000',14,true);
 
-    // Arrows (systole = out, diastole = in)
-    const arrowAlpha=systole?1:0.3;
-    const arrowInAlpha=systole?0.3:1;
-    [[cx,cy-hs-10,cx,cy-hs-40,'up'],[cx-hs-10,cy,cx-hs-40,cy,'left']].forEach(([x1,y1,x2,y2,dir])=>{
-      c.strokeStyle=`rgba(192,57,43,${arrowAlpha})`; c.lineWidth=3;
-      c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
-    });
-    // Blood squirt particles
-    if(systole && phase<cycleDur*0.15){
-      for(let i=0;i<4;i++){
-        const ang=(Math.PI*2/4)*i;
-        const dist=hs*1.3+phase/cycleDur*hs*2;
-        c.fillStyle='rgba(192,57,43,0.6)'; c.beginPath();
-        c.arc(cx+Math.cos(ang)*dist,cy+Math.sin(ang)*dist*0.5,4,0,Math.PI*2); c.fill();
-      }
+    // ── رسم القلب التشريحي مع النبضة ───────────────
+    drawAnatomicalHeart(c, cx, cy, heartSize, beatPhase, false, null);
+
+    // ── مرحلة النبضة ────────────────────────────────
+    U7.pill(c, cx, cy+heartSize*0.98+22, 220, 32, phaseColor, phaseName, 'white');
+
+    // ── سهام الضخ عند الانقباض ──────────────────────
+    if(beatPhase > 0.25){
+      const alpha = Math.min(1,(beatPhase-0.25)*3);
+      const arrLen = heartSize * 0.3 * beatPhase;
+      // أبهر: يسار وأعلى
+      c.strokeStyle=`rgba(220,50,50,${alpha})`; c.lineWidth=3;
+      c.beginPath(); c.moveTo(cx+heartSize*0.1, cy-heartSize*0.08);
+      c.lineTo(cx+heartSize*0.1-arrLen*0.4, cy-heartSize*0.08-arrLen); c.stroke();
+      c.fillStyle=`rgba(220,50,50,${alpha})`;
+      const ax1=cx+heartSize*0.1-arrLen*0.4, ay1=cy-heartSize*0.08-arrLen;
+      c.beginPath(); c.moveTo(ax1,ay1); c.lineTo(ax1-7,ay1+10); c.lineTo(ax1+7,ay1+10); c.closePath(); c.fill();
+      // شريان رئوي: يمين وأعلى
+      c.strokeStyle=`rgba(60,110,210,${alpha})`; c.lineWidth=3;
+      c.beginPath(); c.moveTo(cx-heartSize*0.16, cy-heartSize*0.02);
+      c.lineTo(cx-heartSize*0.16-arrLen*0.2, cy-heartSize*0.02-arrLen*0.9); c.stroke();
+      c.fillStyle=`rgba(60,110,210,${alpha})`;
+      const ax2=cx-heartSize*0.16-arrLen*0.2, ay2=cy-heartSize*0.02-arrLen*0.9;
+      c.beginPath(); c.moveTo(ax2,ay2); c.lineTo(ax2-6,ay2+9); c.lineTo(ax2+6,ay2+9); c.closePath(); c.fill();
     }
 
-    // ECG strip at bottom
-    const ecgY=h*0.84, ecgH=h*0.08;
+    // ── خط ECG في الأسفل ────────────────────────────
+    const ecgY=h*0.855, ecgH=h*0.075;
     c.strokeStyle='rgba(39,174,96,0.8)'; c.lineWidth=2;
     c.beginPath();
     for(let i=0;i<w;i++){
-      const t2=(S.t-(i/w)*cycleDur*4)%(cycleDur);
-      let y;
-      if(t2<0.05*cycleDur) y=ecgY;
-      else if(t2<0.08*cycleDur) y=ecgY-ecgH*0.3;
-      else if(t2<0.12*cycleDur) y=ecgY-ecgH*2;
-      else if(t2<0.16*cycleDur) y=ecgY+ecgH*0.8;
-      else if(t2<0.22*cycleDur) y=ecgY-ecgH*0.5;
-      else if(t2<0.26*cycleDur) y=ecgY;
-      else y=ecgY;
-      i===0?c.moveTo(i,y):c.lineTo(i,y);
+      const tp=((S.t - (i/w)*cycleDur*4) % cycleDur) / cycleDur;
+      let yy;
+      const t2=((tp%1)+1)%1;
+      if     (t2<0.05)  yy=ecgY;
+      else if(t2<0.08)  yy=ecgY-ecgH*0.35;
+      else if(t2<0.12)  yy=ecgY-ecgH*2.1;
+      else if(t2<0.16)  yy=ecgY+ecgH*0.85;
+      else if(t2<0.22)  yy=ecgY-ecgH*0.55;
+      else if(t2<0.27)  yy=ecgY;
+      else               yy=ecgY;
+      i===0?c.moveTo(i,yy):c.lineTo(i,yy);
     }
     c.stroke();
-    U7.txt(c,'مخطط القلب الكهربائي (ECG)',w/2,ecgY-ecgH*2.5,'#888',11,false);
+    U7.txt(c,'مخطط القلب الكهربائي (ECG)',w/2,ecgY-ecgH*2.8,'#888',11,false);
 
-    // BPM display
-    U7.txt(c,S.bpm+' نبضة/دقيقة',w/2,h*0.92,'#C0392B',16,true);
+    // ── معدل النبض ───────────────────────────────────
+    U7.txt(c, S.bpm+' نبضة/دقيقة', w/2, h*0.935, '#C0392B', 16, true);
 
-    if(S.running) S.t+=0.016;
+    if(S.running) S.t += 0.016;
     animFrame=requestAnimationFrame(draw);
   }
   if(S.running) window._playHeartbeat(S.bpm);
   draw();
 }
+
 
 // ══════════════════════════════════════════════════════════
 // 7-3 · الدم — مكوّناته ووظائفه
