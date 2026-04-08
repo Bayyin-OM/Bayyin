@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>بيّن | منصة العلوم التفاعلية</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --red: #C0392B;
@@ -1661,7 +1662,6 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 
 
 <!-- ═══ بيّن Auth System ═══ -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ── شاشة تسجيل الدخول ── */
 #auth-overlay {
@@ -21593,7 +21593,20 @@ function simParallel12b() {
 
 const _SUPA_URL = 'https://serezytdauldrfuphjxf.supabase.co';
 const _SUPA_KEY = 'sb_publishable_giuJIokNaFOQ2EWCRZoCOw_1bQhvTNQ';
-const _db = window.supabase.createClient(_SUPA_URL, _SUPA_KEY);
+
+let _db;
+try {
+  if (!window.supabase) throw new Error('Supabase not loaded');
+  _db = window.supabase.createClient(_SUPA_URL, _SUPA_KEY);
+} catch(e) {
+  console.error('[بيّن] فشل تحميل Supabase:', e);
+  // أظهر شاشة الدخول بدل الصفحة الفارغة
+  document.addEventListener('DOMContentLoaded', function() {
+    var overlay = document.getElementById('auth-overlay');
+    if (overlay) overlay.style.display = 'flex';
+    _authStatus('❌ خطأ في الاتصال — يرجى تحديث الصفحة', false);
+  });
+}
 
 function _authStatus(msg, ok) {
   var el = document.getElementById('auth-status');
@@ -21663,6 +21676,9 @@ async function handleLogin() {
   var pass  = (document.getElementById('auth-pass').value || '');
   var btn   = document.getElementById('auth-submit-btn');
 
+  if (!_db) {
+    _authStatus('❌ خطأ في الاتصال — يرجى تحديث الصفحة', false); return;
+  }
   if (!email || !/\S+@\S+\.\S+/.test(email)) {
     _authStatus('يرجى إدخال بريد إلكتروني صحيح', false); return;
   }
@@ -21718,9 +21734,21 @@ async function handleLogin() {
 
 async function _checkSubscription() {
   try {
+    if (!_db) {
+      // Supabase ما اتحمل — أظهر شاشة الدخول
+      var overlay = document.getElementById('auth-overlay');
+      if (overlay) overlay.style.display = 'flex';
+      _authStatus('❌ خطأ في الاتصال — يرجى تحديث الصفحة', false);
+      return;
+    }
     var userResp = await _db.auth.getUser();
     var user = userResp.data.user;
-    if (!user) return;
+    if (!user) {
+      // مستخدم غير مسجل — أظهر شاشة الدخول
+      var overlay = document.getElementById('auth-overlay');
+      if (overlay) overlay.style.display = 'flex';
+      return;
+    }
 
     var resp = await _db.from('profiles')
       .select('subscription_status')
