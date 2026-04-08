@@ -21448,23 +21448,37 @@ async function _checkSubscription() {
   try {
     var userResp = await _db.auth.getUser();
     var user = userResp.data.user;
-    if (!user) return;
+    if (!user) { console.warn('[بيّن] لا يوجد مستخدم مسجّل'); return; }
+
+    console.log('[بيّن] ID المستخدم:', user.id);
 
     var resp = await _db.from('profiles')
       .select('subscription_status, subscription_end')
       .eq('id', user.id)
       .single();
 
+    console.log('[بيّن] استجابة Supabase:', JSON.stringify(resp));
+
+    if (resp.error) {
+      console.error('[بيّن] خطأ Supabase:', resp.error);
+      // إذا الخطأ هو PGRST116 (no rows) أو RLS — أظهر خيار الدفع
+      _authStatus('❌ خطأ في قراءة الاشتراك: ' + resp.error.message, false);
+      document.getElementById('payment-section').style.display = 'block';
+      return;
+    }
+
     var status = resp.data && resp.data.subscription_status;
+    console.log('[بيّن] حالة الاشتراك:', status);
 
     if (status === 'active') {
       _unlockPlatform();
     } else {
       document.getElementById('payment-section').style.display = 'block';
-      _authStatus('يرجى الاشتراك للوصول إلى المنصة', false);
+      _authStatus('يرجى الاشتراك للوصول إلى المنصة (الحالة: ' + status + ')', false);
     }
   } catch (err) {
-    console.error('checkSubscription error:', err);
+    console.error('[بيّن] checkSubscription error:', err);
+    _authStatus('❌ خطأ غير متوقع: ' + err.message, false);
   }
 }
 
