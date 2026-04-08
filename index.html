@@ -23948,59 +23948,91 @@ function simSmoking2(){
     U7.txt(c,'مقارنة: الرئة السليمة × رئة المدخّن',w/2,20,'#7A0000',14,true);
 
     const pts=getPoints();
-    const lh=h*0.5, lw=w*0.26;
     const d=S.damage;
 
-    // ── رئة سليمة (يسار) ──
+    // نبض تنفس للرئة السليمة
+    const breathe=1+Math.sin(S.t*1.8)*0.045;
+    const lhBase=h*0.5, lwBase=w*0.26;
+
+    // ── رئة سليمة (يسار) — حيّة تتنفس ──
     const hx=w*0.27, hy=h*0.5;
-    const healthyColor='rgba(255,160,160,0.85)';
-    [-1,1].forEach(dir=>drawLung(hx,hy,lw,lh,dir,healthyColor));
-    // حويصلات صحية — وردية زاهية وكبيرة
-    pts.alv.forEach((p,i)=>{
-      const ax=hx+p.rx*lw*0.35, ay=hy+p.ry*lh*0.35;
-      const ar=4+p.rr*5;
-      c.fillStyle='rgba(220,100,100,0.5)';
+    const lhH=lhBase*breathe, lwH=lwBase*breathe;
+    const healthyColor='rgba(255,120,120,0.9)';
+    [-1,1].forEach(dir=>drawLung(hx,hy,lwH,lhH,dir,healthyColor));
+    // حويصلات صحية — وردية كبيرة تنبض
+    pts.alv.forEach((p)=>{
+      const ax=hx+p.rx*lwH*0.32, ay=hy+p.ry*lhH*0.32;
+      const ar=(5+p.rr*6)*breathe;
+      c.fillStyle='rgba(240,80,80,0.55)';
       c.beginPath(); c.arc(ax,ay,ar,0,Math.PI*2); c.fill();
+      // حلقة خارجية
+      c.strokeStyle='rgba(200,60,60,0.3)'; c.lineWidth=1;
+      c.beginPath(); c.arc(ax,ay,ar*1.5,0,Math.PI*2); c.stroke();
     });
-    U7.txt(c,'رئة سليمة 🫁',hx,hy+lh*0.55,'#27AE60',13,true);
-    U7.txt(c,'السعة: 100%',hx,hy+lh*0.65,'#27AE60',12,false);
-    U7.txt(c,'حويصلات: 30/30',hx,hy+lh*0.73,'#888',11,false);
+    // تسمية مع خلفية خضراء واضحة
+    c.fillStyle='rgba(39,174,96,0.15)'; c.strokeStyle='#27AE60'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(hx-55,hy+lhH*0.5,110,58,8); c.fill(); c.stroke();
+    U7.txt(c,'✅ رئة سليمة 🫁',hx,hy+lhH*0.5+16,'#27AE60',13,true);
+    U7.txt(c,'السعة: 100%',hx,hy+lhH*0.5+32,'#27AE60',12,false);
+    U7.txt(c,'حويصلات: 30/30 • تتنفس بحرية',hx,hy+lhH*0.5+46,'#27AE60',10,false);
 
     // ── رئة المدخّن (يمين) ──
     const sx=w*0.73, sy=h*0.5;
-    const r=Math.round(120+d*100), g=Math.round(70-d*60), b=Math.round(60-d*50);
-    const smokerColor=`rgba(${r},${g},${b},0.85)`;
-    [-1,1].forEach(dir=>drawLung(sx,sy,lw,lh,dir,smokerColor));
+    // اللون يتحول من وردي → بني داكن → أسود مع التدخين بشكل واضح جداً
+    const rC=Math.round(220 - d*200);
+    const gC=Math.round(100 - d*95);
+    const bC=Math.round(90  - d*85);
+    const smokerColor=`rgba(${rC},${gC},${bC},0.92)`;
+    // الرئة المدخّن تتقلص مع الزمن
+    const shrink=1-d*0.18;
+    const lhS=lhBase*shrink, lwS=lwBase*shrink;
+    [-1,1].forEach(dir=>drawLung(sx,sy,lwS,lhS,dir,smokerColor));
 
-    // حويصلات مدمّرة — أقل عدداً وأصغر
-    const nAlv=Math.round(30*(1-d*0.85));
-    const alR=Math.round(80+d*130), alG=Math.round(40-d*30);
-    pts.alv.slice(0,Math.max(nAlv,0)).forEach((p)=>{
-      const ax=sx+p.rx*lw*0.35, ay=sy+p.ry*lh*0.35;
-      const ar=Math.max(1,(4+p.rr*5)*(1-d*0.7));
-      c.fillStyle=`rgba(${alR},${alG},30,0.55)`;
+    // حويصلات مدمّرة — أقل وأصغر بشكل واضح
+    const nAlv=Math.max(0,Math.round(30*(1-d*0.9)));
+    pts.alv.slice(0,nAlv).forEach((p)=>{
+      const ax=sx+p.rx*lwS*0.3, ay=sy+p.ry*lhS*0.3;
+      const ar=Math.max(0.8,(5+p.rr*6)*shrink*(1-d*0.75));
+      c.fillStyle=`rgba(140,60,20,0.6)`;
       c.beginPath(); c.arc(ax,ay,ar,0,Math.PI*2); c.fill();
     });
 
-    // ترسّب القطران الداكن
-    if(d>0.05){
+    // ترسّب القطران الداكن — بارز وواضح من أول سنة
+    if(d>0.01){
       const nTar=Math.round(d*15);
       pts.tar.slice(0,nTar).forEach(p=>{
-        const ax=sx+p.rx*lw*0.3, ay=sy+p.ry*lh*0.32;
-        const ar=3+p.rr*8*d;
-        c.fillStyle=`rgba(20,15,5,${0.25+d*0.35})`;
+        const ax=sx+p.rx*lwS*0.28, ay=sy+p.ry*lhS*0.28;
+        const ar=(4+p.rr*10)*d;
+        // طبقات قطران: داخلي أسود + هالة بنية
+        c.fillStyle=`rgba(8,5,0,${0.4+d*0.5})`;
         c.beginPath(); c.arc(ax,ay,ar,0,Math.PI*2); c.fill();
+        c.fillStyle=`rgba(40,20,5,${0.2+d*0.3})`;
+        c.beginPath(); c.arc(ax,ay,ar*1.6,0,Math.PI*2); c.fill();
       });
     }
 
-    const capacity=Math.round(100*(1-d*0.75));
-    const nAlvShow=Math.max(0,Math.round(30*(1-d*0.85)));
-    U7.txt(c,'رئة المدخّن 🖤',sx,sy+lh*0.55,'#C0392B',13,true);
-    U7.txt(c,`السعة: ${capacity}%`,sx,sy+lh*0.65,'#C0392B',12,false);
-    U7.txt(c,`حويصلات: ${nAlvShow}/30`,sx,sy+lh*0.73,'#888',11,false);
+    // مؤشر الضرر بشريط ملوّن
+    const barW=lwS*1.8, barX=sx-barW/2, barY=sy-lhS*0.58;
+    c.fillStyle='rgba(0,0,0,0.12)'; c.beginPath(); c.roundRect(barX,barY,barW,8,4); c.fill();
+    const dmgColor= d<0.3?'#E67E22': d<0.6?'#D35400':'#C0392B';
+    c.fillStyle=dmgColor; c.beginPath(); c.roundRect(barX,barY,barW*d,8,4); c.fill();
+    U7.txt(c,`ضرر: ${Math.round(d*100)}%`,sx,barY-6,dmgColor,10,true);
 
-    // سهم مقارنة
-    U7.txt(c,'←   مقارنة   →',w/2,sy,'#aaa',11,false);
+    const capacity=Math.round(100*(1-d*0.78));
+    const nAlvShow=Math.max(0,Math.round(30*(1-d*0.9)));
+    // تسمية مع خلفية حمراء واضحة
+    c.fillStyle='rgba(192,57,43,0.1)'; c.strokeStyle='#C0392B'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(sx-58,sy+lhS*0.5,116,58,8); c.fill(); c.stroke();
+    U7.txt(c,'⚠️ رئة المدخّن 🖤',sx,sy+lhS*0.5+16,'#C0392B',13,true);
+    U7.txt(c,`السعة: ${capacity}%`,sx,sy+lhS*0.5+32,'#C0392B',12,false);
+    U7.txt(c,`حويصلات: ${nAlvShow}/30 • ضرر دائم`,sx,sy+lhS*0.5+46,'#C0392B',10,false);
+
+    // سهم مقارنة وسط
+    U7.txt(c,'⟵  مقارنة  ⟶',w/2,sy,'#888',12,false);
+    // نص القطران إذا بدأ يظهر
+    if(d>0.05){
+      U7.txt(c,'◼ قطران',sx,sy+5,'rgba(20,10,0,0.7)',10,true);
+    }
 
     S.t+=0.025;
     animFrame=requestAnimationFrame(draw);
