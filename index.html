@@ -3380,13 +3380,47 @@ function goToLanding() {
 
 function toArNums(n){ return n.toString().replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]); }
 
-// تحديث كل عناصر عرض العداد في الصفحة
+// أنيميشن "slot machine" — يعرض أرقاماً عشوائية متسارعة ثم يستقر على الرقم الحقيقي
+var _slotInterval = null;
+function _startSlotAnimation() {
+  var el2 = document.getElementById('auth-visit-count');
+  if (!el2) return;
+  var frames = 0;
+  var maxFrames = 28; // ~0.9 ثانية بسرعة 32ms
+  _slotInterval = setInterval(function() {
+    // أرقام عشوائية تبدو منطقية (نطاق واسع قليلاً)
+    var fake = Math.floor(800 + Math.random() * 4200);
+    el2.textContent = toArNums(fake);
+    frames++;
+    if (frames >= maxFrames) {
+      clearInterval(_slotInterval);
+      _slotInterval = null;
+      // أبقِ آخر رقم عشوائي حتى يصل الحقيقي
+    }
+  }, 32);
+}
+
+// تحديث كل عناصر عرض العداد في الصفحة (مع إيقاف الأنيميشن إن كانت شغّالة)
 function _setAllCounters(val) {
+  if (_slotInterval) { clearInterval(_slotInterval); _slotInterval = null; }
   var txt = toArNums(val);
   var el1 = document.getElementById('visit-count');
   var el2 = document.getElementById('auth-visit-count');
   if (el1) el1.textContent = txt;
-  if (el2) el2.textContent = txt;
+  if (el2) {
+    // أنيميشن "count-up" بسيط من الرقم الحالي إلى الرقم الحقيقي
+    var current = parseInt(el2.textContent.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))) || 0;
+    var target = val;
+    var steps = 18;
+    var step = 0;
+    var diff = target - current;
+    var cu = setInterval(function() {
+      step++;
+      var ease = 1 - Math.pow(1 - step / steps, 3); // ease-out cubic
+      el2.textContent = toArNums(Math.round(current + diff * ease));
+      if (step >= steps) { clearInterval(cu); el2.textContent = toArNums(target); }
+    }, 30);
+  }
 }
 
 // قراءة العدد فقط وتحديث الـ UI
@@ -3437,6 +3471,9 @@ async function initVisitorCounter() {
 
 // تشغيل العداد بعد ثانية من تحميل الصفحة (بعد تهيّؤ _db)
 document.addEventListener('DOMContentLoaded', function(){
+  // ابدأ أنيميشن الأرقام العشوائية فوراً
+  setTimeout(_startSlotAnimation, 300);
+  // ثم اجلب الرقم الحقيقي وأوقف الأنيميشن
   setTimeout(initVisitorCounter, 1200);
 });
 
