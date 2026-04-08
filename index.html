@@ -1632,7 +1632,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       </p>
       <!-- ⬇️ استبدل هذا الرابط برابط Stripe الخاص بك -->
       <button class="auth-btn pay-btn"
-      onclick="window.open('https://bayyin.lemonsqueezy.com/checkout/buy/28dfca90-bacc-4361-bd3e-536fd6c47389', '_blank')">
+      onclick="window.open('https://bayyin.lemonsqueezy.com/checkout/buy/81b22cfe-948c-480f-b468-001903cff84c', '_blank')">
         اشترك الآن 🚀
       </button>
       <p class="pay-note">بعد الدفع يُفعَّل حسابك تلقائياً خلال ثوانٍ ✅</p>
@@ -3840,6 +3840,8 @@ function closeSim() {
   if(dd) { dd.style.display='none'; dd.innerHTML=''; }
   // إيقاف الأصوات الطبيعية
   if(window._stopNatureSound) window._stopNatureSound();
+  // إيقاف صوت نبضات القلب
+  if(window._stopHeartbeat) window._stopHeartbeat();
   // أظهر شريط المعلومات عند الرجوع لصفحة الوحدات
   const sc = document.getElementById('sticky-credit');
   if(sc) sc.style.display='flex';
@@ -3871,6 +3873,8 @@ function switchSimTab(i) {
     if (ctx) ctx.clearRect(0, 0, cv.width, cv.height);
   }
   // تغيير صوت استقصاء الإنسان عند تبديل التاب
+  // إيقاف نبضات القلب عند تبديل التاب
+  if(window._stopHeartbeat) window._stopHeartbeat();
   if(currentSim==='human' && window._stopNatureSound && window._playSoundFor){
     window._stopNatureSound();
     setTimeout(function(){
@@ -6539,18 +6543,19 @@ function simWaterConductor2() { simWaterConductor1(); }
 function simMetalConductor1() {
   cancelAnimationFrame(animFrame);
   var metals=[
-    {id:'ag',label:'فضة',   icon:'🪙',col:'#C0C0C0',I:0.87,R:0.016,q:'الأفضل 🥇'},
-    {id:'cu',label:'نحاس',  icon:'🔩',col:'#B87333',I:0.82,R:0.017,q:'ممتاز 🥈'},
+    {id:'au',label:'ذهب',    icon:'💰',col:'#C8900A',I:0.98,R:0.022,q:'الأعلى قيمةً 👑'},
+    {id:'ag',label:'فضة',    icon:'🪙',col:'#C0C0C0',I:0.87,R:0.016,q:'الأفضل موصلاً 🥇'},
+    {id:'cu',label:'نحاس',   icon:'🔩',col:'#B87333',I:0.82,R:0.017,q:'ممتاز 🥈'},
     {id:'al',label:'ألمنيوم',icon:'🔘',col:'#AAA',   I:0.75,R:0.028,q:'جيد 🥉'},
-    {id:'fe',label:'حديد',  icon:'🔧',col:'#777',   I:0.48,R:0.1,  q:'متوسط'},
-    {id:'gr',label:'جرافيت',icon:'✏️',col:'#555',   I:0.23,R:1.4,  q:'ضعيف'},
+    {id:'fe',label:'حديد',   icon:'🔧',col:'#777',   I:0.48,R:0.1,  q:'متوسط'},
+    {id:'gr',label:'جرافيت', icon:'✏️',col:'#555',   I:0.23,R:1.4,  q:'ضعيف'},
   ];
   simState={t:0,sel:null,needle:0,target:0,flow:[]};
   var localMetals=metals; // closure safe
 
   elCtrl(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🔩 اضغط على أي معدن</div>
+      <div class="ctrl-label">🔩 اضغط على أي مادة</div>
       ${metals.map(function(m){ return '<button id="mb_'+m.id+'" onclick="elSelMet(\''+m.id+'\')" style="width:100%;padding:9px 12px;border-radius:10px;border:2px solid rgba(0,0,0,.1);background:white;font-family:Tajawal;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:5px;transition:all .2s"><span style="font-size:20px">'+m.icon+'</span><span style="flex:1;text-align:right">'+m.label+'</span><span style="font-size:11px;color:#888">'+m.R+' Ω·mm²/m</span></button>'; }).join('')}
     </div>
     <div class="ctrl-section" id="mInfo" style="display:none">
@@ -6558,9 +6563,9 @@ function simMetalConductor1() {
       <div id="mRes" style="text-align:center;padding:8px;border-radius:8px"></div>
     </div>
     <div class="q-box" style="font-size:13px">
-      <strong>❓</strong> لماذا نستخدم النحاس للأسلاك لا الفضة؟
+      <strong>❓</strong> لماذا نستخدم النحاس للأسلاك لا الذهب؟
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 الإجابة</button>
-      <div class="q-ans-panel">الفضة أفضل موصلاً لكن النحاس أرخص بكثير وكافٍ جداً للاستخدام اليومي.</div>
+      <div class="q-ans-panel">الذهب موصِّل ممتاز لكنه نادر وغالي جداً! النحاس أرخص بكثير وموصليته جيدة جداً. الذهب يُستخدم فقط في الدوائر الدقيقة الإلكترونية.</div>
     </div>`);
 
   window.elSelMet=function(id){
@@ -6610,16 +6615,26 @@ function simMetalConductor1() {
     // قراءة رقمية
     c.font='bold 20px Arial'; c.fillStyle='#1A8FA8'; c.textAlign='center'; c.textBaseline='top';
     c.fillText(simState.needle.toFixed(2)+' A',ax,ay+ar+6);
+    // تسمية "جهاز الأميتر" تحت القراءة
+    c.font='12px Tajawal'; c.fillStyle=isDarkMode()?'#7A9AB5':'#888'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('جهاز الأميتر (Ammeter)',ax,ay+ar+28);
 
     // ── المعدن المختبر (شريط أفقي) ──
     var mx=w*.5,my=h*.78,mw=w*.6,mh=h*.055;
-    c.fillStyle=m?(m.col+'33'):'rgba(200,200,200,.15)';
+    // تأثير ذهبي خاص
+    if(m && m.id==='au'){
+      var goldG=c.createLinearGradient(mx-mw/2,my-mh/2,mx+mw/2,my+mh/2);
+      goldG.addColorStop(0,'#C8900A'); goldG.addColorStop(0.3,'#F0C840'); goldG.addColorStop(0.6,'#C8900A'); goldG.addColorStop(1,'#F0C840');
+      c.fillStyle=goldG;
+    } else {
+      c.fillStyle=m?(m.col+'33'):'rgba(200,200,200,.15)';
+    }
     c.strokeStyle=m?m.col:'rgba(150,150,150,.4)'; c.lineWidth=2;
     c.beginPath(); c.roundRect(mx-mw/2,my-mh/2,mw,mh,6); c.fill(); c.stroke();
     // لمعة
-    if(m){ c.fillStyle='rgba(255,255,255,.2)'; c.beginPath(); c.roundRect(mx-mw/2+4,my-mh/2+2,mw-8,mh*.3,3); c.fill(); }
+    if(m){ c.fillStyle='rgba(255,255,255,.25)'; c.beginPath(); c.roundRect(mx-mw/2+4,my-mh/2+2,mw-8,mh*.3,3); c.fill(); }
     c.font='14px Tajawal'; c.fillStyle=isDarkMode()?'#ddd':'#333'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(m?m.icon+' '+m.label:'← اضغط على معدن من القائمة',mx,my);
+    c.fillText(m?m.icon+' '+m.label:'← اضغط على مادة من القائمة',mx,my);
 
     // ── أسلاك ──
     var wc=simState.needle>.05?'#27AE60':'#AAA', lw=simState.needle>.05?2.5:1.5;
@@ -6636,7 +6651,9 @@ function simMetalConductor1() {
     if(simState.needle>.02){ simState.flow.forEach(function(f){
       f.t=(f.t+.006*f.s*simState.needle*2)%1;
       var na2=-Math.PI+f.t*Math.PI;
-      c.fillStyle='rgba(0,200,255,'+(0.6-f.t*.3)+')';
+      // لون ذهبي للإلكترونات عند الذهب
+      var eCol=m&&m.id==='au'?'rgba(240,200,50,':'rgba(0,200,255,';
+      c.fillStyle=eCol+(0.6-f.t*.3)+')';
       c.beginPath(); c.arc(ax+Math.cos(na2)*(ar*.6),ay+Math.sin(na2)*(ar*.6),3,0,Math.PI*2); c.fill();
     }); }
 
@@ -6649,11 +6666,12 @@ function simMetalConductor1() {
 function simMetalConductor2() {
   cancelAnimationFrame(animFrame);
   var metals=[
-    {label:'فضة',   icon:'🪙',col:'#A0A0C0',I:0.87},
-    {label:'نحاس',  icon:'🔩',col:'#B87333',I:0.82},
+    {label:'ذهب',    icon:'💰',col:'#C8900A',I:0.98},
+    {label:'فضة',    icon:'🪙',col:'#A0A0C0',I:0.87},
+    {label:'نحاس',   icon:'🔩',col:'#B87333',I:0.82},
     {label:'ألمنيوم',icon:'🔘',col:'#999',   I:0.75},
-    {label:'حديد',  icon:'🔧',col:'#666',   I:0.48},
-    {label:'جرافيت',icon:'✏️',col:'#444',   I:0.23},
+    {label:'حديد',   icon:'🔧',col:'#666',   I:0.48},
+    {label:'جرافيت', icon:'✏️',col:'#444',   I:0.23},
   ];
   simState={t:0,prog:metals.map(function(){return 0;}),running:false};
 
@@ -6667,9 +6685,9 @@ function simMetalConductor2() {
       ${metals.map(function(m,i){ return '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-weight:800;color:#1A8FA8;min-width:18px">'+(i+1)+'</span><span>'+m.icon+'</span><span style="font-size:13px">'+m.label+'</span><span style="margin-right:auto;font-size:12px;font-weight:700;color:'+m.col+'">'+m.I.toFixed(2)+' A</span></div>'; }).join('')}
     </div>
     <div class="q-box" style="font-size:13px">
-      <strong>❓</strong> لماذا لا نستخدم الجرافيت في الأسلاك؟
+      <strong>❓</strong> لماذا نستخدم النحاس لا الذهب في الأسلاك رغم أن الذهب أعلى موصلية؟
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 الإجابة</button>
-      <div class="q-ans-panel">الجرافيت هشّ ومقاومته عالية (1.4) مقارنة بالنحاس (0.017)، لذلك لا يناسب الأسلاك الكهربائية.</div>
+      <div class="q-ans-panel">الذهب نادر وغالٍ جداً! النحاس موصليته قريبة من الذهب لكنه أرخص بآلاف المرات. الذهب يُستخدم فقط في الإلكترونيات الدقيقة جداً.</div>
     </div>`);
 
   var cv=document.getElementById('simCanvas');
@@ -23146,30 +23164,40 @@ function simFitness2(){
     }
 
     // Chart
-    const chartX=w*0.1, chartY=h*0.12, chartW=w*0.82, chartH=h*0.62;
-    c.fillStyle='rgba(255,255,255,0.4)'; c.strokeStyle='rgba(200,200,200,0.5)'; c.lineWidth=1;
+    const chartX=w*0.1, chartY=h*0.12, chartW=w*0.82, chartH=h*0.58;
+    c.fillStyle='rgba(255,255,255,0.5)'; c.strokeStyle='rgba(200,200,200,0.5)'; c.lineWidth=1;
     c.beginPath(); c.rect(chartX,chartY,chartW,chartH); c.fill(); c.stroke();
 
-    // Grid lines
+    // منطقة الراحة (قبل التمرين)
+    c.fillStyle='rgba(100,180,100,0.07)';
+    c.beginPath(); c.rect(chartX,chartY,chartW*0.27,chartH); c.fill();
+    c.fillStyle='rgba(39,174,96,0.5)'; c.font='bold 10px Tajawal'; c.textAlign='center';
+    c.fillText('😌 راحة',chartX+chartW*0.135,chartY+14);
+
+    // منطقة التمرين
+    c.fillStyle='rgba(220,50,50,0.07)';
+    c.beginPath(); c.rect(chartX+chartW*0.27,chartY,chartW*0.23,chartH); c.fill();
+    c.fillStyle='rgba(200,50,50,0.5)'; c.font='bold 10px Tajawal'; c.textAlign='center';
+    c.fillText('🏃 تمرين',chartX+chartW*0.385,chartY+14);
+
+    // منطقة التعافي
+    c.fillStyle='rgba(50,150,255,0.07)';
+    c.beginPath(); c.rect(chartX+chartW*0.5,chartY,chartW*0.5,chartH); c.fill();
+    c.fillStyle='rgba(50,130,220,0.5)'; c.font='bold 10px Tajawal';
+    c.fillText('😮‍💨 تعافي',chartX+chartW*0.75,chartY+14);
+
+    // Grid lines مع أرقام واضحة
     [70,90,110,130,150,170].forEach(bpm=>{
       const yy=chartY+chartH*(1-(bpm-60)/120);
-      c.strokeStyle='rgba(200,200,200,0.4)'; c.lineWidth=1;
+      c.strokeStyle='rgba(200,200,200,0.5)'; c.lineWidth=1;
       c.beginPath(); c.moveTo(chartX,yy); c.lineTo(chartX+chartW,yy); c.stroke();
-      c.fillStyle='#999'; c.font='10px Tajawal'; c.textAlign='right';
-      c.textBaseline='middle'; c.fillText(bpm,chartX-4,yy);
+      c.fillStyle='#777'; c.font='bold 10px Tajawal'; c.textAlign='right';
+      c.textBaseline='middle'; c.fillText(bpm,chartX-5,yy);
     });
-
-    // Exercise zone label
-    c.fillStyle='rgba(220,50,50,0.08)'; c.beginPath();
-    c.rect(chartX+chartW*0.27,chartY,chartW*0.23,chartH); c.fill();
-    c.fillStyle='rgba(200,50,50,0.4)'; c.font='10px Tajawal'; c.textAlign='center';
-    c.fillText('منطقة التمرين',chartX+chartW*0.38,chartY+14);
-
-    // Recovery zone
-    c.fillStyle='rgba(50,200,100,0.08)'; c.beginPath();
-    c.rect(chartX+chartW*0.5,chartY,chartW*0.5,chartH); c.fill();
-    c.fillStyle='rgba(50,180,100,0.4)'; c.font='10px Tajawal';
-    c.fillText('منطقة التعافي',chartX+chartW*0.75,chartY+14);
+    // عنوان المحور Y
+    c.save(); c.translate(chartX-30,chartY+chartH/2);
+    c.rotate(-Math.PI/2); c.fillStyle='#999'; c.font='10px Tajawal';
+    c.textAlign='center'; c.fillText('نبضة/دقيقة',0,0); c.restore();
 
     // BPM line
     c.strokeStyle='rgba(192,57,43,0.9)'; c.lineWidth=2.5;
@@ -23189,13 +23217,21 @@ function simFitness2(){
       c.strokeStyle='white'; c.lineWidth=2; c.stroke();
     }
 
-    // BPM label
+    // BPM label + status
     const bpmColor=curBPM<90?'#27AE60':curBPM<130?'#F39C12':'#C0392B';
-    U7.txt(c,'النبض الحالي: '+Math.round(curBPM)+' نبضة/دقيقة',w/2,h*0.82,bpmColor,15,true);
+    U7.txt(c,'النبض الحالي: '+Math.round(curBPM)+' نبضة/دقيقة',w/2,h*0.76,bpmColor,15,true);
+
+    // تعليمات إذا لم يبدأ بعد
+    if(!S.exercised){
+      c.fillStyle='rgba(100,100,100,0.15)';
+      c.beginPath(); c.roundRect(w*0.2,h*0.35,w*0.6,h*0.2,12); c.fill();
+      U7.txt(c,'اضغط "ابدأ التمرين" لترى',w/2,h*0.41,'#888',13,true);
+      U7.txt(c,'كيف يرتفع النبض ثم يتعافى',w/2,h*0.47,'#888',12,false);
+    }
 
     // Heart animation
     const pulse2=1+Math.sin(S.t*curBPM/60*Math.PI*2)*0.08;
-    c.save(); c.translate(w*0.5,h*0.92); c.scale(pulse2*0.7,pulse2*0.7);
+    c.save(); c.translate(w*0.5,h*0.9); c.scale(pulse2*0.65,pulse2*0.65);
     c.fillStyle=bpmColor;
     c.beginPath();
     c.moveTo(0,22); c.bezierCurveTo(-4,-4,-28,-4,-28,-16);
@@ -23204,8 +23240,13 @@ function simFitness2(){
     c.bezierCurveTo(28,-4,4,-4,0,22); c.fill();
     c.restore();
 
-    window._stopHeartbeat && window._stopHeartbeat();
-    window._playHeartbeat && window._playHeartbeat(Math.round(curBPM));
+    // تحديث نبضات القلب فقط عند تغيّر البي بي إم — لا في كل frame
+    var roundedBPM = Math.round(curBPM/5)*5;
+    if(S._lastBPM !== roundedBPM){
+      S._lastBPM = roundedBPM;
+      window._stopHeartbeat && window._stopHeartbeat();
+      if(S.exercised) window._playHeartbeat && window._playHeartbeat(roundedBPM);
+    }
 
     if(S.exercised){
       S.elapsed+=0.016*4;
@@ -23331,29 +23372,53 @@ function simSmoking2(){
   cancelAnimationFrame(animFrame);
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
-  if(!simState.sm2) simState.sm2={t:0,showSmoker:false,damage:0};
+  if(!simState.sm2) simState.sm2={t:0,damage:0,_seed:42,_pts:null};
   const S=simState.sm2;
+
+  // توليد نقاط ثابتة مرة واحدة باستخدام seed
+  function seededRand(seed){ return ((Math.sin(seed)*9301+49297)%233280)/233280; }
+  function getPoints(){
+    if(S._pts) return S._pts;
+    S._pts={alv:[],tar:[]};
+    for(let i=0;i<30;i++){
+      S._pts.alv.push({rx:seededRand(i*3)*2-1, ry:seededRand(i*3+1)*2-1, rr:seededRand(i*3+2)});
+    }
+    for(let i=0;i<15;i++){
+      S._pts.tar.push({rx:seededRand(i*5+100)*2-1, ry:seededRand(i*5+101)*2-1, rr:seededRand(i*5+102)});
+    }
+    return S._pts;
+  }
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🔬 الرئة السليمة مقابل رئة المدخّن</div>
     </div>
-    <button class="ctrl-btn" onclick="simState.sm2.showSmoker=false">✅ رئة سليمة</button>
-    <button class="ctrl-btn" onclick="simState.sm2.showSmoker=true">❌ رئة مدخّن</button>
     <div class="ctrl-section" style="margin-top:8px">
-      <div class="ctrl-label">سنوات التدخين</div>
+      <div class="ctrl-label">🚬 سنوات التدخين: <span id="sm2yrs">0 سنة</span></div>
       <input type="range" min="0" max="40" step="1" value="0"
         oninput="simState.sm2.damage=+this.value/40;document.getElementById('sm2yrs').textContent=this.value+' سنة'"
-        style="width:100%">
-      <div id="sm2yrs" style="text-align:center;font-size:13px;color:#666">0 سنة</div>
+        style="width:100%;margin:6px 0">
     </div>
     <div class="info-box" style="font-size:12px;line-height:2;margin-top:8px">
       كلما زاد التدخين:<br>
       → حويصلات هوائية مدمّرة<br>
       → قدرة تنفسية أقل<br>
-      → خطر سرطان الرئة أعلى<br>
+      → ترسّب القطران (اللون الداكن)<br>
       🚭 التوقف يحسّن الوضع!
     </div>`);
+
+  function drawLung(cx, cy, lw, lh, dir, color){
+    const lx=cx+dir*lw*0.28, ly=cy;
+    const lg=c.createRadialGradient(lx,ly-lh*0.1,0,lx,ly,lh*0.5);
+    lg.addColorStop(0,color); lg.addColorStop(1,color.replace(/[\d.]+\)$/,'0.3)'));
+    c.fillStyle=lg; c.strokeStyle='rgba(100,40,40,0.4)'; c.lineWidth=2;
+    c.beginPath();
+    c.moveTo(lx,ly-lh*0.52);
+    c.bezierCurveTo(lx+dir*lw*0.18,ly-lh*0.52,lx+dir*lw*0.35,ly-lh*0.2,lx+dir*lw*0.35,ly);
+    c.bezierCurveTo(lx+dir*lw*0.35,ly+lh*0.25,lx+dir*lw*0.15,ly+lh*0.45,lx,ly+lh*0.45);
+    c.bezierCurveTo(lx-dir*lw*0.02,ly+lh*0.45,lx,ly+lh*0.25,lx,ly-lh*0.52);
+    c.fill(); c.stroke();
+  }
 
   function draw(){
     if(currentSim!=='smoking8'||currentTab!==1) return;
@@ -23361,55 +23426,62 @@ function simSmoking2(){
     c.clearRect(0,0,w,h);
     c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#FFF5F5';
     c.fillRect(0,0,w,h);
-    U7.txt(c,'مقارنة: الرئة السليمة × رئة المدخّن',w/2,24,'#7A0000',14,true);
+    U7.txt(c,'مقارنة: الرئة السليمة × رئة المدخّن',w/2,20,'#7A0000',14,true);
 
-    const sides=[{isSmoker:false,x:w*0.27},{isSmoker:true,x:w*0.73}];
+    const pts=getPoints();
+    const lh=h*0.5, lw=w*0.26;
+    const d=S.damage;
 
-    sides.forEach(({isSmoker,x})=>{
-      const baseColor=isSmoker
-        ? `rgba(${Math.round(120+S.damage*80)},${Math.round(60-S.damage*50)},${Math.round(60-S.damage*40)},0.85)`
-        : 'rgba(255,170,170,0.85)';
+    // ── رئة سليمة (يسار) ──
+    const hx=w*0.27, hy=h*0.5;
+    const healthyColor='rgba(255,160,160,0.85)';
+    [-1,1].forEach(dir=>drawLung(hx,hy,lw,lh,dir,healthyColor));
+    // حويصلات صحية — وردية زاهية وكبيرة
+    pts.alv.forEach((p,i)=>{
+      const ax=hx+p.rx*lw*0.35, ay=hy+p.ry*lh*0.35;
+      const ar=4+p.rr*5;
+      c.fillStyle='rgba(220,100,100,0.5)';
+      c.beginPath(); c.arc(ax,ay,ar,0,Math.PI*2); c.fill();
+    });
+    U7.txt(c,'رئة سليمة 🫁',hx,hy+lh*0.55,'#27AE60',13,true);
+    U7.txt(c,'السعة: 100%',hx,hy+lh*0.65,'#27AE60',12,false);
+    U7.txt(c,'حويصلات: 30/30',hx,hy+lh*0.73,'#888',11,false);
 
-      // Lung shape
-      const lh=h*0.52, lw=w*0.28;
-      [[x-lw*0.28,h*0.52,-1],[x+lw*0.28,h*0.52,1]].forEach(([lx,ly,dir])=>{
-        const lg=c.createRadialGradient(lx,ly-lh*0.1,0,lx,ly,lh*0.5);
-        lg.addColorStop(0,baseColor); lg.addColorStop(1,baseColor.replace('0.85','0.4'));
-        c.fillStyle=lg; c.strokeStyle='rgba(150,60,60,0.5)'; c.lineWidth=2;
-        c.beginPath();
-        c.moveTo(lx,ly-lh*0.52);
-        c.bezierCurveTo(lx+dir*lw*0.18,ly-lh*0.52,lx+dir*lw*0.35,ly-lh*0.2,lx+dir*lw*0.35,ly);
-        c.bezierCurveTo(lx+dir*lw*0.35,ly+lh*0.25,lx+dir*lw*0.15,ly+lh*0.45,lx,ly+lh*0.45);
-        c.bezierCurveTo(lx-dir*lw*0.02,ly+lh*0.45,lx,ly+lh*0.25,lx,ly-lh*0.52);
-        c.fill(); c.stroke();
-      });
+    // ── رئة المدخّن (يمين) ──
+    const sx=w*0.73, sy=h*0.5;
+    const r=Math.round(120+d*100), g=Math.round(70-d*60), b=Math.round(60-d*50);
+    const smokerColor=`rgba(${r},${g},${b},0.85)`;
+    [-1,1].forEach(dir=>drawLung(sx,sy,lw,lh,dir,smokerColor));
 
-      // Alveoli inside
-      const nAlv=isSmoker?Math.round(30*(1-S.damage)):30;
-      const color2=isSmoker?`rgba(${Math.round(80+S.damage*120)},30,30,0.5)`:'rgba(200,100,100,0.5)';
-      for(let i=0;i<nAlv;i++){
-        const ax=x+(Math.random()*2-1)*lw*0.38;
-        const ay=h*0.4+(Math.random()*2-1)*lh*0.35;
-        const ar=3+Math.random()*4*(isSmoker?1-S.damage*0.7:1);
-        c.fillStyle=color2; c.beginPath(); c.arc(ax,ay,ar,0,Math.PI*2); c.fill();
-      }
-
-      // Tar deposits for smoker
-      if(isSmoker && S.damage>0.1){
-        for(let i=0;i<Math.round(S.damage*15);i++){
-          c.fillStyle='rgba(30,20,10,0.3)';
-          c.beginPath(); c.arc(x+(Math.random()*2-1)*lw*0.3,h*0.45+(Math.random()*2-1)*lh*0.3,Math.random()*8+2,0,Math.PI*2); c.fill();
-        }
-      }
-
-      // Label
-      U7.txt(c,isSmoker?'رئة المدخّن':'رئة سليمة',x,h*0.82,isSmoker?'#C0392B':'#27AE60',13,true);
-      const capacity=isSmoker?Math.round(100*(1-S.damage*0.7)):100;
-      U7.txt(c,`السعة: ${capacity}%`,x,h*0.86,isSmoker?'#C0392B':'#27AE60',12,false);
+    // حويصلات مدمّرة — أقل عدداً وأصغر
+    const nAlv=Math.round(30*(1-d*0.85));
+    const alR=Math.round(80+d*130), alG=Math.round(40-d*30);
+    pts.alv.slice(0,Math.max(nAlv,0)).forEach((p)=>{
+      const ax=sx+p.rx*lw*0.35, ay=sy+p.ry*lh*0.35;
+      const ar=Math.max(1,(4+p.rr*5)*(1-d*0.7));
+      c.fillStyle=`rgba(${alR},${alG},30,0.55)`;
+      c.beginPath(); c.arc(ax,ay,ar,0,Math.PI*2); c.fill();
     });
 
-    // Comparison arrow
-    U7.txt(c,'←   مقارنة   →',w/2,h*0.52,'#888',12,false);
+    // ترسّب القطران الداكن
+    if(d>0.05){
+      const nTar=Math.round(d*15);
+      pts.tar.slice(0,nTar).forEach(p=>{
+        const ax=sx+p.rx*lw*0.3, ay=sy+p.ry*lh*0.32;
+        const ar=3+p.rr*8*d;
+        c.fillStyle=`rgba(20,15,5,${0.25+d*0.35})`;
+        c.beginPath(); c.arc(ax,ay,ar,0,Math.PI*2); c.fill();
+      });
+    }
+
+    const capacity=Math.round(100*(1-d*0.75));
+    const nAlvShow=Math.max(0,Math.round(30*(1-d*0.85)));
+    U7.txt(c,'رئة المدخّن 🖤',sx,sy+lh*0.55,'#C0392B',13,true);
+    U7.txt(c,`السعة: ${capacity}%`,sx,sy+lh*0.65,'#C0392B',12,false);
+    U7.txt(c,`حويصلات: ${nAlvShow}/30`,sx,sy+lh*0.73,'#888',11,false);
+
+    // سهم مقارنة
+    U7.txt(c,'←   مقارنة   →',w/2,sy,'#aaa',11,false);
 
     S.t+=0.025;
     animFrame=requestAnimationFrame(draw);
