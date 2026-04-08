@@ -1755,14 +1755,31 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 
     <!-- يظهر فقط إذا ما عنده اشتراك نشط -->
     <div id="payment-section">
-      <p style="color:#C0392B;font-size:14px;margin:0 0 10px">
-        ⚠️ تحتاج اشتراكاً نشطاً للوصول إلى المنصة
-      </p>
-      <button class="auth-btn pay-btn"
-      onclick="window.open('https://bayyin.lemonsqueezy.com/checkout/buy/28dfca90-bacc-4361-bd3e-536fd6c47389', '_blank')">
-        اشترك الآن 🚀
-      </button>
-      <p class="pay-note">بعد الدفع يُفعَّل حسابك تلقائياً خلال ثوانٍ ✅</p>
+      <div style="border-top:1.5px solid #F0F0F0;margin-top:16px;padding-top:18px;">
+        <div style="background:linear-gradient(135deg,rgba(192,57,43,0.07),rgba(212,144,26,0.05));border:1.5px solid rgba(192,57,43,0.18);border-radius:14px;padding:16px 18px;margin-bottom:14px;text-align:right">
+          <div style="font-size:15px;font-weight:800;color:#C0392B;margin-bottom:6px">⚠️ لا يوجد اشتراك نشط</div>
+          <div style="font-size:12px;color:#7A8A98;line-height:1.7">
+            للوصول إلى جميع الاستقصاءات التفاعلية<br>يرجى الاشتراك أولاً
+          </div>
+        </div>
+        <a id="pay-link"
+          href="https://bayyin.lemonsqueezy.com/checkout/buy/28dfca90-bacc-4361-bd3e-536fd6c47389"
+          target="_blank"
+          rel="noopener"
+          style="display:block;width:100%;padding:14px;border:none;border-radius:12px;
+            background:linear-gradient(135deg,#27AE60,#1e8c4c);color:#fff;
+            font-family:'Tajawal',sans-serif;font-size:16px;font-weight:800;
+            cursor:pointer;text-align:center;text-decoration:none;
+            box-shadow:0 4px 16px rgba(39,174,96,0.35);
+            transition:transform 0.15s,box-shadow 0.15s;box-sizing:border-box;"
+          onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 22px rgba(39,174,96,0.45)'"
+          onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(39,174,96,0.35)'">
+          💳 اشترك الآن
+        </a>
+        <p class="pay-note" style="font-size:12px;color:#888;text-align:center;margin:10px 0 0">
+          ✅ يُفعَّل حسابك تلقائياً بعد الدفع خلال ثوانٍ
+        </p>
+      </div>
     </div>
   </div>
 </div>
@@ -21602,7 +21619,13 @@ function _lockPlatform() {
   var overlay = document.getElementById('auth-overlay');
   if (overlay) overlay.style.display = '';
   document.getElementById('payment-section').style.display = 'block';
-  _authStatus('⏰ انتهت مدة اشتراكك — يرجى التجديد للمتابعة', false);
+  document.getElementById('auth-email').style.display = 'none';
+  document.getElementById('auth-pass').style.display = 'none';
+  document.getElementById('auth-submit-btn').style.display = 'none';
+  document.getElementById('auth-visitor-bar').style.display = 'none';
+  var authSub2 = document.querySelector('.auth-sub');
+  if(authSub2) authSub2.style.display = 'none';
+  _authStatus('⏰ انتهت مدة اشتراكك — يرجى التجديد', false);
 }
 
 async function _periodicSubCheck() {
@@ -21716,8 +21739,15 @@ async function _checkSubscription() {
     if (status === 'active') {
       _unlockPlatform();
     } else {
+      // أخفِ حقول الدخول وأظهر صفحة الدفع بشكل واضح
       document.getElementById('payment-section').style.display = 'block';
-      _authStatus('يرجى الاشتراك للوصول إلى المنصة', false);
+      document.getElementById('auth-email').style.display = 'none';
+      document.getElementById('auth-pass').style.display = 'none';
+      document.getElementById('auth-submit-btn').style.display = 'none';
+      document.getElementById('auth-visitor-bar').style.display = 'none';
+      var authSub = document.querySelector('.auth-sub');
+      if(authSub) authSub.style.display = 'none';
+      _authStatus('', false);
     }
   } catch (err) {
     console.error('checkSubscription error:', err);
