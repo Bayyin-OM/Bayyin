@@ -1,64 +1,72 @@
 // ============================================================
-// بيّن — Stripe Webhook
+// بيّن — Lemon Squeezy Webhook
 // المسار: supabase/functions/stripe-webhook/index.ts
-//
-// كيف تثبّته:
-// 1. supabase functions new stripe-webhook
-// 2. انسخ هذا الكود داخل index.ts
-// 3. supabase functions deploy stripe-webhook
 // ============================================================
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import Stripe from "https://esm.sh/stripe@13?target=deno";
+import { crypto } from "https://deno.land/std@0.177.0/crypto/mod.ts";
 
-// ── يتصل بـ Supabase بصلاحيات كاملة (service_role) ──
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, {
-  apiVersion: "2023-10-16",
-  httpClient: Stripe.createFetchHttpClient(),
-});
+// التحقق من توقيع Lemon Squeezy
+async function verifySignature(body: string, signature: string, secret: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
+  const hex = Array.from(new Uint8Array(signed))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+  return hex === signature;
+}
 
 serve(async (req) => {
-  const signature    = req.headers.get("stripe-signature") ?? "";
-  const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
-  const body         = await req.text();
+  const signature = req.headers.get("x-signature") ?? "";
+  const secret    = Deno.env.get("LEMONSQUEEZY_WEBHOOK_SECRET")!;
+  const body      = await req.text();
 
-  // ── التحقق أن الطلب فعلاً من Stripe ──
-  let event: Stripe.Event;
-  try {
-    event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
-  } catch (err) {
-    console.error("Webhook verification failed:", err.message);
+  // التحقق أن الطلب فعلاً من Lemon Squeezy
+  const valid = await verifySignature(body, signature, secret);
+  if (!valid) {
+    console.error("Invalid signature");
     return new Response("Invalid signature", { status: 400 });
   }
 
-  // ── معالجة الأحداث ──
+  let payload: any;
   try {
-    switch (event.type) {
+    payload = JSON.parse(body);
+  } catch {
+    return new Response("Invalid JSON", { status: 400 });
+  }
 
-      // ✅ دفع ناجح → فعّل الاشتراك
-      case "checkout.session.completed": {
-        const session      = event.data.object as Stripe.Checkout.Session;
-        const email        = session.customer_details?.email;
-        const customerId   = session.customer as string;
-        const subId        = session.subscription as string;
+  const eventName = payload.meta?.event_name;
+  const data      = payload.data?.attributes;
+  const email     = data?.user_email;
+
+  console.log("Event:", eventName, "| Email:", email);
+
+  try {
+    switch (eventName) {
+
+      // ✅ اشتراك جديد أو دفع ناجح → فعّل الحساب
+      case "order_created":
+      case "subscription_created": {
         if (!email) break;
-
-        let expiresAt: string | null = null;
-        if (subId) {
-          const sub = await stripe.subscriptions.retrieve(subId);
-          expiresAt = new Date(sub.current_period_end * 1000).toISOString();
-        }
+        const expiresAt = data?.ends_at
+          ? new Date(data.ends_at).toISOString()
+          : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
         await supabase.from("profiles").update({
           subscription_status:     "active",
-          stripe_customer_id:      customerId,
-          stripe_subscription_id:  subId,
           subscription_expires_at: expiresAt,
         }).eq("email", email);
 
@@ -66,41 +74,58 @@ serve(async (req) => {
         break;
       }
 
-      // 🔄 تجديد تلقائي → مدّد الاشتراك
-      case "invoice.payment_succeeded": {
-        const invoice    = event.data.object as Stripe.Invoice;
-        const customerId = invoice.customer as string;
-        const subId      = invoice.subscription as string;
-        if (!subId) break;
+      // 🔄 تجديد الاشتراك
+      case "subscription_updated": {
+        if (!email) break;
+        const status    = data?.status;
+        const expiresAt = data?.ends_at
+          ? new Date(data.ends_at).toISOString()
+          : null;
 
-        const sub      = await stripe.subscriptions.retrieve(subId);
-        const expiresAt = new Date(sub.current_period_end * 1000).toISOString();
-
-        await supabase.from("profiles").update({
-          subscription_status:     "active",
-          subscription_expires_at: expiresAt,
-        }).eq("stripe_customer_id", customerId);
-
-        console.log("🔄 Renewed for customer:", customerId);
+        if (status === "active") {
+          await supabase.from("profiles").update({
+            subscription_status:     "active",
+            subscription_expires_at: expiresAt,
+          }).eq("email", email);
+          console.log("🔄 Renewed:", email);
+        }
         break;
       }
 
-      // ❌ إلغاء الاشتراك → أوقف الوصول
-      case "customer.subscription.deleted": {
-        const sub        = event.data.object as Stripe.Subscription;
-        const customerId = sub.customer as string;
-
+      // ❌ إلغاء الاشتراك
+      case "subscription_cancelled": {
+        if (!email) break;
         await supabase.from("profiles").update({
-          subscription_status:     "expired",
+          subscription_status:     "pending",
           subscription_expires_at: new Date().toISOString(),
-        }).eq("stripe_customer_id", customerId);
+        }).eq("email", email);
+        console.log("❌ Cancelled:", email);
+        break;
+      }
 
-        console.log("❌ Expired for customer:", customerId);
+      // ⏰ انتهاء الاشتراك تلقائياً
+      case "subscription_expired": {
+        if (!email) break;
+        await supabase.from("profiles").update({
+          subscription_status:     "pending",
+          subscription_expires_at: new Date().toISOString(),
+        }).eq("email", email);
+        console.log("⏰ Expired:", email);
+        break;
+      }
+
+      // 💳 فشل الدفع
+      case "subscription_payment_failed": {
+        if (!email) break;
+        await supabase.from("profiles").update({
+          subscription_status: "pending",
+        }).eq("email", email);
+        console.log("💳 Payment failed:", email);
         break;
       }
 
       default:
-        console.log("Unhandled event:", event.type);
+        console.log("Unhandled event:", eventName);
     }
   } catch (err) {
     console.error("Handler error:", err);
