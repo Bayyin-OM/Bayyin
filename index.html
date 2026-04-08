@@ -1716,6 +1716,30 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   <div class="auth-card">
     <div class="auth-logo">🔬</div>
     <h2 class="auth-title">منصة بيّن</h2>
+
+    <!-- ── عداد الزوار في بطاقة الدخول ── -->
+    <div id="auth-visitor-bar" style="
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      background: linear-gradient(135deg, rgba(107,78,154,0.10), rgba(26,143,168,0.08));
+      border: 1.5px solid rgba(107,78,154,0.22);
+      border-radius: 14px; padding: 10px 18px; margin: 0 0 18px;
+      font-family:'Tajawal',sans-serif; direction:rtl;
+    ">
+      <span style="font-size:22px; line-height:1;">👥</span>
+      <div style="text-align:right; line-height:1.35;">
+        <div style="font-size:11px; color:#7A8A98; font-weight:500; margin-bottom:2px;">انضم إليهم اليوم</div>
+        <div style="display:flex; align-items:baseline; gap:5px;">
+          <span id="auth-visit-count" style="font-size:26px; font-weight:900; color:#6B4E9A; letter-spacing:-0.5px; line-height:1;">٠</span>
+          <span style="font-size:13px; color:#6B4E9A; font-weight:700;">زيارة على المنصة</span>
+        </div>
+      </div>
+      <span style="
+        background: linear-gradient(135deg,#6B4E9A,#1A8FA8);
+        color:white; font-size:10px; font-weight:800;
+        padding:3px 8px; border-radius:20px; white-space:nowrap; margin-right:auto;
+      ">🔥 نشط</span>
+    </div>
+
     <p class="auth-sub">سجّل دخولك للوصول إلى المختبرات التفاعلية</p>
 
     <input type="email" id="auth-email" class="auth-input"
@@ -3356,25 +3380,31 @@ function goToLanding() {
 
 function toArNums(n){ return n.toString().replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]); }
 
+// تحديث كل عناصر عرض العداد في الصفحة
+function _setAllCounters(val) {
+  var txt = toArNums(val);
+  var el1 = document.getElementById('visit-count');
+  var el2 = document.getElementById('auth-visit-count');
+  if (el1) el1.textContent = txt;
+  if (el2) el2.textContent = txt;
+}
+
 // قراءة العدد فقط وتحديث الـ UI
 async function _fetchAndShowCount() {
-  var el = document.getElementById('visit-count');
-  if (!el) return;
   try {
     var r = await _db.from('site_stats').select('visit_count').eq('id','global').single();
-    if (r.data) el.textContent = toArNums(r.data.visit_count || 0);
+    if (r.data) _setAllCounters(r.data.visit_count || 0);
   } catch(e) {}
 }
 
 // زيادة العداد + عرضه (يُستدعى مرة واحدة في أول زيارة بالجلسة)
 async function _incrementAndShowCount() {
-  var el = document.getElementById('visit-count');
   try {
     var r = await _db.from('site_stats').select('visit_count').eq('id','global').single();
     if (r.data) {
       var newCount = (r.data.visit_count || 0) + 1;
       await _db.from('site_stats').update({ visit_count: newCount }).eq('id','global');
-      if (el) el.textContent = toArNums(newCount);
+      _setAllCounters(newCount);
       try { sessionStorage.setItem('bayyin-session-counted','1'); } catch(e) {}
     }
   } catch(e) {
@@ -3385,7 +3415,7 @@ async function _incrementAndShowCount() {
         visits++; localStorage.setItem('bayyin-vc', visits);
         sessionStorage.setItem('bayyin-session-counted','1');
       }
-      if(el) el.textContent = toArNums(visits);
+      _setAllCounters(visits);
     } catch(e2){}
   }
 }
