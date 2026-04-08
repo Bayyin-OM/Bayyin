@@ -3325,25 +3325,74 @@ function goToLanding() {
 }
 
 // ══════════════════════════════════════════════════════════
-// عداد الزوار — يستخدم localStorage لتتبّع عدد الزيارات
+// عداد الزوار الحقيقي — مخزّن في Supabase، يتحدّث كل 30 ثانية
 // ══════════════════════════════════════════════════════════
-(function initVisitorCounter(){
+// ─ المطلوب في Supabase (مرة واحدة فقط) ────────────────
+// CREATE TABLE site_stats (
+//   id TEXT PRIMARY KEY,
+//   visit_count BIGINT DEFAULT 0
+// );
+// INSERT INTO site_stats (id, visit_count) VALUES ('global', 0);
+// ALTER TABLE site_stats ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY "allow_read"   ON site_stats FOR SELECT USING (true);
+// CREATE POLICY "allow_update" ON site_stats FOR UPDATE USING (true);
+// ───────────────────────────────────────────────────────
+
+function toArNums(n){ return n.toString().replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]); }
+
+// قراءة العدد فقط وتحديث الـ UI
+async function _fetchAndShowCount() {
+  var el = document.getElementById('visit-count');
+  if (!el) return;
   try {
-    var KEY = 'bayyin-visit-count';
-    var visits = parseInt(localStorage.getItem(KEY) || '0', 10);
-    // هل هذه جلسة جديدة؟ نتحقق بـ sessionStorage
-    var SESSION_KEY = 'bayyin-session-counted';
-    if(!sessionStorage.getItem(SESSION_KEY)){
-      visits += 1;
-      localStorage.setItem(KEY, visits);
-      sessionStorage.setItem(SESSION_KEY, '1');
+    var r = await _db.from('site_stats').select('visit_count').eq('id','global').single();
+    if (r.data) el.textContent = toArNums(r.data.visit_count || 0);
+  } catch(e) {}
+}
+
+// زيادة العداد + عرضه (يُستدعى مرة واحدة في أول زيارة بالجلسة)
+async function _incrementAndShowCount() {
+  var el = document.getElementById('visit-count');
+  try {
+    var r = await _db.from('site_stats').select('visit_count').eq('id','global').single();
+    if (r.data) {
+      var newCount = (r.data.visit_count || 0) + 1;
+      await _db.from('site_stats').update({ visit_count: newCount }).eq('id','global');
+      if (el) el.textContent = toArNums(newCount);
+      try { sessionStorage.setItem('bayyin-session-counted','1'); } catch(e) {}
     }
-    // تحويل الأرقام للعربية
-    function toAr(n){ return n.toString().replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]); }
-    var el = document.getElementById('visit-count');
-    if(el) el.textContent = toAr(visits);
-  } catch(e){}
-})();
+  } catch(e) {
+    // fallback محلي إذا فشل Supabase
+    try {
+      var visits = parseInt(localStorage.getItem('bayyin-vc')||'0',10);
+      if(!sessionStorage.getItem('bayyin-session-counted')){
+        visits++; localStorage.setItem('bayyin-vc', visits);
+        sessionStorage.setItem('bayyin-session-counted','1');
+      }
+      if(el) el.textContent = toArNums(visits);
+    } catch(e2){}
+  }
+}
+
+// تهيئة العداد
+async function initVisitorCounter() {
+  var alreadyCounted = false;
+  try { alreadyCounted = !!sessionStorage.getItem('bayyin-session-counted'); } catch(e){}
+
+  if (!alreadyCounted) {
+    await _incrementAndShowCount();
+  } else {
+    await _fetchAndShowCount();
+  }
+
+  // تحديث تلقائي كل 30 ثانية لعرض آخر عدد للزوار
+  setInterval(_fetchAndShowCount, 30000);
+}
+
+// تشغيل العداد بعد ثانية من تحميل الصفحة (بعد تهيّؤ _db)
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(initVisitorCounter, 1200);
+});
 
 // ══════════════════════════════════════════════════════════
 // عرض مدة الاشتراك المتبقية في الـ topbar
