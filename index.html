@@ -4305,6 +4305,7 @@ function startSim(type, tab) {
     staticelec:   [simStaticElec1, simStaticElec2],
     circuit8:     [simCircuit8Series, simCircuit8Parallel],
     magcompare:   [simMagCompare1, simMagCompare2],
+    magfield:     [simMagField1, simMagField2],
     emstronger:   [simEmStronger1, simEmStronger2],
     charges:      [simCharges1, simCharges2],
     electrons:    [simElectrons1, simElectrons2],
@@ -21600,7 +21601,6 @@ try {
   _db = window.supabase.createClient(_SUPA_URL, _SUPA_KEY);
 } catch(e) {
   console.error('[بيّن] فشل تحميل Supabase:', e);
-  // أظهر شاشة الدخول بدل الصفحة الفارغة
   document.addEventListener('DOMContentLoaded', function() {
     var overlay = document.getElementById('auth-overlay');
     if (overlay) overlay.style.display = 'flex';
@@ -21735,7 +21735,6 @@ async function handleLogin() {
 async function _checkSubscription() {
   try {
     if (!_db) {
-      // Supabase ما اتحمل — أظهر شاشة الدخول
       var overlay = document.getElementById('auth-overlay');
       if (overlay) overlay.style.display = 'flex';
       _authStatus('❌ خطأ في الاتصال — يرجى تحديث الصفحة', false);
@@ -21744,7 +21743,6 @@ async function _checkSubscription() {
     var userResp = await _db.auth.getUser();
     var user = userResp.data.user;
     if (!user) {
-      // مستخدم غير مسجل — أظهر شاشة الدخول
       var overlay = document.getElementById('auth-overlay');
       if (overlay) overlay.style.display = 'flex';
       return;
