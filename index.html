@@ -147,22 +147,32 @@ html.dark-mode #sub-badge.sub-expire {
 #visitor-counter {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 13px;
+  gap: 7px;
+  padding: 6px 14px;
   border-radius: 50px;
-  background: rgba(107,78,154,0.08);
-  border: 1.5px solid rgba(107,78,154,0.2);
+  background: linear-gradient(135deg, rgba(107,78,154,0.1), rgba(107,78,154,0.05));
+  border: 1.5px solid rgba(107,78,154,0.25);
   color: #6B4E9A;
   font-family: 'Tajawal', sans-serif;
   font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
   line-height: 1;
+  box-shadow: 0 2px 8px rgba(107,78,154,0.1);
+  transition: all 0.2s ease;
+  cursor: default;
+}
+#visitor-counter:hover {
+  background: linear-gradient(135deg, rgba(107,78,154,0.15), rgba(107,78,154,0.08));
+  border-color: rgba(107,78,154,0.4);
+  box-shadow: 0 3px 12px rgba(107,78,154,0.2);
+  transform: translateY(-1px);
 }
 html.dark-mode #visitor-counter {
-  background: rgba(107,78,154,0.12);
-  border-color: rgba(107,78,154,0.3);
-  color: #A888D8;
+  background: linear-gradient(135deg, rgba(107,78,154,0.18), rgba(107,78,154,0.08));
+  border-color: rgba(168,136,216,0.35);
+  color: #B899E0;
+  box-shadow: 0 2px 8px rgba(107,78,154,0.2);
 }
 
 /* ===== HOME BUTTON IN TOPBAR ===== */
@@ -2219,7 +2229,13 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       <!-- subscription remaining badge -->
       <span id="sub-badge" class="sub-ok"></span>
       <!-- visitor counter -->
-      <span id="visitor-counter" title="إجمالي زوار المنصة">👁 <span id="visit-count">٠</span> زيارة</span>
+      <span id="visitor-counter" title="إجمالي زوار المنصة">
+        <span style="font-size:15px">👁️</span>
+        <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2">
+          <span id="visit-count" style="font-size:15px;font-weight:800;letter-spacing:0.5px">٠</span>
+          <span style="font-size:9px;font-weight:500;opacity:0.75">زيارة</span>
+        </span>
+      </span>
       <!-- home button -->
       <button id="topbar-home-btn" onclick="goToLanding()" title="العودة للصفحة الرئيسية">
         🏠 الرئيسية
@@ -21406,7 +21422,12 @@ function _authStatus(msg, ok) {
 function _unlockPlatform() {
   var overlay = document.getElementById('auth-overlay');
   if (overlay) overlay.style.display = 'none';
-  if (typeof openApp === 'function') openApp();
+  // أظهر الصفحة الرئيسية بدل grade-picker مباشرة
+  var landing = document.getElementById('landing');
+  if (landing) landing.style.removeProperty('display');
+  document.getElementById('grade-picker').style.display = 'none';
+  var app = document.getElementById('app');
+  if (app) { app.style.display = 'none'; app.classList.remove('open'); }
   // عرض مدة الاشتراك بعد فتح المنصة
   setTimeout(function(){ _showSubscriptionDays(); }, 800);
 }
