@@ -21486,6 +21486,38 @@ function _authStatus(msg, ok) {
   el.style.background = ok ? 'rgba(39,174,96,0.08)' : 'rgba(192,57,43,0.08)';
 }
 
+var _subCheckInterval = null;
+
+function _lockPlatform() {
+  // إيقاف الفحص الدوري
+  if (_subCheckInterval) { clearInterval(_subCheckInterval); _subCheckInterval = null; }
+  // إيقاف أي أنيميشن شغّال
+  if (typeof cancelAnimationFrame !== 'undefined' && typeof animFrame !== 'undefined') cancelAnimationFrame(animFrame);
+  // إخفاء المنصة وإظهار شاشة الدفع
+  var app = document.getElementById('app');
+  if (app) { app.style.display = 'none'; app.classList.remove('open'); }
+  var landing = document.getElementById('landing');
+  if (landing) landing.style.display = 'none';
+  var overlay = document.getElementById('auth-overlay');
+  if (overlay) overlay.style.display = '';
+  document.getElementById('payment-section').style.display = 'block';
+  _authStatus('⏰ انتهت مدة اشتراكك — يرجى التجديد للمتابعة', false);
+}
+
+async function _periodicSubCheck() {
+  try {
+    var userResp = await _db.auth.getUser();
+    var user = userResp && userResp.data && userResp.data.user;
+    if (!user) { _lockPlatform(); return; }
+    var resp = await _db.from('profiles')
+      .select('subscription_status')
+      .eq('id', user.id)
+      .single();
+    var status = resp.data && resp.data.subscription_status;
+    if (status !== 'active') _lockPlatform();
+  } catch(e) { console.log('periodic sub check error:', e); }
+}
+
 function _unlockPlatform() {
   var overlay = document.getElementById('auth-overlay');
   if (overlay) overlay.style.display = 'none';
@@ -21497,6 +21529,9 @@ function _unlockPlatform() {
   if (app) { app.style.display = 'none'; app.classList.remove('open'); }
   // عرض مدة الاشتراك بعد فتح المنصة
   setTimeout(function(){ _showSubscriptionDays(); }, 800);
+  // فحص دوري كل 5 دقائق
+  if (_subCheckInterval) clearInterval(_subCheckInterval);
+  _subCheckInterval = setInterval(_periodicSubCheck, 5 * 60 * 1000);
 }
 
 async function handleLogin() {
