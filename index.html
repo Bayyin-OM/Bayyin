@@ -19072,14 +19072,18 @@ function simMagnets2() {
   const c=cv.getContext('2d');
 
   const ITEMS=[
-    {id:'fe',label:'حديد',   icon:'🔩',magnetic:true},
-    {id:'ni',label:'نيكل',   icon:'🪙',magnetic:true},
-    {id:'co',label:'كوبالت', icon:'⚙️', magnetic:true},
-    {id:'cu',label:'نحاس',   icon:'🪛', magnetic:false},
-    {id:'al',label:'ألمنيوم',icon:'✈️', magnetic:false},
-    {id:'wd',label:'خشب',    icon:'🪵', magnetic:false},
-    {id:'gl',label:'زجاج',   icon:'🥃', magnetic:false},
-    {id:'pl',label:'بلاستيك',icon:'📏', magnetic:false},
+    {id:'fe',label:'حديد',        icon:'🔩',magnetic:true},
+    {id:'ni',label:'نيكل',        icon:'🪙',magnetic:true},
+    {id:'co',label:'كوبالت',      icon:'⚙️', magnetic:true},
+    {id:'pc',label:'مشبك فولاذ',  icon:'📎',magnetic:true},
+    {id:'cu',label:'نحاس',        icon:'🪛', magnetic:false},
+    {id:'al',label:'ألمنيوم',     icon:'✈️', magnetic:false},
+    {id:'au',label:'ذهب',         icon:'💛',magnetic:false},
+    {id:'ag',label:'فضة',         icon:'🥈',magnetic:false},
+    {id:'wd',label:'خشب',         icon:'🪵', magnetic:false},
+    {id:'gl',label:'زجاج',        icon:'🥃', magnetic:false},
+    {id:'pl',label:'بلاستيك',     icon:'📏', magnetic:false},
+    {id:'wa',label:'ماء',         icon:'💧',magnetic:false},
   ];
 
   if(!simState.mag2) simState.mag2={tested:{},dragId:null,dragX:0,dragY:0,ox:0,oy:0,t:0};
@@ -19096,8 +19100,8 @@ function simMagnets2() {
     </div>
     <button onclick="simState.mag2.tested={};simState.mag2.dragId=null;document.getElementById('mag2res').innerHTML=''" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid rgba(192,57,43,.2);background:rgba(192,57,43,.06);color:#C0392B;font-family:Tajawal;font-size:13px;cursor:pointer">🔄 إعادة</button>
     <div class="info-box" style="font-size:12px;margin-top:8px">
-      ✅ مغناطيسية: حديد · نيكل · كوبالت<br>
-      ❌ غير مغناطيسية: نحاس · ألمنيوم · خشب · زجاج · بلاستيك
+      ✅ مغناطيسية: حديد · نيكل · كوبالت · مشبك فولاذ<br>
+      ❌ غير مغناطيسية: نحاس · ألمنيوم · ذهب · فضة · خشب · زجاج · بلاستيك · ماء
     </div>`);
 
   function updRes(){
@@ -19110,13 +19114,13 @@ function simMagnets2() {
   }
 
   function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
-  function getPos(i,w,h){const cols=4,iw=Math.min(w*.22,88),ih=iw*.82,gap=8,total=cols*(iw+gap)-gap,sx=(w-total)/2+iw/2,row=Math.floor(i/cols),col=i%cols;return{x:sx+col*(iw+gap),y:h*.7+row*(ih+gap)+ih/2,iw,ih};}
+  function getPos(i,w,h){const cols=4,iw=Math.min(w*.22,84),ih=iw*.85,gap=7,total=cols*(iw+gap)-gap,sx=(w-total)/2+iw/2,row=Math.floor(i/cols),col=i%cols;return{x:sx+col*(iw+gap),y:h*.57+row*(ih+gap)+ih/2,iw,ih};}
 
   cv.addEventListener('mousedown',e=>{const p=gp(e),w=cv.width,h=cv.height;ITEMS.forEach((it,i)=>{if(S.tested[it.id]!==undefined)return;const pos=getPos(i,w,h);if(Math.abs(p.x-pos.x)<pos.iw/2&&Math.abs(p.y-pos.y)<pos.ih/2){S.dragId=it.id;S.ox=p.x-pos.x;S.oy=p.y-pos.y;}});});
   cv.addEventListener('mousemove',e=>{if(!S.dragId)return;const p=gp(e);S.dragX=p.x-S.ox;S.dragY=p.y-S.oy;});
   cv.addEventListener('mouseup',e=>{
     if(!S.dragId)return;
-    const w=cv.width,h=cv.height,mx=w*.5,my=h*.3;
+    const w=cv.width,h=cv.height,mx=w*.5,my=h*.22;
     if(Math.hypot(S.dragX-mx,S.dragY-my)<w*.18){
       const it=ITEMS.find(x=>x.id===S.dragId);
       S.tested[S.dragId]=it.magnetic; updRes();
@@ -19137,7 +19141,7 @@ function simMagnets2() {
     U9.grid(c,w,h,'rgba(100,130,200,0.07)',44);
 
     // Horseshoe magnet
-    const mx=w*.5,my=h*.3,mR=Math.min(w*.18,90),mT=Math.min(h*.08,36);
+    const mx=w*.5,my=h*.22,mR=Math.min(w*.24,115),mT=Math.min(h*.10,44);
     c.strokeStyle='#777'; c.lineWidth=mT*.9; c.lineCap='round';
     c.beginPath(); c.arc(mx,my,mR,Math.PI,0); c.stroke();
     // poles
@@ -19153,8 +19157,8 @@ function simMagnets2() {
     c.fillText('أفلت هنا',mx,my+mR*.6);
 
     // tray
-    c.fillStyle='rgba(225,235,248,.92)'; c.beginPath(); c.roundRect(0,h*.62,w,h*.38,0); c.fill();
-    c.strokeStyle='rgba(100,130,200,.18)'; c.lineWidth=1; c.beginPath(); c.moveTo(0,h*.62); c.lineTo(w,h*.62); c.stroke();
+    c.fillStyle='rgba(225,235,248,.92)'; c.beginPath(); c.roundRect(0,h*.52,w,h*.48,0); c.fill();
+    c.strokeStyle='rgba(100,130,200,.18)'; c.lineWidth=1; c.beginPath(); c.moveTo(0,h*.52); c.lineTo(w,h*.52); c.stroke();
 
     // items
     ITEMS.forEach((it,i)=>{
@@ -19168,9 +19172,9 @@ function simMagnets2() {
       c.shadowBlur=6; c.shadowColor='rgba(0,0,0,.1)';
       c.beginPath(); c.roundRect(pos.x-pos.iw/2,pos.y-pos.ih/2,pos.iw,pos.ih,12); c.fill(); c.stroke();
       c.shadowBlur=0;
-      c.font=`${pos.iw*.33|0}px serif`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(it.icon,pos.x,pos.y-pos.ih*.12);
-      c.font=`bold ${pos.iw*.17|0}px Tajawal`; c.fillStyle='#333'; c.textBaseline='bottom';
+      c.font=`${pos.iw*.40|0}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(it.icon,pos.x,pos.y-pos.ih*.10);
+      c.font=`bold ${pos.iw*.19|0}px Tajawal`; c.fillStyle='#333'; c.textBaseline='bottom';
       c.fillText(it.label,pos.x,pos.y+pos.ih/2-3);
     });
 
@@ -19189,12 +19193,12 @@ function simMagnets2() {
 
     // dragged
     if(S.dragId){
-      const it=ITEMS.find(x=>x.id===S.dragId),iw=80,ih=64;
+      const it=ITEMS.find(x=>x.id===S.dragId),iw=92,ih=74;
       c.shadowBlur=18; c.shadowColor='rgba(26,143,168,.4)';
       c.fillStyle='rgba(255,255,255,.97)'; c.strokeStyle='#1A8FA8'; c.lineWidth=2.5;
       c.beginPath(); c.roundRect(S.dragX-iw/2,S.dragY-ih/2,iw,ih,12); c.fill(); c.stroke();
       c.shadowBlur=0;
-      c.font='26px serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText(it.icon,S.dragX,S.dragY-7);
+      c.font='32px serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText(it.icon,S.dragX,S.dragY-8);
       c.font='bold 12px Tajawal'; c.fillStyle='#333'; c.textBaseline='bottom'; c.fillText(it.label,S.dragX,S.dragY+ih/2-2);
     }
 
@@ -20000,87 +20004,184 @@ function simMagCompare2() {
   cancelAnimationFrame(animFrame);
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
-  if(!simState.mc2) simState.mc2={dragIdx:-1,tested:{},t:0};
+  if(!simState.mc2) simState.mc2={dragId:null,dragX:0,dragY:0,ox:0,oy:0,tested:{},t:0};
   const S=simState.mc2;
-  const ITEMS=[
-    {name:'حديد',    icon:'🔩', mag:true,  x:0,y:0},
-    {name:'ألومنيوم',icon:'🪙', mag:false, x:0,y:0},
-    {name:'فولاذ',   icon:'⚙️', mag:true,  x:0,y:0},
-    {name:'نحاس',    icon:'🟤', mag:false, x:0,y:0},
-    {name:'بلاستيك', icon:'🧩', mag:false, x:0,y:0},
-    {name:'نيكل',    icon:'⬜', mag:true,  x:0,y:0},
-  ];
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🔬 اسحب المادة نحو المغناطيس</div>
-      <div style="font-size:12px;color:#888">المواد المغناطيسية تنجذب — الأخرى لا</div>
-    </div>
-    <button class="ctrl-btn reset" onclick="simState.mc2.tested={};simState.mc2.t=0">↺ إعادة</button>
-    <div class="info-box" style="font-size:12px;line-height:1.9">
-      ✅ مغناطيسية: حديد، فولاذ، نيكل<br>
-      ❌ غير مغناطيسية: ألومنيوم، نحاس، بلاستيك
-    </div>`);
 
-  const cols=3, rows=2;
-  function itemPos(i){ return {x:cv.width*(0.55+.13*(i%cols)), y:cv.height*(0.28+.22*Math.floor(i/cols))}; }
+  const ITEMS=[
+    {id:'fe', name:'حديد',     icon:'🔩', mag:true},
+    {id:'al', name:'ألومنيوم', icon:'✈️', mag:false},
+    {id:'st', name:'فولاذ',   icon:'⚙️',  mag:true},
+    {id:'cu', name:'نحاس',    icon:'🪛',  mag:false},
+    {id:'pl', name:'بلاستيك', icon:'📏',  mag:false},
+    {id:'ni', name:'نيكل',    icon:'🪙',  mag:true},
+  ];
+
+  function updControls(){
+    const testedHTML = Object.entries(S.tested).map(([id,mag])=>{
+      const it=ITEMS.find(x=>x.id===id);
+      return `<div style="margin:3px 0">${it.icon} ${it.name}: <strong style="color:${mag?'#27AE60':'#E74C3C'}">${mag?'✅ مغناطيسية':'❌ غير مغناطيسية'}</strong></div>`;
+    }).join('') || '<span style="color:#aaa;font-size:11px">اسحب مادة نحو المغناطيس</span>';
+
+    controls(`
+      <div class="ctrl-section">
+        <div class="ctrl-label">🔬 اختبار المواد</div>
+        <div style="font-size:12px;color:#666">اسحب أي مادة نحو المغناطيس</div>
+      </div>
+      <div class="ctrl-section">
+        <div class="ctrl-label">📋 النتائج</div>
+        <div id="mc2res" style="font-size:12px;line-height:1.9">${testedHTML}</div>
+      </div>
+      <button onclick="simState.mc2.tested={};simState.mc2.dragId=null;simMagCompare2()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid rgba(192,57,43,.2);background:rgba(192,57,43,.06);color:#C0392B;font-family:Tajawal;font-size:13px;cursor:pointer">🔄 إعادة</button>
+      <div class="info-box" style="font-size:12px;margin-top:8px;line-height:1.8">
+        ✅ مغناطيسية: حديد · فولاذ · نيكل<br>
+        ❌ غير مغناطيسية: ألومنيوم · نحاس · بلاستيك
+      </div>`);
+  }
+  updControls();
+
+  // تحديث قسم النتائج فقط دون إعادة رسم الكنترولز
+  function updRes(){
+    const el=document.getElementById('mc2res'); if(!el)return;
+    const html=Object.entries(S.tested).map(([id,mag])=>{
+      const it=ITEMS.find(x=>x.id===id);
+      return `<div style="margin:3px 0">${it.icon} ${it.name}: <strong style="color:${mag?'#27AE60':'#E74C3C'}">${mag?'✅ مغناطيسية':'❌ غير مغناطيسية'}</strong></div>`;
+    }).join('') || '<span style="color:#aaa;font-size:11px">اسحب مادة نحو المغناطيس</span>';
+    el.innerHTML=html;
+  }
+
+  function getItemPos(i,w,h){
+    const cols=2, iw=Math.min(w*.18,74), ih=iw*.85, gap=10;
+    const totalW=cols*(iw+gap)-gap;
+    const sx=w*.62 + (i%cols)*(iw+gap) - totalW/2 + iw/2;
+    const sy=h*.22 + Math.floor(i/cols)*(ih+gap) + ih/2;
+    return {x:sx, y:sy, iw, ih};
+  }
+
+  function gp(e){
+    const r=cv.getBoundingClientRect(), sc=cv.width/r.width;
+    const s=e.touches?e.touches[0]:e;
+    return {x:(s.clientX-r.left)*sc, y:(s.clientY-r.top)*sc};
+  }
+
+  // ── أحداث السحب ──
+  cv.onmousedown=function(e){
+    const p=gp(e), w=cv.width, h=cv.height;
+    ITEMS.forEach((it,i)=>{
+      if(S.tested[it.id]!==undefined) return;
+      const pos=getItemPos(i,w,h);
+      if(Math.abs(p.x-pos.x)<pos.iw/2+4 && Math.abs(p.y-pos.y)<pos.ih/2+4){
+        S.dragId=it.id; S.ox=p.x-pos.x; S.oy=p.y-pos.y;
+        S.dragX=pos.x; S.dragY=pos.y;
+      }
+    });
+  };
+  cv.onmousemove=function(e){
+    if(!S.dragId) return;
+    const p=gp(e); S.dragX=p.x-S.ox; S.dragY=p.y-S.oy;
+  };
+  cv.onmouseup=function(){
+    if(!S.dragId) return;
+    const w=cv.width, h=cv.height;
+    const mx=w*.22, my=h*.5;
+    if(Math.hypot(S.dragX-mx, S.dragY-my) < w*.22){
+      const it=ITEMS.find(x=>x.id===S.dragId);
+      S.tested[S.dragId]=it.mag;
+      updRes();
+      try{ if(it.mag) U9Sound.win(); else U9Sound.ping(220,.2,.2); }catch(ex){}
+    }
+    S.dragId=null;
+  };
+  cv.ontouchstart=function(e){e.preventDefault();const t=e.touches[0];cv.onmousedown({clientX:t.clientX,clientY:t.clientY});};
+  cv.ontouchmove=function(e){e.preventDefault();const t=e.touches[0];cv.onmousemove({clientX:t.clientX,clientY:t.clientY});};
+  cv.ontouchend=function(e){e.preventDefault();cv.onmouseup();};
+  cv.onclick=null;
 
   function draw(){
     if(currentSim!=='magcompare'||currentTab!==1)return;
-    S.t+=.03;
+    S.t+=.04;
     const w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h);
     c.fillStyle='#F8F5FF'; c.fillRect(0,0,w,h);
     U9.grid(c,w,h,'rgba(150,100,200,0.05)',44);
 
-    // المغناطيس
-    const mx=w*.2, my=h*.5;
-    const mg=c.createLinearGradient(mx-30,my-50,mx+30,my+50);
-    mg.addColorStop(0,'#E74C3C'); mg.addColorStop(.5,'#ECF0F1'); mg.addColorStop(1,'#2980B9');
-    c.fillStyle=mg; c.beginPath(); c.roundRect(mx-28,my-52,56,104,10); c.fill();
-    c.strokeStyle='#555'; c.lineWidth=2; c.stroke();
-    c.font='bold 12px Tajawal'; c.textAlign='center';
-    c.fillStyle='white'; c.fillText('ش',mx,my-28);
-    c.fillText('ج',mx,my+32);
-    U9.txt(c,'المغناطيس',mx,my+62,'#555',11,true);
+    // ── المغناطيس (أكبر) ──
+    const mx=w*.22, my=h*.5;
+    const mW=Math.min(w*.12,58), mH=Math.min(h*.28,130);
+    const mg=c.createLinearGradient(mx-mW,my-mH/2,mx+mW,my+mH/2);
+    mg.addColorStop(0,'#E74C3C'); mg.addColorStop(.48,'#EE7777');
+    mg.addColorStop(.52,'#6699DD'); mg.addColorStop(1,'#2980B9');
+    c.fillStyle=mg; c.shadowBlur=18; c.shadowColor='rgba(100,100,200,.25)';
+    c.beginPath(); c.roundRect(mx-mW,my-mH/2,mW*2,mH,14); c.fill(); c.shadowBlur=0;
+    c.strokeStyle='rgba(0,0,0,.15)'; c.lineWidth=2; c.stroke();
+    // النصوص
+    c.font=`bold ${Math.min(mW*.45,20)|0}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillStyle='white';
+    c.fillText('ش', mx, my-mH*.28);
+    c.fillText('ج', mx, my+mH*.28);
+    // خط فاصل
+    c.strokeStyle='rgba(255,255,255,.35)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(mx-mW+6,my); c.lineTo(mx+mW-6,my); c.stroke();
+    // تأثير جذب (نبض)
+    const pulse=0.5+Math.sin(S.t*2)*.15;
+    c.strokeStyle=`rgba(26,143,168,${pulse*.4})`; c.lineWidth=2; c.setLineDash([5,4]);
+    c.beginPath(); c.ellipse(mx+mW+15,my,mW*.6,mH*.35,0,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+    c.font='11px Tajawal'; c.fillStyle=`rgba(26,143,168,${pulse*.7})`; c.textAlign='center';
+    c.fillText('أفلت هنا', mx+mW+15, my);
+    U9.txt(c,'🧲 مغناطيس', mx, my+mH/2+16, '#555', 12, true);
 
-    // المواد
+    // ── المواد ──
     ITEMS.forEach((it,i)=>{
-      const p=itemPos(i);
-      const tested=S.tested[i];
-      let dx=0;
-      if(tested==='mag') dx=Math.sin(S.t*3+i)*.5*(1-Math.min(1,(S.t-tested_t(i))*.5));
-      const fx=p.x+dx;
-      c.font='22px serif'; c.textAlign='center'; c.textBaseline='middle';
-      if(tested==='mag'){
-        // تتحرك نحو المغناطيس
-        const pull=Math.min(1,(Date.now()%10000)/5000);
-        c.globalAlpha=0.9;
-      }
-      c.fillText(it.icon,fx,p.y);
-      c.globalAlpha=1;
-      c.font='10px Tajawal'; c.fillStyle=tested?'#27AE60':'#555'; c.textBaseline='top';
-      c.fillText(it.name,fx,p.y+14);
-      if(tested==='mag') U9.txt(c,'🧲',fx,p.y-20,'#E74C3C',14,true);
-      else if(tested==='no') U9.txt(c,'✗',fx,p.y-20,'#CCC',16,true);
-
-      // zone click
-      cv._items=ITEMS; cv._itemPos=itemPos;
+      if(S.dragId===it.id) return;
+      if(S.tested[it.id]!==undefined) return; // اختُبرت — لا ترسم في صينيتها
+      const pos=getItemPos(i,w,h);
+      // بطاقة
+      c.fillStyle='rgba(255,255,255,.97)'; c.strokeStyle='rgba(0,0,0,.1)'; c.lineWidth=1.5;
+      c.shadowBlur=7; c.shadowColor='rgba(0,0,0,.12)';
+      c.beginPath(); c.roundRect(pos.x-pos.iw/2,pos.y-pos.ih/2,pos.iw,pos.ih,12); c.fill(); c.stroke();
+      c.shadowBlur=0;
+      c.font=`${pos.iw*.42|0}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(it.icon, pos.x, pos.y-pos.ih*.10);
+      c.font=`bold ${pos.iw*.20|0}px Tajawal`; c.fillStyle='#333'; c.textBaseline='bottom';
+      c.fillText(it.name, pos.x, pos.y+pos.ih/2-3);
     });
-    U9.txt(c,'انقر على مادة لاختبارها',w*.65,h*.12,'#888',12,true);
+
+    // ── المواد المُختبَرة تظهر بجانب المغناطيس ──
+    const testedArr=Object.entries(S.tested);
+    testedArr.forEach(([id,mag],i)=>{
+      const it=ITEMS.find(x=>x.id===id);
+      const side = mag ? 1 : -1; // مغناطيسية: يمين المغناطيس / غير مغناطيسية: يسار
+      const baseX = mag ? mx+mW+50+Math.floor(i/4)*36 : mx-mW-50-Math.floor(i/4)*36;
+      const ty = my-60 + (i%4)*36;
+      c.font='24px serif'; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(it.icon, baseX, ty);
+      c.font='bold 10px Tajawal'; c.fillStyle=mag?'#27AE60':'#E74C3C'; c.textBaseline='top';
+      c.fillText(it.name, baseX, ty+14);
+      if(mag){
+        c.strokeStyle='rgba(39,174,96,.4)'; c.lineWidth=1.5; c.setLineDash([4,3]);
+        c.beginPath(); c.moveTo(baseX-10,ty); c.lineTo(mx+mW+4,my); c.stroke(); c.setLineDash([]);
+      }
+    });
+
+    // ── المادة المسحوبة ──
+    if(S.dragId){
+      const it=ITEMS.find(x=>x.id===S.dragId), iw=82, ih=68;
+      c.shadowBlur=20; c.shadowColor='rgba(26,143,168,.4)';
+      c.fillStyle='rgba(255,255,255,.97)'; c.strokeStyle='#1A8FA8'; c.lineWidth=2.5;
+      c.beginPath(); c.roundRect(S.dragX-iw/2,S.dragY-ih/2,iw,ih,12); c.fill(); c.stroke();
+      c.shadowBlur=0;
+      c.font='28px serif'; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(it.icon, S.dragX, S.dragY-8);
+      c.font='bold 12px Tajawal'; c.fillStyle='#333'; c.textBaseline='bottom';
+      c.fillText(it.name, S.dragX, S.dragY+ih/2-3);
+    }
+
+    // تعليمة إذا لم يُختبر شيء
+    if(testedArr.length===0 && !S.dragId){
+      U9.txt(c,'⬅ اسحب أي مادة نحو المغناطيس',w*.6,h*.78,'#AAA',12,true);
+    }
+
     animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
   }
-  function tested_t(i){ return 0; }
-  cv.onclick=function(e){
-    const r=cv.getBoundingClientRect();
-    const mx2=(e.clientX-r.left)*(cv.width/r.width);
-    const my2=(e.clientY-r.top)*(cv.height/r.height);
-    ITEMS.forEach((it,i)=>{
-      const p=itemPos(i);
-      if(Math.abs(mx2-p.x)<28&&Math.abs(my2-p.y)<28){
-        S.tested[i]=it.mag?'mag':'no';
-      }
-    });
-  };
   draw();
 }
 
