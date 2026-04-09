@@ -21942,10 +21942,10 @@ function _lockPlatform(reason) {
     var authVis = document.getElementById('auth-visitor-bar');
     if (authVis) authVis.style.display = 'none';
     var authSub2 = document.querySelector('.auth-sub');
-    if (authSub2) { authSub2.style.display = ''; authSub2.textContent = 'لا يمكن تسجيل الدخول بنفس الحساب على أكثر من جهاز'; }
+    if (authSub2) { authSub2.style.display = ''; authSub2.textContent = 'كل حساب مخصص لجهاز واحد فقط — يرجى الاشتراك بحساب خاص بك'; }
     // امسح البصمة المحلية
     try { localStorage.removeItem(_FP_KEY); } catch(e) {}
-    _authStatus('⚠️ تم تسجيل الدخول من جهاز آخر — يرجى تسجيل الدخول مجدداً', false);
+    _authStatus('⚠️ هذا الحساب مفتوح على جهاز آخر — كل حساب لجهاز واحد فقط. إذا كنت صاحب الحساب يرجى إعادة تسجيل الدخول', false);
   } else {
     // انتهاء اشتراك — أظهر شاشة الدفع
     document.getElementById('payment-section').style.display = 'block';
