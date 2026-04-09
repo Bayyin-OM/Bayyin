@@ -729,6 +729,16 @@ body.app-mode { overflow: hidden; }
   font-size: 15px; font-weight: 800; color: #1A8FA8;
 }
 .unit-num-badge.locked { background: rgba(0,0,0,0.04); border-color: transparent; color: #AAB5C0; }
+.unit-num-badge.c-red    { background: rgba(192,57,43,0.1);  border-color: rgba(192,57,43,0.25);  color: #C0392B; }
+.unit-num-badge.c-green  { background: rgba(39,174,96,0.1);  border-color: rgba(39,174,96,0.25);  color: #27AE60; }
+.unit-num-badge.c-gold   { background: rgba(212,144,26,0.1); border-color: rgba(212,144,26,0.25); color: #D4901A; }
+.unit-num-badge.c-teal   { background: rgba(26,143,168,0.1); border-color: rgba(26,143,168,0.25); color: #1A8FA8; }
+.unit-num-badge.c-purple { background: rgba(107,78,154,0.1); border-color: rgba(107,78,154,0.25); color: #6B4E9A; }
+html.dark-mode .unit-num-badge.c-red    { background: rgba(192,57,43,0.18);  color: #E0695A; }
+html.dark-mode .unit-num-badge.c-green  { background: rgba(39,174,96,0.18);  color: #4DC87A; }
+html.dark-mode .unit-num-badge.c-gold   { background: rgba(212,144,26,0.18); color: #E8B84B; }
+html.dark-mode .unit-num-badge.c-teal   { background: rgba(26,143,168,0.18); color: #3DC0DA; }
+html.dark-mode .unit-num-badge.c-purple { background: rgba(107,78,154,0.18); color: #9B7ECB; }
 .unit-title { font-size: 15px; font-weight: 700; margin-bottom: 5px; color: #1E2D3D; }
 .unit-topics { font-size: 15px; color: #7A8A98; line-height: 1.5; }
 .unit-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 15px; margin-top: 8px; }
@@ -2459,7 +2469,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
     <div class="units-grid" id="grade7-units">
 
       <div class="unit-card" onclick="openUnit('u7', this)">
-        <div class="unit-num-badge">٧</div>
+        <div class="unit-num-badge c-red">٧</div>
         <div>
           <div class="unit-title">الكائنات الحيّة في بيئتها</div>
           <div class="unit-topics">التكيُّف · السلاسل الغذائية · الشبكات الغذائية · التلوُّث · الأوزون · الحفاظ على البيئة</div>
@@ -2468,7 +2478,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       </div>
 
       <div class="unit-card" onclick="openUnit('u8', this)">
-        <div class="unit-num-badge">٨</div>
+        <div class="unit-num-badge c-gold">٨</div>
         <div>
           <div class="unit-title">خصائص المادّة</div>
           <div class="unit-topics">الفلزّات · اللافلزّات · المقارنة · المواد في الحياة اليومية</div>
@@ -2477,7 +2487,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       </div>
 
       <div class="unit-card" onclick="openUnit('u9', this)">
-        <div class="unit-num-badge">٩</div>
+        <div class="unit-num-badge c-teal">٩</div>
         <div>
           <div class="unit-title">القُوى والحركة</div>
           <div class="unit-topics">القُوى · القوى الكبيرة والصغيرة · الوزن والجاذبية · الاحتكاك · مقاومة الهواء</div>
@@ -2486,7 +2496,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       </div>
 
       <div class="unit-card" onclick="openUnit('u10', this)">
-        <div class="unit-num-badge">١٠</div>
+        <div class="unit-num-badge c-purple">١٠</div>
         <div>
           <div class="unit-title">التبايُن والتصنيف</div>
           <div class="unit-topics">تصنيف النباتات · تصنيف الفقاريات · اللافقاريات · الوراثة · الأسئلة المفتاحية</div>
@@ -2495,7 +2505,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       </div>
 
       <div class="unit-card" onclick="openUnit('u11', this)">
-        <div class="unit-num-badge">١١</div>
+        <div class="unit-num-badge c-green">١١</div>
         <div>
           <div class="unit-title">تغيُّرات المادّة</div>
           <div class="unit-topics">الأحماض والقلويّات · التمييز · مقياس pH · التعادُل · تطبيقات التعادُل · الاستقصاء</div>
@@ -2842,23 +2852,15 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
     <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
     <div class="units-grid">
       <div class="unit-card" onclick="openUnit('u8circ', this)">
-        <div class="unit-num-badge">٧</div>
+        <div class="unit-num-badge c-red">٧</div>
         <div>
           <div class="unit-title">الجهاز الدوري وتبادل الغازات</div>
           <div class="unit-topics">الجهاز الدوري · القلب · الدم · الأوعية الدموية · الجهاز التنفسي · تبادل الغازات · التنفس الهوائي · اللياقة البدنية</div>
           <div class="unit-pill avail">❤️ ٧ استقصاء متاح</div>
         </div>
       </div>
-      <div class="unit-card" onclick="openUnit('u8mag', this)">
-        <div class="unit-num-badge">١١</div>
-        <div>
-          <div class="unit-title">المغناطيسيّة والكهرباء</div>
-          <div class="unit-topics">المغناطيس وأقطابه · المجال المغناطيسي · الكهرومغناطيس · الكهرباء الساكنة · الشحنات · التيار الكهربائي · الدوائر</div>
-          <div class="unit-pill avail">🧲 ١٢ استقصاء متاح</div>
-        </div>
-      </div>
       <div class="unit-card" onclick="openUnit('u8salts', this)">
-        <div class="unit-num-badge">٨</div>
+        <div class="unit-num-badge c-gold">٨</div>
         <div>
           <div class="unit-title">الأملاح</div>
           <div class="unit-topics">ما الملح؟ · الأحماض والأملاح · تحضير ملح باستخدام فلز وحمض · أكسيد الفلز · كربونات الفلزات والأحماض</div>
@@ -2866,11 +2868,27 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
         </div>
       </div>
       <div class="unit-card" onclick="openUnit('u8sound', this)">
-        <div class="unit-num-badge">٩</div>
+        <div class="unit-num-badge c-teal">٩</div>
         <div>
           <div class="unit-title">الصوت</div>
           <div class="unit-topics">تغيير الأصوات · شدة وحدة الصوت · الاهتزازات · السعة والتردد · كيف ينتقل الصوت؟ · جهاز رسم الذبذبات</div>
           <div class="unit-pill avail">🔊 ٤ استقصاءات متاحة</div>
+        </div>
+      </div>
+      <div class="unit-card" onclick="openUnit('u8repro', this)">
+        <div class="unit-num-badge c-purple">١٠</div>
+        <div>
+          <div class="unit-title">التكاثر والتطوّر</div>
+          <div class="unit-topics">الأمشاج · الكروموسومات · الإخصاب · الجهاز التناسلي · الحمل والجنين · النمو والتطور · المراهقة · نمط الحياة والصحة</div>
+          <div class="unit-pill avail">🧬 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+      <div class="unit-card" onclick="openUnit('u8mag', this)">
+        <div class="unit-num-badge c-green">١١</div>
+        <div>
+          <div class="unit-title">المغناطيسيّة والكهرباء</div>
+          <div class="unit-topics">المغناطيس وأقطابه · المجال المغناطيسي · الكهرومغناطيس · الكهرباء الساكنة · الشحنات · التيار الكهربائي · الدوائر</div>
+          <div class="unit-pill avail">🧲 ١٢ استقصاء متاح</div>
         </div>
       </div>
     </div>
@@ -3204,6 +3222,69 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
             <div class="sim-num">9-4 · جهاز رسم الذبذبات</div>
             <div class="sim-name">الموجة الصوتية على الشاشة</div>
             <div class="sim-desc">شاهد كيف تتغير صورة الموجة على شاشة جهاز رسم الذبذبات عند تغيير شدة الصوت أو حدّته</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         الوحدة ١٠ — التكاثر والتطوّر
+    ═══════════════════════════════════════════════════════ -->
+    <div class="sims-wrap" id="sims-u8repro" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ١٠ — التكاثر والتطوّر</div>
+        <div class="sims-count">٥ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('repro_gametes')">
+          <div class="sim-thumb" style="background:linear-gradient(135deg,#8E44AD,#6B3483);font-size:28px;display:flex;align-items:center;justify-content:center">🧬</div>
+          <div class="sim-body">
+            <div class="sim-num">10-1 · الأمشاج</div>
+            <div class="sim-name">البويضة والحيوان المنوي</div>
+            <div class="sim-desc">قارن بين البويضة والحيوان المنوي من حيث الحجم والشكل والكروموسومات — واكتشف لماذا يحتوي كلٌّ منهما على 23 كروموسوماً فقط</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('repro_fertilisation')">
+          <div class="sim-thumb" style="background:linear-gradient(135deg,#C0392B,#922B21);font-size:28px;display:flex;align-items:center;justify-content:center">❤️</div>
+          <div class="sim-body">
+            <div class="sim-num">10-2 · الإخصاب والحمل</div>
+            <div class="sim-name">من الإخصاب إلى الجنين</div>
+            <div class="sim-desc">تتبّع رحلة البويضة من الإباضة حتى انغراسها في الرحم — وشاهد تحوّلها من خلية واحدة إلى جنين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('repro_development')">
+          <div class="sim-thumb" style="background:linear-gradient(135deg,#27AE60,#1E8449);font-size:28px;display:flex;align-items:center;justify-content:center">🤰</div>
+          <div class="sim-body">
+            <div class="sim-num">10-3 · نمو الجنين</div>
+            <div class="sim-name">من جنين إلى طفل وليد</div>
+            <div class="sim-desc">شاهد مراحل نمو الجنين أسبوعاً بأسبوع — والمشيمة والحبل السرّي والسائل الأمنيوني وكيف تحمي الجنين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('repro_growth')">
+          <div class="sim-thumb" style="background:linear-gradient(135deg,#D4901A,#A37118);font-size:28px;display:flex;align-items:center;justify-content:center">📈</div>
+          <div class="sim-body">
+            <div class="sim-num">10-4 · النمو والتطوّر</div>
+            <div class="sim-name">مراحل حياة الإنسان</div>
+            <div class="sim-desc">استكشف كيف تنقسم الخلايا وتنمو — وتتبّع المراحل من الرضيع إلى الطفل إلى المراهق إلى الراشد</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('repro_lifestyle')">
+          <div class="sim-thumb" style="background:linear-gradient(135deg,#1A8FA8,#126B80);font-size:28px;display:flex;align-items:center;justify-content:center">💊</div>
+          <div class="sim-body">
+            <div class="sim-num">10-5 · نمط الحياة والصحة</div>
+            <div class="sim-name">النيكوتين وتأثيراته</div>
+            <div class="sim-desc">اكتشف كيف يؤثر التدخين والتغذية والعقاقير على النمو والصحة — وشاهد تأثير النيكوتين على وزن المولود</div>
           </div>
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
@@ -3709,7 +3790,8 @@ function openUnit(id, el) {
     u8mag:'وحدة المغناطيسية 🧲 — القطبان المختلفان يتجاذبان! جرّب الكهرومغناطيس.',
     u8circ:'وحدة الجهاز الدوري ❤️ — قلبك ينبض ٧٠ مرة في الدقيقة! اكتشف كيف يضخّ الدم.',
     u8salts:'وحدة الأملاح 🧂 — ملح الطعام ليس الملح الوحيد! اكتشف عشرات الأملاح وكيف تُصنَع.',
-    u8sound:'وحدة الصوت 🔊 — الصوت اهتزاز ينتقل عبر الهواء! غيّر شدته وحدّته وشاهد موجته.'
+    u8sound:'وحدة الصوت 🔊 — الصوت اهتزاز ينتقل عبر الهواء! غيّر شدته وحدّته وشاهد موجته.',
+    u8repro:'وحدة التكاثر 🧬 — بدأت من خلية واحدة! اكتشف رحلة الجنين من الإخصاب حتى الولادة.'
   };
   if(hints[id]) setTimeout(function(){ buddySay(hints[id], 6000); }, 400);
 }
@@ -3789,6 +3871,12 @@ const SIM_META = {
   sound_vibration:    { title: 'نشاط 2-9 · الاهتزازات', badge: '〰️ 8', tabs: ['السعة والتردد 〰️', 'دراسة المسطرة 📏'] },
   sound_travel:       { title: 'نشاط 3-9 · انتقال الصوت', badge: '📡 8', tabs: ['الموجة الصوتية 🌊', 'الصوت في الفراغ 🔕'] },
   sound_oscilloscope: { title: 'نشاط 4-9 · رسم الذبذبات', badge: '📊 8', tabs: ['تغيير السعة 🔊', 'تغيير التردد 🎵'] },
+  // ── الصف 8 — التكاثر والتطوّر ──
+  repro_gametes:      { title: 'نشاط 1-10 · الأمشاج', badge: '🧬 8', tabs: ['البويضة والحيوان المنوي 🔬', 'الكروموسومات 🧬'] },
+  repro_fertilisation:{ title: 'نشاط 2-10 · الإخصاب', badge: '❤️ 8', tabs: ['رحلة البويضة 🗺️', 'دورة الطمث 🔄'] },
+  repro_development:  { title: 'نشاط 3-10 · نمو الجنين', badge: '🤰 8', tabs: ['مراحل النمو 📅', 'المشيمة والحماية 🛡️'] },
+  repro_growth:       { title: 'نشاط 4-10 · النمو والتطوّر', badge: '📈 8', tabs: ['انقسام الخلايا 🔬', 'مراحل الحياة 👶→🧑'] },
+  repro_lifestyle:    { title: 'نشاط 5-10 · نمط الحياة', badge: '💊 8', tabs: ['تأثير النيكوتين 🚭', 'الغذاء والنمو 🥗'] },
   // Unit 10
   variation:      { title: 'نشاط 2-10 · التبايُن في النوع', badge: '10-2', tabs: ['مخطط التكرار 📊', 'استقصاء التباين 🔬'] },
   plantclass:     { title: 'نشاط 4-10 · تصنيف النباتات', badge: '10-4', tabs: ['مملكة النباتات 🌿', 'فرز النباتات 🎮'] },
@@ -4271,6 +4359,12 @@ function openSim(type) {
     cellvoltage:'خليتان على التوالي = جهد مضاعف 🔋 — جرّب!',
     resistance:'المقاومة أكبر = تيار أقل = مصباح أخفت 〰️ — جرّب!',
     parallel12:'في التوازي كل فرع مستقل 🔀 — افصل مصباحاً وشوف!',
+    // ── التكاثر والتطوّر ──
+    repro_gametes:'البويضة والحيوان المنوي 🧬 — كل منهما يحمل 23 كروموسوماً فقط! اكتشف لماذا!',
+    repro_fertilisation:'من خلية واحدة إلى إنسان كامل! ❤️ — تتبّع رحلة الإخصاب خطوة بخطوة',
+    repro_development:'الجنين ينمو 38 أسبوعاً 🤰 — حرّك المؤشر وشاهد النمو أسبوعاً بأسبوع!',
+    repro_growth:'كل جسمك من خلية واحدة 📈 — شاهد انقسام الخلايا ومراحل الحياة!',
+    repro_lifestyle:'التدخين يؤثر على الجنين 🚭 — شاهد البيانات الحقيقية!',
     // ── الأملاح ──
     salts_what:'الأملاح في كل مكان 🧂 — ليس فقط ملح الطعام! اكتشف تنوعها!',
     salts_metal:'فلز + حمض = ملح + هيدروجين ⚗️ — شاهد الفقاعات تظهر!',
@@ -4443,6 +4537,12 @@ function startSim(type, tab) {
     respiration8: [simRespiration1, simRespiration2],
     fitness8:     [simFitness1, simFitness2],
     smoking8:     [simSmoking1, simSmoking2],
+    // ── الصف 8 — التكاثر والتطوّر ──
+    repro_gametes:      [repro_gametes, repro_gametes],
+    repro_fertilisation:[repro_fertilisation, repro_fertilisation],
+    repro_development:  [repro_development, repro_development],
+    repro_growth:       [repro_growth, repro_growth],
+    repro_lifestyle:    [repro_lifestyle, repro_lifestyle],
     // ── الصف 8 — الأملاح ──
     salts_what:      [salts_what, salts_what],
     salts_metal:     [salts_metal, salts_metal],
@@ -24388,7 +24488,913 @@ function simSmoking2(){
 }
 
 // ══════════════════════════════════════════════════════════
-// الوحدة ٨ — الأملاح
+// الوحدة ١٠ — التكاثر والتطوّر
+// ══════════════════════════════════════════════════════════
+
+function repro_gametes(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_gametes) simState.repro_gametes={t:0};
+  const S=simState.repro_gametes;
+  const tab=currentTab;
+
+  controls(tab===0?`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 مقارنة الأمشاج</div>
+      <div class="info-box" style="font-size:12px;line-height:2">
+        البويضة:<br>
+        • كبيرة (حجم نقطة)<br>
+        • تحتوي مخزون غذاء<br>
+        • 23 كروموسوم<br><br>
+        الحيوان المنوي:<br>
+        • صغير جداً<br>
+        • له ذيل للسباحة<br>
+        • 23 كروموسوم
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:8px;font-size:12px">
+      لماذا 23 فقط؟<br>
+      عند الإخصاب: 23+23 = 46 ✅
+    </div>`:
+  `<div class="ctrl-section">
+    <div class="ctrl-label">🧬 الكروموسومات</div>
+    <div class="info-box" style="font-size:12px;line-height:2">
+      • كل خلية جسمية: 46 كروموسوم<br>
+      • كل مشيج: 23 كروموسوم<br>
+      • البويضة المخصبة: 46 ✅<br><br>
+      الكروموسومات تحمل<br>
+      المعلومات الوراثية (الجينات)
+    </div>
+  </div>`);
+
+  function draw(){
+    if(currentSim!=='repro_gametes') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#F8F0FF';
+    c.fillRect(0,0,w,h);
+    S.t+=0.03;
+
+    if(tab===0){
+      // عنوان
+      c.fillStyle='#8E44AD';
+      c.font=`bold ${h*0.042}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText('مقارنة الأمشاج — البويضة والحيوان المنوي',w/2,h*0.08);
+
+      // ── البويضة (يمين) ──
+      const ex=w*0.28, ey=h*0.42;
+      // توهّج بيضاوي
+      const eg=c.createRadialGradient(ex,ey,0,ex,ey,h*0.17);
+      eg.addColorStop(0,'rgba(230,180,255,0.9)');
+      eg.addColorStop(0.6,'rgba(200,140,230,0.6)');
+      eg.addColorStop(1,'rgba(142,68,173,0.15)');
+      c.fillStyle=eg;
+      c.beginPath();
+      c.arc(ex,ey,h*0.17,0,Math.PI*2);
+      c.fill();
+      c.strokeStyle='#8E44AD'; c.lineWidth=2.5;
+      c.beginPath(); c.arc(ex,ey,h*0.17,0,Math.PI*2); c.stroke();
+      // نواة
+      c.fillStyle='rgba(100,30,140,0.6)';
+      c.beginPath(); c.arc(ex,ey,h*0.06,0,Math.PI*2); c.fill();
+      c.fillStyle='white'; c.font=`bold ${h*0.022}px Tajawal,Arial`;
+      c.fillText('23 🧬',ex,ey+h*0.008);
+      // تسمية
+      c.fillStyle='#8E44AD'; c.font=`bold ${h*0.038}px Tajawal,Arial`;
+      c.fillText('🥚 البويضة',ex,h*0.7);
+      c.fillStyle='#555'; c.font=`${h*0.028}px Tajawal,Arial`;
+      c.fillText('كبيرة • مخزون غذاء',ex,h*0.77);
+      c.fillText('ساكنة في قناة البيض',ex,h*0.83);
+
+      // ── الحيوان المنوي (يسار) ──
+      const sx=w*0.72, sy=h*0.42;
+      // رأس
+      const spG=c.createRadialGradient(sx,sy,0,sx,sy,h*0.045);
+      spG.addColorStop(0,'rgba(100,200,255,0.9)');
+      spG.addColorStop(1,'rgba(26,143,168,0.3)');
+      c.fillStyle=spG;
+      c.beginPath(); c.ellipse(sx,sy,h*0.04,h*0.055,0,0,Math.PI*2); c.fill();
+      c.strokeStyle='#1A8FA8'; c.lineWidth=2;
+      c.beginPath(); c.ellipse(sx,sy,h*0.04,h*0.055,0,0,Math.PI*2); c.stroke();
+      // نواة داخل الرأس
+      c.fillStyle='rgba(10,80,120,0.7)';
+      c.beginPath(); c.ellipse(sx,sy,h*0.02,h*0.03,0,0,Math.PI*2); c.fill();
+      c.fillStyle='white'; c.font=`bold ${h*0.018}px Tajawal,Arial`;
+      c.fillText('23',sx,sy+h*0.006);
+      // ذيل يتلوّى
+      c.strokeStyle='#1A8FA8'; c.lineWidth=2; c.setLineDash([]);
+      c.beginPath();
+      c.moveTo(sx,sy+h*0.055);
+      for(let i=0;i<20;i++){
+        const ty=sy+h*0.055+i*h*0.018;
+        const tx=sx+Math.sin(S.t*3+i*0.8)*h*0.025*(1-i/20);
+        i===0?c.moveTo(tx,ty):c.lineTo(tx,ty);
+      }
+      c.stroke();
+      // تسمية
+      c.fillStyle='#1A8FA8'; c.font=`bold ${h*0.038}px Tajawal,Arial`;
+      c.fillText('🏊 الحيوان المنوي',sx,h*0.7);
+      c.fillStyle='#555'; c.font=`${h*0.028}px Tajawal,Arial`;
+      c.fillText('صغير جداً • ذيل للسباحة',sx,h*0.77);
+      c.fillText('يسبح للوصول للبويضة',sx,h*0.83);
+
+      // سهم بينهما
+      c.strokeStyle='rgba(200,100,200,0.5)'; c.lineWidth=2; c.setLineDash([6,4]);
+      c.beginPath(); c.moveTo(ex+h*0.18,ey); c.lineTo(sx-h*0.06,sy); c.stroke();
+      c.setLineDash([]);
+      c.fillStyle='#8E44AD'; c.font=`bold ${h*0.03}px Tajawal,Arial`;
+      c.fillText('الإخصاب',w/2,h*0.43);
+      c.font=`${h*0.025}px Tajawal,Arial`;
+      c.fillStyle='#555';
+      c.fillText('23 + 23 = 46 كروموسوم',w/2,h*0.48);
+
+    } else {
+      // Tab 1 — الكروموسومات
+      c.fillStyle='#8E44AD';
+      c.font=`bold ${h*0.042}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText('الكروموسومات في خلايا الإنسان',w/2,h*0.08);
+
+      const drawCell=(cx,cy,r,n,label,color)=>{
+        const g=c.createRadialGradient(cx,cy,0,cx,cy,r);
+        g.addColorStop(0,color+'44'); g.addColorStop(1,color+'11');
+        c.fillStyle=g;
+        c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.fill();
+        c.strokeStyle=color; c.lineWidth=2;
+        c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.stroke();
+        // رسم كروموسومات صغيرة
+        const cols=Math.ceil(Math.sqrt(n)), rows=Math.ceil(n/cols);
+        let drawn=0;
+        for(let row=0;row<rows&&drawn<n;row++){
+          for(let col=0;col<cols&&drawn<n;col++){
+            const kx=cx-r*0.6+col*(r*1.2/cols);
+            const ky=cy-r*0.55+row*(r*1.1/rows);
+            c.fillStyle=color+'CC';
+            c.beginPath();
+            c.ellipse(kx,ky,r*0.04,r*0.09,0,0,Math.PI*2);
+            c.fill();
+            drawn++;
+          }
+        }
+        c.fillStyle=color; c.font=`bold ${h*0.036}px Tajawal,Arial`;
+        c.fillText(label,cx,cy+r+h*0.05);
+        c.font=`${h*0.028}px Tajawal,Arial`;
+        c.fillStyle='#555';
+        c.fillText(`${n} كروموسوم`,cx,cy+r+h*0.09);
+      };
+
+      drawCell(w*0.22,h*0.48,h*0.2,46,'خلية جسمية','#8E44AD');
+      drawCell(w*0.55,h*0.42,h*0.14,23,'بويضة','#C0392B');
+      drawCell(w*0.82,h*0.42,h*0.1,23,'حيوان منوي','#1A8FA8');
+
+      // معادلة الإخصاب
+      c.fillStyle='#27AE60'; c.font=`bold ${h*0.038}px Tajawal,Arial`;
+      c.fillText('23 ＋ 23 ＝ 46 ✅',w/2,h*0.88);
+      c.fillStyle='#555'; c.font=`${h*0.028}px Tajawal,Arial`;
+      c.fillText('الإخصاب يُعيد العدد الكامل',w/2,h*0.94);
+    }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function repro_fertilisation(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_fertilisation) simState.repro_fertilisation={t:0,step:0,sperm:[],cycle:0};
+  const S=simState.repro_fertilisation;
+  const tab=currentTab;
+
+  if(tab===0){
+    controls(`
+      <div class="ctrl-section">
+        <div class="ctrl-label">🗺️ خطوات ما بعد الإخصاب</div>
+        <div style="font-size:12px;line-height:2;color:var(--text-primary)">
+          ١. تخرج البويضة من المبيض<br>
+          ٢. يحدث الإخصاب في قناة البيض<br>
+          ٣. تنقسم البويضة المخصبة<br>
+          ٤. يتكوّن الجنين في مراحله الأولية<br>
+          ٥. ينغرس الجنين في بطانة الرحم
+        </div>
+      </div>
+      <button class="ctrl-btn" style="width:100%;margin-top:8px;background:#C0392B;color:white" onclick="simState.repro_fertilisation.step=Math.min(4,simState.repro_fertilisation.step+1)">التالي ▶</button>
+      <button class="ctrl-btn" style="width:100%;margin-top:4px" onclick="simState.repro_fertilisation.step=0">↺ إعادة</button>
+      <div class="q-box" style="margin-top:8px;font-size:12px">
+        الإخصاب = اندماج نواة<br>
+        الحيوان المنوي + نواة البويضة
+      </div>`);
+  } else {
+    controls(`
+      <div class="ctrl-section">
+        <div class="ctrl-label">🔄 دورة الطمث الشهرية</div>
+        <div class="info-box" style="font-size:12px;line-height:2">
+          الخطوة ${S.cycle+1} من 4:<br>
+          ١. نمو البويضة في المبيض<br>
+          ٢. الإباضة — انطلاق البويضة<br>
+          ٣. إذا لم يحدث إخصاب — تموت<br>
+          ٤. تتحلل بطانة الرحم (الحيض)
+        </div>
+      </div>
+      <div class="q-box" style="margin-top:8px;font-size:12px">
+        الحيض = نزول بطانة الرحم<br>
+        السميكة خلال ~5 أيام/شهر
+      </div>`);
+  }
+
+  const stepData=[
+    {title:'١. تخرج البويضة من المبيض (الإباضة)',color:'#8E44AD'},
+    {title:'٢. الإخصاب في قناة البيض 🎯',color:'#C0392B'},
+    {title:'٣. تنقسم البويضة المخصبة',color:'#D4901A'},
+    {title:'٤. تتكوّن كرة خلايا صغيرة (جنين أولي)',color:'#27AE60'},
+    {title:'٥. ينغرس الجنين في بطانة الرحم ✅',color:'#1A8FA8'},
+  ];
+
+  function draw(){
+    if(currentSim!=='repro_fertilisation') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#FFF0F5';
+    c.fillRect(0,0,w,h);
+    S.t+=0.03;
+
+    if(tab===0){
+      const st=stepData[S.step];
+      c.fillStyle=st.color;
+      c.font=`bold ${h*0.04}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText(st.title,w/2,h*0.08);
+
+      // رسم مبسّط للجهاز التناسلي الأنثوي
+      // الرحم
+      c.fillStyle='rgba(220,100,120,0.2)';
+      c.strokeStyle='#C0392B'; c.lineWidth=2;
+      c.beginPath();
+      c.ellipse(w/2,h*0.55,w*0.18,h*0.22,0,0,Math.PI*2);
+      c.fill(); c.stroke();
+      c.fillStyle='#C0392B'; c.font=`${h*0.028}px Tajawal,Arial`;
+      c.fillText('الرحم',w/2,h*0.55);
+
+      // قناتا البيض
+      c.strokeStyle='#8E44AD'; c.lineWidth=3; c.setLineDash([]);
+      [-1,1].forEach(d=>{
+        c.beginPath();
+        c.moveTo(w/2+d*w*0.18,h*0.44);
+        c.bezierCurveTo(w/2+d*w*0.28,h*0.35,w/2+d*w*0.32,h*0.32,w/2+d*w*0.35,h*0.35);
+        c.stroke();
+        // مبيض
+        c.fillStyle='rgba(142,68,173,0.3)';
+        c.strokeStyle='#8E44AD'; c.lineWidth=2;
+        c.beginPath();
+        c.ellipse(w/2+d*w*0.37,h*0.35,w*0.06,h*0.05,0,0,Math.PI*2);
+        c.fill(); c.stroke();
+        c.fillStyle='#8E44AD'; c.font=`${h*0.024}px Tajawal,Arial`;
+        c.fillText('مبيض',w/2+d*w*0.37,h*0.35+h*0.008);
+      });
+
+      // البويضة في الموضع الصحيح حسب الخطوة
+      const positions=[
+        {x:w*0.63,y:h*0.35},  // في المبيض
+        {x:w*0.58,y:h*0.38},  // في قناة البيض
+        {x:w*0.55,y:h*0.42},  // بعد الإخصاب
+        {x:w*0.52,y:h*0.47},  // تنقسم
+        {x:w*0.5, y:h*0.52},  // في الرحم
+      ];
+      const pos=positions[S.step];
+      const bounce=Math.sin(S.t*2)*h*0.005;
+      const eRadius=S.step>=3?h*0.04:h*0.03;
+
+      if(S.step>=3){
+        // كرة خلايا
+        const cellCount=[4,8,16,32][S.step-2]||4;
+        const cr=eRadius/Math.sqrt(cellCount/2);
+        for(let i=0;i<Math.min(cellCount,12);i++){
+          const ang=(i/Math.min(cellCount,12))*Math.PI*2;
+          const r2=eRadius*0.55;
+          c.fillStyle=`rgba(200,150,255,0.7)`;
+          c.strokeStyle='#8E44AD'; c.lineWidth=0.8;
+          c.beginPath();
+          c.arc(pos.x+Math.cos(ang)*r2,pos.y+bounce+Math.sin(ang)*r2,cr,0,Math.PI*2);
+          c.fill(); c.stroke();
+        }
+      } else {
+        c.fillStyle='rgba(220,100,255,0.8)';
+        c.beginPath(); c.arc(pos.x,pos.y+bounce,eRadius,0,Math.PI*2); c.fill();
+        c.strokeStyle='#8E44AD'; c.lineWidth=2;
+        c.beginPath(); c.arc(pos.x,pos.y+bounce,eRadius,0,Math.PI*2); c.stroke();
+      }
+
+      // حيوانات منوية في الخطوة 1-2
+      if(S.step<=1){
+        for(let i=0;i<6;i++){
+          const ang2=S.t+i*Math.PI/3;
+          const dist=(S.step===0?h*0.12:h*0.07)+Math.sin(S.t+i)*h*0.01;
+          const spx=pos.x+Math.cos(ang2)*dist;
+          const spy=pos.y+Math.sin(ang2)*dist;
+          c.fillStyle='rgba(26,143,168,0.8)';
+          c.beginPath(); c.ellipse(spx,spy,h*0.012,h*0.018,-ang2,0,Math.PI*2); c.fill();
+          c.strokeStyle='#1A8FA8'; c.lineWidth=1;
+          c.beginPath();
+          c.moveTo(spx+Math.cos(-ang2)*h*0.018,spy+Math.sin(-ang2)*h*0.018);
+          c.lineTo(spx+Math.cos(-ang2)*h*0.018+Math.cos(-ang2+Math.PI)*h*0.04,
+                   spy+Math.sin(-ang2)*h*0.018+Math.sin(-ang2+Math.PI)*h*0.04);
+          c.stroke();
+        }
+      }
+
+      // شريط تقدم
+      c.fillStyle='rgba(0,0,0,0.08)';
+      c.fillRect(w*0.1,h*0.86,w*0.8,6);
+      c.fillStyle=st.color;
+      c.fillRect(w*0.1,h*0.86,w*0.8*(S.step/4),6);
+      c.fillStyle='#555'; c.font=`${h*0.026}px Tajawal,Arial`;
+      c.fillText(`الخطوة ${S.step+1} من 5`,w/2,h*0.93);
+
+    } else {
+      // Tab 1 — دورة الطمث
+      S.cycle=Math.floor((S.t/4)%4);
+      const cycleSteps=[
+        {title:'نمو البويضة في المبيض',desc:'تسمك بطانة الرحم استعداداً للجنين',color:'#8E44AD'},
+        {title:'الإباضة — انطلاق البويضة',desc:'البويضة تدخل قناة البيض',color:'#27AE60'},
+        {title:'البويضة تموت (لم تُخصَّب)',desc:'لا حاجة للبطانة السميكة',color:'#D4901A'},
+        {title:'الحيض — نزول البطانة',desc:'حوالي 5 أيام كل شهر',color:'#C0392B'},
+      ];
+      const cs=cycleSteps[S.cycle];
+
+      c.fillStyle=cs.color;
+      c.font=`bold ${h*0.04}px Tajawal,Arial`;
+      c.fillText(cs.title,w/2,h*0.1);
+
+      // رسم دائري للدورة
+      const cx2=w/2, cy2=h*0.47, r2=h*0.28;
+      const phases=['نمو البويضة','الإباضة','البويضة تموت','الحيض'];
+      const phColors=['#8E44AD','#27AE60','#D4901A','#C0392B'];
+      phases.forEach((p,i)=>{
+        const startAng=i*Math.PI/2-Math.PI/2;
+        const endAng=(i+1)*Math.PI/2-Math.PI/2;
+        c.fillStyle=i===S.cycle?phColors[i]+'99':phColors[i]+'33';
+        c.strokeStyle=phColors[i];
+        c.lineWidth=i===S.cycle?3:1.5;
+        c.beginPath();
+        c.moveTo(cx2,cy2);
+        c.arc(cx2,cy2,r2,startAng,endAng);
+        c.closePath();
+        c.fill(); c.stroke();
+        const midAng=(startAng+endAng)/2;
+        c.fillStyle=i===S.cycle?phColors[i]:'#777';
+        c.font=`${i===S.cycle?'bold ':''} ${h*0.028}px Tajawal,Arial`;
+        c.fillText(p,cx2+Math.cos(midAng)*(r2*0.65),cy2+Math.sin(midAng)*(r2*0.65)+h*0.01);
+      });
+      // دائرة مركزية
+      c.fillStyle=cs.color+'22'; c.strokeStyle=cs.color; c.lineWidth=2;
+      c.beginPath(); c.arc(cx2,cy2,r2*0.25,0,Math.PI*2); c.fill(); c.stroke();
+      c.fillStyle=cs.color; c.font=`bold ${h*0.028}px Tajawal,Arial`;
+      c.fillText('شهر',cx2,cy2-h*0.01);
+      c.fillText('واحد',cx2,cy2+h*0.03);
+
+      c.fillStyle='#555'; c.font=`${h*0.03}px Tajawal,Arial`;
+      c.fillText(cs.desc,w/2,h*0.85);
+    }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function repro_development(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_development) simState.repro_development={t:0,week:6};
+  const S=simState.repro_development;
+  const tab=currentTab;
+
+  controls(tab===0?`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📅 عمر الجنين (أسابيع): <span id="rdWeek">${S.week}</span></div>
+      <input type="range" min="4" max="38" step="1" value="${S.week}"
+        oninput="simState.repro_development.week=+this.value;document.getElementById('rdWeek').textContent=+this.value"
+        style="width:100%;margin:6px 0">
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:2">
+      أسبوع 4-6: بداية النمو (~4mm)<br>
+      أسبوع 8: يبدأ بالتحرك (~13mm)<br>
+      أسبوع 11: جميع الأعضاء (~50mm)<br>
+      أسبوع 38-39: ولادة 🎉
+    </div>`:
+  `<div class="ctrl-section">
+    <div class="ctrl-label">🛡️ حماية الجنين</div>
+    <div class="info-box" style="font-size:12px;line-height:2">
+      المشيمة:<br>
+      • تنقل الغذاء والأكسجين<br>
+      • من دم الأم للجنين<br><br>
+      الحبل السرّي:<br>
+      • يربط الجنين بالمشيمة<br><br>
+      السائل الأمنيوني:<br>
+      • يحمي من الصدمات
+    </div>
+  </div>`);
+
+  function draw(){
+    if(currentSim!=='repro_development') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#F0FFF0';
+    c.fillRect(0,0,w,h);
+    S.t+=0.02;
+
+    if(tab===0){
+      // حجم الجنين بالنسبة للأسبوع
+      const wk=S.week;
+      const size=Math.min(h*0.32,h*0.04+wk*(h*0.008));
+      const breathe=1+Math.sin(S.t*2)*0.02;
+
+      // عنوان
+      const stageLabel=wk<8?'جنين في مراحله الأولى':wk<11?'جنين':wk<20?'جنين ينمو':wk<30?'جنين متطور':'جنين مكتمل';
+      c.fillStyle='#27AE60';
+      c.font=`bold ${h*0.04}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText(`الأسبوع ${wk} — ${stageLabel}`,w/2,h*0.07);
+
+      // رسم الجنين
+      const fx=w/2, fy=h*0.42;
+      // جسم
+      const bodyColor=wk<8?'rgba(255,200,180,0.9)':'rgba(255,180,160,0.9)';
+      c.fillStyle=bodyColor;
+      c.beginPath();
+      c.ellipse(fx,fy,size*0.45*breathe,size*0.6*breathe,0,0,Math.PI*2);
+      c.fill();
+      c.strokeStyle='rgba(200,100,80,0.5)'; c.lineWidth=1.5;
+      c.beginPath();
+      c.ellipse(fx,fy,size*0.45*breathe,size*0.6*breathe,0,0,Math.PI*2);
+      c.stroke();
+
+      // رأس (مبسّط)
+      if(wk>=6){
+        c.fillStyle='rgba(255,210,190,0.95)';
+        c.beginPath();
+        c.arc(fx,fy-size*0.55*breathe,size*0.3*breathe,0,Math.PI*2);
+        c.fill();
+        c.strokeStyle='rgba(200,100,80,0.3)'; c.lineWidth=1;
+        c.beginPath();
+        c.arc(fx,fy-size*0.55*breathe,size*0.3*breathe,0,Math.PI*2);
+        c.stroke();
+      }
+
+      // أطراف (تظهر تدريجياً)
+      if(wk>=8){
+        const limbAlpha=Math.min(1,(wk-8)/10);
+        c.strokeStyle=`rgba(220,150,130,${limbAlpha})`; c.lineWidth=size*0.08;
+        c.lineCap='round';
+        // ذراعان
+        [-1,1].forEach(d=>{
+          c.beginPath();
+          c.moveTo(fx+d*size*0.45,fy-size*0.1);
+          c.lineTo(fx+d*size*0.7,fy+size*0.15);
+          c.stroke();
+        });
+        // ساقان
+        if(wk>=10){
+          [-1,1].forEach(d=>{
+            c.beginPath();
+            c.moveTo(fx+d*size*0.2,fy+size*0.5);
+            c.lineTo(fx+d*size*0.35,fy+size*0.75);
+            c.stroke();
+          });
+        }
+        c.lineCap='butt';
+      }
+
+      // حجم بالمم
+      const sizeMMRef={4:2,5:3,6:4,7:8,8:13,9:22,10:30,11:50,14:85,18:140,22:190,26:230,30:260,34:320,38:360};
+      const closestWk=Object.keys(sizeMMRef).reduce((a,b)=>Math.abs(b-wk)<Math.abs(a-wk)?b:a);
+      const sizeMM=Math.round(sizeMMRef[closestWk]*(1+(wk-closestWk)*0.08));
+
+      c.fillStyle='#27AE60'; c.font=`bold ${h*0.038}px Tajawal,Arial`;
+      c.fillText(`الطول: ~${sizeMM} ملم`,w/2,h*0.79);
+      c.fillStyle='#555'; c.font=`${h*0.03}px Tajawal,Arial`;
+      const desc=wk<8?'تبدأ الأعضاء الرئيسية بالتكوّن':
+                 wk<11?'يبدأ بالتحرك — جميع الأعضاء بحلول الأسبوع 11':
+                 wk<20?'حركات قوية — يمتص السائل الأمنيوني':
+                 wk<30?'يفتح عينيه — يتعرف على صوت أمه':
+                 'مكتمل النمو — جاهز للولادة قريباً';
+      c.fillText(desc,w/2,h*0.87);
+
+      // شريط الأسابيع
+      c.fillStyle='rgba(0,0,0,0.08)';
+      c.fillRect(w*0.08,h*0.93,w*0.84,6);
+      c.fillStyle='#27AE60';
+      c.fillRect(w*0.08,h*0.93,w*0.84*((wk-4)/34),6);
+
+    } else {
+      // Tab 1 — المشيمة والحبل السرّي
+      c.fillStyle='#1A8FA8';
+      c.font=`bold ${h*0.042}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText('نظام حماية ودعم الجنين',w/2,h*0.07);
+
+      // الرحم
+      const rx=w/2, ry=h*0.47;
+      const rw=w*0.38, rh2=h*0.36;
+      c.fillStyle='rgba(220,100,100,0.12)';
+      c.strokeStyle='#C0392B'; c.lineWidth=3;
+      c.beginPath();
+      c.ellipse(rx,ry,rw,rh2,0,0,Math.PI*2);
+      c.fill(); c.stroke();
+
+      // السائل الأمنيوني
+      const ag=c.createRadialGradient(rx,ry,0,rx,ry,rw*0.7);
+      ag.addColorStop(0,'rgba(173,216,230,0.3)');
+      ag.addColorStop(1,'rgba(100,180,220,0.1)');
+      c.fillStyle=ag;
+      c.beginPath();
+      c.ellipse(rx,ry,rw*0.8,rh2*0.82,0,0,Math.PI*2);
+      c.fill();
+
+      // الجنين
+      c.fillStyle='rgba(255,180,160,0.9)';
+      c.beginPath();
+      c.ellipse(rx+w*0.04,ry+h*0.04,w*0.07,h*0.1,Math.PI*0.2,0,Math.PI*2);
+      c.fill();
+      c.strokeStyle='rgba(200,100,80,0.4)'; c.lineWidth=1.5;
+      c.beginPath();
+      c.ellipse(rx+w*0.04,ry+h*0.04,w*0.07,h*0.1,Math.PI*0.2,0,Math.PI*2);
+      c.stroke();
+
+      // المشيمة
+      c.fillStyle='rgba(180,80,80,0.6)';
+      c.beginPath();
+      c.ellipse(rx-rw*0.55,ry-rh2*0.45,w*0.1,h*0.09,Math.PI*0.2,0,Math.PI*2);
+      c.fill();
+      c.fillStyle='#922B21'; c.font=`bold ${h*0.026}px Tajawal,Arial`;
+      c.fillText('المشيمة',rx-rw*0.55,ry-rh2*0.43);
+
+      // الحبل السرّي
+      c.strokeStyle='rgba(150,60,60,0.8)'; c.lineWidth=4;
+      c.beginPath();
+      c.moveTo(rx-rw*0.45,ry-rh2*0.38);
+      c.bezierCurveTo(rx-rw*0.2,ry-rh2*0.1,rx-w*0.02,ry-h*0.06,rx+w*0.01,ry);
+      c.stroke();
+      c.fillStyle='#922B21'; c.font=`${h*0.024}px Tajawal,Arial`;
+      c.fillText('الحبل السرّي',rx-rw*0.1,ry-h*0.12);
+
+      // ملصقات
+      c.fillStyle='rgba(100,180,220,0.8)'; c.font=`${h*0.024}px Tajawal,Arial`;
+      c.fillText('السائل الأمنيوني',rx+rw*0.35,ry+rh2*0.6);
+      c.fillStyle='#C0392B'; c.font=`${h*0.024}px Tajawal,Arial`;
+      c.fillText('بطانة الرحم',rx+rw*0.7,ry);
+
+      // معلومة أسفل
+      c.fillStyle='#555'; c.font=`${h*0.03}px Tajawal,Arial`;
+      c.fillText('المشيمة: تنقل O₂ والغذاء من دم الأم للجنين',w/2,h*0.88);
+      c.fillText('السائل الأمنيوني: يحمي الجنين من الصدمات',w/2,h*0.94);
+    }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function repro_growth(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_growth) simState.repro_growth={t:0,cells:[{x:0,y:0,r:1}],dividing:false,stage:0};
+  const S=simState.repro_growth;
+  const tab=currentTab;
+
+  controls(tab===0?`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 مراحل انقسام الخلية</div>
+      <button class="ctrl-btn" style="width:100%;background:#8E44AD;color:white;margin:4px 0" onclick="simState.repro_growth.stage=Math.min(4,simState.repro_growth.stage+1)">▶ انقسم!</button>
+      <button class="ctrl-btn" style="width:100%;margin:4px 0" onclick="simState.repro_growth.stage=0;simState.repro_growth.cells=[{x:0,y:0,r:1}]">↺ ابدأ من البداية</button>
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:2">
+      1 خلية → 2 → 4 → 8 → 16...<br>
+      النمو = انقسام + نمو الخلايا<br>
+      يستمر من البويضة المخصبة<br>
+      حتى سن الرشد
+    </div>`:
+  `<div class="ctrl-section">
+    <div class="ctrl-label">👶→🧑 مراحل حياة الإنسان</div>
+    <div class="info-box" style="font-size:12px;line-height:1.8">
+      رضيع (0-1): يتعلم رفع رأسه<br>
+      طفل (1-11): يتعلم المشي والكلام<br>
+      مراهق (12-18): البلوغ والتغيّر<br>
+      بالغ (18+): اكتمال النمو<br><br>
+      المراهقة = التحوّل من<br>
+      الطفولة إلى البلوغ
+    </div>
+  </div>`);
+
+  function draw(){
+    if(currentSim!=='repro_growth') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#F5F0FF';
+    c.fillRect(0,0,w,h);
+    S.t+=0.03;
+
+    if(tab===0){
+      c.fillStyle='#8E44AD';
+      c.font=`bold ${h*0.042}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText('كيف يحدث النمو؟ — انقسام الخلايا',w/2,h*0.07);
+
+      const stages=[1,2,4,8,16];
+      const n=stages[Math.min(S.stage,4)];
+      const totalCells=n;
+      const maxR=Math.min(w,h)*0.38;
+      const cellR=maxR/Math.max(2,Math.ceil(Math.sqrt(n))*1.2);
+
+      // توزيع الخلايا
+      const positions=[];
+      if(n===1){ positions.push({x:w/2,y:h*0.47}); }
+      else if(n===2){ positions.push({x:w/2-cellR*1.1,y:h*0.47},{x:w/2+cellR*1.1,y:h*0.47}); }
+      else{
+        const cols=Math.ceil(Math.sqrt(n));
+        const rows=Math.ceil(n/cols);
+        for(let i=0;i<n;i++){
+          const row=Math.floor(i/cols), col=i%cols;
+          positions.push({
+            x:w/2+(col-(cols-1)/2)*cellR*2.1,
+            y:h*0.47+(row-(rows-1)/2)*cellR*2.1
+          });
+        }
+      }
+
+      // رسم الخلايا
+      const hue=280;
+      positions.forEach((p,i)=>{
+        const pulse=1+Math.sin(S.t*2+i)*0.04;
+        const cg=c.createRadialGradient(p.x,p.y,0,p.x,p.y,cellR);
+        cg.addColorStop(0,'rgba(200,150,255,0.9)');
+        cg.addColorStop(0.6,'rgba(160,100,220,0.6)');
+        cg.addColorStop(1,'rgba(100,50,180,0.2)');
+        c.fillStyle=cg;
+        c.beginPath(); c.arc(p.x,p.y,cellR*pulse,0,Math.PI*2); c.fill();
+        c.strokeStyle='#8E44AD'; c.lineWidth=1.5;
+        c.beginPath(); c.arc(p.x,p.y,cellR*pulse,0,Math.PI*2); c.stroke();
+        // نواة
+        c.fillStyle='rgba(80,20,120,0.6)';
+        c.beginPath(); c.arc(p.x,p.y,cellR*0.35,0,Math.PI*2); c.fill();
+      });
+
+      c.fillStyle='#8E44AD'; c.font=`bold ${h*0.04}px Tajawal,Arial`;
+      c.fillText(`${n} خلية${n>1?'(ات)':''}`,w/2,h*0.82);
+      c.fillStyle='#555'; c.font=`${h*0.03}px Tajawal,Arial`;
+      const desc=['بويضة مخصبة — خلية واحدة','انقسمت إلى خليتين!','4 خلايا — جنين في مراحله الأولى','8 خلايا','كرة صغيرة من الخلايا تتجه للرحم'];
+      c.fillText(desc[Math.min(S.stage,4)],w/2,h*0.89);
+
+      c.fillStyle='rgba(0,0,0,0.08)';
+      c.fillRect(w*0.1,h*0.94,w*0.8,5);
+      c.fillStyle='#8E44AD';
+      c.fillRect(w*0.1,h*0.94,w*0.8*(S.stage/4),5);
+
+    } else {
+      // Tab 1 — مراحل حياة الإنسان
+      c.fillStyle='#D4901A';
+      c.font=`bold ${h*0.04}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText('مراحل تطوّر الإنسان',w/2,h*0.07);
+
+      const stages2=[
+        {icon:'👶',label:'رضيع',ages:'0-1 سنة',y:h*0.32,color:'#E74C3C',size:h*0.06},
+        {icon:'🧒',label:'طفل',ages:'1-11 سنة',y:h*0.32,color:'#E67E22',size:h*0.09},
+        {icon:'🧑',label:'مراهق',ages:'12-18 سنة',y:h*0.32,color:'#8E44AD',size:h*0.13},
+        {icon:'👨',label:'بالغ',ages:'18+ سنة',y:h*0.32,color:'#1A8FA8',size:h*0.16},
+      ];
+
+      const xPositions=[w*0.14,w*0.37,w*0.63,w*0.87];
+
+      stages2.forEach((st,i)=>{
+        const x=xPositions[i];
+        const pulse=1+Math.sin(S.t*1.5+i)*0.02;
+
+        // شخصية مبسطة
+        // رأس
+        c.fillStyle=st.color+'55';
+        c.beginPath(); c.arc(x,st.y-st.size*0.3,st.size*0.25*pulse,0,Math.PI*2); c.fill();
+        c.strokeStyle=st.color; c.lineWidth=2;
+        c.beginPath(); c.arc(x,st.y-st.size*0.3,st.size*0.25*pulse,0,Math.PI*2); c.stroke();
+        // جسم
+        c.strokeStyle=st.color; c.lineWidth=3;
+        c.beginPath();
+        c.moveTo(x,st.y-st.size*0.05);
+        c.lineTo(x,st.y+st.size*0.45);
+        c.stroke();
+        // ذراعان
+        c.beginPath();
+        c.moveTo(x-st.size*0.3,st.y+st.size*0.15);
+        c.lineTo(x+st.size*0.3,st.y+st.size*0.15);
+        c.stroke();
+        // ساقان
+        c.beginPath();
+        c.moveTo(x,st.y+st.size*0.45);
+        c.lineTo(x-st.size*0.2,st.y+st.size*0.75);
+        c.moveTo(x,st.y+st.size*0.45);
+        c.lineTo(x+st.size*0.2,st.y+st.size*0.75);
+        c.stroke();
+        // أيقونة
+        c.font=`${st.size*0.6}px Arial`;
+        c.fillText(st.icon,x-st.size*0.22,st.y-st.size*0.05);
+        // تسمية
+        c.fillStyle=st.color; c.font=`bold ${h*0.033}px Tajawal,Arial`;
+        c.fillText(st.label,x,h*0.76);
+        c.fillStyle='#555'; c.font=`${h*0.026}px Tajawal,Arial`;
+        c.fillText(st.ages,x,h*0.82);
+
+        // سهم بين المراحل
+        if(i<3){
+          c.strokeStyle='rgba(0,0,0,0.2)'; c.lineWidth=1.5;
+          c.beginPath();
+          c.moveTo(xPositions[i]+st.size*0.3,st.y+st.size*0.2);
+          c.lineTo(xPositions[i+1]-stages2[i+1].size*0.3,st.y+st.size*0.2);
+          c.stroke();
+          c.fillStyle='#aaa'; c.font=`${h*0.025}px Arial`;
+          c.fillText('→',(xPositions[i]+xPositions[i+1])/2,st.y+st.size*0.15);
+        }
+      });
+
+      // حاشية المراهقة
+      c.fillStyle='rgba(142,68,173,0.12)';
+      c.strokeStyle='#8E44AD'; c.lineWidth=1; c.setLineDash([4,4]);
+      c.strokeRect(xPositions[2]-w*0.09,h*0.14,w*0.18,h*0.73);
+      c.setLineDash([]);
+      c.fillStyle='#8E44AD'; c.font=`${h*0.025}px Tajawal,Arial`;
+      c.fillText('مرحلة المراهقة',xPositions[2],h*0.96);
+    }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function repro_lifestyle(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_lifestyle) simState.repro_lifestyle={t:0,cigs:0,tab:0};
+  const S=simState.repro_lifestyle;
+  const tab=currentTab;
+
+  if(tab===0){
+    controls(`
+      <div class="ctrl-section">
+        <div class="ctrl-label">🚬 عدد السجائر يومياً: <span id="rlCig">${S.cigs}</span></div>
+        <input type="range" min="0" max="20" step="1" value="${S.cigs}"
+          oninput="simState.repro_lifestyle.cigs=+this.value;document.getElementById('rlCig').textContent=+this.value"
+          style="width:100%;margin:6px 0">
+        <div style="font-size:12px;text-align:center;color:${S.cigs===0?'#27AE60':S.cigs<10?'#D4901A':'#C0392B'}">
+          ${S.cigs===0?'✅ لا تدخين':'⚠️ تدخين — '+S.cigs+' سيجارة/يوم'}
+        </div>
+      </div>
+      <div class="info-box" style="margin-top:8px;font-size:12px;line-height:2">
+        النيكوتين يؤثر على:<br>
+        • صحة الحيوانات المنوية<br>
+        • وزن المولود عند الولادة<br>
+        • نمو دماغ الجنين<br>
+        • خطر الإصابة بالسكري
+      </div>`);
+  } else {
+    controls(`
+      <div class="ctrl-section">
+        <div class="ctrl-label">🥗 تأثير التغذية على النمو</div>
+        <div class="info-box" style="font-size:12px;line-height:2">
+          البروتين ضروري للنمو<br>
+          نقص البروتين = نمو أبطأ<br><br>
+          العقاقير المفيدة:<br>
+          • المضادات الحيوية<br>
+          • الكافيين (باعتدال)<br><br>
+          العقاقير الضارة:<br>
+          • النيكوتين 🚭
+        </div>
+      </div>`);
+  }
+
+  function draw(){
+    if(currentSim!=='repro_lifestyle') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg-canvas').trim()||'#F5FFFA';
+    c.fillRect(0,0,w,h);
+    S.t+=0.02;
+
+    if(tab===0){
+      c.fillStyle='#C0392B';
+      c.font=`bold ${h*0.04}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText('تأثير التدخين على وزن المولود',w/2,h*0.07);
+
+      // رسم بياني بالأعمدة — نسبة نقص الوزن
+      const data=[
+        {label:'لا تدخين',val:3.5,color:'#27AE60'},
+        {label:'أقل من 15',val:5.5,color:'#D4901A'},
+        {label:'15 أو أكثر',val:9.0,color:'#C0392B'},
+      ];
+      const barW=w*0.18, startX=w*0.15, chartBottom=h*0.8, chartH=h*0.55;
+      const maxVal=10;
+
+      // محاور
+      c.strokeStyle='rgba(0,0,0,0.2)'; c.lineWidth=1.5;
+      c.beginPath(); c.moveTo(startX-10,h*0.15); c.lineTo(startX-10,chartBottom); c.stroke();
+      c.beginPath(); c.moveTo(startX-10,chartBottom); c.lineTo(startX+barW*3+w*0.22,chartBottom); c.stroke();
+
+      // ملصق المحور الصادي
+      c.save(); c.translate(w*0.04,h*0.5); c.rotate(-Math.PI/2);
+      c.fillStyle='#555'; c.font=`${h*0.026}px Tajawal,Arial`;
+      c.fillText('نسبة نقص الوزن (%)',0,0); c.restore();
+
+      data.forEach((d,i)=>{
+        const x=startX+i*(barW+w*0.11);
+        const bh=(d.val/maxVal)*chartH;
+        const by=chartBottom-bh;
+        // هل هو قريب من قيمة السجائر الحالية؟
+        const highlighted=
+          (i===0&&S.cigs===0)||(i===1&&S.cigs>0&&S.cigs<15)||(i===2&&S.cigs>=15);
+
+        // عمود
+        c.fillStyle=highlighted?d.color:d.color+'66';
+        c.fillRect(x,by,barW,bh);
+        c.strokeStyle=d.color; c.lineWidth=highlighted?3:1;
+        c.strokeRect(x,by,barW,bh);
+        // قيمة
+        c.fillStyle=d.color; c.font=`bold ${h*0.034}px Tajawal,Arial`;
+        c.fillText(d.val+'%',x+barW/2,by-h*0.02);
+        // تسمية
+        c.fillStyle='#444'; c.font=`${h*0.026}px Tajawal,Arial`;
+        c.fillText(d.label,x+barW/2,chartBottom+h*0.04);
+        c.font=`${h*0.022}px Tajawal,Arial`;
+        c.fillStyle='#666';
+        c.fillText('سيجارة',x+barW/2,chartBottom+h*0.07);
+      });
+
+      // خطوط شبكة
+      [2,4,6,8,10].forEach(v=>{
+        const gy=chartBottom-(v/maxVal)*chartH;
+        c.strokeStyle='rgba(0,0,0,0.07)'; c.lineWidth=1; c.setLineDash([4,4]);
+        c.beginPath(); c.moveTo(startX-10,gy); c.lineTo(startX+barW*3+w*0.22,gy); c.stroke();
+        c.setLineDash([]);
+        c.fillStyle='#888'; c.font=`${h*0.022}px Tajawal,Arial`;
+        c.fillText(v,startX-w*0.06,gy+h*0.01);
+      });
+
+      // ملخص
+      const summaryColor=S.cigs===0?'#27AE60':S.cigs<15?'#D4901A':'#C0392B';
+      const summaryText=S.cigs===0?'✅ لا تدخين — أفضل صحة للأم والجنين':
+                        S.cigs<15?'⚠️ التدخين يزيد خطر نقص وزن المولود':
+                        '❌ تدخين مكثف — ضرر كبير للجنين';
+      c.fillStyle=summaryColor; c.font=`bold ${h*0.033}px Tajawal,Arial`;
+      c.fillText(summaryText,w/2,h*0.93);
+
+    } else {
+      // Tab 1 — الغذاء والنمو
+      c.fillStyle='#27AE60';
+      c.font=`bold ${h*0.04}px Tajawal,Arial`;
+      c.textAlign='center';
+      c.fillText('العوامل المؤثرة على الصحة والنمو',w/2,h*0.08);
+
+      const factors=[
+        {icon:'🥩',label:'بروتين كافٍ',effect:'نمو طبيعي وسليم',color:'#27AE60',positive:true},
+        {icon:'🥗',label:'غذاء متوازن',effect:'طاقة وجهاز مناعي قوي',color:'#2980B9',positive:true},
+        {icon:'💊',label:'مضادات حيوية',effect:'تقتل البكتيريا الضارة',color:'#8E44AD',positive:true},
+        {icon:'☕',label:'كافيين',effect:'تنبيه مؤقت — باعتدال',color:'#D4901A',positive:true},
+        {icon:'🚬',label:'نيكوتين',effect:'ضار جداً — يؤثر على الجنين',color:'#C0392B',positive:false},
+        {icon:'🍔',label:'نقص بروتين',effect:'تباطؤ النمو',color:'#E67E22',positive:false},
+      ];
+
+      const cols=3, rows=2;
+      factors.forEach((f,i)=>{
+        const col=i%cols, row=Math.floor(i/cols);
+        const fx=w*(0.2+col*0.3);
+        const fy=h*(0.28+row*0.3);
+        const pulse=1+Math.sin(S.t*1.5+i*0.8)*(f.positive?0.02:0.04);
+
+        c.fillStyle=f.color+(f.positive?'22':'11');
+        c.strokeStyle=f.color;
+        c.lineWidth=f.positive?1.5:2.5;
+        if(c.roundRect) c.roundRect(fx-w*0.12,fy-h*0.07*pulse,w*0.24,h*0.14*pulse,10);
+        else c.rect(fx-w*0.12,fy-h*0.07*pulse,w*0.24,h*0.14*pulse);
+        c.fill(); c.stroke();
+
+        c.font=`${h*0.05}px Arial`;
+        c.fillText(f.icon,fx,fy-h*0.01);
+        c.fillStyle=f.color; c.font=`bold ${h*0.027}px Tajawal,Arial`;
+        c.fillText(f.label,fx,fy+h*0.04);
+        c.fillStyle='#555'; c.font=`${h*0.022}px Tajawal,Arial`;
+        c.fillText(f.effect,fx,fy+h*0.07);
+
+        // علامة ✅ أو ❌
+        c.font=`${h*0.03}px Arial`;
+        c.fillText(f.positive?'✅':'❌',fx+w*0.09,fy-h*0.05);
+      });
+    }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الوحدة ١٠ — التكاثر والتطوّر (أسئلة الاستنتاج)
 // ══════════════════════════════════════════════════════════
 
 function salts_what(){
@@ -25407,6 +26413,37 @@ Object.assign(SIM_QUESTIONS, {
     opts:['الصوت أكثر حدة (رفيع أكثر)','الصوت أعلى شدة (أقوى)','الصوت أبطأ انتقالاً','الصوت أكثر تردداً'],
     ans:1,
     fb:'✅ ارتفاع الموجة = السعة الأكبر = شدة أعلى = صوت أقوى! أما الحدة (رفيع/غليظ) فتُحدَّد بعدد الموجات في نفس الفضاء — كلما ازدادت كلما كان الصوت أرفع!'
+  },
+  // ── أسئلة الوحدة 10 (التكاثر والتطوّر) ──
+  repro_gametes:{
+    q:'لماذا يحتوي كلٌّ من البويضة والحيوان المنوي على 23 كروموسوماً فقط؟',
+    opts:['لأنها خلايا صغيرة','حتى تكون البويضة المخصبة 23+23=46 كروموسوم وهو العدد الطبيعي لخلايا الجسم','لأن 23 رقم مقدّس','لتوفير الطاقة'],
+    ans:1,
+    fb:'✅ لو كان كل مشيج يحمل 46 كروموسوماً، لأصبح في البويضة المخصبة 92 — وهذا يُسبّب مشاكل وراثية. الطبيعة ذكية: 23+23=46 ✅ دائماً!'
+  },
+  repro_fertilisation:{
+    q:'أين يحدث الإخصاب عادةً في جسم الأنثى؟',
+    opts:['في الرحم','في المبيض','في قناة البيض','في المهبل'],
+    ans:2,
+    fb:'✅ الإخصاب يحدث في قناة البيض! البويضة تخرج من المبيض وتدخل قناة البيض حيث تلتقي بالحيوانات المنوية. ثم تنتقل البويضة المخصبة إلى الرحم للانغراس.'
+  },
+  repro_development:{
+    q:'ما وظيفة المشيمة للجنين؟',
+    opts:['حمايته من الصدمات','إنتاج السائل الأمنيوني','نقل الغذاء والأكسجين من دم الأم للجنين','تنظيم درجة حرارة الجنين فقط'],
+    ans:2,
+    fb:'✅ المشيمة = نظام دعم الحياة للجنين! تنقل O₂ والجلوكوز والمواد الغذائية من دم الأم، وتُزيل CO₂ والفضلات من دم الجنين. الحبل السرّي يربط الجنين بها.'
+  },
+  repro_growth:{
+    q:'كيف يحدث النمو في جسم الإنسان؟',
+    opts:['بزيادة حجم الخلايا فقط','بانقسام الخلايا ونموها — خلية واحدة تصبح ملايين','بدخول خلايا جديدة من الطعام','بالتنفس فقط'],
+    ans:1,
+    fb:'✅ بدأت بخلية واحدة (البويضة المخصبة) ثم انقسمت: 1→2→4→8→16... حتى أصبح جسمك من تريليونات الخلايا! النمو = انقسام متواصل + نمو الخلايا.'
+  },
+  repro_lifestyle:{
+    q:'كيف يؤثر التدخين خلال الحمل على الجنين؟',
+    opts:['لا يؤثر لأن المشيمة تحمي الجنين','يجعله أذكى','النيكوتين يدخل دم الجنين ويُبطئ نموه ويقلل وزنه عند الولادة','يؤثر فقط بعد الولادة'],
+    ans:2,
+    fb:'✅ النيكوتين يعبر المشيمة ويصل لدم الجنين — يُبطئ النمو ويُقلل وزن المولود ويزيد خطر أمراض مستقبلية كالسكري. الأمهات اللواتي دخّنّ قبل الحمل تواجهن مشاكل أيضاً!'
   }
 });
 
