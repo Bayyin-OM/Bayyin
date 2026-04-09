@@ -21850,6 +21850,52 @@ function simParallel12b() {
 const _SUPA_URL = 'https://serezytdauldrfuphjxf.supabase.co';
 const _SUPA_KEY = 'sb_publishable_giuJIokNaFOQ2EWCRZoCOw_1bQhvTNQ';
 
+// ══════════════════════════════════════════════════════════════
+// نظام حماية الجهاز — Device Fingerprint + Session Lock
+// ══════════════════════════════════════════════════════════════
+const _FP_KEY = '_bayyin_fp';
+
+async function _getDeviceFingerprint() {
+  try {
+    var components = [
+      navigator.userAgent || '',
+      navigator.language || '',
+      screen.width + 'x' + screen.height,
+      screen.colorDepth || '',
+      (Intl && Intl.DateTimeFormat ? Intl.DateTimeFormat().resolvedOptions().timeZone : '') || '',
+      navigator.hardwareConcurrency || '',
+      navigator.platform || '',
+    ];
+    // Canvas fingerprint
+    try {
+      var cv2 = document.createElement('canvas');
+      var ctx2 = cv2.getContext('2d');
+      ctx2.textBaseline = 'top';
+      ctx2.font = '14px Arial';
+      ctx2.fillStyle = '#1A8FA8';
+      ctx2.fillText('bayyin-fp-2026', 2, 2);
+      components.push(cv2.toDataURL());
+    } catch(e2) {}
+    // WebGL fingerprint
+    try {
+      var gl2 = document.createElement('canvas').getContext('webgl');
+      if (gl2) {
+        var ext2 = gl2.getExtension('WEBGL_debug_renderer_info');
+        if (ext2) components.push(gl2.getParameter(ext2.UNMASKED_RENDERER_WEBGL) || '');
+      }
+    } catch(e3) {}
+
+    var raw = components.join('|||');
+    var encoder = new TextEncoder();
+    var data = encoder.encode(raw);
+    var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    var hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+  } catch(e) {
+    return btoa(navigator.userAgent + screen.width + screen.height).slice(0, 64);
+  }
+}
+
 let _db;
 try {
   if (!window.supabase) throw new Error('Supabase not loaded');
@@ -21901,12 +21947,27 @@ async function _periodicSubCheck() {
     var userResp = await _db.auth.getUser();
     var user = userResp && userResp.data && userResp.data.user;
     if (!user) { _lockPlatform(); return; }
+
     var resp = await _db.from('profiles')
-      .select('subscription_status')
+      .select('subscription_status, active_device_fp')
       .eq('id', user.id)
       .single();
+
     var status = resp.data && resp.data.subscription_status;
-    if (status !== 'active') _lockPlatform();
+    if (status !== 'active') { _lockPlatform(); return; }
+
+    // ── فحص بصمة الجهاز ──
+    try {
+      var savedFp   = localStorage.getItem(_FP_KEY);
+      var remoteFp  = resp.data && resp.data.active_device_fp;
+      // لو البصمة في قاعدة البيانات مختلفة عن الجهاز الحالي → طرد
+      if (remoteFp && savedFp && remoteFp !== savedFp) {
+        _lockPlatform();
+        _authStatus('⚠️ تم تسجيل الدخول من جهاز آخر — أُغلق هذا الجهاز', false);
+        return;
+      }
+    } catch(fpErr) { console.log('fp check error:', fpErr); }
+
   } catch(e) { console.log('periodic sub check error:', e); }
 }
 
@@ -21977,6 +22038,16 @@ async function handleLogin() {
       _authStatus('✅ تم تسجيل الدخول! جاري فحص الاشتراك...', true);
     }
 
+    // ── حفظ بصمة الجهاز بعد الدخول الناجح ──
+    try {
+      var fp = await _getDeviceFingerprint();
+      localStorage.setItem(_FP_KEY, fp);
+      var curUser = (await _db.auth.getUser()).data.user;
+      if (curUser) {
+        await _db.from('profiles').update({ active_device_fp: fp }).eq('id', curUser.id);
+      }
+    } catch(fpErr) { console.log('fp save error:', fpErr); }
+
     await _checkSubscription();
 
   } catch (err) {
@@ -22004,7 +22075,7 @@ async function _checkSubscription() {
     }
 
     var resp = await _db.from('profiles')
-      .select('subscription_status')
+      .select('subscription_status, active_device_fp')
       .eq('id', user.id)
       .single();
 
