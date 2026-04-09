@@ -21920,26 +21920,43 @@ function _authStatus(msg, ok) {
 
 var _subCheckInterval = null;
 
-function _lockPlatform() {
+function _lockPlatform(reason) {
   // إيقاف الفحص الدوري
   if (_subCheckInterval) { clearInterval(_subCheckInterval); _subCheckInterval = null; }
   // إيقاف أي أنيميشن شغّال
   if (typeof cancelAnimationFrame !== 'undefined' && typeof animFrame !== 'undefined') cancelAnimationFrame(animFrame);
-  // إخفاء المنصة وإظهار شاشة الدفع
+  // إخفاء المنصة
   var app = document.getElementById('app');
   if (app) { app.style.display = 'none'; app.classList.remove('open'); }
   var landing = document.getElementById('landing');
   if (landing) landing.style.display = 'none';
   var overlay = document.getElementById('auth-overlay');
-  if (overlay) overlay.style.display = '';
-  document.getElementById('payment-section').style.display = 'block';
-  document.getElementById('auth-email').style.display = 'none';
-  document.getElementById('auth-pass').style.display = 'none';
-  document.getElementById('auth-submit-btn').style.display = 'none';
-  document.getElementById('auth-visitor-bar').style.display = 'none';
-  var authSub2 = document.querySelector('.auth-sub');
-  if(authSub2) authSub2.style.display = 'none';
-  _authStatus('⏰ انتهت مدة اشتراكك — يرجى التجديد', false);
+  if (overlay) overlay.style.display = 'flex';
+
+  if (reason === 'device') {
+    // طرد بسبب جهاز آخر — أظهر شاشة تسجيل الدخول مع رسالة
+    document.getElementById('payment-section').style.display = 'none';
+    document.getElementById('auth-email').style.display = '';
+    document.getElementById('auth-pass').style.display = '';
+    document.getElementById('auth-submit-btn').style.display = '';
+    var authVis = document.getElementById('auth-visitor-bar');
+    if (authVis) authVis.style.display = 'none';
+    var authSub2 = document.querySelector('.auth-sub');
+    if (authSub2) { authSub2.style.display = ''; authSub2.textContent = 'لا يمكن تسجيل الدخول بنفس الحساب على أكثر من جهاز'; }
+    // امسح البصمة المحلية
+    try { localStorage.removeItem(_FP_KEY); } catch(e) {}
+    _authStatus('⚠️ تم تسجيل الدخول من جهاز آخر — يرجى تسجيل الدخول مجدداً', false);
+  } else {
+    // انتهاء اشتراك — أظهر شاشة الدفع
+    document.getElementById('payment-section').style.display = 'block';
+    document.getElementById('auth-email').style.display = 'none';
+    document.getElementById('auth-pass').style.display = 'none';
+    document.getElementById('auth-submit-btn').style.display = 'none';
+    document.getElementById('auth-visitor-bar').style.display = 'none';
+    var authSub3 = document.querySelector('.auth-sub');
+    if (authSub3) authSub3.style.display = 'none';
+    _authStatus('⏰ انتهت مدة اشتراكك — يرجى التجديد', false);
+  }
 }
 
 async function _periodicSubCheck() {
@@ -21960,10 +21977,8 @@ async function _periodicSubCheck() {
     try {
       var savedFp   = localStorage.getItem(_FP_KEY);
       var remoteFp  = resp.data && resp.data.active_device_fp;
-      // لو البصمة في قاعدة البيانات مختلفة عن الجهاز الحالي → طرد
       if (remoteFp && savedFp && remoteFp !== savedFp) {
-        _lockPlatform();
-        _authStatus('⚠️ تم تسجيل الدخول من جهاز آخر — أُغلق هذا الجهاز', false);
+        _lockPlatform('device');
         return;
       }
     } catch(fpErr) { console.log('fp check error:', fpErr); }
@@ -21984,7 +21999,7 @@ function _unlockPlatform() {
   setTimeout(function(){ _showSubscriptionDays(); }, 800);
   // فحص دوري كل 5 دقائق
   if (_subCheckInterval) clearInterval(_subCheckInterval);
-  _subCheckInterval = setInterval(_periodicSubCheck, 5 * 60 * 1000);
+  _subCheckInterval = setInterval(_periodicSubCheck, 30 * 1000);
 }
 
 async function handleLogin() {
