@@ -4538,21 +4538,21 @@ function startSim(type, tab) {
     fitness8:     [simFitness1, simFitness2],
     smoking8:     [simSmoking1, simSmoking2],
     // ── الصف 8 — التكاثر والتطوّر ──
-    repro_gametes:      [repro_gametes, repro_gametes],
-    repro_fertilisation:[repro_fertilisation, repro_fertilisation],
-    repro_development:  [repro_development, repro_development],
-    repro_growth:       [repro_growth, repro_growth],
-    repro_lifestyle:    [repro_lifestyle, repro_lifestyle],
+    repro_gametes:      [repro_gametes, repro_gametes2],
+    repro_fertilisation:[repro_fertilisation, repro_fertilisation2],
+    repro_development:  [repro_development, repro_development2],
+    repro_growth:       [repro_growth, repro_growth2],
+    repro_lifestyle:    [repro_lifestyle, repro_lifestyle2],
     // ── الصف 8 — الأملاح ──
-    salts_what:      [salts_what, salts_what],
-    salts_metal:     [salts_metal, salts_metal],
-    salts_oxide:     [salts_oxide, salts_oxide],
-    salts_carbonate: [salts_carbonate, salts_carbonate],
+    salts_what:      [salts_what, salts_what2],
+    salts_metal:     [salts_metal, salts_metal2],
+    salts_oxide:     [salts_oxide, salts_oxide2],
+    salts_carbonate: [salts_carbonate, salts_carbonate2],
     // ── الصف 8 — الصوت ──
-    sound_pitch:        [sound_pitch, sound_pitch],
-    sound_vibration:    [sound_vibration, sound_vibration],
-    sound_travel:       [sound_travel, sound_travel],
-    sound_oscilloscope: [sound_oscilloscope, sound_oscilloscope],
+    sound_pitch:        [sound_pitch,        sound_pitch2],
+    sound_vibration:    [sound_vibration,    sound_vibration2],
+    sound_travel:       [sound_travel,       sound_travel2],
+    sound_oscilloscope: [sound_oscilloscope, sound_oscilloscope2],
 
     // ── الصف 8 — المغناطيسيّة والكهرباء ──
     magnets:      [simMagnets1, simMagnets2],
@@ -26202,4 +26202,1013 @@ Object.assign(SIM_QUESTIONS, {
 window.addEventListener('DOMContentLoaded', function() {
   _checkSubscription();
 });
+
+
+// ══════════════════════════════════════════════════════════
+// دوال الجزء الثاني — التكاثر (الوحدة 8)
+// ══════════════════════════════════════════════════════════
+
+function repro_gametes2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_gametes2) simState.repro_gametes2={t:0};
+  const S=simState.repro_gametes2;
+
+  const comparisons=[
+    {icon:'🥚',name:'البويضة',size:'كبيرة (0.1 مم)',motion:'لا تتحرك',num:'واحدة شهرياً',chrom:'23',color:'#E8962A'},
+    {icon:'🏊',name:'الحيوان المنوي',size:'صغيرة جداً',motion:'تسبح بذيلها',num:'ملايين',chrom:'23',color:'#1A8FA8'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 مقارنة الأمشاج</div>
+      <div class="info-box" style="font-size:13px;line-height:2;margin-top:6px">
+        🥚 البويضة: كبيرة، لا تتحرك، 23 كروموسوم<br>
+        🏊 الحيوان المنوي: صغير، يسبح، 23 كروموسوم<br>
+        ✅ بعد الإخصاب: 23+23 = <strong>46</strong>
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا ينتج ملايين الحيوانات المنوية؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">معظمها لا يصل — الرحلة طويلة وصعبة. الطبيعة تعوّض بالكمية لضمان نجاح الإخصاب.</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما الفرق بين التكاثر الجنسي واللاجنسي؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الجنسي: مشيجان → تنوع جيني. اللاجنسي: كائن واحد → نسخ متطابقة. الجنسي يُنتج تنوعاً يساعد على التكيف.</div>
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='repro_gametes') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.03;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0A1628'); bg.addColorStop(1,'#142040');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    c.fillStyle='#80D4FF'; c.font=`bold ${Math.min(17,w*0.038)}px Tajawal`;
+    c.textAlign='center'; c.fillText('مقارنة الأمشاج',w/2,h*0.08);
+
+    comparisons.forEach((item,i)=>{
+      const cx2=(i===0?w*0.27:w*0.73), cy2=h*0.45;
+      const r=Math.min(w*0.18,h*0.2);
+      const glow=c.createRadialGradient(cx2,cy2,0,cx2,cy2,r*1.4);
+      glow.addColorStop(0,item.color+'33'); glow.addColorStop(1,'transparent');
+      c.fillStyle=glow; c.beginPath(); c.arc(cx2,cy2,r*1.4,0,Math.PI*2); c.fill();
+      const gr=c.createRadialGradient(cx2-r*0.3,cy2-r*0.3,r*0.1,cx2,cy2,r);
+      gr.addColorStop(0,item.color+'EE'); gr.addColorStop(1,item.color+'88');
+      c.fillStyle=gr; c.beginPath(); c.arc(cx2,cy2,r,0,Math.PI*2); c.fill();
+      c.strokeStyle=item.color; c.lineWidth=2; c.stroke();
+      c.font=`${Math.min(r*0.65,38)}px Arial`; c.textAlign='center';
+      c.fillText(item.icon,cx2,cy2+r*0.2);
+      c.fillStyle='white'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
+      c.fillText(item.name,cx2,cy2+r+20);
+      [`الحجم: ${item.size}`,`الحركة: ${item.motion}`,`العدد: ${item.num}`,`الكروموسومات: ${item.chrom}`].forEach((txt,j)=>{
+        c.fillStyle='rgba(255,255,255,0.75)'; c.font=`${Math.min(11,w*0.024)}px Tajawal`;
+        c.fillText(txt,cx2,cy2+r+38+j*17);
+      });
+    });
+
+    c.fillStyle='#FFD700'; c.font=`bold ${Math.min(26,h*0.08)}px Arial`;
+    c.textAlign='center'; c.fillText('+',w/2,h*0.48);
+    c.fillStyle='#FFD700'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
+    c.fillText('✅ إخصاب → 46 كروموسوم → كائن جديد',w/2,h*0.88);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function repro_fertilisation2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_fertilisation2) simState.repro_fertilisation2={t:0};
+  const S=simState.repro_fertilisation2;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📊 رحلة الزيجوت</div>
+      <div class="info-box" style="font-size:12px;line-height:2.1;margin-top:6px">
+        ١ 🥚 إخصاب → زيجوت (46 كروموسوم)<br>
+        ２ ⚪⚪ يومان → خليتان<br>
+        ３ ⚪×4 ثلاثة أيام → 4 خلايا<br>
+        ４ 🔵 أربعة أيام → مورولا<br>
+        ٥ 🏠 6-10 أيام → تعشيش في الرحم
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ بعد كم يوم يتعشّش الجنين في الرحم؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">حوالي 6-10 أيام بعد الإخصاب — الكرة الخلوية تنتقل عبر قناة البيض وتنغرس في جدار الرحم.</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما الفرق بين التوأم المتطابق وغير المتطابق؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">المتطابق: زيجوت واحدة تنقسم → متطابقان وراثياً. غير المتطابق: بويضتان + حيوانان منويان → مختلفان وراثياً.</div>
+    </div>`);
+
+  const stages=[
+    {icon:'🥚',label:'إخصاب',x:0.1,color:'#E8962A'},
+    {icon:'⚪⚪',label:'يومان',x:0.28,color:'#27AE60'},
+    {icon:'⚪×4',label:'٣ أيام',x:0.46,color:'#2980B9'},
+    {icon:'🔵',label:'مورولا',x:0.64,color:'#8E44AD'},
+    {icon:'🏠',label:'تعشيش',x:0.82,color:'#C0392B'},
+  ];
+
+  function draw(){
+    if(currentSim!=='repro_fertilisation') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.025;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0D1A2E'); bg.addColorStop(1,'#1A2E50');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#FFD080'; c.font=`bold ${Math.min(16,w*0.036)}px Tajawal`;
+    c.textAlign='center'; c.fillText('رحلة الزيجوت من الإخصاب للتعشيش',w/2,h*0.07);
+
+    const lineY=h*0.5;
+    c.strokeStyle='rgba(255,200,100,0.35)'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(w*0.08,lineY); c.lineTo(w*0.9,lineY); c.stroke();
+
+    stages.forEach((st,i)=>{
+      const sx=st.x*w;
+      const pulse=1+Math.sin(S.t*2+i*1.2)*0.08;
+      c.fillStyle=st.color; c.beginPath(); c.arc(sx,lineY,10*pulse,0,Math.PI*2); c.fill();
+      c.font=`${Math.min(22,h*0.07)}px Arial`; c.textAlign='center';
+      c.fillText(st.icon,sx,lineY-h*0.16);
+      c.fillStyle=st.color; c.font=`bold ${Math.min(11,w*0.025)}px Tajawal`;
+      c.fillText(st.label,sx,lineY+h*0.1);
+      if(i<stages.length-1){
+        c.strokeStyle='rgba(255,200,100,0.5)'; c.lineWidth=1.5;
+        const nx=stages[i+1].x*w;
+        c.beginPath(); c.moveTo(sx+14,lineY); c.lineTo(nx-14,lineY); c.stroke();
+      }
+    });
+
+    c.fillStyle='rgba(255,255,255,0.55)'; c.font=`${Math.min(12,w*0.027)}px Tajawal`;
+    c.textAlign='center'; c.fillText('قناة البيض → الرحم في 6-10 أيام 🧬',w/2,h*0.92);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function repro_development2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_development2) simState.repro_development2={t:0,trimester:0};
+  const S=simState.repro_development2;
+
+  const trimData=[
+    {title:'الثلاثية الأولى (أسابيع 1-12)',color:'#8E44AD',icon:'🔮',size:0.07,
+     points:['تتشكّل الأعضاء الرئيسية','القلب يبدأ النبض (أ5-6)','الجنين ~6 سم — 14 غ','الغثيان شائع']},
+    {title:'الثلاثية الثانية (أسابيع 13-26)',color:'#2980B9',icon:'👶',size:0.22,
+     points:['الجنين يتحرك ويركل','تتشكّل البصمات والشعر','الجنين ~35 سم — 900 غ','يمكن تحديد الجنس']},
+    {title:'الثلاثية الثالثة (أسابيع 27-40)',color:'#27AE60',icon:'🍼',size:0.4,
+     points:['نمو سريع في الوزن','الرئتان تنضجان','الجنين ~50 سم — 3-4 كغ','استعداد للولادة']},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📅 ثلاثيات الحمل</div>
+      ${trimData.map((td,i)=>`<button class="ctrl-btn" style="width:100%;margin:2px 0;${S.trimester===i?'background:'+td.color+';color:white':''}" onclick="simState.repro_development2.trimester=${i}">${td.icon} ${td.title.substring(0,18)}</button>`).join('')}
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما دور المشيمة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">المشيمة تنقل O₂ والغذاء من دم الأم للجنين، وتُخرج CO₂ والفضلات — دون أن يختلط الدمان مباشرة.</div>
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='repro_development') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.03;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#1A0A2E'); bg.addColorStop(1,'#2E1050');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    const td=trimData[S.trimester];
+    c.fillStyle=td.color; c.font=`bold ${Math.min(14,w*0.032)}px Tajawal`;
+    c.textAlign='center'; c.fillText(td.title,w/2,h*0.08);
+
+    const fSize=td.size*Math.min(w*0.5,h*0.55);
+    const cx2=w*0.3, cy2=h*0.48;
+    const pulse=1+Math.sin(S.t*8)*0.03;
+    const gr=c.createRadialGradient(cx2-fSize*0.2,cy2-fSize*0.2,fSize*0.05,cx2,cy2,fSize*pulse);
+    gr.addColorStop(0,'rgba(255,200,150,0.95)'); gr.addColorStop(0.7,'rgba(230,160,120,0.8)'); gr.addColorStop(1,'rgba(200,120,100,0.3)');
+    c.fillStyle=gr; c.beginPath(); c.arc(cx2,cy2,fSize*pulse,0,Math.PI*2); c.fill();
+    if(S.trimester>0){
+      c.fillStyle='rgba(255,200,150,0.8)'; c.beginPath();
+      c.arc(cx2+fSize*0.6,cy2-fSize*0.35,fSize*0.38,0,Math.PI*2); c.fill();
+    }
+    c.font=`${Math.min(fSize*0.6,32)}px Arial`; c.textAlign='center';
+    c.fillText(td.icon,cx2,cy2+fSize*0.22);
+
+    const bx2=w*0.55, startY=h*0.24;
+    td.points.forEach((pt,i)=>{
+      const py2=startY+i*(h*0.155);
+      c.fillStyle='rgba(255,255,255,0.07)'; c.beginPath(); c.roundRect(bx2,py2-13,w*0.4,28,5); c.fill();
+      c.fillStyle=td.color; c.font=`bold ${Math.min(12,w*0.025)}px Arial`; c.textAlign='left';
+      c.fillText('✓',bx2+6,py2+4);
+      c.fillStyle='rgba(255,255,255,0.88)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
+      c.fillText(pt,bx2+24,py2+4);
+    });
+    c.textAlign='center';
+    c.fillStyle='rgba(255,255,255,0.1)'; c.beginPath(); c.roundRect(w*0.1,h*0.88,w*0.8,10,5); c.fill();
+    c.fillStyle=td.color; c.beginPath(); c.roundRect(w*0.1,h*0.88,w*0.8*[0.3,0.65,1][S.trimester],10,5); c.fill();
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function repro_growth2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_growth2) simState.repro_growth2={t:0};
+  const S=simState.repro_growth2;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📊 مراحل النمو الإنساني</div>
+      <div class="info-box" style="font-size:12px;line-height:2;margin-top:6px">
+        🍼 رضاعة (0-2): نمو سريع جداً<br>
+        🎒 طفولة (3-12): تعلّم وتطور<br>
+        🧑 مراهقة (10-18): بلوغ وتغيرات<br>
+        👨 بلوغ (18+): نمو مكتمل
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما هرمون البلوغ في الذكور والإناث؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الذكور: التستوستيرون (من الخصيتين). الإناث: الإستروجين والبروجستيرون (من المبيضين). كلاهما يتحكم في التغيرات الجسدية عند البلوغ.</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما التغيرات المشتركة بين الجنسين عند البلوغ؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">نمو الشعر في الإبط والعانة، ازدياد التعرق، حبوب البشرة، نمو سريع في الطول، تطور الجهاز التناسلي، تغيرات عاطفية.</div>
+    </div>`);
+
+  const stages=[
+    {name:'رضاعة',age:'0-2',icon:'🍼',color:'#F39C12',desc:'3× الوزن الأولي'},
+    {name:'طفولة مبكرة',age:'3-6',icon:'🎒',color:'#27AE60',desc:'لغة وحركة'},
+    {name:'طفولة متأخرة',age:'7-12',icon:'📚',color:'#2980B9',desc:'تعلّم اجتماعي'},
+    {name:'مراهقة',age:'10-18',icon:'🧑',color:'#8E44AD',desc:'بلوغ وتغيرات'},
+    {name:'بلوغ',age:'18+',icon:'👨‍🎓',color:'#1A8FA8',desc:'نمو مكتمل'},
+  ];
+
+  function draw(){
+    if(currentSim!=='repro_growth') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.02;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0E2218'); bg.addColorStop(1,'#1A3D2A');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#80FFB0'; c.font=`bold ${Math.min(16,w*0.036)}px Tajawal`;
+    c.textAlign='center'; c.fillText('مراحل النمو الإنساني',w/2,h*0.07);
+
+    const barW=w*0.8/stages.length;
+    stages.forEach((st,i)=>{
+      const bx2=w*0.1+i*barW;
+      const barH=h*(0.15+i*0.08);
+      const by2=h*0.82-barH;
+      const active=Math.floor(S.t*0.5)%stages.length===i;
+      const gr=c.createLinearGradient(bx2,by2,bx2,h*0.82);
+      gr.addColorStop(0,st.color+'EE'); gr.addColorStop(1,st.color+'66');
+      c.fillStyle=gr; c.beginPath(); c.roundRect(bx2+4,by2,barW-8,barH,6); c.fill();
+      if(active){ c.strokeStyle='white'; c.lineWidth=2; c.stroke(); }
+      c.font=`${Math.min(18,barW*0.5)}px Arial`; c.textAlign='center';
+      c.fillText(st.icon,bx2+barW/2,by2-8);
+      c.fillStyle=st.color; c.font=`bold ${Math.min(10,w*0.022)}px Tajawal`;
+      c.fillText(st.name,bx2+barW/2,h*0.87);
+      c.fillStyle='rgba(255,255,255,0.55)'; c.font=`${Math.min(9,w*0.02)}px Tajawal`;
+      c.fillText(st.age+' سنة',bx2+barW/2,h*0.91);
+    });
+    const cur=stages[Math.floor(S.t*0.5)%stages.length];
+    c.fillStyle='rgba(0,0,0,0.35)'; c.beginPath(); c.roundRect(w*0.1,h*0.93,w*0.8,h*0.055,6); c.fill();
+    c.fillStyle=cur.color; c.font=`${Math.min(12,w*0.027)}px Tajawal`;
+    c.fillText(cur.desc,w/2,h*0.96);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function repro_lifestyle2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.repro_lifestyle2) simState.repro_lifestyle2={t:0,sel:0};
+  const S=simState.repro_lifestyle2;
+
+  const topics=[
+    {name:'التغذية',icon:'🥗',color:'#27AE60',
+     good:['بروتين: بيض ولحم وبقوليات','كالسيوم: ألبان وخضار ورقية','حمض الفوليك قبل الحمل'],
+     bad:['الأغذية المصنّعة الزائدة','السكر المكرّر الزائد','الحمية القاسية']},
+    {name:'النشاط البدني',icon:'🏃',color:'#2980B9',
+     good:['30 دقيقة يومياً على الأقل','مشي وسباحة ودراجة','تقوّي العظام والقلب'],
+     bad:['جلوس مطوّل >8 ساعات','الإفراط في التمرين','الخمول التام']},
+    {name:'الصحة النفسية',icon:'🧠',color:'#8E44AD',
+     good:['نوم 8-9 ساعات للمراهقين','التحدث مع المقربين','هوايات وأنشطة ممتعة'],
+     bad:['الإجهاد المزمن','العزلة الاجتماعية','التنمر والمشاكل المكبوتة']},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">نمط الحياة الصحي</div>
+      ${topics.map((t,i)=>`<button class="ctrl-btn" style="width:100%;margin:2px 0;${S.sel===i?'background:'+t.color+';color:white':''}" onclick="simState.repro_lifestyle2.sel=${i}">${t.icon} ${t.name}</button>`).join('')}
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا يحتاج المراهقون نوماً أكثر؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الدماغ والجسم ينموان بسرعة — هرمون النمو يُفرز أثناء النوم العميق. قلة النوم تؤثر على الذاكرة والتركيز.</div>
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='repro_lifestyle') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.025;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0A1820'); bg.addColorStop(1,'#142030');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    const tp=topics[S.sel];
+    c.fillStyle=tp.color; c.font=`bold ${Math.min(16,w*0.036)}px Tajawal`;
+    c.textAlign='center'; c.fillText(`${tp.icon} ${tp.name} — مقارنة`,w/2,h*0.08);
+
+    const colW=w*0.42;
+    c.fillStyle='rgba(39,174,96,0.12)'; c.beginPath(); c.roundRect(w*0.04,h*0.13,colW,h*0.72,10); c.fill();
+    c.strokeStyle='#27AE6055'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='#27AE60'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
+    c.fillText('✅ مفيد',w*0.04+colW/2,h*0.19);
+    tp.good.forEach((pt,i)=>{
+      c.fillStyle='rgba(255,255,255,0.82)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
+      c.fillText(pt,w*0.04+colW/2,h*0.28+i*h*0.15);
+    });
+
+    c.fillStyle='rgba(192,57,43,0.12)'; c.beginPath(); c.roundRect(w*0.54,h*0.13,colW,h*0.72,10); c.fill();
+    c.strokeStyle='#C0392B55'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='#C0392B'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
+    c.fillText('❌ ضار',w*0.54+colW/2,h*0.19);
+    tp.bad.forEach((pt,i)=>{
+      c.fillStyle='rgba(255,200,200,0.82)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
+      c.fillText(pt,w*0.54+colW/2,h*0.28+i*h*0.15);
+    });
+
+    c.fillStyle='rgba(255,255,255,0.45)'; c.font=`bold ${Math.min(15,h*0.05)}px Arial`;
+    c.fillText('VS',w/2,h*0.52);
+    c.fillStyle='rgba(255,255,255,0.45)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
+    c.fillText('اختر موضوعاً للمقارنة',w/2,h*0.92);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// دوال الجزء الثاني — الأملاح (الوحدة 8)
+// ══════════════════════════════════════════════════════════
+
+function salts_what2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.salts_what2) simState.salts_what2={t:0};
+  const S=simState.salts_what2;
+
+  const examples=[
+    {acid:'HCl',base:'NaOH',salt:'NaCl',name:'كلوريد الصوديوم',color:'#7F8C8D'},
+    {acid:'H₂SO₄',base:'CuO',salt:'CuSO₄',name:'كبريتات النحاس',color:'#2980B9'},
+    {acid:'HNO₃',base:'KOH',salt:'KNO₃',name:'نترات البوتاسيوم',color:'#27AE60'},
+    {acid:'HCl',base:'Mg(OH)₂',salt:'MgCl₂',name:'كلوريد المغنيسيوم',color:'#E67E22'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧂 تسمية الأملاح ومعادلاتها</div>
+      <div class="info-box" style="font-size:12px;line-height:2;margin-top:6px">
+        القاعدة: اسم الفلز + اسم الأنيون<br>
+        HCl + NaOH → <strong>كلوريد الصوديوم</strong><br>
+        H₂SO₄ + CuO → <strong>كبريتات النحاس</strong>
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما ناتج: H₂SO₄ + ZnO ؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">ZnSO₄ + H₂O — كبريتات الخارصين + ماء. أكسيد الخارصين قاعدة تتفاعل مع الحمض لتنتج ملح + ماء.</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما أيونات NaCl في الماء؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">Na⁺ (موجب) + Cl⁻ (سالب) — ينفصلان في الماء مكوّنَين محلولاً موصّلاً للكهرباء.</div>
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='salts_what') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.025;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F0F8FF'); bg.addColorStop(1,'#E0EEFF');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#1A5276'; c.font=`bold ${Math.min(16,w*0.036)}px Tajawal`;
+    c.textAlign='center'; c.fillText('حمض + قاعدة → ملح + ماء',w/2,h*0.07);
+
+    const idx=Math.floor(S.t*0.4)%examples.length;
+    const ex=examples[idx];
+    const midY=h*0.35;
+    const parts=[
+      {text:ex.acid,color:'#C0392B',label:'حمض'},
+      {text:'+',color:'#333',label:''},
+      {text:ex.base,color:'#27AE60',label:'قاعدة'},
+      {text:'→',color:'#555',label:''},
+      {text:ex.salt,color:ex.color,label:'ملح ✅'},
+      {text:'+',color:'#333',label:''},
+      {text:'H₂O',color:'#3498DB',label:'ماء'},
+    ];
+    const partW=w/(parts.length+1);
+    parts.forEach((p,i)=>{
+      const px=(i+0.8)*partW;
+      c.fillStyle=p.color; c.font=`bold ${Math.min(14,w*0.03)}px monospace`;
+      c.fillText(p.text,px,midY);
+      if(p.label){ c.fillStyle='rgba(0,0,0,0.45)'; c.font=`${Math.min(10,w*0.022)}px Tajawal`; c.fillText(p.label,px,midY+18); }
+    });
+    c.fillStyle=ex.color; c.font=`bold ${Math.min(18,w*0.04)}px Tajawal`;
+    c.fillText(ex.name,w/2,h*0.55);
+
+    // جدول
+    const rows=[['الحمض','يعطي H⁺',ex.acid],['القاعدة','يعطي OH⁻',ex.base],['الملح','أيون+ + أيون-',ex.salt]];
+    const tX=w*0.08, tY=h*0.64, tW=w*0.84, cellH=h*0.075, colW2=tW/3;
+    ['المركّب','طبيعته','مثال'].forEach((col,i)=>{
+      c.fillStyle='#1A5276'; c.fillRect(tX+i*colW2,tY,colW2-2,cellH);
+      c.fillStyle='white'; c.font=`bold ${Math.min(11,w*0.024)}px Tajawal`; c.textAlign='center';
+      c.fillText(col,tX+i*colW2+colW2/2,tY+cellH*0.62);
+    });
+    rows.forEach((row,ri)=>{
+      row.forEach((cell,ci)=>{
+        c.fillStyle=ri%2===0?'rgba(0,0,0,0.06)':'rgba(0,0,0,0.02)';
+        c.fillRect(tX+ci*colW2,tY+cellH*(ri+1),colW2-2,cellH);
+        c.fillStyle='#333'; c.font=`${Math.min(11,w*0.023)}px Tajawal`;
+        c.fillText(cell,tX+ci*colW2+colW2/2,tY+cellH*(ri+1)+cellH*0.62);
+      });
+    });
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function salts_metal2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.salts_metal2) simState.salts_metal2={t:0};
+  const S=simState.salts_metal2;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚡ سلسلة النشاط الكيميائي</div>
+      <div class="info-box" style="font-size:12px;line-height:2;margin-top:6px">
+        أكثر نشاطاً → يتفاعل مع ماء + أحماض<br>
+        K > Na > Mg > Al > Zn > Fe > Cu > Ag > Au<br>
+        الفلزات فوق H تتفاعل مع الأحماض
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا لا يتفاعل الذهب مع الأحماض؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الذهب في أسفل سلسلة النشاط — يحتاج الماء الملكي (HCl+HNO₃) فقط. لهذا يُستخدم للمجوهرات — لا يصدأ ولا يتآكل.</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ معادلة الخارصين مع H₂SO₄؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">Zn + H₂SO₄ → ZnSO₄ + H₂↑ — الخارصين يحلّ محل الهيدروجين لأنه فوقه في السلسلة.</div>
+    </div>`);
+
+  const metals=['K','Na','Mg','Al','Zn','Fe','Ni','Cu','Ag','Au'];
+  const colors=['#E74C3C','#E67E22','#BDC3C7','#95A5A6','#7F8C8D','#8B6914','#AAB7B8','#E67E22','#C0C0C0','#D4AC0D'];
+  const active=[true,true,true,true,true,true,true,false,false,false];
+
+  function draw(){
+    if(currentSim!=='salts_metal') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.02;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F5F5DC'); bg.addColorStop(1,'#EDE8D0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#2C3E50'; c.font=`bold ${Math.min(15,w*0.034)}px Tajawal`;
+    c.textAlign='center'; c.fillText('سلسلة النشاط الكيميائي للفلزات',w/2,h*0.07);
+
+    // سهم النشاط
+    c.strokeStyle='rgba(231,76,60,0.4)'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(w*0.06,h*0.85); c.lineTo(w*0.06,h*0.15); c.stroke();
+    c.beginPath(); c.moveTo(w*0.03,h*0.18); c.lineTo(w*0.06,h*0.15); c.lineTo(w*0.09,h*0.18); c.stroke();
+    c.save(); c.translate(w*0.03,h*0.5); c.rotate(-Math.PI/2);
+    c.fillStyle='#C0392B'; c.font=`bold ${Math.min(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('النشاط يزداد ↑',0,0); c.restore();
+
+    const bw2=(w*0.85)/metals.length;
+    metals.forEach((m,i)=>{
+      const bx2=w*0.12+i*bw2;
+      const heightRatio=0.08+(metals.length-1-i)*0.07;
+      const bh=h*heightRatio, by2=h*0.82-bh;
+      const gr=c.createLinearGradient(bx2,by2,bx2,h*0.82);
+      gr.addColorStop(0,colors[i]+'EE'); gr.addColorStop(1,colors[i]+'88');
+      c.fillStyle=gr; c.beginPath(); c.roundRect(bx2+2,by2,bw2-4,bh,4); c.fill();
+      c.fillStyle=active[i]?'#27AE60':'#C0392B'; c.font=`${Math.min(10,w*0.022)}px Arial`;
+      c.textAlign='center'; c.fillText(active[i]?'✓':'✗',bx2+bw2/2,by2-5);
+      c.fillStyle='#2C3E50'; c.font=`bold ${Math.min(10,bw2*0.5)}px monospace`;
+      c.fillText(m,bx2+bw2/2,h*0.87);
+    });
+
+    // خط فاصل عند النحاس
+    const hIdx=7;
+    const lineX=w*0.12+hIdx*bw2;
+    c.strokeStyle='rgba(231,76,60,0.5)'; c.lineWidth=2; c.setLineDash([5,4]);
+    c.beginPath(); c.moveTo(lineX,h*0.12); c.lineTo(lineX,h*0.84); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle='#C0392B'; c.font=`${Math.min(10,w*0.022)}px Tajawal`;
+    c.textAlign='center'; c.fillText('← تتفاعل مع الأحماض | لا تتفاعل →',lineX,h*0.11);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function salts_oxide2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.salts_oxide2) simState.salts_oxide2={t:0,sel:0};
+  const S=simState.salts_oxide2;
+
+  const oxides=[
+    {name:'أكسيد النحاس',formula:'CuO',acid:'H₂SO₄',salt:'CuSO₄',saltName:'كبريتات النحاس',color:'#2980B9'},
+    {name:'أكسيد الحديد',formula:'Fe₂O₃',acid:'HCl',salt:'FeCl₃',saltName:'كلوريد الحديد',color:'#C0392B'},
+    {name:'أكسيد الزنك',formula:'ZnO',acid:'H₂SO₄',salt:'ZnSO₄',saltName:'كبريتات الخارصين',color:'#7F8C8D'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧪 أكسيد فلز + حمض</div>
+      ${oxides.map((ox,i)=>`<button class="ctrl-btn" style="width:100%;margin:2px 0;${S.sel===i?'background:'+ox.color+';color:white':''}" onclick="simState.salts_oxide2.sel=${i}">${ox.formula} + ${ox.acid}</button>`).join('')}
+    </div>
+    <div class="info-box" style="font-size:12px;line-height:2;margin-top:8px">
+      أكسيد الفلز + حمض → ملح + ماء<br>
+      <small>لا ينطلق H₂ (لأن الأكسيد قاعدة، لا فلز)</small>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما الفرق عن تفاعل الفلز+حمض؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">فلز + حمض → ملح + H₂↑. أكسيد + حمض → ملح + H₂O فقط. الأكسيد قاعدة بالفعل فلا ينطلق هيدروجين.</div>
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='salts_oxide') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.03;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#FAFAFA'); bg.addColorStop(1,'#F0F0F0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    const ox=oxides[S.sel];
+    c.fillStyle=ox.color; c.font=`bold ${Math.min(14,w*0.032)}px Tajawal`;
+    c.textAlign='center'; c.fillText(`${ox.formula} + ${ox.acid} → ${ox.salt} + H₂O`,w/2,h*0.08);
+
+    // رسم معادلة مرئية
+    const drawB=(bx,by,bw,bh,liqColor,label)=>{
+      c.strokeStyle='#AAA'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(bx,by); c.lineTo(bx+bw*0.04,by+bh); c.stroke();
+      c.beginPath(); c.moveTo(bx+bw,by); c.lineTo(bx+bw-bw*0.04,by+bh); c.stroke();
+      c.beginPath(); c.moveTo(bx+bw*0.04,by+bh); c.lineTo(bx+bw-bw*0.04,by+bh); c.stroke();
+      c.strokeStyle='#CCC'; c.lineWidth=5; c.beginPath(); c.moveTo(bx-3,by); c.lineTo(bx+bw+3,by); c.stroke();
+      c.fillStyle=liqColor; c.fillRect(bx+2,by+bh*0.25,bw-4,bh*0.73);
+      c.fillStyle='#444'; c.font=`bold ${Math.min(11,w*0.025)}px monospace`; c.textAlign='center';
+      c.fillText(label,bx+bw/2,by+bh*0.55);
+    };
+
+    drawB(w*0.07,h*0.15,w*0.32,h*0.55,'rgba(144,238,144,0.4)',ox.acid);
+    drawB(w*0.62,h*0.15,w*0.34,h*0.55,ox.color+'44',ox.salt);
+
+    // الأكسيد
+    c.fillStyle='#2C2C2CSS'; c.fillStyle='rgba(80,60,40,0.8)'; c.beginPath();
+    c.roundRect(w*0.2,h*0.12,w*0.12,h*0.07,4); c.fill();
+    c.fillStyle='white'; c.font=`bold ${Math.min(11,w*0.024)}px monospace`; c.textAlign='center';
+    c.fillText(ox.formula,w*0.26,h*0.17);
+
+    c.strokeStyle='#555'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(w*0.43,h*0.43); c.lineTo(w*0.58,h*0.43); c.stroke();
+    c.beginPath(); c.moveTo(w*0.55,h*0.4); c.lineTo(w*0.58,h*0.43); c.lineTo(w*0.55,h*0.46); c.stroke();
+
+    c.fillStyle=ox.color; c.font=`bold ${Math.min(13,w*0.029)}px Tajawal`;
+    c.fillText(ox.saltName,w*0.62+w*0.17,h*0.62);
+    c.fillStyle='#3498DB'; c.font=`${Math.min(11,w*0.025)}px monospace`;
+    c.fillText('+ H₂O',w*0.62+w*0.17,h*0.72);
+
+    c.fillStyle='rgba(0,0,0,0.55)'; c.font=`${Math.min(12,w*0.027)}px Tajawal`;
+    c.fillText('❌ لا ينطلق غاز H₂ (فرق عن الفلز مباشرة)',w/2,h*0.85);
+    c.fillStyle='#27AE60'; c.font=`bold ${Math.min(12,w*0.027)}px Tajawal`;
+    c.fillText('ملح + ماء فقط ✅',w/2,h*0.91);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function salts_carbonate2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.salts_carbonate2) simState.salts_carbonate2={t:0};
+  const S=simState.salts_carbonate2;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 مقارنة طرق تحضير الأملاح</div>
+      <div class="info-box" style="font-size:12px;line-height:2;margin-top:6px">
+        1️⃣ فلز + حمض → ملح + H₂↑<br>
+        2️⃣ أكسيد + حمض → ملح + H₂O<br>
+        3️⃣ كربونات + حمض → ملح + H₂O + CO₂↑<br>
+        4️⃣ حمض + قاعدة → ملح + H₂O
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ كيف نختبر CO₂؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">نمرّره في ماء الجير Ca(OH)₂ — يتعكّر ويتشكّل راسب أبيض من CaCO₃. هذا الاختبار خاص بـ CO₂.</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا تُستخدم الكربونات في إطفاء الحرائق؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">CO₂ الناتج يُغطي اللهب ويمنع الأكسجين — طفايات CO₂ تعمل على هذا المبدأ.</div>
+    </div>`);
+
+  const methods=[
+    {label:'فلز + حمض',eq:'Zn + H₂SO₄ → ZnSO₄ + H₂↑',gas:'H₂ ↑',color:'#3498DB',icon:'🔩'},
+    {label:'أكسيد + حمض',eq:'CuO + H₂SO₄ → CuSO₄ + H₂O',gas:'لا غاز',color:'#8E44AD',icon:'⬛'},
+    {label:'كربونات + حمض',eq:'CaCO₃ + 2HCl → CaCl₂ + H₂O + CO₂',gas:'CO₂ ↑',color:'#27AE60',icon:'🪨'},
+    {label:'تعادل',eq:'NaOH + HCl → NaCl + H₂O',gas:'لا غاز',color:'#E67E22',icon:'🧪'},
+  ];
+
+  function draw(){
+    if(currentSim!=='salts_carbonate') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.025;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F0FFF8'); bg.addColorStop(1,'#E0F8F0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#1A5232'; c.font=`bold ${Math.min(15,w*0.034)}px Tajawal`;
+    c.textAlign='center'; c.fillText('طرق تحضير الأملاح — مقارنة شاملة',w/2,h*0.07);
+
+    methods.forEach((m,i)=>{
+      const row=Math.floor(i/2), col=i%2;
+      const bx=col===0?w*0.04:w*0.53;
+      const by=h*0.13+row*(h*0.41);
+      const bw=w*0.43, bh=h*0.37;
+      const active=Math.floor(S.t*0.5)%methods.length===i;
+      c.fillStyle=active?m.color+'22':'rgba(255,255,255,0.7)';
+      c.beginPath(); c.roundRect(bx,by,bw,bh,10); c.fill();
+      c.strokeStyle=active?m.color:'rgba(0,0,0,0.08)'; c.lineWidth=active?2:1; c.stroke();
+      c.fillStyle=m.color; c.font=`bold ${Math.min(12,w*0.027)}px Tajawal`;
+      c.textAlign='center'; c.fillText(`${m.icon} ${m.label}`,bx+bw/2,by+bh*0.22);
+      c.fillStyle='#2C3E50'; c.font=`${Math.min(9.5,w*0.021)}px monospace`;
+      c.fillText(m.eq,bx+bw/2,by+bh*0.5);
+      const gasColor=m.gas==='لا غاز'?'#888':m.color;
+      c.fillStyle=gasColor; c.font=`bold ${Math.min(11,w*0.025)}px Tajawal`;
+      c.fillText(`الغاز: ${m.gas}`,bx+bw/2,by+bh*0.78);
+    });
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// دوال الجزء الثاني — الصوت (الوحدة 9)
+// ══════════════════════════════════════════════════════════
+
+function sound_pitch2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.sound_pitch2) simState.sound_pitch2={t:0,sel:2};
+  const S=simState.sound_pitch2;
+
+  const instruments=[
+    {name:'طبلة 🥁',freq:80,color:'#E74C3C'},
+    {name:'غيتار 🎸',freq:250,color:'#E67E22'},
+    {name:'بيانو 🎹',freq:440,color:'#F39C12'},
+    {name:'فلوت 🎷',freq:700,color:'#27AE60'},
+    {name:'صافرة 📯',freq:950,color:'#2980B9'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🎵 الأدوات الموسيقية والتردد</div>
+      ${instruments.map((ins,i)=>`<button class="ctrl-btn" style="width:100%;margin:2px 0;${S.sel===i?'background:'+ins.color+';color:white':''}" onclick="simState.sound_pitch2.sel=${i};try{const a=new(AudioContext||webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.frequency.value=${ins.freq};g.gain.setValueAtTime(0.22,a.currentTime);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+0.8);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+0.8);}catch(e){}">${ins.name} — ${ins.freq} Hz</button>`).join('')}
+    </div>
+    <div class="info-box" style="font-size:12px;line-height:2;margin-top:6px">
+      نطاق سمع الإنسان: 20 - 20,000 Hz<br>
+      فوق صوتي: >20,000 Hz (الخفافيش والدلافين)
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='sound_pitch') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.06;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#050D05'); bg.addColorStop(1,'#0A1A0A');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.strokeStyle='rgba(0,140,0,0.1)'; c.lineWidth=0.5;
+    for(let x=0;x<w;x+=w/10){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
+    for(let y=0;y<h;y+=h/8){ c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); }
+
+    const ins=instruments[S.sel];
+    c.fillStyle=ins.color; c.font=`bold ${Math.min(14,w*0.032)}px Tajawal`;
+    c.textAlign='center'; c.fillText(`${ins.name} — ${ins.freq} Hz`,w/2,h*0.09);
+
+    [[instruments[2].freq,'rgba(255,200,0,0.35)',0.2,'مرجع (بيانو)'],[ins.freq,ins.color+'CC',0.5,'المختار']].forEach(([freq,color,amp,label],wi)=>{
+      const midY=h*(wi===0?0.35:0.65);
+      const amplitude=h*0.1;
+      const fRatio=freq/300;
+      c.strokeStyle=color; c.lineWidth=wi===0?1.5:2.5;
+      if(wi===1){ c.shadowColor=ins.color+'88'; c.shadowBlur=8; }
+      c.beginPath();
+      for(let x=0;x<=w;x+=2){
+        const y=midY+Math.sin((x/w)*fRatio*Math.PI*8+S.t)*amplitude;
+        x===0?c.moveTo(x,y):c.lineTo(x,y);
+      }
+      c.stroke(); c.shadowBlur=0;
+      c.fillStyle=color; c.font=`${Math.min(11,w*0.024)}px Tajawal`;
+      c.textAlign='right'; c.fillText(label,w*0.98,midY-amplitude-5);
+    });
+    c.textAlign='center';
+    c.fillStyle='rgba(255,255,255,0.45)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
+    c.fillText('اضغط على الأداة لسماعها 🎵',w/2,h*0.93);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function sound_vibration2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.sound_vibration2) simState.sound_vibration2={t:0,sel:0};
+  const S=simState.sound_vibration2;
+
+  const objects=[
+    {name:'وتر قصير مشدود',icon:'🎸',freq:2.8,color:'#E67E22',desc:'قصير + مشدود → تردد أعلى'},
+    {name:'وتر طويل مرخي',icon:'🎸',freq:1.2,color:'#27AE60',desc:'طويل + مرخي → تردد أقل'},
+    {name:'مسطرة قصيرة',icon:'📏',freq:3.5,color:'#3498DB',desc:'قصيرة → اهتزاز سريع'},
+    {name:'مسطرة طويلة',icon:'📏',freq:1.0,color:'#8E44AD',desc:'طويلة → اهتزاز بطيء'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🎵 العوامل المؤثرة على التردد</div>
+      ${objects.map((o,i)=>`<button class="ctrl-btn" style="width:100%;margin:2px 0;${S.sel===i?'background:'+o.color+';color:white':''}" onclick="simState.sound_vibration2.sel=${i};simState.sound_vibration2.t=0">${o.icon} ${o.name}</button>`).join('')}
+    </div>
+    <div class="info-box" style="font-size:12px;line-height:2;margin-top:6px">
+      تردد أعلى ← طول أقل / شد أكبر / كتلة أقل
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا الأوتار الغليظة أعمق صوتاً؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الوتر الغليظ أثقل — يهتز أبطأ → تردد أقل → صوت أعمق.</div>
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='sound_vibration') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.05;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#1A1205'); bg.addColorStop(1,'#2E2005');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    const ob=objects[S.sel];
+    c.fillStyle=ob.color; c.font=`bold ${Math.min(15,w*0.034)}px Tajawal`;
+    c.textAlign='center'; c.fillText(`${ob.icon} ${ob.name}`,w/2,h*0.08);
+
+    // موجة الاهتزاز مع تناقص
+    c.strokeStyle=ob.color+'CC'; c.lineWidth=2.5;
+    c.shadowColor=ob.color+'88'; c.shadowBlur=8;
+    c.beginPath();
+    for(let x=0;x<=w;x+=2){
+      const t2=x/w*6;
+      const dec=Math.exp(-t2*0.5);
+      const y=h*0.38+Math.sin(t2*ob.freq*Math.PI*2+S.t*2)*h*0.12*dec;
+      x===0?c.moveTo(x,y):c.lineTo(x,y);
+    }
+    c.stroke(); c.shadowBlur=0;
+
+    c.strokeStyle='rgba(255,255,255,0.12)'; c.lineWidth=1; c.setLineDash([4,4]);
+    c.beginPath(); c.moveTo(0,h*0.38); c.lineTo(w,h*0.38); c.stroke();
+    c.setLineDash([]);
+
+    c.fillStyle='rgba(255,255,255,0.75)'; c.font=`bold ${Math.min(12,w*0.027)}px Tajawal`;
+    c.fillText('مقارنة الأجسام',w/2,h*0.6);
+
+    objects.forEach((o,i)=>{
+      const bx=w*0.1+i*(w*0.22);
+      const barH=h*0.18*(o.freq/4);
+      const by=h*0.8-barH;
+      const isSel=i===S.sel;
+      const gr=c.createLinearGradient(bx,by,bx,h*0.8);
+      gr.addColorStop(0,o.color+'EE'); gr.addColorStop(1,o.color+'66');
+      c.fillStyle=gr; c.beginPath(); c.roundRect(bx+2,by,w*0.17,barH,4); c.fill();
+      if(isSel){ c.strokeStyle='white'; c.lineWidth=2.5; c.stroke(); }
+      c.font=`${Math.min(16,w*0.036)}px Arial`; c.textAlign='center';
+      c.fillText(o.icon,bx+w*0.085,by-6);
+      c.fillStyle='rgba(255,255,255,0.65)'; c.font=`${Math.min(9,w*0.02)}px Tajawal`;
+      c.fillText((o.freq*100).toFixed(0)+' Hz',bx+w*0.085,h*0.84);
+    });
+    c.textAlign='center';
+    c.fillStyle=ob.color; c.font=`${Math.min(12,w*0.027)}px Tajawal`;
+    c.fillText(ob.desc,w/2,h*0.92);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function sound_travel2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.sound_travel2) simState.sound_travel2={t:0,sel:0};
+  const S=simState.sound_travel2;
+
+  const scenarios=[
+    {name:'الهواء',icon:'🌬️',speed:343,color:'#3498DB',bg:'#87CEEB',desc:'جزيئات متباعدة — أبطأ'},
+    {name:'الماء',icon:'💧',speed:1480,color:'#1A5276',bg:'#2E86C1',desc:'جزيئات أقرب — 4x أسرع من الهواء'},
+    {name:'الفولاذ',icon:'⚙️',speed:5100,color:'#7D6608',bg:'#B7950B',desc:'جزيئات متلاصقة — 15x أسرع'},
+    {name:'الفراغ',icon:'🌌',speed:0,color:'#8E44AD',bg:'#2C3E50',desc:'لا جزيئات — الصوت لا ينتقل'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔊 سرعة الصوت في الأوساط</div>
+      ${scenarios.map((s,i)=>`<button class="ctrl-btn" style="width:100%;margin:2px 0;${S.sel===i?'background:'+s.color+';color:white':''}" onclick="simState.sound_travel2.sel=${i}">${s.icon} ${s.name} (${s.speed||'لا ينتقل'} م/ث)</button>`).join('')}
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا نسمع الرعد بعد البرق؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الضوء يسافر 300,000 كم/ث (فوري). الصوت يسير 343 م/ث فقط. كل 3 ثوانٍ تأخير ≈ 1 كم بُعد.</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا الغواصات تستخدم السونار؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الصوت ينتقل سريعاً في الماء (1480 م/ث) — السونار يُرسل موجات ويقيس وقت العودة لتحديد المسافة.</div>
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='sound_travel') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.04;
+    const sc=scenarios[S.sel];
+
+    if(sc.speed===0){
+      c.fillStyle='#080818'; c.fillRect(0,0,w,h);
+      for(let i=0;i<50;i++){
+        const sx=(Math.sin(i*137)*0.5+0.5)*w, sy=(Math.cos(i*97)*0.5+0.5)*h;
+        c.fillStyle=`rgba(255,255,255,${0.3+Math.sin(S.t+i)*0.2})`; c.beginPath(); c.arc(sx,sy,1,0,Math.PI*2); c.fill();
+      }
+      c.fillStyle='#FF4444'; c.font=`bold ${Math.min(18,w*0.04)}px Tajawal`; c.textAlign='center';
+      c.fillText('🔕 الصوت لا ينتقل في الفراغ!',w/2,h*0.42);
+      c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.min(13,w*0.03)}px Tajawal`;
+      c.fillText('لا جزيئات لنقل الاهتزازات',w/2,h*0.54);
+      animFrame=requestAnimationFrame(draw); return;
+    }
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,sc.bg+'AA'); bg.addColorStop(1,sc.bg+'55');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='white'; c.font=`bold ${Math.min(15,w*0.034)}px Tajawal`;
+    c.textAlign='center'; c.fillText(`${sc.icon} الصوت في ${sc.name}: ${sc.speed} م/ث`,w/2,h*0.07);
+
+    // جزيئات
+    const density=sc.name==='الفولاذ'?12:sc.name==='الماء'?8:5;
+    const spacing=w/(density+1);
+    for(let r=0;r<3;r++) for(let col=0;col<density;col++){
+      const bx=(col+1)*spacing, by=h*0.45+(r-1)*h*0.12;
+      const wave=Math.sin(S.t*3-col*0.5)*h*0.03*(sc.speed/5100);
+      const pr=sc.name==='الفولاذ'?8:sc.name==='الماء'?5:3;
+      c.fillStyle=sc.color+'CC'; c.beginPath(); c.arc(bx+wave,by,pr,0,Math.PI*2); c.fill();
+    }
+
+    // مقارنة الأوساط
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`bold ${Math.min(12,w*0.027)}px Tajawal`;
+    c.fillText('مقارنة السرعات',w/2,h*0.66);
+    const maxBar=w*0.7;
+    scenarios.filter(s=>s.speed>0).forEach((s,i)=>{
+      const by2=h*0.72+i*h*0.065;
+      const bw=maxBar*(s.speed/5100);
+      const active=s.name===sc.name;
+      c.fillStyle=active?s.color:'rgba(255,255,255,0.2)';
+      c.beginPath(); c.roundRect(w*0.15,by2,bw,h*0.042,4); c.fill();
+      c.fillStyle=active?'white':'rgba(255,255,255,0.5)';
+      c.font=`${Math.min(10,w*0.023)}px Tajawal`; c.textAlign='left';
+      c.fillText(`${s.icon} ${s.name}: ${s.speed} م/ث`,w*0.15+bw+6,by2+h*0.029);
+    });
+    c.textAlign='center';
+    c.fillStyle=sc.color; c.font=`${Math.min(12,w*0.027)}px Tajawal`;
+    c.fillText(sc.desc,w/2,h*0.94);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function sound_oscilloscope2(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  if(!simState.sound_oscilloscope2) simState.sound_oscilloscope2={t:0,sel:0};
+  const S=simState.sound_oscilloscope2;
+
+  const sounds=[
+    {name:'نغمة نقية',type:'sine',color:'#00FF44',freq:2,amp:0.6,desc:'موجة جيبية منتظمة — نغمة صافية'},
+    {name:'صوت بشري',type:'voice',color:'#44FFAA',freq:2,amp:0.5,desc:'موجة معقدة — مزيج ترددات'},
+    {name:'ضوضاء',type:'noise',color:'#FF8844',freq:5,amp:0.4,desc:'موجة عشوائية — أصوات غير منتظمة'},
+    {name:'نبضة طبلة',type:'drum',color:'#FF4444',freq:1,amp:0.8,desc:'سعة كبيرة تتناقص سريعاً'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📺 أنواع الموجات الصوتية</div>
+      ${sounds.map((s,i)=>`<button class="ctrl-btn" style="width:100%;margin:2px 0;${S.sel===i?'background:'+s.color.replace('FF','88')+';color:#000':''}" onclick="simState.sound_oscilloscope2.sel=${i};simState.sound_oscilloscope2.t=0">${s.name}</button>`).join('')}
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما الفرق بين النغمة والضوضاء؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">النغمة: موجات منتظمة بتردد ثابت. الضوضاء: موجات عشوائية بترددات مختلطة — لا حدة محددة.</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ كيف يعمل الأوسيلوسكوب؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">يُحوّل تغيرات الضغط الهوائي إلى إشارة كهربائية ثم يرسمها — السعة = الشدة، وعدد الموجات = التردد.</div>
+    </div>`);
+
+  function draw(){
+    if(currentSim!=='sound_oscilloscope') return;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    S.t+=0.06;
+    c.fillStyle='#050F05'; c.fillRect(0,0,w,h);
+    c.strokeStyle='rgba(0,200,0,0.25)'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(8,8,w-16,h-16,6); c.stroke();
+    c.strokeStyle='rgba(0,160,0,0.08)'; c.lineWidth=0.5;
+    for(let x=0;x<w;x+=w/10){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
+    for(let y=0;y<h;y+=h/8){ c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); }
+
+    const snd=sounds[S.sel];
+    const amp=snd.amp*h*0.3, midY=h*0.45;
+    c.strokeStyle=snd.color; c.lineWidth=2.5;
+    c.shadowColor=snd.color+'88'; c.shadowBlur=10;
+    c.beginPath();
+    for(let x=0;x<=w;x+=2){
+      let y;
+      if(snd.type==='sine') y=midY+Math.sin((x/w)*snd.freq*Math.PI*6+S.t)*amp;
+      else if(snd.type==='voice') y=midY+(Math.sin((x/w)*snd.freq*Math.PI*6+S.t)*0.6+Math.sin((x/w)*snd.freq*Math.PI*12+S.t*1.3)*0.25+Math.sin((x/w)*snd.freq*Math.PI*18+S.t*0.7)*0.15)*amp;
+      else if(snd.type==='noise') y=midY+(Math.sin((x/w)*snd.freq*Math.PI*8+S.t)*0.4+(Math.random()-0.5)*0.6)*amp;
+      else{ const dec=Math.exp(-(x/w)*4); y=midY+Math.sin((x/w)*snd.freq*Math.PI*4+S.t)*amp*dec; }
+      x===0?c.moveTo(x,y):c.lineTo(x,y);
+    }
+    c.stroke(); c.shadowBlur=0;
+    c.strokeStyle='rgba(0,200,0,0.18)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(0,midY); c.lineTo(w,midY); c.stroke();
+
+    c.fillStyle=snd.color; c.font=`bold ${Math.min(14,w*0.032)}px Tajawal`;
+    c.textAlign='center'; c.fillText(snd.name,w/2,h*0.1);
+    c.fillStyle='rgba(255,255,255,0.65)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
+    c.fillText(snd.desc,w/2,h*0.88);
+
+    // مصغرات للمقارنة
+    sounds.forEach((s,i)=>{
+      const bx=w*0.1+i*(w*0.2);
+      const isSel=i===S.sel;
+      c.strokeStyle=isSel?s.color:s.color+'44'; c.lineWidth=isSel?1.8:1;
+      c.beginPath();
+      for(let x2=0;x2<w*0.15;x2+=2){
+        const t3=x2/(w*0.15);
+        let y2;
+        if(s.type==='sine') y2=Math.sin(t3*Math.PI*6+S.t)*h*0.04;
+        else if(s.type==='voice') y2=(Math.sin(t3*Math.PI*6+S.t)*0.6+Math.sin(t3*Math.PI*12+S.t)*0.4)*h*0.035;
+        else if(s.type==='noise') y2=(Math.sin(t3*Math.PI*8+S.t)*0.4+(Math.random()-0.5)*0.6)*h*0.03;
+        else y2=Math.sin(t3*Math.PI*4+S.t)*Math.exp(-t3*4)*h*0.05;
+        const drawY=h*0.73+y2;
+        x2===0?c.moveTo(bx+x2,drawY):c.lineTo(bx+x2,drawY);
+      }
+      c.stroke();
+      c.fillStyle=isSel?s.color:'rgba(255,255,255,0.35)';
+      c.font=`${Math.min(9,w*0.02)}px Tajawal`; c.textAlign='center';
+      c.fillText(s.name,bx+w*0.075,h*0.82);
+    });
+    c.textAlign='center';
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
 </script>
