@@ -21989,17 +21989,16 @@ async function _periodicSubCheck() {
 function _unlockPlatform() {
   var overlay = document.getElementById('auth-overlay');
   if (overlay) overlay.style.display = 'none';
-  // أظهر الصفحة الرئيسية بدل grade-picker مباشرة
   var landing = document.getElementById('landing');
   if (landing) landing.style.removeProperty('display');
   document.getElementById('grade-picker').style.display = 'none';
   var app = document.getElementById('app');
   if (app) { app.style.display = 'none'; app.classList.remove('open'); }
-  // عرض مدة الاشتراك بعد فتح المنصة
   setTimeout(function(){ _showSubscriptionDays(); }, 800);
-  // فحص دوري كل 5 دقائق
+  // فحص فوري عند الدخول ثم كل 10 ثوانٍ
   if (_subCheckInterval) clearInterval(_subCheckInterval);
-  _subCheckInterval = setInterval(_periodicSubCheck, 30 * 1000);
+  setTimeout(_periodicSubCheck, 1500); // فحص بعد 1.5 ثانية من الدخول
+  _subCheckInterval = setInterval(_periodicSubCheck, 10 * 1000);
 }
 
 async function handleLogin() {
