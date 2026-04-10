@@ -1789,6 +1789,31 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
         <p class="pay-note" style="font-size:12px;color:#888;text-align:center;margin:10px 0 0">
           ✅ يُفعَّل حسابك تلقائياً بعد الدفع خلال ثوانٍ
         </p>
+
+        <!-- زر إعادة التحقق بعد الدفع -->
+        <button onclick="_checkSubscription()"
+          style="display:block;width:100%;padding:11px;border:2px solid #1A8FA8;border-radius:12px;
+            background:transparent;color:#1A8FA8;
+            font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;
+            cursor:pointer;text-align:center;margin-top:10px;
+            transition:background 0.15s,color 0.15s;box-sizing:border-box;"
+          onmouseover="this.style.background='rgba(26,143,168,0.08)'"
+          onmouseout="this.style.background='transparent'">
+          🔄 دفعت بالفعل — أعد التحقق
+        </button>
+
+        <!-- زر تسجيل الخروج لتغيير الحساب -->
+        <button onclick="(async()=>{ if(_db) await _db.auth.signOut(); location.reload(); })()"
+          style="display:block;width:100%;padding:9px;border:none;border-radius:10px;
+            background:transparent;color:#AAA;
+            font-family:'Tajawal',sans-serif;font-size:12px;font-weight:600;
+            cursor:pointer;text-align:center;margin-top:6px;
+            transition:color 0.15s;box-sizing:border-box;"
+          onmouseover="this.style.color='#C0392B'"
+          onmouseout="this.style.color='#AAA'">
+          ↩ تسجيل الخروج وتغيير الحساب
+        </button>
+
       </div>
     </div>
   </div>
@@ -2211,6 +2236,19 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
     <div class="panel-sub" style="text-align:center;margin-bottom:32px">للوصول إلى استقصاءاتكِ التفاعلية</div>
     <div style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px">
 
+      <button onclick="pickGrade(5)" style="width:100%;padding:22px 28px;border-radius:16px;
+        border:2px solid rgba(107,78,154,0.2);background:linear-gradient(135deg,rgba(107,78,154,0.06),rgba(107,78,154,0.02));
+        font-family:Tajawal;font-size:20px;font-weight:700;color:var(--text-heading,#1A2330);
+        cursor:pointer;text-align:right;display:flex;align-items:center;gap:14px;
+        box-shadow:0 2px 8px rgba(107,78,154,0.1);transition:box-shadow 0.2s,transform 0.2s"
+        onmouseover="this.style.boxShadow='0 6px 20px rgba(107,78,154,0.2)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.boxShadow='0 2px 8px rgba(107,78,154,0.1)';this.style.transform=''">
+        <span style="font-size:30px">🔭</span>
+        <span>الصف الخامس</span>
+        <span style="margin-right:auto;font-size:13px;color:#888;font-weight:400">١٣ استقصاء</span>
+        <span style="font-size:11px;background:rgba(107,78,154,0.12);color:#6B4E9A;padding:3px 8px;border-radius:20px;font-weight:700">جديد ✨</span>
+      </button>
+
       <button onclick="pickGrade(6)" style="width:100%;padding:22px 28px;border-radius:16px;
         border:2px solid rgba(0,0,0,0.08);background:var(--bg-card,#fff);
         font-family:Tajawal;font-size:20px;font-weight:700;color:var(--text-heading,#1A2330);
@@ -2271,6 +2309,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       <h2>بيّن</h2>
     </div>
     <div class="topbar-tabs">
+      <button class="topbar-tab" id="tab-5" onclick="switchGrade(5)">🔭 الصف الخامس</button>
       <button class="topbar-tab" id="tab-6" onclick="switchGrade(6)">📗 الصف السادس</button>
       <button class="topbar-tab active" id="tab-7" onclick="switchGrade(7)">📚 الصف السابع</button>
       <button class="topbar-tab" id="tab-8" onclick="switchGrade(8)">📖 الصف الثامن</button>
@@ -2295,6 +2334,209 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   </div>
 
   <div id="content-area">
+  <!-- Grade 5 -->
+  <div id="panel-5" class="main-content" style="display:none">
+    <div class="quran-banner">
+      <div class="quran-text">﴿ وَهُوَ الَّذِي خَلَقَ اللَّيْلَ وَالنَّهَارَ وَالشَّمْسَ وَالْقَمَرَ ﴾</div>
+      <div class="quran-ref">سورة الأنبياء · الآية ٣٣</div>
+    </div>
+    <div class="panel-title">وحدات الصف الخامس</div>
+    <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي الثاني</div>
+    <div class="units-grid" id="grade5-units">
+
+      <div class="unit-card" onclick="openUnit('u5light', this)">
+        <div class="unit-num-badge c-gold">٤</div>
+        <div>
+          <div class="unit-title">الطريقة التي نرى بها الأشياء</div>
+          <div class="unit-topics">انتقال الضوء · المرايا · رؤية ما خلفك · انعكاس الضوء · تغيير اتجاه الضوء</div>
+          <div class="unit-pill avail">💡 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u5shadow', this)">
+        <div class="unit-num-badge c-teal">٥</div>
+        <div>
+          <div class="unit-title">الظلال</div>
+          <div class="unit-topics">انتقال الضوء في خطوط مستقيمة · المواد والضوء · الصور الظلية · حجم الظل · قياس شدة الضوء</div>
+          <div class="unit-pill avail">🌑 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u5earth', this)">
+        <div class="unit-num-badge c-purple">٦</div>
+        <div>
+          <div class="unit-title">حركات الأرض</div>
+          <div class="unit-topics">الشمس والأرض والقمر · دوران الأرض حول محورها · شروق الشمس وغروبها · الفصول · النجوم</div>
+          <div class="unit-pill avail">🌍 ٣ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== الوحدة ٤ — الطريقة التي نرى بها الأشياء ===== -->
+    <div id="sims-u5light" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٤ — الطريقة التي نرى بها الأشياء</div>
+        <div class="sims-count">٥ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g5lighttravel')">
+          <div class="sim-thumb t4">💡</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ١-٤ · انتقال الضوء من مصدر</div>
+            <div class="sim-name">مختبر الضوء التفاعلي</div>
+            <div class="sim-desc">استكشف كيف ينتقل الضوء من مصادر مختلفة وكيف نرى الأجسام</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5mirror')">
+          <div class="sim-thumb t1">🪞</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٢-٤ · المرايا</div>
+            <div class="sim-name">انعكاس الضوء على المرايا</div>
+            <div class="sim-desc">جرّب المرايا المستوية والمقعّرة والمحدّبة وشاهد انعكاس الأشعة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5behindyou')">
+          <div class="sim-thumb t3">🔍</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٣-٤ · رؤية ما خلفك</div>
+            <div class="sim-name">كيف تعمل المرايا المتعددة؟</div>
+            <div class="sim-desc">استكشف كيف تستخدم المتاجر والسيارات المرايا لرؤية زوايا مختلفة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5reflection')">
+          <div class="sim-thumb t2">✨</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٤-٤ · الأسطح العاكسة</div>
+            <div class="sim-name">ما الأسطح التي تعكس الضوء أفضل؟</div>
+            <div class="sim-desc">قارن انعكاس الضوء على أسطح مختلفة: لامعة، خشنة، ملوّنة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5lightdir')">
+          <div class="sim-thumb t5">🔦</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٥-٤ · تغيير اتجاه الضوء</div>
+            <div class="sim-name">هندسة مسار الضوء</div>
+            <div class="sim-desc">استخدم مرايا متعددة لتوجيه شعاع الضوء نحو الهدف</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== الوحدة ٥ — الظلال ===== -->
+    <div id="sims-u5shadow" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٥ — الظلال</div>
+        <div class="sims-count">٥ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g5shadowsize')">
+          <div class="sim-thumb t6">🌑</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ١-٥ · كيف يتشكّل الظل</div>
+            <div class="sim-name">مختبر الظلال التفاعلي</div>
+            <div class="sim-desc">حرّك مصدر الضوء والجسم وشاهد كيف يتغيّر شكل الظل وحجمه</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5transparent')">
+          <div class="sim-thumb t7">🔬</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٢-٥ · المواد والضوء</div>
+            <div class="sim-name">شفاف، شبه شفاف، أم معتم؟</div>
+            <div class="sim-desc">اختبر مواد مختلفة واكتشف أيها يسمح بمرور الضوء</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5silhouette')">
+          <div class="sim-thumb t1">🎭</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٣-٥ · الصور الظلية</div>
+            <div class="sim-name">فنّان الظلال</div>
+            <div class="sim-desc">أنشئ صوراً ظلية لأشكال مختلفة وادرس العلاقة بين الجسم وظلّه</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5shadowfactor')">
+          <div class="sim-thumb t3">📐</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٤-٥ · ما الذي يؤثر على حجم الظل؟</div>
+            <div class="sim-name">استقصاء أطوال الظلال</div>
+            <div class="sim-desc">غيّر المسافة والزاوية وحجم الجسم وشاهد تأثيرها على الظل</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5lightintensity')">
+          <div class="sim-thumb t5">☀️</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٦-٥ · قياس شدة الضوء</div>
+            <div class="sim-name">قياس الإضاءة</div>
+            <div class="sim-desc">استخدم جهاز قياس الضوء وادرس كيف تتغيّر شدته بالمسافة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== الوحدة ٦ — حركات الأرض ===== -->
+    <div id="sims-u5earth" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٦ — حركات الأرض</div>
+        <div class="sims-count">٣ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g5earthsun')">
+          <div class="sim-thumb t3">🌍</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ١-٦ · الشمس والأرض والقمر</div>
+            <div class="sim-name">النظام الشمسي المصغّر</div>
+            <div class="sim-desc">شاهد حركة الأرض حول الشمس والقمر حول الأرض بالتزامن</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5rotation')">
+          <div class="sim-thumb t1">🔄</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٣-٦ · دوران الأرض حول محورها</div>
+            <div class="sim-name">الليل والنهار والفصول</div>
+            <div class="sim-desc">استكشف كيف يُسبّب دوران الأرض الليل والنهار وكيف يُسبّب مدارها الفصول</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5stars')">
+          <div class="sim-thumb t2">⭐</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٧-٦ · استكشاف النجوم</div>
+            <div class="sim-name">خريطة السماء الليلية</div>
+            <div class="sim-desc">تعرّف على أبرز النجوم والكوكبات وتعلّم كيف يجد البشر اتجاههم بالنجوم</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
   <!-- Grade 6 -->
   <div id="panel-6" class="main-content" style="display:none">
     <div class="quran-banner">
@@ -3733,7 +3975,7 @@ async function _showSubscriptionDays() {
 }
 function switchGrade(g) {
   if (window._stopNatureSound) window._stopNatureSound();
-  [6,7,8,9].forEach(n => {
+  [5,6,7,8,9].forEach(n => {
     const tab = document.getElementById('tab-'+n);
     const panel = document.getElementById('panel-'+n);
     if(tab) tab.classList.toggle('active', n===g);
@@ -3754,7 +3996,7 @@ function switchGrade(g) {
   }
 }
 function setMobTab(g) {
-  [7,8,9].forEach(n => {
+  [5,7,8,9].forEach(n => {
     const el = document.getElementById('mob-'+n);
     if(el) el.classList.toggle('active', n===g);
   });
@@ -3780,6 +4022,12 @@ function openUnit(id, el) {
   setTimeout(function() { target.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
   // Buddy hints
   var hints = {
+    u5light:'وحدة الضوء 💡 — الضوء ينتقل في خطوط مستقيمة! جرّب المرايا وشاهد انعكاس الأشعة.',
+    u5shadow:'وحدة الظلال 🌑 — حرّك الضوء وغيّر حجم الظل! ما العوامل التي تؤثر فيه؟',
+    u5earth:'وحدة الأرض 🌍 — الأرض تدور حول نفسها وحول الشمس! اكتشف سبب الليل والنهار والفصول.',
+    u5light:'وحدة الضوء 💡 — هل تعلم أن الضوء ينتقل في خطوط مستقيمة؟ استكشف المرايا والانعكاس!',
+    u5shadow:'وحدة الظلال 🌑 — الظل يتكوّن لأن الضوء لا يستطيع المرور عبر الأجسام المعتمة! جرّب الآن.',
+    u5earth:'وحدة حركات الأرض 🌍 — الأرض تدور حول محورها كل ٢٤ ساعة! هذا ما يُسبّب الليل والنهار.',
     u6f:'وحدة القوى 🏋️ — الدفع والسحب والاحتكاك في كل مكان!',
     u6e:'وحدة الكهرباء ⚡ — المعادن توصّل والبلاستيك يعزل. ابنِ دائرتك!',
     u7:'وحدة البيئة 🌿 — لاحظ كيف تتكيّف الكائنات الحية مع بيئتها!',
@@ -3806,6 +4054,22 @@ function showToast(msg) {
 let currentSim = null, animFrame = null, simState = {}, currentTab = 0;
 
 const SIM_META = {
+  // ── الصف الخامس — الوحدة ٤: الطريقة التي نرى بها الأشياء ──
+  g5lighttravel: { title: '١-٤ · انتقال الضوء من مصدر', badge: '💡 5', tabs: ['مختبر الضوء 🔦', 'كيف نرى؟ 👁️'] },
+  g5mirror:      { title: '٢-٤ · المرايا', badge: '🪞 5', tabs: ['المرآة المستوية 🪞', 'المقعّرة والمحدّبة 🔍'] },
+  g5behindyou:   { title: '٣-٤ · رؤية ما خلفك', badge: '🔍 5', tabs: ['مرايا متعددة 🔄'] },
+  g5reflection:  { title: '٤-٤ · الأسطح العاكسة', badge: '✨ 5', tabs: ['مقارنة الأسطح 🔬', 'قياس الانعكاس 📊'] },
+  g5lightdir:    { title: '٥-٤ · تغيير اتجاه الضوء', badge: '🔦 5', tabs: ['هندسة الضوء 🎯'] },
+  // ── الصف الخامس — الوحدة ٥: الظلال ──
+  g5shadowsize:  { title: '١-٥ · كيف يتشكّل الظل', badge: '🌑 5', tabs: ['مختبر الظلال 🕯️', 'استقصاء الظل 📐'] },
+  g5transparent: { title: '٢-٥ · المواد والضوء', badge: '🔬 5', tabs: ['اختبار المواد 🧪'] },
+  g5silhouette:  { title: '٣-٥ · الصور الظلية', badge: '🎭 5', tabs: ['فنّان الظلال 🎨'] },
+  g5shadowfactor:{ title: '٤-٥ · ما الذي يؤثر على حجم الظل؟', badge: '📐 5', tabs: ['المسافة والزاوية 📏', 'حجم الجسم 🔎'] },
+  g5lightintensity:{ title: '٦-٥ · قياس شدة الضوء', badge: '☀️ 5', tabs: ['مقياس الإضاءة 📊'] },
+  // ── الصف الخامس — الوحدة ٦: حركات الأرض ──
+  g5earthsun:    { title: '١-٦ · الشمس والأرض والقمر', badge: '🌍 5', tabs: ['النظام الشمسي 🌞', 'مسارات الكواكب 🔄'] },
+  g5rotation:    { title: '٣-٦ · دوران الأرض', badge: '🔄 5', tabs: ['الليل والنهار 🌓', 'الفصول الأربعة 🍂'] },
+  g5stars:       { title: '٧-٦ · استكشاف النجوم', badge: '⭐ 5', tabs: ['خريطة السماء 🗺️', 'أسماء النجوم ✨'] },
   adaptation: { title: 'نشاط 1-7 · التكيُّف', badge: '7-1', tabs: ['الثعلب الرملي 🦊', 'الجمل 🐪', 'نبات الصبّار 🌵'] },
   foodchain:  { title: 'نشاط 2-7 · السلاسل الغذائية', badge: '7-2', tabs: ['ارسم السلسلة 🔗', 'انتقال الطاقة ⚡'] },
   foodweb:    { title: 'نشاط 3-7 · الشبكات الغذائية', badge: '7-3', tabs: ['الشبكة الغذائية 🕸️'] },
@@ -4311,6 +4575,20 @@ function openSim(type) {
   setTimeout(()=>loadQuestion(type), 500);
   // Buddy greeting
   var simGreets = {
+    // ── الصف الخامس ──
+    g5lighttravel:'الضوء ينتقل من المصدر في جميع الاتجاهات 💡 — حرّك المصدر وشاهد الأشعة!',
+    g5mirror:'المرآة تعكس الضوء! 🪞 — زاوية السقوط = زاوية الانعكاس. جرّب!',
+    g5behindyou:'مرايا السيارات والمتاجر تعطينا رؤية أوسع! 🔍 — جرّب زوايا مختلفة',
+    g5reflection:'السطوح اللامعة تعكس أفضل ✨ — قارن بين مواد مختلفة وقِس الانعكاس',
+    g5lightdir:'هل تستطيع إيصال الضوء للهدف؟ 🎯 — استخدم المرايا بذكاء!',
+    g5shadowsize:'حرّك المصباح واشعل الخيال! 🌑 — الظل يتبعك أينما ذهبت!',
+    g5transparent:'الزجاج شفاف والخشب معتم 🔬 — ما حال الورق المشمّع؟ جرّب!',
+    g5silhouette:'كل شكل له ظله المميز 🎭 — أنشئ فناً ظليّاً وادرسه!',
+    g5shadowfactor:'الظل يكبر عندما تقترب من المصدر! 📐 — ابحث عن القانون!',
+    g5lightintensity:'الضوء يضعف بالمسافة ☀️ — قِس وارسم العلاقة في جدولك!',
+    g5earthsun:'الأرض تدور حول الشمس في 365 يوماً 🌍 — شاهد المسارات!',
+    g5rotation:'دوران الأرض حول نفسها يصنع الليل والنهار 🌓 — شاهد العرض!',
+    g5stars:'النجوم في السماء موجودة دائماً لكننا نراها ليلاً فقط! ⭐ — اكتشف أسماءها!',
     adaptation:'جاهز؟ 🦊 غيّر الإعدادات وشوف كيف تتأقلم الحيوانات!',
     foodchain:'تذكّر: الطاقة تنتقل من المنتج للمستهلك. ابدأ بالنبات! 🌿',
     foodweb:'الشبكة أعقد من السلسلة 🕸️ — شوف تأثير إزالة كائن على الكل',
@@ -4500,6 +4778,20 @@ window.addEventListener('resize', function() {
 
 function startSim(type, tab) {
   const fns = {
+    // ── الصف الخامس — الضوء والظلال والأرض ──
+    g5lighttravel:    [simG5LightTravel, simG5HowWeSee],
+    g5mirror:         [simG5MirrorFlat, simG5MirrorCurved],
+    g5behindyou:      [simG5BehindYou],
+    g5reflection:     [simG5ReflectionCompare, simG5ReflectionMeasure],
+    g5lightdir:       [simG5LightDirection],
+    g5shadowsize:     [simG5ShadowLab, simG5ShadowInquiry],
+    g5transparent:    [simG5TransparentTest],
+    g5silhouette:     [simG5Silhouette],
+    g5shadowfactor:   [simG5ShadowFactor, simG5ShadowFactorSize],
+    g5lightintensity: [simG5LightIntensity],
+    g5earthsun:       [simG5EarthSun, simG5OrbitalPaths],
+    g5rotation:       [simG5DayNight, simG5Seasons],
+    g5stars:          [simG5StarMap, simG5StarNames],
     adaptation:   [simAdaptDesert, simAdaptOcean, simAdaptForest],
     foodchain:    [simFoodChainBuild, simFoodChainEnergy],
     foodweb:      [simFoodWeb],
@@ -27295,5 +27587,1450 @@ function sound_oscilloscope2(){
   }
   draw();
 }
+
+// ══════════════════════════════════════════════════
+//   الصف الخامس — وحدة ٤: الطريقة التي نرى بها الأشياء
+// ══════════════════════════════════════════════════
+
+function simG5LightTravel() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.init) {
+    S.init = true;
+    S.srcX = 0.2; S.srcY = 0.5;
+    S.dragging = false;
+    S.objects = [
+      { x: 0.6, y: 0.35, r: 0.04, color: '#E74C3C', label: 'كرة' },
+      { x: 0.75, y: 0.65, r: 0.04, color: '#27AE60', label: 'مكعب' },
+    ];
+    S.showRays = true;
+    cv.onmousedown = function(e) {
+      const rect = cv.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / cv.offsetWidth;
+      const my = (e.clientY - rect.top) / cv.offsetHeight;
+      const dx = mx - S.srcX, dy = my - S.srcY;
+      if (Math.sqrt(dx*dx+dy*dy) < 0.06) S.dragging = true;
+    };
+    cv.ontouchstart = function(e) {
+      e.preventDefault();
+      const rect = cv.getBoundingClientRect();
+      const t = e.touches[0];
+      const mx = (t.clientX - rect.left) / cv.offsetWidth;
+      const my = (t.clientY - rect.top) / cv.offsetHeight;
+      const dx = mx - S.srcX, dy = my - S.srcY;
+      if (Math.sqrt(dx*dx+dy*dy) < 0.08) S.dragging = true;
+    };
+    cv.onmousemove = function(e) {
+      if (!S.dragging) return;
+      const rect = cv.getBoundingClientRect();
+      S.srcX = Math.max(0.05, Math.min(0.45, (e.clientX - rect.left) / cv.offsetWidth));
+      S.srcY = Math.max(0.1, Math.min(0.9, (e.clientY - rect.top) / cv.offsetHeight));
+    };
+    cv.ontouchmove = function(e) {
+      e.preventDefault();
+      if (!S.dragging) return;
+      const rect = cv.getBoundingClientRect();
+      const t = e.touches[0];
+      S.srcX = Math.max(0.05, Math.min(0.45, (t.clientX - rect.left) / cv.offsetWidth));
+      S.srcY = Math.max(0.1, Math.min(0.9, (t.clientY - rect.top) / cv.offsetHeight));
+    };
+    cv.onmouseup = cv.ontouchend = function() { S.dragging = false; };
+  }
+  function draw() {
+    if (currentSim !== 'g5lighttravel') return;
+    c.fillStyle = '#0a0a1a';
+    c.fillRect(0, 0, w, h);
+    // Background stars
+    c.fillStyle = 'rgba(255,255,255,0.4)';
+    for (let i = 0; i < 40; i++) {
+      const sx = ((i * 137 + 23) % 100) / 100 * w;
+      const sy = ((i * 89 + 7) % 100) / 100 * h;
+      c.beginPath(); c.arc(sx, sy, 1, 0, Math.PI*2); c.fill();
+    }
+    const sx = S.srcX * w, sy = S.srcY * h;
+    // Draw rays to each object and to eye
+    S.objects.forEach(obj => {
+      const ox = obj.x * w, oy = obj.y * h;
+      const ang = Math.atan2(oy - sy, ox - sx);
+      const dist = Math.sqrt((ox-sx)**2 + (oy-sy)**2);
+      // Gradient ray
+      const grad = c.createLinearGradient(sx, sy, ox, oy);
+      grad.addColorStop(0, 'rgba(255,230,80,0.9)');
+      grad.addColorStop(1, 'rgba(255,230,80,0.1)');
+      c.strokeStyle = grad;
+      c.lineWidth = 2;
+      c.setLineDash([8, 4]);
+      c.beginPath(); c.moveTo(sx, sy); c.lineTo(ox - obj.r*w * Math.cos(ang), oy - obj.r*h * Math.sin(ang)); c.stroke();
+      c.setLineDash([]);
+      // Arrow head
+      c.fillStyle = 'rgba(255,230,80,0.7)';
+      c.save(); c.translate(ox - obj.r*w*1.4*Math.cos(ang), oy - obj.r*h*1.4*Math.sin(ang));
+      c.rotate(ang); c.beginPath(); c.moveTo(8,0); c.lineTo(-4,4); c.lineTo(-4,-4); c.fill(); c.restore();
+      // Reflected ray to eye
+      const eyeX = 0.92 * w, eyeY = S.srcY * h;
+      const rGrad = c.createLinearGradient(ox, oy, eyeX, eyeY);
+      rGrad.addColorStop(0, obj.color + '99');
+      rGrad.addColorStop(1, obj.color + '33');
+      c.strokeStyle = rGrad; c.lineWidth = 1.5; c.setLineDash([5,5]);
+      c.beginPath(); c.moveTo(ox, oy); c.lineTo(eyeX, eyeY); c.stroke();
+      c.setLineDash([]);
+    });
+    // Light source glow
+    const grd = c.createRadialGradient(sx, sy, 0, sx, sy, w*0.1);
+    grd.addColorStop(0, 'rgba(255,230,80,0.9)'); grd.addColorStop(1, 'rgba(255,230,80,0)');
+    c.fillStyle = grd; c.beginPath(); c.arc(sx, sy, w*0.1, 0, Math.PI*2); c.fill();
+    // Source icon
+    c.fillStyle = '#FFE050'; c.beginPath(); c.arc(sx, sy, w*0.025, 0, Math.PI*2); c.fill();
+    c.fillStyle = '#fff'; c.font = `bold ${Math.max(11,w*0.028)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('مصدر الضوء', sx, sy - w*0.045);
+    c.fillText('(اسحب)', sx, sy + w*0.05);
+    // Objects
+    S.objects.forEach(obj => {
+      c.fillStyle = obj.color;
+      c.beginPath(); c.arc(obj.x*w, obj.y*h, obj.r*w, 0, Math.PI*2); c.fill();
+      c.fillStyle = '#fff'; c.font = `bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign = 'center';
+      c.fillText(obj.label, obj.x*w, obj.y*h + obj.r*w + 16);
+    });
+    // Eye
+    const ex = 0.92*w, ey = S.srcY*h;
+    c.fillStyle = '#fff'; c.font = `${Math.max(18,w*0.045)}px serif`; c.textAlign='center';
+    c.fillText('👁️', ex, ey+8);
+    // Info box
+    c.fillStyle = 'rgba(255,255,255,0.1)'; c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.02, h*0.03, w*0.5, h*0.1, 8); c.fill(); c.stroke();
+    c.fillStyle='#FFE050'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='right';
+    c.fillText('💡 الضوء ينتقل من المصدر → يصطدم بالجسم → ينعكس → يصل للعين', w*0.51, h*0.075);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5HowWeSee() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.init2) {
+    S.init2 = true;
+    S.step = 0;
+    S.t = 0;
+  }
+  function draw() {
+    if (currentSim !== 'g5lighttravel') return;
+    S.t += 0.02;
+    c.fillStyle = '#0d1117'; c.fillRect(0,0,w,h);
+    const steps = [
+      { icon:'☀️', label:'مصدر الضوء', x:0.1, y:0.5, color:'#FFD700' },
+      { icon:'🍎', label:'جسم معتم', x:0.45, y:0.5, color:'#E74C3C' },
+      { icon:'👁️', label:'العين', x:0.85, y:0.5, color:'#3498DB' },
+    ];
+    // Draw connecting arrows animated
+    for (let i = 0; i < steps.length-1; i++) {
+      const s1 = steps[i], s2 = steps[i+1];
+      const progress = Math.min(1, (S.t % 3) / 1.5 - i * 0.4);
+      if (progress > 0) {
+        const ex = (s1.x + (s2.x - s1.x) * progress) * w;
+        const ey = s1.y * h;
+        const grad = c.createLinearGradient(s1.x*w, s1.y*h, s2.x*w, s2.y*h);
+        grad.addColorStop(0,'rgba(255,220,50,0.8)'); grad.addColorStop(1,'rgba(255,220,50,0.1)');
+        c.strokeStyle = grad; c.lineWidth = 3;
+        c.beginPath(); c.moveTo(s1.x*w+30, s1.y*h); c.lineTo(ex, ey); c.stroke();
+      }
+    }
+    // Draw step circles
+    steps.forEach((s, i) => {
+      c.fillStyle = s.color+'33'; c.strokeStyle = s.color; c.lineWidth = 2;
+      c.beginPath(); c.arc(s.x*w, s.y*h, w*0.06, 0, Math.PI*2); c.fill(); c.stroke();
+      c.font = `${Math.max(20,w*0.045)}px serif`; c.textAlign='center';
+      c.fillText(s.icon, s.x*w, s.y*h+8);
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`;
+      c.fillText(s.label, s.x*w, s.y*h + w*0.075);
+      const nums = ['①','②','③'];
+      c.fillStyle=s.color; c.font=`bold ${Math.max(12,w*0.025)}px sans-serif`;
+      c.fillText(nums[i], s.x*w, s.y*h - w*0.075);
+    });
+    // Labels
+    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(12,w*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText('كيف نرى الأشياء؟', w/2, h*0.15);
+    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(10,w*0.022)}px Tajawal`;
+    c.fillText('الضوء يصل للجسم → ينعكس عنه → يدخل عيننا فنراه', w/2, h*0.85);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5MirrorFlat() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.mirrorInit) {
+    S.mirrorInit = true;
+    S.angle = 45;
+    S.showNormal = true;
+    cv.onmousemove = function(e) {
+      const rect = cv.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / cv.offsetWidth;
+      const my = (e.clientY - rect.top) / cv.offsetHeight;
+      S.angle = Math.max(10, Math.min(80, (1 - my) * 90));
+    };
+    cv.ontouchmove = function(e) {
+      e.preventDefault();
+      const rect = cv.getBoundingClientRect();
+      const t = e.touches[0];
+      const my = (t.clientY - rect.top) / cv.offsetHeight;
+      S.angle = Math.max(10, Math.min(80, (1 - my) * 90));
+    };
+  }
+  function draw() {
+    if (currentSim !== 'g5mirror') return;
+    c.fillStyle = '#1a1a2e'; c.fillRect(0,0,w,h);
+    const mx = w * 0.55, my = h * 0.5;
+    const mLen = h * 0.35;
+    // Mirror
+    c.strokeStyle = '#C0C0FF'; c.lineWidth = 4;
+    c.beginPath(); c.moveTo(mx, my - mLen); c.lineTo(mx, my + mLen); c.stroke();
+    // Mirror shine effect
+    const mirGrad = c.createLinearGradient(mx-10, 0, mx+6, 0);
+    mirGrad.addColorStop(0,'rgba(200,200,255,0.3)'); mirGrad.addColorStop(1,'rgba(200,200,255,0)');
+    c.fillStyle = mirGrad; c.fillRect(mx-10, my-mLen, 16, mLen*2);
+    c.fillStyle='#aac'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('مرآة مستوية', mx, my + mLen + 22);
+    // Normal line
+    if (S.showNormal) {
+      c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=1; c.setLineDash([4,4]);
+      c.beginPath(); c.moveTo(mx-w*0.25, my); c.lineTo(mx+w*0.25, my); c.stroke();
+      c.setLineDash([]);
+      c.fillStyle='rgba(255,255,255,0.5)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='left';
+      c.fillText('العمود العادي', mx+w*0.01, my - 8);
+    }
+    // Incident ray
+    const rad = S.angle * Math.PI / 180;
+    const rayLen = w * 0.3;
+    const ix = mx - rayLen * Math.cos(rad), iy = my - rayLen * Math.sin(rad);
+    c.strokeStyle = '#FFD700'; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(ix, iy); c.lineTo(mx, my); c.stroke();
+    // Arrow
+    c.save(); c.translate(mx, my); c.rotate(Math.PI - rad);
+    c.fillStyle='#FFD700'; c.beginPath(); c.moveTo(-8,0); c.lineTo(-14,4); c.lineTo(-14,-4); c.fill(); c.restore();
+    // Reflected ray
+    c.strokeStyle = '#FF6B9D'; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(mx, my); c.lineTo(mx + rayLen * Math.cos(rad), iy); c.stroke();
+    c.save(); c.translate(mx + rayLen * Math.cos(rad), iy); c.rotate(-rad);
+    c.fillStyle='#FF6B9D'; c.beginPath(); c.moveTo(8,0); c.lineTo(0,4); c.lineTo(0,-4); c.fill(); c.restore();
+    // Angle arcs
+    c.strokeStyle='rgba(255,215,0,0.5)'; c.lineWidth=1.5;
+    c.beginPath(); c.arc(mx, my, 40, Math.PI - rad, Math.PI); c.stroke();
+    c.strokeStyle='rgba(255,107,157,0.5)';
+    c.beginPath(); c.arc(mx, my, 40, -Math.PI, -rad); c.stroke();
+    // Labels
+    c.fillStyle='#FFD700'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText(`زاوية السقوط = ${Math.round(S.angle)}°`, ix, iy - 12);
+    c.fillStyle='#FF6B9D';
+    c.fillText(`زاوية الانعكاس = ${Math.round(S.angle)}°`, mx + rayLen * Math.cos(rad), iy - 12);
+    // Law label
+    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(11,w*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('قانون الانعكاس: زاوية السقوط = زاوية الانعكاس', w/2, h*0.9);
+    c.fillStyle='rgba(200,200,255,0.6)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.fillText('حرّك الماوس/إصبعك للأعلى والأسفل لتغيير الزاوية', w/2, h*0.95);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5MirrorCurved() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.curvedInit) {
+    S.curvedInit = true;
+    S.mirrorType = 0; // 0=concave, 1=convex
+    S.objDist = 0.5;
+    cv.onclick = function() { S.mirrorType = 1 - S.mirrorType; };
+  }
+  function draw() {
+    if (currentSim !== 'g5mirror') return;
+    c.fillStyle = '#0d1120'; c.fillRect(0,0,w,h);
+    const cx2 = w*0.55, cy2 = h*0.5;
+    const R = h*0.4;
+    const isConcave = S.mirrorType === 0;
+    // Draw curved mirror arc
+    c.strokeStyle = '#8888FF'; c.lineWidth = 4;
+    c.beginPath();
+    if (isConcave) {
+      c.arc(cx2 + R*0.3, cy2, R*0.7, Math.PI*0.6, Math.PI*1.4);
+    } else {
+      c.arc(cx2 - R*0.3, cy2, R*0.7, -Math.PI*0.4, Math.PI*0.4);
+    }
+    c.stroke();
+    const typeLabel = isConcave ? 'مرآة مقعّرة (تجمّع)' : 'مرآة محدّبة (تشتيت)';
+    c.fillStyle='#aac'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText(typeLabel, cx2, h*0.88);
+    c.fillStyle='rgba(200,200,255,0.6)'; c.font=`${Math.max(9,w*0.019)}px Tajawal`;
+    c.fillText('انقر للتبديل بين المرآتين', cx2, h*0.93);
+    // Draw rays
+    const numRays = 5;
+    for (let i = 0; i < numRays; i++) {
+      const ry = cy2 + (i - numRays/2) * h * 0.08;
+      c.strokeStyle = `hsl(${50 + i*20},100%,65%)`; c.lineWidth = 1.8;
+      c.beginPath(); c.moveTo(w*0.05, ry); c.lineTo(cx2, ry); c.stroke();
+      if (isConcave) {
+        // Rays converge to focal point
+        const fp = cx2 - h*0.15;
+        c.beginPath(); c.moveTo(cx2, ry); c.lineTo(fp, cy2); c.stroke();
+      } else {
+        // Rays diverge
+        const ang = (ry - cy2) / (h * 0.5) * 0.4;
+        c.beginPath(); c.moveTo(cx2, ry);
+        c.lineTo(cx2 - h*0.3, ry - Math.sin(ang)*h*0.35); c.stroke();
+      }
+    }
+    if (isConcave) {
+      const fp = cx2 - h*0.15;
+      c.fillStyle='#FFD700'; c.font=`${Math.max(16,w*0.035)}px serif`;
+      c.fillText('🔥', fp-10, cy2+8);
+      c.fillStyle='#FFD700'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+      c.fillText('البؤرة', fp, cy2-16);
+    }
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText(isConcave ? '🔭 المرآة المقعّرة تجمّع الأشعة المتوازية في نقطة واحدة' : '🚗 المرآة المحدّبة تشتّت الأشعة وتعطي رؤية أوسع', w/2, h*0.1);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5BehindYou() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.bInit) {
+    S.bInit = true; S.t = 0;
+    S.mirrorAngle = 45;
+    cv.onmousemove = function(e) {
+      const rect = cv.getBoundingClientRect();
+      S.mirrorAngle = Math.max(20, Math.min(70, (e.clientX - rect.left) / cv.offsetWidth * 90));
+    };
+    cv.ontouchmove = function(e) {
+      e.preventDefault();
+      const rect = cv.getBoundingClientRect();
+      S.mirrorAngle = Math.max(20, Math.min(70, (e.touches[0].clientX - rect.left) / cv.offsetWidth * 90));
+    };
+  }
+  function draw() {
+    if (currentSim !== 'g5behindyou') return;
+    S.t += 0.02;
+    c.fillStyle = '#111'; c.fillRect(0,0,w,h);
+    // Person (viewer)
+    const px = w*0.5, py = h*0.55;
+    c.font=`${Math.max(28,w*0.06)}px serif`; c.textAlign='center';
+    c.fillText('🧑', px, py);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('المشاهد', px, py+30);
+    // Object behind
+    const ox = w*0.15, oy = h*0.5;
+    c.font=`${Math.max(24,w*0.05)}px serif`; c.fillText('🎁', ox, oy);
+    c.fillStyle='rgba(255,100,100,0.8)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('جسم خلفك!', ox, oy+28);
+    // Mirror on wall
+    const mxp = w*0.82, mAngleRad = S.mirrorAngle * Math.PI/180;
+    c.strokeStyle='#C0C0FF'; c.lineWidth=4;
+    c.beginPath();
+    c.moveTo(mxp, h*0.25); c.lineTo(mxp, h*0.75); c.stroke();
+    c.fillStyle='rgba(140,140,255,0.15)'; c.fillRect(mxp-6, h*0.25, 12, h*0.5);
+    c.fillStyle='#aaf'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('مرآة', mxp, h*0.82);
+    // Ray: object → mirror → eye
+    c.strokeStyle='#FFD700'; c.lineWidth=2; c.setLineDash([6,3]);
+    c.beginPath(); c.moveTo(ox+20, oy-10); c.lineTo(mxp, h*0.45); c.stroke();
+    c.strokeStyle='#FF8C00'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(mxp, h*0.45); c.lineTo(px-10, py-15); c.stroke();
+    c.setLineDash([]);
+    // Arrows
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('المرايا تسمح لنا برؤية ما خلفنا وخلف الزوايا!', w/2, h*0.9);
+    c.fillStyle='rgba(180,180,255,0.6)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.fillText('مثال: مرايا السيارة، مرايا المتاجر، مرايا الحلاق', w/2, h*0.95);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5ReflectionCompare() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.rInit) {
+    S.rInit = true;
+    S.lightAngle = 30;
+    cv.onmousemove = function(e) {
+      const rect = cv.getBoundingClientRect();
+      S.lightAngle = Math.max(10, Math.min(80, (e.clientX-rect.left)/cv.offsetWidth*80));
+    };
+    cv.ontouchmove = function(e) { e.preventDefault();
+      const rect = cv.getBoundingClientRect();
+      S.lightAngle = Math.max(10, Math.min(80, (e.touches[0].clientX-rect.left)/cv.offsetWidth*80));
+    };
+  }
+  const surfaces = [
+    { name:'مرآة', roughness:0, color:'#E0E0FF', reflectivity:0.95 },
+    { name:'ورق لامع', roughness:0.15, color:'#FFFFCC', reflectivity:0.7 },
+    { name:'قماش', roughness:0.6, color:'#DEB887', reflectivity:0.3 },
+    { name:'ورق خشن', roughness:1, color:'#C8A882', reflectivity:0.1 },
+  ];
+  function draw() {
+    if (currentSim !== 'g5reflection') return;
+    c.fillStyle='#0a0a18'; c.fillRect(0,0,w,h);
+    const colW = w / surfaces.length;
+    surfaces.forEach((surf, i) => {
+      const bx = i * colW, by = h*0.55;
+      // Surface
+      const surfGrad = c.createLinearGradient(bx, by, bx+colW-4, by);
+      surfGrad.addColorStop(0, surf.color+'AA'); surfGrad.addColorStop(1, surf.color+'55');
+      c.fillStyle = surfGrad; c.fillRect(bx+2, by, colW-4, h*0.08);
+      // Add texture for rough surfaces
+      if (surf.roughness > 0) {
+        c.strokeStyle = 'rgba(0,0,0,0.3)'; c.lineWidth = 1;
+        for (let x2 = bx+2; x2 < bx+colW-2; x2 += 6) {
+          const jitter = (Math.random()-0.5)*surf.roughness*8;
+          c.beginPath(); c.moveTo(x2, by); c.lineTo(x2+3, by+jitter+h*0.04); c.stroke();
+        }
+      }
+      // Incident ray
+      const ry = by;
+      const rx = bx + colW*0.5;
+      const rad = (90 - S.lightAngle) * Math.PI/180;
+      c.strokeStyle='#FFD700'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(rx - Math.cos(rad)*h*0.2, ry - Math.sin(rad)*h*0.2);
+      c.lineTo(rx, ry); c.stroke();
+      // Reflected rays (spread based on roughness)
+      const numRays = Math.max(1, Math.round(1 + surf.roughness*6));
+      for (let r2 = 0; r2 < numRays; r2++) {
+        const spread = (r2/(numRays-1||1) - 0.5) * surf.roughness * 80 * Math.PI/180;
+        const reflAngle = rad + spread;
+        const brightness = surf.reflectivity / numRays * 3;
+        c.strokeStyle = `rgba(255,200,100,${Math.min(0.9, brightness)})`;
+        c.lineWidth = Math.max(0.5, 2 * surf.reflectivity);
+        c.beginPath(); c.moveTo(rx, ry);
+        c.lineTo(rx + Math.cos(reflAngle)*h*0.2, ry - Math.sin(reflAngle)*h*0.2); c.stroke();
+      }
+      // Labels
+      c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`;
+      c.textAlign='center'; c.fillText(surf.name, bx+colW/2, h*0.72);
+      c.fillStyle=`rgba(255,200,100,${surf.reflectivity})`;
+      c.font=`${Math.max(9,w*0.019)}px Tajawal`;
+      c.fillText(`${Math.round(surf.reflectivity*100)}% انعكاس`, bx+colW/2, h*0.78);
+    });
+    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`;
+    c.textAlign='center'; c.fillText('مقارنة انعكاس الضوء على أسطح مختلفة', w/2, h*0.12);
+    c.fillStyle='rgba(255,220,100,0.7)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.fillText('← حرّك الماوس لتغيير زاوية الضوء →', w/2, h*0.88);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5ReflectionMeasure() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.rmInit) { S.rmInit=true; S.selected=0; }
+  const data = [
+    {name:'مرآة',val:95,color:'#C0C0FF'},
+    {name:'ألمنيوم',val:75,color:'#C0C080'},
+    {name:'ورق لامع',val:55,color:'#FFFF80'},
+    {name:'قماش',val:20,color:'#D2A060'},
+    {name:'ورق خشن',val:8,color:'#C0A080'},
+  ];
+  function draw() {
+    if (currentSim !== 'g5reflection') return;
+    c.fillStyle='#0d1117'; c.fillRect(0,0,w,h);
+    // Bar chart
+    const bW = w*0.12, gap = w*0.04, startX = w*0.1, baseY = h*0.75;
+    data.forEach((d,i)=>{
+      const bH = (d.val/100)*h*0.5;
+      const bx = startX + i*(bW+gap);
+      const isS = i===S.selected;
+      const grad = c.createLinearGradient(bx,baseY-bH,bx,baseY);
+      grad.addColorStop(0, d.color); grad.addColorStop(1, d.color+'44');
+      c.fillStyle = grad;
+      c.fillRect(bx, baseY-bH, bW, bH);
+      if(isS){c.strokeStyle='#fff';c.lineWidth=2;c.strokeRect(bx,baseY-bH,bW,bH);}
+      c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`;
+      c.textAlign='center'; c.fillText(d.name, bx+bW/2, baseY+18);
+      c.fillStyle=d.color; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`;
+      c.fillText(d.val+'%', bx+bW/2, baseY-bH-8);
+    });
+    // Axis
+    c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(w*0.08, h*0.2); c.lineTo(w*0.08, baseY+5); c.lineTo(w*0.95, baseY+5); c.stroke();
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.textAlign='center'; c.fillText('نسبة انعكاس الضوء %', w/2, h*0.12);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5LightDirection() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.ldInit) {
+    S.ldInit=true; S.t=0;
+    S.mirrors = [
+      {x:0.35, y:0.35, angle:45, dragging:false},
+      {x:0.65, y:0.65, angle:135, dragging:false},
+    ];
+    S.draggingMirror = -1;
+    cv.onmousedown = function(e) {
+      const rect = cv.getBoundingClientRect();
+      const mx=(e.clientX-rect.left)/cv.offsetWidth, my=(e.clientY-rect.top)/cv.offsetHeight;
+      S.mirrors.forEach((m,i)=>{
+        if(Math.abs(mx-m.x)<0.06&&Math.abs(my-m.y)<0.06) S.draggingMirror=i;
+      });
+    };
+    cv.onmousemove = function(e) {
+      if(S.draggingMirror<0) return;
+      const rect = cv.getBoundingClientRect();
+      S.mirrors[S.draggingMirror].x=(e.clientX-rect.left)/cv.offsetWidth;
+      S.mirrors[S.draggingMirror].y=(e.clientY-rect.top)/cv.offsetHeight;
+    };
+    cv.ontouchstart = function(e){e.preventDefault();
+      const rect=cv.getBoundingClientRect(),t=e.touches[0];
+      const mx=(t.clientX-rect.left)/cv.offsetWidth,my=(t.clientY-rect.top)/cv.offsetHeight;
+      S.mirrors.forEach((m,i)=>{if(Math.abs(mx-m.x)<0.08&&Math.abs(my-m.y)<0.08) S.draggingMirror=i;});
+    };
+    cv.ontouchmove = function(e){e.preventDefault();if(S.draggingMirror<0) return;
+      const rect=cv.getBoundingClientRect(),t=e.touches[0];
+      S.mirrors[S.draggingMirror].x=(t.clientX-rect.left)/cv.offsetWidth;
+      S.mirrors[S.draggingMirror].y=(t.clientY-rect.top)/cv.offsetHeight;
+    };
+    cv.onmouseup=cv.ontouchend=function(){S.draggingMirror=-1;};
+  }
+  function draw() {
+    if(currentSim!=='g5lightdir') return;
+    S.t+=0.03;
+    c.fillStyle='#090913'; c.fillRect(0,0,w,h);
+    // Source
+    const src={x:0.05*w, y:h/2};
+    // Target
+    const tgt={x:0.93*w, y:h/2};
+    const grd=c.createRadialGradient(src.x,src.y,0,src.x,src.y,w*0.05);
+    grd.addColorStop(0,'rgba(255,230,50,0.9)'); grd.addColorStop(1,'rgba(255,230,50,0)');
+    c.fillStyle=grd; c.beginPath(); c.arc(src.x,src.y,w*0.05,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE050'; c.beginPath(); c.arc(src.x,src.y,w*0.02,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,200,50,0.7)'; c.font=`${Math.max(9,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('المصدر', src.x, src.y-w*0.035);
+    // Draw target
+    c.strokeStyle='#FF5050'; c.lineWidth=2;
+    c.beginPath(); c.arc(tgt.x,tgt.y,w*0.025,0,Math.PI*2); c.stroke();
+    c.beginPath(); c.moveTo(tgt.x-w*0.03,tgt.y); c.lineTo(tgt.x+w*0.03,tgt.y); c.stroke();
+    c.beginPath(); c.moveTo(tgt.x,tgt.y-w*0.03); c.lineTo(tgt.x,tgt.y+w*0.03); c.stroke();
+    c.fillStyle='#FF7070'; c.font=`${Math.max(9,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('الهدف', tgt.x, tgt.y-w*0.04);
+    // Trace ray through mirrors
+    let points = [{x:src.x, y:src.y}];
+    let curX=src.x, curY=src.y, dirX=1, dirY=0;
+    S.mirrors.forEach(m=>{
+      const mx2=m.x*w, my2=m.y*h;
+      const t2=(mx2-curX)/dirX;
+      if(t2>0){
+        points.push({x:curX+dirX*t2, y:curY+dirY*t2});
+        curX=mx2; curY=my2;
+        // Reflect: angle 45° mirror reflects X→Y, Y→X
+        const tmp=dirX; dirX=-dirY; dirY=-tmp;
+      }
+    });
+    points.push({x:curX+dirX*w, y:curY+dirY*h});
+    const rayGrad=c.createLinearGradient(src.x,src.y,tgt.x,tgt.y);
+    rayGrad.addColorStop(0,'rgba(255,230,80,0.9)'); rayGrad.addColorStop(1,'rgba(255,230,80,0.3)');
+    c.strokeStyle=rayGrad; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(points[0].x,points[0].y);
+    for(let i=1;i<points.length;i++) c.lineTo(points[i].x,points[i].y);
+    c.stroke();
+    // Mirrors
+    S.mirrors.forEach((m,i)=>{
+      const mx2=m.x*w, my2=m.y*h;
+      c.save(); c.translate(mx2,my2); c.rotate(m.angle*Math.PI/180);
+      c.strokeStyle='#A0A0FF'; c.lineWidth=4;
+      c.beginPath(); c.moveTo(-w*0.06,0); c.lineTo(w*0.06,0); c.stroke();
+      c.fillStyle='rgba(160,160,255,0.15)'; c.fillRect(-w*0.06,-3,w*0.12,6);
+      c.restore();
+      c.fillStyle='rgba(160,160,255,0.7)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+      c.fillText('اسحب', mx2, my2+w*0.045);
+    });
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('حرّك المرايا لتوجيه شعاع الضوء نحو الهدف! 🎯', w/2, h*0.92);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════
+//   الصف الخامس — وحدة ٥: الظلال
+// ══════════════════════════════════════════════════
+
+function simG5ShadowLab() {
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  if (!S.slInit) {
+    S.slInit=true;
+    S.lightX=0.15; S.lightY=0.25;
+    S.objX=0.5; S.objSize=0.06;
+    S.draggingLight=false; S.draggingObj=false;
+    cv.onmousedown=function(e){
+      const rect=cv.getBoundingClientRect();
+      const mx=(e.clientX-rect.left)/cv.offsetWidth, my=(e.clientY-rect.top)/cv.offsetHeight;
+      if(Math.hypot(mx-S.lightX,my-S.lightY)<0.07) S.draggingLight=true;
+      else if(Math.abs(mx-S.objX)<0.07&&Math.abs(my-0.55)<0.07) S.draggingObj=true;
+    };
+    cv.onmousemove=function(e){
+      const rect=cv.getBoundingClientRect();
+      const mx=(e.clientX-rect.left)/cv.offsetWidth, my=(e.clientY-rect.top)/cv.offsetHeight;
+      if(S.draggingLight){S.lightX=Math.max(0.05,Math.min(0.45,mx));S.lightY=Math.max(0.05,Math.min(0.5,my));}
+      if(S.draggingObj){S.objX=Math.max(0.3,Math.min(0.8,mx));}
+    };
+    cv.ontouchstart=function(e){e.preventDefault();
+      const rect=cv.getBoundingClientRect(),t=e.touches[0];
+      const mx=(t.clientX-rect.left)/cv.offsetWidth,my=(t.clientY-rect.top)/cv.offsetHeight;
+      if(Math.hypot(mx-S.lightX,my-S.lightY)<0.09) S.draggingLight=true;
+      else if(Math.abs(mx-S.objX)<0.09&&Math.abs(my-0.55)<0.09) S.draggingObj=true;
+    };
+    cv.ontouchmove=function(e){e.preventDefault();
+      const rect=cv.getBoundingClientRect(),t=e.touches[0];
+      const mx=(t.clientX-rect.left)/cv.offsetWidth,my=(t.clientY-rect.top)/cv.offsetHeight;
+      if(S.draggingLight){S.lightX=Math.max(0.05,Math.min(0.45,mx));S.lightY=Math.max(0.05,Math.min(0.5,my));}
+      if(S.draggingObj){S.objX=Math.max(0.3,Math.min(0.8,mx));}
+    };
+    cv.onmouseup=cv.ontouchend=function(){S.draggingLight=false;S.draggingObj=false;};
+  }
+  function draw() {
+    if(currentSim!=='g5shadowsize') return;
+    // Background: room
+    c.fillStyle='#1a1a2a'; c.fillRect(0,0,w,h);
+    // Floor
+    c.fillStyle='#2a2a3a'; c.fillRect(0,h*0.7,w,h*0.3);
+    c.strokeStyle='rgba(255,255,255,0.1)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(0,h*0.7); c.lineTo(w,h*0.7); c.stroke();
+    // Wall
+    c.fillStyle='rgba(255,255,255,0.04)'; c.fillRect(w*0.85,0,w*0.15,h*0.7);
+    c.fillStyle='rgba(255,255,255,0.3)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('حائط', w*0.925, h*0.15);
+    // Compute shadow
+    const lx=S.lightX*w, ly=S.lightY*h;
+    const ox=S.objX*w, oy=h*0.65, or2=S.objSize*w;
+    // Shadow on floor: project from light through object edges to floor
+    const floorY=h*0.7;
+    const leftEdge=ox-or2, rightEdge=ox+or2;
+    // Ray from light to left edge → extended to floor
+    const tLeft=(floorY-ly)/(oy-or2-ly);
+    const shadowLeft=lx+(leftEdge-lx)*tLeft;
+    const tRight=(floorY-ly)/(oy-or2-ly);
+    const shadowRight=lx+(rightEdge-lx)*tRight;
+    // Shadow shape
+    const shW=Math.abs(shadowRight-shadowLeft)*1.5;
+    const shX=ox - shW/2;
+    c.fillStyle='rgba(0,0,0,0.7)';
+    c.beginPath();
+    c.ellipse(ox, floorY+6, shW/2, shW*0.12, 0, 0, Math.PI*2);
+    c.fill();
+    // Light rays (umbra edges)
+    c.strokeStyle='rgba(255,230,80,0.2)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(leftEdge, oy-or2); c.lineTo(shX, floorY); c.stroke();
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(rightEdge, oy-or2); c.lineTo(shX+shW, floorY); c.stroke();
+    // Light cone (filled area)
+    c.fillStyle='rgba(255,230,80,0.06)';
+    c.beginPath();
+    c.moveTo(lx,ly);
+    c.lineTo(shX, floorY); c.lineTo(shX+shW, floorY);
+    c.closePath(); c.fill();
+    // Object
+    c.fillStyle='#E74C3C';
+    c.beginPath(); c.arc(ox, oy, or2, 0, Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('الجسم', ox, oy+or2+16); c.fillText('(اسحب)', ox, oy+or2+30);
+    // Light source glow
+    const g=c.createRadialGradient(lx,ly,0,lx,ly,w*0.1);
+    g.addColorStop(0,'rgba(255,230,50,0.9)'); g.addColorStop(1,'rgba(255,230,50,0)');
+    c.fillStyle=g; c.beginPath(); c.arc(lx,ly,w*0.1,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE050'; c.beginPath(); c.arc(lx,ly,w*0.022,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,230,50,0.8)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('المصباح (اسحب)', lx, ly-w*0.04);
+    // Shadow size readout
+    const shadowSize=Math.round(shW/w*100);
+    c.fillStyle='rgba(0,0,0,0.5)'; c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.02,h*0.02,w*0.48,h*0.1,6); c.fill(); c.stroke();
+    c.fillStyle='#FFE050'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='right';
+    c.fillText(`حجم الظل: ${shadowSize} وحدة`, w*0.49, h*0.07);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`;
+    c.fillText('الظل يكبر كلما اقترب المصباح من الجسم', w*0.49, h*0.1);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5ShadowInquiry() {
+  // Simplified inquiry: show table of measurements
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.siInit){S.siInit=true; S.t=0;}
+  function draw(){
+    if(currentSim!=='g5shadowsize') return;
+    S.t+=0.01;
+    c.fillStyle='#0d1117'; c.fillRect(0,0,w,h);
+    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('استقصاء: كيف تؤثر المسافة على حجم الظل؟', w/2, h*0.1);
+    // Table
+    const rows=[
+      ['المسافة (سم)','10','20','30','40','50'],
+      ['طول الظل (سم)','40','20','13','10','8'],
+    ];
+    const cols=rows[0].length;
+    const cW=w*0.85/cols, cH=h*0.1, tX=w*0.075, tY=h*0.2;
+    rows.forEach((row,ri)=>{
+      row.forEach((cell,ci)=>{
+        c.fillStyle = ri===0 ? 'rgba(26,143,168,0.3)' : (ci===0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)');
+        c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1;
+        c.fillRect(tX+ci*cW, tY+ri*cH, cW, cH);
+        c.strokeRect(tX+ci*cW, tY+ri*cH, cW, cH);
+        c.fillStyle = ri===0 ? '#4DC4E0' : '#fff';
+        c.font=`${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
+        c.fillText(cell, tX+ci*cW+cW/2, tY+ri*cH+cH*0.62);
+      });
+    });
+    // Mini chart
+    const data=[40,20,13,10,8];
+    const chartX=tX, chartY=h*0.5, chartW=w*0.85, chartH=h*0.3;
+    c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(chartX,chartY); c.lineTo(chartX,chartY+chartH); c.lineTo(chartX+chartW,chartY+chartH); c.stroke();
+    c.strokeStyle='#4DC4E0'; c.lineWidth=2.5;
+    c.beginPath();
+    data.forEach((v,i)=>{
+      const bx=chartX+(i+0.5)*(chartW/data.length);
+      const by=chartY+chartH-(v/45)*chartH;
+      i===0?c.moveTo(bx,by):c.lineTo(bx,by);
+      c.fillStyle='#4DC4E0'; c.beginPath(); c.arc(bx,by,4,0,Math.PI*2); c.fill();
+    });
+    c.stroke();
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('المسافة عن المصدر (سم) →', chartX+chartW/2, chartY+chartH+20);
+    c.save(); c.translate(chartX-16, chartY+chartH/2); c.rotate(-Math.PI/2);
+    c.fillText('طول الظل (سم)', 0, 0); c.restore();
+    c.fillStyle='rgba(255,220,100,0.85)'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
+    c.fillText('الاستنتاج: كلما زادت المسافة عن المصدر، قلّ حجم الظل', w/2, h*0.88);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5TransparentTest() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.ttInit){S.ttInit=true; S.selected=0;}
+  const materials=[
+    {name:'زجاج شفاف', transmission:0.95, color:'#AEE4FF', icon:'🪟', type:'شفاف تماماً'},
+    {name:'ورق مشمّع', transmission:0.55, color:'#FFFACD', icon:'📄', type:'شبه شفاف'},
+    {name:'بلاستيك ملوّن', transmission:0.35, color:'#90EE90', icon:'🟩', type:'شبه شفاف'},
+    {name:'ورق أبيض', transmission:0.15, color:'#F5F5F5', icon:'📃', type:'شبه معتم'},
+    {name:'خشب', transmission:0, color:'#8B6914', icon:'🪵', type:'معتم'},
+    {name:'حجر', transmission:0, color:'#888', icon:'🪨', type:'معتم'},
+  ];
+  function draw(){
+    if(currentSim!=='g5transparent') return;
+    c.fillStyle='#111'; c.fillRect(0,0,w,h);
+    const colW=w/materials.length;
+    materials.forEach((mat,i)=>{
+      const bx=i*colW;
+      // Light beam
+      const lIntensity=mat.transmission;
+      const lightGrad=c.createLinearGradient(bx,0,bx,h*0.65);
+      lightGrad.addColorStop(0,`rgba(255,240,100,0.8)`);
+      lightGrad.addColorStop(0.3,`rgba(255,240,100,0.8)`);
+      lightGrad.addColorStop(1,`rgba(255,240,100,${lIntensity*0.8})`);
+      c.fillStyle=lightGrad; c.fillRect(bx+colW*0.2,0,colW*0.6,h*0.65);
+      // Material block
+      c.fillStyle=mat.color; c.globalAlpha=0.9;
+      c.fillRect(bx+colW*0.08, h*0.32, colW*0.84, h*0.12); c.globalAlpha=1;
+      c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=1;
+      c.strokeRect(bx+colW*0.08, h*0.32, colW*0.84, h*0.12);
+      // Transmitted light (below material)
+      if(mat.transmission>0){
+        const tGrad=c.createLinearGradient(bx,h*0.44,bx,h*0.7);
+        tGrad.addColorStop(0,`rgba(255,240,100,${mat.transmission*0.7})`);
+        tGrad.addColorStop(1,`rgba(255,240,100,0)`);
+        c.fillStyle=tGrad; c.fillRect(bx+colW*0.2,h*0.44,colW*0.6,h*0.26);
+      }
+      // Labels
+      c.fillStyle='rgba(255,255,255,0.9)'; c.font=`${Math.max(15,w*0.03)}px serif`; c.textAlign='center';
+      c.fillText(mat.icon, bx+colW/2, h*0.78);
+      c.fillStyle='rgba(255,255,255,0.8)'; c.font=`bold ${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText(mat.name, bx+colW/2, h*0.84);
+      const typeColors={شفاف:'#4DC4E0',شبه:'#FFD700',معتم:'#FF6B6B'};
+      const typeColor=Object.keys(typeColors).find(k=>mat.type.includes(k));
+      c.fillStyle=typeColors[typeColor]||'#888';
+      c.font=`${Math.max(8,w*0.016)}px Tajawal`;
+      c.fillText(mat.type, bx+colW/2, h*0.9);
+      c.fillText(Math.round(mat.transmission*100)+'%', bx+colW/2, h*0.95);
+    });
+    // Sun at top
+    c.font=`${Math.max(22,w*0.05)}px serif`; c.textAlign='center';
+    c.fillText('☀️', w/2, h*0.06);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText('أي المواد يسمح بمرور الضوء؟', w/2, h*0.13);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5Silhouette() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.silInit){S.silInit=true;S.t=0;S.currentShape=0;}
+  const shapes=['🦅','✋','🐘','🏠','⭐'];
+  cv.onclick=function(){S.currentShape=(S.currentShape+1)%shapes.length;};
+  function draw(){
+    if(currentSim!=='g5silhouette') return;
+    S.t+=0.015;
+    c.fillStyle='#ffd580'; c.fillRect(0,0,w,h);
+    // Light source
+    const lx=w*0.12, ly=h*0.3;
+    const grd=c.createRadialGradient(lx,ly,0,lx,ly,w*0.25);
+    grd.addColorStop(0,'rgba(255,255,200,0.95)'); grd.addColorStop(1,'rgba(255,220,100,0)');
+    c.fillStyle=grd; c.beginPath(); c.arc(lx,ly,w*0.25,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE000'; c.beginPath(); c.arc(lx,ly,w*0.03,0,Math.PI*2); c.fill();
+    c.fillStyle='#333'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('مصدر الضوء', lx, ly+w*0.05);
+    // Wall
+    c.fillStyle='#e8d5b0'; c.fillRect(w*0.85,0,w*0.15,h);
+    c.strokeStyle='rgba(0,0,0,0.2)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(w*0.85,0); c.lineTo(w*0.85,h); c.stroke();
+    c.fillStyle='#a08060'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('الحائط', w*0.925, h*0.1);
+    // Object
+    const shape=shapes[S.currentShape];
+    const ox=w*0.5, oy=h*0.45;
+    c.font=`${Math.max(50,w*0.1)}px serif`; c.textAlign='center'; c.fillText(shape, ox, oy);
+    // Shadow on wall (simple projection)
+    const scale=2.2;
+    c.save();
+    c.translate(w*0.87, oy*0.9);
+    c.scale(scale*0.4, scale*0.5);
+    c.globalAlpha=0.7;
+    c.filter='blur(2px)';
+    c.fillStyle='rgba(0,0,0,0.85)';
+    c.font=`${Math.max(50,w*0.1)}px serif`; c.textAlign='center';
+    c.fillText(shape, 0, 0);
+    c.filter='none'; c.globalAlpha=1;
+    c.restore();
+    // Rays from light to shadow edge
+    c.strokeStyle='rgba(255,200,50,0.3)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(w*0.85, oy*0.6); c.stroke();
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(w*0.85, oy*1.2); c.stroke();
+    c.fillStyle='rgba(0,0,0,0.75)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('انقر لتغيير الشكل!', w/2, h*0.9);
+    c.fillStyle='rgba(0,0,0,0.55)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.fillText(`الشكل الحالي: ${shape} — الصورة الظلية تحتفظ بملامح الجسم`, w/2, h*0.95);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5ShadowFactor() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.sfInit){S.sfInit=true;S.distance=0.4;S.angle=45;
+    cv.onmousemove=function(e){
+      const rect=cv.getBoundingClientRect();
+      S.distance=(e.clientX-rect.left)/cv.offsetWidth;
+      S.angle=30+(1-(e.clientY-rect.top)/cv.offsetHeight)*60;
+    };
+    cv.ontouchmove=function(e){e.preventDefault();
+      const rect=cv.getBoundingClientRect(),t=e.touches[0];
+      S.distance=(t.clientX-rect.left)/cv.offsetWidth;
+      S.angle=30+(1-(t.clientY-rect.top)/cv.offsetHeight)*60;
+    };
+  }
+  function draw(){
+    if(currentSim!=='g5shadowfactor') return;
+    c.fillStyle='#1a1a2a'; c.fillRect(0,0,w,h);
+    c.fillStyle='#2a2a3a'; c.fillRect(0,h*0.72,w,h*0.28);
+    const lx=S.distance*w, ly=h*0.2;
+    const ox=w*0.55, oy=h*0.68, or2=w*0.04;
+    // Shadow angle based on light position
+    const dx=ox-lx, dy=oy-ly;
+    const shadowLen=Math.sqrt(dx*dx+dy*dy)*0.4*(1-S.distance*0.5);
+    const angle=Math.atan2(oy-ly,ox-lx);
+    const shX=ox+Math.cos(angle)*shadowLen;
+    // Draw shadow ellipse
+    c.fillStyle='rgba(0,0,0,0.6)';
+    c.beginPath(); c.ellipse(ox+Math.cos(angle)*shadowLen*0.5, h*0.73, shadowLen*0.5, shadowLen*0.07, 0, 0, Math.PI*2); c.fill();
+    // Light rays
+    c.strokeStyle='rgba(255,230,80,0.18)'; c.lineWidth=1;
+    for(let i=-2;i<=2;i++){
+      c.beginPath();
+      c.moveTo(lx+i*20, ly); c.lineTo(ox+i*20+Math.cos(angle)*shadowLen, h*0.73); c.stroke();
+    }
+    // Object
+    c.fillStyle='#6B4E9A';
+    c.beginPath(); c.arc(ox, oy, or2, 0, Math.PI*2); c.fill();
+    // Light glow
+    const g=c.createRadialGradient(lx,ly,0,lx,ly,w*0.12);
+    g.addColorStop(0,'rgba(255,230,50,0.95)'); g.addColorStop(1,'rgba(255,230,50,0)');
+    c.fillStyle=g; c.beginPath(); c.arc(lx,ly,w*0.12,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE050'; c.beginPath(); c.arc(lx,ly,w*0.022,0,Math.PI*2); c.fill();
+    // Info
+    c.fillStyle='rgba(0,0,0,0.5)'; c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.02,h*0.02,w*0.55,h*0.12,6); c.fill(); c.stroke();
+    c.fillStyle='#FFE050'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='right';
+    c.fillText(`طول الظل: ${Math.round(shadowLen)} وحدة`, w*0.56, h*0.07);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(9,w*0.019)}px Tajawal`;
+    c.fillText('حرّك الماوس: أفقياً ← موضع المصباح، عمودياً ↕ زاوية الضوء', w*0.56, h*0.11);
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('ما الذي يؤثر على حجم الظل ومكانه؟', w/2, h*0.92);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5ShadowFactorSize() {
+  // Show how object size affects shadow
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.sfsInit){S.sfsInit=true;S.objSize=0.06;
+    cv.onmousemove=function(e){const rect=cv.getBoundingClientRect();S.objSize=0.02+0.1*(e.clientX-rect.left)/cv.offsetWidth;};
+    cv.ontouchmove=function(e){e.preventDefault();const rect=cv.getBoundingClientRect();S.objSize=0.02+0.1*(e.touches[0].clientX-rect.left)/cv.offsetWidth;};
+  }
+  function draw(){
+    if(currentSim!=='g5shadowfactor') return;
+    c.fillStyle='#0d1117'; c.fillRect(0,0,w,h);
+    c.fillStyle='#1a2020'; c.fillRect(0,h*0.7,w,h*0.3);
+    const lx=w*0.2,ly=h*0.2,ox=w*0.55,oy=h*0.65,or2=S.objSize*w;
+    const shW=or2*2.5;
+    c.fillStyle='rgba(0,0,0,0.65)';
+    c.beginPath(); c.ellipse(ox,h*0.72,shW,shW*0.1,0,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(255,230,80,0.2)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(ox-shW,h*0.72); c.stroke();
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(ox+shW,h*0.72); c.stroke();
+    c.fillStyle='#E74C3C';
+    c.beginPath(); c.arc(ox,oy,or2,0,Math.PI*2); c.fill();
+    const grd=c.createRadialGradient(lx,ly,0,lx,ly,w*0.1);
+    grd.addColorStop(0,'rgba(255,230,50,0.9)'); grd.addColorStop(1,'rgba(255,230,50,0)');
+    c.fillStyle=grd; c.beginPath(); c.arc(lx,ly,w*0.1,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE050'; c.beginPath(); c.arc(lx,ly,w*0.02,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText(`حجم الجسم: ${Math.round(or2)} بكسل | حجم الظل: ${Math.round(shW*2)} بكسل`, w/2, h*0.88);
+    c.fillStyle='rgba(200,200,255,0.6)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.fillText('← حرّك الماوس لتكبير وتصغير الجسم →', w/2, h*0.93);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5LightIntensity() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.liInit){S.liInit=true;S.sensorDist=0.5;
+    cv.onmousemove=function(e){const rect=cv.getBoundingClientRect();S.sensorDist=Math.max(0.1,Math.min(0.95,(e.clientX-rect.left)/cv.offsetWidth));};
+    cv.ontouchmove=function(e){e.preventDefault();const rect=cv.getBoundingClientRect();S.sensorDist=Math.max(0.1,Math.min(0.95,(e.touches[0].clientX-rect.left)/cv.offsetWidth));};
+  }
+  function draw(){
+    if(currentSim!=='g5lightintensity') return;
+    c.fillStyle='#05050f'; c.fillRect(0,0,w,h);
+    const lx=w*0.08, ly=h*0.5;
+    const intensity=1/(S.sensorDist*S.sensorDist*8+0.1);
+    const normIntensity=Math.min(1,intensity);
+    // Light cone
+    const grd=c.createConicalGradient?null:null;
+    const maxAngle=0.6;
+    for(let i=0;i<30;i++){
+      const t=i/30;
+      const alpha=(1-t)*normIntensity*0.5;
+      c.strokeStyle=`rgba(255,230,80,${alpha})`;
+      c.lineWidth=2;
+      c.beginPath();
+      c.moveTo(lx,ly);
+      c.lineTo(lx+w*0.95, ly+(t-0.5)*w*maxAngle*2);
+      c.stroke();
+    }
+    // Source
+    const sg=c.createRadialGradient(lx,ly,0,lx,ly,w*0.08);
+    sg.addColorStop(0,'rgba(255,230,50,1)'); sg.addColorStop(1,'rgba(255,230,50,0)');
+    c.fillStyle=sg; c.beginPath(); c.arc(lx,ly,w*0.08,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE000'; c.font=`${Math.max(16,w*0.04)}px serif`; c.textAlign='center';
+    c.fillText('💡', lx, ly+8);
+    // Sensor
+    const sx=S.sensorDist*w;
+    c.fillStyle=`rgba(255,${Math.round(normIntensity*220)},${Math.round(normIntensity*50)},0.85)`;
+    c.strokeStyle='rgba(255,255,255,0.7)'; c.lineWidth=2;
+    c.beginPath(); c.rect(sx-8, ly-20, 16, 40); c.fill(); c.stroke();
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
+    c.fillText('جهاز القياس', sx, ly+32);
+    c.fillText('(اسحب)', sx, ly+46);
+    // Readout
+    c.fillStyle='rgba(0,0,0,0.6)'; c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.3, h*0.08, w*0.65, h*0.15, 8); c.fill(); c.stroke();
+    c.fillStyle='#FFE050'; c.font=`bold ${Math.max(11,w*0.025)}px Tajawal`; c.textAlign='right';
+    c.fillText(`المسافة: ${Math.round(S.sensorDist*100)} سم | شدة الضوء: ${Math.round(normIntensity*100)}%`, w*0.94, h*0.14);
+    // Graph points
+    const pts=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9];
+    const gX=w*0.3, gY=h*0.65, gW=w*0.65, gH=h*0.25;
+    c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(gX,gY); c.lineTo(gX,gY+gH); c.lineTo(gX+gW,gY+gH); c.stroke();
+    c.strokeStyle='#4DC4E0'; c.lineWidth=2;
+    c.beginPath();
+    pts.forEach((d,i)=>{
+      const iv=Math.min(1,1/(d*d*8+0.1));
+      const px2=gX+d*gW, py=gY+gH-iv*gH;
+      i===0?c.moveTo(px2,py):c.lineTo(px2,py);
+    });
+    c.stroke();
+    // Current point
+    c.fillStyle='#FFD700';
+    c.beginPath(); c.arc(gX+S.sensorDist*gW, gY+gH-normIntensity*gH, 5, 0, Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('المسافة →', gX+gW/2, gY+gH+18);
+    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText('الضوء يضعف بالمسافة: كلما ابتعدنا، قلّت الشدة', w/2, h*0.96);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════
+//   الصف الخامس — وحدة ٦: حركات الأرض
+// ══════════════════════════════════════════════════
+
+function simG5EarthSun() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.esInit){S.esInit=true;S.t=0;S.speed=1;S.paused=false;
+    cv.onclick=function(){S.paused=!S.paused;};
+  }
+  function draw(){
+    if(currentSim!=='g5earthsun') return;
+    if(!S.paused) S.t+=0.008*S.speed;
+    c.fillStyle='#000510'; c.fillRect(0,0,w,h);
+    // Stars
+    for(let i=0;i<80;i++){
+      const sx=((i*137+13)%100)/100*w, sy=((i*97+7)%100)/100*h;
+      const blink=0.3+0.7*Math.sin(S.t*2+i);
+      c.fillStyle=`rgba(255,255,255,${blink*0.8})`;
+      c.beginPath(); c.arc(sx,sy,0.8,0,Math.PI*2); c.fill();
+    }
+    const cx2=w*0.5, cy2=h*0.5;
+    // Sun
+    const sunG=c.createRadialGradient(cx2,cy2,0,cx2,cy2,w*0.09);
+    sunG.addColorStop(0,'#FFF7C0'); sunG.addColorStop(0.4,'#FFD700'); sunG.addColorStop(1,'rgba(255,150,0,0)');
+    c.fillStyle=sunG; c.beginPath(); c.arc(cx2,cy2,w*0.09,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE000'; c.beginPath(); c.arc(cx2,cy2,w*0.05,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,200,0.9)'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشمس ☀️', cx2, cy2+w*0.075);
+    // Earth orbit
+    const earthR=w*0.3;
+    c.strokeStyle='rgba(255,255,255,0.12)'; c.lineWidth=1; c.setLineDash([3,3]);
+    c.beginPath(); c.ellipse(cx2,cy2,earthR,earthR*0.85,0,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+    const earthAngle=S.t;
+    const ex=cx2+earthR*Math.cos(earthAngle), ey=cy2+earthR*0.85*Math.sin(earthAngle);
+    // Earth glow
+    const eg=c.createRadialGradient(ex,ey,0,ex,ey,w*0.05);
+    eg.addColorStop(0,'rgba(100,200,255,0.6)'); eg.addColorStop(1,'rgba(100,200,255,0)');
+    c.fillStyle=eg; c.beginPath(); c.arc(ex,ey,w*0.05,0,Math.PI*2); c.fill();
+    // Earth
+    c.fillStyle='#1A6FA8';
+    c.beginPath(); c.arc(ex,ey,w*0.032,0,Math.PI*2); c.fill();
+    c.fillStyle='#27AE60';
+    c.beginPath(); c.arc(ex+w*0.008,ey-w*0.005,w*0.018,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('الأرض 🌍', ex, ey+w*0.05);
+    // Moon orbit around Earth
+    const moonR=w*0.065;
+    c.strokeStyle='rgba(255,255,255,0.08)'; c.lineWidth=1; c.setLineDash([2,2]);
+    c.beginPath(); c.arc(ex,ey,moonR,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+    const moonAngle=S.t*12;
+    const mx2=ex+moonR*Math.cos(moonAngle), my2=ey+moonR*0.8*Math.sin(moonAngle);
+    c.fillStyle='#C8C8C8'; c.beginPath(); c.arc(mx2,my2,w*0.012,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`; c.textAlign='center';
+    c.fillText('🌕', mx2, my2+4);
+    // Info
+    const dayCount=Math.floor((S.t/(Math.PI*2))*365)%365;
+    c.fillStyle='rgba(0,0,0,0.55)'; c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.02,h*0.02,w*0.5,h*0.1,6); c.fill(); c.stroke();
+    c.fillStyle='#4DC4E0'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='right';
+    c.fillText(`اليوم: ${dayCount} من 365 🗓️`, w*0.51, h*0.065);
+    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`;
+    c.fillText('انقر للإيقاف/الاستمرار', w*0.51, h*0.1);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5OrbitalPaths() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.opInit){S.opInit=true;S.t=0;}
+  function draw(){
+    if(currentSim!=='g5earthsun') return;
+    S.t+=0.01;
+    c.fillStyle='#000818'; c.fillRect(0,0,w,h);
+    // Title
+    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('مقارنة مدارات الكواكب', w/2, h*0.08);
+    // Solar system overview: Sun + multiple planets
+    const cx2=w*0.15, cy2=h*0.55;
+    // Sun
+    const sg=c.createRadialGradient(cx2,cy2,0,cx2,cy2,30);
+    sg.addColorStop(0,'#FFF200'); sg.addColorStop(1,'rgba(255,200,0,0)');
+    c.fillStyle=sg; c.beginPath(); c.arc(cx2,cy2,30,0,Math.PI*2); c.fill();
+    const planets=[
+      {name:'عطارد',r:w*0.08,speed:4.15,size:4,color:'#A0A0A0',period:'88 يوم'},
+      {name:'الزهرة',r:w*0.14,speed:1.62,size:7,color:'#E8C080',period:'225 يوم'},
+      {name:'الأرض',r:w*0.21,speed:1,size:8,color:'#4488FF',period:'365 يوم'},
+      {name:'المريخ',r:w*0.29,speed:0.53,size:5,color:'#CC4400',period:'687 يوم'},
+    ];
+    planets.forEach(p=>{
+      c.strokeStyle='rgba(255,255,255,0.1)'; c.lineWidth=1; c.setLineDash([2,4]);
+      c.beginPath(); c.arc(cx2,cy2,p.r,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+      const angle=S.t*p.speed;
+      const px2=cx2+p.r*Math.cos(angle), py=cy2+p.r*Math.sin(angle)*0.4;
+      c.fillStyle=p.color;
+      c.beginPath(); c.arc(px2,py,p.size,0,Math.PI*2); c.fill();
+      c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText(p.name, px2, py+p.size+12);
+    });
+    // Table of facts
+    const tX=w*0.48, tY=h*0.2;
+    c.fillStyle='rgba(26,143,168,0.2)'; c.strokeStyle='rgba(26,143,168,0.4)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(tX, tY, w*0.49, h*0.6, 8); c.fill(); c.stroke();
+    c.fillStyle='#4DC4E0'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`; c.textAlign='center';
+    c.fillText('حقائق عن الأرض والشمس', tX+w*0.245, tY+24);
+    const facts=[
+      'الأرض تدور حول الشمس في 365 يوماً',
+      'الأرض تدور حول نفسها في 24 ساعة',
+      'الشمس أكبر من الأرض بـ 109 مرة',
+      'المسافة بين الأرض والشمس: 150 مليون كم',
+      'القمر يدور حول الأرض في 29 يوماً',
+    ];
+    facts.forEach((f,i)=>{
+      c.fillStyle='rgba(255,255,255,0.85)'; c.font=`${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='right';
+      c.fillText(`• ${f}`, tX+w*0.465, tY+55+i*32);
+    });
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5DayNight() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.dnInit){S.dnInit=true;S.t=0;S.paused=false;
+    cv.onclick=function(){S.paused=!S.paused;};
+  }
+  function draw(){
+    if(currentSim!=='g5rotation') return;
+    if(!S.paused) S.t+=0.015;
+    c.fillStyle='#000820'; c.fillRect(0,0,w,h);
+    // Stars on night side
+    for(let i=0;i<50;i++){
+      const sx=((i*173)%100)/100*w, sy=((i*97)%100)/100*h;
+      c.fillStyle=`rgba(255,255,255,${0.3+0.5*Math.sin(S.t+i)})`;
+      c.beginPath(); c.arc(sx,sy,0.8,0,Math.PI*2); c.fill();
+    }
+    // Sun far left
+    const sunGrd=c.createRadialGradient(w*0.06,h*0.5,0,w*0.06,h*0.5,w*0.1);
+    sunGrd.addColorStop(0,'rgba(255,255,200,1)'); sunGrd.addColorStop(1,'rgba(255,200,0,0)');
+    c.fillStyle=sunGrd; c.beginPath(); c.arc(w*0.06,h*0.5,w*0.1,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE000'; c.beginPath(); c.arc(w*0.06,h*0.5,w*0.04,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,240,100,0.8)'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشمس ☀️', w*0.06, h*0.5+w*0.06);
+    // Light beam
+    const beamGrd=c.createLinearGradient(w*0.1,0,w*0.55,0);
+    beamGrd.addColorStop(0,'rgba(255,240,100,0.35)'); beamGrd.addColorStop(1,'rgba(255,240,100,0)');
+    c.fillStyle=beamGrd; c.fillRect(w*0.1,0,w*0.45,h);
+    // Earth rotating
+    const cx2=w*0.65, cy2=h*0.5, er=Math.min(w,h)*0.22;
+    // Day/night halves
+    c.save(); c.beginPath(); c.arc(cx2,cy2,er,0,Math.PI*2); c.clip();
+    // Night side (dark)
+    c.fillStyle='#0a1428'; c.fillRect(cx2-er,cy2-er,er*2,er*2);
+    // Day side (lit)
+    c.fillStyle='#4DC4E0';
+    const lightAngle=Math.PI; // sun is to the left
+    c.beginPath(); c.arc(cx2,cy2,er,lightAngle-Math.PI/2,lightAngle+Math.PI/2); c.closePath(); c.fill();
+    // Green landmasses (rotate with Earth)
+    c.save(); c.translate(cx2,cy2); c.rotate(S.t);
+    c.fillStyle='#27AE60';
+    c.beginPath(); c.ellipse(er*0.3, -er*0.2, er*0.2, er*0.12, 0.5, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(-er*0.2, er*0.15, er*0.15, er*0.1, -0.3, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(er*0.05, er*0.3, er*0.13, er*0.08, 0.2, 0, Math.PI*2); c.fill();
+    // Clouds
+    c.fillStyle='rgba(255,255,255,0.6)';
+    c.beginPath(); c.ellipse(er*0.1,-er*0.35,er*0.12,er*0.05,0.3,0,Math.PI*2); c.fill();
+    c.restore();
+    // Atmosphere glow
+    const atmGrd=c.createRadialGradient(cx2,cy2,er,cx2,cy2,er+15);
+    atmGrd.addColorStop(0,'rgba(100,200,255,0.4)'); atmGrd.addColorStop(1,'rgba(100,200,255,0)');
+    c.fillStyle=atmGrd; c.beginPath(); c.arc(cx2,cy2,er+15,0,Math.PI*2); c.fill();
+    c.restore();
+    // Terminator line (day/night boundary)
+    c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=2;
+    c.beginPath(); c.arc(cx2,cy2,er,lightAngle-Math.PI/2,lightAngle+Math.PI/2); c.stroke();
+    // City lights on night side (simple dots)
+    const cityLights=[{a:1.8,r:0.65},{a:2.3,r:0.75},{a:2.8,r:0.6},{a:3.2,r:0.7},{a:3.7,r:0.55}];
+    cityLights.forEach(cl=>{
+      const rot=cl.a+S.t;
+      const cx3=cx2+er*cl.r*Math.cos(rot), cy3=cy2+er*cl.r*0.7*Math.sin(rot);
+      // Only draw on night side
+      const relAngle=((rot-lightAngle)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+      if(relAngle>Math.PI*0.6&&relAngle<Math.PI*1.9){
+        c.fillStyle='rgba(255,255,150,0.8)';
+        c.beginPath(); c.arc(cx3,cy3,2,0,Math.PI*2); c.fill();
+      }
+    });
+    // Rotation indicator
+    const rotDeg=Math.round((S.t%(Math.PI*2))/(Math.PI*2)*360);
+    c.fillStyle='rgba(0,0,0,0.55)'; c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.35,h*0.04,w*0.6,h*0.1,6); c.fill(); c.stroke();
+    c.fillStyle='#4DC4E0'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='right';
+    c.fillText(`دوران الأرض: ${rotDeg}° من 360° (كل 24 ساعة)`, w*0.94, h*0.08);
+    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`;
+    c.fillText('انقر للإيقاف/الاستمرار', w*0.94, h*0.12);
+    // Labels
+    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`bold ${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('النهار', cx2+er*0.5, cy2-er*0.6);
+    c.fillStyle='rgba(150,150,200,0.7)';
+    c.fillText('الليل', cx2-er*0.5, cy2-er*0.6);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5Seasons() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.seasInit){S.seasInit=true;S.t=0;S.paused=false;cv.onclick=function(){S.paused=!S.paused;};}
+  function draw(){
+    if(currentSim!=='g5rotation') return;
+    if(!S.paused) S.t+=0.01;
+    c.fillStyle='#000511'; c.fillRect(0,0,w,h);
+    for(let i=0;i<60;i++){
+      const sx=((i*173)%100)/100*w, sy=((i*97)%100)/100*h;
+      c.fillStyle=`rgba(255,255,255,${0.2+0.4*Math.sin(S.t+i)})`;
+      c.beginPath(); c.arc(sx,sy,0.7,0,Math.PI*2); c.fill();
+    }
+    const cx2=w*0.5, cy2=h*0.5;
+    // Sun center
+    const sg=c.createRadialGradient(cx2,cy2,0,cx2,cy2,40);
+    sg.addColorStop(0,'#FFF200'); sg.addColorStop(1,'rgba(255,200,0,0)');
+    c.fillStyle=sg; c.beginPath(); c.arc(cx2,cy2,40,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE000'; c.font=`${Math.max(20,w*0.045)}px serif`; c.textAlign='center'; c.fillText('☀️',cx2,cy2+8);
+    // Earth orbit (tilted ellipse)
+    const orR=Math.min(w,h)*0.35;
+    c.strokeStyle='rgba(255,255,255,0.12)'; c.lineWidth=1; c.setLineDash([3,4]);
+    c.beginPath(); c.ellipse(cx2,cy2,orR,orR*0.6,0,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+    // Earth position
+    const ex=cx2+orR*Math.cos(S.t), ey=cy2+orR*0.6*Math.sin(S.t);
+    // Tilt axis
+    const tiltAngle=23.5*Math.PI/180;
+    const axLen=25;
+    c.strokeStyle='rgba(255,255,255,0.5)'; c.lineWidth=1.5;
+    c.beginPath();
+    c.moveTo(ex-Math.sin(tiltAngle)*axLen, ey-Math.cos(tiltAngle)*axLen);
+    c.lineTo(ex+Math.sin(tiltAngle)*axLen, ey+Math.cos(tiltAngle)*axLen);
+    c.stroke();
+    // Earth
+    c.fillStyle='#1a6fa8'; c.beginPath(); c.arc(ex,ey,18,0,Math.PI*2); c.fill();
+    c.fillStyle='#27ae60'; c.beginPath(); c.arc(ex+5,ey-5,10,0,Math.PI*2); c.fill();
+    // Season label
+    const seasonAngle=((S.t%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+    let season=''; let sColor='#fff';
+    if(seasonAngle<Math.PI*0.5){season='🌸 الربيع';sColor='#90EE90';}
+    else if(seasonAngle<Math.PI){season='☀️ الصيف';sColor='#FFD700';}
+    else if(seasonAngle<Math.PI*1.5){season='🍂 الخريف';sColor='#FFA500';}
+    else{season='❄️ الشتاء';sColor='#ADD8E6';}
+    c.fillStyle=sColor; c.font=`bold ${Math.max(12,w*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText(season, ex, ey-30);
+    // Explanation box
+    c.fillStyle='rgba(0,0,0,0.5)'; c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.02,h*0.02,w*0.5,h*0.13,6); c.fill(); c.stroke();
+    c.fillStyle=sColor; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='right';
+    c.fillText(`الفصل الحالي: ${season}`, w*0.51, h*0.07);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(9,w*0.019)}px Tajawal`;
+    c.fillText('ميل محور الأرض يسبّب تغيّر الفصول', w*0.51, h*0.1);
+    c.fillText('انقر للإيقاف/الاستمرار', w*0.51, h*0.135);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5StarMap() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.smInit){
+    S.smInit=true;S.t=0;S.hovered=-1;
+    const stars=[
+      {x:0.5,y:0.2,name:'النجم القطبي',mag:2.1,color:'#FFE8D0',constellation:'الدب الأصغر'},
+      {x:0.25,y:0.3,name:'الشعرى اليمانية',mag:1.5,color:'#CCE0FF',constellation:'الكلب الأكبر'},
+      {x:0.75,y:0.35,name:'نجم الجدي',mag:3.6,color:'#FFE0C0',constellation:'الجدي'},
+      {x:0.4,y:0.55,name:'منكب الجوزاء',mag:0.5,color:'#FFB060',constellation:'الجبار'},
+      {x:0.6,y:0.58,name:'رجل الجبار',mag:0.1,color:'#B8D8FF',constellation:'الجبار'},
+      {x:0.2,y:0.65,name:'الذيل',mag:1.2,color:'#FFF0D0',constellation:'العقرب'},
+      {x:0.8,y:0.25,name:'الدبران',mag:0.9,color:'#FF8844',constellation:'الثور'},
+      {x:0.55,y:0.42,name:'القلب',mag:1.0,color:'#FF4444',constellation:'العقرب'},
+    ];
+    S.stars=stars;
+    cv.onmousemove=function(e){
+      const rect=cv.getBoundingClientRect();
+      const mx=(e.clientX-rect.left)/cv.offsetWidth, my=(e.clientY-rect.top)/cv.offsetHeight;
+      S.hovered=-1;
+      stars.forEach((st,i)=>{ if(Math.hypot(mx-st.x,my-st.y)<0.05) S.hovered=i; });
+    };
+    cv.ontouchmove=function(e){e.preventDefault();
+      const rect=cv.getBoundingClientRect(),t=e.touches[0];
+      const mx=(t.clientX-rect.left)/cv.offsetWidth, my=(t.clientY-rect.top)/cv.offsetHeight;
+      S.hovered=-1;
+      stars.forEach((st,i)=>{ if(Math.hypot(mx-st.x,my-st.y)<0.07) S.hovered=i; });
+    };
+  }
+  function draw(){
+    if(currentSim!=='g5stars') return;
+    S.t+=0.005;
+    // Night sky
+    const bgGrd=c.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.max(w,h));
+    bgGrd.addColorStop(0,'#0a0a1a'); bgGrd.addColorStop(1,'#000005');
+    c.fillStyle=bgGrd; c.fillRect(0,0,w,h);
+    // Milky way suggestion
+    c.save(); c.globalAlpha=0.15;
+    const mwGrd=c.createLinearGradient(0,h*0.3,w,h*0.7);
+    mwGrd.addColorStop(0,'rgba(200,200,255,0)'); mwGrd.addColorStop(0.5,'rgba(200,200,255,0.4)'); mwGrd.addColorStop(1,'rgba(200,200,255,0)');
+    c.fillStyle=mwGrd; c.save(); c.rotate(-0.3);
+    c.fillRect(-w*0.5,h*0.2,w*2,h*0.3); c.restore(); c.restore();
+    // Background stars
+    for(let i=0;i<200;i++){
+      const sx=((i*137+23)%100)/100*w, sy=((i*89+7)%100)/100*h;
+      const tw=(1+Math.sin(S.t*1.5+i))*0.5;
+      c.fillStyle=`rgba(255,255,255,${tw*0.5})`;
+      c.beginPath(); c.arc(sx,sy,Math.random()*0.8+0.2,0,Math.PI*2); c.fill();
+    }
+    // Named stars
+    S.stars.forEach((st,i)=>{
+      const sx=st.x*w, sy=st.y*h;
+      const size=Math.max(3, (3-st.mag*0.8)*2.5);
+      const tw=0.7+0.3*Math.sin(S.t*2+i);
+      // Glow
+      const g=c.createRadialGradient(sx,sy,0,sx,sy,size*4);
+      g.addColorStop(0,st.color+'AA'); g.addColorStop(1,st.color+'00');
+      c.fillStyle=g; c.beginPath(); c.arc(sx,sy,size*4,0,Math.PI*2); c.fill();
+      // Star
+      c.fillStyle=st.color;
+      c.beginPath(); c.arc(sx,sy,size*tw,0,Math.PI*2); c.fill();
+      // Hover info
+      if(i===S.hovered){
+        c.strokeStyle='rgba(255,255,255,0.4)'; c.lineWidth=1;
+        c.beginPath(); c.arc(sx,sy,size*8,0,Math.PI*2); c.stroke();
+        const bW=w*0.35, bH=h*0.12;
+        const bx=Math.min(sx+10, w-bW-10), by=Math.max(sy-bH-10, 10);
+        c.fillStyle='rgba(0,0,20,0.85)'; c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=1;
+        c.beginPath(); c.roundRect(bx,by,bW,bH,6); c.fill(); c.stroke();
+        c.fillStyle=st.color; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='right';
+        c.fillText(st.name, bx+bW-8, by+22);
+        c.fillStyle='rgba(255,255,255,0.75)'; c.font=`${Math.max(9,w*0.019)}px Tajawal`;
+        c.fillText(`الكوكبة: ${st.constellation}`, bx+bW-8, by+42);
+        c.fillText(`القدر: ${st.mag}`, bx+bW-8, by+60);
+      } else {
+        c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`; c.textAlign='center';
+        c.fillText(st.name, sx, sy+size+14);
+      }
+    });
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('خريطة النجوم العربية — مرّر الماوس فوق نجم لمعرفة تفاصيله', w/2, h*0.95);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG5StarNames() {
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+  const w=cv.width, h=cv.height;
+  const S=simState;
+  if(!S.snInit){S.snInit=true;S.t=0;S.currentConst=0;S.timer=0;}
+  const constellations=[
+    {name:'الجبار (أوريون)',color:'#4DC4E0',stars:[{x:0.45,y:0.3},{x:0.55,y:0.28},{x:0.5,y:0.45},{x:0.42,y:0.55},{x:0.58,y:0.53},{x:0.5,y:0.65}],lines:[[0,1],[0,2],[1,2],[2,3],[2,4],[3,5],[4,5]],fact:'أوريون الجبار يُرى في معظم أنحاء العالم'},
+    {name:'الدب الأكبر',color:'#FFD700',stars:[{x:0.2,y:0.2},{x:0.3,y:0.18},{x:0.4,y:0.22},{x:0.5,y:0.26},{x:0.55,y:0.38},{x:0.5,y:0.48},{x:0.4,y:0.45}],lines:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]],fact:'مقبض المغرفة يشير نحو النجم القطبي'},
+    {name:'العقرب',color:'#FF6644',stars:[{x:0.3,y:0.3},{x:0.4,y:0.35},{x:0.5,y:0.32},{x:0.55,y:0.42},{x:0.5,y:0.52},{x:0.42,y:0.6},{x:0.48,y:0.7},{x:0.56,y:0.72}],lines:[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]],fact:'قلب العقرب نجم أحمر عملاق'},
+  ];
+  function draw(){
+    if(currentSim!=='g5stars') return;
+    S.t+=0.008; S.timer++;
+    if(S.timer>200){S.timer=0;S.currentConst=(S.currentConst+1)%constellations.length;}
+    c.fillStyle='#000010'; c.fillRect(0,0,w,h);
+    for(let i=0;i<150;i++){
+      const sx=((i*173)%100)/100*w, sy=((i*97)%100)/100*h;
+      c.fillStyle=`rgba(255,255,255,${0.1+0.3*Math.sin(S.t*2+i)})`;
+      c.beginPath(); c.arc(sx,sy,0.7,0,Math.PI*2); c.fill();
+    }
+    const con=constellations[S.currentConst];
+    // Draw lines
+    c.strokeStyle=con.color+'55'; c.lineWidth=1.5; c.setLineDash([3,3]);
+    con.lines.forEach(([a,b])=>{
+      const sa=con.stars[a], sb=con.stars[b];
+      c.beginPath(); c.moveTo(sa.x*w,sa.y*h); c.lineTo(sb.x*w,sb.y*h); c.stroke();
+    });
+    c.setLineDash([]);
+    // Draw stars
+    con.stars.forEach(st=>{
+      const g=c.createRadialGradient(st.x*w,st.y*h,0,st.x*w,st.y*h,15);
+      g.addColorStop(0,con.color+'CC'); g.addColorStop(1,con.color+'00');
+      c.fillStyle=g; c.beginPath(); c.arc(st.x*w,st.y*h,15,0,Math.PI*2); c.fill();
+      c.fillStyle=con.color; c.beginPath(); c.arc(st.x*w,st.y*h,4,0,Math.PI*2); c.fill();
+    });
+    // Name
+    c.fillStyle=con.color; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText(con.name, w/2, h*0.12);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(10,w*0.021)}px Tajawal`;
+    c.fillText(con.fact, w/2, h*0.88);
+    // Progress
+    const prog=S.timer/200;
+    c.fillStyle='rgba(255,255,255,0.15)'; c.fillRect(w*0.1,h*0.93,w*0.8,4);
+    c.fillStyle=con.color; c.fillRect(w*0.1,h*0.93,w*0.8*prog,4);
+    c.fillStyle='rgba(255,255,255,0.5)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText(`${S.currentConst+1} / ${constellations.length} كوكبات`, w/2, h*0.97);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ═══ Stub functions for simG5BehindYou extra tabs ═══
+// (already defined above as simG5BehindYou)
 
 </script>
