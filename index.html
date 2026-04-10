@@ -22200,7 +22200,21 @@ async function _getDeviceFingerprint() {
 let _db;
 try {
   if (!window.supabase) throw new Error('Supabase not loaded');
-  _db = window.supabase.createClient(_SUPA_URL, _SUPA_KEY);
+  // Clear any existing Supabase sessions from localStorage
+  try {
+    Object.keys(localStorage).forEach(function(key) {
+      if (key.startsWith('sb-') || key.includes('supabase')) {
+        localStorage.removeItem(key);
+      }
+    });
+  } catch(e) {}
+
+  _db = window.supabase.createClient(_SUPA_URL, _SUPA_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  });
 } catch(e) {
   console.error('[بيّن] فشل تحميل Supabase:', e);
   document.addEventListener('DOMContentLoaded', function() {
