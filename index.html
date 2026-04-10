@@ -28752,121 +28752,156 @@ function simG5TransparentTest() {
   function draw(){
     if(currentSim!=='g5transparent') return;
     S.ttAnim=(S.ttAnim||0)+1;
-    c.fillStyle='#111'; c.fillRect(0,0,w,h);
+    const t=S.ttAnim;
+
+    // ── خلفية متدرجة أجمل ──
+    const bgGrad=c.createLinearGradient(0,0,0,h);
+    bgGrad.addColorStop(0,'#0a0e1a');
+    bgGrad.addColorStop(1,'#111820');
+    c.fillStyle=bgGrad; c.fillRect(0,0,w,h);
+
+    // خطوط فاصلة خفيفة بين الأعمدة
     const colW=w/materials.length;
+    for(let i=1;i<materials.length;i++){
+      c.strokeStyle='rgba(255,255,255,0.04)'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(i*colW,h*0.14); c.lineTo(i*colW,h*0.88); c.stroke();
+    }
+
     const sel=S.selected;
 
-    // ── المناطق الرأسية الثابتة ──
-    // الشمس والعنوان:   0%  → 15%
-    // شعاع الضوء فوق:  15%  → 30%
-    // كتلة المادة:      30%  → 43%
-    // شعاع ما نفذ:      43%  → 62%
-    // الأيقونة:         63%
-    // اسم المادة:       70%
-    // نوع المادة:       76%
-    // النسبة %:         82%
-    // صندوق المعلومات: 85%  → 99%  (يظهر فقط عند التحديد، يغطي فقط المنطقة الأخيرة)
+    // ── التوزيع الرأسي ──
+    // 0→9%   : شمس + عنوان
+    // 10→27% : شعاع ضوء فوق
+    // 27→44% : كتلة المادة (+ إطار تحديد)
+    // 44→72% : شعاع ضوء أسفل (متناسب مع النفاذية)
+    // 73→88% : أيقونة + اسم فقط
+    // 88→100%: صندوق المعلومات عند التحديد / تلميح عند عدمه
 
     materials.forEach((mat,i)=>{
       const bx=i*colW;
       const isSelected=(sel===i);
       const dimmed=(sel>=0 && !isSelected);
-      const alpha=dimmed?0.32:1.0;
-
+      const alpha=dimmed?0.28:1.0;
       c.globalAlpha=alpha;
 
-      // شعاع الضوء فوق المادة
-      const lightGrad=c.createLinearGradient(bx,h*0.15,bx,h*0.30);
-      lightGrad.addColorStop(0,'rgba(255,240,100,0.9)');
-      lightGrad.addColorStop(1,'rgba(255,240,100,0.7)');
-      c.fillStyle=lightGrad;
-      c.fillRect(bx+colW*0.25, h*0.15, colW*0.5, h*0.15);
+      // ── شعاع الضوء الساقط ──
+      const bw=colW*0.44;
+      const bLeft=bx+(colW-bw)/2;
+      const beamTop=h*0.10;
+      const beamBot=h*0.27;
+      const lgTop=c.createLinearGradient(0,beamTop,0,beamBot);
+      lgTop.addColorStop(0,'rgba(255,245,120,0.95)');
+      lgTop.addColorStop(1,'rgba(255,235,80,0.82)');
+      c.fillStyle=lgTop;
+      // شكل مستطيل مع خطوط شعاع خفيفة
+      c.fillRect(bLeft, beamTop, bw, beamBot-beamTop);
+      // خطوط داخلية للشعاع
+      c.globalAlpha=alpha*0.3;
+      c.strokeStyle='rgba(255,255,180,0.6)'; c.lineWidth=0.5;
+      for(let r=0;r<3;r++){
+        const rx=bLeft+bw*0.2+r*bw*0.25;
+        c.beginPath(); c.moveTo(rx,beamTop); c.lineTo(rx,beamBot); c.stroke();
+      }
+      c.globalAlpha=alpha;
 
-      // إطار التحديد الذهبي
+      // ── إطار التحديد الذهبي المضيء ──
       if(isSelected){
         c.globalAlpha=1;
-        c.shadowColor='#FFD700'; c.shadowBlur=16;
-        c.strokeStyle='#FFD700'; c.lineWidth=3;
-        c.strokeRect(bx+colW*0.06, h*0.29, colW*0.88, h*0.15);
+        const glow=12+4*Math.sin(t*0.08);
+        c.shadowColor='#FFD700'; c.shadowBlur=glow;
+        c.strokeStyle='#FFD700'; c.lineWidth=2.5;
+        c.beginPath();
+        c.roundRect(bx+colW*0.05, h*0.26, colW*0.9, h*0.19, 6);
+        c.stroke();
         c.shadowBlur=0;
+        c.globalAlpha=alpha;
       }
 
-      // كتلة المادة
+      // ── كتلة المادة ──
       c.globalAlpha=isSelected?1:alpha;
       c.fillStyle=mat.color;
-      c.fillRect(bx+colW*0.08, h*0.30, colW*0.84, h*0.13);
-      c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=1;
-      c.strokeRect(bx+colW*0.08, h*0.30, colW*0.84, h*0.13);
+      c.beginPath();
+      c.roundRect(bx+colW*0.07, h*0.27, colW*0.86, h*0.17, 5);
+      c.fill();
+      c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1;
+      c.stroke();
 
-      // شعاع الضوء المنقول (تحت المادة)
+      // ── شعاع الضوء المنقول أسفل ──
       if(mat.transmission>0){
-        const pulse=isSelected?(0.85+0.15*Math.sin(S.ttAnim*0.12)):1;
-        const tGrad=c.createLinearGradient(bx,h*0.43,bx,h*0.62);
-        tGrad.addColorStop(0,`rgba(255,240,100,${pulse*mat.transmission*0.85})`);
-        tGrad.addColorStop(1,'rgba(255,240,100,0)');
-        c.fillStyle=tGrad;
-        c.fillRect(bx+colW*0.25, h*0.43, colW*0.5, h*0.19);
+        const pulse=isSelected?(0.8+0.2*Math.sin(t*0.1)):1;
+        const tAlpha=pulse*mat.transmission;
+        const lgBot=c.createLinearGradient(0,h*0.44,0,h*0.72);
+        lgBot.addColorStop(0,`rgba(255,240,90,${tAlpha*0.88})`);
+        lgBot.addColorStop(0.6,`rgba(255,220,60,${tAlpha*0.4})`);
+        lgBot.addColorStop(1,'rgba(255,200,40,0)');
+        c.fillStyle=lgBot;
+        c.fillRect(bLeft, h*0.44, bw, h*0.28);
       }
 
-      // ── تسميات المادة ──
+      // ── أيقونة + اسم فقط (بدون نوع أو %) ──
       c.globalAlpha=isSelected?1:alpha;
 
-      // أيقونة
-      c.font=`${Math.max(14,w*0.026)}px serif`; c.textAlign='center';
-      c.fillStyle='rgba(255,255,255,0.95)';
-      c.fillText(mat.icon, bx+colW/2, h*0.68);
+      // الأيقونة
+      c.font=`${Math.max(16,w*0.028)}px serif`;
+      c.textAlign='center';
+      c.fillStyle='rgba(255,255,255,1)';
+      c.fillText(mat.icon, bx+colW/2, h*0.80);
 
-      // اسم المادة
-      c.font=`bold ${Math.max(7,w*0.015)}px Tajawal`; c.textAlign='center';
-      c.fillStyle='rgba(255,255,255,0.9)';
-      c.fillText(mat.name, bx+colW/2, h*0.74);
-
-      // نوع التصنيف
-      const typeColors={شفاف:'#4DC4E0',شبه:'#FFD700',معتم:'#FF6B6B'};
-      const typeKey=Object.keys(typeColors).find(k=>mat.type.includes(k));
-      c.fillStyle=typeColors[typeKey]||'#888';
-      c.font=`bold ${Math.max(6,w*0.013)}px Tajawal`;
-      c.fillText(mat.type, bx+colW/2, h*0.80);
-
-      // النسبة %
-      c.font=`bold ${Math.max(7,w*0.015)}px Tajawal`;
-      c.fillText(Math.round(mat.transmission*100)+'%', bx+colW/2, h*0.86);
+      // الاسم
+      c.font=`bold ${Math.max(7,w*0.0155)}px Tajawal`;
+      c.fillStyle=isSelected?'#FFD700':'rgba(255,255,255,0.85)';
+      c.fillText(mat.name, bx+colW/2, h*0.87);
 
       c.globalAlpha=1;
     });
 
     c.globalAlpha=1;
 
-    // ── الشمس والعنوان (فوق الكل) ──
-    c.font=`${Math.max(20,w*0.045)}px serif`; c.textAlign='center';
-    c.fillText('☀️', w/2, h*0.08);
-    c.fillStyle='rgba(255,255,255,0.8)';
-    c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('أي المواد يسمح بمرور الضوء؟', w/2, h*0.14);
+    // ── الشمس والعنوان ──
+    c.font=`${Math.max(22,w*0.048)}px serif`; c.textAlign='center';
+    c.fillText('☀️', w/2, h*0.075);
+    c.fillStyle='rgba(255,255,255,0.82)';
+    c.font=`bold ${Math.max(9,w*0.021)}px Tajawal`; c.textAlign='center';
+    c.fillText('أي المواد يسمح بمرور الضوء؟', w/2, h*0.135);
 
-    // ── صندوق معلومات المادة المختارة (أسفل الكل، لا يتداخل) ──
+    // ── منطقة أسفل: تلميح أو معلومات المادة ──
     if(sel<0){
-      // تلميح النقر فقط — في منطقة آمنة بعد النسب
-      c.fillStyle='rgba(255,220,80,0.65)';
-      c.font=`${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
-      c.fillText('👆 انقر على أي مادة لاختبارها', w/2, h*0.93);
+      // تلميح بسيط
+      c.fillStyle='rgba(0,0,0,0.45)';
+      c.beginPath(); c.roundRect(w*0.15,h*0.895,w*0.7,h*0.085,20); c.fill();
+      c.fillStyle='rgba(255,215,0,0.8)';
+      c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+      c.fillText('👆 انقر على أي مادة لاختبارها', w/2, h*0.948);
     } else {
       const mat=materials[sel];
-      const typeColors2={شفاف:'#4DC4E0',شبه:'#FFD700',معتم:'#FF6B6B'};
-      const tKey=Object.keys(typeColors2).find(k=>mat.type.includes(k));
-      const tColor=typeColors2[tKey]||'#888';
-      // صندوق خلفي شبه شفاف — يبدأ بعد النسب h*0.88
-      c.fillStyle='rgba(0,0,0,0.72)';
-      c.strokeStyle='rgba(255,215,0,0.35)'; c.lineWidth=1.5;
-      c.beginPath(); c.roundRect(w*0.04, h*0.88, w*0.92, h*0.11, 8); c.fill(); c.stroke();
-      // سطر واحد يجمع كل المعلومات
-      c.fillStyle=tColor;
-      c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`; c.textAlign='center';
+      const typeColors={شفاف:'#4DC4E0',شبه:'#FFD700',معتم:'#FF6B6B'};
+      const tKey=Object.keys(typeColors).find(k=>mat.type.includes(k));
+      const tColor=typeColors[tKey]||'#aaa';
       const pct=Math.round(mat.transmission*100);
-      const desc=mat.transmission>=0.8?'✅ يمرّر الضوء كله':
-                 mat.transmission>=0.2?'🟡 يمرّر جزءاً من الضوء':
-                 '🔴 يمنع الضوء تماماً';
-      c.fillText(`${mat.icon} ${mat.name} — ${pct}% — ${desc}`, w/2, h*0.946);
+      const desc=mat.transmission>=0.8?'يسمح بمرور الضوء كله':
+                 mat.transmission>=0.2?'يسمح بمرور جزء من الضوء':
+                 'يمنع مرور الضوء تماماً';
+
+      // خلفية الصندوق
+      c.fillStyle='rgba(0,0,0,0.68)';
+      c.strokeStyle=tColor+'55'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.03, h*0.89, w*0.94, h*0.10, 10); c.fill(); c.stroke();
+
+      // اسم المادة (يسار) — وصف (وسط) — نسبة (يمين)
+      const boxMid=h*0.945;
+      // النسبة — يسار الشاشة (rtl فيعرض يمين)
+      c.fillStyle=tColor;
+      c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='right';
+      c.fillText(`${pct}%`, w*0.96, boxMid);
+
+      // الاسم — يمين الشاشة (rtl)
+      c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='left';
+      c.fillText(`${mat.icon} ${mat.name}`, w*0.04, boxMid);
+
+      // الوصف — وسط
+      c.fillStyle='rgba(255,255,255,0.75)';
+      c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+      c.fillText(desc, w/2, boxMid);
     }
 
     animFrame=requestAnimationFrame(draw);
