@@ -836,6 +836,7 @@ html.dark-mode .unit-num-badge.c-purple { background: rgba(107,78,154,0.18); col
   border-left: 1px solid rgba(0,0,0,0.08);
   padding: 12px; overflow-y: auto; flex-shrink: 0;
   display: flex; flex-direction: column; gap: 10px;
+  min-width: 0; overflow-x: hidden;
 }
 .ctrl-section {
   background: white;
@@ -843,6 +844,9 @@ html.dark-mode .unit-num-badge.c-purple { background: rgba(107,78,154,0.18); col
   padding: 14px;
   border: 1px solid rgba(0,0,0,0.07);
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  overflow-wrap: break-word;
+  word-break: normal;
+  min-width: 0;
 }
 .ctrl-section:last-child { border-bottom: 1px solid rgba(0,0,0,0.07); }
 .ctrl-label {
@@ -858,6 +862,35 @@ html.dark-mode .unit-num-badge.c-purple { background: rgba(107,78,154,0.18); col
   font-size: 15px; font-weight: 700; margin-bottom: 8px;
   display: flex; justify-content: space-between; align-items: center;
   color: #2C3A4A;
+  word-break: normal; overflow-wrap: break-word; white-space: normal;
+}
+.ctrl-name.text-block {
+  display: block; font-weight: 400; line-height: 1.8;
+}
+.ctrl-desc {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary, #7A8A98);
+  line-height: 1.8;
+  word-break: normal;
+  overflow-wrap: break-word;
+  white-space: normal;
+  hyphens: none;
+  margin-bottom: 4px;
+}
+/* Fix: ctrl-name used as paragraph (with inline small font) should not flex-break Arabic text */
+.sim-controls-panel .ctrl-name {
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: none;
+}
+.sim-controls-panel .ctrl-name[style] {
+  display: block;
+  font-weight: 400;
+  line-height: 1.8;
 }
 .ctrl-val {
   color: #1A8FA8; font-size: 17px; font-weight: 800;
@@ -918,12 +951,14 @@ input[type=range]::-webkit-slider-thumb {
 .info-box {
   background: rgba(26,143,168,0.06); border: 1.5px solid rgba(26,143,168,0.15);
   border-radius: 12px; padding: 14px; font-size: 15px; color: #4A6070;
-  line-height: 1.7; margin-bottom: 12px;
+  line-height: 1.8; margin-bottom: 12px;
+  word-break: normal; overflow-wrap: break-word; hyphens: none;
 }
 .q-box {
   background: rgba(212,144,26,0.06); border: 1.5px solid rgba(212,144,26,0.15);
   border-radius: 12px; padding: 14px; font-size: 15px;
-  color: #5A5040; line-height: 1.7;
+  color: #5A5040; line-height: 1.8;
+  word-break: normal; overflow-wrap: break-word; hyphens: none;
 }
 .q-box strong { color: #9A6A10; display: block; margin-bottom: 6px; font-size: 16px; }
 .q-ans-btn {
@@ -27620,13 +27655,13 @@ function simG5LightTravel() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">💡 الضوء والرؤية</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     اسحب مصدر الضوء 🟡 حول الشاشة وشاهد كيف تصل الأشعة للأجسام ثم تنعكس نحو العين 👁️
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">📖 ماذا تعلّمنا؟</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.7">
+  <div class="ctrl-desc">
     ① الضوء يصدر من <b>مصدر الضوء</b><br>
     ② يصطدم بالجسم فينعكس<br>
     ③ ينتقل الضوء المنعكس إلى عيننا فنرى
@@ -27757,13 +27792,13 @@ function simG5HowWeSee() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">👁️ كيف نرى الأشياء؟</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.7">
+  <div class="ctrl-desc">
     شاهد الرسم المتحرّك الذي يوضّح المراحل الثلاث لعملية الرؤية
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">🔢 مراحل الرؤية</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.8">
+  <div class="ctrl-desc">
     ① مصدر الضوء يُصدر الضوء<br>
     ② الضوء يصطدم بالجسم وينعكس<br>
     ③ الضوء المنعكس يدخل العين
@@ -27832,7 +27867,7 @@ function simG5MirrorFlat() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🪞 المرآة المستوية</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     حرّك الماوس/إصبعك <b>للأعلى والأسفل</b> على الكانفاس لتغيير زاوية السقوط وشاهد كيف تتغيّر زاوية الانعكاس
   </div>
 </div>
@@ -27933,11 +27968,11 @@ function simG5MirrorCurved() {
   <div class="ctrl-label">🔄 نوع المرآة</div>
   <button class="ctrl-btn" onclick="simState.curvedInit=false;simState.mirrorType=0;simG5MirrorCurved()" style="margin-bottom:6px">🔭 مقعّرة (تجمّع)</button>
   <button class="ctrl-btn" onclick="simState.curvedInit=false;simState.mirrorType=1;simG5MirrorCurved()">🚗 محدّبة (تشتيت)</button>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);margin-top:8px">أو انقر مباشرة على الكانفاس للتبديل</div>
+  <div class="ctrl-desc">أو انقر مباشرة على الكانفاس للتبديل</div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">💡 الفرق بينهما</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+  <div class="ctrl-desc">
     🔭 <b>المقعّرة:</b> تجمّع الأشعة في البؤرة — تُكبّر الصورة (التلسكوبات، المصابيح)<br>
     🚗 <b>المحدّبة:</b> تشتّت الأشعة — رؤية أوسع (مرايا السيارات، المتاجر)
   </div>
@@ -28013,13 +28048,13 @@ function simG5BehindYou() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🔍 رؤية ما خلفك</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     حرّك الماوس/إصبعك أفقياً على الكانفاس لتغيير زاوية المرآة وشاهد كيف يتغيّر مسار الضوء
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">📌 تطبيقات في الحياة</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+  <div class="ctrl-desc">
     🚗 مرايا السيارة الجانبية والخلفية<br>
     🏪 مرايا زوايا المتاجر والمستشفيات<br>
     💈 مرايا صالونات الحلاقة المزدوجة
@@ -28052,38 +28087,102 @@ function simG5BehindYou() {
     if (currentSim !== 'g5behindyou') return;
     S.t += 0.02;
     c.fillStyle = '#111'; c.fillRect(0,0,w,h);
-    // Person (viewer)
-    const px = w*0.5, py = h*0.55;
-    c.font=`${Math.max(28,w*0.06)}px serif`; c.textAlign='center';
+
+    // Mirror angle in radians — tilt around its center
+    const mAngleRad = (S.mirrorAngle - 45) * Math.PI / 180; // -25° to +25° tilt
+    const mxp = w * 0.82;
+    const mcy = h * 0.5;
+    const mHalf = h * 0.25;
+    const mTopX = mxp + Math.sin(mAngleRad) * mHalf;
+    const mTopY = mcy - Math.cos(mAngleRad) * mHalf;
+    const mBotX = mxp - Math.sin(mAngleRad) * mHalf;
+    const mBotY = mcy + Math.cos(mAngleRad) * mHalf;
+
+    // Object behind (left)
+    const ox = w * 0.15, oy = h * 0.5;
+    c.font = `${Math.max(24,w*0.05)}px serif`; c.textAlign='center';
+    c.fillText('🎁', ox, oy);
+    c.fillStyle='rgba(255,180,180,0.9)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('جسم خلفك!', ox, oy + 28);
+
+    // Person (viewer) — middle
+    const px = w * 0.5, py = h * 0.55;
+    c.font = `${Math.max(28,w*0.06)}px serif`; c.textAlign='center';
     c.fillText('🧑', px, py);
     c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('المشاهد', px, py+30);
-    // Object behind
-    const ox = w*0.15, oy = h*0.5;
-    c.font=`${Math.max(24,w*0.05)}px serif`; c.fillText('🎁', ox, oy);
-    c.fillStyle='rgba(255,100,100,0.8)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('جسم خلفك!', ox, oy+28);
-    // Mirror on wall
-    const mxp = w*0.82, mAngleRad = S.mirrorAngle * Math.PI/180;
-    c.strokeStyle='#C0C0FF'; c.lineWidth=4;
-    c.beginPath();
-    c.moveTo(mxp, h*0.25); c.lineTo(mxp, h*0.75); c.stroke();
-    c.fillStyle='rgba(140,140,255,0.15)'; c.fillRect(mxp-6, h*0.25, 12, h*0.5);
+    c.fillText('المشاهد', px, py + 30);
+
+    // Mirror surface
+    c.strokeStyle = '#C0C0FF'; c.lineWidth = 5;
+    c.beginPath(); c.moveTo(mTopX, mTopY); c.lineTo(mBotX, mBotY); c.stroke();
+    // Mirror sheen
+    c.strokeStyle = 'rgba(180,180,255,0.25)'; c.lineWidth = 12;
+    c.beginPath(); c.moveTo(mTopX, mTopY); c.lineTo(mBotX, mBotY); c.stroke();
     c.fillStyle='#aaf'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText('مرآة', mxp, h*0.82);
-    // Ray: object → mirror → eye
-    c.strokeStyle='#FFD700'; c.lineWidth=2; c.setLineDash([6,3]);
-    c.beginPath(); c.moveTo(ox+20, oy-10); c.lineTo(mxp, h*0.45); c.stroke();
-    c.strokeStyle='#FF8C00'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(mxp, h*0.45); c.lineTo(px-10, py-15); c.stroke();
+    c.fillText('مرآة', mxp, h * 0.85);
+
+    // Mirror normal direction (perpendicular to mirror surface)
+    const normalAngle = mAngleRad; // angle of normal from vertical
+
+    // Ray from object to mirror (hits at mirror center)
+    const toMirrorAngle = Math.atan2(mcy - oy, mxp - (ox + 20));
+    c.strokeStyle='#FFD700'; c.lineWidth=2.5; c.setLineDash([7,4]);
+    c.beginPath(); c.moveTo(ox + 20, oy); c.lineTo(mxp, mcy); c.stroke();
     c.setLineDash([]);
-    // Arrows
-    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText('المرايا تسمح لنا برؤية ما خلفنا وخلف الزوايا!', w/2, h*0.9);
-    c.fillStyle='rgba(180,180,255,0.6)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
-    c.fillText('مثال: مرايا السيارة، مرايا المتاجر، مرايا الحلاق', w/2, h*0.95);
+    // Arrow on incoming ray
+    drawArrow(c, ox+20, oy, mxp, mcy, '#FFD700');
+
+    // Reflection: compute reflected ray using mirror normal
+    // Mirror normal vector (pointing left, perpendicular to mirror)
+    const nx = -Math.cos(mAngleRad), ny = -Math.sin(mAngleRad);
+    // Incoming direction
+    const idx2 = mxp - (ox+20), idy = mcy - oy;
+    const iLen = Math.sqrt(idx2*idx2+idy*idy);
+    const inX = idx2/iLen, inY = idy/iLen;
+    // Reflect: r = i - 2(i·n)n
+    const dot = inX*nx + inY*ny;
+    const refX = inX - 2*dot*nx;
+    const refY = inY - 2*dot*ny;
+    // Reflected ray endpoint (toward viewer area)
+    const refLen = w * 0.45;
+    const refEndX = mxp + refX * refLen;
+    const refEndY = mcy + refY * refLen;
+
+    c.strokeStyle='#FF9900'; c.lineWidth=2.5; c.setLineDash([7,4]);
+    c.beginPath(); c.moveTo(mxp, mcy); c.lineTo(refEndX, refEndY); c.stroke();
+    c.setLineDash([]);
+    drawArrow(c, mxp, mcy, refEndX, refEndY, '#FF9900');
+
+    // Normal dashed line on mirror
+    c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=1; c.setLineDash([4,4]);
+    c.beginPath(); c.moveTo(mxp - nx*40, mcy - ny*40); c.lineTo(mxp + nx*60, mcy + ny*60); c.stroke();
+    c.setLineDash([]);
+
+    // Angle label
+    const angleDeg = Math.round(Math.abs(S.mirrorAngle - 45));
+    c.fillStyle='rgba(255,220,100,0.9)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText(`زاوية المرآة: ${S.mirrorAngle.toFixed(0)}°`, w/2, h*0.1);
+    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.fillText('حرّك الماوس/إصبعك أفقياً لتغيير الزاوية', w/2, h*0.17);
+
+    // Bottom info
+    c.fillStyle='rgba(255,255,255,0.75)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('المرايا تسمح لنا برؤية ما خلفنا وخلف الزوايا!', w/2, h*0.91);
+    c.fillStyle='rgba(180,180,255,0.55)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.fillText('مثال: مرايا السيارة، مرايا المتاجر، مرايا الحلاق', w/2, h*0.96);
+
     animFrame = requestAnimationFrame(draw);
   }
+
+  function drawArrow(ctx, x1, y1, x2, y2, color) {
+    const ang = Math.atan2(y2-y1, x2-x1);
+    const mx = x1 + (x2-x1)*0.6, my = y1 + (y2-y1)*0.6;
+    ctx.fillStyle = color;
+    ctx.save(); ctx.translate(mx, my); ctx.rotate(ang);
+    ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(-5,4); ctx.lineTo(-5,-4); ctx.fill();
+    ctx.restore();
+  }
+
   draw();
 }
 
@@ -28091,13 +28190,13 @@ function simG5ReflectionCompare() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">✨ مقارنة الأسطح العاكسة</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     حرّك الماوس أفقياً لتغيير زاوية الضوء وشاهد كيف تختلف درجة انعكاسه على كل سطح
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">📊 ترتيب الأسطح (الأعلى انعكاساً)</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+  <div class="ctrl-desc">
     🥇 المرآة (٩٥٪)<br>
     🥈 الورق اللامع (٧٠٪)<br>
     🥉 القماش (٣٠٪)<br>
@@ -28188,7 +28287,7 @@ function simG5ReflectionMeasure() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">📊 قياس الانعكاس</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     انقر على الأسطح المختلفة لقياس معامل انعكاسها وقارن النتائج في الجدول
   </div>
 </div>
@@ -28202,7 +28301,6 @@ function simG5ReflectionMeasure() {
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
   const S = simState;
-  if (!S.rmInit) { S.rmInit=true; S.selected=0; }
   const data = [
     {name:'مرآة',val:95,color:'#C0C0FF'},
     {name:'ألمنيوم',val:75,color:'#C0C080'},
@@ -28210,30 +28308,70 @@ function simG5ReflectionMeasure() {
     {name:'قماش',val:20,color:'#D2A060'},
     {name:'ورق خشن',val:8,color:'#C0A080'},
   ];
+  if (!S.rmInit) {
+    S.rmInit=true; S.selected=-1;
+    const bW = cv.width*0.12, gap = cv.width*0.04, startX = cv.width*0.1, baseY = cv.height*0.75;
+    function getBar(mx, my) {
+      for (let i=0; i<data.length; i++) {
+        const bx = startX + i*(bW+gap);
+        const bH = (data[i].val/100)*cv.height*0.5;
+        if (mx>=bx && mx<=bx+bW && my>=baseY-bH && my<=baseY) return i;
+      }
+      return -1;
+    }
+    cv.style.cursor = 'pointer';
+    cv.onclick = function(e) {
+      const rect = cv.getBoundingClientRect();
+      const mx = (e.clientX-rect.left)/rect.width*cv.width;
+      const my = (e.clientY-rect.top)/rect.height*cv.height;
+      const idx = getBar(mx, my);
+      S.selected = (S.selected===idx) ? -1 : idx;
+    };
+    cv.ontouchend = function(e) {
+      e.preventDefault();
+      const rect = cv.getBoundingClientRect();
+      const t = e.changedTouches[0];
+      const mx = (t.clientX-rect.left)/rect.width*cv.width;
+      const my = (t.clientY-rect.top)/rect.height*cv.height;
+      const idx = getBar(mx, my);
+      S.selected = (S.selected===idx) ? -1 : idx;
+    };
+  }
   function draw() {
     if (currentSim !== 'g5reflection') return;
     c.fillStyle='#0d1117'; c.fillRect(0,0,w,h);
-    // Bar chart
     const bW = w*0.12, gap = w*0.04, startX = w*0.1, baseY = h*0.75;
     data.forEach((d,i)=>{
       const bH = (d.val/100)*h*0.5;
       const bx = startX + i*(bW+gap);
       const isS = i===S.selected;
       const grad = c.createLinearGradient(bx,baseY-bH,bx,baseY);
-      grad.addColorStop(0, d.color); grad.addColorStop(1, d.color+'44');
+      grad.addColorStop(0, isS ? '#fff' : d.color);
+      grad.addColorStop(1, d.color+'44');
       c.fillStyle = grad;
       c.fillRect(bx, baseY-bH, bW, bH);
-      if(isS){c.strokeStyle='#fff';c.lineWidth=2;c.strokeRect(bx,baseY-bH,bW,bH);}
+      if(isS){c.strokeStyle='#FFD700';c.lineWidth=3;c.strokeRect(bx,baseY-bH,bW,bH);}
       c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`;
-      c.textAlign='center'; c.fillText(d.name, bx+bW/2, baseY+18);
-      c.fillStyle=d.color; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`;
-      c.fillText(d.val+'%', bx+bW/2, baseY-bH-8);
+      c.textAlign='center'; c.fillText(d.name, bx+bW/2, baseY+20);
+      c.fillStyle = isS ? '#FFD700' : d.color;
+      c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`;
+      c.fillText(d.val+'%', bx+bW/2, baseY-bH-10);
     });
     // Axis
     c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=1;
-    c.beginPath(); c.moveTo(w*0.08, h*0.2); c.lineTo(w*0.08, baseY+5); c.lineTo(w*0.95, baseY+5); c.stroke();
+    c.beginPath(); c.moveTo(w*0.08, h*0.18); c.lineTo(w*0.08, baseY+5); c.lineTo(w*0.95, baseY+5); c.stroke();
     c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
     c.textAlign='center'; c.fillText('نسبة انعكاس الضوء %', w/2, h*0.12);
+    // Info panel on click
+    if (S.selected >= 0) {
+      const d = data[S.selected];
+      c.fillStyle='rgba(0,0,0,0.6)'; c.beginPath(); c.roundRect(w*0.25, h*0.08, w*0.5, h*0.08, 8); c.fill();
+      c.fillStyle='#FFD700'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
+      c.fillText(`${d.name}: ${d.val}% انعكاس`, w/2, h*0.135);
+    } else {
+      c.fillStyle='rgba(255,220,100,0.6)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
+      c.fillText('← انقر على أي عمود لعرض تفاصيله →', w/2, h*0.88);
+    }
     animFrame = requestAnimationFrame(draw);
   }
   draw();
@@ -28243,13 +28381,13 @@ function simG5LightDirection() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🎯 هندسة مسار الضوء</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     انقر على المرايا لتدويرها وحاول توجيه شعاع الضوء نحو الهدف 🎯
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">💡 تذكّر</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     الضوء ينتقل في <b>خطوط مستقيمة</b> — المرايا فقط تغيّر اتجاهه عند الانعكاس
   </div>
 </div>
@@ -28362,13 +28500,13 @@ function simG5ShadowLab() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🌑 مختبر الظلال</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     اسحب مصدر الضوء 🕯️ أو الجسم على الكانفاس وشاهد كيف يتغيّر حجم الظل واتجاهه
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">📐 متى يكبر الظل؟</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+  <div class="ctrl-desc">
     📍 عندما يقترب الجسم من المصدر<br>
     📍 عندما يبتعد الجسم عن الشاشة<br>
     📍 عندما يكون المصدر منخفضاً
@@ -28485,7 +28623,7 @@ function simG5ShadowInquiry() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">📐 استقصاء الظل</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     غيّر المسافة والزاوية وسجّل قياساتك لاكتشاف العلاقة الرياضية بين المتغيّرات
   </div>
 </div>
@@ -28554,13 +28692,13 @@ function simG5TransparentTest() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🔬 اختبار المواد والضوء</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     انقر على كل مادة لاختبارها وشاهد كمية الضوء التي تمر عبرها
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">📋 تصنيف المواد</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+  <div class="ctrl-desc">
     🟢 <b>شفاف:</b> يسمح بمرور الضوء كله (زجاج، ماء نقي)<br>
     🟡 <b>شبه شفاف:</b> يسمح بمرور بعض الضوء (ورق مشمّع، ضباب)<br>
     🔴 <b>معتم:</b> يمنع مرور الضوء (خشب، معدن، ورق)
@@ -28636,13 +28774,13 @@ function simG5Silhouette() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🎭 فنّان الظلال</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     انقر على الأشكال المختلفة لاختيارها وشاهد صورتها الظلية على الشاشة
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">💡 الصورة الظلية</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     الظل يعطي شكل الجسم المعتم فقط — لا يُظهر تفاصيل اللون أو الملمس
   </div>
 </div>
@@ -28710,13 +28848,13 @@ function simG5ShadowFactor() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">📏 المسافة والزاوية</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     اسحب مصدر الضوء أعلى/أسفل لتغيير زاوية السقوط، ويميناً/يساراً لتغيير المسافة
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">🔬 متغيّرات الاستقصاء</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+  <div class="ctrl-desc">
     📍 المسافة بين المصدر والجسم<br>
     📍 زاوية سقوط الأشعة<br>
     📍 المسافة بين الجسم والشاشة
@@ -28790,7 +28928,7 @@ function simG5ShadowFactorSize() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🔎 حجم الجسم والظل</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     غيّر حجم الجسم وشاهد تأثيره المباشر على حجم الظل
   </div>
 </div>
@@ -28839,7 +28977,7 @@ function simG5LightIntensity() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">☀️ قياس شدة الضوء</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     اسحب جهاز القياس أقرب وأبعد من المصدر وسجّل القراءات في الجدول
   </div>
 </div>
@@ -28848,7 +28986,7 @@ function simG5LightIntensity() {
   <div class="ctrl-name" style="font-size:13px;font-weight:700;color:var(--teal,#1A8FA8);text-align:center;padding:8px;background:rgba(26,143,168,0.08);border-radius:8px">
     شدة الضوء ∝ ١ / المسافة²
   </div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);margin-top:6px">
+  <div class="ctrl-desc">
     ضاعف المسافة → تصبح الشدة ربع القيمة
   </div>
 </div>
@@ -28937,13 +29075,13 @@ function simG5EarthSun() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🌍 النظام الشمسي المصغّر</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     شاهد حركة الأرض حول الشمس والقمر حول الأرض في آنٍ واحد
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">📅 حقائق المدارات</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.9">
+  <div class="ctrl-desc">
     🌍 الأرض تدور حول الشمس في <b>٣٦٥ يوماً</b><br>
     🌙 القمر يدور حول الأرض في <b>٢٩.٥ يوماً</b><br>
     🔄 الأرض تدور حول نفسها كل <b>٢٤ ساعة</b>
@@ -29025,13 +29163,13 @@ function simG5OrbitalPaths() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🔄 مسارات الكواكب</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     شاهد المسارات البيضاوية للكواكب حول الشمس ولاحظ الفرق في سرعاتها
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">💡 قانون كيبلر</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     الكوكب الأقرب من الشمس يتحرّك <b>أسرع</b> في مداره
   </div>
 </div>
@@ -29101,7 +29239,7 @@ function simG5DayNight() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🌓 الليل والنهار</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     شاهد كيف يُسبّب دوران الأرض حول محورها تعاقب الليل والنهار
   </div>
 </div>
@@ -29208,13 +29346,13 @@ function simG5Seasons() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🍂 الفصول الأربعة</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     شاهد كيف يُسبّب ميل محور الأرض تغيّر الفصول خلال دورانها حول الشمس
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">🌐 سبب الفصول في عُمان</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+  <div class="ctrl-desc">
     🌞 <b>الصيف:</b> الشمس أعلى، الأشعة أكثر تركيزاً<br>
     ❄️ <b>الشتاء:</b> الشمس أخفض، الأشعة أكثر انتشاراً<br>
     ⚠️ السبب ليس المسافة من الشمس!
@@ -29289,13 +29427,13 @@ function simG5StarMap() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">🗺️ خريطة السماء الليلية</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     انقر على أي نجم لمعرفة اسمه ومعلوماته، وحاول تعرّف الكوكبات
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">⭐ أبرز النجوم</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.9">
+  <div class="ctrl-desc">
     ⭐ <b>الشمس:</b> أقرب نجم لنا<br>
     🌟 <b>سهيل:</b> ثاني ألمع نجم في السماء<br>
     🧭 <b>النجم القطبي:</b> يشير دائماً للشمال<br>
@@ -29399,13 +29537,13 @@ function simG5StarNames() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">✨ أسماء النجوم</div>
-  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+  <div class="ctrl-desc">
     انقر على كل نجم لاكتشاف اسمه العربي الأصيل وموقعه في السماء
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">🌍 النجوم في التراث العُماني</div>
-  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+  <div class="ctrl-desc">
     كان البحّارة العُمانيون يستخدمون النجوم للملاحة في المحيط الهندي منذ آلاف السنين — "علم الأنواء" تراث عُماني أصيل
   </div>
 </div>
