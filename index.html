@@ -1853,6 +1853,16 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
         </svg>
         <span class="dm-label">داكن</span>
       </button>
+      <button onclick="(async()=>{ if(_db) await _db.auth.signOut(); location.reload(); })()"
+        title="تسجيل الخروج"
+        style="background:transparent;border:1.5px solid rgba(0,0,0,0.12);border-radius:10px;
+          padding:7px 14px;font-family:Tajawal;font-size:13px;font-weight:600;
+          color:var(--hero-desc-color,#5A6A7A);cursor:pointer;
+          transition:border-color 0.15s,color 0.15s;"
+        onmouseover="this.style.borderColor='#C0392B';this.style.color='#C0392B'"
+        onmouseout="this.style.borderColor='rgba(0,0,0,0.12)';this.style.color='var(--hero-desc-color,#5A6A7A)'">
+        ↩ تسجيل الخروج
+      </button>
       <button class="nav-btn" onclick="openApp()">ابدأ الآن ←</button>
     </div>
   </nav>
@@ -2232,21 +2242,20 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
     <button class="topbar-home" onclick="goHomePicker()">⬅ الرئيسية</button>
   </div>
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px">
-    <div class="panel-title" style="text-align:center;margin-bottom:6px">اختاري صفّك</div>
-    <div class="panel-sub" style="text-align:center;margin-bottom:32px">للوصول إلى استقصاءاتكِ التفاعلية</div>
+    <div class="panel-title" style="text-align:center;margin-bottom:6px">اختر صفّك</div>
+    <div class="panel-sub" style="text-align:center;margin-bottom:32px">للوصول إلى استقصاءاتك التفاعلية</div>
     <div style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px">
 
       <button onclick="pickGrade(5)" style="width:100%;padding:22px 28px;border-radius:16px;
-        border:2px solid rgba(107,78,154,0.2);background:linear-gradient(135deg,rgba(107,78,154,0.06),rgba(107,78,154,0.02));
+        border:2px solid rgba(0,0,0,0.08);background:var(--bg-card,#fff);
         font-family:Tajawal;font-size:20px;font-weight:700;color:var(--text-heading,#1A2330);
         cursor:pointer;text-align:right;display:flex;align-items:center;gap:14px;
-        box-shadow:0 2px 8px rgba(107,78,154,0.1);transition:box-shadow 0.2s,transform 0.2s"
-        onmouseover="this.style.boxShadow='0 6px 20px rgba(107,78,154,0.2)';this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(107,78,154,0.1)';this.style.transform=''">
+        box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s,transform 0.2s"
+        onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';this.style.transform=''">
         <span style="font-size:30px">🔭</span>
         <span>الصف الخامس</span>
         <span style="margin-right:auto;font-size:13px;color:#888;font-weight:400">١٣ استقصاء</span>
-        <span style="font-size:11px;background:rgba(107,78,154,0.12);color:#6B4E9A;padding:3px 8px;border-radius:20px;font-weight:700">جديد ✨</span>
       </button>
 
       <button onclick="pickGrade(6)" style="width:100%;padding:22px 28px;border-radius:16px;
