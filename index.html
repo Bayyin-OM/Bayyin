@@ -28620,69 +28620,208 @@ function simG5ShadowLab() {
 }
 
 function simG5ShadowInquiry() {
+  // ── لوحة التحكم ──
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
   <div class="ctrl-label">📐 استقصاء الظل</div>
-  <div class="ctrl-desc">
-    غيّر المسافة والزاوية وسجّل قياساتك لاكتشاف العلاقة الرياضية بين المتغيّرات
+  <div class="ctrl-desc">اضغط على أزرار المسافة لتحريك الجسم وشاهد كيف يتغيّر طول الظل</div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📏 اختر المسافة عن المصدر</div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px">
+    ${[10,20,30,40,50].map(d=>`
+    <button id="si-btn-${d}" onclick="window._siSetDist(${d})"
+      style="padding:10px 4px;border-radius:10px;border:2px solid rgba(26,143,168,0.4);
+      background:rgba(26,143,168,0.1);color:#4DC4E0;font-family:Tajawal;font-size:15px;
+      font-weight:700;cursor:pointer;transition:all .18s">${d}<br>
+      <span style="font-size:10px;font-weight:400">سم</span></button>`).join('')}
+  </div>
+</div>
+<div class="ctrl-section" style="padding:10px 12px;background:rgba(255,215,0,0.07);border-radius:10px;border:1px solid rgba(255,215,0,0.2)">
+  <div class="ctrl-label" style="color:#FFD700">📊 القياسات المسجّلة</div>
+  <div id="si-table" style="margin-top:6px;font-family:Tajawal;font-size:13px;color:rgba(255,255,255,0.75)">
+    لم يُسجَّل شيء بعد — جرّب المسافات المختلفة
   </div>
 </div>
 <div class="q-box">
   <strong>❓ تساؤل الاستقصاء:</strong><br>
-  ما العلاقة بين المسافة من المصدر وطول الظل؟
+  ما العلاقة بين المسافة عن المصدر وطول الظل؟
   <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-  <div class="q-ans-panel">علاقة طردية — كلما ابتعد الجسم عن المصدر (أو اقترب من الشاشة) زاد طول الظل. وكلما اقترب من المصدر قلّ طول الظل.</div>
+  <div class="q-ans-panel">علاقة عكسية — كلما زادت المسافة عن المصدر قلّ طول الظل، وكلما قلّت المسافة زاد طول الظل.</div>
 </div>`;
-  // Simplified inquiry: show table of measurements
+
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
   const S=simState;
-  if(!S.siInit){S.siInit=true; S.t=0;}
+
+  if(!S.siInit){
+    S.siInit=true;
+    S.siDist=20;      // المسافة الحالية (سم)
+    S.siRecorded={};  // القياسات المسجّلة
+    S.siAnim=0;
+    S.siPrevDist=20;
+    S.siTransition=1; // 0..1
+  }
+
+  // دالة عامة لتغيير المسافة
+  window._siSetDist=function(d){
+    if(S.siDist===d) return;
+    S.siPrevDist=S.siDist;
+    S.siDist=d;
+    S.siTransition=0;
+    // تسجيل القياس
+    const shadow=Math.round(400/d);
+    S.siRecorded[d]=shadow;
+    // تحديث أزرار التحكم
+    [10,20,30,40,50].forEach(v=>{
+      const btn=document.getElementById('si-btn-'+v);
+      if(!btn) return;
+      const active=(v===d);
+      btn.style.background=active?'rgba(26,143,168,0.45)':'rgba(26,143,168,0.1)';
+      btn.style.borderColor=active?'#4DC4E0':'rgba(26,143,168,0.4)';
+      btn.style.color=active?'#fff':'#4DC4E0';
+      btn.style.transform=active?'scale(1.08)':'scale(1)';
+    });
+    // تحديث جدول القياسات
+    const recorded=Object.keys(S.siRecorded).sort((a,b)=>a-b);
+    const tableEl=document.getElementById('si-table');
+    if(tableEl){
+      if(recorded.length===0){
+        tableEl.innerHTML='لم يُسجَّل شيء بعد — جرّب المسافات المختلفة';
+      } else {
+        tableEl.innerHTML=`<table style="width:100%;border-collapse:collapse;text-align:center">
+          <tr style="color:#4DC4E0;border-bottom:1px solid rgba(255,255,255,0.15)">
+            <td style="padding:4px 2px">المسافة (سم)</td>
+            ${recorded.map(v=>`<td style="padding:4px 2px">${v}</td>`).join('')}
+          </tr>
+          <tr>
+            <td style="padding:4px 2px;color:#FFD700">طول الظل (سم)</td>
+            ${recorded.map(v=>`<td style="padding:4px 2px;color:#FFD700;font-weight:700">${S.siRecorded[v]}</td>`).join('')}
+          </tr>
+        </table>
+        ${recorded.length>=3?'<div style="margin-top:6px;color:#90EE90;font-size:12px">💡 لاحظ: كلما زادت المسافة كلما قلّ الظل!</div>':''}`;
+      }
+    }
+    try{playTick&&playTick();}catch(e){}
+  };
+
+  // تفعيل أول زر
+  if(!S.siRecorded[S.siDist]) window._siSetDist(S.siDist);
+
   function draw(){
     if(currentSim!=='g5shadowsize') return;
-    S.t+=0.01;
-    c.fillStyle='#0d1117'; c.fillRect(0,0,w,h);
-    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
-    c.fillText('استقصاء: كيف تؤثر المسافة على حجم الظل؟', w/2, h*0.1);
-    // Table
-    const rows=[
-      ['المسافة (سم)','10','20','30','40','50'],
-      ['طول الظل (سم)','40','20','13','10','8'],
-    ];
-    const cols=rows[0].length;
-    const cW=w*0.85/cols, cH=h*0.1, tX=w*0.075, tY=h*0.2;
-    rows.forEach((row,ri)=>{
-      row.forEach((cell,ci)=>{
-        c.fillStyle = ri===0 ? 'rgba(26,143,168,0.3)' : (ci===0 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)');
-        c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1;
-        c.fillRect(tX+ci*cW, tY+ri*cH, cW, cH);
-        c.strokeRect(tX+ci*cW, tY+ri*cH, cW, cH);
-        c.fillStyle = ri===0 ? '#4DC4E0' : '#fff';
-        c.font=`${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
-        c.fillText(cell, tX+ci*cW+cW/2, tY+ri*cH+cH*0.62);
-      });
-    });
-    // Mini chart
-    const data=[40,20,13,10,8];
-    const chartX=tX, chartY=h*0.5, chartW=w*0.85, chartH=h*0.3;
-    c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1;
-    c.beginPath(); c.moveTo(chartX,chartY); c.lineTo(chartX,chartY+chartH); c.lineTo(chartX+chartW,chartY+chartH); c.stroke();
-    c.strokeStyle='#4DC4E0'; c.lineWidth=2.5;
-    c.beginPath();
-    data.forEach((v,i)=>{
-      const bx=chartX+(i+0.5)*(chartW/data.length);
-      const by=chartY+chartH-(v/45)*chartH;
-      i===0?c.moveTo(bx,by):c.lineTo(bx,by);
-      c.fillStyle='#4DC4E0'; c.beginPath(); c.arc(bx,by,4,0,Math.PI*2); c.fill();
-    });
+    S.siAnim++;
+    if(S.siTransition<1) S.siTransition=Math.min(1,S.siTransition+0.06);
+
+    // ── الحساب ──
+    const dist=S.siDist;
+    const prevDist=S.siPrevDist;
+    const t=S.siTransition;
+    const easedDist=prevDist+(dist-prevDist)*t;
+
+    // موضع المصباح ثابت على اليمين (الكنفاس RTL مقلوب فعلياً)
+    const lightX=w*0.1,  lightY=h*0.22;
+    const wallX=w*0.92;
+
+    // موضع الجسم بناءً على المسافة (10سم=قريب، 50سم=بعيد)
+    const objX=lightX + (wallX-lightX)*((easedDist-10)/(50-10))*0.65 + (wallX-lightX)*0.12;
+    const objY=h*0.52;
+    const objR=w*0.032;
+
+    // طول الظل المحسوب
+    const shadowLen=Math.round(400/dist);
+    const shadowLenPx=(shadowLen/50)*(wallX-objX)*0.9;
+
+    // ── الرسم ──
+    // خلفية
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0a0d18'); bg.addColorStop(1,'#111520');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // الأرض
+    c.fillStyle='rgba(255,255,255,0.06)';
+    c.fillRect(0,h*0.58,w,h*0.42);
+    c.strokeStyle='rgba(255,255,255,0.12)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(0,h*0.58); c.lineTo(w,h*0.58); c.stroke();
+
+    // الحائط (الشاشة)
+    c.fillStyle='rgba(255,255,255,0.08)';
+    c.fillRect(wallX,h*0.1,w*0.03,h*0.7);
+    c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(wallX,h*0.1); c.lineTo(wallX,h*0.8); c.stroke();
+    c.fillStyle='rgba(255,255,255,0.5)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`; c.textAlign='center';
+    c.fillText('الحائط', wallX+w*0.025, h*0.88);
+
+    // أشعة الضوء
+    c.strokeStyle='rgba(255,240,100,0.12)'; c.lineWidth=1;
+    for(let r=-2;r<=2;r++){
+      c.beginPath();
+      c.moveTo(lightX, lightY+r*8);
+      c.lineTo(wallX, lightY+r*25);
+      c.stroke();
+    }
+    // أشعة الضوء الرئيسية (تحدّد الظل)
+    c.strokeStyle='rgba(255,240,100,0.35)'; c.lineWidth=1.2; c.setLineDash([4,4]);
+    c.beginPath(); c.moveTo(lightX,lightY); c.lineTo(objX-objR*1.1, objY-objR); c.lineTo(wallX, h*0.58-shadowLenPx*0.5); c.stroke();
+    c.beginPath(); c.moveTo(lightX,lightY); c.lineTo(objX+objR*0.8, objY+objR); c.lineTo(wallX, h*0.58); c.stroke();
+    c.setLineDash([]);
+
+    // ظل الجسم على الأرض
+    const shGrad=c.createRadialGradient(objX+shadowLenPx*0.4, h*0.58, 0, objX+shadowLenPx*0.4, h*0.58, shadowLenPx*0.6);
+    shGrad.addColorStop(0,'rgba(0,0,0,0.7)');
+    shGrad.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=shGrad;
+    c.beginPath(); c.ellipse(objX+shadowLenPx*0.4, h*0.585, shadowLenPx*0.55, h*0.03, 0, 0, Math.PI*2); c.fill();
+
+    // سهم يوضح طول الظل
+    const arrowY=h*0.65;
+    c.strokeStyle='#FFD700'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(objX, arrowY); c.lineTo(objX+shadowLenPx, arrowY); c.stroke();
+    // رأسا السهم
+    c.fillStyle='#FFD700';
+    c.beginPath(); c.moveTo(objX,arrowY-5); c.lineTo(objX,arrowY+5); c.lineTo(objX-8,arrowY); c.fill();
+    c.beginPath(); c.moveTo(objX+shadowLenPx,arrowY-5); c.lineTo(objX+shadowLenPx,arrowY+5); c.lineTo(objX+shadowLenPx+8,arrowY); c.fill();
+    // قيمة طول الظل
+    c.fillStyle='#FFD700'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText(`${shadowLen} سم`, objX+shadowLenPx/2, arrowY-10);
+
+    // الجسم (كرة)
+    const gObj=c.createRadialGradient(objX-objR*0.3,objY-objR*0.3,0,objX,objY,objR);
+    gObj.addColorStop(0,'#9B72E0'); gObj.addColorStop(1,'#5B2E9A');
+    c.fillStyle=gObj;
+    c.beginPath(); c.arc(objX,objY,objR,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(180,140,255,0.6)'; c.lineWidth=1.5;
     c.stroke();
-    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('المسافة عن المصدر (سم) →', chartX+chartW/2, chartY+chartH+20);
-    c.save(); c.translate(chartX-16, chartY+chartH/2); c.rotate(-Math.PI/2);
-    c.fillText('طول الظل (سم)', 0, 0); c.restore();
-    c.fillStyle='rgba(255,220,100,0.85)'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
-    c.fillText('الاستنتاج: كلما زادت المسافة عن المصدر، قلّ حجم الظل', w/2, h*0.88);
+
+    // المصباح
+    const gLight=c.createRadialGradient(lightX,lightY,0,lightX,lightY,w*0.07);
+    gLight.addColorStop(0,'rgba(255,240,80,0.95)'); gLight.addColorStop(1,'rgba(255,200,0,0)');
+    c.fillStyle=gLight; c.beginPath(); c.arc(lightX,lightY,w*0.07,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE040'; c.beginPath(); c.arc(lightX,lightY,w*0.022,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`; c.textAlign='center';
+    c.fillText('المصدر', lightX, lightY+w*0.04);
+
+    // مؤشر المسافة (سهم أفقي بين المصدر والجسم)
+    const midY=h*0.76;
+    c.strokeStyle='#4DC4E0'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(lightX,midY); c.lineTo(objX,midY); c.stroke();
+    c.fillStyle='#4DC4E0';
+    c.beginPath(); c.moveTo(lightX,midY-4); c.lineTo(lightX,midY+4); c.lineTo(lightX-7,midY); c.fill();
+    c.beginPath(); c.moveTo(objX,midY-4); c.lineTo(objX,midY+4); c.lineTo(objX+7,midY); c.fill();
+    c.fillStyle='#4DC4E0'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
+    c.fillText(`المسافة: ${dist} سم`, (lightX+objX)/2, midY-8);
+
+    // صندوق المعلومات (أعلى يمين)
+    c.fillStyle='rgba(0,0,0,0.55)'; c.strokeStyle='rgba(26,143,168,0.4)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.3,h*0.04,w*0.38,h*0.14,8); c.fill(); c.stroke();
+    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText(`المسافة: ${dist} سم  →  الظل: ${shadowLen} سم`, w*0.49, h*0.12);
+    // عدد القياسات
+    const nRec=Object.keys(S.siRecorded).length;
+    c.fillStyle='rgba(255,215,0,0.7)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`;
+    c.fillText(`✅ سجّلت ${nRec} من 5 قياسات`, w*0.49, h*0.175);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
