@@ -22211,8 +22211,9 @@ try {
 
   _db = window.supabase.createClient(_SUPA_URL, _SUPA_KEY, {
     auth: {
-      persistSession: false,
-      autoRefreshToken: false
+      persistSession: true,
+      autoRefreshToken: true,
+      storage: window.sessionStorage
     }
   });
 } catch(e) {
