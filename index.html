@@ -278,6 +278,15 @@ html.dark-mode .land-bg {
     radial-gradient(ellipse 60% 50% at 80% 60%, rgba(212,144,26,0.07) 0%, transparent 55%),
     radial-gradient(ellipse 50% 40% at 50% 100%, rgba(192,57,43,0.06) 0%, transparent 50%);
 }
+html.dark-mode #landing {
+  background: linear-gradient(
+    to bottom,
+    #0F1419 0%,
+    #111820 50%,
+    #141C20 80%,
+    #1A2010 100%
+  );
+}
 html.dark-mode .stars { opacity: var(--stars-opacity); filter: invert(1); }
 html.dark-mode .topbar {
   background: var(--bg-topbar);
@@ -452,8 +461,16 @@ body.app-mode { overflow: hidden; }
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  /* خلفية بيضاء دافئة — لون واحد نظيف */
-  background: #F8F5F0;
+  /* تدرج سلس من الأعلى إلى لون الصحراء في الأسفل */
+  background: linear-gradient(
+    to bottom,
+    #F8F5F0 0%,
+    #F5EFE6 40%,
+    #F0E5D0 65%,
+    #EADCBC 80%,
+    #E2D0A0 92%,
+    #FBECD5 100%
+  );
 }
 .land-bg {
   position: absolute; inset: 0;
@@ -643,6 +660,9 @@ body.app-mode { overflow: hidden; }
 .omani-scene {
   position: relative; z-index: 2;
   margin-top: auto;
+  /* إزالة أي فراغ بين الهيرو والصحراء */
+  margin-bottom: 0;
+  line-height: 0;
 }
 
 @keyframes fadeDown { from { opacity:0; transform: translateY(-16px); } to { opacity:1; transform: none; } }
@@ -2152,9 +2172,11 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   <div class="omani-scene" id="px-scene">
     <svg viewBox="0 0 1440 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:220px;display:block">
       <defs>
-        <!-- Sky gradient -->
+        <!-- Sky gradient — يتناغم مع خلفية الهيرو -->
         <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#FBECD5"/>
+          <stop offset="0%"   stop-color="#E2D0A0"/>
+          <stop offset="35%"  stop-color="#EADCBC"/>
+          <stop offset="70%"  stop-color="#F0E0B8"/>
           <stop offset="100%" stop-color="#F5DFB8"/>
         </linearGradient>
         <!-- Sand dunes -->
@@ -2358,75 +2380,117 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
       </g>
 
       <!-- ═══ CAMEL (الجمل) ═══ -->
-      <g transform="translate(630, 118)">
-        <!-- Shadow -->
-        <ellipse cx="20" cy="82" rx="62" ry="7" fill="rgba(0,0,0,0.15)"/>
+      <g transform="translate(620, 88)">
+        <!-- Shadow on sand -->
+        <ellipse cx="45" cy="118" rx="70" ry="8" fill="rgba(0,0,0,0.13)"/>
 
-        <!-- Tail -->
-        <path d="M-42,28 C-52,24 -58,18 -55,10 C-52,4 -48,8 -46,14" stroke="#A87830" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <path d="M-55,10 C-60,6 -62,2 -58,-2" stroke="#A87830" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- === BACK LEGS (far pair — slightly darker) === -->
+        <!-- Back-far leg upper -->
+        <path d="M-8,72 C-10,82 -12,92 -13,102 C-13,108 -10,110 -7,110 C-4,110 -2,108 -1,102 C0,92 0,82 0,72Z" fill="#9A6E28"/>
+        <!-- Back-far leg lower (slight bend at knee) -->
+        <path d="M-13,102 C-14,108 -15,112 -14,118 C-14,120 -10,121 -7,120 C-4,119 -3,116 -2,110 C-1,104 -1,102 -1,102Z" fill="#8A6020"/>
 
-        <!-- Back leg (far, slightly behind) -->
-        <path d="M-20,42 C-20,55 -22,65 -24,75 C-24,80 -20,82 -18,82 C-16,82 -14,80 -14,75 C-14,65 -14,55 -12,42Z" fill="#9A7028"/>
-        <!-- Front leg (far) -->
-        <path d="M14,42 C14,55 12,65 10,75 C10,80 14,82 16,82 C18,82 20,80 20,75 C20,65 22,55 24,42Z" fill="#9A7028"/>
+        <!-- Front-far leg upper -->
+        <path d="M42,65 C41,76 40,87 39,98 C39,104 42,106 45,106 C48,106 50,104 50,98 C50,87 50,76 50,65Z" fill="#9A6E28"/>
+        <!-- Front-far leg lower -->
+        <path d="M39,98 C38,105 37,110 38,116 C38,119 42,120 45,120 C48,120 50,118 50,114 C51,108 50,104 50,98Z" fill="#8A6020"/>
 
-        <!-- Main body -->
-        <path d="M-42,42 C-45,30 -42,18 -35,14 C-28,10 -18,8 -5,10 C8,12 18,8 25,5 C32,2 40,5 44,14 C48,23 46,35 42,42 C38,50 28,55 10,56 C-8,57 -30,55 -42,42Z" fill="url(#camelGrad)"/>
-
-        <!-- Hump (سنام) — single prominent hump -->
-        <path d="M-5,10 C-8,-5 -2,-22 8,-28 C18,-34 28,-30 32,-18 C36,-8 34,2 25,8 C18,12 8,12 -5,10Z" fill="#C09040"/>
-        <!-- Hump highlight -->
-        <path d="M2,-20 C6,-26 14,-28 20,-22" stroke="rgba(255,255,255,0.2)" stroke-width="3" fill="none" stroke-linecap="round"/>
-
+        <!-- === MAIN BODY === -->
+        <!-- Body base shape — large rounded rectangle slightly narrower at front -->
+        <path d="M-18,48 C-28,42 -32,30 -28,18 C-24,8 -12,4 0,6 C12,8 22,4 32,0 C42,-4 54,-2 60,8 C66,18 64,32 58,44 C52,56 38,64 20,66 C4,68 -8,54 -18,48Z" fill="url(#camelGrad)"/>
         <!-- Belly shading -->
-        <path d="M-40,42 C-35,52 -15,58 10,57 C28,56 40,50 42,42" fill="rgba(0,0,0,0.1)"/>
+        <path d="M-18,48 C-12,60 4,68 20,66 C36,64 50,56 58,44" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="8" stroke-linecap="round"/>
+        <!-- Body highlight (top edge) -->
+        <path d="M-24,20 C-18,10 -6,6 6,7" stroke="rgba(255,255,255,0.2)" stroke-width="4" fill="none" stroke-linecap="round"/>
 
-        <!-- Front legs (near) -->
-        <path d="M24,48 C26,60 28,68 28,76 C28,80 32,82 34,82 C36,82 38,80 38,76 C38,68 36,60 34,48Z" fill="#B88838"/>
-        <!-- Back leg (near) -->
-        <path d="M-30,44 C-28,56 -26,66 -26,74 C-26,80 -22,82 -20,82 C-18,82 -16,80 -16,74 C-16,66 -14,56 -12,44Z" fill="#B88838"/>
+        <!-- === HUMP (سنام واحد بارز) === -->
+        <path d="M8,6 C4,-12 8,-30 18,-38 C28,-46 40,-44 46,-34 C52,-24 50,-10 44,2 C38,10 28,14 18,12 C12,10 8,8 8,6Z" fill="#C49040"/>
+        <!-- Hump shading side -->
+        <path d="M44,2 C48,-8 48,-22 44,-34" stroke="rgba(0,0,0,0.1)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <!-- Hump highlight -->
+        <path d="M12,-28 C18,-38 28,-42 36,-36" stroke="rgba(255,255,255,0.22)" stroke-width="3" fill="none" stroke-linecap="round"/>
 
-        <!-- Neck — gracefully curved -->
-        <path d="M38,14 C44,4 46,-8 44,-22 C42,-34 38,-40 36,-44" stroke="#C09040" stroke-width="20" fill="none" stroke-linecap="round"/>
-        <!-- Neck shading -->
-        <path d="M40,14 C46,4 48,-8 46,-22 C44,-34 40,-40 38,-44" stroke="rgba(0,0,0,0.12)" stroke-width="8" fill="none" stroke-linecap="round"/>
-        <!-- Neck highlight -->
-        <path d="M36,10 C40,2 42,-10 40,-24" stroke="rgba(255,255,255,0.15)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- === SADDLE (برذعة) on hump base === -->
+        <path d="M4,8 C4,0 6,-6 10,-10 C14,-14 22,-16 28,-12 C34,-8 36,-2 34,4 C28,8 18,10 10,10Z" fill="#8B2818" opacity="0.8"/>
+        <path d="M6,6 C6,0 8,-4 12,-8 C16,-12 22,-13 26,-10" fill="none" stroke="rgba(255,200,80,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Saddle tassels -->
+        <line x1="6" y1="8" x2="4" y2="16" stroke="#C09030" stroke-width="1.5" opacity="0.7"/>
+        <line x1="32" y1="6" x2="34" y2="14" stroke="#C09030" stroke-width="1.5" opacity="0.7"/>
 
-        <!-- Head -->
-        <ellipse cx="34" cy="-50" rx="17" ry="12" fill="#C09040" transform="rotate(-15,34,-50)"/>
+        <!-- === NECK (رقبة) — smooth S-curve === -->
+        <!-- Neck base (thick) blending into body -->
+        <path d="M52,10 C58,2 62,-8 62,-20 C62,-32 60,-40 58,-48" stroke="#C09040" stroke-width="22" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Neck left shading -->
+        <path d="M50,10 C56,2 60,-8 60,-20 C60,-32 58,-40 56,-48" stroke="rgba(0,0,0,0.10)" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <!-- Neck right highlight -->
+        <path d="M56,8 C62,0 64,-12 63,-24 C62,-34 60,-42 59,-48" stroke="rgba(255,255,255,0.15)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- Throat/dewlap -->
+        <path d="M54,4 C58,-4 60,-16 58,-28" stroke="#B07828" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.5"/>
+
+        <!-- === HEAD === -->
+        <!-- Head main shape — elongated, slightly downward-tilted -->
+        <ellipse cx="56" cy="-56" rx="20" ry="13" fill="#C09040" transform="rotate(-20,56,-56)"/>
+        <!-- Head shading (lower half) -->
+        <ellipse cx="57" cy="-51" rx="18" ry="8" fill="rgba(0,0,0,0.1)" transform="rotate(-20,57,-51)"/>
         <!-- Head highlight -->
-        <path d="M28,-58 C32,-62 40,-60 42,-55" stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M44,-64 C50,-70 60,-68 64,-62" stroke="rgba(255,255,255,0.2)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
 
-        <!-- Muzzle / snout -->
-        <path d="M44,-46 C50,-44 54,-40 52,-34 C50,-30 44,-30 40,-34" fill="#D4A850"/>
+        <!-- === MUZZLE/SNOUT (خطم) === -->
+        <path d="M66,-50 C74,-47 78,-42 76,-36 C74,-30 68,-28 63,-32 C60,-36 60,-44 64,-48Z" fill="#D4A850"/>
+        <!-- Muzzle lower lip -->
+        <path d="M62,-32 C64,-28 68,-26 72,-28" stroke="#B08030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
         <!-- Nostril -->
-        <ellipse cx="50" cy="-38" rx="3" ry="2" fill="rgba(0,0,0,0.35)" transform="rotate(-10,50,-38)"/>
+        <ellipse cx="73" cy="-38" rx="3.5" ry="2.2" fill="rgba(80,40,0,0.5)" transform="rotate(-15,73,-38)"/>
+        <!-- Nostril inner -->
+        <ellipse cx="73" cy="-38" rx="2" ry="1.2" fill="rgba(0,0,0,0.4)" transform="rotate(-15,73,-38)"/>
 
-        <!-- Ear -->
-        <path d="M24,-58 C20,-66 22,-72 28,-70 C30,-64 28,-58 24,-58Z" fill="#B88838"/>
+        <!-- === EAR === -->
+        <path d="M42,-67 C38,-76 40,-84 46,-82 C50,-76 48,-67 44,-67Z" fill="#B88838"/>
         <!-- Ear inner -->
-        <path d="M25,-60 C22,-66 24,-70 27,-68 C28,-64 26,-60 25,-60Z" fill="rgba(255,200,150,0.4)"/>
+        <path d="M43,-68 C40,-75 42,-81 46,-79 C48,-74 46,-68 44,-68Z" fill="rgba(220,160,100,0.5)"/>
 
-        <!-- Eye -->
-        <ellipse cx="30" cy="-54" rx="4" ry="3" fill="rgba(0,0,0,0.75)" transform="rotate(-15,30,-54)"/>
-        <circle cx="29" cy="-55" r="1.2" fill="rgba(255,255,255,0.6)"/>
+        <!-- === EYE === -->
+        <ellipse cx="48" cy="-62" rx="5" ry="4" fill="rgba(20,10,0,0.85)" transform="rotate(-20,48,-62)"/>
+        <!-- Eye white -->
+        <ellipse cx="47" cy="-63" rx="2" ry="1.5" fill="rgba(255,255,255,0.7)" transform="rotate(-20,47,-63)"/>
+        <!-- Eye shine -->
+        <circle cx="46" cy="-64" r="1.3" fill="rgba(255,255,255,0.9)"/>
 
-        <!-- Eyelash -->
-        <path d="M27,-57 C25,-60 24,-63 26,-64" stroke="rgba(0,0,0,0.5)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        <path d="M30,-58 C29,-61 29,-64 31,-65" stroke="rgba(0,0,0,0.5)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- === EYELASHES (رموش طويلة — ميزة الجمل) === -->
+        <path d="M44,-66 C42,-70 40,-74 42,-76" stroke="rgba(30,10,0,0.7)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M47,-67 C46,-71 45,-75 47,-77" stroke="rgba(30,10,0,0.7)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <path d="M50,-66 C50,-70 50,-74 52,-75" stroke="rgba(30,10,0,0.6)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
 
-        <!-- Lip / chin tuft -->
-        <path d="M40,-34 C43,-30 42,-26 40,-24" stroke="#A87828" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- === FRONT LEGS (near pair — lighter/warmer) === -->
+        <!-- Front-near leg upper -->
+        <path d="M50,60 C50,72 50,84 50,96 C50,102 53,104 56,104 C59,104 61,102 61,96 C62,84 62,72 62,60Z" fill="#C09040"/>
+        <!-- Front-near knee joint -->
+        <ellipse cx="56" cy="96" rx="6" ry="5" fill="#B08030"/>
+        <!-- Front-near leg lower -->
+        <path d="M50,96 C49,104 48,110 49,118 C49,121 53,122 56,122 C59,122 61,120 62,116 C63,110 62,104 61,96Z" fill="#A87028"/>
+        <!-- Front-near hoof -->
+        <ellipse cx="55" cy="120" rx="8" ry="4" fill="#7A5018"/>
 
-        <!-- Saddle / blanket (برذعة) -->
-        <path d="M-2,10 C-5,2 -4,-4 0,-8 C4,-12 10,-13 14,-10 C18,-7 18,-1 16,6 C10,10 4,12 -2,10Z" fill="#8B3018" opacity="0.75"/>
-        <path d="M-1,8 C-3,2 -2,-3 1,-6 C5,-9 9,-10 13,-7 C16,-5 16,-1 14,5" fill="none" stroke="rgba(255,200,100,0.5)" stroke-width="2"/>
+        <!-- Back-near leg upper -->
+        <path d="M-4,68 C-4,80 -4,92 -4,104 C-4,110 -1,112 2,112 C5,112 8,110 8,104 C8,92 8,80 6,68Z" fill="#C09040"/>
+        <!-- Back-near knee -->
+        <ellipse cx="2" cy="104" rx="6" ry="5" fill="#B08030"/>
+        <!-- Back-near leg lower -->
+        <path d="M-4,104 C-5,112 -5,116 -4,122 C-4,125 -1,126 2,126 C5,126 8,124 9,120 C10,114 8,110 8,104Z" fill="#A87028"/>
+        <!-- Back-near hoof -->
+        <ellipse cx="2" cy="124" rx="8" ry="4" fill="#7A5018"/>
 
-        <!-- Rope / bridle (خطام) -->
-        <path d="M44,-44 C50,-46 56,-50 58,-56" stroke="#8B5A20" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M44,-46 C48,-52 50,-56 48,-60" stroke="#8B5A20" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- === TAIL (ذيل) === -->
+        <path d="M-26,40 C-36,34 -44,26 -42,16 C-40,8 -34,10 -32,18" stroke="#A87830" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <!-- Tail tuft -->
+        <path d="M-42,16 C-48,10 -52,5 -48,0" stroke="#A87830" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M-42,16 C-50,14 -56,12 -54,6" stroke="#907020" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+        <!-- === BRIDLE/ROPE (خطام) === -->
+        <path d="M66,-46 C74,-50 80,-54 82,-60" stroke="#7A4A18" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M67,-50 C72,-58 73,-64 70,-68" stroke="#7A4A18" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- Rope ring at nose -->
+        <circle cx="74" cy="-46" r="3" fill="none" stroke="#9A6020" stroke-width="2"/>
       </g>
 
       <!-- ═══ SAND DUNES ═══ -->
