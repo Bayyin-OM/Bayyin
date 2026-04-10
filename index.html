@@ -27602,6 +27602,28 @@ function sound_oscilloscope2(){
 // ══════════════════════════════════════════════════
 
 function simG5LightTravel() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">💡 الضوء والرؤية</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    اسحب مصدر الضوء 🟡 حول الشاشة وشاهد كيف تصل الأشعة للأجسام ثم تنعكس نحو العين 👁️
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📖 ماذا تعلّمنا؟</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.7">
+    ① الضوء يصدر من <b>مصدر الضوء</b><br>
+    ② يصطدم بالجسم فينعكس<br>
+    ③ ينتقل الضوء المنعكس إلى عيننا فنرى
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٤):</strong><br>
+  ١- لماذا لا نرى الأجسام في الظلام التام؟<br>
+  ٢- ما الفرق بين الجسم المضيء والجسم المرئي؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">١- لأنه لا يوجد ضوء ينعكس من الأجسام إلى عيوننا.<br>٢- الجسم المضيء ينتج ضوءه بنفسه (كالشمس)، بينما الجسم المرئي يعكس ضوءاً يصله من مصدر آخر.</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -27717,6 +27739,27 @@ function simG5LightTravel() {
 }
 
 function simG5HowWeSee() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">👁️ كيف نرى الأشياء؟</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.7">
+    شاهد الرسم المتحرّك الذي يوضّح المراحل الثلاث لعملية الرؤية
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">🔢 مراحل الرؤية</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.8">
+    ① مصدر الضوء يُصدر الضوء<br>
+    ② الضوء يصطدم بالجسم وينعكس<br>
+    ③ الضوء المنعكس يدخل العين
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ فكّر:</strong><br>
+  هل يمكننا رؤية الأجسام الشفافة؟ لماذا؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">نعم، الأجسام الشفافة تسمح بمرور الضوء وتعكس جزءاً منه — لذا نستطيع رؤيتها ولو بشكل خافت.</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -27771,6 +27814,26 @@ function simG5HowWeSee() {
 }
 
 function simG5MirrorFlat() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🪞 المرآة المستوية</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    حرّك الماوس/إصبعك <b>للأعلى والأسفل</b> على الكانفاس لتغيير زاوية السقوط وشاهد كيف تتغيّر زاوية الانعكاس
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📐 قانون الانعكاس</div>
+  <div class="ctrl-name" style="font-size:15px;font-weight:700;color:var(--teal,#1A8FA8);text-align:center;padding:8px;background:rgba(26,143,168,0.08);border-radius:8px">
+    زاوية السقوط = زاوية الانعكاس
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٤ · د٢):</strong><br>
+  ١- ما العمود العادي؟<br>
+  ٢- ماذا يحدث لزاوية الانعكاس لو زدنا زاوية السقوط؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">١- الخط الوهمي العمودي على سطح المرآة عند نقطة السقوط — تُقاس الزوايا منه.<br>٢- تزداد زاوية الانعكاس بنفس المقدار، دائماً متساويتان.</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -27850,6 +27913,26 @@ function simG5MirrorFlat() {
 }
 
 function simG5MirrorCurved() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🔄 نوع المرآة</div>
+  <button class="ctrl-btn" onclick="simState.curvedInit=false;simState.mirrorType=0;simG5MirrorCurved()" style="margin-bottom:6px">🔭 مقعّرة (تجمّع)</button>
+  <button class="ctrl-btn" onclick="simState.curvedInit=false;simState.mirrorType=1;simG5MirrorCurved()">🚗 محدّبة (تشتيت)</button>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);margin-top:8px">أو انقر مباشرة على الكانفاس للتبديل</div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">💡 الفرق بينهما</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+    🔭 <b>المقعّرة:</b> تجمّع الأشعة في البؤرة — تُكبّر الصورة (التلسكوبات، المصابيح)<br>
+    🚗 <b>المحدّبة:</b> تشتّت الأشعة — رؤية أوسع (مرايا السيارات، المتاجر)
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٤ · د٢-ب):</strong><br>
+  أين تُستخدم المرايا المقعّرة في الحياة؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">المصابيح الأمامية للسيارات، تلسكوبات الفضاء، الأطباق اللاقطة للشمس، مرايا الحلاقة المكبّرة.</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -27912,6 +27995,27 @@ function simG5MirrorCurved() {
 }
 
 function simG5BehindYou() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🔍 رؤية ما خلفك</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    حرّك الماوس/إصبعك أفقياً على الكانفاس لتغيير زاوية المرآة وشاهد كيف يتغيّر مسار الضوء
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📌 تطبيقات في الحياة</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+    🚗 مرايا السيارة الجانبية والخلفية<br>
+    🏪 مرايا زوايا المتاجر والمستشفيات<br>
+    💈 مرايا صالونات الحلاقة المزدوجة
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٤ · د٣):</strong><br>
+  لماذا تستخدم الحافلات مرايا كبيرة جانبية؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">لأن الحافلة طويلة والسائق لا يستطيع رؤية ما حولها مباشرة — المرايا تعكس الضوء القادم من الجوانب وتُوسّع مجال الرؤية.</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -27969,6 +28073,28 @@ function simG5BehindYou() {
 }
 
 function simG5ReflectionCompare() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">✨ مقارنة الأسطح العاكسة</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    حرّك الماوس أفقياً لتغيير زاوية الضوء وشاهد كيف تختلف درجة انعكاسه على كل سطح
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📊 ترتيب الأسطح (الأعلى انعكاساً)</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+    🥇 المرآة (٩٥٪)<br>
+    🥈 الورق اللامع (٧٠٪)<br>
+    🥉 القماش (٣٠٪)<br>
+    ▪ الورق الخشن (١٠٪)
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٤ · د٤):</strong><br>
+  لماذا السطوح اللامعة تعكس الضوء أفضل من الخشنة؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">السطوح اللامعة منتظمة وملساء فتعكس الأشعة بزاوية ثابتة (انعكاس منتظم). السطوح الخشنة تشتّت الأشعة في اتجاهات مختلفة (انعكاس منتشر).</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -28044,6 +28170,19 @@ function simG5ReflectionCompare() {
 }
 
 function simG5ReflectionMeasure() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">📊 قياس الانعكاس</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    انقر على الأسطح المختلفة لقياس معامل انعكاسها وقارن النتائج في الجدول
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ استنتاج:</strong><br>
+  ما العلاقة بين ملمس السطح ودرجة انعكاس الضوء؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">كلما كان السطح أكثر نعومة ولمعاناً، زادت درجة انعكاس الضوء بشكل منتظم. السطوح الخشنة تشتّت الضوء.</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -28086,6 +28225,25 @@ function simG5ReflectionMeasure() {
 }
 
 function simG5LightDirection() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🎯 هندسة مسار الضوء</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    انقر على المرايا لتدويرها وحاول توجيه شعاع الضوء نحو الهدف 🎯
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">💡 تذكّر</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    الضوء ينتقل في <b>خطوط مستقيمة</b> — المرايا فقط تغيّر اتجاهه عند الانعكاس
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٤ · د٥):</strong><br>
+  كيف تُستخدم المرايا في الغواصات لرؤية ما فوق سطح الماء؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">يستخدم البيريسكوب مرآتَين بزاوية ٤٥° — الضوء يدخل من الأعلى، ينعكس للأسفل بالمرآة الأولى، ثم ينعكس للأمام بالمرآة الثانية نحو العين.</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -28186,6 +28344,28 @@ function simG5LightDirection() {
 // ══════════════════════════════════════════════════
 
 function simG5ShadowLab() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🌑 مختبر الظلال</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    اسحب مصدر الضوء 🕯️ أو الجسم على الكانفاس وشاهد كيف يتغيّر حجم الظل واتجاهه
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📐 متى يكبر الظل؟</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+    📍 عندما يقترب الجسم من المصدر<br>
+    📍 عندما يبتعد الجسم عن الشاشة<br>
+    📍 عندما يكون المصدر منخفضاً
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٥ · د١):</strong><br>
+  ١- ما الشروط اللازمة لتكوّن الظل؟<br>
+  ٢- لماذا نرى ظلنا أطول في الصباح والمساء؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">١- مصدر ضوء + جسم معتم + سطح لاستقبال الظل.<br>٢- لأن الشمس تكون منخفضة في الأفق فزاوية سقوط أشعتها صغيرة مما يطيل الظل.</div>
+</div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const w = cv.width, h = cv.height;
@@ -28287,6 +28467,19 @@ function simG5ShadowLab() {
 }
 
 function simG5ShadowInquiry() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">📐 استقصاء الظل</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    غيّر المسافة والزاوية وسجّل قياساتك لاكتشاف العلاقة الرياضية بين المتغيّرات
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ تساؤل الاستقصاء:</strong><br>
+  ما العلاقة بين المسافة من المصدر وطول الظل؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">علاقة طردية — كلما ابتعد الجسم عن المصدر (أو اقترب من الشاشة) زاد طول الظل. وكلما اقترب من المصدر قلّ طول الظل.</div>
+</div>`;
   // Simplified inquiry: show table of measurements
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
@@ -28343,6 +28536,27 @@ function simG5ShadowInquiry() {
 }
 
 function simG5TransparentTest() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🔬 اختبار المواد والضوء</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    انقر على كل مادة لاختبارها وشاهد كمية الضوء التي تمر عبرها
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📋 تصنيف المواد</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+    🟢 <b>شفاف:</b> يسمح بمرور الضوء كله (زجاج، ماء نقي)<br>
+    🟡 <b>شبه شفاف:</b> يسمح بمرور بعض الضوء (ورق مشمّع، ضباب)<br>
+    🔴 <b>معتم:</b> يمنع مرور الضوء (خشب، معدن، ورق)
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٥ · د٢):</strong><br>
+  لماذا نستخدم الزجاج في نوافذ البيوت؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">لأنه شفاف يسمح بدخول الضوء للغرفة وفي نفس الوقت يمنع دخول الهواء البارد والحشرات.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28404,6 +28618,25 @@ function simG5TransparentTest() {
 }
 
 function simG5Silhouette() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🎭 فنّان الظلال</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    انقر على الأشكال المختلفة لاختيارها وشاهد صورتها الظلية على الشاشة
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">💡 الصورة الظلية</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    الظل يعطي شكل الجسم المعتم فقط — لا يُظهر تفاصيل اللون أو الملمس
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٥ · د٣):</strong><br>
+  هل الظل يشبه الجسم دائماً بنفس الحجم؟ متى يختلف؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">لا — الظل يشبه شكل الجسم لكن حجمه يتغيّر حسب المسافة بين الجسم ومصدر الضوء والشاشة. يكبر الظل كلما اقترب الجسم من المصدر.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28459,6 +28692,27 @@ function simG5Silhouette() {
 }
 
 function simG5ShadowFactor() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">📏 المسافة والزاوية</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    اسحب مصدر الضوء أعلى/أسفل لتغيير زاوية السقوط، ويميناً/يساراً لتغيير المسافة
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">🔬 متغيّرات الاستقصاء</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+    📍 المسافة بين المصدر والجسم<br>
+    📍 زاوية سقوط الأشعة<br>
+    📍 المسافة بين الجسم والشاشة
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٥ · د٤):</strong><br>
+  لماذا تتغيّر أطوال ظلالنا طوال اليوم؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">لأن موضع الشمس يتغيّر — في الظهيرة تكون الشمس عمودياً فوقنا فيكون الظل قصيراً جداً، بينما في الصباح والمساء تكون منخفضة فيكون الظل طويلاً.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28518,6 +28772,19 @@ function simG5ShadowFactor() {
 }
 
 function simG5ShadowFactorSize() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🔎 حجم الجسم والظل</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    غيّر حجم الجسم وشاهد تأثيره المباشر على حجم الظل
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ استنتاج:</strong><br>
+  ما العلاقة بين حجم الجسم وحجم ظله (مع ثبات باقي المتغيّرات)؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">علاقة طردية مباشرة — كلما كبر حجم الجسم المعتم زاد حجم ظله بنفس النسبة تقريباً.</div>
+</div>`;
   // Show how object size affects shadow
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
@@ -28554,6 +28821,28 @@ function simG5ShadowFactorSize() {
 }
 
 function simG5LightIntensity() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">☀️ قياس شدة الضوء</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    اسحب جهاز القياس أقرب وأبعد من المصدر وسجّل القراءات في الجدول
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📈 العلاقة الرياضية</div>
+  <div class="ctrl-name" style="font-size:13px;font-weight:700;color:var(--teal,#1A8FA8);text-align:center;padding:8px;background:rgba(26,143,168,0.08);border-radius:8px">
+    شدة الضوء ∝ ١ / المسافة²
+  </div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);margin-top:6px">
+    ضاعف المسافة → تصبح الشدة ربع القيمة
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٥ · د٦):</strong><br>
+  لماذا الغرف البعيدة عن النوافذ تكون أكثر عتمة؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">لأن شدة الضوء تتناسب عكسياً مع مربع المسافة من المصدر — كلما ابتعدنا عن النافذة تضاعفت المسافة وانخفضت شدة الإضاءة بشكل كبير.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28630,6 +28919,28 @@ function simG5LightIntensity() {
 // ══════════════════════════════════════════════════
 
 function simG5EarthSun() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🌍 النظام الشمسي المصغّر</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    شاهد حركة الأرض حول الشمس والقمر حول الأرض في آنٍ واحد
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📅 حقائق المدارات</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.9">
+    🌍 الأرض تدور حول الشمس في <b>٣٦٥ يوماً</b><br>
+    🌙 القمر يدور حول الأرض في <b>٢٩.٥ يوماً</b><br>
+    🔄 الأرض تدور حول نفسها كل <b>٢٤ ساعة</b>
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٦ · د١):</strong><br>
+  ١- ما الفرق بين الدوران حول المحور والدوران حول الشمس؟<br>
+  ٢- ماذا يُسبّب كل منهما؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">١- الدوران حول المحور: الأرض تدور حول نفسها (٢٤ ساعة). الدوران حول الشمس: الأرض تدور في مدارها حول الشمس (٣٦٥ يوماً).<br>٢- الدوران حول المحور يسبب الليل والنهار. الدوران حول الشمس يسبب الفصول الأربعة.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28696,6 +29007,25 @@ function simG5EarthSun() {
 }
 
 function simG5OrbitalPaths() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🔄 مسارات الكواكب</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    شاهد المسارات البيضاوية للكواكب حول الشمس ولاحظ الفرق في سرعاتها
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">💡 قانون كيبلر</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    الكوكب الأقرب من الشمس يتحرّك <b>أسرع</b> في مداره
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ فكّر:</strong><br>
+  لماذا تختلف مدة "السنة" من كوكب لآخر؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">لأن كل كوكب يدور في مدار مختلف — الكوكب البعيد يقطع مسافة أطول وبسرعة أبطأ، فتطول سنته. مثلاً سنة المريخ = ٦٨٧ يوماً أرضية.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28753,6 +29083,26 @@ function simG5OrbitalPaths() {
 }
 
 function simG5DayNight() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🌓 الليل والنهار</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    شاهد كيف يُسبّب دوران الأرض حول محورها تعاقب الليل والنهار
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">⏱ حقيقة مهمة</div>
+  <div class="ctrl-name" style="font-size:13px;font-weight:700;color:var(--gold,#D4901A);text-align:center;padding:8px;background:rgba(212,144,26,0.08);border-radius:8px">
+    الأرض تكمل دورة كاملة<br>حول محورها كل ٢٤ ساعة
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٦ · د٣):</strong><br>
+  ١- لماذا نرى الشمس تشرق من الشرق؟<br>
+  ٢- في أيّ اتجاه تدور الأرض حول محورها؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">١- لأن الأرض تدور من الغرب إلى الشرق، فالجزء الشرقي يواجه الشمس أولاً.<br>٢- من الغرب إلى الشرق (عكس اتجاه عقارب الساعة عند النظر من القطب الشمالي).</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28840,6 +29190,27 @@ function simG5DayNight() {
 }
 
 function simG5Seasons() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🍂 الفصول الأربعة</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    شاهد كيف يُسبّب ميل محور الأرض تغيّر الفصول خلال دورانها حول الشمس
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">🌐 سبب الفصول في عُمان</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+    🌞 <b>الصيف:</b> الشمس أعلى، الأشعة أكثر تركيزاً<br>
+    ❄️ <b>الشتاء:</b> الشمس أخفض، الأشعة أكثر انتشاراً<br>
+    ⚠️ السبب ليس المسافة من الشمس!
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٦ · د٣-ب):</strong><br>
+  لماذا تشهد عُمان صيفاً حاراً وليس شتاءً بارداً جداً؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">لأن عُمان تقع قرب خط الاستواء، فتصلها أشعة الشمس بزاوية كبيرة طوال العام مما يجعل درجات الحرارة مرتفعة نسبياً. الشتاء أقل حرارة لكن لا يكون بارداً كالمناطق الشمالية.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28900,6 +29271,28 @@ function simG5Seasons() {
 }
 
 function simG5StarMap() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">🗺️ خريطة السماء الليلية</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    انقر على أي نجم لمعرفة اسمه ومعلوماته، وحاول تعرّف الكوكبات
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">⭐ أبرز النجوم</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.9">
+    ⭐ <b>الشمس:</b> أقرب نجم لنا<br>
+    🌟 <b>سهيل:</b> ثاني ألمع نجم في السماء<br>
+    🧭 <b>النجم القطبي:</b> يشير دائماً للشمال<br>
+    💫 <b>المجرّة:</b> مجرتنا درب التبّانة
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٦ · د٧):</strong><br>
+  لماذا لا نرى النجوم في النهار رغم أنها موجودة دائماً؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">لأن ضوء الشمس القوي يُضيء الغلاف الجوي ويجعله مضيئاً جداً — فيطغى على ضوء النجوم الباهتة. ليلاً تغيب الشمس فنرى النجوم بوضوح.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
@@ -28988,6 +29381,25 @@ function simG5StarMap() {
 }
 
 function simG5StarNames() {
+  document.getElementById('simControlsPanel').innerHTML=`
+<div class="ctrl-section">
+  <div class="ctrl-label">✨ أسماء النجوم</div>
+  <div class="ctrl-name" style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+    انقر على كل نجم لاكتشاف اسمه العربي الأصيل وموقعه في السماء
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">🌍 النجوم في التراث العُماني</div>
+  <div class="ctrl-name" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+    كان البحّارة العُمانيون يستخدمون النجوم للملاحة في المحيط الهندي منذ آلاف السنين — "علم الأنواء" تراث عُماني أصيل
+  </div>
+</div>
+<div class="q-box">
+  <strong>❓ أسئلة الكتاب (و٦ · د٧-ب):</strong><br>
+  كيف يستخدم البحّارة النجم القطبي في الملاحة؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+  <div class="q-ans-panel">النجم القطبي (الجدي) يبقى ثابتاً دائماً فوق القطب الشمالي — البحّار يحدّد الشمال بالنظر إليه، ثم يعرف باقي الاتجاهات. ارتفاعه فوق الأفق يُخبره بخط عرضه الجغرافي أيضاً.</div>
+</div>`;
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width, h=cv.height;
