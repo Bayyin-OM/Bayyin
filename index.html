@@ -1045,6 +1045,26 @@ input[type=range]::-webkit-slider-thumb {
 }
 .quran-ref { font-size: 15px; color: #9A8070; margin-top: 6px; }
 
+/* GRADE 9 — SUBJECT TABS */
+#g9-tab-chem.g9-active {
+  background: rgba(192,57,43,0.12) !important;
+  border-color: rgba(192,57,43,0.5) !important;
+  color: #C0392B !important;
+  box-shadow: 0 3px 12px rgba(192,57,43,0.18);
+}
+#g9-tab-phys.g9-active {
+  background: rgba(26,143,168,0.12) !important;
+  border-color: rgba(26,143,168,0.5) !important;
+  color: #1A8FA8 !important;
+  box-shadow: 0 3px 12px rgba(26,143,168,0.18);
+}
+#g9-tab-bio.g9-active {
+  background: rgba(39,174,96,0.12) !important;
+  border-color: rgba(39,174,96,0.5) !important;
+  color: #27AE60 !important;
+  box-shadow: 0 3px 12px rgba(39,174,96,0.18);
+}
+
 /* GRADE LOCKED PANEL */
 .locked-panel {
   flex: 1; display: flex; flex-direction: column;
@@ -3732,13 +3752,166 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 
   </div>
 
-  <!-- Grade 9 locked -->
+  <!-- Grade 9 -->
   <div id="panel-9" class="main-content" style="display:none">
-    <div class="locked-panel">
-      <div class="locked-icon">🚀</div>
-      <div class="locked-title">الصف التاسع – قريباً</div>
-      <div class="locked-sub">نعمل على إضافة محتوى الصف التاسع</div>
+
+    <!-- Subject selector tabs -->
+    <div id="g9-subject-bar" style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap">
+      <button id="g9-tab-chem" onclick="switchG9Subject('chem')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(192,57,43,0.3);
+          background:rgba(192,57,43,0.08);color:#C0392B;font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">⚗️</span> الكيمياء
+      </button>
+      <button id="g9-tab-phys" onclick="switchG9Subject('phys')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(26,143,168,0.25);
+          background:var(--bg-card2);color:var(--text-secondary);font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">⚡</span> الفيزياء
+      </button>
+      <button id="g9-tab-bio" onclick="switchG9Subject('bio')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(39,174,96,0.25);
+          background:var(--bg-card2);color:var(--text-secondary);font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">🧬</span> الأحياء
+      </button>
     </div>
+
+    <!-- ═══ CHEMISTRY ═══ -->
+    <div id="g9-chem" class="g9-subject-panel">
+      <div class="panel-title">كتاب الكيمياء — الصف التاسع</div>
+      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" style="margin-top:16px">
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">١</div>
+          <div>
+            <div class="unit-title">الذرة والجدول الدوري</div>
+            <div class="unit-topics">تركيب الذرة · البروتونات والنيوترونات والإلكترونات · الجدول الدوري · المجموعات والدورات · العناصر والمركبات</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٢</div>
+          <div>
+            <div class="unit-title">الروابط الكيميائية</div>
+            <div class="unit-topics">الرابطة الأيونية · الرابطة التساهمية · إلكترونات التكافؤ · الصيغ الكيميائية · تكوين المركبات</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٣</div>
+          <div>
+            <div class="unit-title">التفاعلات الكيميائية</div>
+            <div class="unit-topics">المتفاعلات والنواتج · معادلة التفاعل · حفظ الكتلة · التفاعلات الطاردة والماصة للحرارة · معدل التفاعل</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٤</div>
+          <div>
+            <div class="unit-title">الكيمياء والبيئة</div>
+            <div class="unit-topics">الكيمياء الخضراء · التلوث الكيميائي · دورة الكربون · الأحماض والقواعد في البيئة · معالجة المياه</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ PHYSICS ═══ -->
+    <div id="g9-phys" class="g9-subject-panel" style="display:none">
+      <div class="panel-title">كتاب الفيزياء — الصف التاسع</div>
+      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" style="margin-top:16px">
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">١</div>
+          <div>
+            <div class="unit-title">الحركة والقوى</div>
+            <div class="unit-topics">السرعة والتسارع · قوانين نيوتن · الاحتكاك · الزخم · الحركة الدائرية</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٢</div>
+          <div>
+            <div class="unit-title">الطاقة والشغل</div>
+            <div class="unit-topics">الطاقة الحركية والكامنة · حفظ الطاقة · الشغل والقدرة · الآلات البسيطة · الكفاءة</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٣</div>
+          <div>
+            <div class="unit-title">الضوء والموجات</div>
+            <div class="unit-topics">خصائص الموجات · الانعكاس · الانكسار · العدسات والمرايا · الطيف الكهرومغناطيسي</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٤</div>
+          <div>
+            <div class="unit-title">الكهرباء والدوائر</div>
+            <div class="unit-topics">الشحنة الكهربائية · التيار والجهد · المقاومة · قانون أوم · الدوائر المتسلسلة والمتوازية</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ BIOLOGY ═══ -->
+    <div id="g9-bio" class="g9-subject-panel" style="display:none">
+      <div class="panel-title">كتاب الأحياء — الصف التاسع</div>
+      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" style="margin-top:16px">
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">١</div>
+          <div>
+            <div class="unit-title">الخلية والوراثة</div>
+            <div class="unit-topics">تركيب الخلية · الانقسام الخيطي والاختزالي · الكروموسومات والجينات · الوراثة المندلية · الطفرات</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٢</div>
+          <div>
+            <div class="unit-title">التنظيم في جسم الإنسان</div>
+            <div class="unit-topics">الجهاز العصبي · الهرمونات · التنظيم الحراري · الجهاز المناعي · الصحة والمرض</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٣</div>
+          <div>
+            <div class="unit-title">البيئة والنظام البيئي</div>
+            <div class="unit-topics">السلاسل الغذائية · التنوع البيولوجي · دورات المادة · تأثير الإنسان على البيئة · الاستدامة</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card locked-unit">
+          <div class="unit-num-badge locked">٤</div>
+          <div>
+            <div class="unit-title">التطور والتكيف</div>
+            <div class="unit-topics">نظرية داروين · الانتخاب الطبيعي · الأدلة على التطور · التكيفات · تصنيف الكائنات</div>
+            <div class="unit-pill soon">🔒 قريباً</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -4190,6 +4363,21 @@ function switchGrade(g) {
     }
     ca.scrollTop = 0;
   }
+  // When switching to grade 9, init subject tabs
+  if(g === 9) {
+    switchG9Subject(window._g9ActiveSubject || 'chem');
+  }
+}
+
+function switchG9Subject(subject) {
+  window._g9ActiveSubject = subject;
+  // Toggle subject panels
+  ['chem','phys','bio'].forEach(function(s) {
+    var panel = document.getElementById('g9-' + s);
+    if(panel) panel.style.display = s === subject ? 'block' : 'none';
+    var tab = document.getElementById('g9-tab-' + s);
+    if(tab) tab.classList.toggle('g9-active', s === subject);
+  });
 }
 function setMobTab(g) {
   [5,7,8,9].forEach(n => {
