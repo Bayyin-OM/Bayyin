@@ -30273,139 +30273,202 @@ function simG5StarNames() {
 // ═══════════════════════════════════════════════════════
 
 // ── 6-1 Tab1: تصنيف المحاليل ──
+
+// ══════════════════════════════════════════════════════════════════
+// الصف التاسع — وحدة 6: خصائص الأحماض والقواعد
+// نسخة مُحسَّنة: تفاعل كامل، رسوم متحركة، جودة الصف السابع
+// ══════════════════════════════════════════════════════════════════
+
+// ── 6-1 Tab1: تصنيف المحاليل (تفاعلي - انقر لتصنيف) ──
 function simG9AcidProp1() {
   cancelAnimationFrame(animFrame);
-  const cv = document.getElementById('simCanvas');
-  const c = cv.getContext('2d');
-  const w = cv.width, h = cv.height;
-  const solutions = [
-    { name:'عصير الليمون', icon:'🍋', type:'acid', ph:2.5, color:'#FFD700', x:.12, y:.35 },
-    { name:'الخل', icon:'🫙', type:'acid', ph:3.0, color:'#F4A460', x:.30, y:.35 },
-    { name:'القهوة', icon:'☕', type:'acid', ph:5.0, color:'#8B4513', x:.48, y:.35 },
-    { name:'الماء النقي', icon:'💧', type:'neutral', ph:7.0, color:'#87CEEB', x:.66, y:.35 },
-    { name:'ماء الصابون', icon:'🧼', type:'base', ph:9.0, color:'#98FB98', x:.12, y:.70 },
-    { name:'محلول الأمونيا', icon:'🧪', type:'base', ph:11.5, color:'#DDA0DD', x:.30, y:.70 },
-    { name:'ماء الجير', icon:'⬜', type:'base', ph:12.4, color:'#E8E8E8', x:.48, y:.70 },
-    { name:'حمض الهيدروكلوريك', icon:'⚠️', type:'acid', ph:1.0, color:'#FF6B6B', x:.66, y:.70 },
-  ];
+  simState = { t:0, selected:null, hover:null, classified:{} };
   const S = simState;
-  if (!S.selected) S.selected = null;
-  if (!S.classified) S.classified = {};
+
+  const solutions = [
+    { id:'lemon',  name:'عصير الليمون', icon:'🍋', ph:2.5, type:'acid',    x:0.12, y:0.38, desc:'حمض الستريك — حامض الطعم، آمن' },
+    { id:'vinegar',name:'الخل',          icon:'🫙', ph:3.0, type:'acid',    x:0.30, y:0.38, desc:'حمض الإيثانويك — يُستخدم في الطبخ' },
+    { id:'coffee', name:'القهوة',        icon:'☕', ph:5.0, type:'acid',    x:0.48, y:0.38, desc:'حمضي خفيف — آمن للشرب' },
+    { id:'water',  name:'الماء النقي',   icon:'💧', ph:7.0, type:'neutral', x:0.66, y:0.38, desc:'pH=7 تماماً — المرجع المتعادل' },
+    { id:'soap',   name:'ماء الصابون',   icon:'🧼', ph:9.0, type:'base',    x:0.12, y:0.72, desc:'قلوي خفيف — زلق الملمس' },
+    { id:'ammonia',name:'محلول الأمونيا',icon:'🧪', ph:11.5,type:'base',    x:0.30, y:0.72, desc:'قلوي — رائحة نفّاذة' },
+    { id:'lime',   name:'ماء الجير',     icon:'⬜', ph:12.4,type:'base',    x:0.48, y:0.72, desc:'Ca(OH)₂ — قلوي قوي' },
+    { id:'hcl',    name:'حمض الهيدروكلوريك',icon:'⚠️',ph:1.0,type:'acid', x:0.66, y:0.72, desc:'حمض قوي جداً — خطر ⚠️' },
+  ];
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">📋 التصنيف</div>
-      <div class="info-box" style="margin-bottom:8px">
+      <div class="info-box" style="margin-bottom:6px">
         <b style="color:#C0392B">🍋 حمضي (pH &lt; 7)</b><br>
         <span id="acid-list" style="font-size:12px">—</span>
       </div>
-      <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.15);margin-bottom:8px">
+      <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.2);margin-bottom:6px">
         <b style="color:#27AE60">💧 متعادل (pH = 7)</b><br>
         <span id="neutral-list" style="font-size:12px">—</span>
       </div>
-      <div class="info-box" style="background:rgba(21,101,192,0.06);border-color:rgba(21,101,192,0.15)">
+      <div class="info-box" style="background:rgba(21,101,192,0.06);border-color:rgba(21,101,192,0.2)">
         <b style="color:#1565C0">🧼 قلوي (pH &gt; 7)</b><br>
         <span id="base-list" style="font-size:12px">—</span>
       </div>
-      <div style="margin-top:8px;font-size:12px;color:var(--muted)">انقر على أي محلول لمعرفة خصائصه</div>
+    </div>
+    <div id="sol-detail" class="info-box" style="min-height:54px;text-align:center">
+      انقر على أي محلول لمعرفة خصائصه 👆
     </div>
     <div class="q-box">
       <strong>❓ ما الفرق بين الحمض القوي والضعيف؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الحمض القوي يتأيّن بالكامل في الماء (مثل HCl، pH=1). الحمض الضعيف يتأيّن جزئياً فقط (مثل الخل، pH=3). كلما قلّ pH ازداد الحمض تركيزاً وقوة.</div>
+      <div class="q-ans-panel">الحمض القوي يتأيّن بالكامل في الماء (مثل HCl pH=1). الضعيف يتأيّن جزئياً (مثل الخل pH=3). كلما قلّ pH ازداد الحمض قوةً وخطورة.</div>
     </div>`);
 
-  cv.onclick = function(e) {
-    const r = cv.getBoundingClientRect();
-    const mx = (e.clientX - r.left) * (w / r.width);
-    const my = (e.clientY - r.top) * (h / r.height);
-    solutions.forEach(sol => {
-      const sx = sol.x * w, sy = sol.y * h;
-      if (Math.hypot(mx - sx, my - sy) < 36) {
-        S.selected = sol.name === S.selected ? null : sol.name;
-        S.classified[sol.name] = sol.type;
-      }
-    });
-    // update lists
+  const cv = document.getElementById('simCanvas');
+  function getColor(type){ return type==='acid'?'#E74C3C':type==='base'?'#2980B9':'#27AE60'; }
+  function getBg(type){ return type==='acid'?'rgba(231,76,60,0.12)':type==='base'?'rgba(41,128,185,0.12)':'rgba(39,174,96,0.12)'; }
+
+  function updateLists(){
     const acids = solutions.filter(s=>s.type==='acid').map(s=>s.name).join('، ');
     const neutrals = solutions.filter(s=>s.type==='neutral').map(s=>s.name).join('، ');
     const bases = solutions.filter(s=>s.type==='base').map(s=>s.name).join('، ');
-    document.getElementById('acid-list').textContent = acids || '—';
-    document.getElementById('neutral-list').textContent = neutrals || '—';
-    document.getElementById('base-list').textContent = bases || '—';
+    const el = id => document.getElementById(id);
+    if(el('acid-list')) el('acid-list').textContent = acids||'—';
+    if(el('neutral-list')) el('neutral-list').textContent = neutrals||'—';
+    if(el('base-list')) el('base-list').textContent = bases||'—';
+  }
+  updateLists();
+
+  cv.onclick = function(e){
+    const r=cv.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+    solutions.forEach(sol=>{
+      if(Math.hypot(mx-sol.x*cv.width, my-sol.y*cv.height)<40){
+        S.selected = S.selected===sol.id ? null : sol.id;
+        try{U9Sound.ping();}catch(e){}
+        const box=document.getElementById('sol-detail');
+        if(box && S.selected){
+          box.innerHTML=`<strong style="font-size:16px">${sol.icon} ${sol.name}</strong><br>
+            <span style="color:${getColor(sol.type)};font-weight:700">pH = ${sol.ph}</span><br>
+            <span style="font-size:13px;color:#555">${sol.desc}</span>`;
+          box.style.borderColor=getColor(sol.type);
+          box.style.borderRight=`4px solid ${getColor(sol.type)}`;
+        }
+        S.classified[sol.id]=true;
+        updateLists();
+      }
+    });
+  };
+  cv.onmousemove = function(e){
+    const r=cv.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+    S.hover=null;
+    solutions.forEach(sol=>{ if(Math.hypot(mx-sol.x*cv.width, my-sol.y*cv.height)<44) S.hover=sol.id; });
+    cv.style.cursor=S.hover?'pointer':'default';
   };
 
-  function draw() {
-    c.clearRect(0, 0, w, h);
-    c.fillStyle = '#F8F5EF'; c.fillRect(0, 0, w, h);
-    // Title
-    c.fillStyle = '#1E2D3D'; c.font = `bold ${Math.max(15,w*0.034)}px Tajawal`; c.textAlign = 'center';
-    c.fillText('انقر على كل محلول لمعرفة خصائصه وتصنيفه', w/2, h*0.1);
+  function draw(){
+    if(currentSim!=='g9acidprop'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h); S.t+=0.02;
+
+    // Background gradient
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F8F5EF'); bg.addColorStop(1,'#EDE8E0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
     // pH bar
-    const bx = w*0.05, by = h*0.14, bw = w*0.9, bh = 18;
-    const grad = c.createLinearGradient(bx, 0, bx+bw, 0);
-    grad.addColorStop(0,'#FF4444'); grad.addColorStop(0.5,'#44BB44'); grad.addColorStop(1,'#4444FF');
-    c.fillStyle = grad; c.beginPath(); c.roundRect(bx, by, bw, bh, 9); c.fill();
-    c.fillStyle='#555'; c.font=`${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
-    [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14].forEach(n=>{
-      const px = bx + (n/14)*bw;
-      c.fillStyle='#333'; c.fillText(n, px, by+bh+14);
+    const bx=w*0.06, by=h*0.06, bw=w*0.88, bh=16;
+    const grad=c.createLinearGradient(bx,0,bx+bw,0);
+    grad.addColorStop(0,'#E74C3C'); grad.addColorStop(0.35,'#F39C12');
+    grad.addColorStop(0.5,'#27AE60'); grad.addColorStop(0.65,'#2980B9'); grad.addColorStop(1,'#1A237E');
+    c.fillStyle=grad; c.beginPath(); c.roundRect(bx,by,bw,bh,8); c.fill();
+    c.fillStyle='rgba(0,0,0,0.08)'; c.beginPath(); c.roundRect(bx,by,bw,bh/2,8); c.fill();
+    [0,7,14].forEach(n=>{
+      const px=bx+(n/14)*bw;
+      c.fillStyle='rgba(255,255,255,0.8)'; c.fillRect(px-0.5,by,1,bh);
+      c.fillStyle='#333'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+      c.fillText(n, px, by+bh+12);
     });
-    c.fillStyle='#C0392B'; c.fillText('حمضي ◀', bx+bw*0.15, by-4);
-    c.fillStyle='#27AE60'; c.fillText('▶ متعادل ◀', bx+bw*0.5, by-4);
-    c.fillStyle='#1565C0'; c.fillText('▶ قلوي', bx+bw*0.85, by-4);
+    c.fillStyle='#C0392B'; c.font=`${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
+    c.fillText('◀ حمضي', bx+bw*0.15, by-5);
+    c.fillStyle='#27AE60'; c.fillText('متعادل', bx+bw*0.5, by-5);
+    c.fillStyle='#1565C0'; c.fillText('قلوي ▶', bx+bw*0.85, by-5);
 
-    // Draw solutions
-    solutions.forEach(sol => {
-      const sx = sol.x * w, sy = sol.y * h;
-      const isSelected = S.selected === sol.name;
-      // Flask shape
-      c.shadowColor = isSelected ? '#1A8FA8' : 'rgba(0,0,0,0.1)';
-      c.shadowBlur = isSelected ? 18 : 6;
-      c.fillStyle = sol.color + 'CC';
-      c.beginPath(); c.roundRect(sx-28, sy-28, 56, 56, 12); c.fill();
-      c.shadowBlur = 0;
-      if (isSelected) {
-        c.strokeStyle = '#1A8FA8'; c.lineWidth = 3;
-        c.beginPath(); c.roundRect(sx-30, sy-30, 60, 60, 14); c.stroke();
-      }
-      // pH marker on bar
-      const phX = bx + (sol.ph/14)*bw;
-      c.fillStyle = sol.color; c.beginPath(); c.arc(phX, by+bh/2, 6, 0, Math.PI*2); c.fill();
-      c.strokeStyle='#fff'; c.lineWidth=2; c.beginPath(); c.arc(phX, by+bh/2, 6, 0, Math.PI*2); c.stroke();
-
-      // Icon & name
-      c.font = `${Math.max(20,w*0.045)}px serif`; c.textAlign = 'center';
-      c.fillText(sol.icon, sx, sy+6);
-      c.fillStyle = '#2C3A4A'; c.font = `bold ${Math.max(10,w*0.022)}px Tajawal`;
-      c.fillText(sol.name, sx, sy+38);
-
-      // If selected, show detail
-      if (isSelected) {
-        const dx = sx + (sx > w*0.6 ? -160 : 80);
-        const dy = Math.min(sy - 20, h - 120);
-        c.fillStyle = 'rgba(255,255,255,0.97)';
-        c.beginPath(); c.roundRect(dx, dy, 155, 90, 10); c.fill();
-        c.strokeStyle='#1A8FA8'; c.lineWidth=1.5; c.beginPath(); c.roundRect(dx, dy, 155, 90, 10); c.stroke();
-        c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='right';
-        c.fillText(`pH = ${sol.ph}`, dx+145, dy+24);
-        c.font=`${Math.max(11,w*0.023)}px Tajawal`;
-        const typeAr = sol.type==='acid'?'🍋 حمضي':sol.type==='base'?'🧼 قلوي':'💧 متعادل';
-        c.fillText(typeAr, dx+145, dy+46);
-        const prop = sol.type==='acid'?'طعمه حامض، يُغيّر ورق تبّاع الشمس للأحمر':sol.type==='base'?'ملمسه زلق، يُغيّر ورق تبّاع الشمس للأزرق':'لا يُغيّر لون الكاشف';
-        c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.fillStyle='#555';
-        // Word wrap
-        const words = prop.split(' ');
-        let line='', lineY=dy+64;
-        words.forEach(word=>{
-          if((line+word).length>12){c.fillText(line,dx+148,lineY);line=word+' ';lineY+=16;}
-          else line+=word+' ';
-        });
-        if(line) c.fillText(line,dx+148,lineY);
-      }
+    // Sections labels
+    ['حمضي 🍋','قلوي 🧼'].forEach((lbl,i)=>{
+      const sx=w*(i===0?0.06:0.51), sy=h*0.27, sw=w*(i===0?0.44:0.44), sh=h*0.54;
+      c.fillStyle=i===0?'rgba(231,76,60,0.04)':'rgba(41,128,185,0.04)';
+      c.beginPath(); c.roundRect(sx,sy,sw,sh,12); c.fill();
+      c.strokeStyle=i===0?'rgba(231,76,60,0.15)':'rgba(41,128,185,0.15)';
+      c.lineWidth=1.5; c.beginPath(); c.roundRect(sx,sy,sw,sh,12); c.stroke();
     });
-    animFrame = requestAnimationFrame(draw);
+    // neutral zone
+    c.fillStyle='rgba(39,174,96,0.04)';
+    c.beginPath(); c.roundRect(w*0.59,h*0.27,w*0.1,h*0.54,12); c.fill();
+
+    // Draw each solution as a floating bottle/beaker
+    solutions.forEach((sol,idx)=>{
+      const ax=sol.x*w, ay=sol.y*h;
+      const isSel=S.selected===sol.id, isHov=S.hover===sol.id;
+      const bob=Math.sin(S.t*1.1+idx*0.9)*(isHov?6:3);
+      const cy2=ay+bob;
+      const r=isHov||isSel?44:38;
+
+      // pH dot on scale bar
+      const phX=bx+(sol.ph/14)*bw;
+      c.fillStyle=getColor(sol.type);
+      c.beginPath(); c.arc(phX,by+bh/2,5,0,Math.PI*2); c.fill();
+      c.strokeStyle='#fff'; c.lineWidth=1.5; c.stroke();
+
+      // Connecting line from dot to icon
+      c.strokeStyle=getColor(sol.type)+'55'; c.lineWidth=1;
+      c.setLineDash([4,4]);
+      c.beginPath(); c.moveTo(phX,by+bh); c.lineTo(ax,cy2-r-4); c.stroke();
+      c.setLineDash([]);
+
+      // Glow for selected/hover
+      if(isSel||isHov){
+        c.shadowBlur=20; c.shadowColor=getColor(sol.type);
+      }
+
+      // Beaker body
+      c.fillStyle=getBg(sol.type);
+      c.beginPath(); c.ellipse(ax,cy2,r,r*0.85,0,0,Math.PI*2); c.fill();
+      c.strokeStyle=isSel?getColor(sol.type):'rgba(0,0,0,0.12)';
+      c.lineWidth=isSel?2.5:1.5; c.beginPath(); c.ellipse(ax,cy2,r,r*0.85,0,0,Math.PI*2); c.stroke();
+      c.shadowBlur=0;
+
+      // Liquid wave inside
+      c.save();
+      c.beginPath(); c.ellipse(ax,cy2,r-2,r*0.83,0,0,Math.PI*2); c.clip();
+      c.fillStyle=getColor(sol.type)+'33';
+      c.beginPath();
+      c.moveTo(ax-r, cy2+r*0.2);
+      for(let xi=0;xi<=r*2;xi++){
+        const wave=Math.sin((xi/r)*Math.PI*2+S.t*2)*4;
+        c.lineTo(ax-r+xi, cy2+wave);
+      }
+      c.lineTo(ax+r,cy2+r*0.85); c.lineTo(ax-r,cy2+r*0.85); c.closePath(); c.fill();
+      c.restore();
+
+      // Icon
+      c.font=`${r*0.85}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(sol.icon,ax,cy2);
+
+      // pH badge
+      const phtxt=`pH ${sol.ph}`;
+      c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`;
+      const bwt=c.measureText(phtxt).width+12;
+      c.fillStyle=getColor(sol.type)+'CC';
+      c.beginPath(); c.roundRect(ax-bwt/2,cy2-r-18,bwt,16,6); c.fill();
+      c.fillStyle='#fff'; c.textBaseline='middle';
+      c.fillText(phtxt, ax, cy2-r-10);
+
+      // Name
+      c.fillStyle=isSel?getColor(sol.type):'#444';
+      c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textBaseline='top';
+      c.fillText(sol.name, ax, cy2+r*0.85+6);
+    });
+
+    animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
@@ -30413,101 +30476,125 @@ function simG9AcidProp1() {
 // ── 6-1 Tab2: الأحماض العضوية ──
 function simG9AcidProp2() {
   cancelAnimationFrame(animFrame);
-  const cv = document.getElementById('simCanvas');
-  const c = cv.getContext('2d');
-  const w = cv.width, h = cv.height;
-  const S = simState; S.t = 0;
+  simState = { t:0, sel:0, hover:-1 };
+  const S = simState;
 
   const acids = [
-    { name:'حمض الإيثانويك (الخل)', formula:'CH₃COOH', source:'الخل', ph:3.0, icon:'🫙', color:'#F4A460' },
-    { name:'حمض الستريك', formula:'C₆H₈O₇', source:'الليمون والبرتقال', ph:2.2, icon:'🍋', color:'#FFD700' },
-    { name:'حمض اللاكتيك', formula:'CH₃CH(OH)COOH', source:'الحليب الفاسد واللبن', ph:3.5, icon:'🥛', color:'#F0F0F0' },
-    { name:'حمض الكربونيك', formula:'H₂CO₃', source:'المشروبات الغازية', ph:3.9, icon:'🥤', color:'#ADD8E6' },
-    { name:'حمض الهيدروكلوريك', formula:'HCl', source:'حمض قوي / المعدة', ph:1.0, icon:'⚠️', color:'#FF6B6B' },
-    { name:'حمض الكبريتيك', formula:'H₂SO₄', source:'بطاريات السيارات', ph:0.5, icon:'🔋', color:'#FF4444' },
+    { name:'حمض الإيثانويك (الخل)', formula:'CH₃COOH', source:'الخل المنزلي', ph:3.0, icon:'🫙', color:'#F4A460', strength:'ضعيف' },
+    { name:'حمض الستريك', formula:'C₆H₈O₇', source:'الليمون والبرتقال', ph:2.2, icon:'🍋', color:'#FFD700', strength:'ضعيف' },
+    { name:'حمض اللاكتيك', formula:'CH₃CH(OH)COOH', source:'الحليب واللبن', ph:3.5, icon:'🥛', color:'#F0F0F0', strength:'ضعيف' },
+    { name:'حمض الكربونيك', formula:'H₂CO₃', source:'المشروبات الغازية', ph:3.9, icon:'🥤', color:'#87CEEB', strength:'ضعيف' },
+    { name:'حمض الهيدروكلوريك', formula:'HCl', source:'حمض قوي / المعدة', ph:1.0, icon:'⚠️', color:'#FF6B6B', strength:'قوي' },
+    { name:'حمض الكبريتيك', formula:'H₂SO₄', source:'بطاريات السيارات', ph:0.5, icon:'🔋', color:'#FF4444', strength:'قوي' },
   ];
-  let sel = 0;
+
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🍋 اختر الحمض</div>
-      <div class="ctrl-btns-grid-1">
-        ${acids.map((a,i)=>`<button class="ctrl-btn" id="acid-btn-${i}" onclick="simState.sel=${i};document.querySelectorAll('[id^=acid-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${a.icon} ${a.name}</button>`).join('')}
+      <div class="ctrl-btns-grid-1" id="acid-btns">
+        ${acids.map((a,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="acid-btn-${i}" onclick="simState.sel=${i};document.querySelectorAll('[id^=acid-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${a.icon} ${a.name}</button>`).join('')}
       </div>
     </div>
     <div class="q-box">
       <strong>❓ ما الفرق بين الأحماض العضوية وغير العضوية؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الأحماض العضوية تحتوي على الكربون (مثل خل الإيثانويك، وحمض الستريك) وعادة ضعيفة. غير العضوية مثل HCl وH₂SO₄ عادة أقوى وأكثر خطورة.</div>
+      <div class="q-ans-panel">الأحماض العضوية تحتوي على الكربون (مثل CH₃COOH) وعادة ضعيفة وموجودة في الطعام. غير العضوية كـ HCl وH₂SO₄ عادة أقوى وأكثر خطورة.</div>
     </div>`);
 
-  function draw() {
-    c.clearRect(0,0,w,h);
-    c.fillStyle='#F8F5EF'; c.fillRect(0,0,w,h);
-    const idx = S.sel||0;
-    const acid = acids[idx];
-    S.t = (S.t||0)+1;
+  const cv=document.getElementById('simCanvas');
 
-    // Background bubbles animation
-    for(let i=0;i<8;i++){
-      const bx = (i/8)*w+(Math.sin(S.t*0.02+i)*30);
-      const by = h-(((S.t*0.5+i*70)%h));
-      c.fillStyle=acid.color+'33';
-      c.beginPath(); c.arc(bx,by,8+i*2,0,Math.PI*2); c.fill();
+  function draw(){
+    if(currentSim!=='g9acidprop'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const acid=acids[S.sel||0];
+
+    // Background
+    const bg=c.createLinearGradient(0,0,w,h);
+    bg.addColorStop(0,'#FFF8EE'); bg.addColorStop(1,'#FFF0DD');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Animated bubbles
+    for(let i=0;i<10;i++){
+      const bx=(i/10)*w+(Math.sin(S.t*0.015+i)*20);
+      const by=h-((S.t*0.7+i*70)%h);
+      const br=4+i%4;
+      c.fillStyle=acid.color+'22';
+      c.beginPath(); c.arc(bx,by,br,0,Math.PI*2); c.fill();
     }
 
     // Big flask
-    const fx=w*0.35, fy=h*0.35, fr=Math.min(w,h)*0.22;
-    c.fillStyle=acid.color+'66';
-    c.beginPath(); c.arc(fx,fy,fr,0,Math.PI*2); c.fill();
-    c.strokeStyle=acid.color; c.lineWidth=3;
+    const fx=w*0.32, fy=h*0.32, fr=Math.min(w,h)*0.22;
+    // Flask glow
+    c.shadowBlur=30; c.shadowColor=acid.color+'88';
+    const radGrad=c.createRadialGradient(fx-fr*0.3,fy-fr*0.3,fr*0.1,fx,fy,fr);
+    radGrad.addColorStop(0,acid.color+'AA'); radGrad.addColorStop(1,acid.color+'44');
+    c.fillStyle=radGrad; c.beginPath(); c.arc(fx,fy,fr,0,Math.PI*2); c.fill();
+    c.shadowBlur=0;
+    c.strokeStyle=acid.color+'CC'; c.lineWidth=3;
     c.beginPath(); c.arc(fx,fy,fr,0,Math.PI*2); c.stroke();
 
-    // Fill level animate
-    const fill=fr*(0.5+0.1*Math.sin(S.t*0.03));
-    c.fillStyle=acid.color+'99';
-    c.beginPath(); c.arc(fx,fy+fr-fill,fr,0,Math.PI); c.closePath(); c.fill();
+    // Liquid fill animated
+    const fillR=fr*(0.55+0.08*Math.sin(S.t*0.04));
+    c.save(); c.beginPath(); c.arc(fx,fy,fr-2,0,Math.PI*2); c.clip();
+    c.fillStyle=acid.color+'55';
+    const waveY=fy+fr-fillR;
+    c.beginPath(); c.moveTo(fx-fr,waveY);
+    for(let xi=0;xi<=fr*2;xi++){
+      c.lineTo(fx-fr+xi, waveY+Math.sin((xi/fr)*Math.PI*2+S.t*0.06)*6);
+    }
+    c.lineTo(fx+fr,fy+fr); c.lineTo(fx-fr,fy+fr); c.closePath(); c.fill();
+    c.restore();
 
-    c.font=`${Math.max(30,w*0.07)}px serif`; c.textAlign='center';
-    c.fillText(acid.icon, fx, fy+10);
+    // Icon in flask
+    c.font=`${Math.max(32,fr*0.85)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(acid.icon, fx, fy+fr*0.05);
 
     // Info panel
-    const ix=w*0.65, iy=h*0.12;
+    const ix=w*0.60, iy=h*0.08, iw=w*0.37, ih=h*0.84;
     c.fillStyle='rgba(255,255,255,0.93)';
-    c.beginPath(); c.roundRect(ix-10, iy, w*0.32, h*0.76, 12); c.fill();
-    c.strokeStyle='#ddd'; c.lineWidth=1.5;
-    c.beginPath(); c.roundRect(ix-10, iy, w*0.32, h*0.76, 12); c.stroke();
+    c.beginPath(); c.roundRect(ix,iy,iw,ih,14); c.fill();
+    c.strokeStyle=acid.color+'66'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(ix,iy,iw,ih,14); c.stroke();
 
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.027)}px Tajawal`; c.textAlign='right';
-    c.fillText(acid.name, ix+w*0.30, iy+28);
-    c.fillStyle='#7A8A98'; c.font=`${Math.max(10,w*0.022)}px Tajawal`;
-    c.fillText('الصيغة الكيميائية:', ix+w*0.30, iy+54);
-    c.fillStyle='#1A8FA8'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`;
-    c.fillText(acid.formula, ix+w*0.30, iy+75);
-    c.fillStyle='#7A8A98'; c.font=`${Math.max(10,w*0.022)}px Tajawal`;
-    c.fillText('المصدر:', ix+w*0.30, iy+100);
-    c.fillStyle='#2C3A4A'; c.font=`${Math.max(11,w*0.023)}px Tajawal`;
-    c.fillText(acid.source, ix+w*0.30, iy+120);
-    c.fillStyle='#7A8A98'; c.font=`${Math.max(10,w*0.022)}px Tajawal`;
-    c.fillText('الرقم الهيدروجيني pH:', ix+w*0.30, iy+148);
+    const tx=ix+iw-12, lineH=h*0.065;
+    c.textAlign='right'; c.textBaseline='top';
+
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`;
+    c.fillText(acid.name, tx, iy+14);
+
+    const rows=[
+      ['الصيغة الكيميائية:', acid.formula, '#1A8FA8'],
+      ['المصدر:', acid.source, '#555'],
+      ['القوة:', acid.strength==='قوي'?'قوي ⚠️':'ضعيف ✅', acid.strength==='قوي'?'#C0392B':'#27AE60'],
+    ];
+    rows.forEach((row,ri)=>{
+      const ry=iy+14+lineH*(ri+1)+8;
+      c.fillStyle='#888'; c.font=`${Math.max(10,w*0.021)}px Tajawal`;
+      c.fillText(row[0], tx, ry);
+      c.fillStyle=row[2]||'#1E2D3D'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`;
+      c.fillText(row[1], tx, ry+lineH*0.45);
+    });
 
     // pH gauge
-    const gx=ix+w*0.02, gy=iy+165, gw=w*0.26, gh=16;
-    const grad=c.createLinearGradient(gx,0,gx+gw,0);
-    grad.addColorStop(0,'#FF4444'); grad.addColorStop(0.5,'#44BB44'); grad.addColorStop(1,'#4444FF');
-    c.fillStyle=grad; c.beginPath(); c.roundRect(gx,gy,gw,gh,8); c.fill();
-    const px=gx+(acid.ph/14)*gw;
-    c.fillStyle='#1E2D3D'; c.beginPath(); c.arc(px,gy+gh/2,9,0,Math.PI*2); c.fill();
-    c.fillStyle='#fff'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText(acid.ph, px, gy+gh/2+4);
+    const gy=iy+14+lineH*4+12, gx=ix+8, gw=iw-20, gh=14;
+    c.fillStyle='#F0F0F0'; c.beginPath(); c.roundRect(gx,gy,gw,gh,7); c.fill();
+    const phGrad=c.createLinearGradient(gx,0,gx+gw,0);
+    phGrad.addColorStop(0,'#E74C3C'); phGrad.addColorStop(0.5,'#27AE60'); phGrad.addColorStop(1,'#1565C0');
+    c.fillStyle=phGrad; c.beginPath(); c.roundRect(gx,gy,gw,gh,7); c.fill();
+    const pm=gx+(acid.ph/14)*gw;
+    c.fillStyle='#1E2D3D'; c.beginPath(); c.arc(pm,gy+gh/2,10,0,Math.PI*2); c.fill();
+    c.strokeStyle='#fff'; c.lineWidth=2; c.beginPath(); c.arc(pm,gy+gh/2,10,0,Math.PI*2); c.stroke();
+    c.fillStyle='#fff'; c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText(acid.ph, pm, gy+gh/2+1);
 
-    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='right';
-    c.fillText(`pH = ${acid.ph}`, ix+w*0.30, iy+210);
-
-    const strength = acid.ph < 3 ? 'حمض قوي جداً ⚠️' : acid.ph < 5 ? 'حمض متوسط القوة' : 'حمض ضعيف';
+    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(14,w*0.03)}px Tajawal`; c.textAlign='right';
+    c.fillText(`pH = ${acid.ph}`, tx, gy+gh+12);
+    const str=acid.ph<3?'حمض قوي جداً ⚠️':acid.ph<5?'حمض متوسط القوة':'حمض ضعيف';
     c.fillStyle='#555'; c.font=`${Math.max(10,w*0.022)}px Tajawal`;
-    c.fillText(strength, ix+w*0.30, iy+232);
+    c.fillText(str, tx, gy+gh+30);
 
-    animFrame = requestAnimationFrame(draw);
+    animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
@@ -30515,342 +30602,466 @@ function simG9AcidProp2() {
 // ── 6-1 Tab3: القواعد والقلويات ──
 function simG9AcidProp3() {
   cancelAnimationFrame(animFrame);
-  const cv = document.getElementById('simCanvas');
-  const c = cv.getContext('2d');
-  const w = cv.width, h = cv.height;
-  const S = simState; S.t = 0; if(!S.sel3) S.sel3=0;
+  simState = { t:0, sel:0, hover:-1 };
+  const S = simState;
 
   const bases = [
-    { name:'هيدروكسيد الصوديوم', formula:'NaOH', use:'صناعة الصابون', ph:14, strong:true, icon:'🧴', soluble:true },
-    { name:'هيدروكسيد الكالسيوم', formula:'Ca(OH)₂', use:'تعديل حموضة التربة', ph:12.4, strong:false, icon:'⬜', soluble:false },
-    { name:'هيدروكسيد الأمونيوم', formula:'NH₄OH', use:'المنظفات المنزلية', ph:11.5, strong:false, icon:'🧪', soluble:true },
-    { name:'هيدروكسيد المغنيسيوم', formula:'Mg(OH)₂', use:'علاج حموضة المعدة', ph:10.5, strong:false, icon:'💊', soluble:false },
-    { name:'كربونات الصوديوم', formula:'Na₂CO₃', use:'صناعة الزجاج والورق', ph:11.6, strong:false, icon:'🔬', soluble:true },
+    { name:'هيدروكسيد الصوديوم', formula:'NaOH',     use:'صناعة الصابون',       ph:14,  icon:'🧴', color:'#3498DB', soluble:true },
+    { name:'هيدروكسيد الكالسيوم',formula:'Ca(OH)₂',  use:'تعديل حموضة التربة', ph:12.4,icon:'⬜', color:'#95A5A6', soluble:false },
+    { name:'هيدروكسيد الأمونيوم', formula:'NH₄OH',   use:'المنظفات المنزلية',   ph:11.5,icon:'🧪', color:'#9B59B6', soluble:true },
+    { name:'هيدروكسيد المغنيسيوم',formula:'Mg(OH)₂', use:'علاج حموضة المعدة',  ph:10.5,icon:'💊', color:'#1ABC9C', soluble:false },
+    { name:'كربونات الصوديوم',    formula:'Na₂CO₃',  use:'صناعة الزجاج',       ph:11.6,icon:'🔬', color:'#2ECC71', soluble:true },
   ];
+
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🧴 اختر القاعدة</div>
       <div class="ctrl-btns-grid-1">
-        ${bases.map((b,i)=>`<button class="ctrl-btn" id="base-btn-${i}" onclick="simState.sel3=${i};document.querySelectorAll('[id^=base-btn-]').forEach((btn,j)=>{btn.classList.toggle('active',j===${i})})">${b.icon} ${b.name}</button>`).join('')}
+        ${bases.map((b,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="base-btn-${i}" onclick="simState.sel=${i};document.querySelectorAll('[id^=base-btn-]').forEach((btn,j)=>btn.classList.toggle('active',j===${i}))">${b.icon} ${b.name}</button>`).join('')}
       </div>
     </div>
     <div class="info-box">
-      🔑 القلويات هي قواعد تذوب في الماء وتُعطي أيونات OH⁻
+      🔑 القلويات: قواعد تذوب في الماء وتُعطي أيونات <b>OH⁻</b>
     </div>
     <div class="q-box">
-      <strong>❓ لماذا نستخدم هيدروكسيد المغنيسيوم لعلاج حموضة المعدة؟</strong>
+      <strong>❓ لماذا نستخدم Mg(OH)₂ لعلاج حموضة المعدة؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">هيدروكسيد المغنيسيوم Mg(OH)₂ قاعدة ضعيفة آمنة تُعادل حمض المعدة الزائد (HCl). يُعطي ارتياحاً سريعاً دون أن يُؤثر على باقي وظائف الجسم.</div>
+      <div class="q-ans-panel">هيدروكسيد المغنيسيوم قاعدة ضعيفة آمنة تُعادل حمض المعدة الزائد (HCl). يُعطي ارتياحاً سريعاً دون أن يضرّ بوظائف الجسم.</div>
     </div>`);
 
-  function draw() {
-    c.clearRect(0,0,w,h);
-    c.fillStyle='#F0F8FF'; c.fillRect(0,0,w,h);
-    const base = bases[S.sel3||0];
-    S.t++;
+  const cv=document.getElementById('simCanvas');
 
-    // Title
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText(base.name, w/2, h*0.09);
+  function draw(){
+    if(currentSim!=='g9acidprop'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const base=bases[S.sel||0];
 
-    // Beaker
-    const bkx=w*0.32, bky=h*0.18, bkw=w*0.22, bkh=h*0.55;
-    c.fillStyle='rgba(135,206,235,0.2)'; c.fillRect(bkx,bky,bkw,bkh);
-    c.strokeStyle='#aaa'; c.lineWidth=2;
+    // Background
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F0F8FF'); bg.addColorStop(1,'#E8F4FD');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Beaker drawing
+    const bkx=w*0.18, bky=h*0.12, bkw=w*0.28, bkh=h*0.70;
+
+    // Beaker glass
+    c.fillStyle='rgba(200,220,255,0.15)';
+    c.beginPath(); c.moveTo(bkx,bky); c.lineTo(bkx,bky+bkh); c.lineTo(bkx+bkw,bky+bkh); c.lineTo(bkx+bkw,bky); c.closePath(); c.fill();
+    c.strokeStyle='rgba(120,150,200,0.5)'; c.lineWidth=2;
     c.beginPath(); c.moveTo(bkx,bky); c.lineTo(bkx,bky+bkh); c.lineTo(bkx+bkw,bky+bkh); c.lineTo(bkx+bkw,bky); c.stroke();
+    // Rim
+    c.strokeStyle='rgba(120,150,200,0.6)'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(bkx-4,bky); c.lineTo(bkx+bkw+4,bky); c.stroke();
 
     // Liquid
-    const lh = bkh*0.75;
-    c.fillStyle='#4444FF22';
+    const lh=bkh*0.72;
+    c.fillStyle=base.color+'22';
     c.fillRect(bkx+2, bky+bkh-lh, bkw-4, lh);
-
-    // OH- ions floating
-    for(let i=0;i<8;i++){
-      const ix=bkx+20+((i*37+S.t*0.7)%(bkw-40));
-      const iy=bky+bkh-20-((i*50+S.t*0.9)%(lh-30));
-      c.fillStyle='#1565C0'; c.beginPath(); c.arc(ix,iy,7,0,Math.PI*2); c.fill();
-      c.fillStyle='#fff'; c.font=`bold ${Math.max(7,w*0.015)}px Tajawal`; c.textAlign='center';
-      c.fillText('OH⁻',ix,iy+3);
+    // Wave
+    c.fillStyle=base.color+'44';
+    c.beginPath(); c.moveTo(bkx+2,bky+bkh-lh);
+    for(let xi=0;xi<=bkw-4;xi++){
+      c.lineTo(bkx+2+xi, bky+bkh-lh+Math.sin((xi/bkw)*Math.PI*4+S.t*0.07)*5);
     }
+    c.lineTo(bkx+bkw-2,bky+bkh); c.lineTo(bkx+2,bky+bkh); c.closePath(); c.fill();
 
-    c.font=`${Math.max(24,w*0.055)}px serif`; c.textAlign='center';
-    c.fillText(base.icon, bkx+bkw/2, bky+bkh*0.35);
+    // OH⁻ ions floating
+    for(let i=0;i<8;i++){
+      const ix=bkx+14+((i*37+S.t*0.6)%(bkw-30));
+      const iy=bky+bkh-10-((i*47+S.t*0.8)%(lh-20));
+      c.fillStyle=base.color+'CC';
+      c.beginPath(); c.arc(ix,iy,8,0,Math.PI*2); c.fill();
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(7,w*0.014)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('OH⁻',ix,iy);
+    }
+    // Icon in beaker
+    c.font=`${Math.max(28,bkw*0.55)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(base.icon, bkx+bkw/2, bky+bkh*0.32);
 
-    // Info
-    const ix=w*0.6, iy=h*0.15;
-    c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(ix,iy,w*0.36,h*0.72,12); c.fill();
-    c.strokeStyle='#B0D4F0'; c.lineWidth=1.5; c.beginPath(); c.roundRect(ix,iy,w*0.36,h*0.72,12); c.stroke();
+    // Info panel right
+    const ix=w*0.52, iy=h*0.08, iw=w*0.46, ih=h*0.85;
+    c.fillStyle='rgba(255,255,255,0.95)';
+    c.beginPath(); c.roundRect(ix,iy,iw,ih,14); c.fill();
+    c.strokeStyle=base.color+'66'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(ix,iy,iw,ih,14); c.stroke();
+
+    const tx=ix+iw-12;
+    c.textAlign='right'; c.textBaseline='top';
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`;
+    c.fillText(base.name, tx, iy+12);
 
     const rows=[
-      ['الصيغة:', base.formula],
-      ['pH:', `${base.ph}`],
-      ['الاستخدام:', base.use],
-      ['قوية؟:', base.strong?'قاعدة قوية ✅':'قاعدة ضعيفة'],
-      ['تذوب في الماء؟:', base.soluble?'قلويّة ✅ (تذوب)':'قاعدة غير ذائبة'],
+      ['الصيغة:',base.formula,'#1A8FA8'],
+      ['pH:',`${base.ph}`,'#C0392B'],
+      ['الاستخدام:',base.use,'#555'],
+      ['تذوب في الماء؟:',base.soluble?'✅ قلوية (تذوب)':'قاعدة غير ذائبة', base.soluble?'#27AE60':'#E67E22'],
     ];
-    c.textAlign='right'; c.fillStyle='#555'; c.font=`${Math.max(10,w*0.021)}px Tajawal`;
     rows.forEach((row,ri)=>{
-      const ry=iy+32+ri*48;
-      c.fillStyle='#888'; c.fillText(row[0], ix+w*0.34, ry);
-      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`;
-      c.fillText(row[1], ix+w*0.34, ry+20);
-      c.font=`${Math.max(10,w*0.021)}px Tajawal`;
+      const ry=iy+14+ri*h*0.13;
+      c.fillStyle='#888'; c.font=`${Math.max(10,w*0.021)}px Tajawal`;
+      c.fillText(row[0], tx, ry+h*0.04);
+      c.fillStyle=row[2]; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`;
+      c.fillText(row[1], tx, ry+h*0.07);
     });
 
     // pH bar
-    const gx=ix+w*0.03, gy=iy+h*0.60, gw=w*0.28, gh=14;
-    const grad=c.createLinearGradient(gx,0,gx+gw,0);
-    grad.addColorStop(0,'#FF4444'); grad.addColorStop(0.5,'#44BB44'); grad.addColorStop(1,'#4444FF');
-    c.fillStyle=grad; c.beginPath(); c.roundRect(gx,gy,gw,gh,7); c.fill();
-    const px=gx+(base.ph/14)*gw;
-    c.fillStyle='#fff'; c.beginPath(); c.arc(px,gy+gh/2,8,0,Math.PI*2); c.fill();
-    c.fillStyle='#1565C0'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText(base.ph, px, gy+gh/2+4);
+    const gy=iy+h*0.58, gx=ix+8, gw=iw-20, gh=14;
+    const phGrad=c.createLinearGradient(gx,0,gx+gw,0);
+    phGrad.addColorStop(0,'#E74C3C'); phGrad.addColorStop(0.5,'#27AE60'); phGrad.addColorStop(1,'#1565C0');
+    c.fillStyle=phGrad; c.beginPath(); c.roundRect(gx,gy,gw,gh,7); c.fill();
+    const pm=gx+(base.ph/14)*gw;
+    c.fillStyle='#fff'; c.beginPath(); c.arc(pm,gy+gh/2,9,0,Math.PI*2); c.fill();
+    c.strokeStyle=base.color; c.lineWidth=2; c.beginPath(); c.arc(pm,gy+gh/2,9,0,Math.PI*2); c.stroke();
+    c.fillStyle=base.color; c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(base.ph, pm, gy+gh/2);
 
-    animFrame = requestAnimationFrame(draw);
+    animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ── 6-2 Tab1: ورق تبّاع الشمس ──
+// ── 6-2 Tab1: ورق تبّاع الشمس — قابل للسحب ──
 function simG9Indicator1() {
   cancelAnimationFrame(animFrame);
-  const cv = document.getElementById('simCanvas');
-  const c = cv.getContext('2d');
-  const w = cv.width, h = cv.height;
-  const S = simState; S.t=0; if(!S.strip) S.strip=null; if(!S.dropPh) S.dropPh=7;
+  simState = { t:0, dipped:{}, paperX:0.5, paperY:0.12, dragging:false };
+  const S = simState;
 
   const solutions = [
-    { name:'حمض الهيدروكلوريك', ph:1, color:'#FF2222' },
-    { name:'عصير الليمون', ph:2.5, color:'#FF6600' },
-    { name:'الخل', ph:3, color:'#FF8800' },
-    { name:'القهوة', ph:5, color:'#FFAA00' },
-    { name:'الماء النقي', ph:7, color:'#9966CC' },
-    { name:'ماء الصابون', ph:9, color:'#4488FF' },
-    { name:'الأمونيا', ph:11, color:'#2244FF' },
-    { name:'ماء الجير', ph:12.4, color:'#0011FF' },
+    { id:'hcl',    label:'حمض\nالهيدروكلوريك', ph:1,   color:'#C0392B', bgCol:'rgba(231,76,60,',   type:'acid',    emoji:'⚠️', typeLabel:'حمضي قوي' },
+    { id:'lemon',  label:'عصير\nالليمون',        ph:2.5, color:'#E67E22', bgCol:'rgba(243,156,18,',  type:'acid',    emoji:'🍋', typeLabel:'حمضي' },
+    { id:'coffee', label:'القهوة',               ph:5,   color:'#8B4513', bgCol:'rgba(139,69,19,',   type:'acid',    emoji:'☕', typeLabel:'حمضي خفيف' },
+    { id:'water',  label:'الماء\nالنقي',          ph:7,   color:'#7D3C98', bgCol:'rgba(125,60,152,',  type:'neutral', emoji:'💧', typeLabel:'متعادل' },
+    { id:'soap',   label:'ماء\nالصابون',          ph:9,   color:'#2980B9', bgCol:'rgba(41,128,185,',  type:'base',    emoji:'🧼', typeLabel:'قلوي' },
+    { id:'ammonia',label:'الأمونيا',              ph:11.5,color:'#1A5276', bgCol:'rgba(26,82,118,',   type:'base',    emoji:'🧪', typeLabel:'قلوي قوي' },
   ];
+
+  let paperColor={r:220,g:208,b:170};
+  let isDipping=false, dipProgress=0, dipTarget=null, dipPhase=0, colorProgress=0, lastDipped=null, dipCount=0, dipAnim=0;
+
+  function hexToRgb(hex){ return {r:parseInt(hex.slice(1,3),16),g:parseInt(hex.slice(3,5),16),b:parseInt(hex.slice(5,7),16)}; }
+  function lerpColor(a,b,t){ return {r:Math.round(a.r+(b.r-a.r)*t),g:Math.round(a.g+(b.g-a.g)*t),b:Math.round(a.b+(b.b-a.b)*t)}; }
 
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🧪 اختر المحلول</div>
-      <div class="ctrl-btns-grid-1">
-        ${solutions.map((s,i)=>`<button class="ctrl-btn" onclick="simState.dropPh=${s.ph};simState.strip='${s.name}'" style="border-right:4px solid ${s.color};font-size:13px">${s.name}<br><small style="font-weight:400;color:var(--muted)">pH ${s.ph}</small></button>`).join('')}
+      <div class="ctrl-label">📄 ورق تبّاع الشمس</div>
+      <div class="info-box" style="text-align:center;line-height:1.8">
+        اسحب ورقة تبّاع الشمس<br>نحو أي محلول لترى لونها!
       </div>
+      <div id="dipResult" style="margin-top:8px;padding:10px;border-radius:10px;
+        background:rgba(26,143,168,0.06);border:1.5px solid rgba(26,143,168,0.2);
+        font-size:14px;color:#555;line-height:1.7;min-height:54px;">
+        اسحب الورقة فوق أحد الكؤوس...
+      </div>
+      <div id="dipScore" style="margin-top:6px;font-size:13px;color:#1A8FA8;text-align:center;font-weight:700"></div>
     </div>
-    <div class="info-box" id="strip-result">
-      اختر محلولاً لرؤية تأثيره على ورقة تبّاع الشمس
+    <div style="padding:8px 10px;background:rgba(212,144,26,0.07);border-radius:8px;font-size:13px;color:#7A5010;line-height:1.8;margin-top:8px">
+      🔴 حمض &nbsp;|&nbsp; 🟣 متعادل &nbsp;|&nbsp; 🔵 قلوي
     </div>
     <div class="q-box">
-      <strong>❓ لماذا لا تُستخدم ورقة تبّاع الشمس لقياس قيمة pH الدقيقة؟</strong>
+      <strong>❓ لماذا لا تُستخدم ورقة تبّاع الشمس لقياس pH الدقيق؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">ورقة تبّاع الشمس تُعطي فقط 3 ألوان (أحمر/بنفسجي/أزرق)، فتُخبرنا إذا كان المحلول حمضياً أو متعادلاً أو قلوياً. للقياس الدقيق نستخدم الكاشف العام أو جهاز pH.</div>
+      <div class="q-ans-panel">ورقة تبّاع الشمس تُعطي 3 ألوان فقط (أحمر/بنفسجي/أزرق). للقياس الدقيق نستخدم الكاشف العام أو جهاز pH الرقمي.</div>
     </div>`);
 
-  function getStripColor(ph) {
-    if (ph < 3) return '#FF2222';
-    if (ph < 5) return '#FF6600';
-    if (ph < 6) return '#FFAA00';
-    if (ph < 7) return '#FFDD00';
-    if (ph === 7) return '#9966CC';
-    if (ph < 9) return '#44AAFF';
-    if (ph < 11) return '#2255FF';
-    return '#1100EE';
-  }
+  const cv=document.getElementById('simCanvas');
 
-  function getColorName(ph) {
-    if (ph < 3) return 'أحمر 🔴';
-    if (ph < 5) return 'برتقالي 🟠';
-    if (ph < 6) return 'أصفر برتقالي 🟡';
-    if (ph < 7) return 'أصفر 🟡';
-    if (ph === 7) return 'بنفسجي (بدون تغيير) 🟣';
-    if (ph < 9) return 'أزرق فاتح 🔵';
-    if (ph < 11) return 'أزرق 🔵';
-    return 'أزرق غامق 💙';
-  }
+  function draw(){
+    if(currentSim!=='g9indicator'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h); S.t+=0.02;
 
-  function getType(ph) {
-    if (ph < 7) return 'حمضي 🍋';
-    if (ph === 7) return 'متعادل 💧';
-    return 'قلوي 🧼';
-  }
+    // Background - lab bench
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F0F8FF'); bg.addColorStop(1,'#E8EEF8');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='rgba(180,160,130,0.18)';
+    c.beginPath(); c.roundRect(0,h*0.72,w,h*0.28,0); c.fill();
+    c.fillStyle='rgba(160,140,110,0.3)'; c.fillRect(0,h*0.72,w,3);
 
-  cv.onclick = function(e) {
-    const r = cv.getBoundingClientRect();
-    const mx = (e.clientX - r.left) * (w / r.width);
-    const my = (e.clientY - r.top) * (h / r.height);
-    // check drop on strip
-    if (mx>w*0.35 && mx<w*0.65 && my>h*0.45 && my<h*0.75) {
-      const res = document.getElementById('strip-result');
-      if (res && S.strip) {
-        res.innerHTML = `<b>النتيجة:</b><br>المحلول: ${S.strip}<br>اللون: ${getColorName(S.dropPh)}<br>التصنيف: ${getType(S.dropPh)}`;
-        res.style.background = getStripColor(S.dropPh)+'33';
+    if(dipCount===0&&!isDipping){
+      c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.fillStyle='rgba(80,110,160,0.65)';
+      c.textAlign='center'; c.textBaseline='top';
+      c.fillText('↓ اسحب الورقة نحو أي كأس', w/2, h*0.04);
+    }
+
+    // Advance dip animation
+    if(isDipping){
+      dipProgress+=0.022;
+      if(dipPhase===0&&dipProgress>0.38) dipPhase=1;
+      else if(dipPhase===1){
+        const blend=(dipProgress-0.38)/0.37;
+        colorProgress=Math.min(1,blend*1.3);
+        paperColor=lerpColor(paperColor,hexToRgb(dipTarget.color),colorProgress);
+        if(dipProgress>0.75) dipPhase=2;
+      } else if(dipPhase===2&&dipProgress>=1.0){
+        isDipping=false; dipProgress=0; dipPhase=0;
+        S.paperX=0.5; S.paperY=0.12;
       }
     }
-  };
 
-  function draw() {
-    c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F5F0E8'; c.fillRect(0,0,w,h);
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('ورقة تبّاع الشمس — اغمسها في المحلول', w/2, h*0.09);
+    // Draw beakers
+    const n=solutions.length;
+    solutions.forEach((sol,i)=>{
+      const bx=w*(0.09+i*(0.84/(n-1)));
+      const by=h*0.68, bW=Math.min(w*0.13,58), bH=bW*1.25;
+      const isDipped=S.dipped[sol.id];
+      const isActive=isDipping&&dipTarget&&dipTarget.id===sol.id;
 
-    // Litmus strip before
-    const sx=w*0.38, sy=h*0.45, sw=w*0.26, sh=h*0.30;
-    c.fillStyle='#E8E8FF'; c.beginPath(); c.roundRect(sx,sy,sw,sh,8); c.fill();
-    c.strokeStyle='#888'; c.lineWidth=1.5; c.beginPath(); c.roundRect(sx,sy,sw,sh,8); c.stroke();
-    c.fillStyle='#555'; c.font=`${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
-    c.fillText('ورقة تبّاع الشمس', sx+sw/2, sy-10);
-    c.fillText('(قبل)', sx+sw/2, sy+sh+18);
+      // Glass
+      const glassG=c.createLinearGradient(bx-bW/2,0,bx+bW/2,0);
+      glassG.addColorStop(0,'rgba(220,235,255,0.6)'); glassG.addColorStop(0.3,'rgba(255,255,255,0.15)');
+      glassG.addColorStop(0.7,'rgba(255,255,255,0.1)'); glassG.addColorStop(1,'rgba(200,220,255,0.5)');
+      c.fillStyle=glassG; c.strokeStyle=isActive?'rgba(26,143,168,0.8)':'rgba(120,150,200,0.4)';
+      c.lineWidth=isActive?2.5:1.8;
+      c.beginPath();
+      c.moveTo(bx-bW/2+4,by-bH); c.lineTo(bx-bW/2,by);
+      c.quadraticCurveTo(bx-bW/2,by+8,bx-bW/2+8,by+8);
+      c.lineTo(bx+bW/2-8,by+8); c.quadraticCurveTo(bx+bW/2,by+8,bx+bW/2,by);
+      c.lineTo(bx+bW/2-4,by-bH); c.closePath(); c.fill(); c.stroke();
 
-    // If solution selected, show dipped version
-    if (S.strip && S.dropPh !== undefined) {
-      const stripColor = getStripColor(S.dropPh);
-      // Arrow
-      c.fillStyle='#1A8FA8'; c.font=`${Math.max(18,w*0.04)}px serif`;
-      const pulse = Math.sin(S.t*0.08)*4;
-      c.fillText('←', w*0.68+pulse, sy+sh/2+10);
-      // Dipped strip
-      const ds=w*0.72, dy2=sy;
-      c.fillStyle=stripColor; c.beginPath(); c.roundRect(ds,dy2,sw,sh,8); c.fill();
-      c.strokeStyle='#888'; c.lineWidth=1.5; c.beginPath(); c.roundRect(ds,dy2,sw,sh,8); c.stroke();
-      c.fillStyle='#fff'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
-      c.fillText('بعد الغمس', ds+sw/2, dy2-10);
-      c.fillText(getColorName(S.dropPh), ds+sw/2, dy2+sh+18);
-      // Beaker
-      const bx=w*0.35, by=h*0.25;
-      c.fillStyle='rgba(135,206,235,0.4)';
-      c.beginPath(); c.roundRect(bx,by,w*0.32,h*0.15,6); c.fill();
-      c.strokeStyle='#aaa'; c.lineWidth=1.5; c.beginPath(); c.roundRect(bx,by,w*0.32,h*0.15,6); c.stroke();
-      c.fillStyle='#333'; c.font=`${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
-      c.fillText(S.strip, bx+w*0.16, by+h*0.085);
-      c.fillText(`pH = ${S.dropPh}`, bx+w*0.16, by+h*0.115);
-      // Drop animation
-      const dropY = by + h*0.15 + ((S.t*2)%(h*0.28));
-      c.fillStyle='rgba(135,206,235,0.7)';
-      c.beginPath(); c.arc(bx+w*0.16, dropY, 5, 0, Math.PI*2); c.fill();
-    } else {
-      c.fillStyle='#888'; c.font=`${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center';
-      c.fillText('← اختر محلولاً من القائمة', w/2, h*0.85);
-      c.fillText('ثم انقر على ورقة تبّاع الشمس', w/2, h*0.90);
+      // Liquid
+      const liqH=bH*0.68, liqY=by-liqH+4;
+      c.fillStyle=isDipped?sol.bgCol+'0.42)':isActive?sol.bgCol+'0.32)':sol.bgCol+'0.18)';
+      c.beginPath();
+      c.moveTo(bx-bW/2+3,liqY); c.lineTo(bx-bW/2+1,by+2);
+      c.lineTo(bx+bW/2-1,by+2); c.lineTo(bx+bW/2-3,liqY); c.closePath(); c.fill();
+      // Surface shimmer
+      c.fillStyle='rgba(255,255,255,0.28)';
+      c.beginPath(); c.ellipse(bx,liqY+2,bW/2-6,4,0,0,Math.PI*2); c.fill();
+      // Ripple
+      if(isActive&&dipPhase>=1){
+        const rp=(dipProgress-0.38)*80, ra=Math.max(0,0.6-(dipProgress-0.38)*1.2);
+        c.strokeStyle=`rgba(255,255,255,${ra})`; c.lineWidth=2;
+        c.beginPath(); c.ellipse(bx,liqY+6,rp*0.4,rp*0.12,0,0,Math.PI*2); c.stroke();
+      }
+      // Color stain after dip
+      if(isDipped){
+        const sc2=hexToRgb(sol.color);
+        const stripG=c.createLinearGradient(0,liqY,0,by);
+        stripG.addColorStop(0,`rgba(${sc2.r},${sc2.g},${sc2.b},0)`);
+        stripG.addColorStop(0.4,`rgba(${sc2.r},${sc2.g},${sc2.b},0.35)`);
+        stripG.addColorStop(1,`rgba(${sc2.r},${sc2.g},${sc2.b},0.5)`);
+        c.fillStyle=stripG;
+        c.beginPath(); c.moveTo(bx-bW/2+3,liqY); c.lineTo(bx-bW/2+1,by+2);
+        c.lineTo(bx+bW/2-1,by+2); c.lineTo(bx+bW/2-3,liqY); c.closePath(); c.fill();
+      }
+
+      // Emoji & label
+      c.font=`${Math.round(bW*0.42)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(sol.emoji, bx, by-bH*0.35);
+      c.font=`bold ${Math.max(9,Math.round(w*0.018))}px Tajawal`; c.fillStyle='#334';
+      c.textBaseline='top';
+      sol.label.split('\n').forEach((line,li)=>c.fillText(line,bx,by+12+li*13));
+      c.fillStyle='#1A8FA8'; c.font=`bold ${Math.max(9,Math.round(w*0.019))}px Tajawal`;
+      c.fillText('pH '+sol.ph, bx, by+12+sol.label.split('\n').length*13);
+
+      // Ripple ring
+      if(lastDipped===sol.id&&dipAnim>0){
+        const dc=hexToRgb(sol.color);
+        c.strokeStyle=`rgba(${dc.r},${dc.g},${dc.b},${dipAnim})`; c.lineWidth=2.5;
+        c.beginPath(); c.ellipse(bx,by-bH*0.4,(1-dipAnim)*bW*0.8,(1-dipAnim)*bW*0.25,0,0,Math.PI*2); c.stroke();
+        dipAnim=Math.max(0,dipAnim-0.022);
+      }
+    });
+
+    // Draw litmus paper
+    let drawPX, drawPY, submergeDepth=0;
+    const restY=S.paperY*h;
+    if(!isDipping){ drawPX=S.paperX*w; drawPY=restY; }
+    else {
+      const bx2=w*(0.09+solutions.findIndex(s=>s.id===dipTarget.id)*(0.84/(n-1)));
+      const by2=h*0.68, bH2=Math.min(w*0.13,58)*1.25;
+      if(dipPhase===0){ const t=dipProgress/0.38; drawPX=S.paperX*w+(bx2-S.paperX*w)*t; drawPY=restY+(by2-bH2*0.7-restY)*t; }
+      else if(dipPhase===1){ drawPX=bx2; drawPY=by2-bH2*0.7; submergeDepth=Math.min(44,(dipProgress-0.38)/0.37*44); }
+      else { const t=(dipProgress-0.75)/0.25; drawPX=bx2+(0.5*w-bx2)*t; drawPY=(by2-bH2*0.7)+(0.12*h-(by2-bH2*0.7))*t; submergeDepth=Math.max(0,44-t*44); }
     }
-    // Color scale
-    const scale=[{ph:0,col:'#FF2222'},{ph:3,col:'#FF6600'},{ph:5,col:'#FFAA00'},{ph:7,col:'#9966CC'},{ph:9,col:'#4488FF'},{ph:14,col:'#1100EE'}];
-    const scx=w*0.05, scy=h*0.82, scw=w*0.9, sch=14;
-    const grad=c.createLinearGradient(scx,0,scx+scw,0);
-    scale.forEach(s=>grad.addColorStop(s.ph/14,s.col));
-    c.fillStyle=grad; c.beginPath(); c.roundRect(scx,scy,scw,sch,7); c.fill();
-    c.fillStyle='#333'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    [0,7,14].forEach(n=>c.fillText(n,scx+(n/14)*scw,scy+sch+14));
-    c.fillText('حمضي',scx+scw*0.15,scy-4); c.fillText('متعادل',scx+scw*0.5,scy-4); c.fillText('قلوي',scx+scw*0.85,scy-4);
 
-    animFrame = requestAnimationFrame(draw);
+    c.save();
+    const pW=22, pHstrip=54, pHhandle=26;
+    const fc=paperColor;
+    // Shadow
+    c.fillStyle='rgba(0,0,0,0.1)';
+    c.beginPath(); c.ellipse(drawPX+4,drawPY+pHhandle+pHstrip+4,pW*0.5,5,0,0,Math.PI*2); c.fill();
+    // Handle
+    const hGrad=c.createLinearGradient(drawPX-pW/2,0,drawPX+pW/2,0);
+    hGrad.addColorStop(0,'#E8D8A8'); hGrad.addColorStop(0.5,'#F4E8C0'); hGrad.addColorStop(1,'#D8C898');
+    c.fillStyle=hGrad; c.strokeStyle='rgba(140,110,50,0.3)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(drawPX-pW/2,drawPY,pW,pHhandle,[4,4,0,0]); c.fill(); c.stroke();
+    for(let i=0;i<3;i++){ c.strokeStyle='rgba(120,90,40,0.2)'; c.lineWidth=0.8; c.beginPath(); c.moveTo(drawPX-pW/2+4,drawPY+7+i*6); c.lineTo(drawPX+pW/2-4,drawPY+7+i*6); c.stroke(); }
+    // Strip
+    c.save();
+    const visH=Math.max(2,pHstrip-submergeDepth);
+    c.beginPath(); c.rect(drawPX-pW/2,drawPY+pHhandle,pW,visH); c.clip();
+    const blendT=colorProgress, beigePx=Math.round(pHstrip*(1-blendT)), colorPx=pHstrip-beigePx;
+    if(beigePx>0&&beigePx<visH){ c.fillStyle='rgba(220,208,170,1)'; c.beginPath(); c.rect(drawPX-pW/2+1,drawPY+pHhandle,pW-2,Math.min(beigePx,visH)); c.fill(); }
+    if(colorPx>0){
+      const sy=drawPY+pHhandle+beigePx, sh=Math.min(colorPx,visH-beigePx);
+      if(sh>0){
+        const cg=c.createLinearGradient(0,sy,0,sy+sh);
+        cg.addColorStop(0,`rgba(${fc.r},${fc.g},${fc.b},${0.5+blendT*0.3})`);
+        cg.addColorStop(1,`rgba(${fc.r},${fc.g},${fc.b},1)`);
+        c.fillStyle=cg; c.beginPath(); c.rect(drawPX-pW/2+1,sy,pW-2,sh); c.fill();
+        if(blendT>0.05&&blendT<0.99){ c.fillStyle=`rgba(${fc.r},${fc.g},${fc.b},0.3)`; c.beginPath(); c.ellipse(drawPX,sy+2,pW/2-1,4,0,0,Math.PI*2); c.fill(); }
+      }
+    } else { c.fillStyle='rgba(220,208,170,1)'; c.beginPath(); c.rect(drawPX-pW/2+1,drawPY+pHhandle,pW-2,visH); c.fill(); }
+    c.strokeStyle='rgba(0,0,0,0.15)'; c.lineWidth=1.2;
+    c.beginPath(); c.roundRect(drawPX-pW/2,drawPY+pHhandle,pW,visH,[0,0,4,4]); c.stroke();
+    c.restore();
+    if(!isDipping){ c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.fillStyle='rgba(60,45,20,0.85)'; c.textAlign='center'; c.textBaseline='top'; c.fillText('ورق تبّاع الشمس',drawPX,drawPY+pHhandle+pHstrip+6); }
+    // Color badge
+    if(colorProgress>0.45&&lastDipped&&!isDipping){
+      const dp=solutions.find(s=>s.id===lastDipped);
+      if(dp){ c.font='bold 13px Tajawal'; const tw=c.measureText(dp.typeLabel).width; const bwt=tw+28;
+        c.fillStyle='rgba(30,45,70,0.10)'; c.strokeStyle='rgba(30,45,70,0.3)'; c.lineWidth=1.5;
+        c.beginPath(); c.roundRect(drawPX-bwt/2,drawPY-48,bwt,30,10); c.fill(); c.stroke();
+        c.fillStyle='rgba(30,45,70,0.85)'; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(dp.typeLabel,drawPX,drawPY-33); }
+    }
+    c.restore();
+    animFrame=requestAnimationFrame(draw);
   }
+
+  // Drag
+  function getPos(e){ const r=cv.getBoundingClientRect(); const touch=e.touches&&e.touches[0]||e; return {x:(touch.clientX-r.left)*cv.width/r.width,y:(touch.clientY-r.top)*cv.height/r.height}; }
+  function onStart(e){ if(isDipping) return; e.preventDefault&&e.preventDefault(); const pos=getPos(e); if(Math.hypot(pos.x-S.paperX*cv.width,pos.y-(S.paperY+0.05)*cv.height)<60) S.dragging=true; }
+  function onMove(e){ if(!S.dragging||isDipping) return; e.preventDefault&&e.preventDefault(); const pos=getPos(e); S.paperX=Math.max(0.05,Math.min(0.95,pos.x/cv.width)); S.paperY=Math.max(0.03,Math.min(0.60,(pos.y-35)/cv.height)); }
+  function onEnd(e){
+    if(!S.dragging||isDipping) return; S.dragging=false;
+    if(S.paperY*cv.height>cv.height*0.38){
+      let closest=null,minDist=Infinity;
+      solutions.forEach((sol,i)=>{ const bx=0.09+i*(0.84/(solutions.length-1)); const d=Math.abs(S.paperX-bx); if(d<minDist){minDist=d;closest=sol;} });
+      if(closest&&minDist<0.13){
+        isDipping=true; dipProgress=0; dipPhase=0; dipTarget=closest; lastDipped=closest.id;
+        dipAnim=1; dipCount++; colorProgress=0; S.dipped[closest.id]=true;
+        try{U9Sound.ping(600,0.15,0.12);}catch(e){}
+        setTimeout(()=>{
+          const box=document.getElementById('dipResult');
+          if(box){ box.innerHTML=`<div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:4px"><span style="font-size:22px">${closest.emoji}</span><strong style="font-size:15px">${closest.label.replace('\n',' ')}</strong></div><div style="color:${closest.color};font-weight:700;font-size:15px">${closest.typeLabel} — pH ${closest.ph}</div><div style="font-size:13px;color:#555;margin-top:3px">${closest.type==='acid'?'الورقة تحمرّ 🔴 — حمض':closest.type==='neutral'?'الورقة تبقى بنفسجية 🟣 — متعادل':'الورقة تزرقّ 🔵 — قلوي'}</div>`; box.style.borderRight=`4px solid ${closest.color}`; }
+          const sc=document.getElementById('dipScore'); const done=Object.keys(S.dipped).length;
+          if(sc) sc.textContent=`✅ ${done} من ${solutions.length} محاليل مكتملة`;
+          if(done===solutions.length) setTimeout(()=>{ try{buddySay('ممتاز! 🌟 اختبرت جميع المحاليل — أحمر=حمض، بنفسجي=متعادل، أزرق=قلوي!',7000);}catch(e){} },500);
+        },600); return;
+      }
+    }
+    S.paperX=0.5; S.paperY=0.12;
+  }
+  cv.onmousedown=onStart; cv.onmousemove=onMove; cv.onmouseup=onEnd;
+  cv.addEventListener('touchstart',onStart,{passive:false});
+  cv.addEventListener('touchmove',onMove,{passive:false});
+  cv.addEventListener('touchend',onEnd,{passive:false});
   draw();
 }
 
-// ── 6-2 Tab2: الكاشف العام ──
+// ── 6-2 Tab2: الكاشف العام — تفاعلي ──
 function simG9Indicator2() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(S.ph===undefined) S.ph=7;
+  simState = { t:0, ph:7 };
+  const S = simState;
+
+  function getUniversalColor(ph){
+    if(ph<1) return '#FF0000'; if(ph<2) return '#FF2200'; if(ph<3) return '#FF4400';
+    if(ph<4) return '#FF6600'; if(ph<5) return '#FFAA00'; if(ph<6) return '#FFDD00';
+    if(ph<7) return '#88CC00'; if(ph<8) return '#00AA44'; if(ph<9) return '#00AAAA';
+    if(ph<10) return '#0066FF'; if(ph<11) return '#2200FF'; if(ph<12) return '#4400CC';
+    if(ph<13) return '#660099'; return '#880077';
+  }
+  function getColorLabel(ph){
+    if(ph<2) return 'أحمر قاني'; if(ph<3) return 'أحمر'; if(ph<4) return 'أحمر برتقالي';
+    if(ph<5) return 'برتقالي'; if(ph<6) return 'أصفر'; if(ph<7) return 'أخضر مصفر';
+    if(ph<8) return 'أخضر'; if(ph<9) return 'أخضر مزرق'; if(ph<10) return 'أزرق';
+    if(ph<11) return 'أزرق غامق'; if(ph<12) return 'بنفسجي'; return 'بنفسجي غامق';
+  }
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🎨 اضبط الرقم الهيدروجيني</div>
-      <div class="ctrl-name" style="font-size:13px;font-weight:400">اسحب المقياس لتغيير pH:</div>
-      <input type="range" min="0" max="14" step="0.5" value="7" oninput="simState.ph=+this.value;document.getElementById('ph-val').textContent=this.value" style="width:100%;direction:ltr">
-      <div style="text-align:center;margin-top:6px;font-size:22px;font-weight:800;color:var(--red)" id="ph-val">7</div>
+      <input type="range" min="0" max="14" step="0.5" value="7"
+        oninput="simState.ph=+this.value" style="width:100%;direction:ltr">
+      <div style="text-align:center;margin-top:8px;font-size:24px;font-weight:800;color:var(--teal)" id="ph-val-display">pH = 7</div>
     </div>
     <div class="info-box" id="ui-result">
-      لون الكاشف: <b>بنفسجي</b><br>التصنيف: متعادل
+      لون الكاشف: <b>أخضر</b><br>التصنيف: متعادل
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">📊 جدول الألوان</div>
+      <div style="font-size:11px;line-height:2.2;font-family:Tajawal">
+        🔴 pH 0-3 &nbsp;|&nbsp; 🟠 pH 3-5<br>
+        🟡 pH 5-6 &nbsp;|&nbsp; 🟢 pH 6-8<br>
+        🔵 pH 8-11 &nbsp;|&nbsp; 🟣 pH 11-14
+      </div>
     </div>
     <div class="q-box">
       <strong>❓ ما ميزة الكاشف العام على ورقة تبّاع الشمس؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الكاشف العام خليط من كواشف متعددة يُعطي ألواناً مختلفة لكل قيمة pH من 0 إلى 14 — مما يُتيح تحديد قيمة pH التقريبية بدقة أكبر.</div>
+      <div class="q-ans-panel">الكاشف العام يُعطي ألواناً مختلفة لكل قيمة pH من 0-14، مما يُتيح تحديد قيمة pH التقريبية بدقة أكبر من ورقة تبّاع الشمس التي تُعطي 3 ألوان فقط.</div>
     </div>`);
 
-  function getUniversalColor(ph) {
-    if(ph<1) return '#FF0000';
-    if(ph<2) return '#FF2200';
-    if(ph<3) return '#FF4400';
-    if(ph<4) return '#FF6600';
-    if(ph<5) return '#FFAA00';
-    if(ph<6) return '#FFDD00';
-    if(ph<7) return '#88CC00';
-    if(ph<8) return '#00AA44';
-    if(ph<9) return '#00AAAA';
-    if(ph<10) return '#0066FF';
-    if(ph<11) return '#2200FF';
-    if(ph<12) return '#4400CC';
-    if(ph<13) return '#660099';
-    return '#880077';
-  }
+  const cv=document.getElementById('simCanvas');
 
-  function getColorLabel(ph) {
-    if(ph<2) return 'أحمر قاني';
-    if(ph<3) return 'أحمر';
-    if(ph<4) return 'أحمر برتقالي';
-    if(ph<5) return 'برتقالي';
-    if(ph<6) return 'أصفر';
-    if(ph<7) return 'أخضر مصفر';
-    if(ph<8) return 'أخضر';
-    if(ph<9) return 'أخضر مزرق';
-    if(ph<10) return 'أزرق';
-    if(ph<11) return 'أزرق غامق';
-    if(ph<12) return 'بنفسجي';
-    return 'بنفسجي غامق';
-  }
-
-  function draw() {
+  function draw(){
+    if(currentSim!=='g9indicator'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F8F5EF'; c.fillRect(0,0,w,h);
-    const ph=S.ph||7;
-    const col=getUniversalColor(ph);
+    const ph=S.ph||7, col=getUniversalColor(ph);
 
     // Update UI
+    const phEl=document.getElementById('ph-val-display');
+    if(phEl) phEl.textContent=`pH = ${ph}`;
     const res=document.getElementById('ui-result');
-    if(res) {
-      const type=ph<7?'حمضي 🍋':ph>7?'قلوي 🧼':'متعادل 💧';
-      res.innerHTML=`لون الكاشف: <b>${getColorLabel(ph)}</b><br>pH = ${ph}<br>التصنيف: ${type}`;
-    }
+    if(res){ const type=ph<7?'حمضي 🍋':ph>7?'قلوي 🧼':'متعادل 💧'; res.innerHTML=`لون الكاشف: <b>${getColorLabel(ph)}</b><br>pH = ${ph} | ${type}`; }
 
-    // Big tube
-    const tx=w*0.35, ty=h*0.1, tw=w*0.3, th=h*0.7;
-    c.fillStyle='rgba(200,220,240,0.3)'; c.beginPath(); c.roundRect(tx,ty,tw,th,tw/2); c.fill();
-    c.strokeStyle='#aaa'; c.lineWidth=2; c.beginPath(); c.roundRect(tx,ty,tw,th,tw/2); c.stroke();
+    // Bg
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F8F5EF'); bg.addColorStop(1,'#EDE8E0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // Liquid
-    const lh=th*0.8;
-    c.fillStyle=col+'CC';
-    c.save(); c.beginPath(); c.roundRect(tx+4,ty+th-lh,tw-8,lh,tw/2-4); c.clip();
-    c.fillRect(tx+4,ty+th-lh,tw-8,lh);
-    // wave
-    c.fillStyle=col+'44';
-    c.beginPath(); c.moveTo(tx+4,ty+th-lh+10);
-    for(let i=0;i<tw-8;i++){c.lineTo(tx+4+i,ty+th-lh+10+Math.sin(i*0.1+S.t*0.07)*5);}
-    c.lineTo(tx+tw-4,ty+th-lh); c.closePath(); c.fill();
+    // Big test tube / flask
+    const tx=w*0.34, ty=h*0.08, tw2=w*0.32, th=h*0.72;
+    // Shadow
+    c.fillStyle='rgba(0,0,0,0.06)'; c.beginPath(); c.ellipse(tx+tw2/2+6,ty+th,tw2*0.4,10,0,0,Math.PI*2); c.fill();
+    // Glass tube body
+    c.strokeStyle='rgba(120,150,200,0.5)'; c.lineWidth=3;
+    const glassG=c.createLinearGradient(tx,0,tx+tw2,0);
+    glassG.addColorStop(0,'rgba(220,235,255,0.7)'); glassG.addColorStop(0.3,'rgba(255,255,255,0.2)');
+    glassG.addColorStop(0.7,'rgba(255,255,255,0.1)'); glassG.addColorStop(1,'rgba(200,220,255,0.6)');
+    c.fillStyle=glassG;
+    c.beginPath(); c.moveTo(tx,ty); c.lineTo(tx,ty+th-tw2/2); c.quadraticCurveTo(tx,ty+th,tx+tw2/2,ty+th); c.quadraticCurveTo(tx+tw2,ty+th,tx+tw2,ty+th-tw2/2); c.lineTo(tx+tw2,ty); c.closePath(); c.fill(); c.stroke();
+
+    // Liquid inside with wave
+    const lh2=th*0.82;
+    c.save();
+    c.beginPath(); c.moveTo(tx+2,ty+th-lh2); c.lineTo(tx+2,ty+th-tw2/2); c.quadraticCurveTo(tx+2,ty+th-2,tx+tw2/2,ty+th-2); c.quadraticCurveTo(tx+tw2-2,ty+th-2,tx+tw2-2,ty+th-tw2/2); c.lineTo(tx+tw2-2,ty+th-lh2); c.closePath(); c.clip();
+    c.fillStyle=col+'BB'; c.fillRect(tx+2,ty+th-lh2,tw2-4,lh2);
+    // Wave on top
+    c.fillStyle=col+'55';
+    c.beginPath(); c.moveTo(tx+2,ty+th-lh2);
+    for(let xi=0;xi<=tw2-4;xi++){ c.lineTo(tx+2+xi, ty+th-lh2+Math.sin((xi/(tw2))*Math.PI*3+S.t*0.08)*6); }
+    c.lineTo(tx+tw2-2,ty+th-lh2-6); c.closePath(); c.fill();
     c.restore();
 
     // pH label in tube
-    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(22,w*0.05)}px Tajawal`; c.textAlign='center';
-    c.fillText(`pH = ${ph}`, tx+tw/2, ty+th*0.45);
+    c.fillStyle='rgba(255,255,255,0.92)'; c.font=`bold ${Math.max(18,w*0.045)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`pH = ${ph}`, tx+tw2/2, ty+th*0.42);
 
-    // Color strip at top
-    const barX=w*0.05, barY=h*0.86, barW=w*0.9, barH=18;
+    // Color name
+    c.fillStyle=col; c.font=`bold ${Math.max(12,w*0.027)}px Tajawal`;
+    c.fillText(getColorLabel(ph), tx+tw2/2, ty+th*0.57);
+
+    // Full spectrum bar at bottom
+    const barX=w*0.05, barY=h*0.87, barW=w*0.9, barH=20;
     const grad=c.createLinearGradient(barX,0,barX+barW,0);
-    ['#FF0000','#FF4400','#FF8800','#FFCC00','#88CC00','#00AA44','#00AAAA','#0066FF','#4400CC','#880077'].forEach((cl,i)=>{
-      grad.addColorStop(i/9,cl);
-    });
-    c.fillStyle=grad; c.beginPath(); c.roundRect(barX,barY,barW,barH,9); c.fill();
+    ['#FF0000','#FF4400','#FF8800','#FFCC00','#88CC00','#00AA44','#00AAAA','#0066FF','#4400CC','#880077'].forEach((cl,i)=>grad.addColorStop(i/9,cl));
+    c.fillStyle=grad; c.beginPath(); c.roundRect(barX,barY,barW,barH,10); c.fill();
+    // Gloss
+    c.fillStyle='rgba(255,255,255,0.3)'; c.beginPath(); c.roundRect(barX,barY,barW,barH/2,10); c.fill();
+    // Marker
     const marker=barX+(ph/14)*barW;
-    c.fillStyle='#fff'; c.beginPath(); c.arc(marker,barY+barH/2,9,0,Math.PI*2); c.fill();
-    c.strokeStyle='#333'; c.lineWidth=2; c.beginPath(); c.arc(marker,barY+barH/2,9,0,Math.PI*2); c.stroke();
-    c.fillStyle='#333'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText(ph,marker,barY+barH/2+4);
-    [0,7,14].forEach(n=>{c.fillStyle='#555'; c.fillText(n,barX+(n/14)*barW,barY+barH+16);});
+    c.fillStyle='#fff'; c.beginPath(); c.arc(marker,barY+barH/2,11,0,Math.PI*2); c.fill();
+    c.strokeStyle='#333'; c.lineWidth=2; c.beginPath(); c.arc(marker,barY+barH/2,11,0,Math.PI*2); c.stroke();
+    c.fillStyle='#333'; c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(ph,marker,barY+barH/2);
+    [0,7,14].forEach(n=>{ c.fillStyle='#555'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='top'; c.fillText(n,barX+(n/14)*barW,barY+barH+5); });
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -30860,173 +31071,232 @@ function simG9Indicator2() {
 // ── 6-2 Tab3: الكاشف الطبيعي ──
 function simG9Indicator3() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(!S.selNat) S.selNat=0; if(S.phNat===undefined) S.phNat=7;
+  simState = { t:0, selNat:0, phNat:7 };
+  const S = simState;
 
   const naturals=[
-    { name:'عصير الكرنب الأحمر', acid:'أحمر 🔴', neutral:'بنفسجي 🟣', base:'أخضر/أصفر 💛', acC:'#FF2244', neuC:'#9933CC', basC:'#88BB00' },
-    { name:'التوت (عصير)', acid:'أحمر 🔴', neutral:'بنفسجي 🟣', base:'أزرق 🔵', acC:'#CC2244', neuC:'#7744AA', basC:'#3355CC' },
-    { name:'زهرة الهيدرانجيا', acid:'وردي/أحمر 🌸', neutral:'بنفسجي 🟣', base:'أزرق 🔵', acC:'#FF6699', neuC:'#9944BB', basC:'#4466FF' },
+    { name:'عصير الكرنب الأحمر', emoji:'🥬', acid:'أحمر 🔴', neutral:'بنفسجي 🟣', base:'أخضر/أصفر 💛', acC:'#FF2244', neuC:'#9933CC', basC:'#88BB00' },
+    { name:'عصير التوت', emoji:'🫐', acid:'أحمر وردي 🌸', neutral:'بنفسجي 🟣', base:'أزرق 🔵', acC:'#CC2244', neuC:'#7744AA', basC:'#3355CC' },
+    { name:'زهرة الهيدرانجيا', emoji:'💐', acid:'وردي/أحمر 🌸', neutral:'بنفسجي 🟣', base:'أزرق 🔵', acC:'#FF6699', neuC:'#9944BB', basC:'#4466FF' },
   ];
+
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🌸 الكاشف الطبيعي</div>
+      <div class="ctrl-label">🌸 اختر الكاشف الطبيعي</div>
       <div class="ctrl-btns-grid-1">
-        ${naturals.map((n,i)=>`<button class="ctrl-btn" id="nat-btn-${i}" onclick="simState.selNat=${i};document.querySelectorAll('[id^=nat-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${n.name}</button>`).join('')}
+        ${naturals.map((n,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="nat-btn-${i}" onclick="simState.selNat=${i};document.querySelectorAll('[id^=nat-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${n.emoji} ${n.name}</button>`).join('')}
       </div>
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">📊 قيمة pH</div>
       <input type="range" min="1" max="13" value="7" oninput="simState.phNat=+this.value" style="width:100%;direction:ltr;margin-top:6px">
+      <div id="nat-ph-display" style="text-align:center;font-size:18px;font-weight:800;margin-top:6px;color:var(--teal)">pH = 7</div>
     </div>
     <div class="info-box">
-      الكواشف الطبيعية مستخرجة من نباتات تحتوي على صبغات تتأثر بدرجة الحموضة
+      الكواشف الطبيعية مستخرجة من نباتات تحتوي على أنثوسيانين — صبغة تتأثر بدرجة الحموضة
     </div>
     <div class="q-box">
-      <strong>❓ كيف نصنع كاشفاً طبيعياً من الكرنب الأحمر؟</strong>
+      <strong>❓ كيف تصنع كاشفاً طبيعياً من الكرنب الأحمر؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">نغلي أوراق الكرنب الأحمر في الماء ونصفّي العصير — نحصل على محلول بنفسجي يتحوّل للأحمر في الأحماض وللأخضر/الأصفر في القلويّات.</div>
+      <div class="q-ans-panel">اغلِ أوراق الكرنب الأحمر في الماء وصفّ العصير — تحصل على محلول بنفسجي يتحوّل للأحمر في الأحماض وللأخضر في القلويّات!</div>
     </div>`);
 
-  function draw() {
+  const cv=document.getElementById('simCanvas');
+
+  function draw(){
+    if(currentSim!=='g9indicator'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F5F0FF'; c.fillRect(0,0,w,h);
     const nat=naturals[S.selNat||0];
     const ph=S.phNat||7;
     const col=ph<7?nat.acC:ph>7?nat.basC:nat.neuC;
     const label=ph<7?nat.acid:ph>7?nat.base:nat.neutral;
 
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.029)}px Tajawal`; c.textAlign='center';
-    c.fillText(nat.name, w/2, h*0.08);
+    const phEl=document.getElementById('nat-ph-display');
+    if(phEl) phEl.textContent=`pH = ${ph}`;
 
-    // Three flasks comparison
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F5F0FF'); bg.addColorStop(1,'#EDE8F5');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Title
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText(`${nat.emoji} ${nat.name}`, w/2, h*0.07);
+
+    // Three flask comparison
     ['حمضي\npH < 7','متعادل\npH = 7','قلوي\npH > 7'].forEach((lbl,i)=>{
-      const fx=w*(0.18+i*0.28), fy=h*0.18, fw=w*0.18, fh=h*0.50;
-      const fc=i===0?nat.acC:i===1?nat.neuC:nat.basC;
-      c.fillStyle=fc+'99'; c.beginPath(); c.roundRect(fx,fy,fw,fh,fw/3); c.fill();
-      c.strokeStyle='#aaa'; c.lineWidth=1.5; c.beginPath(); c.roundRect(fx,fy,fw,fh,fw/3); c.stroke();
-      c.fillStyle=fc; c.beginPath(); c.roundRect(fx+4,fy+fh*0.25,fw-8,fh*0.7,fw/3-4); c.fill();
-      // color label
+      const fx=w*(0.12+i*0.30), fy=h*0.13, fw=w*0.24, fh=h*0.52;
+      const fc2=i===0?nat.acC:i===1?nat.neuC:nat.basC;
+      // Flask body
+      const g=c.createLinearGradient(fx,0,fx+fw,0);
+      g.addColorStop(0,fc2+'44'); g.addColorStop(0.5,fc2+'88'); g.addColorStop(1,fc2+'44');
+      c.fillStyle=g; c.beginPath(); c.roundRect(fx,fy,fw,fh,fw*0.35); c.fill();
+      c.strokeStyle='rgba(0,0,0,0.12)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(fx,fy,fw,fh,fw*0.35); c.stroke();
+      // Liquid
+      c.fillStyle=fc2+'AA';
+      c.beginPath(); c.roundRect(fx+4,fy+fh*0.22,fw-8,fh*0.7,fw*0.3); c.fill();
+      // Wave
+      c.fillStyle=fc2+'55';
+      c.beginPath(); c.moveTo(fx+4,fy+fh*0.22);
+      for(let xi=0;xi<=fw-8;xi++){ c.lineTo(fx+4+xi,fy+fh*0.22+Math.sin((xi/(fw))*Math.PI*2+S.t*0.06+(i*2))*5); }
+      c.lineTo(fx+fw-4,fy+fh*0.25); c.closePath(); c.fill();
+      // Color label
       const lpart=i===0?nat.acid:i===1?nat.neutral:nat.base;
       c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-      c.fillText(lpart,fx+fw/2,fy+fh*0.62);
-      c.fillStyle='#333'; c.font=`${Math.max(9,w*0.019)}px Tajawal`;
-      lbl.split('\n').forEach((l,li)=>c.fillText(l,fx+fw/2,fy+fh+18+li*15));
+      c.fillText(lpart,fx+fw/2,fy+fh*0.60);
+      // Bottom label
+      c.fillStyle='#333'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textBaseline='top';
+      lbl.split('\n').forEach((l,li)=>c.fillText(l,fx+fw/2,fy+fh+10+li*14));
+      c.textBaseline='alphabetic';
     });
 
-    // Current
+    // Current pH result box
     const type=ph<7?'حمضي 🍋':ph>7?'قلوي 🧼':'متعادل 💧';
-    c.fillStyle='rgba(255,255,255,0.9)';
-    c.beginPath(); c.roundRect(w*0.1,h*0.79,w*0.8,h*0.14,10); c.fill();
-    c.strokeStyle=col; c.lineWidth=2; c.beginPath(); c.roundRect(w*0.1,h*0.79,w*0.8,h*0.14,10); c.stroke();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='center';
-    c.fillText(`pH = ${ph} | ${type} | اللون: ${label}`, w/2, h*0.87);
+    const rbx=w*0.05, rby=h*0.80, rbw=w*0.90, rbh=h*0.14;
+    c.fillStyle='rgba(255,255,255,0.92)';
+    c.beginPath(); c.roundRect(rbx,rby,rbw,rbh,12); c.fill();
+    c.strokeStyle=col+'99'; c.lineWidth=2; c.beginPath(); c.roundRect(rbx,rby,rbw,rbh,12); c.stroke();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText(`pH = ${ph}  |  ${type}  |  اللون: ${label}`, w/2, rby+rbh*0.55);
+    // Color swatch
+    c.fillStyle=col; c.beginPath(); c.roundRect(rbx+8,rby+rbh*0.2,20,rbh*0.6,6); c.fill();
 
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ── 6-3 Tab1: سلّم pH ──
+// ── 6-3 Tab1: سلّم pH — تفاعلي بالهوفر ──
 function simG9PhScale1() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(S.hov===undefined) S.hov=-1;
+  simState = { t:0, hov:-1, sel:-1 };
+  const S = simState;
 
   const items=[
-    {ph:0,name:'حمض الهيدروكلوريك المركّز',icon:'⚗️',col:'#FF0000'},
-    {ph:1,name:'العصارة المعدية',icon:'🫀',col:'#FF2200'},
-    {ph:2.5,name:'عصير الليمون',icon:'🍋',col:'#FF5500'},
-    {ph:3,name:'الخل',icon:'🫙',col:'#FF7700'},
-    {ph:5,name:'القهوة',icon:'☕',col:'#FFAA00'},
-    {ph:5.6,name:'المطر الطبيعي',icon:'🌧️',col:'#CCBB00'},
-    {ph:7,name:'الماء النقي',icon:'💧',col:'#44AA44'},
-    {ph:7.4,name:'الدم',icon:'🩸',col:'#55BB55'},
-    {ph:8.5,name:'صودا الخبز',icon:'🧁',col:'#44AACC'},
-    {ph:9,name:'معجون الأسنان',icon:'🪥',col:'#3399FF'},
-    {ph:11.5,name:'المنظفات المنزلية',icon:'🧴',col:'#5533FF'},
-    {ph:12.4,name:'ماء الجير',icon:'⬜',col:'#4400EE'},
-    {ph:14,name:'هيدروكسيد الصوديوم',icon:'⚠️',col:'#3300BB'},
+    {ph:0,  name:'حمض الهيدروكلوريك المركّز',icon:'⚗️',col:'#FF0000'},
+    {ph:1,  name:'العصارة المعدية',            icon:'🫀',col:'#FF2200'},
+    {ph:2.5,name:'عصير الليمون',              icon:'🍋',col:'#FF5500'},
+    {ph:3,  name:'الخل',                      icon:'🫙',col:'#FF7700'},
+    {ph:5,  name:'القهوة',                    icon:'☕',col:'#FFAA00'},
+    {ph:5.6,name:'المطر الطبيعي',             icon:'🌧️',col:'#CCBB00'},
+    {ph:7,  name:'الماء النقي',               icon:'💧',col:'#27AE60'},
+    {ph:7.4,name:'الدم',                      icon:'🩸',col:'#2ECC71'},
+    {ph:8.5,name:'صودا الخبز',                icon:'🧁',col:'#1ABC9C'},
+    {ph:9,  name:'معجون الأسنان',             icon:'🪥',col:'#3399FF'},
+    {ph:11.5,name:'المنظفات المنزلية',         icon:'🧴',col:'#5533FF'},
+    {ph:12.4,name:'ماء الجير',                icon:'⬜',col:'#4400EE'},
+    {ph:14, name:'هيدروكسيد الصوديوم',        icon:'⚠️',col:'#3300BB'},
   ];
-
-  cv.onmousemove=function(e){
-    const r=cv.getBoundingClientRect(), mx=(e.clientX-r.left)*(w/r.width), my=(e.clientY-r.top)*(h/r.height);
-    let found=-1;
-    items.forEach((it,i)=>{
-      const ix=it.ph/14*w*0.82+w*0.08, iy=h*0.12+i*(h*0.72/items.length);
-      if(Math.hypot(mx-ix,my-iy)<16) found=i;
-    });
-    S.hov=found;
-  };
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">📊 مقياس pH</div>
-      <div class="info-box" style="margin-bottom:8px">
+      <div class="info-box" style="margin-bottom:6px">
         <b>pH &lt; 7 → حمضي 🍋</b><br>
         <span style="font-size:12px">كلما قلّ pH ازداد الحمض قوة</span>
       </div>
-      <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.15);margin-bottom:8px">
+      <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.2);margin-bottom:6px">
         <b>pH = 7 → متعادل 💧</b><br>
         <span style="font-size:12px">H⁺ = OH⁻</span>
       </div>
-      <div class="info-box" style="background:rgba(21,101,192,0.06);border-color:rgba(21,101,192,0.15)">
+      <div class="info-box" style="background:rgba(21,101,192,0.06);border-color:rgba(21,101,192,0.2)">
         <b>pH &gt; 7 → قلوي 🧼</b><br>
         <span style="font-size:12px">كلما زاد pH ازداد القلويّ قوة</span>
       </div>
     </div>
-    <div class="q-box">
-      <strong>❓ بكم مرة أقوى حمض pH=1 من حمض pH=3؟</strong>
-      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">مقياس pH لوغاريتمي — كل وحدة تعني 10 أضعاف. pH=1 أقوى من pH=2 بـ10 مرات، ومن pH=3 بـ100 مرة! لهذا حمض الهيدروكلوريك أخطر بكثير من الخل.</div>
+    <div id="scale-detail" class="info-box" style="min-height:48px;text-align:center">
+      مرّر المؤشر على الأيقونات أو انقر لمعرفة التفاصيل
     </div>
-    <div style="margin-top:8px;font-size:12px;color:var(--muted)">مرّر المؤشر على النقاط لمعرفة المادة</div>`);
+    <div class="q-box">
+      <strong>❓ بكم مرة أقوى حمض pH=1 من pH=3؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">مقياس pH لوغاريتمي — كل وحدة تعني 10 أضعاف. pH=1 أقوى من pH=3 بـ100 مرة! لهذا حمض الهيدروكلوريك أخطر بكثير من الخل.</div>
+    </div>`);
 
-  function draw() {
+  const cv=document.getElementById('simCanvas');
+
+  cv.onmousemove=function(e){
+    const r=cv.getBoundingClientRect(), mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+    let found=-1;
+    items.forEach((it,i)=>{
+      const bx=cv.width*0.08+(it.ph/14)*cv.width*0.84, by=cv.height*0.14+i*(cv.height*0.74/items.length);
+      if(Math.hypot(mx-bx,my-by)<18) found=i;
+    });
+    if(found!==S.hov){ S.hov=found; cv.style.cursor=found>=0?'pointer':'default';
+      const box=document.getElementById('scale-detail');
+      if(box&&found>=0){ const it=items[found]; box.innerHTML=`<strong>${it.icon} ${it.name}</strong><br><span style="color:${it.col};font-weight:700">pH = ${it.ph}</span>`; box.style.borderColor=it.col; }
+    }
+  };
+  cv.onclick=function(e){
+    const r=cv.getBoundingClientRect(), mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+    items.forEach((it,i)=>{
+      const bx=cv.width*0.08+(it.ph/14)*cv.width*0.84, by=cv.height*0.14+i*(cv.height*0.74/items.length);
+      if(Math.hypot(mx-bx,my-by)<18){ S.sel=S.sel===i?-1:i; try{U9Sound.ping();}catch(e){} }
+    });
+  };
+
+  function draw(){
+    if(currentSim!=='g9phscale'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F8F5EF'; c.fillRect(0,0,w,h);
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F8F5EF'); bg.addColorStop(1,'#EDE8E0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
     // Scale bar
-    const bx=w*0.08, by=h*0.05, bw=w*0.84, bh=20;
+    const bx=w*0.08, by=h*0.06, bw=w*0.84, bh=22;
     const grad=c.createLinearGradient(bx,0,bx+bw,0);
-    grad.addColorStop(0,'#FF0000'); grad.addColorStop(0.5,'#44AA44'); grad.addColorStop(1,'#3300BB');
-    c.fillStyle=grad; c.beginPath(); c.roundRect(bx,by,bw,bh,10); c.fill();
+    grad.addColorStop(0,'#FF0000'); grad.addColorStop(0.35,'#FF8800');
+    grad.addColorStop(0.5,'#27AE60'); grad.addColorStop(0.65,'#2980B9'); grad.addColorStop(1,'#3300BB');
+    c.fillStyle=grad; c.beginPath(); c.roundRect(bx,by,bw,bh,11); c.fill();
+    c.fillStyle='rgba(255,255,255,0.25)'; c.beginPath(); c.roundRect(bx,by,bw,bh/2,11); c.fill();
     for(let i=0;i<=14;i++){
       const px=bx+(i/14)*bw;
-      c.fillStyle='#333'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-      c.fillText(i,px,by+bh+14);
+      c.fillStyle='rgba(255,255,255,0.6)'; c.fillRect(px-0.5,by,1,bh);
+      c.fillStyle='#333'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+      c.fillText(i,px,by+bh+12);
     }
-    c.fillStyle='#C0392B'; c.font=`${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='left'; c.fillText('◀ حمضي',bx,by-5);
-    c.fillStyle='#27AE60'; c.textAlign='center'; c.fillText('متعادل',bx+bw/2,by-5);
+    c.fillStyle='#C0392B'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='left'; c.fillText('◀ حمضي',bx,by-5);
+    c.fillStyle='#27AE60'; c.textAlign='center'; c.fillText('متعادل',bx+bw*0.5,by-5);
     c.fillStyle='#1565C0'; c.textAlign='right'; c.fillText('قلوي ▶',bx+bw,by-5);
 
-    // Items as dots on scale
+    // Items
     items.forEach((it,i)=>{
       const px=bx+(it.ph/14)*bw;
-      const py=by+bh+30+i*(h*0.67/items.length);
-      const isHov=S.hov===i;
-      // line from bar to item
-      c.strokeStyle=it.col+'66'; c.lineWidth=1;
-      c.beginPath(); c.moveTo(px,by+bh); c.lineTo(px,py-10); c.stroke();
-      // dot on bar
-      c.fillStyle=it.col; c.beginPath(); c.arc(px,by+bh/2,5,0,Math.PI*2); c.fill();
-      // item dot
-      c.fillStyle=isHov?it.col:'rgba(255,255,255,0.9)';
-      c.beginPath(); c.arc(px,py,isHov?16:12,0,Math.PI*2); c.fill();
-      c.strokeStyle=it.col; c.lineWidth=isHov?2.5:1.5;
-      c.beginPath(); c.arc(px,py,isHov?16:12,0,Math.PI*2); c.stroke();
-      c.font=`${Math.max(12,w*0.025)}px serif`; c.textAlign='center';
-      c.fillStyle='#333'; c.fillText(it.icon,px,py+5);
-      if(isHov){
+      const py=by+bh+26+i*(h*0.68/items.length);
+      const isHov=S.hov===i, isSel=S.sel===i;
+
+      // Line from bar to item
+      c.strokeStyle=it.col+(isHov||isSel?'99':'44'); c.lineWidth=isHov||isSel?1.5:1;
+      c.setLineDash([4,4]);
+      c.beginPath(); c.moveTo(px,by+bh); c.lineTo(px,py-14); c.stroke();
+      c.setLineDash([]);
+
+      // Dot on bar
+      c.fillStyle=it.col; c.beginPath(); c.arc(px,by+bh/2,6,0,Math.PI*2); c.fill();
+      c.strokeStyle='rgba(255,255,255,0.7)'; c.lineWidth=1.5; c.stroke();
+
+      // Item circle
+      const r=isHov||isSel?17:13;
+      if(isHov||isSel){ c.shadowBlur=12; c.shadowColor=it.col; }
+      c.fillStyle=isHov||isSel?it.col:'rgba(255,255,255,0.85)';
+      c.beginPath(); c.arc(px,py,r,0,Math.PI*2); c.fill();
+      c.strokeStyle=it.col; c.lineWidth=isHov||isSel?2.5:1.5; c.beginPath(); c.arc(px,py,r,0,Math.PI*2); c.stroke();
+      c.shadowBlur=0;
+
+      // Icon
+      c.font=`${Math.max(12,r*0.85)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillStyle=isHov||isSel?'#fff':'#333'; c.fillText(it.icon,px,py+1);
+
+      // Tooltip for selected
+      if(isSel){
+        const tpW=150, tpH=42, tpX=Math.min(px+r+6, w-tpW-4), tpY=py-tpH/2;
         c.fillStyle='rgba(255,255,255,0.97)';
-        c.beginPath(); c.roundRect(px+18,py-28,155,50,8); c.fill();
-        c.strokeStyle='#ddd'; c.lineWidth=1; c.beginPath(); c.roundRect(px+18,py-28,155,50,8); c.stroke();
-        c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='right';
-        c.fillText(it.name,px+165,py-10);
-        c.fillStyle='#C0392B'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`;
-        c.fillText(`pH = ${it.ph}`,px+165,py+12);
+        c.beginPath(); c.roundRect(tpX,tpY,tpW,tpH,8); c.fill();
+        c.strokeStyle=it.col+'88'; c.lineWidth=1.5; c.beginPath(); c.roundRect(tpX,tpY,tpW,tpH,8); c.stroke();
+        c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='right';
+        c.fillText(it.name,tpX+tpW-8,tpY+14);
+        c.fillStyle=it.col; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`;
+        c.fillText(`pH = ${it.ph}`,tpX+tpW-8,tpY+30);
       }
     });
     animFrame=requestAnimationFrame(draw);
@@ -31034,73 +31304,119 @@ function simG9PhScale1() {
   draw();
 }
 
-// ── 6-3 Tab2: اختبر محاليل يومية ──
+// ── 6-3 Tab2: اختبر محاليل يومية — مجسّ pH تفاعلي ──
 function simG9PhScale2() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(!S.selected2) S.selected2=null; if(!S.probe) S.probe={x:w*0.5,y:h*0.3};
+  simState = { t:0, selected:null, probe:{x:0.5,y:0.2}, dragging:false };
+  const S = simState;
 
   const solutions=[
-    {name:'ماء الليمون',ph:2.5,col:'#FFD700',x:0.15,y:0.45,icon:'🍋'},
-    {name:'الحليب',ph:6.5,col:'#FFFFF0',x:0.32,y:0.45,icon:'🥛'},
-    {name:'الماء النقي',ph:7,col:'#87CEEB',x:0.50,y:0.45,icon:'💧'},
-    {name:'ماء البحر',ph:8.1,col:'#006994',x:0.67,y:0.45,icon:'🌊'},
-    {name:'الأمونيا',ph:11.5,col:'#B0E0E6',x:0.84,y:0.45,icon:'🧪'},
-    {name:'المطر الحمضي',ph:4.2,col:'#D3D3D3',x:0.15,y:0.75,icon:'🌧️'},
-    {name:'عصير التوت',ph:3.3,col:'#8B008B',x:0.32,y:0.75,icon:'🫐'},
-    {name:'القهوة',ph:5.0,col:'#8B4513',x:0.50,y:0.75,icon:'☕'},
-    {name:'ماء الصابون',ph:9.5,col:'#90EE90',x:0.67,y:0.75,icon:'🧼'},
-    {name:'ماء الجير',ph:12.4,col:'#E8E8E8',x:0.84,y:0.75,icon:'⬜'},
+    {name:'ماء الليمون', ph:2.5, col:'#FFD700', x:0.15, y:0.45, icon:'🍋'},
+    {name:'الحليب',      ph:6.5, col:'#FFFFF0', x:0.32, y:0.45, icon:'🥛'},
+    {name:'الماء النقي', ph:7.0, col:'#87CEEB', x:0.50, y:0.45, icon:'💧'},
+    {name:'ماء البحر',   ph:8.1, col:'#006994', x:0.67, y:0.45, icon:'🌊'},
+    {name:'الأمونيا',    ph:11.5,col:'#B0E0E6', x:0.84, y:0.45, icon:'🧪'},
+    {name:'المطر الحمضي',ph:4.2, col:'#D3D3D3', x:0.15, y:0.75, icon:'🌧️'},
+    {name:'عصير التوت',  ph:3.3, col:'#8B008B', x:0.32, y:0.75, icon:'🫐'},
+    {name:'القهوة',      ph:5.0, col:'#8B4513', x:0.50, y:0.75, icon:'☕'},
+    {name:'ماء الصابون', ph:9.5, col:'#90EE90', x:0.67, y:0.75, icon:'🧼'},
+    {name:'ماء الجير',   ph:12.4,col:'#E8E8E8', x:0.84, y:0.75, icon:'⬜'},
   ];
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🔬 مجسّ pH</div>
-      <div id="ph-reading" style="background:#1E2D3D;color:#00FF88;font-family:monospace;font-size:22px;text-align:center;padding:12px;border-radius:10px;margin:8px 0;letter-spacing:1px">pH = --</div>
-      <div class="info-box" id="ph-detail">انقر على أي محلول لقياس رقمه الهيدروجيني</div>
+      <div id="ph-reading" style="background:#1E2D3D;color:#00FF88;font-family:monospace;font-size:24px;text-align:center;padding:14px;border-radius:10px;margin:8px 0;letter-spacing:2px;box-shadow:0 0 20px rgba(0,255,136,0.2)">pH = --</div>
+      <div class="info-box" id="ph-detail" style="min-height:50px">اسحب مجسّ pH نحو أي محلول لقياسه</div>
     </div>
     <div class="q-box">
-      <strong>❓ لماذا pH الدم يتراوح بين 7.35 و7.45 دائماً؟</strong>
+      <strong>❓ لماذا pH الدم يتراوح بين 7.35-7.45 دائماً؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الجسم يُحافظ على pH الدم في نطاق ضيق جداً لأن الإنزيمات تعمل بكفاءة فقط في هذا النطاق. أي انحراف يُسبّب حالة طارئة طبية (حماض أو قلواء الدم).</div>
+      <div class="q-ans-panel">الجسم يُحافظ على pH الدم في نطاق ضيق لأن الإنزيمات تعمل بكفاءة فقط في هذا النطاق. أي انحراف يُسبّب حالة طارئة طبية (حماض أو قلواء الدم).</div>
     </div>`);
 
-  cv.onclick=function(e){
-    const r=cv.getBoundingClientRect(), mx=(e.clientX-r.left)*(w/r.width), my=(e.clientY-r.top)*(h/r.height);
-    solutions.forEach(sol=>{
-      if(Math.hypot(mx-sol.x*w,my-sol.y*h)<35){ S.selected2=sol.name; S.measuredPh=sol.ph; }
-    });
-    if(S.selected2){
-      const sol=solutions.find(s=>s.name===S.selected2);
-      if(sol){
-        const t=sol.ph<7?'حمضي 🍋':sol.ph>7?'قلوي 🧼':'متعادل 💧';
-        document.getElementById('ph-reading').textContent=`pH = ${sol.ph}`;
-        document.getElementById('ph-detail').innerHTML=`<b>${sol.name}</b><br>pH = ${sol.ph}<br>${t}`;
-      }
+  const cv=document.getElementById('simCanvas');
+  let measuredSol=null;
+
+  function getPos(e){ const r=cv.getBoundingClientRect(); const touch=e.touches&&e.touches[0]||e; return {x:(touch.clientX-r.left)*cv.width/r.width,y:(touch.clientY-r.top)*cv.height/r.height}; }
+  function onStart(e){ e.preventDefault&&e.preventDefault(); const pos=getPos(e); if(Math.hypot(pos.x-S.probe.x*cv.width,pos.y-S.probe.y*cv.height)<40) S.dragging=true; }
+  function onMove(e){ if(!S.dragging) return; e.preventDefault&&e.preventDefault(); const pos=getPos(e); S.probe.x=Math.max(0.05,Math.min(0.95,pos.x/cv.width)); S.probe.y=Math.max(0.05,Math.min(0.92,pos.y/cv.height)); }
+  function onEnd(e){
+    if(!S.dragging) return; S.dragging=false;
+    let closest=null, minDist=Infinity;
+    solutions.forEach(sol=>{ const d=Math.hypot(S.probe.x-sol.x,S.probe.y-sol.y); if(d<minDist){minDist=d;closest=sol;} });
+    if(closest&&minDist<0.12){
+      measuredSol=closest; S.selected=closest.name; try{U9Sound.ping();}catch(e){}
+      const type=closest.ph<7?'حمضي 🍋':closest.ph>7?'قلوي 🧼':'متعادل 💧';
+      const rdEl=document.getElementById('ph-reading'); if(rdEl) rdEl.textContent=`pH = ${closest.ph}`;
+      const dtEl=document.getElementById('ph-detail'); if(dtEl) dtEl.innerHTML=`<b>${closest.icon} ${closest.name}</b><br>pH = ${closest.ph} | ${type}`;
     }
-  };
+  }
+  cv.onmousedown=onStart; cv.onmousemove=onMove; cv.onmouseup=onEnd;
+  cv.addEventListener('touchstart',onStart,{passive:false});
+  cv.addEventListener('touchmove',onMove,{passive:false});
+  cv.addEventListener('touchend',onEnd,{passive:false});
+  cv.style.cursor='grab';
 
   function draw(){
+    if(currentSim!=='g9phscale'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F0F4F8'; c.fillRect(0,0,w,h);
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.03)}px Tajawal`; c.textAlign='center';
-    c.fillText('انقر على أي محلول لقياس رقمه الهيدروجيني', w/2, h*0.09);
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F0F4F8'); bg.addColorStop(1,'#E8EEF5');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText('اسحب مجسّ pH نحو أي محلول لقياسه', w/2, h*0.07);
 
     solutions.forEach(sol=>{
-      const sx=sol.x*w, sy=sol.y*h, r=34;
-      const isSel=S.selected2===sol.name;
-      c.fillStyle=sol.col+'BB'; c.beginPath(); c.arc(sx,sy,r,0,Math.PI*2); c.fill();
-      c.strokeStyle=isSel?'#1A8FA8':'#ccc'; c.lineWidth=isSel?3:1.5;
-      c.beginPath(); c.arc(sx,sy,r,0,Math.PI*2); c.stroke();
-      c.font=`${Math.max(18,w*0.04)}px serif`; c.textAlign='center'; c.fillText(sol.icon,sx,sy+7);
-      c.fillStyle='#333'; c.font=`${Math.max(9,w*0.019)}px Tajawal`;
-      c.fillText(sol.name,sx,sy+r+14);
-      if(isSel){
-        c.fillStyle='#C0392B'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`;
-        c.fillText(`pH ${sol.ph}`,sx,sy+r+28);
-      }
+      const sx=sol.x*w, sy=sol.y*h, r=36;
+      const isSel=S.selected===sol.name;
+      // Beaker
+      c.fillStyle=sol.col+'BB';
+      c.strokeStyle=isSel?'#1A8FA8':'rgba(0,0,0,0.15)';
+      c.lineWidth=isSel?3:1.5;
+      if(isSel){ c.shadowBlur=15; c.shadowColor='#1A8FA8'; }
+      c.beginPath(); c.arc(sx,sy,r,0,Math.PI*2); c.fill(); c.stroke();
+      c.shadowBlur=0;
+      // Wave inside
+      c.save(); c.beginPath(); c.arc(sx,sy,r-2,0,Math.PI*2); c.clip();
+      c.fillStyle=sol.col+'66';
+      c.beginPath(); c.moveTo(sx-r,sy+r*0.2);
+      for(let xi=0;xi<=r*2;xi++){ c.lineTo(sx-r+xi,sy+r*0.2+Math.sin((xi/r)*Math.PI*2+S.t*0.07)*5); }
+      c.lineTo(sx+r,sy+r); c.lineTo(sx-r,sy+r); c.closePath(); c.fill();
+      c.restore();
+      // Icon
+      c.font=`${Math.max(18,r*0.55)}px serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText(sol.icon,sx,sy+3);
+      // Name
+      c.fillStyle='#333'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textBaseline='top'; c.fillText(sol.name,sx,sy+r+6);
+      if(isSel){ c.fillStyle='#C0392B'; c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`; c.fillText(`pH ${sol.ph}`,sx,sy+r+20); }
     });
+
+    // Draw pH probe (draggable)
+    const px=S.probe.x*w, py=S.probe.y*h;
+    // Wire
+    c.strokeStyle='rgba(50,50,50,0.4)'; c.lineWidth=2; c.setLineDash([6,4]);
+    c.beginPath(); c.moveTo(px,py-30); c.lineTo(px,py-60); c.stroke(); c.setLineDash([]);
+    // Body of probe
+    c.fillStyle='#2C3E50';
+    c.beginPath(); c.roundRect(px-14,py-30,28,22,[6,6,0,0]); c.fill();
+    c.fillStyle='#ECF0F1';
+    c.beginPath(); c.roundRect(px-12,py-28,24,18,[4,4,0,0]); c.fill();
+    // Screen on probe
+    c.fillStyle='#1E8449'; c.font=`bold ${Math.max(7,w*0.013)}px monospace`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(measuredSol?`${measuredSol.ph}`:'--',px,py-19);
+    // Tip
+    const tipCol=measuredSol?(measuredSol.ph<7?'#E74C3C':measuredSol.ph>7?'#2980B9':'#27AE60'):'#BDC3C7';
+    c.fillStyle=tipCol;
+    c.beginPath(); c.roundRect(px-6,py-8,12,38,[0,0,6,6]); c.fill();
+    // Tip gloss
+    c.fillStyle='rgba(255,255,255,0.2)'; c.beginPath(); c.roundRect(px-4,py-6,5,34,[0,0,3,3]); c.fill();
+    // Sensor bulb
+    if(S.dragging){ c.shadowBlur=10; c.shadowColor=tipCol; }
+    c.fillStyle=tipCol; c.beginPath(); c.arc(px,py+30,7,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(255,255,255,0.5)'; c.lineWidth=1.5; c.beginPath(); c.arc(px,py+30,7,0,Math.PI*2); c.stroke();
+    c.shadowBlur=0;
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -31109,256 +31425,339 @@ function simG9PhScale2() {
 // ── 6-3 Tab3: التخفيف والتركيز ──
 function simG9PhScale3() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(S.conc===undefined) S.conc=1; if(!S.acidType) S.acidType='acid';
+  simState = { t:0, conc:1.0, acidType:'acid' };
+  const S = simState;
+
+  function calcPh(conc,type){
+    if(conc<=0) return 7;
+    if(type==='acid') return Math.max(0, -Math.log10(conc));
+    else return Math.min(14, 14+Math.log10(conc));
+  }
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">💧 التخفيف والتركيز</div>
-      <div class="ctrl-name" style="font-size:13px;font-weight:400;margin-bottom:4px">نوع المحلول:</div>
+      <div class="ctrl-name" style="font-size:13px;font-weight:400;margin-bottom:6px">نوع المحلول:</div>
       <select onchange="simState.acidType=this.value" style="width:100%;padding:8px;border-radius:8px;font-family:Tajawal;font-size:14px;border:1.5px solid rgba(0,0,0,0.1);background:var(--bg-card);color:var(--text-primary);margin-bottom:12px">
         <option value="acid">حمض الهيدروكلوريك HCl</option>
         <option value="base">هيدروكسيد الصوديوم NaOH</option>
       </select>
-      <div class="ctrl-name" style="font-size:13px;font-weight:400;margin-bottom:4px">التركيز (mol/L):</div>
+      <div class="ctrl-name" style="font-size:13px;font-weight:400;margin-bottom:6px">التركيز (mol/L):</div>
       <input type="range" min="0" max="4" step="0.1" value="1" oninput="simState.conc=+this.value" style="width:100%;direction:ltr">
-      <div style="text-align:center;font-size:14px;margin-top:4px;font-weight:700;color:var(--teal)" id="conc-label">1.0 mol/L</div>
+      <div style="text-align:center;font-size:16px;font-weight:800;margin-top:6px;color:var(--teal)" id="conc-label">1.0 mol/L</div>
     </div>
     <div class="info-box" id="conc-result">pH = 0</div>
     <div class="q-box">
       <strong>❓ ماذا يحدث لـ pH الحمض عند تخفيفه بالماء؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">تخفيف الحمض يُقلل تركيز H⁺، مما يرفع pH نحو 7 (يُصبح أقل حمضية). لكنه لن يصبح قلوياً أبداً بالتخفيف — يقترب من pH=7 فقط.</div>
+      <div class="q-ans-panel">تخفيف الحمض يُقلل تركيز H⁺ مما يرفع pH نحو 7 (يصبح أقل حمضية). لكنه لن يصبح قلوياً أبداً بالتخفيف — يقترب من pH=7 فقط.</div>
     </div>`);
 
-  function calcPh(conc, type){
-    if(conc<=0) return 7;
-    if(type==='acid') return Math.max(0, -Math.log10(conc)).toFixed(1);
-    return Math.min(14, 14+Math.log10(conc)).toFixed(1);
-  }
+  const cv=document.getElementById('simCanvas');
 
   function draw(){
+    if(currentSim!=='g9phscale'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F8F5EF'; c.fillRect(0,0,w,h);
     const conc=S.conc||1, type=S.acidType||'acid';
-    const ph=+calcPh(conc,type);
+    const ph=Math.round(calcPh(conc,type)*10)/10;
+    const phClamped=Math.max(0,Math.min(14,ph));
 
-    const cLabel=document.getElementById('conc-label');
-    if(cLabel) cLabel.textContent=`${conc.toFixed(1)} mol/L`;
-    const cRes=document.getElementById('conc-result');
-    if(cRes){
-      const typeAr=ph<7?'حمضي 🍋':ph>7?'قلوي 🧼':'متعادل 💧';
-      cRes.innerHTML=`pH = <b>${ph}</b> | ${typeAr}`;
+    // Update UI
+    const cl=document.getElementById('conc-label'); if(cl) cl.textContent=`${conc.toFixed(1)} mol/L`;
+    const cr=document.getElementById('conc-result'); if(cr){
+      const t2=phClamped<7?'حمضي 🍋':phClamped>7?'قلوي 🧼':'متعادل 💧';
+      cr.innerHTML=`<b>pH = ${ph.toFixed(2)}</b> → ${t2}`;
     }
 
-    // Beaker
-    const bx=w*0.25, by=h*0.15, bw=w*0.5, bh=h*0.6;
-    c.strokeStyle='#aaa'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
-    // liquid
-    const acidFrac=conc/4;
-    const liquidColor=type==='acid'?`rgba(255,${Math.floor(200-180*acidFrac)},${Math.floor(200-200*acidFrac)},0.7)`:`rgba(${Math.floor(200-200*acidFrac)},${Math.floor(200-100*acidFrac)},255,0.7)`;
-    c.fillStyle=liquidColor; c.fillRect(bx+2,by+bh*(1-0.8),bw-4,bh*0.8);
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F8F5EF'); bg.addColorStop(1,'#EDE8E0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // Ions animation
-    const ionCount=Math.min(30,Math.floor(conc*8)+2);
-    for(let i=0;i<ionCount;i++){
-      const ix=bx+20+((i*47+S.t*0.5)%(bw-40));
-      const iy=by+bh*0.25+((i*31+S.t*0.7)%(bh*0.6));
-      c.fillStyle=type==='acid'?'#FF4444':'#4444FF';
-      c.beginPath(); c.arc(ix,iy,5,0,Math.PI*2); c.fill();
-      c.fillStyle='#fff'; c.font=`bold ${Math.max(7,w*0.013)}px Tajawal`; c.textAlign='center';
-      c.fillText(type==='acid'?'H⁺':'OH⁻',ix,iy+3);
+    // Title
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText(type==='acid'?'حمض الهيدروكلوريك HCl':'هيدروكسيد الصوديوم NaOH', w/2, h*0.07);
+
+    // Beaker series showing dilution
+    const levels=[1,0.5,0.1,0.01];
+    levels.forEach((lv,i)=>{
+      const bx=w*(0.12+i*0.22), by=h*0.75, bw2=w*0.16, bh2=h*0.45;
+      const concLv=conc*lv;
+      const phLv=calcPh(concLv,type);
+      const phCl=Math.max(0,Math.min(14,phLv));
+      let beakerCol;
+      if(type==='acid'){ const t=phCl/7; beakerCol=`rgba(231,${Math.round(76+t*100)},60,${0.6-t*0.3})`; }
+      else { const t=(phCl-7)/7; beakerCol=`rgba(41,${Math.round(128+t*50)},185,${0.3+t*0.4})`; }
+
+      // Beaker outline
+      c.strokeStyle='rgba(120,150,200,0.5)'; c.lineWidth=1.5;
+      c.beginPath(); c.moveTo(bx,by-bh2); c.lineTo(bx,by); c.lineTo(bx+bw2,by); c.lineTo(bx+bw2,by-bh2); c.stroke();
+      c.strokeStyle='rgba(120,150,200,0.4)'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(bx-3,by-bh2); c.lineTo(bx+bw2+3,by-bh2); c.stroke();
+
+      // Liquid
+      const liqH=bh2*0.8;
+      c.fillStyle=beakerCol; c.fillRect(bx+2,by-liqH,bw2-4,liqH);
+      // Wave
+      c.fillStyle=beakerCol.replace(/[\d.]+\)$/,'0.3)');
+      c.beginPath(); c.moveTo(bx+2,by-liqH);
+      for(let xi=0;xi<=bw2-4;xi++){ c.lineTo(bx+2+xi,by-liqH+Math.sin((xi/bw2)*Math.PI*2+S.t*0.06+i)*5); }
+      c.lineTo(bx+bw2-2,by-liqH-4); c.closePath(); c.fill();
+
+      // pH label
+      c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(`pH=${phLv.toFixed(1)}`, bx+bw2/2, by-liqH*0.5);
+
+      // Concentration below
+      c.fillStyle='#444'; c.font=`${Math.max(8,w*0.018)}px Tajawal`; c.textBaseline='top';
+      c.fillText(`×${lv}`, bx+bw2/2, by+6);
+      c.fillText(`${concLv.toFixed(3)}M`, bx+bw2/2, by+20);
+    });
+
+    // Arrow between beakers
+    for(let i=0;i<3;i++){
+      const ax=w*(0.12+i*0.22)+w*0.16+4, ay=h*0.54;
+      c.fillStyle='#1A8FA8'; c.font=`${Math.max(14,w*0.03)}px serif`; c.textAlign='center';
+      c.fillText('→', ax+w*0.05, ay);
+      c.fillStyle='#888'; c.font=`${Math.max(8,w*0.018)}px Tajawal`; c.textBaseline='top';
+      c.fillText('تخفيف', ax+w*0.05, ay+h*0.04);
     }
 
-    // pH display
-    c.fillStyle='rgba(255,255,255,0.9)'; c.beginPath(); c.roundRect(w*0.28,h*0.82,w*0.44,h*0.1,10); c.fill();
-    c.fillStyle=type==='acid'?'#C0392B':'#1565C0';
-    c.font=`bold ${Math.max(18,w*0.04)}px Tajawal`; c.textAlign='center';
-    c.fillText(`pH = ${ph}`, w/2, h*0.89);
-
-    // pH bar
-    const px=w*0.06, py=h*0.06, pw=w*0.88, phh=14;
-    const grad=c.createLinearGradient(px,0,px+pw,0);
-    grad.addColorStop(0,'#FF0000'); grad.addColorStop(0.5,'#44AA44'); grad.addColorStop(1,'#3300BB');
-    c.fillStyle=grad; c.beginPath(); c.roundRect(px,py,pw,phh,7); c.fill();
-    const marker=px+(ph/14)*pw;
-    c.fillStyle='#fff'; c.beginPath(); c.arc(marker,py+phh/2,8,0,Math.PI*2); c.fill();
-    c.strokeStyle='#333'; c.lineWidth=2; c.beginPath(); c.arc(marker,py+phh/2,8,0,Math.PI*2); c.stroke();
-    c.fillStyle='#333'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText(ph,marker,py+phh/2+4);
+    // pH bar at bottom
+    const barX=w*0.05, barY=h*0.88, barW=w*0.9, barH=18;
+    const phGrad=c.createLinearGradient(barX,0,barX+barW,0);
+    phGrad.addColorStop(0,'#E74C3C'); phGrad.addColorStop(0.5,'#27AE60'); phGrad.addColorStop(1,'#1565C0');
+    c.fillStyle=phGrad; c.beginPath(); c.roundRect(barX,barY,barW,barH,9); c.fill();
+    c.fillStyle='rgba(255,255,255,0.3)'; c.beginPath(); c.roundRect(barX,barY,barW,barH/2,9); c.fill();
+    const marker=barX+(phClamped/14)*barW;
+    c.fillStyle='#1E2D3D'; c.beginPath(); c.arc(marker,barY+barH/2,11,0,Math.PI*2); c.fill();
+    c.strokeStyle='#fff'; c.lineWidth=2; c.beginPath(); c.arc(marker,barY+barH/2,11,0,Math.PI*2); c.stroke();
+    c.fillStyle='#fff'; c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(ph.toFixed(1),marker,barY+barH/2);
 
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ── 6-4 Tab1: الأيونات في المحاليل ──
+// ── 6-4 Tab1: الأيونات في المحاليل — تفاعلي ──
 function simG9Ions1() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(S.ionPh===undefined) S.ionPh=7;
+  simState = { t:0, ionPh:7 };
+  const S = simState;
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">⚛️ اضبط pH المحلول</div>
-      <input type="range" min="0" max="14" step="1" value="7" oninput="simState.ionPh=+this.value" style="width:100%;direction:ltr">
-      <div id="ion-ph" style="text-align:center;font-size:20px;font-weight:800;margin-top:8px;color:var(--teal)">pH = 7</div>
+      <input type="range" min="0" max="14" step="1" value="7"
+        oninput="simState.ionPh=+this.value" style="width:100%;direction:ltr">
+      <div id="ion-ph" style="text-align:center;font-size:22px;font-weight:800;margin-top:8px;color:var(--teal)">pH = 7</div>
     </div>
     <div class="info-box" id="ion-info">
       H⁺ = OH⁻ → محلول متعادل
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">📚 تعريف برونستد-لوري</div>
-      <div class="ctrl-name" style="font-size:13px;font-weight:400;line-height:1.8">
+      <div class="ctrl-name" style="font-size:13px;font-weight:400;line-height:1.9">
         🍋 <b>الحمض:</b> مانح أيون H⁺<br>
         🧼 <b>القاعدة:</b> قابلة أيون H⁺
       </div>
     </div>
     <div class="q-box">
-      <strong>❓ كيف تُفسّر أن H₂O متعادل؟</strong>
+      <strong>❓ كيف يتعادل الماء النقي نفسه؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الماء النقي يتأيّن جزئياً: H₂O ⇌ H⁺ + OH⁻. كلا الأيونين يتشكّلان بنفس الكمية (10⁻⁷ mol/L)، لذا H⁺ = OH⁻ والمحلول متعادل pH=7.</div>
+      <div class="q-ans-panel">الماء يتأيّن جزئياً: H₂O ⇌ H⁺ + OH⁻. كلا الأيونين يتشكّلان بنفس الكمية (10⁻⁷ mol/L) لذا H⁺ = OH⁻ والمحلول متعادل pH=7.</div>
     </div>`);
 
+  const cv=document.getElementById('simCanvas');
+
   function draw(){
+    if(currentSim!=='g9ions'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F0F8FF'; c.fillRect(0,0,w,h);
     const ph=S.ionPh||7;
-    // update UI
-    const phEl=document.getElementById('ion-ph');
-    if(phEl) phEl.textContent=`pH = ${ph}`;
+
+    // Update UI
+    const phEl=document.getElementById('ion-ph'); if(phEl) phEl.textContent=`pH = ${ph}`;
     const infoEl=document.getElementById('ion-info');
     if(infoEl){
-      if(ph<7) infoEl.innerHTML=`H⁺ <b style="color:red">أكثر</b> من OH⁻<br>→ محلول <b>حمضي 🍋</b>`;
-      else if(ph>7) infoEl.innerHTML=`OH⁻ <b style="color:blue">أكثر</b> من H⁺<br>→ محلول <b>قلوي 🧼</b>`;
+      if(ph<7) infoEl.innerHTML=`H⁺ <b style="color:#C0392B">أكثر</b> من OH⁻<br>→ محلول <b>حمضي 🍋</b>`;
+      else if(ph>7) infoEl.innerHTML=`OH⁻ <b style="color:#2980B9">أكثر</b> من H⁺<br>→ محلول <b>قلوي 🧼</b>`;
       else infoEl.innerHTML=`H⁺ = OH⁻<br>→ محلول <b>متعادل 💧</b>`;
     }
 
-    // Beaker
-    const bx=w*0.2, by=h*0.1, bw=w*0.6, bh=h*0.75;
-    c.fillStyle='rgba(200,220,255,0.15)'; c.fillRect(bx+2,by,bw-4,bh);
-    c.strokeStyle='#aaa'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+    // Background
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F0F8FF'); bg.addColorStop(1,'#E8F0FA');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // H+ ions (red) count based on pH
-    const hCount=ph<7?Math.floor((7-ph)*4+2):ph===7?4:Math.max(1,Math.floor((7-ph+2)));
-    const ohCount=ph>7?Math.floor((ph-7)*4+2):ph===7?4:Math.max(1,Math.floor((ph-7+9)));
-    const hClamped=Math.min(hCount,20); const ohClamped=Math.min(ohCount,20);
+    // Big beaker
+    const bkx=w*0.15, bky=h*0.08, bkw=w*0.70, bkh=h*0.76;
+    // Glass
+    const glassG=c.createLinearGradient(bkx,0,bkx+bkw,0);
+    glassG.addColorStop(0,'rgba(220,235,255,0.5)'); glassG.addColorStop(0.2,'rgba(255,255,255,0.1)');
+    glassG.addColorStop(0.8,'rgba(255,255,255,0.08)'); glassG.addColorStop(1,'rgba(200,220,255,0.45)');
+    c.fillStyle=glassG;
+    c.beginPath(); c.moveTo(bkx,bky); c.lineTo(bkx,bky+bkh); c.lineTo(bkx+bkw,bky+bkh); c.lineTo(bkx+bkw,bky); c.closePath(); c.fill();
+    c.strokeStyle='rgba(120,150,200,0.45)'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(bkx,bky); c.lineTo(bkx,bky+bkh); c.lineTo(bkx+bkw,bky+bkh); c.lineTo(bkx+bkw,bky); c.stroke();
+    // Rim
+    c.strokeStyle='rgba(120,150,200,0.55)'; c.lineWidth=3.5;
+    c.beginPath(); c.moveTo(bkx-5,bky); c.lineTo(bkx+bkw+5,bky); c.stroke();
+    // Liquid tint based on pH
+    const phT=ph/14;
+    const liqR=Math.round(231-phT*190), liqG=Math.round(76+phT*100), liqB=Math.round(60+phT*125);
+    c.fillStyle=`rgba(${liqR},${liqG},${liqB},0.08)`;
+    c.fillRect(bkx+2,bky,bkw-4,bkh);
 
-    for(let i=0;i<hClamped;i++){
-      const ix=bx+30+((i*41+S.t*0.4)%(bw-60));
-      const iy=by+bh*0.2+((i*29+S.t*0.6)%(bh*0.6));
-      c.fillStyle='#FF4444'; c.beginPath(); c.arc(ix,iy,9,0,Math.PI*2); c.fill();
-      c.fillStyle='#fff'; c.font=`bold ${Math.max(7,w*0.014)}px Tajawal`; c.textAlign='center';
-      c.fillText('H⁺',ix,iy+4);
+    // H+ ions count
+    const hCount=ph<7?Math.floor((7-ph)*3.5+3):ph===7?3:Math.max(1,Math.floor((9-ph)));
+    const ohCount=ph>7?Math.floor((ph-7)*3.5+3):ph===7?3:Math.max(1,Math.floor((9-ph)));
+    const hC=Math.min(hCount,22), ohC=Math.min(ohCount,22);
+
+    // Draw H+ ions (red)
+    for(let i=0;i<hC;i++){
+      const ix=bkx+20+((i*53+S.t*0.5)%(bkw-40));
+      const iy=bky+bkh*0.15+((i*37+S.t*0.7)%(bkh*0.65));
+      const pulse=1+Math.sin(S.t*0.1+i*0.7)*0.12;
+      const r2=9*pulse;
+      c.shadowBlur=8; c.shadowColor='rgba(231,76,60,0.5)';
+      c.fillStyle='#E74C3C'; c.beginPath(); c.arc(ix,iy,r2,0,Math.PI*2); c.fill();
+      c.shadowBlur=0;
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(7,w*0.014)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('H⁺',ix,iy);
     }
-    for(let i=0;i<ohClamped;i++){
-      const ix=bx+40+((i*53+S.t*0.5+20)%(bw-60));
-      const iy=by+bh*0.25+((i*37+S.t*0.5+15)%(bh*0.55));
-      c.fillStyle='#4444FF'; c.beginPath(); c.arc(ix,iy,9,0,Math.PI*2); c.fill();
-      c.fillStyle='#fff'; c.font=`bold ${Math.max(7,w*0.014)}px Tajawal`; c.textAlign='center';
-      c.fillText('OH⁻',ix,iy+4);
+    // Draw OH- ions (blue)
+    for(let i=0;i<ohC;i++){
+      const ix=bkx+30+((i*61+S.t*0.45+30)%(bkw-40));
+      const iy=bky+bkh*0.2+((i*41+S.t*0.6+20)%(bkh*0.6));
+      const pulse=1+Math.sin(S.t*0.08+i*0.9+2)*0.12;
+      const r2=9*pulse;
+      c.shadowBlur=8; c.shadowColor='rgba(41,128,185,0.5)';
+      c.fillStyle='#2980B9'; c.beginPath(); c.arc(ix,iy,r2,0,Math.PI*2); c.fill();
+      c.shadowBlur=0;
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(7,w*0.014)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('OH⁻',ix,iy);
     }
 
-    // Label
-    const typeCol=ph<7?'#C0392B':ph>7?'#1565C0':'#27AE60';
+    // Type label
+    const typeCol=ph<7?'#C0392B':ph>7?'#2980B9':'#27AE60';
     const typeAr=ph<7?'حمضي 🍋':ph>7?'قلوي 🧼':'متعادل 💧';
-    c.fillStyle='rgba(255,255,255,0.9)'; c.beginPath(); c.roundRect(w*0.25,h*0.89,w*0.5,h*0.08,8); c.fill();
-    c.fillStyle=typeCol; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
-    c.fillText(`pH=${ph} | ${typeAr}`, w/2, h*0.945);
+    c.fillStyle='rgba(255,255,255,0.94)'; c.beginPath(); c.roundRect(w*0.2,h*0.88,w*0.6,h*0.09,10); c.fill();
+    c.strokeStyle=typeCol+'66'; c.lineWidth=1.5; c.beginPath(); c.roundRect(w*0.2,h*0.88,w*0.6,h*0.09,10); c.stroke();
+    c.fillStyle=typeCol; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`pH = ${ph} | ${typeAr}`, w/2, h*0.925);
 
     // Legend
-    c.fillStyle='#FF4444'; c.beginPath(); c.arc(w*0.08,h*0.85,7,0,Math.PI*2); c.fill();
-    c.fillStyle='#333'; c.font=`${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='right';
-    c.fillText('H⁺',w*0.19,h*0.855);
-    c.fillStyle='#4444FF'; c.beginPath(); c.arc(w*0.08,h*0.92,7,0,Math.PI*2); c.fill();
-    c.fillText('OH⁻',w*0.19,h*0.925);
+    const legX=w*0.02, legY=h*0.82;
+    [{col:'#E74C3C',lbl:'H⁺'},{col:'#2980B9',lbl:'OH⁻'}].forEach((lg,i)=>{
+      c.fillStyle=lg.col; c.beginPath(); c.arc(legX+8,legY+i*22,8,0,Math.PI*2); c.fill();
+      c.fillStyle='#333'; c.font=`${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='left'; c.textBaseline='middle';
+      c.fillText(lg.lbl,legX+20,legY+i*22);
+    });
 
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ── 6-4 Tab2: العلاقة بين H⁺ وpH ──
+// ── 6-4 Tab2: العلاقة بين H⁺ وpH — منحنى تفاعلي ──
 function simG9Ions2() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0;
+  simState = { t:0, hover:{ph:null}, mouseX:-1 };
+  const S = simState;
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">📈 العلاقة بين [H⁺] وpH</div>
       <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:Tajawal">
-        <tr style="background:rgba(26,143,168,0.1)"><td style="padding:4px;font-weight:700">pH</td><td style="padding:4px;font-weight:700">[H⁺] mol/L</td><td style="padding:4px;font-weight:700">النوع</td></tr>
-        ${[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14].map(p=>`<tr style="border-bottom:1px solid rgba(0,0,0,0.05)"><td style="padding:3px;text-align:center">${p}</td><td style="padding:3px;text-align:center;direction:ltr">${(Math.pow(10,-p)).toExponential(0)}</td><td style="padding:3px;text-align:center;color:${p<7?'#C0392B':p>7?'#1565C0':'#27AE60'}">${p<7?'حمضي':p>7?'قلوي':'متعادل'}</td></tr>`).join('')}
+        <tr style="background:rgba(26,143,168,0.1)"><td style="padding:4px;font-weight:700">pH</td><td style="padding:4px;font-weight:700;direction:ltr">[H⁺] mol/L</td><td style="padding:4px;font-weight:700">النوع</td></tr>
+        ${[0,1,2,4,7,10,12,14].map(p=>`<tr style="border-bottom:1px solid rgba(0,0,0,0.05)"><td style="padding:3px;text-align:center">${p}</td><td style="padding:3px;text-align:center;direction:ltr">${(Math.pow(10,-p)).toExponential(0)}</td><td style="padding:3px;text-align:center;color:${p<7?'#C0392B':p>7?'#1565C0':'#27AE60'}">${p<7?'حمضي':p>7?'قلوي':'متعادل'}</td></tr>`).join('')}
       </table>
     </div>
     <div class="q-box">
-      <strong>❓ لماذا العلاقة بين H⁺ وpH عكسية؟</strong>
+      <strong>❓ لماذا العلاقة بين H⁺ وpH عكسية ولوغاريتمية؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">pH = -log[H⁺]. كلما زاد تركيز H⁺ (حمض أقوى)، كان اللوغاريتم السالب أصغر (pH أقل). لهذا الأحماض القوية لها pH قريب من الصفر.</div>
+      <div class="q-ans-panel">pH = -log[H⁺]. كلما زاد تركيز H⁺ (حمض أقوى)، كان اللوغاريتم السالب أصغر (pH أقل). المقياس لوغاريتمي — pH=1 يعني 10× تركيز pH=2!</div>
     </div>`);
 
-  function draw(){
-    c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F8F5EF'; c.fillRect(0,0,w,h);
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
-    c.fillText('العلاقة العكسية بين تركيز H⁺ وقيمة pH', w/2, h*0.08);
+  const cv=document.getElementById('simCanvas');
+  cv.onmousemove=function(e){ const r=cv.getBoundingClientRect(); S.mouseX=(e.clientX-r.left)*cv.width/r.width; };
+  cv.onmouseleave=function(){ S.mouseX=-1; };
 
-    // Draw axes
-    const ox=w*0.12, oy=h*0.85, aw=w*0.8, ah=h*0.68;
+  function draw(){
+    if(currentSim!=='g9ions'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F8F5EF'); bg.addColorStop(1,'#EDE8E0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('العلاقة العكسية: كلما زاد pH قلّ تركيز H⁺', w/2, h*0.07);
+
+    const ox=w*0.13, oy=h*0.88, aw=w*0.82, ah=h*0.74;
+
+    // Grid lines
+    c.strokeStyle='rgba(0,0,0,0.07)'; c.lineWidth=1; c.setLineDash([4,4]);
+    [0,7,14].forEach(p=>{ const fx=ox+(p/14)*aw; c.beginPath(); c.moveTo(fx,oy-ah); c.lineTo(fx,oy); c.stroke(); });
+    [0,-7,-14].forEach(logH=>{ const fy=oy-((logH+14)/14)*ah; c.beginPath(); c.moveTo(ox,fy); c.lineTo(ox+aw,fy); c.stroke(); });
+    c.setLineDash([]);
+
+    // Axes
     c.strokeStyle='#555'; c.lineWidth=2;
     c.beginPath(); c.moveTo(ox,oy-ah); c.lineTo(ox,oy); c.lineTo(ox+aw,oy); c.stroke();
+    // Axis labels
     c.fillStyle='#333'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
-    c.fillText('pH', ox+aw/2, oy+h*0.06);
+    c.fillText('pH', ox+aw/2, oy+h*0.07);
     c.save(); c.translate(ox-h*0.05,oy-ah/2); c.rotate(-Math.PI/2);
     c.fillText('[H⁺]',0,0); c.restore();
 
-    // Plot curve
+    // Tick labels
+    c.fillStyle='#555'; c.font=`${Math.max(8,w*0.018)}px Tajawal`;
+    [0,7,14].forEach(p=>{ c.textAlign='center'; c.textBaseline='top'; c.fillText(p,ox+(p/14)*aw,oy+5); });
+    [0,-7,-14].forEach(logH=>{ const fy=oy-((logH+14)/14)*ah; c.textAlign='right'; c.textBaseline='middle'; c.fillText(`10^${logH}`,ox-5,fy); });
+
+    // Colored zones
+    const zones=[{x0:0,x1:7,col:'rgba(231,76,60,0.05)'},{x0:7,x1:7.1,col:'rgba(39,174,96,0.1)'},{x0:7,x1:14,col:'rgba(41,128,185,0.05)'}];
+    zones.forEach(z=>{ c.fillStyle=z.col; c.fillRect(ox+z.x0/14*aw,oy-ah,((z.x1-z.x0)/14)*aw,ah); });
+
+    // Curve
     c.strokeStyle='#1A8FA8'; c.lineWidth=2.5;
     c.beginPath();
     for(let ph=0;ph<=14;ph+=0.1){
-      const hConc=Math.pow(10,-ph);
-      const maxH=1, minH=1e-14;
-      const logH=-ph;
-      const fy=oy-((logH+14)/14)*ah;
-      const fx=ox+(ph/14)*aw;
+      const fx=ox+(ph/14)*aw, fy=oy-((-ph+14)/14)*ah;
       if(ph===0) c.moveTo(fx,fy); else c.lineTo(fx,fy);
     }
     c.stroke();
+    // Gradient fill under curve
+    const cfill=c.createLinearGradient(0,oy-ah,0,oy);
+    cfill.addColorStop(0,'rgba(26,143,168,0.15)'); cfill.addColorStop(1,'rgba(26,143,168,0)');
+    c.fillStyle=cfill;
+    c.beginPath(); c.moveTo(ox,oy);
+    for(let ph=0;ph<=14;ph+=0.1){ c.lineTo(ox+(ph/14)*aw, oy-((-ph+14)/14)*ah); }
+    c.lineTo(ox+aw,oy); c.closePath(); c.fill();
 
-    // Labels
-    c.fillStyle='#555'; c.font=`${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
-    [0,7,14].forEach(p=>{
-      const fx=ox+(p/14)*aw;
-      c.fillText(p,fx,oy+h*0.03);
-      c.strokeStyle='#ddd'; c.lineWidth=1; c.setLineDash([4,4]);
-      c.beginPath(); c.moveTo(fx,oy); c.lineTo(fx,oy-ah); c.stroke(); c.setLineDash([]);
-    });
-    // [H+] labels
-    c.fillStyle='#555'; c.textAlign='right'; c.font=`${Math.max(8,w*0.016)}px Tajawal`;
-    [0,-7,-14].forEach((logH,i)=>{
-      const fy=oy-((logH+14)/14)*ah;
-      c.fillText(`10^${logH}`,ox-4,fy+4);
-    });
+    // Interactive cursor line
+    if(S.mouseX>ox&&S.mouseX<ox+aw){
+      const curPh=((S.mouseX-ox)/aw)*14;
+      const curFy=oy-((-curPh+14)/14)*ah;
+      c.strokeStyle='rgba(212,144,26,0.6)'; c.lineWidth=1.5; c.setLineDash([5,5]);
+      c.beginPath(); c.moveTo(S.mouseX,oy); c.lineTo(S.mouseX,curFy); c.stroke(); c.setLineDash([]);
+      c.fillStyle='#D4901A'; c.beginPath(); c.arc(S.mouseX,curFy,7,0,Math.PI*2); c.fill();
+      c.strokeStyle='#fff'; c.lineWidth=2; c.beginPath(); c.arc(S.mouseX,curFy,7,0,Math.PI*2); c.stroke();
+      // Tooltip
+      const tpH=`pH = ${curPh.toFixed(1)}`; const tH=`[H⁺] = 10^${(-curPh).toFixed(0)}`;
+      c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(S.mouseX+10,curFy-30,130,44,8); c.fill();
+      c.strokeStyle='rgba(212,144,26,0.5)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(S.mouseX+10,curFy-30,130,44,8); c.stroke();
+      c.fillStyle='#D4901A'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='right'; c.textBaseline='top';
+      c.fillText(tpH, S.mouseX+135, curFy-26);
+      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.019)}px Tajawal`;
+      c.fillText(tH, S.mouseX+135, curFy-10);
+    }
 
-    // Moving dot
-    const ph=(S.t*0.05)%14;
-    const logH=-ph;
-    const dotX=ox+(ph/14)*aw;
-    const dotY=oy-((logH+14)/14)*ah;
-    c.fillStyle='#C0392B'; c.beginPath(); c.arc(dotX,dotY,8,0,Math.PI*2); c.fill();
-    c.fillStyle='#fff'; c.font=`bold ${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
-    c.fillText(ph.toFixed(1),dotX,dotY+4);
-
-    // Annotation
-    c.fillStyle='#555'; c.font=`${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='right';
-    c.fillText('↑ كلما زاد pH',ox+aw,h*0.14);
-    c.fillText('قلّ تركيز H⁺',ox+aw,h*0.19);
+    // Moving dot on curve
+    const animPh=(S.t*0.04)%14;
+    const animFx=ox+(animPh/14)*aw, animFy=oy-((-animPh+14)/14)*ah;
+    c.fillStyle='#C0392B'; c.beginPath(); c.arc(animFx,animFy,6,0,Math.PI*2); c.fill();
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -31368,23 +31767,22 @@ function simG9Ions2() {
 // ── 6-5 Tab1: الأكاسيد الحمضية ──
 function simG9Oxides1() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(!S.selOx1) S.selOx1=0;
+  simState = { t:0, selOx1:0 };
+  const S = simState;
 
   const oxides=[
     { name:'ثاني أكسيد الكربون', formula:'CO₂', element:'كربون (لافلز)', product:'H₂CO₃ حمض الكربونيك', ph:5.5, icon:'💨', desc:'يذوب في ماء الأمطار فيكوّن المطر الحمضي' },
-    { name:'ثاني أكسيد الكبريت', formula:'SO₂', element:'كبريت (لافلز)', product:'H₂SO₃ حمض الكبريتوز', ph:3.5, icon:'🏭', desc:'ينبعث من المصانع ويسبّب تلوث الهواء' },
+    { name:'ثاني أكسيد الكبريت', formula:'SO₂', element:'كبريت (لافلز)', product:'H₂SO₃ حمض الكبريتوز', ph:3.5, icon:'🏭', desc:'ينبعث من المصانع ويسبّب التلوث' },
     { name:'ثاني أكسيد النيتروجين', formula:'NO₂', element:'نيتروجين (لافلز)', product:'HNO₃ حمض النيتريك', ph:3.0, icon:'🚗', desc:'ينبعث من عوادم السيارات' },
-    { name:'ثالث أكسيد الكبريت', formula:'SO₃', element:'كبريت (لافلز)', product:'H₂SO₄ حمض الكبريتيك', ph:1.5, icon:'⚠️', desc:'يكوّن حمض الكبريتيك القوي عند ذوبانه' },
-    { name:'ثاني أكسيد السيليكون', formula:'SiO₂', element:'سيليكون (شبه فلز)', product:'H₂SiO₃ حمض السيليك', ph:5, icon:'🪨', desc:'الرمل والكوارتز مكوّن من هذا الأكسيد' },
+    { name:'ثالث أكسيد الكبريت', formula:'SO₃', element:'كبريت (لافلز)', product:'H₂SO₄ حمض الكبريتيك', ph:1.5, icon:'⚠️', desc:'يكوّن حمض الكبريتيك القوي' },
+    { name:'ثاني أكسيد السيليكون', formula:'SiO₂', element:'سيليكون (شبه فلز)', product:'H₂SiO₃ حمض السيليك', ph:5, icon:'🪨', desc:'الرمل والكوارتز — شبه ذائب' },
   ];
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">⚗️ أكاسيد لافلزية حمضية</div>
       <div class="ctrl-btns-grid-1">
-        ${oxides.map((o,i)=>`<button class="ctrl-btn" id="ox1-btn-${i}" onclick="simState.selOx1=${i};document.querySelectorAll('[id^=ox1-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
+        ${oxides.map((o,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="ox1-btn-${i}" onclick="simState.selOx1=${i};document.querySelectorAll('[id^=ox1-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
       </div>
     </div>
     <div class="info-box">
@@ -31393,77 +31791,90 @@ function simG9Oxides1() {
     <div class="q-box">
       <strong>❓ كيف يُسبّب SO₂ المطرَ الحمضي؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">SO₂ المنبعث من المصانع يتحد مع بخار الماء في الهواء مكوّناً H₂SO₃ وH₂SO₄. تذوب هذه الأحماض في مياه الأمطار لتصبح حمضية (pH أقل من 5.6) وتُتلف النباتات والمباني.</div>
+      <div class="q-ans-panel">SO₂ المنبعث من المصانع يتحد مع بخار الماء مكوّناً H₂SO₃ وH₂SO₄. تذوب هذه الأحماض في الأمطار لتصبح حمضية (pH أقل من 5.6) وتُتلف النباتات والمباني.</div>
     </div>`);
 
+  const cv=document.getElementById('simCanvas');
+
   function draw(){
+    if(currentSim!=='g9oxides'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#FFF8EE'; c.fillRect(0,0,w,h);
     const ox=oxides[S.selOx1||0];
 
+    // Background warm
+    const bg=c.createLinearGradient(0,0,w,h); bg.addColorStop(0,'#FFF8EE'); bg.addColorStop(1,'#FFF0D8');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Animated particles (gas molecules)
+    for(let i=0;i<12;i++){
+      const px2=(i/12)*w+(Math.sin(S.t*0.013+i*1.1)*25);
+      const py2=h-((S.t*0.5+i*50)%h);
+      c.fillStyle='rgba(255,140,0,0.15)';
+      c.beginPath(); c.arc(px2,py2,6+i%3,0,Math.PI*2); c.fill();
+    }
+
     // Title
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.031)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.name, w/2, h*0.08);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText(ox.name, w/2, h*0.07);
 
-    // Reaction animation: oxide + water → acid
-    // Box 1: oxide
-    const b1x=w*0.04, b1y=h*0.18, bw2=w*0.24, bh2=h*0.22;
-    c.fillStyle='#FFE0B2'; c.beginPath(); c.roundRect(b1x,b1y,bw2,bh2,10); c.fill();
-    c.strokeStyle='#FF8800'; c.lineWidth=1.5; c.beginPath(); c.roundRect(b1x,b1y,bw2,bh2,10); c.stroke();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.formula, b1x+bw2/2, b1y+bh2*0.45);
-    c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.fillStyle='#888';
-    c.fillText('الأكسيد', b1x+bw2/2, b1y+bh2*0.75);
+    // Reaction boxes
+    const boxes=[
+      {label:ox.formula, sublabel:'الأكسيد الحمضي', col:'#FF8C00', bg:'#FFE0B2'},
+      {label:'+', sublabel:'', col:'#555', bg:'transparent'},
+      {label:'H₂O', sublabel:'الماء', col:'#0288D1', bg:'#B3E5FC'},
+      {label:'→', sublabel:'', col:'#27AE60', bg:'transparent'},
+      {label:ox.product.split(' ')[0], sublabel:'الحمض الناتج', col:'#C0392B', bg:'#FFCDD2'},
+    ];
+    const bW=w*0.165, bH=h*0.22, bY=h*0.17;
+    const totalW=boxes.length*(bW+w*0.02)-w*0.02;
+    const startX=(w-totalW)/2;
 
-    // Plus
-    c.fillStyle='#555'; c.font=`bold ${Math.max(18,w*0.04)}px Tajawal`;
-    c.fillText('+', w*0.34, b1y+bh2*0.55);
-
-    // Box 2: water
-    const b2x=w*0.38; 
-    c.fillStyle='#B3E5FC'; c.beginPath(); c.roundRect(b2x,b1y,bw2,bh2,10); c.fill();
-    c.strokeStyle='#0288D1'; c.lineWidth=1.5; c.beginPath(); c.roundRect(b2x,b1y,bw2,bh2,10); c.stroke();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('H₂O', b2x+bw2/2, b1y+bh2*0.45);
-    c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.fillStyle='#888';
-    c.fillText('الماء', b2x+bw2/2, b1y+bh2*0.75);
-
-    // Arrow animated
-    const arX=w*0.68+Math.sin(S.t*0.05)*3;
-    c.fillStyle='#1A8FA8'; c.font=`${Math.max(20,w*0.045)}px serif`; c.textAlign='center';
-    c.fillText('→', arX, b1y+bh2*0.55);
-
-    // Box 3: acid product
-    const b3x=w*0.74;
-    c.fillStyle='#FFCDD2'; c.beginPath(); c.roundRect(b3x,b1y,bw2,bh2,10); c.fill();
-    c.strokeStyle='#C0392B'; c.lineWidth=1.5; c.beginPath(); c.roundRect(b3x,b1y,bw2,bh2,10); c.stroke();
-    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.product.split(' ')[0], b3x+bw2/2, b1y+bh2*0.35);
-    c.fillStyle='#888'; c.font=`${Math.max(8,w*0.017)}px Tajawal`;
-    c.fillText(ox.product.split(' ').slice(1).join(' '), b3x+bw2/2, b1y+bh2*0.6);
-    c.fillText('حمض', b3x+bw2/2, b1y+bh2*0.8);
+    boxes.forEach((box,i)=>{
+      const bx=startX+i*(bW+w*0.02);
+      if(box.bg==='transparent'){
+        // operator
+        if(box.sublabel==='') {
+          const pulse=box.label==='→'?Math.sin(S.t*0.06)*3:0;
+          c.fillStyle=box.col; c.font=`bold ${Math.max(20,w*0.045)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+          c.fillText(box.label, bx+bW/2, bY+bH/2+pulse);
+        }
+        return;
+      }
+      // Box
+      c.fillStyle=box.bg; c.beginPath(); c.roundRect(bx,bY,bW,bH,10); c.fill();
+      c.strokeStyle=box.col+'88'; c.lineWidth=1.5; c.beginPath(); c.roundRect(bx,bY,bW,bH,10); c.stroke();
+      c.fillStyle=box.col; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(box.label, bx+bW/2, bY+bH*0.42);
+      c.fillStyle='#888'; c.font=`${Math.max(9,w*0.018)}px Tajawal`;
+      c.fillText(box.sublabel, bx+bW/2, bY+bH*0.76);
+    });
 
     // pH result
-    const bx3=w*0.1, by3=h*0.47, bw3=w*0.8, bh3=h*0.1;
-    c.fillStyle='#FFEBEE'; c.beginPath(); c.roundRect(bx3,by3,bw3,bh3,10); c.fill();
-    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(14,w*0.03)}px Tajawal`; c.textAlign='center';
-    c.fillText(`pH المحلول الناتج = ${ox.ph} → حمضي 🍋`, w/2, by3+bh3*0.65);
+    c.fillStyle='rgba(192,57,43,0.08)'; c.beginPath(); c.roundRect(w*0.1,h*0.45,w*0.8,h*0.1,10); c.fill();
+    c.strokeStyle='rgba(192,57,43,0.2)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(w*0.1,h*0.45,w*0.8,h*0.1,10); c.stroke();
+    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`pH الناتج = ${ox.ph} → حمضي 🍋`, w/2, h*0.50);
 
     // pH bar
-    const barX=w*0.05, barY=h*0.62, barW=w*0.9, barH=14;
-    const grad=c.createLinearGradient(barX,0,barX+barW,0);
-    grad.addColorStop(0,'#FF0000'); grad.addColorStop(0.5,'#44AA44'); grad.addColorStop(1,'#3300BB');
-    c.fillStyle=grad; c.beginPath(); c.roundRect(barX,barY,barW,barH,7); c.fill();
-    const marker=barX+(ox.ph/14)*barW;
-    c.fillStyle='#fff'; c.beginPath(); c.arc(marker,barY+barH/2,8,0,Math.PI*2); c.fill();
-    c.strokeStyle='#C0392B'; c.lineWidth=2; c.beginPath(); c.arc(marker,barY+barH/2,8,0,Math.PI*2); c.stroke();
-    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.ph,marker,barY+barH/2+4);
+    const barX=w*0.06, barY=h*0.60, barW2=w*0.88, barH=16;
+    const phGrad=c.createLinearGradient(barX,0,barX+barW2,0);
+    phGrad.addColorStop(0,'#E74C3C'); phGrad.addColorStop(0.5,'#27AE60'); phGrad.addColorStop(1,'#1565C0');
+    c.fillStyle=phGrad; c.beginPath(); c.roundRect(barX,barY,barW2,barH,8); c.fill();
+    c.fillStyle='rgba(255,255,255,0.3)'; c.beginPath(); c.roundRect(barX,barY,barW2,barH/2,8); c.fill();
+    const mX=barX+(ox.ph/14)*barW2;
+    c.fillStyle='#fff'; c.beginPath(); c.arc(mX,barY+barH/2,10,0,Math.PI*2); c.fill();
+    c.strokeStyle='#C0392B'; c.lineWidth=2; c.beginPath(); c.arc(mX,barY+barH/2,10,0,Math.PI*2); c.stroke();
+    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(ox.ph,mX,barY+barH/2);
+    [0,7,14].forEach(n=>{ c.fillStyle='#555'; c.font=`${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='top'; c.fillText(n,barX+(n/14)*barW2,barY+barH+4); });
 
     // Description
-    c.fillStyle='#555'; c.font=`${Math.max(11,w*0.023)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.desc, w/2, h*0.76);
-    c.fillText(`العنصر: ${ox.element}`, w/2, h*0.83);
+    c.fillStyle='rgba(255,255,255,0.9)'; c.beginPath(); c.roundRect(w*0.08,h*0.74,w*0.84,h*0.12,10); c.fill();
+    c.fillStyle='#555'; c.font=`${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(ox.desc, w/2, h*0.80);
+    c.fillStyle='#888'; c.font=`${Math.max(10,w*0.021)}px Tajawal`;
+    c.fillText(`العنصر: ${ox.element}`, w/2, h*0.845);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -31473,9 +31884,8 @@ function simG9Oxides1() {
 // ── 6-5 Tab2: الأكاسيد القاعدية ──
 function simG9Oxides2() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(!S.selOx2) S.selOx2=0;
+  simState = { t:0, selOx2:0 };
+  const S = simState;
 
   const oxides=[
     { name:'أكسيد الصوديوم', formula:'Na₂O', product:'NaOH هيدروكسيد الصوديوم', ph:14, icon:'⚪', desc:'يتفاعل بشدة مع الماء' },
@@ -31489,10 +31899,10 @@ function simG9Oxides2() {
     <div class="ctrl-section">
       <div class="ctrl-label">🧱 أكاسيد فلزية قاعدية</div>
       <div class="ctrl-btns-grid-1">
-        ${oxides.map((o,i)=>`<button class="ctrl-btn" id="ox2-btn-${i}" onclick="simState.selOx2=${i};document.querySelectorAll('[id^=ox2-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
+        ${oxides.map((o,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="ox2-btn-${i}" onclick="simState.selOx2=${i};document.querySelectorAll('[id^=ox2-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
       </div>
     </div>
-    <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.15)">
+    <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.2)">
       <b>الأكسيد القاعدي =</b> أكسيد فلز + ماء → قاعدة/هيدروكسيد
     </div>
     <div class="q-box">
@@ -31501,66 +31911,78 @@ function simG9Oxides2() {
       <div class="q-ans-panel">أكسيد الكالسيوم CaO قاعدي — عند إضافته للتربة الحمضية يتفاعل مع الأحماض ويرفع pH التربة نحو المتعادل، مما يُحسّن قدرة النباتات على امتصاص المغذيات.</div>
     </div>`);
 
+  const cv=document.getElementById('simCanvas');
+
   function draw(){
+    if(currentSim!=='g9oxides'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F0FFF4'; c.fillRect(0,0,w,h);
     const ox=oxides[S.selOx2||0];
 
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.031)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.name, w/2, h*0.08);
+    const bg=c.createLinearGradient(0,0,w,h); bg.addColorStop(0,'#F0FFF4'); bg.addColorStop(1,'#E8F5EC');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    const b1x=w*0.04, b1y=h*0.18, bw2=w*0.24, bh2=h*0.22;
-    // Oxide box
-    c.fillStyle='#C8E6C9'; c.beginPath(); c.roundRect(b1x,b1y,bw2,bh2,10); c.fill();
-    c.strokeStyle='#388E3C'; c.lineWidth=1.5; c.beginPath(); c.roundRect(b1x,b1y,bw2,bh2,10); c.stroke();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.formula, b1x+bw2/2, b1y+bh2*0.45);
-    c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.fillStyle='#888';
-    c.fillText('الأكسيد القاعدي', b1x+bw2/2, b1y+bh2*0.75);
+    // OH⁻ ions floating
+    for(let i=0;i<8;i++){
+      const px=w*0.1+((i*71+S.t*0.4)%(w*0.8));
+      const py=h*0.15+((i*53+S.t*0.6)%(h*0.55));
+      c.fillStyle='rgba(39,174,96,0.15)';
+      c.beginPath(); c.arc(px,py,8,0,Math.PI*2); c.fill();
+      c.fillStyle='rgba(39,174,96,0.5)'; c.font=`bold ${Math.max(6,w*0.013)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('OH⁻',px,py);
+    }
 
-    c.fillStyle='#555'; c.font=`bold ${Math.max(18,w*0.04)}px Tajawal`;
-    c.fillText('+', w*0.34, b1y+bh2*0.55);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText(ox.name, w/2, h*0.07);
 
-    // Water
-    const b2x=w*0.38;
-    c.fillStyle='#B3E5FC'; c.beginPath(); c.roundRect(b2x,b1y,bw2,bh2,10); c.fill();
-    c.strokeStyle='#0288D1'; c.lineWidth=1.5; c.beginPath(); c.roundRect(b2x,b1y,bw2,bh2,10); c.stroke();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('H₂O', b2x+bw2/2, b1y+bh2*0.45);
-    c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.fillStyle='#888';
-    c.fillText('الماء', b2x+bw2/2, b1y+bh2*0.75);
-
-    c.fillStyle='#27AE60'; c.font=`${Math.max(20,w*0.045)}px serif`; c.textAlign='center';
-    c.fillText('→', w*0.68+Math.sin(S.t*0.05)*3, b1y+bh2*0.55);
-
-    // Product
-    const b3x=w*0.74;
-    c.fillStyle='#C8E6C9'; c.beginPath(); c.roundRect(b3x,b1y,bw2,bh2,10); c.fill();
-    c.strokeStyle='#27AE60'; c.lineWidth=1.5; c.beginPath(); c.roundRect(b3x,b1y,bw2,bh2,10); c.stroke();
-    c.fillStyle='#27AE60'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.product.split(' ')[0], b3x+bw2/2, b1y+bh2*0.35);
-    c.fillStyle='#888'; c.font=`${Math.max(8,w*0.017)}px Tajawal`;
-    c.fillText(ox.product.split(' ').slice(1).join(' '), b3x+bw2/2, b1y+bh2*0.6);
-    c.fillText('قاعدة', b3x+bw2/2, b1y+bh2*0.8);
+    // Reaction boxes - green theme
+    const bW=w*0.165, bH=h*0.22, bY=h*0.14;
+    const boxData=[
+      {label:ox.formula, sub:'الأكسيد القاعدي', col:'#27AE60', bg:'#C8E6C9'},
+      {label:'+', sub:'', col:'#555', bg:'transparent'},
+      {label:'H₂O', sub:'الماء', col:'#0288D1', bg:'#B3E5FC'},
+      {label:'→', sub:'', col:'#27AE60', bg:'transparent'},
+      {label:ox.product.split(' ')[0], sub:'القاعدة', col:'#27AE60', bg:'#C8E6C9'},
+    ];
+    const totalW2=boxData.length*(bW+w*0.02)-w*0.02;
+    const startX2=(w-totalW2)/2;
+    boxData.forEach((box,i)=>{
+      const bx=startX2+i*(bW+w*0.02);
+      if(box.bg==='transparent'){
+        const pulse=box.label==='→'?Math.sin(S.t*0.06)*3:0;
+        c.fillStyle=box.col; c.font=`bold ${Math.max(20,w*0.045)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(box.label, bx+bW/2, bY+bH/2+pulse);
+        return;
+      }
+      c.fillStyle=box.bg; c.beginPath(); c.roundRect(bx,bY,bW,bH,10); c.fill();
+      c.strokeStyle=box.col+'88'; c.lineWidth=1.5; c.beginPath(); c.roundRect(bx,bY,bW,bH,10); c.stroke();
+      c.fillStyle=box.col; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(box.label, bx+bW/2, bY+bH*0.42);
+      c.fillStyle='#888'; c.font=`${Math.max(9,w*0.018)}px Tajawal`;
+      c.fillText(box.sub, bx+bW/2, bY+bH*0.76);
+    });
 
     // pH result
-    c.fillStyle='#E8F5E9'; c.beginPath(); c.roundRect(w*0.1,h*0.47,w*0.8,h*0.1,10); c.fill();
-    c.fillStyle='#27AE60'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
-    c.fillText(`pH الناتج = ${ox.ph} → قلوي 🧼`, w/2, h*0.535);
+    c.fillStyle='rgba(39,174,96,0.08)'; c.beginPath(); c.roundRect(w*0.1,h*0.42,w*0.8,h*0.1,10); c.fill();
+    c.strokeStyle='rgba(39,174,96,0.2)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(w*0.1,h*0.42,w*0.8,h*0.1,10); c.stroke();
+    c.fillStyle='#27AE60'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`pH الناتج = ${ox.ph} → قلوي 🧼`, w/2, h*0.47);
 
     // pH bar
-    const barX=w*0.05, barY=h*0.62, barW=w*0.9, barH=14;
-    const grad=c.createLinearGradient(barX,0,barX+barW,0);
-    grad.addColorStop(0,'#FF0000'); grad.addColorStop(0.5,'#44AA44'); grad.addColorStop(1,'#3300BB');
-    c.fillStyle=grad; c.beginPath(); c.roundRect(barX,barY,barW,barH,7); c.fill();
-    const marker=barX+(ox.ph/14)*barW;
-    c.fillStyle='#fff'; c.beginPath(); c.arc(marker,barY+barH/2,8,0,Math.PI*2); c.fill();
-    c.strokeStyle='#27AE60'; c.lineWidth=2; c.beginPath(); c.arc(marker,barY+barH/2,8,0,Math.PI*2); c.stroke();
-    c.fillStyle='#27AE60'; c.font=`bold ${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.ph,marker,barY+barH/2+4);
+    const barX=w*0.06, barY=h*0.58, barW2=w*0.88, barH=16;
+    const phGrad=c.createLinearGradient(barX,0,barX+barW2,0);
+    phGrad.addColorStop(0,'#E74C3C'); phGrad.addColorStop(0.5,'#27AE60'); phGrad.addColorStop(1,'#1565C0');
+    c.fillStyle=phGrad; c.beginPath(); c.roundRect(barX,barY,barW2,barH,8); c.fill();
+    c.fillStyle='rgba(255,255,255,0.3)'; c.beginPath(); c.roundRect(barX,barY,barW2,barH/2,8); c.fill();
+    const mX=barX+(ox.ph/14)*barW2;
+    c.fillStyle='#fff'; c.beginPath(); c.arc(mX,barY+barH/2,10,0,Math.PI*2); c.fill();
+    c.strokeStyle='#27AE60'; c.lineWidth=2; c.beginPath(); c.arc(mX,barY+barH/2,10,0,Math.PI*2); c.stroke();
+    c.fillStyle='#27AE60'; c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(ox.ph,mX,barY+barH/2);
 
-    c.fillStyle='#555'; c.font=`${Math.max(11,w*0.023)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.desc, w/2, h*0.77);
+    c.fillStyle='rgba(255,255,255,0.9)'; c.beginPath(); c.roundRect(w*0.08,h*0.74,w*0.84,h*0.12,10); c.fill();
+    c.fillStyle='#555'; c.font=`${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(ox.desc, w/2, h*0.80);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -31570,101 +31992,126 @@ function simG9Oxides2() {
 // ── 6-5 Tab3: الأكاسيد المتذبذبة ──
 function simG9Oxides3() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas'), c=cv.getContext('2d');
-  const w=cv.width, h=cv.height;
-  const S=simState; S.t=0; if(!S.ampho) S.ampho=0; if(!S.testWith) S.testWith='acid';
+  simState = { t:0, ampho:0, testWith:'acid' };
+  const S = simState;
 
   const amphotericOxides=[
-    { name:'أكسيد الألومنيوم', formula:'Al₂O₃', withAcid:'AlCl₃ + H₂O', withBase:'NaAlO₂ + H₂O', icon:'⚪' },
-    { name:'أكسيد الزنك', formula:'ZnO', withAcid:'ZnCl₂ + H₂O', withBase:'Na₂ZnO₂ + H₂O', icon:'🔘' },
+    { name:'أكسيد الألومنيوم', formula:'Al₂O₃', withAcid:'AlCl₃ + H₂O', withBase:'NaAlO₂ + H₂O', icon:'⚪', use:'صناعة الألومنيوم' },
+    { name:'أكسيد الزنك', formula:'ZnO', withAcid:'ZnCl₂ + H₂O', withBase:'Na₂ZnO₂ + H₂O', icon:'🔘', use:'مراهم الجلد' },
   ];
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🔄 الأكاسيد المتذبذبة</div>
       <div class="ctrl-btns-grid-1">
-        ${amphotericOxides.map((o,i)=>`<button class="ctrl-btn" id="ampho-btn-${i}" onclick="simState.ampho=${i};document.querySelectorAll('[id^=ampho-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
+        ${amphotericOxides.map((o,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="ampho-btn-${i}" onclick="simState.ampho=${i};document.querySelectorAll('[id^=ampho-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
       </div>
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">🧪 اختبره مع</div>
       <div class="ctrl-btns-grid">
-        <button class="ctrl-btn stop" onclick="simState.testWith='acid'">🍋 حمض HCl</button>
-        <button class="ctrl-btn action" onclick="simState.testWith='base'">🧼 قاعدة NaOH</button>
+        <button class="ctrl-btn stop" onclick="simState.testWith='acid';document.querySelector('.ctrl-btn.action').classList.remove('active');this.classList.add('active')">🍋 حمض HCl</button>
+        <button class="ctrl-btn action" onclick="simState.testWith='base';document.querySelector('.ctrl-btn.stop').classList.remove('active');this.classList.add('active')">🧼 قاعدة NaOH</button>
       </div>
     </div>
     <div class="info-box">
       <b>المتذبذب =</b> يتفاعل مع الحمض كقاعدة، ومع القاعدة كحمض!
     </div>
     <div class="q-box">
-      <strong>❓ لماذا يُعدّ Al₂O₃ أكسيداً متذبذباً مفيداً صناعياً؟</strong>
+      <strong>❓ ما الفائدة العملية من الأكاسيد المتذبذبة؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">أكسيد الألومنيوم (الكوراندوم) يُستخدم في صناعة الألومنيوم بالتحليل الكهربائي، وهو مادة البوكسيت الخام. تذبذبه يجعله يتفاعل في وسطين مختلفين مما يُوسّع تطبيقاته الصناعية.</div>
+      <div class="q-ans-panel">Al₂O₃ يُستخدم في تكرير الألومنيوم وصناعة الكورندوم (أصلب المواد). ZnO في مراهم الجلد والدهانات. تذبذبها يجعلها تعمل في أوساط حمضية وقاعدية!</div>
     </div>`);
 
+  const cv=document.getElementById('simCanvas');
+
   function draw(){
+    if(currentSim!=='g9oxides'){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    c.fillStyle='#F3F0FF'; c.fillRect(0,0,w,h);
     const ox=amphotericOxides[S.ampho||0];
-    const testWith=S.testWith||'acid';
-    const isAcid=testWith==='acid';
+    const isAcid=S.testWith==='acid';
     const reagent=isAcid?'HCl (حمض)':'NaOH (قاعدة)';
     const product=isAcid?ox.withAcid:ox.withBase;
-    const productType=isAcid?'قاعدة 🧼':'حمض 🍋';
+    const productType=isAcid?'كقاعدة 🧼':'كحمض 🍋';
+    const reacColor=isAcid?'#C0392B':'#27AE60';
 
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.031)}px Tajawal`; c.textAlign='center';
-    c.fillText(`${ox.name} — أكسيد متذبذب`, w/2, h*0.08);
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F3F0FF'); bg.addColorStop(1,'#EAE7F5');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // Diagram center oxide
-    const cx=w*0.5, cy=h*0.35, r=Math.min(w,h)*0.13;
-    c.fillStyle='#9C27B0AA'; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.fill();
-    c.strokeStyle='#7B1FA2'; c.lineWidth=3; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.stroke();
-    c.fillStyle='#fff'; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText(ox.formula, cx, cy+6);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText(`${ox.formula} (${ox.name}) — أكسيد متذبذب`, w/2, h*0.07);
 
-    // Left: acid reaction
-    const lx=w*0.15, ly=h*0.32;
-    const acidActive=isAcid && Math.floor(S.t/30)%2===0;
-    c.fillStyle=acidActive?'#FFCDD2':'#FFE0E0';
-    c.beginPath(); c.arc(lx,ly,Math.min(w,h)*0.09,0,Math.PI*2); c.fill();
-    c.strokeStyle='#C0392B'; c.lineWidth=1.5; c.beginPath(); c.arc(lx,ly,Math.min(w,h)*0.09,0,Math.PI*2); c.stroke();
-    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
-    c.fillText('HCl', lx, ly-6); c.fillText('حمض', lx, ly+12);
+    // Center oxide circle
+    const cx2=w*0.5, cy2=h*0.38, r2=Math.min(w,h)*0.13;
+    c.shadowBlur=20; c.shadowColor='#9C27B088';
+    const radG=c.createRadialGradient(cx2-r2*0.3,cy2-r2*0.3,r2*0.1,cx2,cy2,r2);
+    radG.addColorStop(0,'#CE93D8CC'); radG.addColorStop(1,'#9C27B077');
+    c.fillStyle=radG; c.beginPath(); c.arc(cx2,cy2,r2,0,Math.PI*2); c.fill();
+    c.shadowBlur=0;
+    c.strokeStyle='#7B1FA2'; c.lineWidth=3; c.beginPath(); c.arc(cx2,cy2,r2,0,Math.PI*2); c.stroke();
+    c.fillStyle='#fff'; c.font=`bold ${Math.max(14,w*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(ox.formula, cx2, cy2-5);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`;
+    c.fillText('متذبذب', cx2, cy2+12);
 
-    // Right: base reaction
-    const rx=w*0.85;
-    const baseActive=!isAcid && Math.floor(S.t/30)%2===0;
-    c.fillStyle=baseActive?'#C8E6C9':'#E0F0E0';
-    c.beginPath(); c.arc(rx,ly,Math.min(w,h)*0.09,0,Math.PI*2); c.fill();
-    c.strokeStyle='#27AE60'; c.lineWidth=1.5; c.beginPath(); c.arc(rx,ly,Math.min(w,h)*0.09,0,Math.PI*2); c.stroke();
-    c.fillStyle='#27AE60'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
-    c.fillText('NaOH', rx, ly-6); c.fillText('قاعدة', rx, ly+12);
+    // Left circle (acid)
+    const lx=w*0.14, ly=h*0.36, lr=Math.min(w,h)*0.10;
+    const acidActive=isAcid&&Math.floor(S.t/25)%2===0;
+    c.shadowBlur=isAcid?15:0; c.shadowColor='#C0392B88';
+    c.fillStyle=acidActive?'#FFCDD2':'#FFE8E8';
+    c.beginPath(); c.arc(lx,ly,lr,0,Math.PI*2); c.fill();
+    c.shadowBlur=0;
+    c.strokeStyle='#C0392B'; c.lineWidth=isAcid?2.5:1.5; c.beginPath(); c.arc(lx,ly,lr,0,Math.PI*2); c.stroke();
+    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('HCl', lx, ly-6); c.fillText('حمض', lx, ly+10);
 
-    // Arrows
-    const arColor=isAcid?'#C0392B':'#27AE60';
-    c.strokeStyle=arColor; c.lineWidth=2.5;
-    c.beginPath(); c.moveTo(isAcid?lx+Math.min(w,h)*0.09:rx-Math.min(w,h)*0.09, ly);
-    c.lineTo(isAcid?cx-r:cx+r, cy); c.stroke();
+    // Right circle (base)
+    const rx=w*0.86, ry=h*0.36;
+    const baseActive=!isAcid&&Math.floor(S.t/25)%2===0;
+    c.shadowBlur=!isAcid?15:0; c.shadowColor='#27AE6088';
+    c.fillStyle=baseActive?'#C8E6C9':'#E8F5E9';
+    c.beginPath(); c.arc(rx,ry,lr,0,Math.PI*2); c.fill();
+    c.shadowBlur=0;
+    c.strokeStyle='#27AE60'; c.lineWidth=!isAcid?2.5:1.5; c.beginPath(); c.arc(rx,ry,lr,0,Math.PI*2); c.stroke();
+    c.fillStyle='#27AE60'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('NaOH', rx, ry-6); c.fillText('قاعدة', rx, ry+10);
+
+    // Arrow from active side to center
+    c.strokeStyle=reacColor; c.lineWidth=2.5;
+    const fromX=isAcid?lx+lr:rx-lr, fromY=isAcid?ly:ry;
+    const toX=isAcid?cx2-r2:cx2+r2, toY=cy2;
+    const midX=(fromX+toX)/2+(Math.sin(S.t*0.07)*8), midY=(fromY+toY)/2-20;
+    c.beginPath(); c.moveTo(fromX,fromY); c.quadraticCurveTo(midX,midY,toX,toY); c.stroke();
+    // Arrowhead
+    const angle=Math.atan2(toY-midY,toX-midX);
+    c.fillStyle=reacColor; c.beginPath();
+    c.moveTo(toX,toY);
+    c.lineTo(toX-12*Math.cos(angle-0.4),toY-12*Math.sin(angle-0.4));
+    c.lineTo(toX-12*Math.cos(angle+0.4),toY-12*Math.sin(angle+0.4));
+    c.closePath(); c.fill();
 
     // Reaction box
-    const rbx=w*0.1, rby=h*0.57, rbw=w*0.8, rbh=h*0.14;
-    c.fillStyle=isAcid?'#FFCDD2':'#C8E6C9';
+    const rbx=w*0.08, rby=h*0.60, rbw=w*0.84, rbh=h*0.14;
+    c.fillStyle=isAcid?'rgba(231,76,60,0.08)':'rgba(39,174,96,0.08)';
     c.beginPath(); c.roundRect(rbx,rby,rbw,rbh,10); c.fill();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(11,w*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText(`${ox.formula} + ${reagent} → ${product}`, w/2, rby+rbh*0.4);
-    c.font=`${Math.max(10,w*0.022)}px Tajawal`; c.fillStyle='#555';
-    c.fillText(`يتصرّف الأكسيد هنا ك${isAcid?'قاعدة':'حمض'} ← ${productType}`, w/2, rby+rbh*0.75);
+    c.strokeStyle=reacColor+'44'; c.lineWidth=1.5; c.beginPath(); c.roundRect(rbx,rby,rbw,rbh,10); c.stroke();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`${ox.formula} + ${reagent} → ${product}`, w/2, rby+rbh*0.38);
+    c.fillStyle=reacColor; c.font=`${Math.max(10,w*0.022)}px Tajawal`;
+    c.fillText(`يتصرّف الأكسيد ${productType} في هذه الحالة`, w/2, rby+rbh*0.72);
 
     // Key fact
-    c.fillStyle='rgba(255,255,255,0.9)'; c.beginPath(); c.roundRect(w*0.08,h*0.77,w*0.84,h*0.14,10); c.fill();
-    c.fillStyle='#7B1FA2'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText('المتذبذب: يتفاعل مع الأحماض والقواعد على حدٍّ سواء', w/2, h*0.81);
-    c.fillStyle='#555'; c.font=`${Math.max(10,w*0.021)}px Tajawal`;
-    c.fillText(`مثال: ${ox.formula} (${ox.name})`, w/2, h*0.86);
+    c.fillStyle='rgba(255,255,255,0.92)'; c.beginPath(); c.roundRect(w*0.06,h*0.79,w*0.88,h*0.12,10); c.fill();
+    c.fillStyle='#7B1FA2'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('المتذبذب: يتفاعل مع الأحماض والقواعد على حدٍّ سواء', w/2, h*0.83);
+    c.fillStyle='#888'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
+    c.fillText(`الاستخدام: ${ox.use}`, w/2, h*0.868);
 
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
+
 
 </script>
