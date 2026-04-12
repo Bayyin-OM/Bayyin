@@ -26956,6 +26956,67 @@ Object.assign(SIM_QUESTIONS, {
   }
 });
 
+// ══════════════════════════════════════════════════════════
+// أسئلة الوحدة (الصف التاسع — الأحماض والقواعد)
+// ══════════════════════════════════════════════════════════
+Object.assign(SIM_QUESTIONS, {
+  g9acidprop: {
+    q: 'أيّ من الخصائص التالية تميّز الأحماض عن القواعد؟',
+    opts: [
+      'طعمها مُرّ وملمسها زلق',
+      'طعمها حامض وتُحوّل ورقة تبّاع الشمس للأحمر',
+      'لا تتفاعل مع المعادن',
+      'رقمها الهيدروجيني دائماً أعلى من 7'
+    ],
+    ans: 1,
+    fb: '✅ الأحماض طعمها حامض ومُؤكِّلة وتُحوّل ورقة تبّاع الشمس للأحمر ورقمها pH < 7. أما القواعد فطعمها مُرّ وملمسها زلق وتُحوّل الورقة للأزرق ورقمها pH > 7.'
+  },
+  g9indicator: {
+    q: 'ما لون ورقة تبّاع الشمس عند غمسها في محلول قلوي؟',
+    opts: [
+      'أحمر',
+      'أصفر',
+      'أزرق',
+      'لا يتغيّر اللون'
+    ],
+    ans: 2,
+    fb: '✅ في المحاليل القلوية تتحوّل ورقة تبّاع الشمس للأزرق، وفي الحمضية للأحمر، وتبقى بنفسجية في المتعادلة. الكاشف العام يُعطي ألواناً مختلفة لكل قيمة pH!'
+  },
+  g9phscale: {
+    q: 'محلول رقمه الهيدروجيني pH = 3 — كيف تُصنِّفه؟',
+    opts: [
+      'قلوي قوي',
+      'متعادل',
+      'حمضي متوسط القوة',
+      'قلوي ضعيف'
+    ],
+    ans: 2,
+    fb: '✅ مقياس pH يتراوح من 0 إلى 14. pH أقل من 7 = حمضي، pH = 7 = متعادل، pH أكبر من 7 = قلوي. pH = 3 حمضي متوسط (مثل الخل)، بينما pH = 1 حمضي قوي جداً!'
+  },
+  g9ions: {
+    q: 'أيّ الأيونات يكون تركيزه أعلى في المحلول الحمضي؟',
+    opts: [
+      'أيونات OH⁻',
+      'أيونات H⁺',
+      'أيونات Na⁺',
+      'التركيز متساوٍ دائماً'
+    ],
+    ans: 1,
+    fb: '✅ في المحلول الحمضي: تركيز H⁺ > تركيز OH⁻. في القلوي: تركيز OH⁻ > تركيز H⁺. في المتعادل: H⁺ = OH⁻. هذا هو مبدأ برونستد-لوري للأحماض والقواعد!'
+  },
+  g9oxides: {
+    q: 'ما الذي يُنتَج عند إذابة أكسيد لافلزي (حمضي) في الماء؟',
+    opts: [
+      'قاعدة/هيدروكسيد',
+      'ملح فقط',
+      'حمض',
+      'غاز الهيدروجين'
+    ],
+    ans: 2,
+    fb: '✅ أكسيد اللافلز + ماء → حمض. مثال: SO₃ + H₂O → H₂SO₄ (حمض الكبريتيك). أما أكسيد الفلز + ماء → قاعدة. والأكاسيد المتذبذبة (كـ Al₂O₃) تتفاعل مع الاثنين!'
+  }
+});
+
 
 window.addEventListener('DOMContentLoaded', function() {
   _checkSubscription();
@@ -30231,24 +30292,28 @@ function simG9AcidProp1() {
   if (!S.selected) S.selected = null;
   if (!S.classified) S.classified = {};
 
-  const cp = document.getElementById('simControlsPanel');
-  cp.innerHTML = `
-    <div style="font-family:Tajawal;padding:10px;font-size:13px">
-      <div style="font-weight:700;margin-bottom:8px;color:var(--teal)">📋 التصنيف</div>
-      <div style="background:#fff3cd;border-radius:8px;padding:8px;margin-bottom:6px">
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📋 التصنيف</div>
+      <div class="info-box" style="margin-bottom:8px">
         <b style="color:#C0392B">🍋 حمضي (pH &lt; 7)</b><br>
-        <span id="acid-list" style="font-size:12px;color:#555">—</span>
+        <span id="acid-list" style="font-size:12px">—</span>
       </div>
-      <div style="background:#d4edda;border-radius:8px;padding:8px;margin-bottom:6px">
+      <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.15);margin-bottom:8px">
         <b style="color:#27AE60">💧 متعادل (pH = 7)</b><br>
-        <span id="neutral-list" style="font-size:12px;color:#555">—</span>
+        <span id="neutral-list" style="font-size:12px">—</span>
       </div>
-      <div style="background:#cce5ff;border-radius:8px;padding:8px">
+      <div class="info-box" style="background:rgba(21,101,192,0.06);border-color:rgba(21,101,192,0.15)">
         <b style="color:#1565C0">🧼 قلوي (pH &gt; 7)</b><br>
-        <span id="base-list" style="font-size:12px;color:#555">—</span>
+        <span id="base-list" style="font-size:12px">—</span>
       </div>
-      <div style="margin-top:10px;font-size:12px;color:#888">انقر على أي محلول لمعرفة خصائصه</div>
-    </div>`;
+      <div style="margin-top:8px;font-size:12px;color:var(--muted)">انقر على أي محلول لمعرفة خصائصه</div>
+    </div>
+    <div class="q-box">
+      <strong>❓ ما الفرق بين الحمض القوي والضعيف؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الحمض القوي يتأيّن بالكامل في الماء (مثل HCl، pH=1). الحمض الضعيف يتأيّن جزئياً فقط (مثل الخل، pH=3). كلما قلّ pH ازداد الحمض تركيزاً وقوة.</div>
+    </div>`);
 
   cv.onclick = function(e) {
     const r = cv.getBoundingClientRect();
@@ -30362,15 +30427,18 @@ function simG9AcidProp2() {
     { name:'حمض الكبريتيك', formula:'H₂SO₄', source:'بطاريات السيارات', ph:0.5, icon:'🔋', color:'#FF4444' },
   ];
   let sel = 0;
-  const cp = document.getElementById('simControlsPanel');
-  cp.innerHTML = `<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">اختر الحمض:</div>
-    ${acids.map((a,i)=>`<button onclick="simState.sel=${i}" style="display:block;width:100%;text-align:right;padding:6px 10px;margin-bottom:4px;border-radius:8px;border:1.5px solid #ddd;background:${i===0?'#E8F4FD':'#fff'};font-family:Tajawal;cursor:pointer;font-size:12px">${a.icon} ${a.name}</button>`).join('')}
-  </div>`;
-  // re-render on click
-  cp.querySelectorAll('button').forEach((btn,i)=>{
-    btn.onclick=()=>{ S.sel=i; cp.querySelectorAll('button').forEach((b,j)=>b.style.background=j===i?'#E8F4FD':'#fff'); };
-  });
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🍋 اختر الحمض</div>
+      <div class="ctrl-btns-grid-1">
+        ${acids.map((a,i)=>`<button class="ctrl-btn" id="acid-btn-${i}" onclick="simState.sel=${i};document.querySelectorAll('[id^=acid-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${a.icon} ${a.name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="q-box">
+      <strong>❓ ما الفرق بين الأحماض العضوية وغير العضوية؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الأحماض العضوية تحتوي على الكربون (مثل خل الإيثانويك، وحمض الستريك) وعادة ضعيفة. غير العضوية مثل HCl وH₂SO₄ عادة أقوى وأكثر خطورة.</div>
+    </div>`);
 
   function draw() {
     c.clearRect(0,0,w,h);
@@ -30459,17 +30527,21 @@ function simG9AcidProp3() {
     { name:'هيدروكسيد المغنيسيوم', formula:'Mg(OH)₂', use:'علاج حموضة المعدة', ph:10.5, strong:false, icon:'💊', soluble:false },
     { name:'كربونات الصوديوم', formula:'Na₂CO₃', use:'صناعة الزجاج والورق', ph:11.6, strong:false, icon:'🔬', soluble:true },
   ];
-  const cp = document.getElementById('simControlsPanel');
-  cp.innerHTML = `<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">اختر القاعدة:</div>
-    ${bases.map((b,i)=>`<button onclick="simState.sel3=${i}" style="display:block;width:100%;text-align:right;padding:6px 10px;margin-bottom:4px;border-radius:8px;border:1.5px solid #ddd;background:#fff;font-family:Tajawal;cursor:pointer;font-size:12px">${b.icon} ${b.name}</button>`).join('')}
-    <div style="margin-top:10px;background:#E8F4FD;border-radius:8px;padding:8px;font-size:12px">
-      <b>🔑 تذكّر:</b><br>القلويات هي قواعد تذوب في الماء وتُعطي أيونات OH⁻
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧴 اختر القاعدة</div>
+      <div class="ctrl-btns-grid-1">
+        ${bases.map((b,i)=>`<button class="ctrl-btn" id="base-btn-${i}" onclick="simState.sel3=${i};document.querySelectorAll('[id^=base-btn-]').forEach((btn,j)=>{btn.classList.toggle('active',j===${i})})">${b.icon} ${b.name}</button>`).join('')}
+      </div>
     </div>
-  </div>`;
-  cp.querySelectorAll('button').forEach((btn,i)=>{
-    btn.onclick=()=>{ S.sel3=i; cp.querySelectorAll('button').forEach((b,j)=>b.style.background=j===i?'#E8F4FD':'#fff'); };
-  });
+    <div class="info-box">
+      🔑 القلويات هي قواعد تذوب في الماء وتُعطي أيونات OH⁻
+    </div>
+    <div class="q-box">
+      <strong>❓ لماذا نستخدم هيدروكسيد المغنيسيوم لعلاج حموضة المعدة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">هيدروكسيد المغنيسيوم Mg(OH)₂ قاعدة ضعيفة آمنة تُعادل حمض المعدة الزائد (HCl). يُعطي ارتياحاً سريعاً دون أن يُؤثر على باقي وظائف الجسم.</div>
+    </div>`);
 
   function draw() {
     c.clearRect(0,0,w,h);
@@ -30559,12 +30631,21 @@ function simG9Indicator1() {
     { name:'ماء الجير', ph:12.4, color:'#0011FF' },
   ];
 
-  const cp = document.getElementById('simControlsPanel');
-  cp.innerHTML = `<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">اختر المحلول:</div>
-    ${solutions.map((s,i)=>`<button onclick="simState.dropPh=${s.ph};simState.strip='${s.name}'" style="display:block;width:100%;text-align:right;padding:5px 10px;margin-bottom:3px;border-radius:8px;border:1.5px solid #ddd;background:#fff;font-family:Tajawal;cursor:pointer;font-size:11px;border-right:4px solid ${s.color}">${s.name} (pH ${s.ph})</button>`).join('')}
-    <div id="strip-result" style="margin-top:10px;border-radius:8px;padding:8px;background:#f9f9f9;font-size:12px;min-height:40px"></div>
-  </div>`;
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧪 اختر المحلول</div>
+      <div class="ctrl-btns-grid-1">
+        ${solutions.map((s,i)=>`<button class="ctrl-btn" onclick="simState.dropPh=${s.ph};simState.strip='${s.name}'" style="border-right:4px solid ${s.color};font-size:13px">${s.name}<br><small style="font-weight:400;color:var(--muted)">pH ${s.ph}</small></button>`).join('')}
+      </div>
+    </div>
+    <div class="info-box" id="strip-result">
+      اختر محلولاً لرؤية تأثيره على ورقة تبّاع الشمس
+    </div>
+    <div class="q-box">
+      <strong>❓ لماذا لا تُستخدم ورقة تبّاع الشمس لقياس قيمة pH الدقيقة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">ورقة تبّاع الشمس تُعطي فقط 3 ألوان (أحمر/بنفسجي/أزرق)، فتُخبرنا إذا كان المحلول حمضياً أو متعادلاً أو قلوياً. للقياس الدقيق نستخدم الكاشف العام أو جهاز pH.</div>
+    </div>`);
 
   function getStripColor(ph) {
     if (ph < 3) return '#FF2222';
@@ -30675,16 +30756,21 @@ function simG9Indicator2() {
   const w=cv.width, h=cv.height;
   const S=simState; S.t=0; if(S.ph===undefined) S.ph=7;
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:12px">اضبط الرقم الهيدروجيني:</div>
-    <input type="range" min="0" max="14" step="0.5" value="7" oninput="simState.ph=+this.value;document.getElementById('ph-val').textContent=this.value" style="width:100%;direction:ltr">
-    <div style="text-align:center;margin-top:6px;font-size:18px;font-weight:700;color:var(--red)" id="ph-val">7</div>
-    <div style="margin-top:12px;background:#f9f9f9;border-radius:8px;padding:8px;font-size:12px" id="ui-result">
-      الكاشف العام: <b>بنفسجي</b><br>التصنيف: متعادل
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🎨 اضبط الرقم الهيدروجيني</div>
+      <div class="ctrl-name" style="font-size:13px;font-weight:400">اسحب المقياس لتغيير pH:</div>
+      <input type="range" min="0" max="14" step="0.5" value="7" oninput="simState.ph=+this.value;document.getElementById('ph-val').textContent=this.value" style="width:100%;direction:ltr">
+      <div style="text-align:center;margin-top:6px;font-size:22px;font-weight:800;color:var(--red)" id="ph-val">7</div>
     </div>
-    <div style="margin-top:10px;font-size:11px;color:#888">الكاشف العام هو خليط من كواشف متعددة تُعطي ألواناً مختلفة عند كل pH</div>
-  </div>`;
+    <div class="info-box" id="ui-result">
+      لون الكاشف: <b>بنفسجي</b><br>التصنيف: متعادل
+    </div>
+    <div class="q-box">
+      <strong>❓ ما ميزة الكاشف العام على ورقة تبّاع الشمس؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الكاشف العام خليط من كواشف متعددة يُعطي ألواناً مختلفة لكل قيمة pH من 0 إلى 14 — مما يُتيح تحديد قيمة pH التقريبية بدقة أكبر.</div>
+    </div>`);
 
   function getUniversalColor(ph) {
     if(ph<1) return '#FF0000';
@@ -30783,19 +30869,25 @@ function simG9Indicator3() {
     { name:'التوت (عصير)', acid:'أحمر 🔴', neutral:'بنفسجي 🟣', base:'أزرق 🔵', acC:'#CC2244', neuC:'#7744AA', basC:'#3355CC' },
     { name:'زهرة الهيدرانجيا', acid:'وردي/أحمر 🌸', neutral:'بنفسجي 🟣', base:'أزرق 🔵', acC:'#FF6699', neuC:'#9944BB', basC:'#4466FF' },
   ];
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">الكاشف الطبيعي:</div>
-    ${naturals.map((n,i)=>`<button onclick="simState.selNat=${i}" style="display:block;width:100%;text-align:right;padding:6px 10px;margin-bottom:4px;border-radius:8px;border:1.5px solid #ddd;background:#fff;font-family:Tajawal;cursor:pointer;font-size:11px">${n.name}</button>`).join('')}
-    <div style="margin-top:10px;font-weight:700;color:var(--teal)">قيمة pH:</div>
-    <input type="range" min="1" max="13" value="7" oninput="simState.phNat=+this.value" style="width:100%;direction:ltr;margin-top:6px">
-    <div style="margin-top:8px;background:#f9f9f9;border-radius:8px;padding:8px;font-size:11px">
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌸 الكاشف الطبيعي</div>
+      <div class="ctrl-btns-grid-1">
+        ${naturals.map((n,i)=>`<button class="ctrl-btn" id="nat-btn-${i}" onclick="simState.selNat=${i};document.querySelectorAll('[id^=nat-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${n.name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">📊 قيمة pH</div>
+      <input type="range" min="1" max="13" value="7" oninput="simState.phNat=+this.value" style="width:100%;direction:ltr;margin-top:6px">
+    </div>
+    <div class="info-box">
       الكواشف الطبيعية مستخرجة من نباتات تحتوي على صبغات تتأثر بدرجة الحموضة
     </div>
-  </div>`;
-  cp.querySelectorAll('button').forEach((btn,i)=>{
-    btn.onclick=()=>{ S.selNat=i; cp.querySelectorAll('button').forEach((b,j)=>b.style.background=j===i?'#E8F4FD':'#fff'); };
-  });
+    <div class="q-box">
+      <strong>❓ كيف نصنع كاشفاً طبيعياً من الكرنب الأحمر؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">نغلي أوراق الكرنب الأحمر في الماء ونصفّي العصير — نحصل على محلول بنفسجي يتحوّل للأحمر في الأحماض وللأخضر/الأصفر في القلويّات.</div>
+    </div>`);
 
   function draw() {
     c.clearRect(0,0,w,h); S.t++;
@@ -30869,14 +30961,28 @@ function simG9PhScale1() {
     S.hov=found;
   };
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px;font-size:12px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">مقياس pH</div>
-    <div style="background:#FFF3CD;border-radius:8px;padding:8px;margin-bottom:8px"><b>pH &lt; 7 → حمضي</b><br>كلما قلّ pH ازداد الحمض قوة</div>
-    <div style="background:#D4EDDA;border-radius:8px;padding:8px;margin-bottom:8px"><b>pH = 7 → متعادل</b><br>H⁺ = OH⁻</div>
-    <div style="background:#CCE5FF;border-radius:8px;padding:8px"><b>pH &gt; 7 → قلوي</b><br>كلما زاد pH ازداد القلويّ قوة</div>
-    <div style="margin-top:10px;color:#888;font-size:11px">مرّر المؤشر على النقاط لمعرفة المادة</div>
-  </div>`;
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📊 مقياس pH</div>
+      <div class="info-box" style="margin-bottom:8px">
+        <b>pH &lt; 7 → حمضي 🍋</b><br>
+        <span style="font-size:12px">كلما قلّ pH ازداد الحمض قوة</span>
+      </div>
+      <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.15);margin-bottom:8px">
+        <b>pH = 7 → متعادل 💧</b><br>
+        <span style="font-size:12px">H⁺ = OH⁻</span>
+      </div>
+      <div class="info-box" style="background:rgba(21,101,192,0.06);border-color:rgba(21,101,192,0.15)">
+        <b>pH &gt; 7 → قلوي 🧼</b><br>
+        <span style="font-size:12px">كلما زاد pH ازداد القلويّ قوة</span>
+      </div>
+    </div>
+    <div class="q-box">
+      <strong>❓ بكم مرة أقوى حمض pH=1 من حمض pH=3؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">مقياس pH لوغاريتمي — كل وحدة تعني 10 أضعاف. pH=1 أقوى من pH=2 بـ10 مرات، ومن pH=3 بـ100 مرة! لهذا حمض الهيدروكلوريك أخطر بكثير من الخل.</div>
+    </div>
+    <div style="margin-top:8px;font-size:12px;color:var(--muted)">مرّر المؤشر على النقاط لمعرفة المادة</div>`);
 
   function draw() {
     c.clearRect(0,0,w,h); S.t++;
@@ -30948,12 +31054,17 @@ function simG9PhScale2() {
     {name:'ماء الجير',ph:12.4,col:'#E8E8E8',x:0.84,y:0.75,icon:'⬜'},
   ];
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px;font-size:12px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">🔬 مجسّ pH</div>
-    <div id="ph-reading" style="background:#1E2D3D;color:#00FF88;font-family:monospace;font-size:22px;text-align:center;padding:12px;border-radius:8px;margin-bottom:8px">pH = --</div>
-    <div id="ph-detail" style="background:#f9f9f9;border-radius:8px;padding:8px;min-height:60px">انقر على أي محلول لقياس pH</div>
-  </div>`;
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 مجسّ pH</div>
+      <div id="ph-reading" style="background:#1E2D3D;color:#00FF88;font-family:monospace;font-size:22px;text-align:center;padding:12px;border-radius:10px;margin:8px 0;letter-spacing:1px">pH = --</div>
+      <div class="info-box" id="ph-detail">انقر على أي محلول لقياس رقمه الهيدروجيني</div>
+    </div>
+    <div class="q-box">
+      <strong>❓ لماذا pH الدم يتراوح بين 7.35 و7.45 دائماً؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الجسم يُحافظ على pH الدم في نطاق ضيق جداً لأن الإنزيمات تعمل بكفاءة فقط في هذا النطاق. أي انحراف يُسبّب حالة طارئة طبية (حماض أو قلواء الدم).</div>
+    </div>`);
 
   cv.onclick=function(e){
     const r=cv.getBoundingClientRect(), mx=(e.clientX-r.left)*(w/r.width), my=(e.clientY-r.top)*(h/r.height);
@@ -31002,19 +31113,24 @@ function simG9PhScale3() {
   const w=cv.width, h=cv.height;
   const S=simState; S.t=0; if(S.conc===undefined) S.conc=1; if(!S.acidType) S.acidType='acid';
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">نوع المحلول:</div>
-    <select onchange="simState.acidType=this.value" style="width:100%;padding:6px;border-radius:8px;font-family:Tajawal;margin-bottom:12px">
-      <option value="acid">حمض الهيدروكلوريك HCl</option>
-      <option value="base">هيدروكسيد الصوديوم NaOH</option>
-    </select>
-    <div style="font-weight:700;margin-bottom:6px">التركيز (mol/L):</div>
-    <input type="range" min="0" max="4" step="0.1" value="1" oninput="simState.conc=+this.value" style="width:100%;direction:ltr">
-    <div style="text-align:center;font-size:14px;margin-top:4px" id="conc-label">1.0 mol/L</div>
-    <div style="margin-top:12px;background:#f9f9f9;border-radius:8px;padding:8px;font-size:12px" id="conc-result">pH = 0</div>
-    <div style="margin-top:8px;font-size:11px;color:#888">زيادة التركيز → pH يتغير بمقدار وحدة لكل ضرب في 10</div>
-  </div>`;
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💧 التخفيف والتركيز</div>
+      <div class="ctrl-name" style="font-size:13px;font-weight:400;margin-bottom:4px">نوع المحلول:</div>
+      <select onchange="simState.acidType=this.value" style="width:100%;padding:8px;border-radius:8px;font-family:Tajawal;font-size:14px;border:1.5px solid rgba(0,0,0,0.1);background:var(--bg-card);color:var(--text-primary);margin-bottom:12px">
+        <option value="acid">حمض الهيدروكلوريك HCl</option>
+        <option value="base">هيدروكسيد الصوديوم NaOH</option>
+      </select>
+      <div class="ctrl-name" style="font-size:13px;font-weight:400;margin-bottom:4px">التركيز (mol/L):</div>
+      <input type="range" min="0" max="4" step="0.1" value="1" oninput="simState.conc=+this.value" style="width:100%;direction:ltr">
+      <div style="text-align:center;font-size:14px;margin-top:4px;font-weight:700;color:var(--teal)" id="conc-label">1.0 mol/L</div>
+    </div>
+    <div class="info-box" id="conc-result">pH = 0</div>
+    <div class="q-box">
+      <strong>❓ ماذا يحدث لـ pH الحمض عند تخفيفه بالماء؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">تخفيف الحمض يُقلل تركيز H⁺، مما يرفع pH نحو 7 (يُصبح أقل حمضية). لكنه لن يصبح قلوياً أبداً بالتخفيف — يقترب من pH=7 فقط.</div>
+    </div>`);
 
   function calcPh(conc, type){
     if(conc<=0) return 7;
@@ -31085,20 +31201,27 @@ function simG9Ions1() {
   const w=cv.width, h=cv.height;
   const S=simState; S.t=0; if(S.ionPh===undefined) S.ionPh=7;
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">اضبط pH المحلول:</div>
-    <input type="range" min="0" max="14" step="1" value="7" oninput="simState.ionPh=+this.value" style="width:100%;direction:ltr">
-    <div id="ion-ph" style="text-align:center;font-size:18px;font-weight:700;margin-top:6px">pH = 7</div>
-    <div id="ion-info" style="margin-top:10px;background:#f9f9f9;border-radius:8px;padding:8px;font-size:12px">
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚛️ اضبط pH المحلول</div>
+      <input type="range" min="0" max="14" step="1" value="7" oninput="simState.ionPh=+this.value" style="width:100%;direction:ltr">
+      <div id="ion-ph" style="text-align:center;font-size:20px;font-weight:800;margin-top:8px;color:var(--teal)">pH = 7</div>
+    </div>
+    <div class="info-box" id="ion-info">
       H⁺ = OH⁻ → محلول متعادل
     </div>
-    <div style="margin-top:10px;background:#FFF3CD;border-radius:8px;padding:8px;font-size:11px">
-      <b>🔑 تعريف برونستد-لوري:</b><br>
-      الحمض: مانح أيون H⁺<br>
-      القاعدة: قابلة أيون H⁺
+    <div class="ctrl-section">
+      <div class="ctrl-label">📚 تعريف برونستد-لوري</div>
+      <div class="ctrl-name" style="font-size:13px;font-weight:400;line-height:1.8">
+        🍋 <b>الحمض:</b> مانح أيون H⁺<br>
+        🧼 <b>القاعدة:</b> قابلة أيون H⁺
+      </div>
     </div>
-  </div>`;
+    <div class="q-box">
+      <strong>❓ كيف تُفسّر أن H₂O متعادل؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الماء النقي يتأيّن جزئياً: H₂O ⇌ H⁺ + OH⁻. كلا الأيونين يتشكّلان بنفس الكمية (10⁻⁷ mol/L)، لذا H⁺ = OH⁻ والمحلول متعادل pH=7.</div>
+    </div>`);
 
   function draw(){
     c.clearRect(0,0,w,h); S.t++;
@@ -31166,14 +31289,19 @@ function simG9Ions2() {
   const w=cv.width, h=cv.height;
   const S=simState; S.t=0;
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px;font-size:12px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">العلاقة بين [H⁺] وpH</div>
-    <table style="width:100%;border-collapse:collapse;font-size:11px">
-      <tr style="background:#F0F0F0"><td style="padding:4px;font-weight:700">pH</td><td style="padding:4px;font-weight:700">[H⁺] mol/L</td><td style="padding:4px;font-weight:700">النوع</td></tr>
-      ${[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14].map(p=>`<tr><td style="padding:3px;text-align:center">${p}</td><td style="padding:3px;text-align:center;direction:ltr">${(Math.pow(10,-p)).toExponential(0)}</td><td style="padding:3px;text-align:center">${p<7?'حمضي':p>7?'قلوي':'متعادل'}</td></tr>`).join('')}
-    </table>
-  </div>`;
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📈 العلاقة بين [H⁺] وpH</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:Tajawal">
+        <tr style="background:rgba(26,143,168,0.1)"><td style="padding:4px;font-weight:700">pH</td><td style="padding:4px;font-weight:700">[H⁺] mol/L</td><td style="padding:4px;font-weight:700">النوع</td></tr>
+        ${[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14].map(p=>`<tr style="border-bottom:1px solid rgba(0,0,0,0.05)"><td style="padding:3px;text-align:center">${p}</td><td style="padding:3px;text-align:center;direction:ltr">${(Math.pow(10,-p)).toExponential(0)}</td><td style="padding:3px;text-align:center;color:${p<7?'#C0392B':p>7?'#1565C0':'#27AE60'}">${p<7?'حمضي':p>7?'قلوي':'متعادل'}</td></tr>`).join('')}
+      </table>
+    </div>
+    <div class="q-box">
+      <strong>❓ لماذا العلاقة بين H⁺ وpH عكسية؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">pH = -log[H⁺]. كلما زاد تركيز H⁺ (حمض أقوى)، كان اللوغاريتم السالب أصغر (pH أقل). لهذا الأحماض القوية لها pH قريب من الصفر.</div>
+    </div>`);
 
   function draw(){
     c.clearRect(0,0,w,h); S.t++;
@@ -31252,13 +31380,21 @@ function simG9Oxides1() {
     { name:'ثاني أكسيد السيليكون', formula:'SiO₂', element:'سيليكون (شبه فلز)', product:'H₂SiO₃ حمض السيليك', ph:5, icon:'🪨', desc:'الرمل والكوارتز مكوّن من هذا الأكسيد' },
   ];
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">⚗️ أكاسيد لافلزية حمضية</div>
-    ${oxides.map((o,i)=>`<button onclick="simState.selOx1=${i}" style="display:block;width:100%;text-align:right;padding:5px 8px;margin-bottom:3px;border-radius:8px;border:1.5px solid #ddd;background:#fff;font-family:Tajawal;cursor:pointer;font-size:11px">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
-    <div style="margin-top:10px;background:#FFF3CD;border-radius:8px;padding:8px;font-size:11px"><b>الأكسيد الحمضي =</b> أكسيد لافلز + ماء → حمض</div>
-  </div>`;
-  cp.querySelectorAll('button').forEach((btn,i)=>{ btn.onclick=()=>{ S.selOx1=i; cp.querySelectorAll('button').forEach((b,j)=>b.style.background=j===i?'#FFF3CD':'#fff'); }; });
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚗️ أكاسيد لافلزية حمضية</div>
+      <div class="ctrl-btns-grid-1">
+        ${oxides.map((o,i)=>`<button class="ctrl-btn" id="ox1-btn-${i}" onclick="simState.selOx1=${i};document.querySelectorAll('[id^=ox1-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="info-box">
+      <b>الأكسيد الحمضي =</b> أكسيد لافلز + ماء → حمض
+    </div>
+    <div class="q-box">
+      <strong>❓ كيف يُسبّب SO₂ المطرَ الحمضي؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">SO₂ المنبعث من المصانع يتحد مع بخار الماء في الهواء مكوّناً H₂SO₃ وH₂SO₄. تذوب هذه الأحماض في مياه الأمطار لتصبح حمضية (pH أقل من 5.6) وتُتلف النباتات والمباني.</div>
+    </div>`);
 
   function draw(){
     c.clearRect(0,0,w,h); S.t++;
@@ -31349,13 +31485,21 @@ function simG9Oxides2() {
     { name:'أكسيد الحديد (III)', formula:'Fe₂O₃', product:'Fe(OH)₃ هيدروكسيد الحديد', ph:8, icon:'🟤', desc:'الصدأ — يتكوّن عند تأكسد الحديد' },
   ];
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">🧱 أكاسيد فلزية قاعدية</div>
-    ${oxides.map((o,i)=>`<button onclick="simState.selOx2=${i}" style="display:block;width:100%;text-align:right;padding:5px 8px;margin-bottom:3px;border-radius:8px;border:1.5px solid #ddd;background:#fff;font-family:Tajawal;cursor:pointer;font-size:11px">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
-    <div style="margin-top:10px;background:#D4EDDA;border-radius:8px;padding:8px;font-size:11px"><b>الأكسيد القاعدي =</b> أكسيد فلز + ماء → قاعدة/هيدروكسيد</div>
-  </div>`;
-  cp.querySelectorAll('button').forEach((btn,i)=>{ btn.onclick=()=>{ S.selOx2=i; cp.querySelectorAll('button').forEach((b,j)=>b.style.background=j===i?'#D4EDDA':'#fff'); }; });
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧱 أكاسيد فلزية قاعدية</div>
+      <div class="ctrl-btns-grid-1">
+        ${oxides.map((o,i)=>`<button class="ctrl-btn" id="ox2-btn-${i}" onclick="simState.selOx2=${i};document.querySelectorAll('[id^=ox2-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="info-box" style="background:rgba(39,174,96,0.06);border-color:rgba(39,174,96,0.15)">
+      <b>الأكسيد القاعدي =</b> أكسيد فلز + ماء → قاعدة/هيدروكسيد
+    </div>
+    <div class="q-box">
+      <strong>❓ لماذا يُضاف الجير (CaO) للتربة الزراعية؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">أكسيد الكالسيوم CaO قاعدي — عند إضافته للتربة الحمضية يتفاعل مع الأحماض ويرفع pH التربة نحو المتعادل، مما يُحسّن قدرة النباتات على امتصاص المغذيات.</div>
+    </div>`);
 
   function draw(){
     c.clearRect(0,0,w,h); S.t++;
@@ -31435,20 +31579,28 @@ function simG9Oxides3() {
     { name:'أكسيد الزنك', formula:'ZnO', withAcid:'ZnCl₂ + H₂O', withBase:'Na₂ZnO₂ + H₂O', icon:'🔘' },
   ];
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="font-family:Tajawal;padding:10px">
-    <div style="font-weight:700;color:var(--teal);margin-bottom:8px">🔄 الأكاسيد المتذبذبة</div>
-    ${amphotericOxides.map((o,i)=>`<button onclick="simState.ampho=${i}" style="display:block;width:100%;text-align:right;padding:6px 10px;margin-bottom:4px;border-radius:8px;border:1.5px solid #ddd;background:#fff;font-family:Tajawal;cursor:pointer;font-size:12px">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
-    <div style="margin-top:10px;font-weight:700;color:var(--teal)">اختبره مع:</div>
-    <button onclick="simState.testWith='acid'" style="width:48%;padding:6px;border-radius:8px;border:1.5px solid #C0392B;background:#FFF;font-family:Tajawal;cursor:pointer;margin-left:4%;font-size:12px">🍋 حمض HCl</button>
-    <button onclick="simState.testWith='base'" style="width:48%;padding:6px;border-radius:8px;border:1.5px solid #27AE60;background:#FFF;font-family:Tajawal;cursor:pointer;font-size:12px">🧼 قاعدة NaOH</button>
-    <div style="margin-top:10px;background:#E8EAF6;border-radius:8px;padding:8px;font-size:11px">
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔄 الأكاسيد المتذبذبة</div>
+      <div class="ctrl-btns-grid-1">
+        ${amphotericOxides.map((o,i)=>`<button class="ctrl-btn" id="ampho-btn-${i}" onclick="simState.ampho=${i};document.querySelectorAll('[id^=ampho-btn-]').forEach((b,j)=>{b.classList.toggle('active',j===${i})})">${o.icon} ${o.formula} — ${o.name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧪 اختبره مع</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn stop" onclick="simState.testWith='acid'">🍋 حمض HCl</button>
+        <button class="ctrl-btn action" onclick="simState.testWith='base'">🧼 قاعدة NaOH</button>
+      </div>
+    </div>
+    <div class="info-box">
       <b>المتذبذب =</b> يتفاعل مع الحمض كقاعدة، ومع القاعدة كحمض!
     </div>
-  </div>`;
-  cp.querySelectorAll('button').forEach((btn,i)=>{
-    if(i<2) btn.onclick=()=>{ S.ampho=i; cp.querySelectorAll('button').slice(0,2).forEach((b,j)=>b.style.background=j===i?'#E8EAF6':'#fff'); };
-  });
+    <div class="q-box">
+      <strong>❓ لماذا يُعدّ Al₂O₃ أكسيداً متذبذباً مفيداً صناعياً؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">أكسيد الألومنيوم (الكوراندوم) يُستخدم في صناعة الألومنيوم بالتحليل الكهربائي، وهو مادة البوكسيت الخام. تذبذبه يجعله يتفاعل في وسطين مختلفين مما يُوسّع تطبيقاته الصناعية.</div>
+    </div>`);
 
   function draw(){
     c.clearRect(0,0,w,h); S.t++;
