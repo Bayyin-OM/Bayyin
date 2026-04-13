@@ -22956,20 +22956,11 @@ async function _getDeviceFingerprint() {
 let _db;
 try {
   if (!window.supabase) throw new Error('Supabase not loaded');
-  // Clear any existing Supabase sessions from localStorage
-  try {
-    Object.keys(localStorage).forEach(function(key) {
-      if (key.startsWith('sb-') || key.includes('supabase')) {
-        localStorage.removeItem(key);
-      }
-    });
-  } catch(e) {}
-
   _db = window.supabase.createClient(_SUPA_URL, _SUPA_KEY, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      storage: window.sessionStorage
+      storage: window.localStorage
     }
   });
 } catch(e) {
@@ -23059,18 +23050,26 @@ async function _periodicSubCheck() {
 }
 
 function _unlockPlatform() {
+  // إخفاء شاشة الدخول
   var overlay = document.getElementById('auth-overlay');
   if (overlay) overlay.style.display = 'none';
+
+  // إخفاء الصفحة الترحيبية والتطبيق
   var landing = document.getElementById('landing');
-  if (landing) landing.style.removeProperty('display');
-  document.getElementById('grade-picker').style.display = 'none';
+  if (landing) landing.style.display = 'none';
   var app = document.getElementById('app');
   if (app) { app.style.display = 'none'; app.classList.remove('open'); }
+
+  // الانتقال لصفحة اختيار الصف
+  var picker = document.getElementById('grade-picker');
+  if (picker) picker.style.display = 'flex';
+
+  // إظهار بادج الاشتراك بعد لحظة
   setTimeout(function(){ _showSubscriptionDays(); }, 800);
-  // فحص فوري عند الدخول ثم كل 10 ثوانٍ
+
+  // فحص دوري كل 30 ثانية (بدون فحص فوري لتجنب false-lock)
   if (_subCheckInterval) clearInterval(_subCheckInterval);
-  setTimeout(_periodicSubCheck, 1500); // فحص بعد 1.5 ثانية من الدخول
-  _subCheckInterval = setInterval(_periodicSubCheck, 10 * 1000);
+  _subCheckInterval = setInterval(_periodicSubCheck, 30 * 1000);
 }
 
 async function handleLogin() {
