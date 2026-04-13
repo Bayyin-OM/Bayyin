@@ -16068,10 +16068,11 @@ function simAirResist1(){
 <div class="q-box">
   <strong>❓ أسئلة الكتاب (ص٥٦-٥٧):</strong><br>
   ١- اذكر اسمَي القوّتين المؤثِّرتين على المظلّي عندما يهبط نحو الأرض، واذكر اتّجاه كلٍّ منهما.<br>
-  ٢- لماذا لا تنفع المظلّة على القمر؟
+  ٢- لماذا لا تنفع المظلّة على القمر؟<br>
+  <span style="color:#1A8FA8;font-size:13px">💡 جرِّب: اضبط كثافة الهواء = 0 وراقب النتيجة!</span>
 
     <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-<div class="q-ans-panel">١- الوزن (للأسفل) ومقاومة الهواء (للأعلى).<br>٢- لأن القمر لا يملك هواءً، فلا توجد مقاومة هواء.</div>
+<div class="q-ans-panel">١- الوزن (للأسفل) ومقاومة الهواء (للأعلى).<br>٢- لأن القمر لا يملك هواءً، فلا توجد مقاومة هواء.<br><b>🔬 الاستنتاج:</b> عند كثافة الهواء = صفر (فراغ)، <b>كل الأجسام تصل في نفس الوقت</b> بغض النظر عن كتلتها أو شكلها — لأن الجاذبية تُسرّع جميع الأجسام بنفس المقدار (g = 10 م/ث²).</div>
   </div>`;
 
   function draw(){
@@ -16181,7 +16182,8 @@ function simAirResist1(){
         U9.rect(c,lane-28,bY+bR+10,56,20,obj.col+'CC','rgba(255,255,255,0.3)',5,1);
         U9.txt(c,S.times[k].toFixed(2)+'s',lane,bY+bR+23,'#fff',11,true);
       }
-      if(k===S.winner){
+      // عرض 🥇 فقط إذا كان هناك فائز حقيقي (مقاومة هواء موجودة)
+      if(k===S.winner && S.airDensity>0.05){
         c.save();c.font='22px "Apple Color Emoji","Segoe UI Emoji",Arial';
         c.textAlign='center';c.textBaseline='middle';
         c.shadowColor='#FFD700';c.shadowBlur=12;
@@ -16190,11 +16192,25 @@ function simAirResist1(){
       U9.txt(c,obj.label,lane,startY-26,obj.col,12,true);
     });
 
-    if(S.winner&&!S.running){
-      U9.rect(c,w/2-160,h/2-35,320,70,'rgba(0,0,0,0.85)','#FFD700',14,3);
-      U9.txt(c,'🏆 '+OBJECTS[S.winner].label+' أسرع!',w/2,h/2-10,'#FFD700',19,true);
-      U9.txt(c,'في '+S.times[S.winner].toFixed(2)+' ثانية',w/2,h/2+16,'white',17,false);
-    } else if(S.winner&&S.running){
+    // تحقق من حالة التعادل (فراغ أو كثافة منخفضة جداً)
+    const allDone=sel.length>0&&sel.every(k=>S.times[k]);
+    const timesArr=allDone?sel.map(k=>S.times[k]):[];
+    const minT=timesArr.length?Math.min(...timesArr):0;
+    const maxT=timesArr.length?Math.max(...timesArr):0;
+    const isTie=allDone&&(maxT-minT)<0.08;
+
+    if(allDone&&!S.running){
+      if(isTie||S.airDensity<0.05){
+        // حالة الفراغ أو التعادل
+        U9.rect(c,w/2-195,h/2-40,390,80,'rgba(0,20,60,0.92)','#1A8FA8',14,3);
+        U9.txt(c,'⚡ كلّ الأجسام وصلت في نفس الوقت!',w/2,h/2-12,'#7FFFFF',18,true);
+        U9.txt(c,'في الفراغ: الجاذبية تُسرّع الجميع بالتساوي ✅',w/2,h/2+14,'white',14,false);
+      } else {
+        U9.rect(c,w/2-160,h/2-35,320,70,'rgba(0,0,0,0.85)','#FFD700',14,3);
+        U9.txt(c,'🏆 '+OBJECTS[S.winner].label+' أسرع!',w/2,h/2-10,'#FFD700',19,true);
+        U9.txt(c,'في '+S.times[S.winner].toFixed(2)+' ثانية',w/2,h/2+16,'white',17,false);
+      }
+    } else if(S.winner&&S.running&&S.airDensity>0.05){
       U9.rect(c,w/2-120,groundY-45,240,36,'rgba(0,0,0,0.7)','#FFD700',10,2);
       U9.txt(c,'🥇 '+OBJECTS[S.winner].label+' وصل أولاً!',w/2,groundY-24,'#FFD700',14,true);
     }
