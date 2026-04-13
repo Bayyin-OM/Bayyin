@@ -4243,6 +4243,15 @@ html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA;
 <footer id="bayyin-footer" role="contentinfo" aria-label="تذييل الصفحة">
   <div class="footer-inner">
 
+    <!-- Brand -->
+    <div class="footer-brand">
+      <div class="footer-logo-circle">ب</div>
+      <div class="footer-brand-text">
+        <h3>بيّن — منصة العلوم التفاعلية</h3>
+        <p>مصمَّمة للطالب العُماني · مناهج سلطنة عُمان</p>
+      </div>
+    </div>
+
     <!-- Contact items -->
     <div class="footer-contacts">
 
@@ -4255,9 +4264,11 @@ html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA;
       </a>
 
       <!-- Email -->
-      <a class="footer-contact-item fc-email" href="/cdn-cgi/l/email-protection#c3a1a2babaaaadeda7a6aeac83a4aea2aaafeda0acae" title="راسلنا بالبريد الإلكتروني">
+      <a class="footer-contact-item fc-email"
+         href="mailto:bayyin.demo@gmail.com"
+         title="راسلنا بالبريد الإلكتروني">
         <span class="fc-icon">✉️</span>
-        <span><span class="__cf_email__" data-cfemail="6b090a12120205450f0e06042b0c060a020745080406">[email&#160;protected]</span></span>
+        <span>bayyin.demo@gmail.com</span>
       </a>
 
       <!-- Instagram -->
@@ -4292,7 +4303,7 @@ html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA;
 <button id="buddy-restore-btn" onclick="restoreBuddy()" title="إظهار زيد مجدداً">🔬</button>
 
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 
 
 // ═══════════════════════════════════════
@@ -34668,4 +34679,11 @@ function simG9SaltTitra3(){
     const w=this.width, h=this.height;
     const optW=Math.min(w*0.43,190), optH=Math.min(h*0.10,44), gx=Math.min(w*0.04,16), gy=Math.min(h*0.03,12);
     methods.forEach((m,i)=>{
-      const
+      const col=i%2, row=Math.floor(i/2);
+      const ox=w*0.05+col*(optW+gx)+(w-2*optW-gx)*0.05, oy=h*0.26+row*(optH+gy);
+      if(mx>=ox&&mx<=ox+optW&&my>=oy&&my<=oy+optH){ S.chosen=i; S.answered=true; }
+    });
+  };
+  draw();
+}
+</script>
