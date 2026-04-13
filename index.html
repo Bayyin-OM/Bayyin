@@ -1949,7 +1949,7 @@ html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA;
 
     <div id="auth-status"></div>
 
-    <button class="auth-btn" id="auth-submit-btn" onclick="handleLogin()">
+    <button class="auth-btn" id="auth-submit-btn">
       تسجيل دخول / إنشاء حساب
     </button>
 
@@ -23144,6 +23144,17 @@ async function handleLogin() {
   }
 }
 window.handleLogin = handleLogin;
+
+// ربط الزر بعد تحميل الصفحة بالكامل
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('auth-submit-btn');
+  if (btn) btn.addEventListener('click', handleLogin);
+});
+// في حال الصفحة كانت محمّلة مسبقاً
+if (document.readyState !== 'loading') {
+  var _btn = document.getElementById('auth-submit-btn');
+  if (_btn) _btn.addEventListener('click', handleLogin);
+}
 
 async function _checkSubscription() {
   try {
