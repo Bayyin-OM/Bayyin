@@ -1685,13 +1685,22 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   display: none;
   width: 100%;
   background: var(--bg-sticky-footer, #f0f4f7);
-  border-top: 2px solid rgba(26,143,168,0.18);
-  padding: 28px 24px 20px;
+  border-top: none;
+  padding: 0 24px 20px;
   box-sizing: border-box;
   direction: rtl;
   font-family: Tajawal, sans-serif;
   position: relative;
   z-index: 10;
+}
+#bayyin-footer::before {
+  content: '';
+  display: block;
+  width: calc(100% + 48px);
+  margin-left: -24px;
+  height: 48px;
+  background: linear-gradient(to bottom, var(--bg-page, #F4F1EC), var(--bg-sticky-footer, #f0f4f7));
+  margin-bottom: 8px;
 }
 .footer-inner {
   max-width: 900px;
@@ -1701,6 +1710,8 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   align-items: center;
   justify-content: space-between;
   gap: 18px;
+  border-top: 1.5px solid rgba(192,57,43,0.13);
+  padding-top: 20px;
 }
 .footer-brand {
   display: flex;
@@ -1708,20 +1719,20 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   gap: 12px;
 }
 .footer-logo-circle {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg,#1A8FA8,#27AE60);
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #C0392B, #27AE60);
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 900; color: #fff;
+  font-size: 22px; font-weight: 900; color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(26,143,168,0.3);
+  box-shadow: 0 4px 16px rgba(192,57,43,0.2);
 }
 .footer-brand-text h3 {
-  margin: 0; font-size: 16px; font-weight: 800;
+  margin: 0; font-size: 17px; font-weight: 800;
   color: var(--text-heading,#1E2D3D); line-height: 1.2;
 }
 .footer-brand-text p {
-  margin: 2px 0 0; font-size: 12px;
+  margin: 2px 0 0; font-size: 13px;
   color: var(--text-secondary,#7A8A98);
 }
 .footer-contacts {
@@ -1757,7 +1768,10 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   border-top: 1px solid var(--border-color,rgba(0,0,0,0.07));
   font-size: 11.5px; color: var(--text-secondary,#7A8A98);
 }
-html.dark-mode #bayyin-footer { border-top-color: rgba(26,143,168,0.25); }
+html.dark-mode #bayyin-footer::before {
+  background: linear-gradient(to bottom, var(--bg-page, #111820), var(--bg-sticky-footer, #1A2230));
+}
+html.dark-mode .footer-inner { border-top-color: rgba(192,57,43,0.2); }
 html.dark-mode .footer-contact-item {
   background: rgba(255,255,255,0.05);
   border-color: rgba(255,255,255,0.08); color: #C8D8E8;
@@ -1772,7 +1786,7 @@ html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA;
 }
 @media (max-width:380px){
   .footer-contact-item { font-size:11.5px; padding:6px 8px; }
-  .footer-logo-circle { width:36px; height:36px; font-size:17px; }
+  .footer-logo-circle { width:38px; height:38px; font-size:18px; border-radius:10px; }
 }
 
 </style>
@@ -4264,11 +4278,9 @@ html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA;
       </a>
 
       <!-- Email -->
-      <a class="footer-contact-item fc-email"
-         href="mailto:bayyin.demo@gmail.com"
-         title="راسلنا بالبريد الإلكتروني">
+      <a class="footer-contact-item fc-email" href="/cdn-cgi/l/email-protection#c3a1a2babaaaadeda7a6aeac83a4aea2aaafeda0acae" title="راسلنا بالبريد الإلكتروني">
         <span class="fc-icon">✉️</span>
-        <span>bayyin.demo@gmail.com</span>
+        <span><span class="__cf_email__" data-cfemail="6b090a12120205450f0e06042b0c060a020745080406">[email&#160;protected]</span></span>
       </a>
 
       <!-- Instagram -->
@@ -4303,7 +4315,7 @@ html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA;
 <button id="buddy-restore-btn" onclick="restoreBuddy()" title="إظهار زيد مجدداً">🔬</button>
 
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
 
 // ═══════════════════════════════════════
@@ -34679,11 +34691,4 @@ function simG9SaltTitra3(){
     const w=this.width, h=this.height;
     const optW=Math.min(w*0.43,190), optH=Math.min(h*0.10,44), gx=Math.min(w*0.04,16), gy=Math.min(h*0.03,12);
     methods.forEach((m,i)=>{
-      const col=i%2, row=Math.floor(i/2);
-      const ox=w*0.05+col*(optW+gx)+(w-2*optW-gx)*0.05, oy=h*0.26+row*(optH+gy);
-      if(mx>=ox&&mx<=ox+optW&&my>=oy&&my<=oy+optH){ S.chosen=i; S.answered=true; }
-    });
-  };
-  draw();
-}
-</script>
+      const
