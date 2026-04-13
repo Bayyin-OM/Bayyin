@@ -3788,7 +3788,25 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
           <div>
             <div class="unit-title">الأحماض والقواعد</div>
             <div class="unit-topics">خصائص الأحماض والقواعد · الكواشف وتغيُّر اللون · مقياس pH · أيونات الهيدروجين والهيدروكسيد · أكاسيد الفلزات واللافلزات</div>
-            <div class="unit-pill">🔓 متاح</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9chem7', this)">
+          <div class="unit-num-badge c-teal">٧</div>
+          <div>
+            <div class="unit-title">معادلات التفاعلات الكيميائية</div>
+            <div class="unit-topics">المعادلات اللفظية · المعادلات الرمزية · موازنة المعادلات · رموز الحالة الفيزيائية · المعادلات الأيونية</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9chem8', this)">
+          <div class="unit-num-badge c-green">٨</div>
+          <div>
+            <div class="unit-title">تكوين الأملاح</div>
+            <div class="unit-topics">تفاعلات تكوين الأملاح · الأحماض مع القواعد والفلزات والكربونات · تحضير الأملاح الذائبة وغير الذائبة · المعايرة والترسيب</div>
+            <div class="unit-pill avail">🔓 متاح</div>
           </div>
         </div>
 
@@ -3855,7 +3873,99 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
         </div>
       </div>
 
-    </div>
+      <!-- ══ sims: g9chem7 ══ -->
+      <div class="sims-wrap" id="sims-g9chem7" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة السابعة — معادلات التفاعلات الكيميائية</div>
+          <div class="sims-count">٣ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9wordeq')">
+            <div class="sim-thumb t2">📝</div>
+            <div class="sim-body">
+              <div class="sim-num">٧-١ · المعادلات اللفظية</div>
+              <div class="sim-name">صِف التفاعل بالكلمات</div>
+              <div class="sim-desc">تعلَّم كيف تُعبِّر عن تفاعل كيميائي بلغة الكلمات وحدِّد المواد المتفاعلة والناتجة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9balance')">
+            <div class="sim-thumb t9">⚖️</div>
+            <div class="sim-body">
+              <div class="sim-num">٧-٢ · موازنة المعادلات الرمزية</div>
+              <div class="sim-name">حفظ الذرات في التفاعل</div>
+              <div class="sim-desc">وازن المعادلات الرمزية خطوة بخطوة وتحقق من أن عدد الذرات متساوٍ على الطرفين</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9statesym')">
+            <div class="sim-thumb t7">🏷️</div>
+            <div class="sim-body">
+              <div class="sim-num">٧-٣ · رموز الحالة الفيزيائية والمعادلات الأيونية</div>
+              <div class="sim-name">من (s) إلى (aq) — رموز الحالة</div>
+              <div class="sim-desc">أضِف رموز الحالة الفيزيائية للمعادلات واكتشف المعادلات الأيونية الصافية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g9chem8 ══ -->
+      <div class="sims-wrap" id="sims-g9chem8" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة الثامنة — تكوين الأملاح</div>
+          <div class="sims-count">٤ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9saltacid')">
+            <div class="sim-thumb t2">🧪</div>
+            <div class="sim-body">
+              <div class="sim-num">٨-١ · الأحماض مع القواعد والأكاسيد</div>
+              <div class="sim-name">حمض + قاعدة → ملح + ماء</div>
+              <div class="sim-desc">استكشف تفاعل التعادُل وتكوين الأملاح عبر مفاعلة الأحماض مع القواعد والأكاسيد الفلزية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9saltmetal')">
+            <div class="sim-thumb t4">⚗️</div>
+            <div class="sim-body">
+              <div class="sim-num">٨-٢ · الأحماض مع الفلزات والكربونات</div>
+              <div class="sim-name">الفلز + الحمض → ملح + H₂</div>
+              <div class="sim-desc">راقب تفاعل الفلزات النشيطة مع الأحماض وتفاعل الكربونات لإنتاج غاز ثاني أكسيد الكربون</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9saltmake')">
+            <div class="sim-thumb t6">💎</div>
+            <div class="sim-body">
+              <div class="sim-num">٨-٣ · تحضير الأملاح الذائبة في المختبر</div>
+              <div class="sim-name">بخِّر وبرِّد واحصل على البلورات</div>
+              <div class="sim-desc">اتبع خطوات تحضير الملح الذائب بإضافة الفائض + الترشيح + التبخير + التبلور</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9salttitra')">
+            <div class="sim-thumb t9">🌡️</div>
+            <div class="sim-body">
+              <div class="sim-num">٨-٤ · المعايرة والترسيب</div>
+              <div class="sim-name">قطرة بقطرة حتى نقطة النهاية</div>
+              <div class="sim-desc">أجرِ تجربة المعايرة لتحضير ملح نقي واكتشف كيف يُنتَج الراسب من تفاعل محلولين</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- end g9-chem -->
 
     <!-- ═══ PHYSICS ═══ -->
     <div id="g9-phys" class="g9-subject-panel" style="display:none">
@@ -4387,7 +4497,9 @@ function openUnit(id, el) {
     u8salts:'وحدة الأملاح 🧂 — ملح الطعام ليس الملح الوحيد! اكتشف عشرات الأملاح وكيف تُصنَع.',
     u8sound:'وحدة الصوت 🔊 — الصوت اهتزاز ينتقل عبر الهواء! غيّر شدته وحدّته وشاهد موجته.',
     u8repro:'وحدة التكاثر 🧬 — بدأت من خلية واحدة! اكتشف رحلة الجنين من الإخصاب حتى الولادة.',
-    g9chem6:'الوحدة السادسة ⚗️ — الأحماض والقواعد في كل مكان! اختر الاستقصاء الذي تريده.'
+    g9chem6:'الوحدة السادسة ⚗️ — الأحماض والقواعد في كل مكان! اختر الاستقصاء الذي تريده.',
+    g9chem7:'الوحدة السابعة ⚖️ — المعادلات الكيميائية تُخبرك بكل شيء عن التفاعل! وازنها واكتشف رموز الحالة.',
+    g9chem8:'الوحدة الثامنة 🧂 — الأملاح تتكوّن من أحماض وقواعد. من NaCl إلى CuSO₄ — اكتشف كيف!'
   };
   if(hints[id]) setTimeout(function(){ buddySay(hints[id], 6000); }, 400);
 }
@@ -4508,7 +4620,16 @@ const SIM_META = {
   g9indicator:  { title: 'نشاط 6-2 · الكواشف وتغيُّر اللون', badge: '🌺 9', tabs: ['ورق تبّاع الشمس 📄', 'الكاشف العام 🎨', 'الكاشف الطبيعي 🌸'] },
   g9phscale:    { title: 'نشاط 6-3 · مقياس pH', badge: '📊 9', tabs: ['سلّم pH 0-14 📏', 'اختبر محاليل يومية 🧪', 'التخفيف والتركيز 💧'] },
   g9ions:       { title: 'نشاط 6-4 · أيونات H⁺ و OH⁻', badge: '⚛️ 9', tabs: ['الأيونات في المحاليل 🔬', 'العلاقة بين H⁺ و pH 📈'] },
-  g9oxides:     { title: 'نشاط 6-5 · أكاسيد الفلزات واللافلزات', badge: '🔬 9', tabs: ['الأكاسيد الحمضية ⚗️', 'الأكاسيد القاعدية 🧱', 'الأكاسيد المتذبذبة 🔄'] }
+  g9oxides:     { title: 'نشاط 6-5 · أكاسيد الفلزات واللافلزات', badge: '🔬 9', tabs: ['الأكاسيد الحمضية ⚗️', 'الأكاسيد القاعدية 🧱', 'الأكاسيد المتذبذبة 🔄'] },
+  // ── الصف التاسع — الوحدة ٧: معادلات التفاعلات الكيميائية ──
+  g9wordeq:   { title: 'نشاط 7-1 · المعادلات اللفظية', badge: '📝 9', tabs: ['كتابة المعادلة اللفظية 📝', 'المواد المتفاعلة والناتجة ⚗️', 'تجربة: احتراق الماغنيسيوم 🔥'] },
+  g9balance:  { title: 'نشاط 7-2 · موازنة المعادلات الرمزية', badge: '⚖️ 9', tabs: ['حفظ المادة ⚖️', 'خطوات الموازنة 🔢', 'تجربة: الهيدروجين والأكسجين 💧'] },
+  g9statesym: { title: 'نشاط 7-3 · رموز الحالة الفيزيائية', badge: '🏷️ 9', tabs: ['رموز الحالة (s)(l)(g)(aq) 🏷️', 'تفاعل البوتاسيوم مع الماء 💥', 'المعادلات الأيونية 🔋'] },
+  // ── الصف التاسع — الوحدة ٨: تكوين الأملاح ──
+  g9saltacid:  { title: 'نشاط 8-1 · الأحماض مع القواعد والأكاسيد', badge: '🧪 9', tabs: ['حمض + قاعدة (تعادل) 🧪', 'حمض + أكسيد فلزي 🔥', 'تكوين الأملاح المختلفة 🏆'] },
+  g9saltmetal: { title: 'نشاط 8-2 · الأحماض مع الفلزات والكربونات', badge: '⚗️ 9', tabs: ['حمض + فلز نشيط 💥', 'حمض + كربونات 🌬️', 'تفاعل الكربونات مع HCl ⚗️'] },
+  g9saltmake:  { title: 'نشاط 8-3 · تحضير الأملاح الذائبة', badge: '🔬 9', tabs: ['الطريقة أ: فلز + حمض 🔬', 'التبخير والتبلور 💎', 'تحضير CuSO₄ مخبرياً 🧫'] },
+  g9salttitra: { title: 'نشاط 8-4 · المعايرة وتحضير الأملاح غير الذائبة', badge: '🌡️ 9', tabs: ['المعايرة (Titration) 🌡️', 'الترسيب (Precipitation) 🧊', 'اختر طريقة التحضير المناسبة 🎯'] }
 };
 
 // ===== UNIT 7 END-OF-UNIT QUIZ =====
@@ -5012,7 +5133,16 @@ function openSim(type) {
     g9indicator:'لون واحد يخبرك بكل شيء 🌺 — ورق تبّاع الشمس سيكشف السر!',
     g9phscale:'من 0 إلى 14 — كلما اقتربت من الصفر ازداد الحمض قوة! 📊',
     g9ions:'H⁺ يعني حمض، OH⁻ يعني قاعدة ⚛️ — ما الذي يزيد في محلولك؟',
-    g9oxides:'ذوّب الأكسيد في الماء وشوف: هل يتحوّل إلى حمض أم قاعدة؟ 🔬'
+    g9oxides:'ذوّب الأكسيد في الماء وشوف: هل يتحوّل إلى حمض أم قاعدة؟ 🔬',
+    // ── الوحدة السابعة: معادلات التفاعلات ──
+    g9wordeq:'المعادلة اللفظية تصف التفاعل بالكلمات 📝 — مَن المتفاعل ومَن الناتج؟',
+    g9balance:'الذرات لا تُخلق ولا تُفنى ⚖️ — وازن المعادلة وتحقق!',
+    g9statesym:'(s) صلب، (l) سائل، (g) غاز، (aq) محلول مائي 🏷️ — أضِف رموز الحالة!',
+    // ── الوحدة الثامنة: تكوين الأملاح ──
+    g9saltacid:'حمض + قاعدة = ملح + ماء 🧪 — اكتشف كيف تتكوّن الأملاح!',
+    g9saltmetal:'الفلز النشيط + الحمض = ملح + هيدروجين 💥 — راقب الفقاعات!',
+    g9saltmake:'بخِّر وبرِّد واحصل على بلورات الملح الجميلة 💎',
+    g9salttitra:'المعايرة تُعطيك ملحاً نقياً بدقة 🎯 — قطرة بقطرة حتى النهاية!'
   };
   var greet = simGreets[type] || 'استكشف وجرّب! 🔬';
   setTimeout(function(){ buddySay(greet, 6000); }, 800);
@@ -5243,7 +5373,16 @@ function startSim(type, tab) {
     g9indicator:  [simG9Indicator1, simG9Indicator2, simG9Indicator3],
     g9phscale:    [simG9PhScale1, simG9PhScale2, simG9PhScale3],
     g9ions:       [simG9Ions1, simG9Ions2],
-    g9oxides:     [simG9Oxides1, simG9Oxides2, simG9Oxides3]
+    g9oxides:     [simG9Oxides1, simG9Oxides2, simG9Oxides3],
+    // ── الوحدة السابعة: معادلات التفاعلات ──
+    g9wordeq:    [simG9WordEq1, simG9WordEq2, simG9WordEq3],
+    g9balance:   [simG9Balance1, simG9Balance2, simG9Balance3],
+    g9statesym:  [simG9StateSym1, simG9StateSym2, simG9StateSym3],
+    // ── الوحدة الثامنة: تكوين الأملاح ──
+    g9saltacid:  [simG9SaltAcid1, simG9SaltAcid2, simG9SaltAcid3],
+    g9saltmetal: [simG9SaltMetal1, simG9SaltMetal2, simG9SaltMetal3],
+    g9saltmake:  [simG9SaltMake1, simG9SaltMake2, simG9SaltMake3],
+    g9salttitra: [simG9SaltTitra1, simG9SaltTitra2, simG9SaltTitra3]
   };
   const fn = (fns[type] || [])[tab];
   if (fn) {
@@ -27016,6 +27155,51 @@ Object.assign(SIM_QUESTIONS, {
     fb: '✅ أكسيد اللافلز + ماء → حمض. مثال: SO₃ + H₂O → H₂SO₄ (حمض الكبريتيك). أما أكسيد الفلز + ماء → قاعدة. والأكاسيد المتذبذبة (كـ Al₂O₃) تتفاعل مع الاثنين!'
   }
 });
+// ── الوحدة السابعة ──
+Object.assign(SIM_QUESTIONS, {
+  g9wordeq: {
+    q: 'في المعادلة اللفظية: "ماغنيسيوم + أكسجين ← أكسيد الماغنيسيوم" — ما المواد المتفاعلة؟',
+    opts: ['أكسيد الماغنيسيوم فقط','الماغنيسيوم والأكسجين','الأكسجين فقط','أكسيد الماغنيسيوم والأكسجين'],
+    ans: 1,
+    fb: '✅ المواد المتفاعلة هي التي تبدأ بها: الماغنيسيوم + الأكسجين. أما الناتج فهو أكسيد الماغنيسيوم.'
+  },
+  g9balance: {
+    q: 'لموازنة المعادلة: H₂ + O₂ → H₂O — ما المعاملات الصحيحة؟',
+    opts: ['H₂ + O₂ → H₂O','2H₂ + O₂ → 2H₂O','H₂ + 2O₂ → 2H₂O','2H₂ + 2O₂ → 2H₂O'],
+    ans: 1,
+    fb: '✅ 2H₂ + O₂ → 2H₂O صحيحة. على اليسار: 4H+2O. على اليمين: 4H+2O ✓. لا تغيّر الصيَغ، غيّر المعاملات فقط!'
+  },
+  g9statesym: {
+    q: 'ما رمز الحالة الصحيح للمادة المذابة في الماء (محلول مائي)؟',
+    opts: ['(s)','(l)','(g)','(aq)'],
+    ans: 3,
+    fb: '✅ (aq) من aqueous تعني مذاب في الماء. أما (s)=صلب، (l)=سائل، (g)=غاز.'
+  },
+  g9saltacid: {
+    q: 'ما الملح الناتج عن تفاعل NaOH مع H₂SO₄؟',
+    opts: ['NaCl','Na₂SO₄','NaNO₃','هيدروكسيد الصوديوم'],
+    ans: 1,
+    fb: '✅ NaOH + H₂SO₄ → Na₂SO₄ + H₂O. الملح كبريتات الصوديوم لأن الحمض هو حمض الكبريتيك!'
+  },
+  g9saltmetal: {
+    q: 'ماذا يُنتَج عند تفاعل الزنك مع حمض الهيدروكلوريك؟',
+    opts: ['كلوريد الزنك + أكسجين','أكسيد الزنك + ماء','كلوريد الزنك + هيدروجين','هيدروكسيد الزنك + كلور'],
+    ans: 2,
+    fb: '✅ Zn + 2HCl → ZnCl₂ + H₂↑. الفلز+الحمض → ملح+هيدروجين. الهيدروجين يُصدر فرقعة عند الإشعال!'
+  },
+  g9saltmake: {
+    q: 'لماذا نُضيف فائضاً من الفلز أو الأكسيد في الطريقة أ لتحضير الملح الذائب؟',
+    opts: ['لزيادة درجة الحرارة','للتأكد من استهلاك الحمض بالكامل','لتسريع التبخير','لتلوين المحلول'],
+    ans: 1,
+    fb: '✅ نُضيف فائضاً لضمان استهلاك كل الحمض. ثم نُرشّح الفائض ونُبخّر للحصول على بلورات الملح النقي!'
+  },
+  g9salttitra: {
+    q: 'ما المقصود بنقطة النهاية في تجربة المعايرة؟',
+    opts: ['عند غليان المحلول','عند تساوي الكميتين','عند تغير لون الكاشف','عند نفاد الحمض'],
+    ans: 2,
+    fb: '✅ نقطة النهاية هي تغيّر لون الكاشف دلالةً على اكتمال التعادل. عندها نوقف الإضافة ونقيس الحجم!'
+  }
+});
 
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -32114,4 +32298,2154 @@ function simG9Oxides3() {
 }
 
 
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — الوحدة السابعة: معادلات التفاعلات الكيميائية
+// ══════════════════════════════════════════════════════════
+
+// ─── 7-1 TAB 1: المعادلات اللفظية ───
+function simG9WordEq1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, selected:-1, step:0, feedback:''};
+  const S=simState;
+
+  const reactions=[
+    {reactants:['ماغنيسيوم','أكسجين'], products:['أكسيد الماغنيسيوم'], icon:'🔥', eq:'Mg + O₂ → MgO'},
+    {reactants:['هيدروجين','أكسجين'], products:['ماء'], icon:'💧', eq:'H₂ + O₂ → H₂O'},
+    {reactants:['حمض الهيدروكلوريك','هيدروكسيد الصوديوم'], products:['كلوريد الصوديوم','ماء'], icon:'🧪', eq:'HCl + NaOH → NaCl + H₂O'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📝 اختر التفاعل</div>
+      <div class="ctrl-btns-grid-1">
+        ${reactions.map((r,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="rxn-btn-${i}" onclick="simState.selected=${i};simState.t=0;document.querySelectorAll('[id^=rxn-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${r.icon} التفاعل ${i+1}</button>`).join('')}
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>قاعدة:</b> المواد المتفاعلة (Reactants) ← قبل السهم<br>
+      المواد الناتجة (Products) ← بعد السهم
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا يعني السهم في المعادلة اللفظية؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">السهم يعني "تُنتِج" أو "تتحول إلى". يُشير من المتفاعلات إلى النواتج. بعض العلماء يكتبون → بدلاً من كلمة "تُنتِج".</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9wordeq'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const ri=Math.max(0,S.selected||0);
+    const rx=reactions[ri];
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#FFF8E1'); bg.addColorStop(1,'#FFF3CD');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Title
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText('المعادلة اللفظية — كيف نصف التفاعل بالكلمات', w/2, h*0.07);
+
+    const bw=Math.min(w*0.27,160), bh=Math.min(h*0.10,48), gap=Math.min(w*0.04,30);
+    const totalR=rx.reactants.length;
+    const totalP=rx.products.length;
+    const arrowX=w*0.5;
+    const startRx=arrowX - totalR*(bw+gap)/2 - bw/2 - gap/2;
+    const startPx=arrowX + gap*1.5;
+    const by=h*0.36;
+
+    // Draw reactant boxes
+    rx.reactants.forEach((name,i)=>{
+      const bx=startRx + i*(bw+gap);
+      const pulse=i===0?Math.sin(S.t*0.06)*3:0;
+      c.shadowBlur=12+pulse; c.shadowColor='rgba(192,57,43,0.35)';
+      c.fillStyle='#FFCDD2'; c.beginPath(); c.roundRect(bx,by-bh/2,bw,bh,10); c.fill();
+      c.shadowBlur=0; c.strokeStyle='#C0392B'; c.lineWidth=2;
+      c.beginPath(); c.roundRect(bx,by-bh/2,bw,bh,10); c.stroke();
+      c.fillStyle='#C0392B'; c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(name, bx+bw/2, by);
+      if(i<totalR-1){
+        c.fillStyle='#7A8A98'; c.font=`bold ${Math.max(14,w*0.028)}px Tajawal`;
+        c.fillText('+', bx+bw+gap/2, by);
+      }
+    });
+
+    // Arrow
+    const aw=Math.min(w*0.07,50);
+    const bounce=Math.sin(S.t*0.05)*3;
+    c.strokeStyle='#1E2D3D'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(arrowX-aw/2,by+bounce); c.lineTo(arrowX+aw/2,by+bounce); c.stroke();
+    c.fillStyle='#1E2D3D'; c.beginPath();
+    c.moveTo(arrowX+aw/2,by+bounce);
+    c.lineTo(arrowX+aw/2-10,by+bounce-7);
+    c.lineTo(arrowX+aw/2-10,by+bounce+7);
+    c.closePath(); c.fill();
+    c.fillStyle='#7A8A98'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
+    c.fillText('تُنتِج', arrowX, by-aw*0.45);
+
+    // Draw product boxes
+    rx.products.forEach((name,i)=>{
+      const bx=startPx + i*(bw+gap);
+      const pulse=Math.sin(S.t*0.06+2)*3;
+      c.shadowBlur=12+pulse; c.shadowColor='rgba(39,174,96,0.35)';
+      c.fillStyle='#C8E6C9'; c.beginPath(); c.roundRect(bx,by-bh/2,bw,bh,10); c.fill();
+      c.shadowBlur=0; c.strokeStyle='#27AE60'; c.lineWidth=2;
+      c.beginPath(); c.roundRect(bx,by-bh/2,bw,bh,10); c.stroke();
+      c.fillStyle='#27AE60'; c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(name, bx+bw/2, by);
+      if(i<totalP-1){
+        c.fillStyle='#7A8A98'; c.font=`bold ${Math.max(14,w*0.028)}px Tajawal`;
+        c.fillText('+', bx+bw+gap/2, by);
+      }
+    });
+
+    // Labels
+    c.textBaseline='alphabetic';
+    c.fillStyle='rgba(192,57,43,0.7)'; c.font=`${Math.max(10,w*0.018)}px Tajawal`;
+    c.textAlign='center';
+    c.fillText('المواد المتفاعلة (Reactants)', startRx + totalR*(bw+gap)/2, by+bh/2+22);
+    c.fillStyle='rgba(39,174,96,0.7)';
+    c.fillText('المواد الناتجة (Products)', startPx + totalP*(bw+gap)/2, by+bh/2+22);
+
+    // Full equation box
+    const ebx=w*0.08, eby=h*0.62, ebw=w*0.84, ebh=h*0.12;
+    c.fillStyle='rgba(26,143,168,0.08)'; c.beginPath(); c.roundRect(ebx,eby,ebw,ebh,12); c.fill();
+    c.strokeStyle='rgba(26,143,168,0.25)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(ebx,eby,ebw,ebh,12); c.stroke();
+    c.fillStyle='#1A8FA8'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('المعادلة الرمزية: ' + rx.eq, w/2, eby+ebh/2);
+
+    // Legend
+    const ly2=h*0.82;
+    c.fillStyle='#1E2D3D'; c.font=`${Math.max(10,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('💡 المعادلة اللفظية = وصف التفاعل بأسماء المواد بدون رموز كيميائية', w/2, ly2);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 7-1 TAB 2: المواد المتفاعلة والناتجة ───
+function simG9WordEq2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, chosen:null, score:0, answered:false};
+  const S=simState;
+
+  const quiz=[
+    {eq:'كربون + أكسجين → ثاني أكسيد الكربون', reactants:['كربون','أكسجين'], products:['ثاني أكسيد الكربون'], q:'ما ناتج هذا التفاعل؟', opts:['كربون','أكسجين','ثاني أكسيد الكربون','مونوكسيد الكربون'], ans:2},
+    {eq:'هيدروجين + نيتروجين → أمونيا', reactants:['هيدروجين','نيتروجين'], products:['أمونيا'], q:'ما المتفاعلات في هذه المعادلة؟', opts:['هيدروجين فقط','أمونيا','هيدروجين ونيتروجين','نيتروجين وأمونيا'], ans:2},
+  ];
+  const qi=Math.floor(S.t/400)%quiz.length;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🎯 تحدِّ نفسك</div>
+      <div class="info-box">اقرأ المعادلة اللفظية واختر الإجابة الصحيحة</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا يهمّنا تحديد المتفاعلات والنواتج؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">لأنها تحدد ما نحتاجه وما ننتجه في التفاعل. في الصناعة: نختار المتفاعلات ونُعظّم النواتج المطلوبة!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  const optColors=['#1A8FA8','#D4901A','#6B4E9A','#27AE60'];
+
+  function draw(){
+    if(currentSim!=='g9wordeq'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const q=quiz[Math.floor(S.t/600)%quiz.length];
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#E8F5E9'); bg.addColorStop(1,'#C8E6C9');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Equation display
+    const ebx=w*0.06, eby=h*0.06, ebw=w*0.88, ebh=h*0.13;
+    c.fillStyle='rgba(255,255,255,0.85)'; c.beginPath(); c.roundRect(ebx,eby,ebw,ebh,12); c.fill();
+    c.strokeStyle='rgba(26,143,168,0.3)'; c.lineWidth=2; c.beginPath(); c.roundRect(ebx,eby,ebw,ebh,12); c.stroke();
+    c.fillStyle='#1A8FA8'; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('⚗️ ' + q.eq, w/2, eby+ebh/2);
+
+    // Question
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.027)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('❓ ' + q.q, w/2, h*0.29);
+
+    // Options
+    const optW=Math.min(w*0.42,190), optH=Math.min(h*0.10,44), gx=Math.min(w*0.03,16), gy=Math.min(h*0.03,12);
+    q.opts.forEach((opt,i)=>{
+      const col=i%2, row=Math.floor(i/2);
+      const ox=w*0.05 + col*(optW+gx) + (w-2*optW-gx)*0.05;
+      const oy=h*0.34 + row*(optH+gy);
+      const isChosen=S.chosen===i;
+      const isCorrect=i===q.ans;
+      let bg2, stroke;
+      if(S.answered){ bg2=isCorrect?'#C8E6C9':isChosen?'#FFCDD2':'rgba(255,255,255,0.7)'; stroke=isCorrect?'#27AE60':isChosen?'#C0392B':'#ccc';}
+      else { bg2=isChosen?optColors[i]+'33':'rgba(255,255,255,0.8)'; stroke=isChosen?optColors[i]:'#ccc'; }
+      c.fillStyle=bg2; c.beginPath(); c.roundRect(ox,oy,optW,optH,10); c.fill();
+      c.strokeStyle=stroke; c.lineWidth=2; c.beginPath(); c.roundRect(ox,oy,optW,optH,10); c.stroke();
+      c.fillStyle=isChosen&&!S.answered?optColors[i]:'#1E2D3D';
+      c.font=`${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(opt, ox+optW/2, oy+optH/2);
+    });
+
+    // Feedback
+    if(S.answered){
+      const fb=S.chosen===q.ans?'✅ صحيح! '+q.eq:'❌ خطأ — الإجابة الصحيحة: '+q.opts[q.ans];
+      c.fillStyle=S.chosen===q.ans?'#27AE60':'#C0392B';
+      c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText(fb, w/2, h*0.72);
+    }
+
+    animFrame=requestAnimationFrame(draw);
+  }
+
+  const cv2=document.getElementById('simCanvas');
+  cv2.onclick=function(e){
+    if(S.answered)return;
+    const q=quiz[Math.floor(S.t/600)%quiz.length];
+    const rect=cv2.getBoundingClientRect(), mx=(e.clientX-rect.left)*(cv2.width/rect.width), my=(e.clientY-rect.top)*(cv2.height/rect.height);
+    const w=cv2.width,h=cv2.height;
+    const optW=Math.min(w*0.42,190), optH=Math.min(h*0.10,44), gx=Math.min(w*0.03,16), gy=Math.min(h*0.03,12);
+    q.opts.forEach((opt,i)=>{
+      const col=i%2,row=Math.floor(i/2);
+      const ox=w*0.05+col*(optW+gx)+(w-2*optW-gx)*0.05, oy=h*0.34+row*(optH+gy);
+      if(mx>=ox&&mx<=ox+optW&&my>=oy&&my<=oy+optH){ S.chosen=i; S.answered=true; }
+    });
+  };
+  draw();
+}
+
+// ─── 7-1 TAB 3: تجربة احتراق الماغنيسيوم ───
+function simG9WordEq3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, burning:false, done:false, flame:0};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔥 تجربة: احتراق الماغنيسيوم</div>
+      <button class="ctrl-btn" id="burn-btn" onclick="simState.burning=true;simState.done=false;simState.flame=0;this.disabled=true">🔥 أشعِل الشريط</button>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.burning=false;simState.done=false;simState.flame=0;document.getElementById('burn-btn').disabled=false">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>الملاحظة:</b> يحترق الماغنيسيوم بضوء أبيض ساطع<br>
+      <b>الناتج:</b> مسحوق أبيض (أكسيد الماغنيسيوم)
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">عند احتراق الماغنيسيوم في الهواء، يتحد مع أكسجين الهواء لينتج أكسيد الماغنيسيوم. المعادلة: ماغنيسيوم + أكسجين → أكسيد الماغنيسيوم. هذا تفاعل اتحاد!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9wordeq'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#1a1a2e'); bg.addColorStop(1,'#16213e');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    if(S.burning){ S.flame=Math.min(S.flame+1,80); if(S.flame>=80) S.done=true; }
+
+    const stripX=w*0.48, stripBottom=h*0.72, stripLen=h*0.22;
+
+    // Mg strip
+    c.strokeStyle='#C0C0C0'; c.lineWidth=6; c.lineCap='round';
+    c.beginPath(); c.moveTo(stripX, stripBottom); c.lineTo(stripX, stripBottom-stripLen); c.stroke();
+    c.strokeStyle='#E8E8E8'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(stripX, stripBottom); c.lineTo(stripX, stripBottom-stripLen); c.stroke();
+
+    // Flame
+    if(S.burning && S.flame>0){
+      const flameH=S.flame*2.5;
+      const fx=stripX, fy=stripBottom-stripLen;
+      for(let i=0;i<20;i++){
+        const fh=flameH*(0.5+Math.random()*0.5);
+        const fw=Math.min(w*0.06,30)*(1-i/20);
+        const alpha=Math.max(0,1-i/18);
+        const hue=Math.random()<0.5?`rgba(255,255,${Math.floor(Math.random()*100)},${alpha})`:`rgba(255,${Math.floor(150+Math.random()*100)},0,${alpha})`;
+        c.fillStyle=hue;
+        c.beginPath();
+        c.ellipse(fx+(Math.random()-0.5)*fw, fy-fh*0.5, fw*0.5, fh*0.5, 0, 0, Math.PI*2);
+        c.fill();
+      }
+      // White bright center
+      c.shadowBlur=30; c.shadowColor='#ffffff';
+      c.fillStyle='rgba(255,255,255,0.9)';
+      c.beginPath(); c.ellipse(fx, fy-flameH*0.2, Math.min(w*0.02,12), Math.min(h*0.04,20), 0, 0, Math.PI*2); c.fill();
+      c.shadowBlur=0;
+
+      // Flying ash particles
+      for(let i=0;i<8;i++){
+        const angle=-Math.PI*0.5 + (Math.random()-0.5)*1.5;
+        const dist=(S.flame*3+Math.random()*30);
+        const ax=fx+Math.cos(angle)*dist, ay=fy+Math.sin(angle)*dist;
+        c.fillStyle=`rgba(255,255,255,${0.4+Math.random()*0.5})`;
+        c.beginPath(); c.arc(ax,ay,Math.random()*3+1,0,Math.PI*2); c.fill();
+      }
+    }
+
+    // White powder result
+    if(S.done){
+      for(let i=0;i<30;i++){
+        const px=stripX+(Math.random()-0.5)*(w*0.2), py=h*0.85+Math.random()*(h*0.08);
+        c.fillStyle=`rgba(240,240,240,${0.4+Math.random()*0.6})`;
+        c.beginPath(); c.arc(px,py,Math.random()*4+2,0,Math.PI*2); c.fill();
+      }
+      c.fillStyle='#E8E8E8'; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('MgO — أكسيد الماغنيسيوم (مسحوق أبيض)', w/2, h*0.94);
+    }
+
+    // Equation panel
+    const eby=h*0.04;
+    c.fillStyle='rgba(255,255,255,0.12)'; c.beginPath(); c.roundRect(w*0.05,eby,w*0.9,h*0.09,10); c.fill();
+    c.fillStyle='#FFF'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('ماغنيسيوم + أكسجين → أكسيد الماغنيسيوم', w/2, eby+h*0.045);
+
+    // Stage labels
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    if(!S.burning) c.fillText('انقر "أشعل الشريط" لبدء التجربة 🔥', w/2, h*0.82);
+    else if(!S.done) c.fillText('يحترق الماغنيسيوم بضوء أبيض ساطع...', w/2, h*0.82);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// ─── 7-2 TAB 1: حفظ الذرات (قانون بقاء المادة) ───
+function simG9Balance1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, eqi:0};
+  const S=simState;
+
+  const examples=[
+    {label:'احتراق الهيدروجين', reactants:[{name:'H₂',count:2,col:'#3498DB'},{name:'O₂',count:1,col:'#E74C3C'}], products:[{name:'H₂O',count:2,col:'#1ABC9C'}], atoms:{H:{r:4,p:4},O:{r:2,p:2}}},
+    {label:'احتراق الماغنيسيوم', reactants:[{name:'Mg',count:2,col:'#9B59B6'},{name:'O₂',count:1,col:'#E74C3C'}], products:[{name:'MgO',count:2,col:'#F39C12'}], atoms:{Mg:{r:2,p:2},O:{r:2,p:2}}},
+    {label:'تفاعل الزنك مع HCl', reactants:[{name:'Zn',count:1,col:'#7F8C8D'},{name:'HCl',count:2,col:'#E74C3C'}], products:[{name:'ZnCl₂',count:1,col:'#2ECC71'},{name:'H₂',count:1,col:'#3498DB'}], atoms:{Zn:{r:1,p:1},H:{r:2,p:2},Cl:{r:2,p:2}}},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚖️ اختر المعادلة</div>
+      <div class="ctrl-btns-grid-1">
+        ${examples.map((e,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="eq-btn-${i}" onclick="simState.eqi=${i};document.querySelectorAll('[id^=eq-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${e.label}</button>`).join('')}
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:8px"><b>قانون بقاء المادة:</b> عدد ذرات كل عنصر في المتفاعلات = عددها في النواتج</div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج عن الكتلة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">كتلة المتفاعلات = كتلة النواتج دائماً! الذرات لا تُخلق ولا تُفنى في التفاعلات الكيميائية — تترتّب فقط بشكل مختلف.</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9balance'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const eq=examples[S.eqi||0];
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E8EAF6'); bg.addColorStop(1,'#C5CAE9');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('⚖️ قانون بقاء المادة — الذرات محفوظة', w/2, h*0.07);
+
+    // Draw balance scale
+    const scx=w*0.5, scy=h*0.55, armLen=w*0.3;
+    const bob=Math.sin(S.t*0.04)*3;
+    c.strokeStyle='#5D4037'; c.lineWidth=5;
+    c.beginPath(); c.moveTo(scx,scy-h*0.05); c.lineTo(scx,scy+h*0.12); c.stroke(); // pillar
+    c.beginPath(); c.moveTo(scx-armLen,scy+bob); c.lineTo(scx+armLen,scy-bob); c.stroke(); // arm
+
+    // Left pan (reactants)
+    c.strokeStyle='#5D4037'; c.lineWidth=2;
+    const lpx=scx-armLen, lpy=scy+bob;
+    c.beginPath(); c.moveTo(lpx,lpy); c.lineTo(lpx,lpy+h*0.12); c.stroke();
+    c.beginPath(); c.ellipse(lpx,lpy+h*0.12,w*0.12,h*0.02,0,0,Math.PI*2); c.stroke();
+    c.fillStyle='rgba(198,40,40,0.15)'; c.beginPath(); c.ellipse(lpx,lpy+h*0.12,w*0.12,h*0.02,0,0,Math.PI*2); c.fill();
+    // Label
+    c.fillStyle='#C62828'; c.font=`bold ${Math.max(11,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    const rLabel=eq.reactants.map(r=>r.count>1?r.count+'×'+r.name:r.name).join(' + ');
+    c.fillText(rLabel, lpx, lpy+h*0.17);
+    c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#888';
+    c.fillText('المتفاعلات', lpx, lpy+h*0.21);
+
+    // Right pan (products)
+    const rpx=scx+armLen, rpy=scy-bob;
+    c.strokeStyle='#5D4037'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(rpx,rpy); c.lineTo(rpx,rpy+h*0.12); c.stroke();
+    c.beginPath(); c.ellipse(rpx,rpy+h*0.12,w*0.12,h*0.02,0,0,Math.PI*2); c.stroke();
+    c.fillStyle='rgba(27,136,71,0.15)'; c.beginPath(); c.ellipse(rpx,rpy+h*0.12,w*0.12,h*0.02,0,0,Math.PI*2); c.fill();
+    c.fillStyle='#1B8847'; c.font=`bold ${Math.max(11,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    const pLabel=eq.products.map(p=>p.count>1?p.count+'×'+p.name:p.name).join(' + ');
+    c.fillText(pLabel, rpx, rpy+h*0.17);
+    c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#888';
+    c.fillText('النواتج', rpx, rpy+h*0.21);
+
+    // Atom count panel
+    const apx=w*0.06, apy=h*0.77, apw=w*0.88, aph=h*0.16;
+    c.fillStyle='rgba(255,255,255,0.8)'; c.beginPath(); c.roundRect(apx,apy,apw,aph,10); c.fill();
+    c.strokeStyle='rgba(93,64,55,0.2)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(apx,apy,apw,aph,10); c.stroke();
+    c.fillStyle='#5D4037'; c.font=`bold ${Math.max(11,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('عدد الذرات', w/2, apy+6);
+    const elements=Object.entries(eq.atoms);
+    const cellW=(apw-20)/elements.length;
+    elements.forEach(([el,{r,p}],i)=>{
+      const ex=apx+10+i*cellW+cellW*0.1, ey=apy+aph*0.35;
+      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(el+': متفاعلات='+r+' / نواتج='+p, ex+cellW*0.3, ey);
+      c.fillStyle=r===p?'#27AE60':'#C0392B';
+      c.font=`${Math.max(11,w*0.022)}px Tajawal`;
+      c.fillText(r===p?'✅':'❌', ex+cellW*0.3, ey+aph*0.3);
+    });
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 7-2 TAB 2: خطوات الموازنة ───
+function simG9Balance2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, step:0, eqi:0, coeffs:[1,1,1,1]};
+  const S=simState;
+
+  const equations=[
+    {
+      label:'H₂ + O₂ → H₂O',
+      terms:[{f:'H₂',atoms:{H:2}},{f:'O₂',atoms:{O:2}},'→',{f:'H₂O',atoms:{H:2,O:1}}],
+      balanced:[2,1,0,2],
+      hint:'ابدأ بـ H: ضع 2 أمام H₂O، ثم O: 2 أمام H₂'
+    },
+    {
+      label:'Mg + O₂ → MgO',
+      terms:[{f:'Mg',atoms:{Mg:1}},{f:'O₂',atoms:{O:2}},'→',{f:'MgO',atoms:{Mg:1,O:1}}],
+      balanced:[2,1,0,2],
+      hint:'ضع 2 أمام Mg وأمام MgO لموازنة Mg، ثم O متوازن بالفعل'
+    },
+  ];
+
+  const eq=equations[S.eqi||0];
+  const coeff=[1,1,1,1];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚖️ وازن المعادلة</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn" onclick="simState.step=Math.max(0,simState.step-1)">⬅️ السابق</button>
+        <button class="ctrl-btn action" onclick="simState.step=Math.min(3,simState.step+1)">التالي ➡️</button>
+      </div>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.step=0">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>قاعدة الموازنة:</b><br>
+      1️⃣ عدِّد ذرات كل جانب<br>
+      2️⃣ غيِّر المعاملات فقط (لا الصِّيَغ!)<br>
+      3️⃣ تحقق من التساوي
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا لا نغيّر الصيغة (مثلاً H₃ بدلاً من H₂)؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">لأن الصيغة تصف مركباً حقيقياً بطبيعته الكيميائية. H₂ هو الهيدروجين الجزيئي ولا يمكن تغيير طبيعة المادة في المعادلة!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  const steps=[
+    {title:'الخطوة ١: اكتب المعادلة غير الموزونة', coeff:[1,1,1,1]},
+    {title:'الخطوة ٢: عدِّد الذرات على كل جانب', coeff:[1,1,1,1]},
+    {title:'الخطوة ٣: عدِّل المعاملات', coeff:[2,1,1,2]},
+    {title:'✅ الخطوة ٤: تحقق من الموازنة', coeff:[2,1,1,2]},
+  ];
+
+  function draw(){
+    if(currentSim!=='g9balance'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const st=steps[Math.min(S.step||0,3)];
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#FFF3E0'); bg.addColorStop(1,'#FFE0B2');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText(st.title, w/2, h*0.08);
+
+    // Draw equation terms
+    const terms=['H₂','O₂','→','H₂O'];
+    const coeffs=st.coeff;
+    const termW=Math.min(w*0.18,90), termH=Math.min(h*0.12,52);
+    const totalW=terms.length*termW + 3*Math.min(w*0.03,20);
+    const startX=(w-totalW)/2;
+    const ty=h*0.32;
+    let cx2=startX;
+
+    terms.forEach((term,i)=>{
+      if(term==='→'){
+        c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(18,w*0.04)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('→', cx2+termW/2, ty+termH/2);
+        cx2+=termW;
+        return;
+      }
+      const cf=coeffs[i<2?i:i+1]||1;
+      const col=i<2?'rgba(192,57,43,0.1)':'rgba(39,174,96,0.1)';
+      const stk=i<2?'#C0392B':'#27AE60';
+
+      c.fillStyle=col; c.beginPath(); c.roundRect(cx2,ty,termW,termH,10); c.fill();
+      c.strokeStyle=stk; c.lineWidth=2; c.beginPath(); c.roundRect(cx2,ty,termW,termH,10); c.stroke();
+
+      c.fillStyle='#1E2D3D'; c.textAlign='center'; c.textBaseline='middle';
+      if(cf>1){
+        c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`;
+        c.fillText(cf+'×'+term, cx2+termW/2, ty+termH/2);
+      } else {
+        c.font=`bold ${Math.max(14,w*0.032)}px Tajawal`;
+        c.fillText(term, cx2+termW/2, ty+termH/2);
+      }
+      cx2+=termW+Math.min(w*0.015,10);
+    });
+
+    // Atom count display (step 2+)
+    if((S.step||0)>=1){
+      const items=[
+        {el:'H',left:coeffs[0]*2, right:coeffs[3]*2},
+        {el:'O',left:coeffs[1]*2, right:coeffs[3]*1},
+      ];
+      const tabX=w*0.06, tabY=h*0.52, tabW=w*0.88/items.length, tabH=h*0.13;
+      items.forEach((it,i)=>{
+        const tx=tabX+i*tabW;
+        const balanced=it.left===it.right;
+        const highlight=(S.step||0)>=2?balanced:'';
+        c.fillStyle=highlight?'rgba(39,174,96,0.12)':'rgba(255,255,255,0.7)';
+        c.beginPath(); c.roundRect(tx+4,tabY,tabW-8,tabH,8); c.fill();
+        c.strokeStyle=highlight?'#27AE60':'#ccc'; c.lineWidth=1.5; c.beginPath(); c.roundRect(tx+4,tabY,tabW-8,tabH,8); c.stroke();
+        c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+        c.fillText('ذرات '+it.el, tx+tabW/2, tabY+6);
+        c.font=`${Math.max(10,w*0.019)}px Tajawal`;
+        c.fillStyle='#C0392B'; c.fillText('يسار: '+it.left, tx+tabW/2, tabY+tabH*0.4);
+        c.fillStyle='#27AE60'; c.fillText('يمين: '+it.right, tx+tabW/2, tabY+tabH*0.65);
+        if((S.step||0)>=2){ c.fillStyle=balanced?'#27AE60':'#C0392B'; c.font=`bold ${Math.max(14,w*0.030)}px Tajawal`; c.fillText(balanced?'✅':'🔧', tx+tabW/2, tabY+tabH*0.82); }
+      });
+    }
+
+    // Final message
+    if((S.step||0)>=3){
+      c.fillStyle='rgba(39,174,96,0.12)'; c.beginPath(); c.roundRect(w*0.08,h*0.72,w*0.84,h*0.12,12); c.fill();
+      c.fillStyle='#27AE60'; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('✅ المعادلة موزونة: 2H₂ + O₂ → 2H₂O', w/2, h*0.78);
+    }
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 7-2 TAB 3: تجربة H₂ + O₂ ───
+function simG9Balance3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, react:false, done:false, bubbles:[], drops:[]};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💧 إنتاج الماء من عناصره</div>
+      <button class="ctrl-btn action" id="react-btn" onclick="simState.react=true;this.disabled=true">⚡ افجُر الخليط</button>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.react=false;simState.done=false;simState.bubbles=[];simState.drops=[];simState.t=0;document.getElementById('react-btn').disabled=false">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>المعادلة الموزونة:</b><br>
+      2H₂ + O₂ → 2H₂O<br>
+      2 جزيء هيدروجين + 1 جزيء أكسجين = 2 جزيء ماء
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">يتحد الهيدروجين والأكسجين بنسبة 2:1 لإنتاج الماء. المعاملات في المعادلة تمثل نسب الجزيئات. هذه النسبة ثابتة لا تتغيّر!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9balance'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E3F2FD'); bg.addColorStop(1,'#BBDEFB');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // H2 molecules (blue) - 2 of them
+    const mols=[
+      {x:w*0.2, y:h*0.4, label:'H₂', col:'#3498DB', r:Math.min(w,h)*0.06},
+      {x:w*0.35, y:h*0.5, label:'H₂', col:'#3498DB', r:Math.min(w,h)*0.06},
+      {x:w*0.5, y:h*0.4, label:'O₂', col:'#E74C3C', r:Math.min(w,h)*0.07},
+    ];
+
+    if(!S.react){
+      mols.forEach(m=>{
+        const bounce=Math.sin(S.t*0.04+m.x)*4;
+        c.shadowBlur=15; c.shadowColor=m.col+'66';
+        c.fillStyle=m.col+'33'; c.beginPath(); c.arc(m.x,m.y+bounce,m.r,0,Math.PI*2); c.fill();
+        c.shadowBlur=0; c.strokeStyle=m.col; c.lineWidth=2.5; c.beginPath(); c.arc(m.x,m.y+bounce,m.r,0,Math.PI*2); c.stroke();
+        c.fillStyle=m.col; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(m.label, m.x, m.y+bounce);
+      });
+
+      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('2H₂ + O₂ ← جزيئات المتفاعلة', w/2, h*0.72);
+    } else {
+      // Explosion then water drops
+      if(S.t<50){
+        const alpha=S.t/50;
+        for(let i=0;i<20;i++){
+          const angle=Math.random()*Math.PI*2, dist=S.t*3*Math.random();
+          c.fillStyle=`rgba(255,${Math.floor(150+Math.random()*105)},0,${1-alpha})`;
+          c.beginPath(); c.arc(w*0.35+Math.cos(angle)*dist, h*0.45+Math.sin(angle)*dist, 5+Math.random()*8, 0, Math.PI*2); c.fill();
+        }
+        c.shadowBlur=40; c.shadowColor='#fff'; c.fillStyle='rgba(255,255,255,0.9)';
+        c.beginPath(); c.arc(w*0.35,h*0.45,30*alpha,0,Math.PI*2); c.fill(); c.shadowBlur=0;
+      } else {
+        S.done=true;
+        // Two water drops
+        [[w*0.3,h*0.45],[w*0.6,h*0.45]].forEach(([dx,dy],i)=>{
+          const bounce=Math.sin(S.t*0.05+i)*4;
+          c.shadowBlur=20; c.shadowColor='#1A8FA888';
+          c.fillStyle='rgba(26,143,168,0.3)'; c.beginPath(); c.arc(dx,dy+bounce,Math.min(w,h)*0.09,0,Math.PI*2); c.fill();
+          c.shadowBlur=0; c.strokeStyle='#1A8FA8'; c.lineWidth=2.5; c.beginPath(); c.arc(dx,dy+bounce,Math.min(w,h)*0.09,0,Math.PI*2); c.stroke();
+          c.fillStyle='#1A8FA8'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+          c.fillText('H₂O', dx, dy+bounce);
+        });
+        c.fillStyle='#27AE60'; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+        c.fillText('✅ 2H₂ + O₂ → 2H₂O — ناتجان من الماء!', w/2, h*0.72);
+      }
+    }
+
+    // Title
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('تجربة احتراق الهيدروجين في الأكسجين', w/2, h*0.08);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// ─── 7-3 TAB 1: رموز الحالة الفيزيائية ───
+function simG9StateSym1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, quiz:[], qi:0, chosen:-1, answered:false};
+  const S=simState;
+
+  const states=[
+    {sym:'(s)', name:'صلب', ar:'Solid', col:'#8D6E63', icon:'🪨', ex:'CaCO₃(s) — الرخام صلب'},
+    {sym:'(l)', name:'سائل', ar:'Liquid', col:'#1A8FA8', icon:'💧', ex:'H₂O(l) — الماء سائل'},
+    {sym:'(g)', name:'غاز', ar:'Gas', col:'#7B1FA2', icon:'💨', ex:'CO₂(g) — غاز ثاني أكسيد الكربون'},
+    {sym:'(aq)', name:'محلول مائي', ar:'Aqueous', col:'#27AE60', icon:'🧪', ex:'NaCl(aq) — ملح مذاب في الماء'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🏷️ رموز الحالة الفيزيائية</div>
+      <div class="info-box">تُضاف هذه الرموز بعد الصيغة الكيميائية لتوضيح حالة المادة</div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا نُضيف رموز الحالة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">رموز الحالة تُكمل المعلومات — نفس المادة قد تكون في حالات مختلفة. مثلاً H₂O قد تكون ثلجاً (s) أو ماءً (l) أو بخاراً (g)، وهذا يؤثر في التفاعل!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9statesym'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F3E5F5'); bg.addColorStop(1,'#E1BEE7');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText('رموز الحالة الفيزيائية في المعادلات الكيميائية', w/2, h*0.07);
+
+    const cardW=Math.min(w*0.43,190), cardH=Math.min(h*0.22,100);
+    const gapX=(w-2*cardW)/3, gapY=Math.min(h*0.03,16);
+    states.forEach((st,i)=>{
+      const col=i%2, row=Math.floor(i/2);
+      const cx2=gapX + col*(cardW+gapX), cy2=h*0.14 + row*(cardH+gapY);
+      const bounce=Math.sin(S.t*0.04+i*1.2)*3;
+
+      c.shadowBlur=15; c.shadowColor=st.col+'44';
+      c.fillStyle=st.col+'18'; c.beginPath(); c.roundRect(cx2,cy2+bounce,cardW,cardH,14); c.fill();
+      c.shadowBlur=0; c.strokeStyle=st.col; c.lineWidth=2.5; c.beginPath(); c.roundRect(cx2,cy2+bounce,cardW,cardH,14); c.stroke();
+
+      c.fillStyle=st.col; c.font=`bold ${Math.max(18,w*0.040)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+      c.fillText(st.sym, cx2+cardW/2, cy2+bounce+8);
+      c.font=`bold ${Math.max(13,w*0.025)}px Tajawal`;
+      c.fillText(st.name+' — '+st.icon, cx2+cardW/2, cy2+bounce+cardH*0.38);
+      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.015)}px Tajawal`;
+      c.fillText(st.ex, cx2+cardW/2, cy2+bounce+cardH*0.68);
+    });
+
+    // Example equation
+    const eby=h*0.67, ebh=h*0.12;
+    c.fillStyle='rgba(255,255,255,0.85)'; c.beginPath(); c.roundRect(w*0.05,eby,w*0.9,ebh,10); c.fill();
+    c.strokeStyle='rgba(107,78,154,0.3)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(w*0.05,eby,w*0.9,ebh,10); c.stroke();
+    c.fillStyle='#4A148C'; c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('2K(s) + 2H₂O(l) → 2KOH(aq) + H₂(g)', w/2, eby+ebh/2);
+
+    // Animated pulse around aq symbol
+    const pulse=0.5+0.5*Math.sin(S.t*0.07);
+    c.shadowBlur=10*pulse; c.shadowColor='#27AE60';
+    c.fillStyle='rgba(39,174,96,0.2)'; c.beginPath(); c.arc(w*0.68,eby+ebh/2,Math.min(w,h)*0.055*(0.9+0.1*pulse),0,Math.PI*2); c.fill();
+    c.shadowBlur=0;
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 7-3 TAB 2: تفاعل البوتاسيوم مع الماء ───
+function simG9StateSym2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, added:false, reacting:false, particles:[]};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💥 تفاعل K مع الماء</div>
+      <button class="ctrl-btn action" id="k-btn" onclick="simState.added=true;setTimeout(()=>simState.reacting=true,1000);this.disabled=true">➕ أضِف قطعة بوتاسيوم</button>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.added=false;simState.reacting=false;simState.particles=[];simState.t=0;document.getElementById('k-btn').disabled=false">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>المعادلة مع رموز الحالة:</b><br>
+      2K(s) + 2H₂O(l) →<br>
+      2KOH(aq) + H₂(g)
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج عن رموز الحالة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">K صلب (s) ← يبدأ كقطعة صلبة. H₂O سائل (l) ← الماء في درجة الغرفة. KOH محلول مائي (aq) ← ينذوب في الماء. H₂ غاز (g) ← يتصاعد كفقاعات. رموز الحالة تُوضّح ما يحدث بالفعل!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9statesym'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+
+    // Background
+    c.fillStyle='#1a3a4a'; c.fillRect(0,0,w,h);
+
+    // Beaker (water)
+    const bx=w*0.2, by=h*0.2, bw=w*0.6, bh=h*0.65;
+    c.fillStyle='rgba(26,143,168,0.25)'; c.fillRect(bx,by,bw,bh);
+    c.strokeStyle='rgba(255,255,255,0.4)'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+    c.fillStyle='rgba(26,143,168,0.6)'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='left'; c.textBaseline='alphabetic';
+    c.fillText('H₂O(l)', bx+8, by+bh-8);
+
+    // K piece
+    if(S.added){
+      const kx=bx+bw/2, ky=by+(S.reacting?Math.min(bh*0.4,bh*0.4*(Math.min(S.t-50,40)/40)):bh*0.1);
+      c.fillStyle='#B0BEC5'; c.beginPath(); c.roundRect(kx-15,ky-12,30,24,6); c.fill();
+      c.strokeStyle='#78909C'; c.lineWidth=2; c.beginPath(); c.roundRect(kx-15,ky-12,30,24,6); c.stroke();
+      c.fillStyle='#37474F'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('K(s)', kx, ky);
+    }
+
+    // Reaction effects
+    if(S.reacting && S.t>50){
+      // Bubbles (H2 gas)
+      if(Math.random()<0.3) S.particles.push({x:bx+bw*0.3+Math.random()*bw*0.4, y:by+bh*0.6, r:Math.random()*5+2, vy:-1.5-Math.random()*2});
+      S.particles=S.particles.filter(p=>p.y>by);
+      S.particles.forEach(p=>{ p.y+=p.vy; p.x+=Math.sin(p.y*0.1)*1.5; c.strokeStyle='rgba(255,255,255,0.6)'; c.lineWidth=1.5; c.beginPath(); c.arc(p.x,p.y,p.r,0,Math.PI*2); c.stroke(); });
+
+      // Color change (KOH dissolving - purple tint)
+      const alpha=Math.min((S.t-50)/100,0.3);
+      c.fillStyle=`rgba(100,200,100,${alpha})`; c.fillRect(bx+2,by,bw-4,bh);
+
+      // Flame on K surface
+      if(S.t<150){
+        for(let i=0;i<8;i++){
+          const flx=bx+bw/2+(Math.random()-0.5)*30, fly=by+bh*0.3;
+          c.fillStyle=`rgba(255,${Math.floor(100+Math.random()*155)},0,${0.5+Math.random()*0.4})`;
+          c.beginPath(); c.ellipse(flx,fly,4+Math.random()*6,8+Math.random()*10,0,0,Math.PI*2); c.fill();
+        }
+      }
+
+      // Labels
+      c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('H₂(g) ↑ — فقاعات الهيدروجين', w*0.5, by-10);
+      c.fillStyle='rgba(100,230,130,0.9)'; c.fillText('KOH(aq) — يذوب في الماء', w*0.5, by+bh+20);
+    }
+
+    // Equation
+    c.fillStyle='rgba(255,255,255,0.85)'; c.beginPath(); c.roundRect(w*0.03,h*0.88,w*0.94,h*0.1,10); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('2K(s) + 2H₂O(l) → 2KOH(aq) + H₂(g)', w/2, h*0.93);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 7-3 TAB 3: المعادلات الأيونية ───
+function simG9StateSym3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, step:0};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔋 المعادلات الأيونية الصافية</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn" onclick="simState.step=Math.max(0,simState.step-1)">⬅️ رجوع</button>
+        <button class="ctrl-btn action" onclick="simState.step=Math.min(3,simState.step+1)">التالي ➡️</button>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      الأيونات المتفرجة (Spectator ions): تظهر على كلا الجانبين ولا تشارك في التفاعل — نحذفها!
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما فائدة المعادلة الأيونية الصافية؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">تُظهر ما يحدث فعلاً على مستوى الأيونات. مثلاً: أي حمض + أي قاعدة قوية تعطي نفس المعادلة الأيونية H⁺ + OH⁻ → H₂O. هذا يُسهّل الفهم والتعميم!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  const stepsData=[
+    {title:'المعادلة الكاملة الموزونة', eq:'HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l)'},
+    {title:'فصل الأيونات (المذابة في الماء)', eq:'[H⁺ + Cl⁻] + [Na⁺ + OH⁻] → [Na⁺ + Cl⁻] + H₂O'},
+    {title:'تحديد الأيونات المتفرجة (تُشطب)', eq:'[H⁺ + ~~Cl⁻~~] + [~~Na⁺~~ + OH⁻] → [~~Na⁺~~ + ~~Cl⁻~~] + H₂O', crossed:['Na⁺','Cl⁻']},
+    {title:'✅ المعادلة الأيونية الصافية', eq:'H⁺(aq) + OH⁻(aq) → H₂O(l)'},
+  ];
+
+  function draw(){
+    if(currentSim!=='g9statesym'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const st=stepsData[Math.min(S.step||0,3)];
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E0F2F1'); bg.addColorStop(1,'#B2DFDB');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Step indicator
+    [0,1,2,3].forEach(i=>{
+      const sx=w*0.1+i*(w*0.8/3), sy=h*0.07;
+      c.fillStyle=i<=(S.step||0)?'#1A8FA8':'rgba(0,0,0,0.15)';
+      c.beginPath(); c.arc(sx,sy,Math.min(w,h)*0.028,0,Math.PI*2); c.fill();
+      c.fillStyle='white'; c.font=`bold ${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(i+1, sx, sy);
+    });
+
+    // Step title
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('الخطوة '+(S.step+1)+': '+st.title, w/2, h*0.16);
+
+    // Equation box
+    const eby=h*0.22, ebh=h*0.14;
+    const col=(S.step||0)===3?'rgba(39,174,96,0.15)':'rgba(255,255,255,0.8)';
+    c.fillStyle=col; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,12); c.fill();
+    c.strokeStyle=(S.step||0)===3?'#27AE60':'rgba(26,143,168,0.3)'; c.lineWidth=2; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,12); c.stroke();
+    c.fillStyle=(S.step||0)===3?'#27AE60':'#1A8FA8'; c.font=`bold ${Math.max(11,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(st.eq.replace(/~~/g,''), w/2, eby+ebh/2);
+
+    // Ion visualization
+    if((S.step||0)>=1){
+      const ions=[
+        {label:'H⁺', col:'#E74C3C', x:w*0.13, spectator:false},
+        {label:'Cl⁻', col:'#7F8C8D', x:w*0.26, spectator:true},
+        {label:'Na⁺', col:'#7F8C8D', x:w*0.55, spectator:true},
+        {label:'OH⁻', col:'#27AE60', x:w*0.68, spectator:false},
+        {label:'→', col:'#1E2D3D', x:w*0.42, spectator:false, arrow:true},
+        {label:'H₂O', col:'#1A8FA8', x:w*0.84, spectator:false, product:true},
+      ];
+      const iy=h*0.48, ir=Math.min(w,h)*0.07;
+      ions.forEach(ion=>{
+        if(ion.arrow){ c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(20,w*0.04)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle'; c.fillText('→',ion.x,iy); return; }
+        const isSpectator=ion.spectator&&(S.step||0)>=2;
+        const alpha=isSpectator?0.3:1;
+        c.globalAlpha=alpha;
+        c.shadowBlur=isSpectator?0:12; c.shadowColor=ion.col+'88';
+        c.fillStyle=ion.col+'22'; c.beginPath(); c.arc(ion.x,iy,ir,0,Math.PI*2); c.fill();
+        c.shadowBlur=0; c.strokeStyle=ion.col; c.lineWidth=isSpectator?1:2.5; c.beginPath(); c.arc(ion.x,iy,ir,0,Math.PI*2); c.stroke();
+        c.fillStyle=ion.col; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(ion.label, ion.x, iy);
+        c.globalAlpha=1;
+        if(isSpectator){
+          c.strokeStyle='rgba(150,0,0,0.6)'; c.lineWidth=2;
+          c.beginPath(); c.moveTo(ion.x-ir*0.7,iy-ir*0.7); c.lineTo(ion.x+ir*0.7,iy+ir*0.7); c.stroke();
+        }
+      });
+    }
+
+    // Labels
+    if((S.step||0)>=2){
+      c.fillStyle='#C0392B'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('أيونات متفرجة — تُحذف', w*0.245, h*0.62);
+      c.fillStyle='#1A8FA8'; c.fillText('تشارك في التفاعل', w*0.72, h*0.62);
+    }
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — الوحدة الثامنة: تكوين الأملاح
+// ══════════════════════════════════════════════════════════
+
+// ─── 8-1 TAB 1: حمض + قاعدة (تعادل) ───
+function simG9SaltAcid1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, acid:0, base:0, drops:0, ph:7, neutralised:false, acidVol:50, baseVol:50};
+  const S=simState;
+
+  const pairs=[
+    {acid:'HCl',base:'NaOH', salt:'NaCl', fullName:'كلوريد الصوديوم', acid_name:'حمض الهيدروكلوريك', base_name:'هيدروكسيد الصوديوم'},
+    {acid:'H₂SO₄',base:'KOH', salt:'K₂SO₄', fullName:'كبريتات البوتاسيوم', acid_name:'حمض الكبريتيك', base_name:'هيدروكسيد البوتاسيوم'},
+    {acid:'HNO₃',base:'NaOH', salt:'NaNO₃', fullName:'نترات الصوديوم', acid_name:'حمض النيتريك', base_name:'هيدروكسيد الصوديوم'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧪 اختر التفاعل</div>
+      <div class="ctrl-btns-grid-1">
+        ${pairs.map((p,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="pair-btn-${i}" onclick="simState.pairIdx=${i};simState.ph=7;simState.drops=0;simState.neutralised=false;document.querySelectorAll('[id^=pair-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${p.acid} + ${p.base}</button>`).join('')}
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 أضِف قطرات الحمض</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn stop" onclick="if(simState.ph>1){simState.ph=Math.max(1,simState.ph-1.5);simState.drops++}">+ قطرة حمض</button>
+        <button class="ctrl-btn action" onclick="if(simState.ph<13){simState.ph=Math.min(13,simState.ph+1.5);simState.drops++}">+ قطرة قاعدة</button>
+      </div>
+      <button class="ctrl-btn" style="margin-top:6px" onclick="simState.ph=7;simState.drops=0;simState.neutralised=false">🔄 إعادة</button>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج عن تفاعل التعادل؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الحمض يُعادل القاعدة تماماً عند pH=7. الناتج دائماً ملح + ماء. الملح يعتمد على نوع الحمض والقاعدة: HCl + NaOH → NaCl + H₂O. هذه أهم طرق تحضير الأملاح!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9saltacid'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const pair=pairs[S.pairIdx||0];
+    const ph=S.ph||7;
+    if(Math.abs(ph-7)<0.5) S.neutralised=true;
+
+    // pH color
+    const phColors={0:'#8B0000',1:'#C0392B',2:'#E74C3C',3:'#E67E22',4:'#F39C12',5:'#F1C40F',6:'#ABEBC6',7:'#27AE60',8:'#1ABC9C',9:'#16A085',10:'#1A8FA8',11:'#2980B9',12:'#1F618D',13:'#154360'};
+    const phFloor=Math.floor(ph);
+    const solutionCol=phColors[Math.max(0,Math.min(13,phFloor))]||'#27AE60';
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#FAFAFA'); bg.addColorStop(1,'#F0F0F0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Beaker
+    const bx=w*0.22, by=h*0.12, bw=w*0.56, bh=h*0.55;
+    c.fillStyle=solutionCol+'44'; c.fillRect(bx,by+bh*0.05,bw,bh*0.95);
+    c.strokeStyle='#90A4AE'; c.lineWidth=4;
+    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+
+    // Solution particles
+    for(let i=0;i<15;i++){
+      const px=bx+10+Math.random()*(bw-20), py=by+bh*0.1+Math.random()*bh*0.85;
+      const isH=ph<7, col2=isH?'#E74C3C88':'#27AE6088';
+      c.fillStyle=col2; c.beginPath(); c.arc(px,py,3,0,Math.PI*2); c.fill();
+    }
+
+    // pH meter
+    const pmx=bx+bw+Math.min(w*0.04,16), pmy=by, pmh=bh;
+    c.fillStyle='#ECEFF1'; c.beginPath(); c.roundRect(pmx,pmy,Math.min(w*0.12,55),pmh,8); c.fill();
+    c.strokeStyle='#90A4AE'; c.lineWidth=2; c.beginPath(); c.roundRect(pmx,pmy,Math.min(w*0.12,55),pmh,8); c.stroke();
+    const needle=pmy + pmh*(1-ph/14);
+    c.fillStyle=solutionCol; c.fillRect(pmx+4,needle,Math.min(w*0.12,55)-8,pmh-(needle-pmy));
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('pH', pmx+Math.min(w*0.06,27.5), pmy-15);
+    c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`;
+    c.fillText(ph.toFixed(1), pmx+Math.min(w*0.06,27.5), needle-12);
+
+    // Status
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    const status=ph<6.5?'🍋 محلول حمضي':ph>7.5?'🧼 محلول قلوي':'⚖️ متعادل — pH = 7';
+    c.fillText(status, w*0.35, by+bh+30);
+
+    // Equation
+    const eby=h*0.79, ebh=h*0.12;
+    const ecol=S.neutralised?'rgba(39,174,96,0.15)':'rgba(255,255,255,0.8)';
+    c.fillStyle=ecol; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,10); c.fill();
+    c.fillStyle=S.neutralised?'#27AE60':'#1E2D3D'; c.font=`bold ${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`${pair.acid} + ${pair.base} → ${pair.salt} + H₂O`, w/2, eby+ebh*0.4);
+    if(S.neutralised){
+      c.fillStyle='rgba(39,174,96,0.7)'; c.font=`${Math.max(9,w*0.016)}px Tajawal`;
+      c.fillText(`✅ الملح الناتج: ${pair.fullName}`, w/2, eby+ebh*0.75);
+    }
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-1 TAB 2: حمض + أكسيد فلزي ───
+function simG9SaltAcid2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, selected:0, reacting:false, progress:0};
+  const S=simState;
+
+  const oxides=[
+    {oxide:'CuO', acid:'H₂SO₄', salt:'CuSO₄', water:'H₂O', name:'كبريتات النحاس(II)', color:'#1A8FA8', oxColor:'#8B4513', desc:'بلورات زرقاء'},
+    {oxide:'MgO', acid:'HCl', salt:'MgCl₂', water:'H₂O', name:'كلوريد الماغنيسيوم', color:'#27AE60', oxColor:'#FFFFFF', desc:'محلول عديم اللون'},
+    {oxide:'Na₂O', acid:'HCl', salt:'NaCl', water:'H₂O', name:'كلوريد الصوديوم', color:'#F39C12', oxColor:'#F5F5F5', desc:'ملح الطعام'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔥 حمض + أكسيد فلزي → ملح + ماء</div>
+      <div class="ctrl-btns-grid-1">
+        ${oxides.map((o,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="ox-btn-${i}" onclick="simState.selected=${i};simState.reacting=false;simState.progress=0;document.querySelectorAll('[id^=ox-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${o.oxide} + ${o.acid}</button>`).join('')}
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <button class="ctrl-btn action" onclick="simState.reacting=true">⚗️ ابدأ التفاعل</button>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.reacting=false;simState.progress=0">🔄 إعادة</button>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما الفرق عن تفاعل الحمض مع القاعدة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">التفاعل مماثل — الناتج ملح + ماء. لكن الأكسيد الفلزي صلب لا سائل. لذا نُضيف فائضاً منه ونُرشّح الزائد. لا يوجد كاشف هنا لتحديد نقطة التعادل!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9saltacid'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    if(S.reacting && S.progress<100) S.progress+=0.5;
+    const ox=oxides[S.selected||0];
+    const prog=S.progress||0;
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#FFF8E1'); bg.addColorStop(1,'#FFE082');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('حمض + أكسيد فلزي → ملح + ماء', w/2, h*0.07);
+
+    // Left beaker (acid)
+    const lbx=w*0.04, lby=h*0.15, lbw=w*0.28, lbh=h*0.45;
+    const acidAlpha=Math.max(0,1-prog/80);
+    c.fillStyle=`rgba(231,76,60,${0.2*acidAlpha})`; c.fillRect(lbx,lby,lbw,lbh);
+    c.strokeStyle='#90A4AE'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(lbx,lby); c.lineTo(lbx,lby+lbh); c.lineTo(lbx+lbw,lby+lbh); c.lineTo(lbx+lbw,lby); c.stroke();
+    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(11,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText(ox.acid, lbx+lbw/2, lby+lbh+18);
+    c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#888';
+    c.fillText('الحمض', lbx+lbw/2, lby+lbh+32);
+
+    // Right beaker (oxide)
+    const rbx=w*0.68, rby=h*0.15, rbw=w*0.28, rbh=h*0.45;
+    const oxAlpha=Math.max(0,1-prog/80);
+    c.fillStyle=`rgba(139,69,19,${0.15*oxAlpha})`; c.fillRect(rbx,rby,rbw,rbh);
+    c.strokeStyle='#90A4AE'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(rbx,rby); c.lineTo(rbx,rby+rbh); c.lineTo(rbx+rbw,rby+rbh); c.lineTo(rbx+rbw,rby); c.stroke();
+    // Oxide powder particles
+    for(let i=0;i<12;i++){
+      if(Math.random()<oxAlpha){
+        c.fillStyle=ox.oxColor+'CC'; c.beginPath(); c.arc(rbx+10+Math.random()*(rbw-20), rby+rbh*0.4+Math.random()*rbh*0.5, 4+Math.random()*4,0,Math.PI*2); c.fill();
+      }
+    }
+    c.fillStyle='#8D6E63'; c.font=`bold ${Math.max(11,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText(ox.oxide, rbx+rbw/2, rby+rbh+18);
+    c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#888';
+    c.fillText('أكسيد فلزي', rbx+rbw/2, rby+rbh+32);
+
+    // Arrow
+    if(S.reacting){
+      c.strokeStyle=ox.color; c.lineWidth=3;
+      const ax1=lbx+lbw+5, ax2=rbx-5, ay=lby+lbh/2;
+      c.beginPath(); c.moveTo(ax1,ay); c.lineTo(ax2,ay); c.stroke();
+      c.fillStyle=ox.color; c.beginPath(); c.moveTo(ax2,ay); c.lineTo(ax2-12,ay-7); c.lineTo(ax2-12,ay+7); c.closePath(); c.fill();
+    }
+
+    // Product beaker (center, appears when progress>50)
+    if(prog>30){
+      const pbx=w*0.34, pby=h*0.55, pbw=w*0.32, pbh=h*0.3;
+      const alpha=Math.min((prog-30)/40,1);
+      c.globalAlpha=alpha;
+      c.fillStyle=ox.color+'33'; c.fillRect(pbx,pby,pbw,pbh);
+      c.strokeStyle='#90A4AE'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(pbx,pby); c.lineTo(pbx,pby+pbh); c.lineTo(pbx+pbw,pby+pbh); c.lineTo(pbx+pbw,pby); c.stroke();
+      c.fillStyle=ox.color; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText(ox.salt, pbx+pbw/2, pby+pbh+18);
+      c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#666';
+      c.fillText(ox.name+' + H₂O', pbx+pbw/2, pby+pbh+34);
+      c.globalAlpha=1;
+    }
+
+    // Equation
+    const eby=h*0.87, ebh=h*0.1;
+    c.fillStyle='rgba(255,255,255,0.8)'; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,10); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`${ox.oxide}(s) + ${ox.acid}(aq) → ${ox.salt}(aq) + H₂O(l)`, w/2, eby+ebh/2);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-1 TAB 3: جدول الأملاح المتكوّنة ───
+function simG9SaltAcid3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, selAcid:0, selBase:0};
+  const S=simState;
+
+  const acids=['HCl', 'H₂SO₄', 'HNO₃'];
+  const bases=['NaOH', 'KOH', 'MgO', 'CuO'];
+  const saltTable=[
+    ['NaCl','Na₂SO₄','NaNO₃'],
+    ['KCl','K₂SO₄','KNO₃'],
+    ['MgCl₂','MgSO₄','Mg(NO₃)₂'],
+    ['CuCl₂','CuSO₄','Cu(NO₃)₂'],
+  ];
+  const saltNames=[
+    ['كلوريد الصوديوم','كبريتات الصوديوم','نترات الصوديوم'],
+    ['كلوريد البوتاسيوم','كبريتات البوتاسيوم','نترات البوتاسيوم'],
+    ['كلوريد الماغنيسيوم','كبريتات الماغنيسيوم','نترات الماغنيسيوم'],
+    ['كلوريد النحاس(II)','كبريتات النحاس(II)','نترات النحاس(II)'],
+  ];
+  const saltColors=['#27AE60','#1A8FA8','#D4901A','#6B4E9A'];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🏆 جدول الأملاح — اختر الحمض والقاعدة</div>
+      <div class="ctrl-label" style="font-size:13px;margin-top:4px">الحمض:</div>
+      <div class="ctrl-btns-grid">
+        ${acids.map((a,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="acid-btn-${i}" onclick="simState.selAcid=${i};document.querySelectorAll('[id^=acid-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${a}</button>`).join('')}
+      </div>
+      <div class="ctrl-label" style="font-size:13px;margin-top:6px">القاعدة/الأكسيد:</div>
+      <div class="ctrl-btns-grid-1">
+        ${bases.map((b,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="base-btn-${i}" onclick="simState.selBase=${i};document.querySelectorAll('[id^=base-btn-]').forEach((b2,j)=>b2.classList.toggle('active',j===${i}))">${b}</button>`).join('')}
+      </div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9saltacid'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const ai=S.selAcid||0, bi=S.selBase||0;
+    const salt=saltTable[bi][ai];
+    const saltName=saltNames[bi][ai];
+    const saltCol=saltColors[bi];
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E8EAF6'); bg.addColorStop(1,'#C5CAE9');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('🏆 جدول تكوين الأملاح', w/2, h*0.07);
+
+    // Salt display
+    const pulse=0.5+0.5*Math.sin(S.t*0.06);
+    const sr=Math.min(w,h)*0.18*(0.95+0.05*pulse);
+    const sx=w*0.5, sy=h*0.34;
+    c.shadowBlur=25*pulse; c.shadowColor=saltCol+'88';
+    c.fillStyle=saltCol+'22'; c.beginPath(); c.arc(sx,sy,sr,0,Math.PI*2); c.fill();
+    c.shadowBlur=0; c.strokeStyle=saltCol; c.lineWidth=3; c.beginPath(); c.arc(sx,sy,sr,0,Math.PI*2); c.stroke();
+    c.fillStyle=saltCol; c.font=`bold ${Math.max(18,w*0.045)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(salt, sx, sy-8);
+    c.font=`${Math.max(10,w*0.018)}px Tajawal`; c.fillStyle='#555';
+    c.fillText(saltName, sx, sy+sr*0.55);
+
+    // Equation
+    const eby=h*0.62, ebh=h*0.12;
+    c.fillStyle='rgba(255,255,255,0.85)'; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,10); c.fill();
+    c.strokeStyle=saltCol+'44'; c.lineWidth=2; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,10); c.stroke();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(11,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`${acids[ai]} + ${bases[bi]} → ${salt} + H₂O`, w/2, eby+ebh/2);
+
+    // Acid column label
+    c.fillStyle='#C0392B'; c.font=`bold ${Math.max(12,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('الحمض: '+acids[ai], w*0.25, h*0.55);
+    // Base column label
+    c.fillStyle='#27AE60'; c.fillText('القاعدة: '+bases[bi], w*0.75, h*0.55);
+
+    // Salt type note
+    const typeNote=ai===0?'كلوريد ← من HCl':ai===1?'كبريتات ← من H₂SO₄':'نترات ← من HNO₃';
+    c.fillStyle='rgba(107,78,154,0.7)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('💡 '+typeNote, w/2, h*0.79);
+    c.fillText('القاعدة تُحدد شقّ الفلز في الملح 🔑', w/2, h*0.83);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-2 TAB 1: حمض + فلز نشيط ───
+function simG9SaltMetal1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, selMetal:0, reacting:false, bubbles:[], progress:0};
+  const S=simState;
+
+  const metals=[
+    {metal:'Mg',acid:'H₂SO₄',salt:'MgSO₄',name:'كبريتات الماغنيسيوم',col:'#9B59B6',eq:'Mg(s) + H₂SO₄(aq) → MgSO₄(aq) + H₂(g)'},
+    {metal:'Zn',acid:'HCl',salt:'ZnCl₂',name:'كلوريد الزنك',col:'#1A8FA8',eq:'Zn(s) + 2HCl(aq) → ZnCl₂(aq) + H₂(g)'},
+    {metal:'Fe',acid:'H₂SO₄',salt:'FeSO₄',name:'كبريتات الحديد(II)',col:'#D4901A',eq:'Fe(s) + H₂SO₄(aq) → FeSO₄(aq) + H₂(g)'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💥 فلز + حمض → ملح + هيدروجين</div>
+      <div class="ctrl-btns-grid-1">
+        ${metals.map((m,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="met-btn-${i}" onclick="simState.selMetal=${i};simState.reacting=false;simState.progress=0;simState.bubbles=[];document.querySelectorAll('[id^=met-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${m.metal} + ${m.acid}</button>`).join('')}
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <button class="ctrl-btn action" onclick="simState.reacting=true">⚗️ أدخِل الفلز</button>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.reacting=false;simState.progress=0;simState.bubbles=[]">🔄 إعادة</button>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج عن الهيدروجين الناتج؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">يتصاعد غاز الهيدروجين كفقاعات يمكن اختباره بعود مشتعل (يُسمع صوت فرقعة). الفلز يحلّ محل الهيدروجين في الحمض ليكوّن الملح. الفلزات الأكثر نشاطاً تتفاعل أسرع!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9saltmetal'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    if(S.reacting && S.progress<100) S.progress+=0.4;
+    const m=metals[S.selMetal||0];
+    const prog=S.progress||0;
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#FFF3E0'); bg.addColorStop(1,'#FFE0B2');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Beaker with acid
+    const bx=w*0.2, by=h*0.12, bw=w*0.6, bh=h*0.6;
+    c.fillStyle=`rgba(231,76,60,${0.15+0.05*Math.sin(S.t*0.05)})`; c.fillRect(bx,by+bh*0.05,bw,bh*0.95);
+    c.strokeStyle='#90A4AE'; c.lineWidth=4;
+    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+    c.fillStyle='rgba(231,76,60,0.5)'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='left'; c.textBaseline='alphabetic';
+    c.fillText(m.acid+'(aq)', bx+8, by+bh-8);
+
+    // Metal strip
+    if(S.reacting){
+      const metH=bh*(1-prog/110);
+      const mx=bx+bw/2;
+      c.fillStyle=m.col; c.beginPath(); c.roundRect(mx-12, by+bh*0.05, 24, metH, 4); c.fill();
+      c.strokeStyle=m.col+'88'; c.lineWidth=2; c.beginPath(); c.roundRect(mx-12, by+bh*0.05, 24, metH, 4); c.stroke();
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(m.metal, mx, by+bh*0.12);
+
+      // H2 Bubbles
+      if(Math.random()<0.35) S.bubbles.push({x:bx+bw*0.3+Math.random()*bw*0.4, y:by+bh*0.8, r:2+Math.random()*4, vy:-1.2-Math.random()*1.8});
+      S.bubbles=S.bubbles.filter(b=>b.y>by-10);
+      S.bubbles.forEach(b=>{ b.y+=b.vy; b.x+=Math.sin(b.y*0.08)*1.5; c.strokeStyle='rgba(52,152,219,0.7)'; c.lineWidth=1.5; c.beginPath(); c.arc(b.x,b.y,b.r,0,Math.PI*2); c.stroke(); });
+
+      // H2 label
+      c.fillStyle='#3498DB'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('H₂(g) ↑', bx+bw/2, by-8);
+    } else {
+      // Show metal next to beaker
+      const mx=bx-Math.min(w*0.10,50), my=by+bh*0.3;
+      c.fillStyle=m.col+'33'; c.beginPath(); c.roundRect(mx,my,Math.min(w*0.09,42),bh*0.3,6); c.fill();
+      c.strokeStyle=m.col; c.lineWidth=2.5; c.beginPath(); c.roundRect(mx,my,Math.min(w*0.09,42),bh*0.3,6); c.stroke();
+      c.fillStyle=m.col; c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(m.metal, mx+Math.min(w*0.045,21), my+bh*0.15);
+    }
+
+    // Salt coloring of solution
+    if(prog>40){
+      const alpha=Math.min((prog-40)/50,0.35);
+      c.fillStyle=m.col+Math.floor(alpha*255).toString(16).padStart(2,'0'); c.fillRect(bx+2,by+bh*0.05,bw-4,bh*0.95);
+      c.fillStyle=m.col; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='right'; c.textBaseline='alphabetic';
+      c.fillText(m.salt+'(aq)', bx+bw-8, by+bh-8);
+    }
+
+    // Equation
+    const eby=h*0.78, ebh=h*0.11;
+    c.fillStyle='rgba(255,255,255,0.85)'; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,10); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(m.eq, w/2, eby+ebh/2);
+
+    // Title
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('فلز + حمض → ملح + هيدروجين ↑', w/2, h*0.08);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-2 TAB 2: حمض + كربونات ───
+function simG9SaltMetal2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, reacting:false, bubbles:[], progress:0, selIdx:0};
+  const S=simState;
+
+  const carbonates=[
+    {carb:'CaCO₃', acid:'HCl', salt:'CaCl₂', co2:'CO₂', eq:'CaCO₃(s) + 2HCl(aq) → CaCl₂(aq) + H₂O(l) + CO₂(g)'},
+    {carb:'Na₂CO₃', acid:'H₂SO₄', salt:'Na₂SO₄', co2:'CO₂', eq:'Na₂CO₃(aq) + H₂SO₄(aq) → Na₂SO₄(aq) + H₂O(l) + CO₂(g)'},
+    {carb:'MgCO₃', acid:'HCl', salt:'MgCl₂', co2:'CO₂', eq:'MgCO₃(s) + 2HCl(aq) → MgCl₂(aq) + H₂O(l) + CO₂(g)'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌬️ كربونات + حمض → ملح + ماء + CO₂</div>
+      <div class="ctrl-btns-grid-1">
+        ${carbonates.map((ca,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="carb-btn-${i}" onclick="simState.selIdx=${i};simState.reacting=false;simState.progress=0;simState.bubbles=[];document.querySelectorAll('[id^=carb-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${ca.carb} + ${ca.acid}</button>`).join('')}
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <button class="ctrl-btn action" onclick="simState.reacting=true">⚗️ أضِف الحمض</button>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.reacting=false;simState.progress=0;simState.bubbles=[]">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">الكربونات + حمض → ثلاثة نواتج:<br>ملح + ماء + غاز CO₂ ↑<br>الفوران دليل على CO₂!</div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">تفاعل الكربونات ينتج 3 مواد! CO₂ يمكن اختباره بماء الجير (يُعكّره). هذا مختلف عن الفلز+حمض الذي ينتج H₂. الكربونات لا تُنتج هيدروجيناً!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9saltmetal'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    if(S.reacting && S.progress<100) S.progress+=0.45;
+    const ca=carbonates[S.selIdx||0];
+    const prog=S.progress||0;
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E8F5E9'); bg.addColorStop(1,'#A5D6A7');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('كربونات + حمض → ملح + ماء + CO₂', w/2, h*0.07);
+
+    // Beaker
+    const bx=w*0.2, by=h*0.13, bw=w*0.6, bh=h*0.55;
+    c.fillStyle=`rgba(231,76,60,0.15)`; c.fillRect(bx,by+bh*0.4,bw,bh*0.6);
+    // Carbonate solid at bottom
+    if(prog<80){
+      for(let i=0;i<15;i++){
+        c.fillStyle='rgba(180,180,180,0.8)'; c.beginPath(); c.arc(bx+15+Math.random()*(bw-30),by+bh*0.6+Math.random()*bh*0.3,4+Math.random()*6,0,Math.PI*2); c.fill();
+      }
+    }
+    c.strokeStyle='#90A4AE'; c.lineWidth=4;
+    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+
+    if(S.reacting){
+      // Foam / bubbles (CO2)
+      if(Math.random()<0.45) S.bubbles.push({x:bx+bw*0.2+Math.random()*bw*0.6, y:by+bh*0.65+Math.random()*bh*0.2, r:3+Math.random()*6, vy:-2-Math.random()*2.5});
+      S.bubbles=S.bubbles.filter(b=>b.y>by-10);
+      S.bubbles.forEach(b=>{ b.y+=b.vy; b.x+=Math.sin(b.y*0.06)*2; c.strokeStyle='rgba(100,180,100,0.75)'; c.lineWidth=2; c.beginPath(); c.arc(b.x,b.y,b.r,0,Math.PI*2); c.stroke(); });
+
+      // Foam cap
+      for(let i=0;i<20;i++){
+        const fx=bx+Math.random()*bw, fy=by+bh*0.38+Math.random()*bh*0.05;
+        c.fillStyle='rgba(255,255,255,0.7)'; c.beginPath(); c.arc(fx,fy,3+Math.random()*5,0,Math.PI*2); c.fill();
+      }
+      c.fillStyle='rgba(100,180,100,0.8)'; c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('CO₂(g) ↑ — يُعكّر ماء الجير', w/2, by-8);
+    } else {
+      c.fillStyle='#7A8A98'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText(ca.carb+' — كربونات', w/2, by+bh-8);
+    }
+
+    // Equation
+    const eby=h*0.76, ebh=h*0.12;
+    c.fillStyle='rgba(255,255,255,0.85)'; c.beginPath(); c.roundRect(w*0.03,eby,w*0.94,ebh,10); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(ca.eq, w/2, eby+ebh/2);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-2 TAB 3: تفاعل CaCO₃ مع HCl بالتفصيل ───
+function simG9SaltMetal3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, step:0};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚗️ تفاعل CaCO₃ + 2HCl بالتفصيل</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn" onclick="simState.step=Math.max(0,simState.step-1)">⬅️ رجوع</button>
+        <button class="ctrl-btn action" onclick="simState.step=Math.min(4,simState.step+1)">التالي ➡️</button>
+      </div>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.step=0">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>المعادلة الأيونية الصافية:</b><br>
+      2H⁺(aq) + CaCO₃(s) →<br>
+      Ca²⁺(aq) + H₂O(l) + CO₂(g)
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا تتفاعل الكربونات مع الأحماض؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">أيونات H⁺ تهاجم أيون CO₃²⁻ وتكسره إلى CO₂ وH₂O. CO₂ لا يذوب كثيراً في الماء فيتصاعد كغاز. الفوران الذي نراه هو هذا الغاز!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  const stepsTxt=[
+    'الخطوة ١: المواد المتفاعلة — رخام CaCO₃ وحمض HCl',
+    'الخطوة ٢: تأيُّن الحمض — HCl → H⁺ + Cl⁻',
+    'الخطوة ٣: هجوم H⁺ على CaCO₃',
+    'الخطوة ٤: تكوين النواتج — CaCl₂ + H₂O + CO₂',
+    'الخطوة ٥: المعادلة الأيونية الصافية الموزونة',
+  ];
+
+  function draw(){
+    if(currentSim!=='g9saltmetal'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const st=S.step||0;
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#FCE4EC'); bg.addColorStop(1,'#F8BBD0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Step indicator dots
+    [0,1,2,3,4].forEach(i=>{
+      c.fillStyle=i<=st?'#C0392B':'rgba(0,0,0,0.15)';
+      c.beginPath(); c.arc(w*0.1+i*w*0.2,h*0.07,Math.min(w,h)*0.022,0,Math.PI*2); c.fill();
+    });
+
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText(stepsTxt[st], w/2, h*0.17);
+
+    if(st===0){
+      // Show solid marble + acid beaker
+      c.fillStyle='#90A4AE88'; c.beginPath(); c.roundRect(w*0.1,h*0.25,w*0.3,h*0.4,10); c.fill();
+      c.strokeStyle='#607D8B'; c.lineWidth=2; c.beginPath(); c.roundRect(w*0.1,h*0.25,w*0.3,h*0.4,10); c.stroke();
+      c.fillStyle='#455A64'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('CaCO₃', w*0.25, h*0.45);
+      c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#78909C'; c.fillText('رخام/حجر جيري (s)', w*0.25, h*0.55);
+
+      c.fillStyle='rgba(231,76,60,0.2)'; c.beginPath(); c.roundRect(w*0.6,h*0.25,w*0.3,h*0.4,10); c.fill();
+      c.strokeStyle='#C0392B'; c.lineWidth=2; c.beginPath(); c.roundRect(w*0.6,h*0.25,w*0.3,h*0.4,10); c.stroke();
+      c.fillStyle='#C0392B'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('HCl', w*0.75, h*0.45);
+      c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#E74C3C'; c.fillText('حمض (aq)', w*0.75, h*0.55);
+    }
+
+    if(st===1){
+      // HCl splitting
+      const ions=[{l:'H⁺',x:w*0.3,col:'#C0392B'},{l:'Cl⁻',x:w*0.7,col:'#7F8C8D'}];
+      c.fillStyle='rgba(231,76,60,0.15)'; c.beginPath(); c.roundRect(w*0.1,h*0.28,w*0.8,h*0.15,12); c.fill();
+      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('HCl', w*0.5, h*0.355);
+      const sep=Math.sin(S.t*0.05)*5+20;
+      ions.forEach(ion=>{
+        c.fillStyle=ion.col+'33'; c.beginPath(); c.arc(ion.x+(ion.l==='H⁺'?-sep:sep),h*0.55,Math.min(w,h)*0.09,0,Math.PI*2); c.fill();
+        c.strokeStyle=ion.col; c.lineWidth=2; c.beginPath(); c.arc(ion.x+(ion.l==='H⁺'?-sep:sep),h*0.55,Math.min(w,h)*0.09,0,Math.PI*2); c.stroke();
+        c.fillStyle=ion.col; c.font=`bold ${Math.max(14,w*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(ion.l, ion.x+(ion.l==='H⁺'?-sep:sep), h*0.55);
+      });
+      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(16,w*0.030)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('→', w*0.5, h*0.55);
+    }
+
+    if(st===2){
+      // H+ attacking CaCO3
+      const angle=S.t*0.06;
+      const cx2=w*0.6, cy2=h*0.48, cr=Math.min(w,h)*0.12;
+      c.fillStyle='#90A4AE33'; c.beginPath(); c.arc(cx2,cy2,cr,0,Math.PI*2); c.fill();
+      c.strokeStyle='#607D8B'; c.lineWidth=3; c.beginPath(); c.arc(cx2,cy2,cr,0,Math.PI*2); c.stroke();
+      c.fillStyle='#455A64'; c.font=`bold ${Math.max(12,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('CaCO₃', cx2, cy2);
+      // H+ orbiting
+      const hx=cx2+Math.cos(angle)*(cr+25), hy=cy2+Math.sin(angle)*(cr+25);
+      const hx2=cx2+Math.cos(angle+Math.PI)*(cr+25), hy2=cy2+Math.sin(angle+Math.PI)*(cr+25);
+      [[hx,hy],[hx2,hy2]].forEach(([px,py])=>{
+        c.fillStyle='#FFCDD2'; c.beginPath(); c.arc(px,py,Math.min(w,h)*0.05,0,Math.PI*2); c.fill();
+        c.strokeStyle='#C0392B'; c.lineWidth=2; c.beginPath(); c.arc(px,py,Math.min(w,h)*0.05,0,Math.PI*2); c.stroke();
+        c.fillStyle='#C0392B'; c.font=`bold ${Math.max(12,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('H⁺', px, py);
+      });
+    }
+
+    if(st===3){
+      const products=[{f:'CaCl₂',n:'ملح',col:'#27AE60',x:w*0.2},{f:'H₂O',n:'ماء',col:'#1A8FA8',x:w*0.5},{f:'CO₂↑',n:'غاز',col:'#8E44AD',x:w*0.8}];
+      products.forEach(p=>{
+        const bounce=Math.sin(S.t*0.06+p.x)*5;
+        c.shadowBlur=15; c.shadowColor=p.col+'66';
+        c.fillStyle=p.col+'22'; c.beginPath(); c.arc(p.x,h*0.45+bounce,Math.min(w,h)*0.1,0,Math.PI*2); c.fill();
+        c.shadowBlur=0; c.strokeStyle=p.col; c.lineWidth=2.5; c.beginPath(); c.arc(p.x,h*0.45+bounce,Math.min(w,h)*0.1,0,Math.PI*2); c.stroke();
+        c.fillStyle=p.col; c.font=`bold ${Math.max(12,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(p.f, p.x, h*0.45+bounce-5);
+        c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#666';
+        c.fillText(p.n, p.x, h*0.45+bounce+Math.min(w,h)*0.10+8);
+      });
+    }
+
+    if(st===4){
+      const ebx=w*0.04, eby=h*0.26, ebw=w*0.92;
+      const eqs=['CaCO₃(s) + 2HCl(aq) → CaCl₂(aq) + H₂O(l) + CO₂(g)','2H⁺(aq) + CaCO₃(s) → Ca²⁺(aq) + H₂O(l) + CO₂(g)'];
+      const labels=['المعادلة الرمزية الكاملة:','المعادلة الأيونية الصافية:'];
+      eqs.forEach((eq,i)=>{
+        const ebh=h*0.10;
+        c.fillStyle=i===1?'rgba(39,174,96,0.15)':'rgba(255,255,255,0.8)'; c.beginPath(); c.roundRect(ebx,eby+i*(ebh+h*0.03),ebw,ebh,10); c.fill();
+        c.fillStyle='#7A8A98'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+        c.fillText(labels[i], w/2, eby+i*(ebh+h*0.03)+4);
+        c.fillStyle=i===1?'#27AE60':'#1E2D3D'; c.font=`bold ${Math.max(10,w*0.019)}px Tajawal`; c.textBaseline='middle';
+        c.fillText(eq, w/2, eby+i*(ebh+h*0.03)+ebh*0.65);
+      });
+    }
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-3 TAB 1: الطريقة أ: فلز + حمض ───
+function simG9SaltMake1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, step:0};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 خطوات تحضير الملح الذائب</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn" onclick="simState.step=Math.max(0,simState.step-1)">⬅️ رجوع</button>
+        <button class="ctrl-btn action" onclick="simState.step=Math.min(4,simState.step+1)">التالي ➡️</button>
+      </div>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.step=0">🔄 من البداية</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>لتحضير MgSO₄:</b><br>
+      Mg (فائض) + H₂SO₄ → MgSO₄ + H₂↑
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا نُضيف الفلز بالفائض؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">لضمان استهلاك كل الحمض كلياً حتى لا يبقى حمض حرّ في المحلول. الفائض من الفلز نُزيله بالترشيح. إذا ترك الحمض يُفسد نقاوة الملح!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  const steps=[
+    {title:'الخطوة ١: أضِف فائضاً من المعدن إلى الحمض', icon:'⚗️'},
+    {title:'الخطوة ٢: قلِّب حتى يتوقف الفوران', icon:'🌀'},
+    {title:'الخطوة ٣: رشِّح المحلول لإزالة الفائض', icon:'🔽'},
+    {title:'الخطوة ٤: سخِّن لتبخير الماء', icon:'🔥'},
+    {title:'الخطوة ٥: برِّد للحصول على البلورات ✅', icon:'❄️'},
+  ];
+  const colors=['#C0392B','#E67E22','#1A8FA8','#E74C3C','#3498DB'];
+
+  function draw(){
+    if(currentSim!=='g9saltmake'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const st=S.step||0;
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F1F8E9'); bg.addColorStop(1,'#DCEDC8');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Step tracker
+    steps.forEach((s,i)=>{
+      const sx=w*0.08+i*w*0.18, sy=h*0.08;
+      c.fillStyle=i<st?'#27AE60':i===st?colors[st]:'rgba(0,0,0,0.12)';
+      c.beginPath(); c.arc(sx,sy,Math.min(w,h)*0.028,0,Math.PI*2); c.fill();
+      c.fillStyle='white'; c.font=`bold ${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(s.icon, sx, sy);
+    });
+
+    // Step title
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText(steps[st].title, w/2, h*0.18);
+
+    const bx=w*0.2, by=h*0.22, bw=w*0.6, bh=h*0.5;
+
+    if(st===0){
+      // Acid in beaker
+      c.fillStyle='rgba(231,76,60,0.2)'; c.fillRect(bx,by+bh*0.3,bw,bh*0.7);
+      c.strokeStyle='#90A4AE'; c.lineWidth=3; c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+      c.fillStyle='rgba(231,76,60,0.5)'; c.font=`${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('H₂SO₄(aq)', w/2, by+bh-8);
+      // Metal being added
+      const bounce=Math.abs(Math.sin(S.t*0.04))*bh*0.1;
+      c.fillStyle='#9B59B6'; c.beginPath(); c.roundRect(w*0.46,by-bounce,bw*0.08,bh*0.15,4); c.fill();
+      c.fillStyle='white'; c.font=`bold ${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('Mg', w*0.5, by-bounce+bh*0.075);
+      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('↓ فائض من المعدن', w*0.5, by+bh+24);
+    }
+
+    if(st===1){
+      // Stirring with bubbles
+      c.fillStyle='rgba(155,89,182,0.2)'; c.fillRect(bx,by+bh*0.3,bw,bh*0.7);
+      c.strokeStyle='#90A4AE'; c.lineWidth=3; c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+      for(let i=0;i<15;i++){
+        const bpx=bx+10+Math.random()*(bw-20), bpy=by+bh*0.35+Math.random()*bh*0.55;
+        c.strokeStyle='rgba(52,152,219,0.6)'; c.lineWidth=1.5; c.beginPath(); c.arc(bpx,bpy,3+Math.random()*4,0,Math.PI*2); c.stroke();
+      }
+      // Stirring rod animation
+      const ang=S.t*0.1;
+      const rx=w*0.5+Math.cos(ang)*bw*0.15, ry=by+bh*0.4+Math.sin(ang)*bh*0.08;
+      c.strokeStyle='#8E44AD'; c.lineWidth=5; c.lineCap='round';
+      c.beginPath(); c.moveTo(w*0.5,by); c.lineTo(rx,ry); c.stroke();
+      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('تقليب مستمر — H₂↑ تتصاعد حتى يتوقف الفوران', w/2, by+bh+24);
+    }
+
+    if(st===2){
+      // Filter funnel
+      c.strokeStyle='#90A4AE'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(w*0.3,by); c.lineTo(w*0.5,by+bh*0.35); c.lineTo(w*0.7,by); c.stroke();
+      c.beginPath(); c.arc(w*0.5,by,bw*0.37,0,Math.PI,true); c.stroke();
+      // Filter paper
+      c.fillStyle='rgba(255,255,255,0.6)'; c.beginPath(); c.moveTo(w*0.3,by); c.lineTo(w*0.5,by+bh*0.35); c.lineTo(w*0.7,by); c.closePath(); c.fill();
+      // Solid residue on filter
+      c.fillStyle='#9B59B6'; c.beginPath(); c.arc(w*0.5,by+bh*0.12,bw*0.06,0,Math.PI*2); c.fill();
+      c.fillStyle='white'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('Mg↑', w*0.5, by+bh*0.12);
+      // Filtrate dripping
+      const dropY=by+bh*0.35+Math.abs(Math.sin(S.t*0.04))*(bh*0.3);
+      c.fillStyle='rgba(26,143,168,0.6)'; c.beginPath(); c.arc(w*0.5,dropY,6,0,Math.PI*2); c.fill();
+      c.fillStyle='#1A8FA8'; c.font=`bold ${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('MgSO₄(aq) — محلول الملح', w*0.5, by+bh+24);
+    }
+
+    if(st===3){
+      // Evaporation
+      c.fillStyle='rgba(26,143,168,0.3)'; c.fillRect(bx,by+bh*0.7,bw,bh*0.3);
+      c.strokeStyle='#90A4AE'; c.lineWidth=3; c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+      // Steam
+      for(let i=0;i<8;i++){
+        const sx2=bx+bw*0.2+i*(bw*0.08), sy2=by+bh*0.6-Math.abs(Math.sin(S.t*0.05+i))*bh*0.3;
+        c.fillStyle=`rgba(255,255,255,${0.3+0.4*Math.random()})`;
+        c.beginPath(); c.arc(sx2,sy2,5+Math.random()*8,0,Math.PI*2); c.fill();
+      }
+      // Heat source
+      c.fillStyle='#E74C3C'; c.font=`${Math.max(20,w*0.04)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('🔥', w*0.5, by+bh+20);
+      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.016)}px Tajawal`;
+      c.fillText('التسخين لتبخير الماء — يزيد تركيز المحلول', w*0.5, by+bh+38);
+    }
+
+    if(st===4){
+      // Crystal formation
+      c.fillStyle='rgba(52,152,219,0.15)'; c.fillRect(bx,by+bh*0.75,bw,bh*0.25);
+      c.strokeStyle='#90A4AE'; c.lineWidth=3; c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+      // Crystals (hexagons)
+      const crystals=[[w*0.3,by+bh*0.82],[w*0.45,by+bh*0.79],[w*0.6,by+bh*0.83],[w*0.38,by+bh*0.87],[w*0.55,by+bh*0.86]];
+      crystals.forEach(([cx2,cy2])=>{
+        const cr=Math.min(w,h)*0.04*(0.9+0.1*Math.sin(S.t*0.04));
+        c.fillStyle='rgba(52,152,219,0.4)'; c.strokeStyle='#3498DB'; c.lineWidth=2;
+        c.beginPath();
+        for(let i=0;i<6;i++){ const a=i*Math.PI/3; c.lineTo(cx2+cr*Math.cos(a),cy2+cr*Math.sin(a)); }
+        c.closePath(); c.fill(); c.stroke();
+      });
+      c.fillStyle='#27AE60'; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('✅ بلورات MgSO₄ النقية!', w*0.5, by+bh+24);
+      c.fillStyle='#3498DB'; c.font=`${Math.max(9,w*0.016)}px Tajawal`;
+      c.fillText('❄️ التبريد يُرسّب البلورات من المحلول', w*0.5, by+bh+40);
+    }
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-3 TAB 2: التبخير والتبلور ───
+function simG9SaltMake2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, temp:25, heating:false, crystals:[], phase:'liquid'};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💎 التبخير والتبلور</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn stop" id="heat-btn" onclick="simState.heating=true;this.disabled=true;document.getElementById('cool-btn').disabled=false">🔥 سخِّن</button>
+        <button class="ctrl-btn action" id="cool-btn" disabled onclick="simState.heating=false;document.getElementById('heat-btn').disabled=false">❄️ برِّد</button>
+      </div>
+      <button class="ctrl-btn" style="margin-top:6px" onclick="simState.temp=25;simState.heating=false;simState.crystals=[];simState.phase='liquid';document.getElementById('heat-btn').disabled=false;document.getElementById('cool-btn').disabled=true">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      📈 عند التسخين: تتبخر المياه ويزيد التركيز<br>
+      ❄️ عند التبريد: تنبثق البلورات من المحلول
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الذوبانية تتناقص عند التبريد، لذا يترسّب الملح الزائد على هيئة بلورات. البلورات نقية لأن الشوائب لا تترسّب معها — هذه طريقة التنقية بالتبلور!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9saltmake'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    if(S.heating && S.temp<100) S.temp=Math.min(100, S.temp+0.3);
+    if(!S.heating && S.temp>20) S.temp=Math.max(20, S.temp-0.2);
+    if(S.temp>85 && S.crystals.length===0) S.phase='evap';
+    if(S.temp<50 && S.phase==='evap') S.phase='crystal';
+    if(S.phase==='crystal' && Math.random()<0.08 && S.crystals.length<20)
+      S.crystals.push({x:w*0.22+Math.random()*(w*0.56), y:h*0.65+Math.random()*h*0.18, size:3+Math.random()*10});
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E3F2FD'); bg.addColorStop(1,'#BBDEFB');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Temperature gauge
+    const gaugeX=w*0.85, gaugeY=h*0.1, gaugeH=h*0.6;
+    c.fillStyle='rgba(255,255,255,0.7)'; c.beginPath(); c.roundRect(gaugeX-18,gaugeY,36,gaugeH,18); c.fill();
+    c.strokeStyle='#90A4AE'; c.lineWidth=2; c.beginPath(); c.roundRect(gaugeX-18,gaugeY,36,gaugeH,18); c.stroke();
+    const fillH=gaugeH*(S.temp/100);
+    const tempCol=S.temp>70?'#C0392B':S.temp>40?'#E67E22':'#3498DB';
+    c.fillStyle=tempCol; c.beginPath(); c.roundRect(gaugeX-16,gaugeY+gaugeH-fillH+2,32,fillH-4,14); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText(Math.round(S.temp)+'°C', gaugeX, gaugeY+gaugeH+18);
+    c.fillText('🌡️', gaugeX, gaugeY-12);
+
+    // Beaker
+    const bx=w*0.12, by=h*0.18, bw=w*0.66, bh=h*0.56;
+    const waterLevel=bh*(1-Math.max(0,(S.temp-30)/80)*0.6);
+    c.fillStyle=S.temp>70?'rgba(231,76,60,0.2)':'rgba(26,143,168,0.25)';
+    c.fillRect(bx,by+bh-waterLevel,bw,waterLevel);
+    // Steam
+    if(S.temp>70){
+      for(let i=0;i<6;i++){
+        const sx=bx+bw*0.15+i*(bw*0.12), sy=by+bh*0.2-Math.abs(Math.sin(S.t*0.04+i))*h*0.15;
+        c.fillStyle=`rgba(255,255,255,${0.2+0.3*Math.random()})`;
+        c.beginPath(); c.arc(sx,sy,6+Math.random()*8,0,Math.PI*2); c.fill();
+      }
+    }
+    c.strokeStyle='#90A4AE'; c.lineWidth=4;
+    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+
+    // Crystals
+    S.crystals.forEach(cr=>{
+      const pulse=0.9+0.1*Math.sin(S.t*0.05);
+      c.fillStyle='rgba(52,152,219,0.4)'; c.strokeStyle='#2980B9'; c.lineWidth=1.5;
+      c.beginPath();
+      for(let i=0;i<6;i++){ const a=i*Math.PI/3; c.lineTo(cr.x+cr.size*pulse*Math.cos(a),cr.y+cr.size*pulse*Math.sin(a)); }
+      c.closePath(); c.fill(); c.stroke();
+    });
+
+    // Status text
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    const status=S.phase==='crystal'?'💎 تتكوّن البلورات!':S.temp>70?'🔥 يتبخر الماء...':S.temp>40?'♨️ يتركز المحلول':'💧 محلول الملح';
+    c.fillText(status, w*0.45, by+bh+28);
+    c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#7A8A98';
+    if(S.crystals.length>0) c.fillText('عدد البلورات: '+S.crystals.length, w*0.45, by+bh+44);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-3 TAB 3: تحضير CuSO₄ مخبرياً ───
+function simG9SaltMake3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, stage:0, progress:0};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧫 تحضير كبريتات النحاس CuSO₄</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn" onclick="simState.stage=Math.max(0,simState.stage-1);simState.progress=0">⬅️ رجوع</button>
+        <button class="ctrl-btn action" onclick="simState.stage=Math.min(3,simState.stage+1);simState.progress=0">التالي ➡️</button>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>التفاعل:</b><br>
+      CuO(s) + H₂SO₄(aq) →<br>
+      CuSO₄(aq) + H₂O(l)<br>
+      <b>اللون:</b> أزرق مميز 💙
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا CuSO₄ أزرق اللون؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">أيونات Cu²⁺ تمتص الضوء الأحمر والأصفر وتعكس الأزرق. عند التجفيف (CuSO₄ اللامائي) يصبح أبيض — يُستخدم لاختبار وجود الماء: يصبح أزرق عند تبلله!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  const stages=[
+    {title:'أضِف أكسيد النحاس(II) الأسود إلى H₂SO₄'},
+    {title:'سخِّن مع التقليب حتى يذوب الأكسيد'},
+    {title:'رشِّح المحلول الأزرق لإزالة الفائض'},
+    {title:'✅ بخِّر وبرِّد → بلورات CuSO₄ الزرقاء'},
+  ];
+
+  function draw(){
+    if(currentSim!=='g9saltmake'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    S.progress=Math.min(S.progress+0.5,100);
+    const st=S.stage||0;
+    const prog=S.progress/100;
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E0F7FA'); bg.addColorStop(1,'#B2EBF2');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Stage dots
+    [0,1,2,3].forEach(i=>{ c.fillStyle=i<=st?'#1A8FA8':'rgba(0,0,0,0.12)'; c.beginPath(); c.arc(w*0.15+i*w*0.22,h*0.07,Math.min(w,h)*0.025,0,Math.PI*2); c.fill(); });
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText(stages[st].title, w/2, h*0.17);
+
+    const bx=w*0.2, by=h*0.22, bw=w*0.6, bh=h*0.5;
+    const blueAlpha=st>=1?Math.min(prog*0.6,0.5):0;
+
+    // Liquid in beaker
+    c.fillStyle=`rgba(231,76,60,${Math.max(0,0.15-blueAlpha)})`; c.fillRect(bx,by+bh*0.2,bw,bh*0.8);
+    c.fillStyle=`rgba(26,143,168,${blueAlpha})`; c.fillRect(bx,by+bh*0.2,bw,bh*0.8);
+
+    // CuO particles (stage 0)
+    if(st===0){
+      for(let i=0;i<20;i++){
+        c.fillStyle='rgba(60,30,10,0.8)'; c.beginPath(); c.arc(bx+15+Math.random()*(bw-30),by+bh*0.25+Math.random()*bh*0.6,3+Math.random()*4,0,Math.PI*2); c.fill();
+      }
+    }
+
+    // Steam (stage 1)
+    if(st===1){
+      for(let i=0;i<5;i++){
+        const sx=bx+bw*0.2+i*(bw*0.15), sy=by+bh*0.1-Math.abs(Math.sin(S.t*0.04+i))*h*0.12;
+        c.fillStyle=`rgba(255,255,255,${0.25+Math.random()*0.3})`; c.beginPath(); c.arc(sx,sy,5+Math.random()*7,0,Math.PI*2); c.fill();
+      }
+      c.fillStyle='#E74C3C'; c.font=`${Math.max(16,w*0.04)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('🔥', w/2, by+bh+28);
+    }
+
+    // Beaker outline
+    c.strokeStyle='#90A4AE'; c.lineWidth=4;
+    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+
+    // CuSO4 Crystals (stage 3)
+    if(st===3){
+      const crystN=Math.floor(S.t/30)+5;
+      for(let i=0;i<Math.min(crystN,18);i++){
+        const cx2=bx+bw*0.1+((i*73)%(bw*0.8)), cy2=by+bh*0.4+((i*37)%(bh*0.45));
+        const cr=4+Math.sin(i)*4;
+        c.fillStyle='rgba(26,143,168,0.7)'; c.strokeStyle='#0097A7'; c.lineWidth=2;
+        c.beginPath();
+        for(let j=0;j<6;j++){ const a=j*Math.PI/3; c.lineTo(cx2+cr*Math.cos(a),cy2+cr*Math.sin(a)); }
+        c.closePath(); c.fill(); c.stroke();
+      }
+      c.fillStyle='#0097A7'; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('💙 بلورات CuSO₄ · 5H₂O الزرقاء!', w/2, by+bh+28);
+    }
+
+    // Salt label
+    if(st>=1 && st<3){
+      c.fillStyle='#1A8FA8'; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('CuSO₄(aq) — محلول أزرق اللون', w/2, by+bh+28);
+    }
+
+    // Equation
+    const eby=h*0.79, ebh=h*0.1;
+    c.fillStyle='rgba(255,255,255,0.8)'; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,10); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('CuO(s) + H₂SO₄(aq) → CuSO₄(aq) + H₂O(l)', w/2, eby+ebh/2);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-4 TAB 1: المعايرة (Titration) ───
+function simG9SaltTitra1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, vol:0, dropping:false, ph:1.5, done:false, drops:[]};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌡️ المعايرة — قطرة بقطرة</div>
+      <button class="ctrl-btn action" id="drop-btn" onclick="simState.dropping=true;this.textContent='⏸ وقف';this.onclick=function(){simState.dropping=false;this.textContent='▶ استمرار';this.onclick=function(){simState.dropping=true;this.textContent='⏸ وقف';}}">▶ أضِف القاعدة</button>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.vol=0;simState.ph=1.5;simState.done=false;simState.drops=[];simState.dropping=false;document.getElementById('drop-btn').textContent='▶ أضِف القاعدة'">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <b>الإعداد:</b> HCl في المخروطية<br>
+      <b>كاشف:</b> بضع قطرات فينولفتالين (عديم اللون في الحمض)<br>
+      <b>السحاحة:</b> NaOH (القاعدة)
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج عن نقطة النهاية؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">عند تغيّر لون الكاشف من عديم اللون إلى وردي فاتح دائم (قطرة واحدة زائدة)، وصلنا لنقطة النهاية. الملح الناتج: NaCl. نقيس الحجم ونحسب التركيز!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9salttitra'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    if(S.dropping && !S.done){
+      S.vol=Math.min(S.vol+0.15, 25);
+      S.ph=Math.min(1.5+S.vol*0.45, 13);
+      if(S.vol>=24.5) S.done=true;
+      if(Math.random()<0.4) S.drops.push({x:w*0.5, y:h*0.12, vy:3, t:0});
+    }
+    S.drops=S.drops.filter(d=>d.y<h*0.6);
+    S.drops.forEach(d=>{ d.y+=d.vy; d.t++; });
+
+    const nearEnd=S.ph>6.5 && S.ph<8;
+    const past=S.ph>=7;
+    const solutionCol=past?'rgba(255,20,147,0.25)':'rgba(231,76,60,0.15)';
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#FFF3E0'); bg.addColorStop(1,'#FFCCBC');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Burette (top)
+    const bux=w*0.44, buy=h*0.02, buw=w*0.12, buh=h*0.42;
+    c.fillStyle='rgba(26,143,168,0.3)'; c.fillRect(bux,buy,buw,buh*(1-S.vol/25));
+    c.strokeStyle='#90A4AE'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(bux,buy); c.lineTo(bux,buy+buh); c.moveTo(bux+buw,buy); c.lineTo(bux+buw,buy+buh); c.stroke();
+    // Volume markings
+    for(let v=0;v<=25;v+=5){
+      const my=buy+buh*(v/25);
+      c.strokeStyle='rgba(0,0,0,0.3)'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(bux-5,my); c.lineTo(bux,my); c.stroke();
+      c.fillStyle='#555'; c.font=`${Math.max(8,w*0.013)}px Tajawal`; c.textAlign='right'; c.textBaseline='middle';
+      c.fillText(v, bux-6, my);
+    }
+    c.fillStyle='#1A8FA8'; c.font=`bold ${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('NaOH', bux+buw/2, buy+buh+12);
+    c.fillStyle='#E74C3C'; c.font=`bold ${Math.max(9,w*0.016)}px Tajawal`;
+    c.fillText(S.vol.toFixed(1)+' mL', bux+buw/2, buy+buh+26);
+
+    // Drops falling
+    S.drops.forEach(d=>{
+      c.fillStyle='rgba(26,143,168,0.8)'; c.beginPath(); c.ellipse(d.x,d.y,4,6,0,0,Math.PI*2); c.fill();
+    });
+
+    // Conical flask
+    const fx=w*0.28, fy=h*0.52, fw=w*0.44, fh=h*0.35;
+    c.fillStyle=solutionCol;
+    c.beginPath(); c.moveTo(fx+fw*0.3,fy); c.lineTo(fx,fy+fh); c.lineTo(fx+fw,fy+fh); c.lineTo(fx+fw*0.7,fy); c.closePath(); c.fill();
+    c.strokeStyle='#90A4AE'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(fx+fw*0.3,fy); c.lineTo(fx,fy+fh); c.lineTo(fx+fw,fy+fh); c.lineTo(fx+fw*0.7,fy); c.stroke();
+    c.beginPath(); c.roundRect(fx+fw*0.3,fy-h*0.06,fw*0.4,h*0.07,4); c.stroke();
+
+    // pH indicator
+    const phCol=S.ph<7?'rgba(231,76,60,0.8)':'rgba(255,20,147,0.8)';
+    c.fillStyle=phCol; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('pH = '+S.ph.toFixed(1), fx+fw/2, fy+fh*0.55);
+
+    // Endpoint
+    if(S.done){
+      c.shadowBlur=20; c.shadowColor='#FF69B4';
+      c.fillStyle='rgba(255,20,147,0.15)'; c.beginPath(); c.moveTo(fx+fw*0.3,fy); c.lineTo(fx,fy+fh); c.lineTo(fx+fw,fy+fh); c.lineTo(fx+fw*0.7,fy); c.closePath(); c.fill();
+      c.shadowBlur=0;
+      c.fillStyle='#C2185B'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText('✅ نقطة النهاية! اللون وردي!', w/2, fy+fh+28);
+      c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.fillStyle='#888';
+      c.fillText('الملح الناتج: NaCl — كلوريد الصوديوم', w/2, fy+fh+44);
+    }
+
+    // Equation
+    const eby=h*0.90, ebh=h*0.08;
+    c.fillStyle='rgba(255,255,255,0.8)'; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,10); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l)', w/2, eby+ebh/2);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-4 TAB 2: الترسيب (Precipitation) ───
+function simG9SaltTitra2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, selPpt:0, dropped:false, particles:[]};
+  const S=simState;
+
+  const ppts=[
+    {a:'CuSO₄',b:'NaOH',ppt:'Cu(OH)₂',aq:'Na₂SO₄',col:'#1A8FA8',name:'هيدروكسيد النحاس(II)'},
+    {a:'BaCl₂',b:'MgSO₄',ppt:'BaSO₄',aq:'MgCl₂',col:'#FAFAFA',name:'كبريتات الباريوم'},
+    {a:'AgNO₃',b:'NaCl',ppt:'AgCl',aq:'NaNO₃',col:'#FFFFEE',name:'كلوريد الفضة'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧊 الترسيب — تكوين راسب</div>
+      <div class="ctrl-btns-grid-1">
+        ${ppts.map((p,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="ppt-btn-${i}" onclick="simState.selPpt=${i};simState.dropped=false;simState.particles=[];document.querySelectorAll('[id^=ppt-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${p.a}+${p.b}</button>`).join('')}
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <button class="ctrl-btn action" onclick="simState.dropped=true">➕ امزِج المحلولَين</button>
+      <button class="ctrl-btn stop" style="margin-top:6px" onclick="simState.dropped=false;simState.particles=[]">🔄 إعادة</button>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ماذا تستنتج عن الأملاح غير الذائبة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">بعض الأملاح غير قابلة للذوبان — تترسب فوراً عند المزج. الراسب ملح غير ذائب نجمعه بالترشيح. يُستخدم هذا لتحضير أملاح لا يمكن تحضيرها بالطرق الأخرى!</div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9salttitra'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const p=ppts[S.selPpt||0];
+    if(S.dropped && Math.random()<0.15 && S.particles.length<50)
+      S.particles.push({x:w*0.3+Math.random()*w*0.4, y:h*0.4+Math.random()*h*0.1, vy:1.5+Math.random()*2, settled:false});
+    S.particles.forEach(pp=>{ if(!pp.settled){ pp.y+=pp.vy; if(pp.y>h*0.7) pp.settled=true; } });
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F3E5F5'); bg.addColorStop(1,'#E1BEE7');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('الترسيب — تكوين ملح غير ذائب', w/2, h*0.07);
+
+    if(!S.dropped){
+      // Two separate beakers
+      const beakers=[{x:w*0.08,label:p.a,col:'rgba(52,152,219,0.2)'},{x:w*0.56,label:p.b,col:'rgba(39,174,96,0.2)'}];
+      beakers.forEach(bk=>{
+        const bkx=bk.x, bky=h*0.2, bkw=w*0.32, bkh=h*0.5;
+        c.fillStyle=bk.col; c.fillRect(bkx,bky,bkw,bkh);
+        c.strokeStyle='#90A4AE'; c.lineWidth=3;
+        c.beginPath(); c.moveTo(bkx,bky); c.lineTo(bkx,bky+bkh); c.lineTo(bkx+bkw,bky+bkh); c.lineTo(bkx+bkw,bky); c.stroke();
+        c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(12,w*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+        c.fillText(bk.label, bkx+bkw/2, bky+bkh+20);
+      });
+      c.fillStyle='#6B4E9A'; c.font=`bold ${Math.max(16,w*0.032)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('+', w/2, h*0.45);
+    } else {
+      // Mixed beaker
+      const bx=w*0.15, by=h*0.15, bw=w*0.7, bh=h*0.6;
+      c.fillStyle='rgba(200,200,200,0.2)'; c.fillRect(bx,by,bw,bh);
+      c.strokeStyle='#90A4AE'; c.lineWidth=4;
+      c.beginPath(); c.moveTo(bx,by); c.lineTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.lineTo(bx+bw,by); c.stroke();
+
+      // Settled precipitate layer
+      const settled=S.particles.filter(p=>p.settled);
+      if(settled.length>0){
+        const layerH=Math.min(settled.length*2,60);
+        c.fillStyle=p.col+'CC'; c.fillRect(bx+2,by+bh-layerH,bw-4,layerH);
+        c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(p.ppt+'↓ — '+p.name+' (راسب)', bx+bw/2, by+bh-layerH/2);
+      }
+
+      // Falling particles
+      S.particles.filter(pp=>!pp.settled).forEach(pp=>{
+        c.fillStyle=p.col+'AA'; c.beginPath(); c.arc(pp.x,pp.y,4,0,Math.PI*2); c.fill();
+      });
+
+      // Aqueous label
+      c.fillStyle='#27AE60'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText(p.aq+'(aq) يبقى في المحلول', bx+bw/2, by+20);
+    }
+
+    // Equation
+    const eby=h*0.82, ebh=h*0.10;
+    c.fillStyle='rgba(255,255,255,0.85)'; c.beginPath(); c.roundRect(w*0.04,eby,w*0.92,ebh,10); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(p.a+'(aq) + '+p.b+'(aq) → '+p.ppt+'(s)↓ + '+p.aq+'(aq)', w/2, eby+ebh/2);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─── 8-4 TAB 3: اختيار طريقة التحضير المناسبة ───
+function simG9SaltTitra3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, selSalt:0, answered:false, chosen:-1};
+  const S=simState;
+
+  const salts=[
+    {name:'NaCl',full:'كلوريد الصوديوم',soluble:true, method:'معايرة (HCl + NaOH)',why:'كلاهما ذائب → نحتاج كاشفاً للتعادل'},
+    {name:'MgSO₄',full:'كبريتات الماغنيسيوم',soluble:true, method:'Mg + H₂SO₄ (فائض+ترشيح)',why:'Mg فلز نشيط → حمض + فلز بالفائض'},
+    {name:'Cu(OH)₂',full:'هيدروكسيد النحاس',soluble:false, method:'ترسيب (CuSO₄ + NaOH)',why:'غير ذائب → نُرسّبه من محلولين'},
+    {name:'BaSO₄',full:'كبريتات الباريوم',soluble:false, method:'ترسيب (BaCl₂ + MgSO₄)',why:'غير ذائب جداً → ترسيب مباشر'},
+  ];
+  const methods=['معايرة','فلز + حمض (فائض)','أكسيد + حمض','ترسيب'];
+  const methodColors=['#1A8FA8','#9B59B6','#E67E22','#27AE60'];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🎯 اختر طريقة تحضير الملح المناسبة</div>
+      <div class="ctrl-btns-grid-1">
+        ${salts.map((s,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="salt-btn-${i}" onclick="simState.selSalt=${i};simState.answered=false;simState.chosen=-1;document.querySelectorAll('[id^=salt-btn-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${s.name} (${s.soluble?'ذائب':'غير ذائب'})</button>`).join('')}
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ القاعدة العامة لاختيار الطريقة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">
+        ✅ ذائب + كلاهما أيون → معايرة<br>
+        ✅ ذائب + فلز نشيط → فائض + ترشيح<br>
+        ✅ ذائب + أكسيد/كربونات → فائض + ترشيح + تبخير<br>
+        ✅ غير ذائب → ترسيب مباشر
+      </div>
+    </div>`);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9salttitra'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const salt=salts[S.selSalt||0];
+    const correct=methods.indexOf(salt.method.split(' ')[0]);
+
+    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E8F5E9'); bg.addColorStop(1,'#C8E6C9');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('كيف نُحضِّر '+salt.name+' ('+salt.full+')?', w/2, h*0.08);
+
+    // Solubility badge
+    const sCol=salt.soluble?'#27AE60':'#C0392B';
+    c.fillStyle=sCol+'22'; c.beginPath(); c.roundRect(w*0.36,h*0.12,w*0.28,h*0.07,20); c.fill();
+    c.fillStyle=sCol; c.font=`bold ${Math.max(11,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(salt.soluble?'💧 ذائب في الماء':'🚫 غير ذائب', w*0.5, h*0.155);
+
+    // Method buttons
+    const optW=Math.min(w*0.43,190), optH=Math.min(h*0.10,44), gx=Math.min(w*0.04,16), gy=Math.min(h*0.03,12);
+    methods.forEach((meth,i)=>{
+      const col=i%2, row=Math.floor(i/2);
+      const ox=w*0.05+col*(optW+gx)+(w-2*optW-gx)*0.05;
+      const oy=h*0.26+row*(optH+gy);
+      const isChosen=S.chosen===i;
+      const corrIdx=['معايرة','فلز','أكسيد','ترسيب'].findIndex(k=>salt.method.includes(k));
+      const isCorrect=S.answered && i===corrIdx;
+      const isWrong=S.answered && isChosen && i!==corrIdx;
+
+      c.fillStyle=isCorrect?'rgba(39,174,96,0.2)':isWrong?'rgba(192,57,43,0.15)':isChosen?methodColors[i]+'22':'rgba(255,255,255,0.75)';
+      c.beginPath(); c.roundRect(ox,oy,optW,optH,10); c.fill();
+      c.strokeStyle=isCorrect?'#27AE60':isWrong?'#C0392B':isChosen?methodColors[i]:'#ccc';
+      c.lineWidth=2; c.beginPath(); c.roundRect(ox,oy,optW,optH,10); c.stroke();
+      c.fillStyle=isChosen?methodColors[i]:'#1E2D3D';
+      c.font=`${Math.max(10,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(meth, ox+optW/2, oy+optH/2);
+    });
+
+    // Feedback
+    if(S.answered){
+      const fbx=w*0.05, fby=h*0.59, fbw=w*0.9, fbh=h*0.14;
+      c.fillStyle='rgba(39,174,96,0.12)'; c.beginPath(); c.roundRect(fbx,fby,fbw,fbh,12); c.fill();
+      c.fillStyle='#27AE60'; c.font=`bold ${Math.max(11,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+      c.fillText('✅ الطريقة الصحيحة: '+salt.method, w/2, fby+8);
+      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.016)}px Tajawal`;
+      c.fillText('السبب: '+salt.why, w/2, fby+fbh*0.55);
+    }
+
+    // Hint
+    c.fillStyle='#6B4E9A'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('💡 اضغط على الطريقة التي تختارها', w/2, h*0.56);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+
+  document.getElementById('simCanvas').onclick=function(e){
+    if(S.answered) return;
+    const rect=this.getBoundingClientRect(), mx=(e.clientX-rect.left)*(this.width/rect.width), my=(e.clientY-rect.top)*(this.height/rect.height);
+    const w=this.width, h=this.height;
+    const optW=Math.min(w*0.43,190), optH=Math.min(h*0.10,44), gx=Math.min(w*0.04,16), gy=Math.min(h*0.03,12);
+    methods.forEach((m,i)=>{
+      const col=i%2, row=Math.floor(i/2);
+      const ox=w*0.05+col*(optW+gx)+(w-2*optW-gx)*0.05, oy=h*0.26+row*(optH+gy);
+      if(mx>=ox&&mx<=ox+optW&&my>=oy&&my<=oy+optH){ S.chosen=i; S.answered=true; }
+    });
+  };
+  draw();
+}
 </script>
