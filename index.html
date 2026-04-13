@@ -1949,7 +1949,7 @@ html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA;
 
     <div id="auth-status"></div>
 
-    <button class="auth-btn" id="auth-submit-btn">
+    <button class="auth-btn" id="auth-submit-btn" onclick="window.handleLogin && window.handleLogin()">
       تسجيل دخول / إنشاء حساب
     </button>
 
@@ -23072,7 +23072,7 @@ function _unlockPlatform() {
   _subCheckInterval = setInterval(_periodicSubCheck, 30 * 1000);
 }
 
-async function handleLogin() {
+window.handleLogin = async function handleLogin() {
   var email = (document.getElementById('auth-email').value || '').trim().toLowerCase();
   var pass  = (document.getElementById('auth-pass').value || '');
   var btn   = document.getElementById('auth-submit-btn');
@@ -23142,18 +23142,7 @@ async function handleLogin() {
     btn.textContent = 'تسجيل دخول / إنشاء حساب';
   }
 }
-window.handleLogin = handleLogin;
-
-// ربط الزر بعد تحميل الصفحة بالكامل
-document.addEventListener('DOMContentLoaded', function() {
-  var btn = document.getElementById('auth-submit-btn');
-  if (btn) btn.addEventListener('click', handleLogin);
-});
-// في حال الصفحة كانت محمّلة مسبقاً
-if (document.readyState !== 'loading') {
-  var _btn = document.getElementById('auth-submit-btn');
-  if (_btn) _btn.addEventListener('click', handleLogin);
-}
+// handleLogin registered above
 
 async function _checkSubscription() {
   try {
