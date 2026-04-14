@@ -35962,46 +35962,78 @@ function simG9ChemLab3(){
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const salt=salts[S.qi||0];
+    // Background
     const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#1A2A3A'); bg.addColorStop(1,'#0A1520');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'🏆 مختبر التحليل الكيميائي الكامل',w/2,h*0.07,'#FFD700',Math.max(13,w*0.024));
-    // Central mystery
-    const cx=w/2, cy=h*0.32;
-    c.fillStyle='rgba(255,215,0,0.1)'; c.beginPath(); c.arc(cx,cy,h*0.13,0,Math.PI*2); c.fill();
-    c.strokeStyle='#FFD700AA'; c.lineWidth=2; c.beginPath(); c.arc(cx,cy,h*0.13,0,Math.PI*2); c.stroke();
-    c.fillStyle='#FFD700'; c.font=`bold ${Math.max(16,w*0.035)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(S.done?salt.salt:'مجهول',cx,cy);
-    // Four radiating tests — evenly spaced at 90° intervals
+
+    const fs_title=Math.max(12,Math.min(w*0.024, 18));
+    const pad=fs_title*1.6;
+
+    // Title at top with safe padding
+    c.fillStyle='#FFD700'; c.font=`bold ${fs_title}px Tajawal`;
+    c.textAlign='center'; c.textBaseline='top';
+    c.fillText('🏆 مختبر التحليل الكيميائي الكامل', w/2, pad*0.4);
+
+    // Layout: central circle in middle of canvas
+    const cx=w/2, cy=h*0.48;
+    const cr=Math.min(w,h)*0.11; // central radius
+    const nr=Math.min(w,h)*0.08; // node radius
+    const r=Math.min(w,h)*0.28;  // distance from center to nodes
+
+    // Four nodes at 0°, 90°, 180°, 270°
     const tests2=[
-      {label:'اللهب 🔥', val:salt.flameDesc, col:salt.fc, ang:-0.50},
-      {label:'NaOH 🧪',  val:salt.naohDesc, col:salt.nc, ang: 0.00},
-      {label:'AgNO₃ 🥈', val:salt.agDesc,   col:'#FDD835', ang: 0.50},
-      {label:'BaCl₂ ⚪',  val:salt.baDesc,   col:'#90A4AE', ang: 1.00},
+      {label:'اللهب 🔥', val:salt.flameDesc, col:salt.fc,   ang: -Math.PI/2}, // top
+      {label:'NaOH 🧪',  val:salt.naohDesc,  col:salt.nc,   ang:  0},          // right
+      {label:'AgNO₃ 🥈', val:salt.agDesc,    col:'#FDD835', ang:  Math.PI/2},  // bottom
+      {label:'BaCl₂ ⚪',  val:salt.baDesc,    col:'#90A4AE', ang:  Math.PI},    // left
     ];
+
+    // Clamp node positions inside canvas
     tests2.forEach(t=>{
-      const r=Math.min(w,h)*0.30, tx=cx+r*Math.cos(t.ang*Math.PI), ty=cy+r*Math.sin(t.ang*Math.PI);
-      c.strokeStyle=t.col+'55'; c.lineWidth=1;
-      c.beginPath(); c.moveTo(cx,cy); c.lineTo(tx,ty); c.stroke();
-      const nr=Math.min(w,h)*0.075;
-      c.fillStyle=t.col+'20'; c.beginPath(); c.arc(tx,ty,nr,0,Math.PI*2); c.fill();
-      c.strokeStyle=t.col+'66'; c.lineWidth=1.5; c.beginPath(); c.arc(tx,ty,nr,0,Math.PI*2); c.stroke();
-      const fs1=Math.max(8,Math.min(w,h)*0.016), fs2=Math.max(7,Math.min(w,h)*0.013);
-      c.fillStyle=t.col; c.font=`bold ${fs1}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(t.label,tx,ty-fs1*0.9);
-      c.fillStyle='#CCC'; c.font=`${fs2}px Tajawal`;
-      // wrap long values
-      const words=t.val.split(' '), lineH=fs2*1.4;
-      let line='', lines=[];
-      words.forEach(w2=>{ const test=line?line+' '+w2:w2; if(c.measureText(test).width>nr*1.8&&line){lines.push(line);line=w2;}else line=test; });
-      lines.push(line);
-      lines.forEach((ln,li)=>c.fillText(ln,tx,ty+fs2*0.8+li*lineH));
+      t.tx = Math.max(nr+4, Math.min(w-nr-4, cx + r*Math.cos(t.ang)));
+      t.ty = Math.max(nr+pad*2, Math.min(h-nr-4, cy + r*Math.sin(t.ang)));
     });
+
+    // Draw connecting lines
+    tests2.forEach(t=>{
+      c.strokeStyle=t.col+'44'; c.lineWidth=1.5;
+      c.beginPath(); c.moveTo(cx,cy); c.lineTo(t.tx,t.ty); c.stroke();
+    });
+
+    // Central mystery circle
+    c.fillStyle='rgba(255,215,0,0.12)'; c.beginPath(); c.arc(cx,cy,cr,0,Math.PI*2); c.fill();
+    c.strokeStyle='#FFD700BB'; c.lineWidth=2.5; c.beginPath(); c.arc(cx,cy,cr,0,Math.PI*2); c.stroke();
+    const fs_center=Math.max(14,Math.min(w*0.032,22));
+    c.fillStyle='#FFD700'; c.font=`bold ${fs_center}px Tajawal`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(S.done?salt.salt:'مجهول', cx, cy);
+
+    // Draw nodes
+    const fs1=Math.max(9,Math.min(w*0.015,13));
+    const fs2=Math.max(8,Math.min(w*0.013,11));
+    tests2.forEach(t=>{
+      c.fillStyle=t.col+'22'; c.beginPath(); c.arc(t.tx,t.ty,nr,0,Math.PI*2); c.fill();
+      c.strokeStyle=t.col+'88'; c.lineWidth=1.5; c.beginPath(); c.arc(t.tx,t.ty,nr,0,Math.PI*2); c.stroke();
+      // label
+      c.fillStyle=t.col; c.font=`bold ${fs1}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(t.label, t.tx, t.ty - fs1*0.8);
+      // value — wrap inside node
+      c.fillStyle='#DDD'; c.font=`${fs2}px Tajawal`;
+      const words=t.val.split(' '), lineH=fs2*1.35, maxW=nr*1.7;
+      let line='', lines=[];
+      words.forEach(w2=>{ const tst=line?line+' '+w2:w2; if(c.measureText(tst).width>maxW&&line){lines.push(line);line=w2;}else line=tst; });
+      lines.push(line);
+      const startY=t.ty+fs2*0.5;
+      lines.forEach((ln,li)=>c.fillText(ln,t.tx,startY+li*lineH));
+    });
+
+    // Guess display at bottom
     if(S.guessC||S.guessA){
-      const gy=h*0.77;
-      c.fillStyle='rgba(255,215,0,0.07)'; c.beginPath(); c.roundRect(w*0.06,gy,w*0.88,h*0.13,10); c.fill();
-      c.fillStyle='#FFD700'; c.font=`bold ${Math.max(11,w*0.02)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      const guessText=(S.guessC||'؟') + ' + ' + (S.guessA||'؟');
-      c.fillText('تخمينك: ' + guessText, w/2, gy + h*0.065);
+      const gy=h*0.88;
+      c.fillStyle='rgba(255,215,0,0.08)'; c.beginPath(); c.roundRect(w*0.1,gy-h*0.045,w*0.8,h*0.085,10); c.fill();
+      c.fillStyle='#FFD700'; c.font=`bold ${Math.max(11,fs1)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('تخمينك: '+(S.guessC||'؟')+' + '+(S.guessA||'؟'), w/2, gy);
     }
     animFrame=requestAnimationFrame(draw);
   }
