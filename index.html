@@ -1684,7 +1684,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 #bayyin-footer {
   display: none;
   width: 100%;
-  background: #1C2A38;
+  background: var(--bg-landing, #F7F3EE);
   border-top: 3px solid #D4901A;
   padding: 0;
   box-sizing: border-box;
@@ -1727,11 +1727,11 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 }
 .footer-brand-text h3 {
   margin: 0; font-size: 17px; font-weight: 800;
-  color: #F0E6CC; line-height: 1.2;
+  color: var(--text-heading, #1E2D3D); line-height: 1.2;
 }
 .footer-brand-text p {
   margin: 3px 0 0; font-size: 12px;
-  color: rgba(212,144,26,0.85);
+  color: var(--text-secondary, #7A8A98);
 }
 .footer-contacts {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
@@ -1739,38 +1739,38 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 }
 .footer-contact-item {
   display: flex; align-items: center; gap: 6px;
-  background: rgba(255,255,255,0.07);
-  border: 1.5px solid rgba(212,144,26,0.25);
+  background: rgba(255,255,255,0.75);
+  border: 1.5px solid rgba(212,144,26,0.3);
   border-radius: 20px; padding: 7px 14px;
   font-size: 12.5px; font-weight: 600;
-  color: #D8C9A8;
+  color: var(--text-primary, #2C3A4A);
   text-decoration: none;
   transition: border-color 0.2s, box-shadow 0.18s, transform 0.15s, color 0.18s, background 0.18s;
   cursor: pointer; white-space: nowrap;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 .footer-contact-item:hover {
   border-color: #D4901A;
-  background: rgba(212,144,26,0.14);
-  box-shadow: 0 3px 10px rgba(212,144,26,0.22);
-  transform: translateY(-2px); color: #F0C060;
+  background: rgba(212,144,26,0.1);
+  box-shadow: 0 3px 10px rgba(212,144,26,0.2);
+  transform: translateY(-2px); color: #B87614;
 }
 .footer-contact-item .fc-icon {
   width: 20px; height: 20px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; flex-shrink: 0;
 }
-.fc-phone .fc-icon  { background: rgba(39,174,96,0.18);  color: #4ADA88; }
-.fc-email .fc-icon  { background: rgba(212,144,26,0.18); color: #D4901A; }
-.fc-insta .fc-icon  { background: rgba(195,42,163,0.18); color: #E060C0; }
+.fc-phone .fc-icon  { background: rgba(39,174,96,0.14);  color: #27AE60; }
+.fc-email .fc-icon  { background: rgba(212,144,26,0.14); color: #D4901A; }
+.fc-insta .fc-icon  { background: rgba(195,42,163,0.14); color: #C32AA3; }
 .footer-bottom {
   width: 100%;
   text-align: center;
   padding: 10px 24px;
   border-top: 1px solid rgba(212,144,26,0.18);
   font-size: 11.5px;
-  color: rgba(200,185,155,0.7);
-  background: rgba(0,0,0,0.18);
+  color: var(--text-secondary, #9AA8B4);
+  background: rgba(0,0,0,0.025);
   letter-spacing: 0.01em;
 }
 html.dark-mode #bayyin-footer {
@@ -4341,7 +4341,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         <div class="footer-logo-circle">ب</div>
         <div class="footer-brand-text">
           <h3>بيّن</h3>
-          <p>منصة المحاكاة العلمية</p>
+          <p>منصة العلوم التفاعلية</p>
         </div>
       </div>
 
@@ -4355,9 +4355,9 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           <span>9097&nbsp;2965</span>
         </a>
 
-        <a class="footer-contact-item fc-email" href="/cdn-cgi/l/email-protection#d8b1b6beb798bab9a1a1b1b6f6b7b5" title="راسلنا بالبريد الإلكتروني">
+        <a class="footer-contact-item fc-email" href="mailto:bayyin.demo@gmail.com" title="راسلنا بالبريد الإلكتروني">
           <span class="fc-icon">✉️</span>
-          <span><span class="__cf_email__" data-cfemail="fe97909891be9c9f87879790d09193">[email&#160;protected]</span></span>
+          <span>bayyin.demo@gmail.com</span>
         </a>
 
         <a class="footer-contact-item fc-insta"
