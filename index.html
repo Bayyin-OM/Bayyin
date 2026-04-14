@@ -27508,6 +27508,37 @@ Object.assign(SIM_QUESTIONS, {
     opts: ['عند غليان المحلول','عند تساوي الكميتين','عند تغير لون الكاشف','عند نفاد الحمض'],
     ans: 2,
     fb: '✅ نقطة النهاية هي تغيّر لون الكاشف دلالةً على اكتمال التعادل. عندها نوقف الإضافة ونقيس الحجم!'
+  },
+  // ── الوحدة التاسعة: التحليل الكيميائي ──
+  g9watergas: {
+    q: 'ما الكاشف الكيميائي المستخدَم للتحقق من وجود الماء؟',
+    opts: ['ورقة تبّاع الشمس الحمراء','كبريتات النحاس (II) اللامائية','ماء الجير','حمض الهيدروكلوريك'],
+    ans: 1,
+    fb: '✅ كبريتات النحاس (II) اللامائية تتحوّل من الأبيض إلى الأزرق عند إضافة الماء: CuSO₄(أبيض) + 5H₂O → CuSO₄·5H₂O(أزرق). كلوريد الكوبالت اللامائي يتحوّل من الأزرق إلى الوردي أيضاً!'
+  },
+  g9flametest: {
+    q: 'ما لون لهب البنسن الناتج عن وجود أيونات الصوديوم Na⁺؟',
+    opts: ['أحمر قرمزي','أصفر مستمر','أرجواني','أخضر-أزرق'],
+    ans: 1,
+    fb: '✅ Na⁺ يُعطي لوناً أصفر برتقالياً مستمراً وقوياً جداً. Li⁺ أحمر قرمزي، K⁺ أرجواني، Cu²⁺ أخضر-أزرق. الأصفر القوي للصوديوم قد يُخفي ألوان الأيونات الأخرى!'
+  },
+  g9cationppt: {
+    q: 'ما الراسب الناتج عند إضافة NaOH إلى محلول يحتوي على Fe³⁺؟',
+    opts: ['راسب أزرق فاتح','راسب أخضر فاتح','راسب بني-محمر','لا يوجد راسب'],
+    ans: 2,
+    fb: '✅ Fe³⁺ + 3OH⁻ → Fe(OH)₃↓ (بني-محمر). أما Fe²⁺ فيُعطي راسباً أخضر فاتحاً، وCu²⁺ راسباً أزرق فاتحاً. لون الراسب هو المفتاح لتمييز الكاتيونات!'
+  },
+  g9aniontest: {
+    q: 'ما الاختبار الكيميائي المستخدَم للكشف عن أيونات الكبريتات SO₄²⁻؟',
+    opts: ['إضافة نترات الفضة AgNO₃','إضافة كلوريد الباريوم BaCl₂ + HCl','إضافة حمض HCl فقط','اختبار اللهب'],
+    ans: 1,
+    fb: '✅ كلوريد الباريوم يُعطي راسباً أبيض مع SO₄²⁻: Ba²⁺ + SO₄²⁻ → BaSO₄↓ (أبيض). يُضاف HCl أولاً لإزالة CO₃²⁻. الراسب الأبيض لا يذوب في HCl وهذا هو دليل التأكيد!'
+  },
+  g9chemlab: {
+    q: 'في التحليل النوعي، ما الخطوة الأولى لتحديد هوية مركّب مجهول؟',
+    opts: ['اختبار الترسيب مباشرةً','تحديد نوع الكاتيون ثم الأنيون','إضافة الأحماض فوراً','قياس درجة الغليان'],
+    ans: 1,
+    fb: '✅ التحليل النوعي يبدأ بتحديد الكاتيون (باستخدام اختبار اللهب والترسيب) ثم الأنيون (بنترات الفضة وكلوريد الباريوم والأحماض). هذا الترتيب المنهجي يضمن نتائج دقيقة!'
   }
 });
 
@@ -35114,15 +35145,16 @@ function simG9FlameTest1(){
 }
 
 // ══ 9-2 Tab 2: حدِّد الكاتيون المجهول ══
+window._f2Ions=[
+  {ion:'Li⁺', col:'#E53935', desc:'أحمر قرمزي'},
+  {ion:'Na⁺', col:'#FDD835', desc:'أصفر'},
+  {ion:'K⁺',  col:'#7B1FA2', desc:'أرجواني'},
+  {ion:'Cu²⁺',col:'#00897B', desc:'أخضر-أزرق'},
+  {ion:'Ca²⁺',col:'#E64A19', desc:'أحمر آجوري'},
+];
 function simG9FlameTest2(){
   cancelAnimationFrame(animFrame);
-  const ions=[
-    {ion:'Li⁺', col:'#E53935', desc:'أحمر قرمزي'},
-    {ion:'Na⁺', col:'#FDD835', desc:'أصفر'},
-    {ion:'K⁺',  col:'#7B1FA2', desc:'أرجواني'},
-    {ion:'Cu²⁺',col:'#00897B', desc:'أخضر-أزرق'},
-    {ion:'Ca²⁺',col:'#E64A19', desc:'أحمر آجوري'},
-  ];
+  const ions=window._f2Ions;
   let qi=Math.floor(Math.random()*ions.length);
   simState={t:0, qi, answered:false};
   const S=simState;
@@ -35135,7 +35167,7 @@ function simG9FlameTest2(){
     <div class="ctrl-section">
       <div class="ctrl-label">🔍 ما أيون الفلز الذي يُنتج هذا اللهب؟</div>
       <div class="ctrl-btns-grid-1">
-        ${ions.map((ion,i)=>`<button class="ctrl-btn" onclick="simState.answered=true;document.getElementById('f2-fb').innerHTML=${i}===simState.qi?'<span style=color:#27AE60>✅ صحيح! '+ion.ion+' يعطي لهباً ${ion.desc.replace(/'/g,"\\'")}!</span>':'<span style=color:#C0392B>❌ الصحيح هو '+ions[simState.qi].ion+' ('+ions[simState.qi].desc+')</span>'">${ion.ion} — ${ion.desc}</button>`).join('')}
+        ${ions.map((ion,i)=>`<button class="ctrl-btn" onclick="(function(){var ions2=window._f2Ions;simState.answered=true;var correct=${i}===simState.qi;document.getElementById('f2-fb').innerHTML=correct?'<span style=color:#27AE60>✅ صحيح! ${ion.ion} يعطي لهباً ${ion.desc}!</span>':'<span style=color:#C0392B>❌ الصحيح هو '+ions2[simState.qi].ion+' ('+ions2[simState.qi].desc+')</span>';})()">${ion.ion} — ${ion.desc}</button>`).join('')}
       </div>
     </div>
     <div id="f2-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
@@ -35421,16 +35453,19 @@ function simG9CationPpt2(){
 }
 
 // ══ 9-3 Tab 3: حدِّد الكاتيون ══
+// lookup tables accessible to inline onclick handlers
+window._cp3Cations = ['Fe²⁺','Fe³⁺','Cu²⁺','Ca²⁺','Zn²⁺'];
+window._cp3Results = {
+  'Fe²⁺':{naoh:'أخضر فاتح، يبقى',  nh3:'أخضر فاتح، يبقى'},
+  'Fe³⁺':{naoh:'بني محمر، يبقى',    nh3:'بني محمر، يبقى'},
+  'Cu²⁺':{naoh:'أزرق فاتح، يبقى',   nh3:'أزرق ثم يذوب → أزرق داكن'},
+  'Ca²⁺':{naoh:'أبيض، يبقى',        nh3:'لا راسب تقريباً'},
+  'Zn²⁺':{naoh:'أبيض، يذوب',        nh3:'أبيض ثم يذوب → شفاف'},
+};
 function simG9CationPpt3(){
   cancelAnimationFrame(animFrame);
-  const cations=['Fe²⁺','Fe³⁺','Cu²⁺','Ca²⁺','Zn²⁺'];
-  const results={
-    'Fe²⁺':{naoh:'أخضر فاتح، يبقى',  nh3:'أخضر فاتح، يبقى'},
-    'Fe³⁺':{naoh:'بني محمر، يبقى',    nh3:'بني محمر، يبقى'},
-    'Cu²⁺':{naoh:'أزرق فاتح، يبقى',   nh3:'أزرق ثم يذوب → أزرق داكن'},
-    'Ca²⁺':{naoh:'أبيض، يبقى',        nh3:'لا راسب تقريباً'},
-    'Zn²⁺':{naoh:'أبيض، يذوب',        nh3:'أبيض ثم يذوب → شفاف'},
-  };
+  const cations=window._cp3Cations;
+  const results=window._cp3Results;
   let qi=Math.floor(Math.random()*cations.length);
   let useNaOH=Math.random()>0.5;
   simState={t:0, qi, useNaOH, chosen:null};
@@ -35440,7 +35475,7 @@ function simG9CationPpt3(){
     useNaOH=Math.random()>0.5;
     S.qi=qi; S.useNaOH=useNaOH; S.chosen=null;
     document.getElementById('cp3-fb').innerHTML='';
-    document.getElementById('cp3-q').innerHTML=`عند إضافة ${useNaOH?'NaOH':'NH₃'} نحصل على: <strong>${results[cations[qi]][useNaOH?'naoh':'nh3']}</strong> — ما الكاتيون؟`;
+    document.getElementById('cp3-q').innerHTML='عند إضافة '+(useNaOH?'NaOH':'NH₃')+' نحصل على: <strong>'+results[cations[qi]][useNaOH?'naoh':'nh3']+'</strong> — ما الكاتيون؟';
   }
   controls(`
     <div class="ctrl-section">
@@ -35449,7 +35484,7 @@ function simG9CationPpt3(){
       </div>
     </div>
     <div class="ctrl-btns-grid-1">
-      ${cations.map((cat)=>`<button class="ctrl-btn" onclick="simState.chosen='${cat}';document.getElementById('cp3-fb').innerHTML='${cat}'===cations[simState.qi]?'<span style=color:#27AE60>✅ صحيح!</span>':'<span style=color:#C0392B>❌ الصحيح: '+cations[simState.qi]+'</span>'">${cat}</button>`).join('')}
+      ${cations.map((cat)=>`<button class="ctrl-btn" onclick="(function(){var cats=window._cp3Cations;simState.chosen='${cat}';var correct='${cat}'===cats[simState.qi];document.getElementById('cp3-fb').innerHTML=correct?'<span style=color:#27AE60>✅ صحيح!</span>':'<span style=color:#C0392B>❌ الصحيح: '+cats[simState.qi]+'</span>';})();">${cat}</button>`).join('')}
     </div>
     <div id="cp3-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
     <button class="ctrl-btn action" onclick="newQ()">🎲 سؤال جديد</button>`);
@@ -35693,16 +35728,17 @@ function simG9AnionTest3(){
 }
 
 // ══ 9-5 Tab 1: تحديد الكاتيون ══
+window._lab1Mysteries=[
+  {cation:'Fe³⁺', flameDesc:'برتقالي', naohDesc:'بني محمر'},
+  {cation:'Cu²⁺', flameDesc:'أخضر-أزرق', naohDesc:'أزرق فاتح'},
+  {cation:'Na⁺',  flameDesc:'أصفر', naohDesc:'لا راسب'},
+  {cation:'Fe²⁺', flameDesc:'برتقالي', naohDesc:'أخضر فاتح'},
+  {cation:'K⁺',   flameDesc:'أرجواني', naohDesc:'لا راسب'},
+  {cation:'Ca²⁺', flameDesc:'أحمر آجوري', naohDesc:'أبيض، يبقى'},
+];
 function simG9ChemLab1(){
   cancelAnimationFrame(animFrame);
-  const mysteries=[
-    {cation:'Fe³⁺', flameDesc:'برتقالي', naohDesc:'بني محمر'},
-    {cation:'Cu²⁺', flameDesc:'أخضر-أزرق', naohDesc:'أزرق فاتح'},
-    {cation:'Na⁺',  flameDesc:'أصفر', naohDesc:'لا راسب'},
-    {cation:'Fe²⁺', flameDesc:'برتقالي', naohDesc:'أخضر فاتح'},
-    {cation:'K⁺',   flameDesc:'أرجواني', naohDesc:'لا راسب'},
-    {cation:'Ca²⁺', flameDesc:'أحمر آجوري', naohDesc:'أبيض، يبقى'},
-  ];
+  const mysteries=window._lab1Mysteries;
   const flameCols={'Fe³⁺':'#FFA000','Cu²⁺':'#00897B','Na⁺':'#FDD835','Fe²⁺':'#FFA000','K⁺':'#7B1FA2','Ca²⁺':'#E64A19'};
   const naohCols={'Fe³⁺':'#8B2500','Cu²⁺':'#1A8FA8','Na⁺':'#87CEEB','Fe²⁺':'#228B22','K⁺':'#87CEEB','Ca²⁺':'#DDDDDD'};
   const cOpts=['Na⁺','K⁺','Cu²⁺','Fe²⁺','Fe³⁺','Ca²⁺'];
@@ -35713,7 +35749,8 @@ function simG9ChemLab1(){
     qi=Math.floor(Math.random()*mysteries.length);
     S.qi=qi; S.chosen=null;
     document.getElementById('lab1-fb').innerHTML='';
-    document.getElementById('lab1-clues').innerHTML=`🔥 اللهب: <strong>${mysteries[qi].flameDesc}</strong><br>🧪 مع NaOH: <strong>${mysteries[qi].naohDesc}</strong>`;
+    var m=mysteries[qi];
+    document.getElementById('lab1-clues').innerHTML='🔥 اللهب: <strong>'+m.flameDesc+'</strong><br>🧪 مع NaOH: <strong>'+m.naohDesc+'</strong>';
   }
   controls(`
     <div class="ctrl-section">
@@ -35724,11 +35761,11 @@ function simG9ChemLab1(){
     <div class="ctrl-section">
       <div class="ctrl-label">ما الكاتيون المجهول؟</div>
       <div class="ctrl-btns-grid-1">
-        ${cOpts.map(cat=>`<button class="ctrl-btn" onclick="simState.chosen='${cat}';document.getElementById('lab1-fb').innerHTML='${cat}'===mysteries[simState.qi].cation?'<span style=color:#27AE60>✅ صحيح! الكاتيون: ${cat}</span>':'<span style=color:#C0392B>❌ خطأ — الصحيح: '+mysteries[simState.qi].cation+'</span>'">${cat}</button>`).join('')}
+        ${cOpts.map(cat=>`<button class="ctrl-btn" onclick="(function(){var m2=window._lab1Mysteries[simState.qi];simState.chosen='${cat}';var ok='${cat}'===m2.cation;document.getElementById('lab1-fb').innerHTML=ok?'<span style=color:#27AE60>✅ صحيح! الكاتيون: ${cat}</span>':'<span style=color:#C0392B>❌ خطأ — الصحيح: '+m2.cation+'</span>';})()">${cat}</button>`).join('')}
       </div>
     </div>
     <div id="lab1-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
-    <button class="ctrl-btn action" onclick="document.getElementById('lab1-clues').innerHTML='🔥 اللهب: <strong>'+mysteries[simState.qi].flameDesc+'</strong><br>🧪 NaOH: <strong>'+mysteries[simState.qi].naohDesc+'</strong><br>✅ الجواب: <strong>'+mysteries[simState.qi].cation+'</strong>'">💡 أظهر الجواب</button>
+    <button class="ctrl-btn action" onclick="(function(){var m2=window._lab1Mysteries[simState.qi];document.getElementById('lab1-clues').innerHTML='🔥 اللهب: <strong>'+m2.flameDesc+'</strong><br>🧪 NaOH: <strong>'+m2.naohDesc+'</strong><br>✅ الجواب: <strong>'+m2.cation+'</strong>';})()">💡 أظهر الجواب</button>
     <button class="ctrl-btn" style="margin-top:6px" onclick="newQ()">🎲 مادة جديدة</button>`);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -35769,15 +35806,16 @@ function simG9ChemLab1(){
 }
 
 // ══ 9-5 Tab 2: تحديد الأنيون ══
+window._lab2Mysteries=[
+  {anion:'Cl⁻',   ag:'أبيض يذوب في NH₃', ba:'لا راسب', hcl:'لا فوران'},
+  {anion:'Br⁻',   ag:'كريمي لا يذوب في NH₃ المخفَّفة', ba:'لا راسب', hcl:'لا فوران'},
+  {anion:'SO₄²⁻', ag:'لا راسب مميز', ba:'أبيض لا يذوب في HCl', hcl:'لا فوران'},
+  {anion:'CO₃²⁻', ag:'لا راسب مع Ag⁺ مباشرة', ba:'أبيض يذوب في HCl', hcl:'فوران — CO₂↑'},
+  {anion:'NO₃⁻',  ag:'لا راسب', ba:'لا راسب', hcl:'لا فوران (اختبر بـ Al+NaOH)'},
+];
 function simG9ChemLab2(){
   cancelAnimationFrame(animFrame);
-  const mysteries=[
-    {anion:'Cl⁻',   ag:'أبيض يذوب في NH₃', ba:'لا راسب', hcl:'لا فوران'},
-    {anion:'Br⁻',   ag:'كريمي لا يذوب في NH₃ المخفَّفة', ba:'لا راسب', hcl:'لا فوران'},
-    {anion:'SO₄²⁻', ag:'لا راسب مميز', ba:'أبيض لا يذوب في HCl', hcl:'لا فوران'},
-    {anion:'CO₃²⁻', ag:'لا راسب مع Ag⁺ مباشرة', ba:'أبيض يذوب في HCl', hcl:'فوران — CO₂↑'},
-    {anion:'NO₃⁻',  ag:'لا راسب', ba:'لا راسب', hcl:'لا فوران (اختبر بـ Al+NaOH)'},
-  ];
+  const mysteries=window._lab2Mysteries;
   const aOpts=['Cl⁻','Br⁻','SO₄²⁻','CO₃²⁻','NO₃⁻'];
   let qi=Math.floor(Math.random()*mysteries.length);
   simState={t:0, qi, chosen:null};
@@ -35786,7 +35824,8 @@ function simG9ChemLab2(){
     qi=Math.floor(Math.random()*mysteries.length);
     S.qi=qi; S.chosen=null;
     document.getElementById('lab2-fb').innerHTML='';
-    document.getElementById('lab2-clues').innerHTML=`🥈 AgNO₃: <strong>${mysteries[qi].ag}</strong><br>⚪ BaCl₂: <strong>${mysteries[qi].ba}</strong><br>🫧 مع HCl: <strong>${mysteries[qi].hcl}</strong>`;
+    var m=mysteries[qi];
+    document.getElementById('lab2-clues').innerHTML='🥈 AgNO₃: <strong>'+m.ag+'</strong><br>⚪ BaCl₂: <strong>'+m.ba+'</strong><br>🫧 مع HCl: <strong>'+m.hcl+'</strong>';
   }
   controls(`
     <div class="ctrl-section">
@@ -35797,11 +35836,11 @@ function simG9ChemLab2(){
     <div class="ctrl-section">
       <div class="ctrl-label">ما الأنيون؟</div>
       <div class="ctrl-btns-grid">
-        ${aOpts.map(a=>`<button class="ctrl-btn" onclick="simState.chosen='${a}';document.getElementById('lab2-fb').innerHTML='${a}'===mysteries[simState.qi].anion?'<span style=color:#27AE60>✅ صحيح!</span>':'<span style=color:#C0392B>❌ الصحيح: '+mysteries[simState.qi].anion+'</span>'">${a}</button>`).join('')}
+        ${aOpts.map(a=>`<button class="ctrl-btn" onclick="(function(){var m2=window._lab2Mysteries[simState.qi];simState.chosen='${a}';var ok='${a}'===m2.anion;document.getElementById('lab2-fb').innerHTML=ok?'<span style=color:#27AE60>✅ صحيح!</span>':'<span style=color:#C0392B>❌ الصحيح: '+m2.anion+'</span>';})()">${a}</button>`).join('')}
       </div>
     </div>
     <div id="lab2-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
-    <button class="ctrl-btn action" onclick="document.getElementById('lab2-clues').innerHTML='🥈 '+mysteries[simState.qi].ag+'<br>⚪ '+mysteries[simState.qi].ba+'<br>✅ الجواب: <strong>'+mysteries[simState.qi].anion+'</strong>'">💡 أظهر الجواب</button>
+    <button class="ctrl-btn action" onclick="(function(){var m2=window._lab2Mysteries[simState.qi];document.getElementById('lab2-clues').innerHTML='🥈 '+m2.ag+'<br>⚪ '+m2.ba+'<br>✅ الجواب: <strong>'+m2.anion+'</strong>';})()">💡 أظهر الجواب</button>
     <button class="ctrl-btn" style="margin-top:6px" onclick="newQ()">🎲 أنيون جديد</button>`);
   const cv=document.getElementById('simCanvas');
   function draw(){
