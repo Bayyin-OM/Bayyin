@@ -1684,8 +1684,8 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 #bayyin-footer {
   display: none;
   width: 100%;
-  background: var(--bg-sticky-footer, #f8f9fb);
-  border-top: 1px solid rgba(26,143,168,0.14);
+  background: #1C2A38;
+  border-top: 3px solid #D4901A;
   padding: 0;
   box-sizing: border-box;
   direction: rtl;
@@ -1694,7 +1694,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   z-index: 10;
 }
 .footer-inner {
-  max-width: 860px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -1707,30 +1707,31 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px 16px;
+  padding: 20px 28px 18px;
   gap: 16px;
 }
 .footer-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 13px;
 }
+/* شعار بيّن الأساسي — نفس ألوان العلم */
 .footer-logo-circle {
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  background: linear-gradient(135deg,#1A8FA8,#27AE60);
+  width: 42px; height: 42px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #C0392B, #27AE60);
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 900; color: #fff;
+  font-size: 20px; font-weight: 900; color: #fff;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(26,143,168,0.25);
+  box-shadow: 0 3px 12px rgba(192,57,43,0.35);
 }
 .footer-brand-text h3 {
-  margin: 0; font-size: 16px; font-weight: 800;
-  color: var(--text-heading,#1E2D3D); line-height: 1.2;
+  margin: 0; font-size: 17px; font-weight: 800;
+  color: #F0E6CC; line-height: 1.2;
 }
 .footer-brand-text p {
-  margin: 2px 0 0; font-size: 12px;
-  color: var(--text-secondary,#7A8A98);
+  margin: 3px 0 0; font-size: 12px;
+  color: rgba(212,144,26,0.85);
 }
 .footer-contacts {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
@@ -1738,50 +1739,51 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 }
 .footer-contact-item {
   display: flex; align-items: center; gap: 6px;
-  background: var(--bg-card,#fff);
-  border: 1.5px solid var(--border-color,rgba(0,0,0,0.08));
-  border-radius: 20px; padding: 6px 13px;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(212,144,26,0.25);
+  border-radius: 20px; padding: 7px 14px;
   font-size: 12.5px; font-weight: 600;
-  color: var(--text-primary,#2C3A4A);
+  color: #D8C9A8;
   text-decoration: none;
-  transition: border-color 0.2s, box-shadow 0.18s, transform 0.15s, color 0.18s;
+  transition: border-color 0.2s, box-shadow 0.18s, transform 0.15s, color 0.18s, background 0.18s;
   cursor: pointer; white-space: nowrap;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
 .footer-contact-item:hover {
-  border-color: #1A8FA8;
-  box-shadow: 0 3px 10px rgba(26,143,168,0.18);
-  transform: translateY(-2px); color: #1A8FA8;
+  border-color: #D4901A;
+  background: rgba(212,144,26,0.14);
+  box-shadow: 0 3px 10px rgba(212,144,26,0.22);
+  transform: translateY(-2px); color: #F0C060;
 }
 .footer-contact-item .fc-icon {
   width: 20px; height: 20px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; flex-shrink: 0;
 }
-.fc-phone .fc-icon  { background: rgba(39,174,96,0.12);  color: #27AE60; }
-.fc-email .fc-icon  { background: rgba(26,143,168,0.12); color: #1A8FA8; }
-.fc-insta .fc-icon  { background: rgba(195,42,163,0.12); color: #C32AA3; }
+.fc-phone .fc-icon  { background: rgba(39,174,96,0.18);  color: #4ADA88; }
+.fc-email .fc-icon  { background: rgba(212,144,26,0.18); color: #D4901A; }
+.fc-insta .fc-icon  { background: rgba(195,42,163,0.18); color: #E060C0; }
 .footer-bottom {
   width: 100%;
   text-align: center;
   padding: 10px 24px;
-  border-top: 1px solid var(--border-color,rgba(0,0,0,0.07));
+  border-top: 1px solid rgba(212,144,26,0.18);
   font-size: 11.5px;
-  color: var(--text-secondary,#9AA8B4);
-  background: rgba(0,0,0,0.018);
+  color: rgba(200,185,155,0.7);
+  background: rgba(0,0,0,0.18);
   letter-spacing: 0.01em;
 }
 html.dark-mode #bayyin-footer {
-  background: var(--bg-sticky-footer,#141C28);
-  border-top-color: rgba(26,143,168,0.2);
+  background: #111820;
+  border-top-color: #D4901A;
 }
 html.dark-mode .footer-contact-item {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.09); color: #C8D8E8;
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(212,144,26,0.2); color: #B8A888;
   box-shadow: none;
 }
-html.dark-mode .footer-contact-item:hover { border-color:#3DC0DA; color:#3DC0DA; }
-html.dark-mode .footer-bottom { background: rgba(255,255,255,0.02); }
+html.dark-mode .footer-contact-item:hover { border-color:#D4901A; color:#F0C060; background: rgba(212,144,26,0.12); }
+html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
 @media (max-width:640px){
   .footer-top { flex-direction: column; align-items: center; padding: 16px 16px 12px; gap: 12px; }
   .footer-contacts { justify-content: center; }
@@ -1790,7 +1792,7 @@ html.dark-mode .footer-bottom { background: rgba(255,255,255,0.02); }
 }
 @media (max-width:380px){
   .footer-contact-item { font-size: 11.5px; padding: 5px 9px; }
-  .footer-logo-circle { width: 34px; height: 34px; font-size: 16px; }
+  .footer-logo-circle { width: 36px; height: 36px; font-size: 17px; }
 }
 
 </style>
@@ -4353,9 +4355,9 @@ html.dark-mode .footer-bottom { background: rgba(255,255,255,0.02); }
           <span>9097&nbsp;2965</span>
         </a>
 
-        <a class="footer-contact-item fc-email" href="mailto:info@bayyin.om" title="راسلنا بالبريد الإلكتروني">
+        <a class="footer-contact-item fc-email" href="/cdn-cgi/l/email-protection#d8b1b6beb798bab9a1a1b1b6f6b7b5" title="راسلنا بالبريد الإلكتروني">
           <span class="fc-icon">✉️</span>
-          <span>info@bayyin.om</span>
+          <span><span class="__cf_email__" data-cfemail="fe97909891be9c9f87879790d09193">[email&#160;protected]</span></span>
         </a>
 
         <a class="footer-contact-item fc-insta"
@@ -4389,7 +4391,7 @@ html.dark-mode .footer-bottom { background: rgba(255,255,255,0.02); }
 <button id="buddy-restore-btn" onclick="restoreBuddy()" title="إظهار زيد مجدداً">🔬</button>
 
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
 
 // ═══════════════════════════════════════
@@ -36000,11 +36002,4 @@ function simG9ChemLab3(){
       c.fillText(`الكاتيون: ${S.guessC||'?'} | الأنيون: ${S.guessA||'?'}`,w/2,gy+h*0.065);
     }
     if(S.done){
-      const ok=S.guessC===salt.cation&&S.guessA===salt.anion;
-      _lbl(c,ok?`🏆 ${salt.salt}`:`✅ ${salt.salt}`,w/2,h*0.94,ok?'#FFD700':'#27AE60',Math.max(13,w*0.025));
-    }
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-</script>
+      const ok=S
