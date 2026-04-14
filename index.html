@@ -35302,12 +35302,15 @@ function simG9FlameTest2(){
   cancelAnimationFrame(animFrame);
   const ions=window._f2Ions;
   let qi=Math.floor(Math.random()*ions.length);
-  simState={t:0, qi, answered:false, streak:0, score:0, total:0, feedback:'', fbTimer:0};
+  simState={t:0, qi, answered:false, streak:0, score:0, total:0, feedback:'', fbTimer:0, usedQs:[qi]};
   const S=simState;
 
   window.newQFlame2=function(){
+    // إذا استُخدمت كل الأسئلة، نعيد الدورة
+    if(S.usedQs.length >= ions.length) S.usedQs=[];
     let newQi;
-    do{ newQi=Math.floor(Math.random()*ions.length); }while(newQi===S.qi && ions.length>1);
+    do{ newQi=Math.floor(Math.random()*ions.length); }while(S.usedQs.includes(newQi));
+    S.usedQs.push(newQi);
     S.qi=newQi; S.answered=false; S.feedback=''; S.fbTimer=0;
     document.getElementById('f2-fb').innerHTML='';
     // Update button states
@@ -35353,7 +35356,7 @@ function simG9FlameTest2(){
       </div>
       <div class="ctrl-label">🔍 ما الأيون الذي يُنتج هذا اللهب؟</div>
       <div class="ctrl-btns-grid-1">
-        ${ions.map((ion,i)=>`<button class="ctrl-btn f2-opt" id="f2btn-${i}" onclick="window._f2Answer(${i})" style="border-right:4px solid ${ion.col}33;transition:all 0.2s">${ion.ion} — ${ion.desc}</button>`).join('')}
+        ${ions.map((ion,i)=>`<button class="ctrl-btn f2-opt" id="f2btn-${i}" onclick="window._f2Answer(${i})" style="border-right:4px solid ${ion.col}33;transition:all 0.2s">${ion.ion}</button>`).join('')}
       </div>
     </div>
     <div id="f2-fb" style="padding:8px;text-align:center;font-size:13px;font-weight:700;min-height:36px"></div>
@@ -35872,11 +35875,13 @@ function simG9CationPpt3(){
   const colors=window._cp3Colors;
   let qi=Math.floor(Math.random()*cations.length);
   let useNaOH=Math.random()>0.5;
-  simState={t:0, qi, useNaOH, chosen:null, score:0, streak:0, total:0};
+  simState={t:0, qi, useNaOH, chosen:null, score:0, streak:0, total:0, answeredCations:new Set(), usedQs:[qi]};
   const S=simState;
 
   window.newQCation3=function(){
-    let newQi; do{ newQi=Math.floor(Math.random()*cations.length); }while(newQi===S.qi&&cations.length>1);
+    if(S.usedQs.length >= cations.length) S.usedQs=[];
+    let newQi; do{ newQi=Math.floor(Math.random()*cations.length); }while(S.usedQs.includes(newQi));
+    S.usedQs.push(newQi);
     S.qi=newQi; S.useNaOH=Math.random()>0.5; S.chosen=null;
     document.querySelectorAll('[id^=cp3btn-]').forEach(b=>b.classList.remove('correct','wrong','active'));
     const r=results[cations[S.qi]][S.useNaOH?'naoh':'nh3'];
@@ -35887,6 +35892,7 @@ function simG9CationPpt3(){
   window._cp3Answer=function(i){
     if(S.chosen!==null) return;
     S.chosen=cations[i]; S.total++;
+    S.answeredCations.add(cations[S.qi]);
     const correct=cations[i]===cations[S.qi];
     if(correct){ S.streak++; S.score+=10+(S.streak>1?S.streak*2:0); }
     else { S.streak=0; }
@@ -35978,8 +35984,9 @@ function simG9CationPpt3(){
       // Colored dot for cation
       c.fillStyle=colors[cat]; c.beginPath(); c.arc(sx+14,ry+rowH*0.42,6,0,Math.PI*2); c.fill();
 
-      // Cell values
-      const hideVals=isTarget&&!S.chosen;
+      // Cell values — show only cations already answered, hide all others
+      const isAnswered = S.answeredCations.has(cat);
+      const hideVals = !isAnswered;
       const vals=[cat, hideVals?'???':res.naoh, hideVals?'???':res.nh3];
       vals.forEach((val,ci)=>{
         const cx=sx+ci*colW+colW/2;
@@ -36413,11 +36420,13 @@ function simG9ChemLab1(){
   const mysteries=window._lab1Mysteries;
   const cOpts=['Fe³⁺','Cu²⁺','Na⁺','Fe²⁺','K⁺','Ca²⁺'];
   let qi=Math.floor(Math.random()*mysteries.length);
-  simState={t:0, qi, chosen:null, score:0, streak:0, total:0, test:'flame', hintsUsed:0};
+  simState={t:0, qi, chosen:null, score:0, streak:0, total:0, test:'flame', hintsUsed:0, usedQs:[qi]};
   const S=simState;
 
   window.newQChemLab1=function(){
-    let nqi; do{ nqi=Math.floor(Math.random()*mysteries.length); }while(nqi===S.qi);
+    if(S.usedQs.length >= mysteries.length) S.usedQs=[];
+    let nqi; do{ nqi=Math.floor(Math.random()*mysteries.length); }while(S.usedQs.includes(nqi));
+    S.usedQs.push(nqi);
     S.qi=nqi; S.chosen=null; S.test='flame'; S.hintsUsed=0;
     document.querySelectorAll('[id^=lab1btn-]').forEach(b=>b.classList.remove('correct','wrong'));
     document.getElementById('lab1-fb').innerHTML='';
@@ -36575,11 +36584,13 @@ function simG9ChemLab2(){
   const mysteries=window._lab2Mysteries;
   const aOpts=['Cl⁻','Br⁻','SO₄²⁻','CO₃²⁻','NO₃⁻'];
   let qi=Math.floor(Math.random()*mysteries.length);
-  simState={t:0, qi, chosen:null, score:0, streak:0, total:0};
+  simState={t:0, qi, chosen:null, score:0, streak:0, total:0, usedQs:[qi]};
   const S=simState;
 
   window.newQChemLab2=function(){
-    let nqi; do{ nqi=Math.floor(Math.random()*mysteries.length); }while(nqi===S.qi);
+    if(S.usedQs.length >= mysteries.length) S.usedQs=[];
+    let nqi; do{ nqi=Math.floor(Math.random()*mysteries.length); }while(S.usedQs.includes(nqi));
+    S.usedQs.push(nqi);
     S.qi=nqi; S.chosen=null;
     document.querySelectorAll('[id^=lab2btn-]').forEach(b=>b.classList.remove('correct','wrong'));
     document.getElementById('lab2-fb').innerHTML='';
@@ -36721,11 +36732,13 @@ function simG9ChemLab3(){
   const cOpts=['Na⁺','K⁺','Cu²⁺','Fe²⁺','Fe³⁺','Ca²⁺'];
   const aOpts=['Cl⁻','SO₄²⁻','CO₃²⁻','NO₃⁻'];
   let qi=Math.floor(Math.random()*salts.length);
-  simState={t:0, qi, guessC:null, guessA:null, done:false, score:0, streak:0, total:0, revealedTests:{}};
+  simState={t:0, qi, guessC:null, guessA:null, done:false, score:0, streak:0, total:0, revealedTests:{}, usedQs:[qi]};
   const S=simState;
 
   window.newQChemLab3=function(){
-    let nqi; do{ nqi=Math.floor(Math.random()*salts.length); }while(nqi===S.qi);
+    if(S.usedQs.length >= salts.length) S.usedQs=[];
+    let nqi; do{ nqi=Math.floor(Math.random()*salts.length); }while(S.usedQs.includes(nqi));
+    S.usedQs.push(nqi);
     S.qi=nqi; S.guessC=null; S.guessA=null; S.done=false; S.revealedTests={};
     document.querySelectorAll('[id^=lab3c-],[id^=lab3a-]').forEach(b=>b.classList.remove('active','correct','wrong'));
     document.getElementById('lab3-fb').innerHTML='';
