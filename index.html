@@ -35944,71 +35944,87 @@ function simG9CationPpt3(){
     bg.addColorStop(0,'#FFF8E7'); bg.addColorStop(1,'#FFF3E0');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
+    // عنوان الجدول يوضّح الكاشف المستخدم
+    const reagentLabel = S.useNaOH ? 'NaOH' : 'NH₃';
+    const reagentColor = S.useNaOH ? '#7B1FA2' : '#2E7D32';
     _lbl(c,'جدول نتائج اختبار الترسيب',w/2,h*0.055,'#E65100',Math.max(13,w*0.025));
 
-    // Draw comparison table
-    const cols=['الكاتيون','مع NaOH','مع NH₃'];
+    // الجدول: عمودان أثناء السؤال، ثلاثة أعمدة بعد الإجابة
+    const showBothCols = S.chosen !== null;
+    const colW = w * (showBothCols ? 0.31 : 0.46);
     const rows=Object.entries(results);
-    const colW=w*0.31, rowH=h*0.105, sx=w*0.02, sy=h*0.09;
+    const rowH=h*0.105, sx=w*0.02, sy=h*0.09;
 
-    // Header
-    cols.forEach((col,i)=>{
+    // رأس الجدول
+    const headerCols = showBothCols
+      ? ['الكاتيون', `مع ${reagentLabel}`, `مع ${S.useNaOH?'NH₃':'NaOH'}`]
+      : ['الكاتيون', `← مع ${reagentLabel}`];
+    headerCols.forEach((col,i)=>{
       const hx=sx+i*colW, hy=sy;
-      c.fillStyle=i===0?'#E65100':S.useNaOH&&i===1?'#7B1FA2':!S.useNaOH&&i===2?'#2E7D32':'#546E7A';
+      let hColor = '#E65100';
+      if(i===1) hColor = reagentColor;
+      if(i===2) hColor = '#546E7A';
+      c.fillStyle=hColor;
       c.beginPath(); c.roundRect(hx+1,hy,colW-3,rowH*0.68,4); c.fill();
-      c.fillStyle='#fff'; c.font=`bold ${Math.max(9,w*0.017)}px Tajawal`;
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(8,w*0.015)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='middle';
       c.fillText(col,hx+colW/2,hy+rowH*0.34);
     });
 
-    // Rows
+    // صفوف الجدول
     rows.forEach(([cat,res],ri)=>{
       const ry=sy+rowH*(ri+0.68);
       const isTarget=cat===cations[S.qi];
       const isChosen=S.chosen===cat;
+      const isAnswered=S.answeredCations.has(cat);
 
-      // Row background
       let rowBg='rgba(255,255,255,0.6)';
       if(isTarget && S.chosen){ rowBg='rgba(39,174,96,0.15)'; }
       else if(isChosen && !isTarget){ rowBg='rgba(192,57,43,0.12)'; }
-      else if(isTarget && !S.chosen){ rowBg='rgba(255,165,0,0.15)'; }
+      else if(isTarget && !S.chosen){ rowBg='rgba(255,165,0,0.08)'; }
       c.fillStyle=rowBg;
       c.beginPath(); c.roundRect(sx+1,ry,w*0.94,rowH*0.84,4); c.fill();
 
-      // Border for target row
       if(isTarget){
         c.strokeStyle=S.chosen?'#27AE60':'#FF8F00'; c.lineWidth=S.chosen?2:1.5;
         c.beginPath(); c.roundRect(sx+1,ry,w*0.94,rowH*0.84,4); c.stroke();
       }
 
-      // Colored dot for cation (hide color for target until answered)
       const showDot = !isTarget || S.chosen !== null;
-      c.fillStyle = showDot ? colors[cat] : '#AAAAAA';
-      c.beginPath(); c.arc(sx+14,ry+rowH*0.42,6,0,Math.PI*2); c.fill();
+      c.fillStyle = showDot ? colors[cat] : '#CCCCCC';
+      c.beginPath(); c.arc(sx+12,ry+rowH*0.42,6,0,Math.PI*2); c.fill();
 
-      // Cell values — show only cations already answered, hide all others
-      const isAnswered = S.answeredCations.has(cat);
-      const hideVals = !isAnswered;
-      // Hide the target cation's name until answered (show ؟ instead)
-      const showCatName = isAnswered || !isTarget || (isTarget && S.chosen !== null);
-      const vals=[showCatName ? cat : '؟', hideVals?'???':res.naoh, hideVals?'???':res.nh3];
-      vals.forEach((val,ci)=>{
-        const cx=sx+ci*colW+colW/2;
-        c.fillStyle=isTarget&&S.chosen?'#1B5E20':ci===0?(showCatName?colors[cat]:'#999999'):'#37474F';
-        c.font=`${Math.max(8,w*0.014)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText(val,cx,ry+rowH*0.42);
-      });
+      const showCatName = isAnswered || (isTarget && S.chosen !== null);
+      const showResult = isAnswered;
+      const showSecond = isAnswered && showBothCols;
 
-      // Highlight active reagent column
-      if(!hideVals){
-        const hlCol=S.useNaOH?1:2;
-        c.strokeStyle=S.useNaOH?'rgba(123,31,162,0.2)':'rgba(46,125,50,0.2)';
-        c.lineWidth=1;
-        c.beginPath(); c.roundRect(sx+hlCol*colW+1,ry,colW-2,rowH*0.84,2); c.stroke();
+      const activeRes = S.useNaOH ? res.naoh : res.nh3;
+      const secondRes = S.useNaOH ? res.nh3 : res.naoh;
+
+      // عمود الكاتيون
+      c.fillStyle = showCatName ? (isTarget&&S.chosen?'#1B5E20':colors[cat]) : '#999999';
+      c.font = `${Math.max(9,w*0.016)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(showCatName ? cat : (isTarget ? '؟' : '—'), sx+colW/2, ry+rowH*0.42);
+
+      // عمود الكاشف المستخدم
+      c.fillStyle = showResult ? (isTarget&&S.chosen?'#1B5E20':'#37474F') : '#CCCCCC';
+      c.font = `${Math.max(8,w*0.014)}px Tajawal`;
+      c.fillText(showResult ? activeRes : '???', sx+colW+colW/2, ry+rowH*0.42);
+
+      // عمود الكاشف الثاني (يظهر بعد الإجابة فقط)
+      if(showBothCols){
+        c.fillStyle = showSecond ? '#546E7A' : '#CCCCCC';
+        c.font = `${Math.max(8,w*0.013)}px Tajawal`;
+        c.fillText(showSecond ? secondRes : '???', sx+colW*2+colW/2, ry+rowH*0.42);
+      }
+
+      if(showResult){
+        c.strokeStyle=reagentColor+'33'; c.lineWidth=1;
+        c.beginPath(); c.roundRect(sx+colW+1,ry,colW-2,rowH*0.84,2); c.stroke();
       }
     });
 
-    // Score display
     if(S.score>0){
       c.fillStyle='rgba(39,174,96,0.1)'; c.beginPath();
       c.roundRect(w*0.70,h*0.82,w*0.26,h*0.12,8); c.fill();
@@ -36016,7 +36032,6 @@ function simG9CationPpt3(){
       c.textAlign='center'; c.textBaseline='middle';
       c.fillText('⭐ '+S.score,w*0.83,h*0.88);
     }
-
     animFrame=requestAnimationFrame(draw);
   }
   draw();
