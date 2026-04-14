@@ -35981,16 +35981,20 @@ function simG9CationPpt3(){
         c.beginPath(); c.roundRect(sx+1,ry,w*0.94,rowH*0.84,4); c.stroke();
       }
 
-      // Colored dot for cation
-      c.fillStyle=colors[cat]; c.beginPath(); c.arc(sx+14,ry+rowH*0.42,6,0,Math.PI*2); c.fill();
+      // Colored dot for cation (hide color for target until answered)
+      const showDot = !isTarget || S.chosen !== null;
+      c.fillStyle = showDot ? colors[cat] : '#AAAAAA';
+      c.beginPath(); c.arc(sx+14,ry+rowH*0.42,6,0,Math.PI*2); c.fill();
 
       // Cell values — show only cations already answered, hide all others
       const isAnswered = S.answeredCations.has(cat);
       const hideVals = !isAnswered;
-      const vals=[cat, hideVals?'???':res.naoh, hideVals?'???':res.nh3];
+      // Hide the target cation's name until answered (show ؟ instead)
+      const showCatName = isAnswered || !isTarget || (isTarget && S.chosen !== null);
+      const vals=[showCatName ? cat : '؟', hideVals?'???':res.naoh, hideVals?'???':res.nh3];
       vals.forEach((val,ci)=>{
         const cx=sx+ci*colW+colW/2;
-        c.fillStyle=isTarget&&S.chosen?'#1B5E20':ci===0?colors[cat]:'#37474F';
+        c.fillStyle=isTarget&&S.chosen?'#1B5E20':ci===0?(showCatName?colors[cat]:'#999999'):'#37474F';
         c.font=`${Math.max(8,w*0.014)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
         c.fillText(val,cx,ry+rowH*0.42);
       });
