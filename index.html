@@ -5587,6 +5587,7 @@ window.addEventListener('resize', function() {
 
 
 function startSim(type, tab) {
+  const _s = n => () => { const f = window[n]; if(f) f(); };
   const fns = {
     // ── الصف الخامس — الضوء والظلال والأرض ──
     g5lighttravel:    [simG5LightTravel, simG5HowWeSee],
@@ -5704,11 +5705,11 @@ function startSim(type, tab) {
     g9saltmake:  [simG9SaltMake1, simG9SaltMake2, simG9SaltMake3],
     g9salttitra: [simG9SaltTitra1, simG9SaltTitra2, simG9SaltTitra3],
     // ── الوحدة التاسعة: التحليل الكيميائي ──
-    g9watergas:  [simG9WaterGas1, simG9WaterGas2, simG9WaterGas3],
-    g9flametest: [simG9FlameTest1, simG9FlameTest2, simG9FlameTest3],
-    g9cationppt: [simG9CationPpt1, simG9CationPpt2, simG9CationPpt3],
-    g9aniontest: [simG9AnionTest1, simG9AnionTest2, simG9AnionTest3],
-    g9chemlab:   [simG9ChemLab1, simG9ChemLab2, simG9ChemLab3]
+    g9watergas:  [_s('simG9WaterGas1'), _s('simG9WaterGas2'), _s('simG9WaterGas3')],
+    g9flametest: [_s('simG9FlameTest1'), _s('simG9FlameTest2'), _s('simG9FlameTest3')],
+    g9cationppt: [_s('simG9CationPpt1'), _s('simG9CationPpt2'), _s('simG9CationPpt3')],
+    g9aniontest: [_s('simG9AnionTest1'), _s('simG9AnionTest2'), _s('simG9AnionTest3')],
+    g9chemlab:   [_s('simG9ChemLab1'), _s('simG9ChemLab2'), _s('simG9ChemLab3')]
   };
   const fn = (fns[type] || [])[tab];
   if (fn) {
