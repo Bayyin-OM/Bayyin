@@ -4355,9 +4355,9 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           <span>9097&nbsp;2965</span>
         </a>
 
-        <a class="footer-contact-item fc-email" href="mailto:bayyin.demo@gmail.com" title="راسلنا بالبريد الإلكتروني">
+        <a class="footer-contact-item fc-email" href="/cdn-cgi/l/email-protection#e684879f9f8f88c882838b89a6818b878f8ac885898b" title="راسلنا بالبريد الإلكتروني">
           <span class="fc-icon">✉️</span>
-          <span>bayyin.demo@gmail.com</span>
+          <span><span class="__cf_email__" data-cfemail="e280839b9b8b8ccc86878f8da2858f838b8ecc818d8f">[email&#160;protected]</span></span>
         </a>
 
         <a class="footer-contact-item fc-insta"
@@ -4391,7 +4391,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
 <button id="buddy-restore-btn" onclick="restoreBuddy()" title="إظهار زيد مجدداً">🔬</button>
 
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
 
 // ═══════════════════════════════════════
@@ -35999,8 +35999,15 @@ function simG9ChemLab3(){
     if(S.guessC||S.guessA){
       const gy=h*0.77;
       c.fillStyle='rgba(255,215,0,0.07)'; c.beginPath(); c.roundRect(w*0.06,gy,w*0.88,h*0.13,10); c.fill();
-      c.fillStyle='#FFD700'; c.font=`bold ${Math.max(11,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(`الكاتيون: ${S.guessC||'?'} | الأنيون: ${S.guessA||'?'}`,w/2,gy+h*0.065);
+      c.fillStyle='#FFD700'; c.font=`bold ${Math.max(11,w*0.02)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      const guessText=(S.guessC||'؟') + ' + ' + (S.guessA||'؟');
+      c.fillText('تخمينك: ' + guessText, w/2, gy + h*0.065);
     }
-    if(S.done){
-      const ok=S
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+</script>
+</body>
+</html>
