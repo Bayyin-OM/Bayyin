@@ -35103,305 +35103,628 @@ function simG9WaterGas3(){
   draw();
 }
 
-// ══ 9-2 Tab 1: ألوان اللهب ══
+
+
+// ══════════════════════════════════════════════════════════════
+// 🔥 9-2 اختبار اللهب — نسخة تفاعلية محسّنة
+// ══════════════════════════════════════════════════════════════
+
+// ══ 9-2 Tab 1: ألوان اللهب (تفاعلي — اسحب العينة إلى اللهب) ══
+window._f1Ions=[
+  {ion:'Li⁺', name:'الليثيوم',  col:'#E53935', desc:'أحمر قرمزي',      rgb:[229,83,53]},
+  {ion:'Na⁺', name:'الصوديوم',  col:'#FDD835', desc:'أصفر برتقالي',    rgb:[253,216,53]},
+  {ion:'K⁺',  name:'البوتاسيوم',col:'#AB47BC', desc:'أرجواني',          rgb:[171,71,188]},
+  {ion:'Cu²⁺',name:'النحاس',    col:'#00897B', desc:'أخضر-أزرق',       rgb:[0,137,123]},
+  {ion:'Fe²⁺',name:'الحديد II', col:'#FFA000', desc:'برتقالي ذهبي',    rgb:[255,160,0]},
+  {ion:'Ca²⁺',name:'الكالسيوم', col:'#EF5350', desc:'أحمر آجوري',      rgb:[239,83,80]},
+];
 function simG9FlameTest1(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, selected:null};
+  const ions=window._f1Ions;
+  simState={t:0, hoveredTube:null, inFlame:false, burningIdx:null, showLabel:false, labelTimer:0, score:0, tried:{}};
   const S=simState;
-  const ions=[
-    {ion:'Li⁺', name:'الليثيوم',  col:'#E53935', desc:'أحمر قرمزي', x:0.13, y:0.30},
-    {ion:'Na⁺', name:'الصوديوم',  col:'#FDD835', desc:'أصفر برتقالي', x:0.32, y:0.30},
-    {ion:'K⁺',  name:'البوتاسيوم',col:'#7B1FA2', desc:'أرجواني (بنفسجي)', x:0.51, y:0.30},
-    {ion:'Cu²⁺',name:'النحاس(II)',col:'#00897B', desc:'أخضر-أزرق', x:0.70, y:0.30},
-    {ion:'Fe²⁺',name:'الحديد(II)',col:'#FFA000', desc:'برتقالي-ذهبي', x:0.22, y:0.72},
-    {ion:'Ca²⁺',name:'الكالسيوم', col:'#E64A19', desc:'أحمر آجوري', x:0.60, y:0.72},
-  ];
+  const cv=document.getElementById('simCanvas');
+
   controls(`
-    <div style="padding:6px 0 4px;font-size:15px;color:var(--text-secondary);text-align:center">اضغط على أي أيون لمشاهدة لهبه 🔥</div>
-    <div id="flame-info" class="info-box" style="min-height:55px;font-size:14px;text-align:center;line-height:1.6">اختر أيوناً من الرسم 👆</div>
-    <div class="q-box" style="margin-top:8px">
+    <div style="padding:4px 0 2px;font-size:13px;color:var(--text-secondary);text-align:center;line-height:1.5">
+      🧪 اضغط على أنبوب لإشعاله في اللهب<br>
+      <span style="font-size:11px;opacity:0.7">شاهد لون اللهب وتعلَّم خصائص كل أيون</span>
+    </div>
+    <div id="f1-info" class="info-box" style="min-height:58px;font-size:13px;text-align:center;line-height:1.7;transition:all 0.3s">
+      👆 اضغط على أي أنبوب اختبار
+    </div>
+    <div style="margin-top:8px">
+      <div class="ctrl-label">✅ الأيونات التي اختبرتها: <span id="f1-score">0</span>/${ions.length}</div>
+      <div id="f1-progress" style="height:6px;background:var(--border-color);border-radius:3px;margin-top:4px;overflow:hidden">
+        <div id="f1-prog-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#27AE60,#1A8FA8);border-radius:3px;transition:width 0.5s"></div>
+      </div>
+    </div>
+    <div class="q-box" style="margin-top:10px">
       <strong>❓ لماذا تختلف ألوان اللهب لكل عنصر؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الحرارة تُثير إلكترونات الأيون إلى مستويات طاقة أعلى. عند عودتها يُطلَق ضوء بطول موجي محدَّد لكل عنصر. هذا أساس علم الطيف الذري والفيزياء الكمية!</div>
-    </div>`);
-  const cv=document.getElementById('simCanvas');
+      <div class="q-ans-panel">الحرارة تُثير إلكترونات الأيون إلى مستويات طاقة أعلى. عند عودتها تُطلَق فوتونات بطول موجي محدَّد لكل عنصر — أساس طيف الانبعاث الذري!</div>
+    </div>
+  `);
+
   cv.onclick=function(e){
     const rect=this.getBoundingClientRect();
     const mx=(e.clientX-rect.left)*(this.width/rect.width);
     const my=(e.clientY-rect.top)*(this.height/rect.height);
+    const w=this.width, h=this.height;
     ions.forEach((ion,i)=>{
-      if(Math.hypot(mx-ion.x*this.width,my-ion.y*this.height)<32){
-        S.selected=i;
-        document.getElementById('flame-info').innerHTML=`<strong style="color:${ion.col}">${ion.ion} — ${ion.name}</strong><br>لون اللهب: <span style="color:${ion.col};font-weight:700">${ion.desc}</span>`;
+      const tx=_tubeX(i,ions.length,w), ty=h*0.72;
+      if(Math.abs(mx-tx)<22 && Math.abs(my-ty)<45){
+        S.burningIdx=i; S.showLabel=true; S.labelTimer=0;
+        if(!S.tried[i]){
+          S.tried[i]=true;
+          S.score=Object.keys(S.tried).length;
+          document.getElementById('f1-score').textContent=S.score;
+          document.getElementById('f1-prog-bar').style.width=(S.score/ions.length*100)+'%';
+        }
+        document.getElementById('f1-info').innerHTML=`<strong style="color:${ion.col};font-size:15px">${ion.ion} — ${ion.name}</strong><br>لون اللهب: <span style="color:${ion.col};font-weight:700;font-size:14px">${ion.desc}</span>`;
       }
     });
   };
+
+  function _tubeX(i,n,w){ return w*(0.12+i*(0.78/(n-1))); }
+
   function draw(){
     if(currentSim!=='g9flametest'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#1A1A2E'); bg.addColorStop(1,'#16213E');
+    if(S.labelTimer!==undefined) S.labelTimer++;
+
+    // Dark lab background
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0D1117'); bg.addColorStop(1,'#1A2035');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'اضغط على الأيون لمشاهدة لون لهب البنسن',w/2,h*0.06,'#9DC8E8',Math.max(11,w*0.020));
+
+    // Title
+    c.fillStyle='#9DC8E8'; c.font=`bold ${Math.max(12,w*0.022)}px Tajawal`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('اضغط على أنبوب لمشاهدة لون اللهب 🔥',w/2,h*0.055);
+
+    // Central Bunsen burner
+    const bx=w/2, by=h*0.50;
+    // Base
+    c.fillStyle='#444'; c.beginPath(); c.roundRect(bx-w*0.06,by,w*0.12,h*0.12,4); c.fill();
+    c.fillStyle='#333'; c.beginPath(); c.roundRect(bx-w*0.09,by+h*0.10,w*0.18,h*0.035,3); c.fill();
+
+    // Flame (always on)
+    const burningIon = S.burningIdx!==null ? ions[S.burningIdx] : null;
+    const flameCol = burningIon ? burningIon.col : '#1A8FA8';
+    const flameCol2 = burningIon ? burningIon.rgb : [26,143,168];
+    for(let l=0;l<8;l++){
+      const fh=h*(0.14+0.04*Math.sin(S.t*0.13+l));
+      const fw=w*(0.025+0.008*Math.sin(S.t*0.09+l*0.7));
+      const grad=c.createRadialGradient(bx,by,0,bx,by-fh*0.5,fh);
+      const alpha=burningIon?1:0.6;
+      grad.addColorStop(0,`rgba(255,255,255,${alpha})`);
+      grad.addColorStop(0.25,`rgba(${flameCol2[0]},${flameCol2[1]},${flameCol2[2]},${alpha*0.9})`);
+      grad.addColorStop(0.7,`rgba(${flameCol2[0]},${flameCol2[1]},${flameCol2[2]},${alpha*0.4})`);
+      grad.addColorStop(1,'transparent');
+      c.fillStyle=grad;
+      c.beginPath(); c.ellipse(bx+(l-3.5)*w*0.018,by-fh*0.38,fw,fh*0.44,0,0,Math.PI*2); c.fill();
+    }
+    // Glow when burning
+    if(burningIon){
+      const glow=c.createRadialGradient(bx,by-h*0.08,0,bx,by-h*0.08,h*0.22);
+      glow.addColorStop(0,burningIon.col+'44'); glow.addColorStop(1,'transparent');
+      c.fillStyle=glow; c.fillRect(0,0,w,h);
+    }
+
+    // Wire if burning
+    if(S.burningIdx!==null){
+      const tx=_tubeX(S.burningIdx,ions.length,w);
+      c.strokeStyle=ions[S.burningIdx].col+'BB'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(tx,h*0.68); c.bezierCurveTo(tx,h*0.55,bx,h*0.48,bx,by-h*0.05); c.stroke();
+      // small glow at wire tip
+      const gwg=c.createRadialGradient(bx,by-h*0.05,0,bx,by-h*0.05,12);
+      gwg.addColorStop(0,'#FFF'); gwg.addColorStop(1,'transparent');
+      c.fillStyle=gwg; c.fillRect(bx-12,by-h*0.08,24,20);
+    }
+
+    // Test tubes at bottom
     ions.forEach((ion,i)=>{
-      const ix=ion.x*w, iy=ion.y*h;
-      const isSel=S.selected===i;
-      const r=isSel?34:26;
-      if(isSel){
-        for(let f=0;f<5;f++){
-          const fh=h*0.15+Math.sin(S.t*0.14+f)*h*0.025;
-          const grad=c.createRadialGradient(ix,iy-r,0,ix,iy-r,fh);
-          grad.addColorStop(0,ion.col+'FF'); grad.addColorStop(0.5,ion.col+'AA'); grad.addColorStop(1,'transparent');
-          c.fillStyle=grad; c.beginPath(); c.ellipse(ix+(f-2)*r*0.22,iy-r-fh*0.3,r*0.55,fh,0,0,Math.PI*2); c.fill();
-        }
+      const tx=_tubeX(i,ions.length,w), ty=h*0.72;
+      const isBurning=S.burningIdx===i;
+      const isDone=S.tried && S.tried[i];
+
+      // Glow under selected
+      if(isBurning){
+        const tg=c.createRadialGradient(tx,ty,0,tx,ty,30);
+        tg.addColorStop(0,ion.col+'55'); tg.addColorStop(1,'transparent');
+        c.fillStyle=tg; c.fillRect(tx-30,ty-30,60,60);
       }
-      c.fillStyle=isSel?ion.col:ion.col+'44';
-      c.beginPath(); c.arc(ix,iy,r,0,Math.PI*2); c.fill();
-      c.strokeStyle=ion.col+'BB'; c.lineWidth=2;
-      c.beginPath(); c.arc(ix,iy,r,0,Math.PI*2); c.stroke();
-      c.fillStyle='#fff'; c.font=`bold ${Math.max(11,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(ion.ion,ix,iy);
-      _lbl(c,ion.name,ix,iy+r+14,isSel?ion.col:'#9DC8E8',Math.max(9,w*0.016));
+
+      // Tube body
+      const tw=14, th=38;
+      c.fillStyle=isDone?ion.col+'33':'rgba(135,206,235,0.15)';
+      c.strokeStyle=isBurning?ion.col:'rgba(135,206,235,0.5)';
+      c.lineWidth=isBurning?2.5:1.5;
+      c.beginPath();
+      c.moveTo(tx-tw/2,ty-th/2);
+      c.lineTo(tx-tw/2,ty+th/2-tw/2);
+      c.arc(tx,ty+th/2-tw/2,tw/2,Math.PI,0);
+      c.lineTo(tx+tw/2,ty-th/2);
+      c.closePath();
+      c.fill(); c.stroke();
+
+      // Liquid in tube
+      c.fillStyle=ion.col+(isDone?'BB':'66');
+      c.beginPath();
+      c.moveTo(tx-tw/2+2,ty+2);
+      c.lineTo(tx-tw/2+2,ty+th/2-tw/2-1);
+      c.arc(tx,ty+th/2-tw/2-1,tw/2-2,Math.PI,0);
+      c.lineTo(tx+tw/2-2,ty+2);
+      c.closePath();
+      c.fill();
+
+      // Ion label
+      c.fillStyle=isBurning?ion.col:'#AAA';
+      c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='top';
+      c.fillText(ion.ion,tx,ty+th/2+6);
+
+      // Checkmark if done
+      if(isDone && !isBurning){
+        c.fillStyle='#27AE60'; c.font=`${Math.max(9,w*0.016)}px Arial`;
+        c.fillText('✓',tx,ty-th/2-14);
+      }
     });
-    if(S.selected!==null){
-      const ion=ions[S.selected];
-      c.fillStyle=ion.col+'22'; c.beginPath(); c.roundRect(w*0.05,h*0.88,w*0.9,h*0.09,10); c.fill();
-      c.fillStyle=ion.col; c.font=`bold ${Math.max(11,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(`${ion.ion} → ${ion.desc}`,w/2,h*0.925);
+
+    // Bottom flame color display
+    if(burningIon && S.labelTimer<240){
+      const alpha=S.labelTimer>180?1-(S.labelTimer-180)/60:1;
+      c.globalAlpha=alpha;
+      c.fillStyle=`rgba(0,0,0,0.55)`;
+      c.beginPath(); c.roundRect(w*0.05,h*0.87,w*0.90,h*0.10,8); c.fill();
+      c.fillStyle=burningIon.col;
+      c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(`${burningIon.ion} ← لون ${burningIon.desc}`,w/2,h*0.922);
+      c.globalAlpha=1;
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ 9-2 Tab 2: حدِّد الكاتيون المجهول ══
+// ══ 9-2 Tab 2: حدِّد الكاتيون المجهول (مع نقاط وسرعة) ══
 window._f2Ions=[
-  {ion:'Li⁺', col:'#E53935', desc:'أحمر قرمزي'},
-  {ion:'Na⁺', col:'#FDD835', desc:'أصفر'},
-  {ion:'K⁺',  col:'#7B1FA2', desc:'أرجواني'},
-  {ion:'Cu²⁺',col:'#00897B', desc:'أخضر-أزرق'},
-  {ion:'Ca²⁺',col:'#E64A19', desc:'أحمر آجوري'},
+  {ion:'Li⁺', col:'#E53935', desc:'أحمر قرمزي',   rgb:[229,83,53]},
+  {ion:'Na⁺', col:'#FDD835', desc:'أصفر',          rgb:[253,216,53]},
+  {ion:'K⁺',  col:'#AB47BC', desc:'أرجواني',       rgb:[171,71,188]},
+  {ion:'Cu²⁺',col:'#00897B', desc:'أخضر-أزرق',    rgb:[0,137,123]},
+  {ion:'Ca²⁺',col:'#EF5350', desc:'أحمر آجوري',   rgb:[239,83,80]},
 ];
 function simG9FlameTest2(){
   cancelAnimationFrame(animFrame);
   const ions=window._f2Ions;
   let qi=Math.floor(Math.random()*ions.length);
-  simState={t:0, qi, answered:false};
+  simState={t:0, qi, answered:false, streak:0, score:0, total:0, feedback:'', fbTimer:0};
   const S=simState;
-  function newQ(){
-    qi=Math.floor(Math.random()*ions.length);
-    S.qi=qi; S.answered=false;
+
+  window.newQFlame2=function(){
+    let newQi;
+    do{ newQi=Math.floor(Math.random()*ions.length); }while(newQi===S.qi && ions.length>1);
+    S.qi=newQi; S.answered=false; S.feedback=''; S.fbTimer=0;
     document.getElementById('f2-fb').innerHTML='';
-  }
+    // Update button states
+    document.querySelectorAll('[id^=f2btn-]').forEach(b=>b.classList.remove('correct','wrong'));
+  };
+
+  window._f2Answer=function(i){
+    if(S.answered) return;
+    S.answered=true; S.total++;
+    const correct=i===S.qi;
+    if(correct){ S.streak++; S.score+=10+(S.streak>1?S.streak*2:0); S.feedback='✅'; }
+    else{ S.streak=0; S.feedback='❌'; }
+    document.getElementById('f2-score').textContent=S.score;
+    document.getElementById('f2-streak').textContent=S.streak;
+    document.getElementById('f2-acc').textContent=S.total>0?Math.round((S.score/(S.total*10))*100)+'%':'—';
+    const btn=document.getElementById('f2btn-'+i);
+    if(btn) btn.classList.add(correct?'correct':'wrong');
+    if(!correct){
+      const cb=document.getElementById('f2btn-'+S.qi);
+      if(cb) cb.classList.add('correct');
+    }
+    document.getElementById('f2-fb').innerHTML=correct
+      ?`<span style="color:#27AE60;font-size:15px">✅ ممتاز! ${ions[S.qi].ion} يعطي لهباً ${ions[S.qi].desc} ${S.streak>2?'🔥 سلسلة '+S.streak+'!':''}</span>`
+      :`<span style="color:#C0392B">❌ الصحيح: <strong style="color:${ions[S.qi].col}">${ions[S.qi].ion}</strong> (${ions[S.qi].desc})</span>`;
+    setTimeout(()=>{ if(S.answered) window.newQFlame2(); }, 1500);
+  };
+
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🔍 ما أيون الفلز الذي يُنتج هذا اللهب؟</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+        <div style="text-align:center;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:6px">
+          <div style="font-size:10px;color:var(--text-secondary)">النقاط</div>
+          <div id="f2-score" style="font-size:18px;font-weight:800;color:#27AE60">0</div>
+        </div>
+        <div style="text-align:center;background:rgba(212,144,26,0.1);border:1px solid rgba(212,144,26,0.3);border-radius:8px;padding:6px">
+          <div style="font-size:10px;color:var(--text-secondary)">السلسلة 🔥</div>
+          <div id="f2-streak" style="font-size:18px;font-weight:800;color:#D4901A">0</div>
+        </div>
+        <div style="text-align:center;background:rgba(26,143,168,0.1);border:1px solid rgba(26,143,168,0.3);border-radius:8px;padding:6px">
+          <div style="font-size:10px;color:var(--text-secondary)">الدقة</div>
+          <div id="f2-acc" style="font-size:18px;font-weight:800;color:#1A8FA8">—</div>
+        </div>
+      </div>
+      <div class="ctrl-label">🔍 ما الأيون الذي يُنتج هذا اللهب؟</div>
       <div class="ctrl-btns-grid-1">
-        ${ions.map((ion,i)=>`<button class="ctrl-btn" onclick="(function(){var ions2=window._f2Ions;simState.answered=true;var correct=${i}===simState.qi;document.getElementById('f2-fb').innerHTML=correct?'<span style=color:#27AE60>✅ صحيح! ${ion.ion} يعطي لهباً ${ion.desc}!</span>':'<span style=color:#C0392B>❌ الصحيح هو '+ions2[simState.qi].ion+' ('+ions2[simState.qi].desc+')</span>';})()">${ion.ion} — ${ion.desc}</button>`).join('')}
+        ${ions.map((ion,i)=>`<button class="ctrl-btn f2-opt" id="f2btn-${i}" onclick="window._f2Answer(${i})" style="border-right:4px solid ${ion.col}33;transition:all 0.2s">${ion.ion} — ${ion.desc}</button>`).join('')}
       </div>
     </div>
-    <div id="f2-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
-    <button class="ctrl-btn action" style="margin-top:4px" onclick="newQ()">🎲 لهب جديد</button>
+    <div id="f2-fb" style="padding:8px;text-align:center;font-size:13px;font-weight:700;min-height:36px"></div>
+    <button class="ctrl-btn action" style="margin-top:4px" onclick="window.newQFlame2()">🎲 لهب جديد</button>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ ما محدودية اختبار اللهب؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">بعض الأيونات ألوانها متقاربة (Li⁺ و Ca²⁺ كلاهما أحمر). Na⁺ لونه الأصفر قوي جداً ويُخفي ألوان الآخرين. لذلك يُدمَج اختبار اللهب دائماً مع اختبارات الترسيب للتأكيد.</div>
-    </div>`);
+      <div class="q-ans-panel">بعض الأيونات ألوانها متقاربة (Li⁺ و Ca²⁺ كلاهما أحمر). Na⁺ لونه الأصفر يُخفي ألوان الآخرين. لذلك يُدمَج مع اختبارات الترسيب للتأكيد.</div>
+    </div>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9flametest'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const ion=ions[S.qi];
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#1A1A2E'); bg.addColorStop(1,'#0D1117');
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0A0E1A'); bg.addColorStop(1,'#0D1117');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'ما الأيون الذي يُنتج هذا اللون؟',w/2,h*0.07,'#9DC8E8',Math.max(13,w*0.024));
-    // Big flame
-    const fx=w/2, fy=h*0.58;
-    for(let l=0;l<7;l++){
-      const fh=h*0.35+Math.sin(S.t*0.1+l)*h*0.03;
-      const fw=w*0.08+Math.sin(S.t*0.08+l*0.5)*w*0.012;
-      const grad=c.createRadialGradient(fx,fy,0,fx,fy-fh*0.5,fh);
-      grad.addColorStop(0,'#FFF'); grad.addColorStop(0.2,ion.col); grad.addColorStop(0.7,ion.col+'88'); grad.addColorStop(1,'transparent');
-      c.fillStyle=grad; c.beginPath(); c.ellipse(fx+(l-3)*w*0.025,fy-fh*0.4,fw,fh*0.48,0,0,Math.PI*2); c.fill();
+
+    // Stars
+    for(let s=0;s<30;s++){
+      const sx=((s*137+13)%w), sy=((s*89+7)%(h*0.5));
+      const a=0.3+0.3*Math.sin(S.t*0.02+s);
+      c.fillStyle=`rgba(255,255,255,${a})`; c.beginPath(); c.arc(sx,sy,0.8,0,Math.PI*2); c.fill();
     }
-    // Bunsen burner body
-    c.fillStyle='#555'; c.fillRect(fx-w*0.04,fy,w*0.08,h*0.18);
-    c.fillStyle='#444'; c.fillRect(fx-w*0.07,fy+h*0.16,w*0.14,h*0.04);
-    _lbl(c,'موقد بنسن',fx,fy+h*0.24,'#888',Math.max(10,w*0.018));
-    // Mystery marker
+
+    _lbl(c,'ما الأيون الذي يُنتج هذا اللون؟',w/2,h*0.07,'#9DC8E8',Math.max(13,w*0.024));
+
+    // Big flame
+    const fx=w/2, fy=h*0.60;
+    const [r,g,b]=ion.rgb;
+
+    // Outer glow
+    const outerGlow=c.createRadialGradient(fx,fy-h*0.1,0,fx,fy-h*0.1,h*0.35);
+    outerGlow.addColorStop(0,`rgba(${r},${g},${b},0.3)`);
+    outerGlow.addColorStop(1,'transparent');
+    c.fillStyle=outerGlow; c.fillRect(0,0,w,h);
+
+    for(let l=0;l<9;l++){
+      const fh=h*(0.32+0.05*Math.sin(S.t*0.10+l));
+      const fw=w*(0.055+0.012*Math.sin(S.t*0.08+l*0.5));
+      const grad=c.createRadialGradient(fx,fy,0,fx,fy-fh*0.5,fh);
+      grad.addColorStop(0,'#FFFFFF');
+      grad.addColorStop(0.15,`rgba(255,240,200,1)`);
+      grad.addColorStop(0.35,`rgba(${r},${g},${b},0.95)`);
+      grad.addColorStop(0.75,`rgba(${r},${g},${b},0.55)`);
+      grad.addColorStop(1,'transparent');
+      c.fillStyle=grad;
+      c.beginPath(); c.ellipse(fx+(l-4)*w*0.022,fy-fh*0.4,fw,fh*0.46,0,0,Math.PI*2); c.fill();
+    }
+
+    // Bunsen burner
+    c.fillStyle='#3A3A3A'; c.beginPath(); c.roundRect(fx-w*0.05,fy,w*0.10,h*0.17,5); c.fill();
+    c.fillStyle='#2A2A2A'; c.beginPath(); c.roundRect(fx-w*0.08,fy+h*0.15,w*0.16,h*0.04,3); c.fill();
+    _lbl(c,'موقد بنسن',fx,fy+h*0.22,'#666',Math.max(9,w*0.017));
+
+    // Mystery label or reveal
     if(!S.answered){
-      c.fillStyle='rgba(255,255,255,0.88)'; c.font=`bold ${Math.max(30,w*0.065)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('؟',w/2,h*0.22);
+      // Pulsing question mark
+      const pulse=1+0.05*Math.sin(S.t*0.08);
+      c.save(); c.translate(w/2,h*0.20); c.scale(pulse,pulse);
+      c.fillStyle='rgba(255,255,255,0.92)';
+      c.font=`bold ${Math.max(32,w*0.07)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('؟',0,0);
+      c.restore();
     } else {
-      _lbl(c,ion.ion,w/2,h*0.22,ion.col,Math.max(22,w*0.044));
+      // Revealed ion name
+      c.fillStyle=ion.col;
+      c.font=`bold ${Math.max(20,w*0.042)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(`⁺${ion.ion}`,w/2,h*0.20);
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ 9-2 Tab 3: نشاط اللهب ══
+// ══ 9-2 Tab 3: نشاط اللهب (خطوات تفاعلية) ══
 function simG9FlameTest3(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, step:0, solution:0};
+  simState={t:0, step:0, solution:0, steps_done:{}};
   const S=simState;
   const solutions=[
-    {name:'LiCl (كلوريد الليثيوم)', ion:'Li⁺', col:'#E53935', color:'أحمر قرمزي'},
-    {name:'NaCl (كلوريد الصوديوم)', ion:'Na⁺', col:'#FDD835', color:'أصفر'},
-    {name:'KCl (كلوريد البوتاسيوم)',  ion:'K⁺',  col:'#7B1FA2', color:'أرجواني'},
-    {name:'CuSO₄ (كبريتات النحاس)',   ion:'Cu²⁺',col:'#00897B', color:'أخضر-أزرق'},
+    {name:'LiCl (كلوريد الليثيوم)', ion:'Li⁺', col:'#E53935', rgb:[229,83,53], color:'أحمر قرمزي'},
+    {name:'NaCl (كلوريد الصوديوم)', ion:'Na⁺', col:'#FDD835', rgb:[253,216,53], color:'أصفر'},
+    {name:'KCl (كلوريد البوتاسيوم)',  ion:'K⁺',  col:'#AB47BC', rgb:[171,71,188], color:'أرجواني'},
+    {name:'CuSO₄ (كبريتات النحاس)',   ion:'Cu²⁺',col:'#00897B', rgb:[0,137,123], color:'أخضر-أزرق'},
   ];
+
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🧪 اختر المحلول</div>
       <div class="ctrl-btns-grid-1">
-        ${solutions.map((s,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="f3s-${i}" onclick="simState.solution=${i};simState.step=0;document.querySelectorAll('[id^=f3s-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${s.ion}</button>`).join('')}
+        ${solutions.map((s,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="f3s-${i}" 
+          onclick="simState.solution=${i};simState.step=0;simState.steps_done={};
+          document.querySelectorAll('[id^=f3s-]').forEach((b,j)=>b.classList.toggle('active',j===${i}));
+          document.getElementById('f3-steplabel').textContent='الخطوة 1: نظِّف السلك';"
+        ><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${s.col};margin-left:6px"></span>${s.ion}</button>`).join('')}
       </div>
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">📋 خطوات التجربة</div>
+      <div id="f3-steplabel" style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;text-align:center">الخطوة 1: نظِّف السلك</div>
       <div class="ctrl-btns-grid-1">
-        <button class="ctrl-btn" onclick="simState.step=1">١. نظِّف السلك بـ HCl</button>
-        <button class="ctrl-btn" onclick="simState.step=2">٢. غمِّس السلك في المحلول</button>
-        <button class="ctrl-btn action" onclick="simState.step=3">٣. أدخِل في اللهب 🔥</button>
-        <button class="ctrl-btn stop" onclick="simState.step=0">🔄 أعِد التجربة</button>
+        <button class="ctrl-btn" id="f3step1" onclick="simState.step=1;simState.steps_done[1]=true;
+          document.getElementById('f3-steplabel').textContent='✓ السلك نظيف — الخطوة 2: غمِّس في المحلول';
+          document.getElementById('f3step1').classList.add('active')">١. نظِّف السلك بـ HCl</button>
+        <button class="ctrl-btn" id="f3step2" onclick="if(!simState.steps_done[1]){return;}simState.step=2;simState.steps_done[2]=true;
+          document.getElementById('f3-steplabel').textContent='✓ السلك مُحمَّل — الخطوة 3: أدخِل في اللهب';
+          document.getElementById('f3step2').classList.add('active')">٢. غمِّس السلك في المحلول</button>
+        <button class="ctrl-btn action" id="f3step3" onclick="if(!simState.steps_done[2]){return;}simState.step=3;simState.steps_done[3]=true;
+          document.getElementById('f3-steplabel').textContent='🔥 لاحظ اللون!';
+          document.getElementById('f3step3').classList.add('active')">٣. أدخِل في لهب البنسن 🔥</button>
+        <button class="ctrl-btn stop" onclick="simState.step=0;simState.steps_done={};
+          ['f3step1','f3step2','f3step3'].forEach(id=>document.getElementById(id).classList.remove('active'));
+          document.getElementById('f3-steplabel').textContent='الخطوة 1: نظِّف السلك'">🔄 أعِد التجربة</button>
       </div>
     </div>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ لماذا نُنظِّف السلك بـ HCl أولاً؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">السلك قد يحمل بقايا من تجربة سابقة تُلوِّث النتيجة. HCl يُذيب الشوائب المعدنية. نُكرِّر التنظيف حتى يُعطي السلك لهباً أزرق نقياً بلا لون مُضاف.</div>
-    </div>`);
+      <div class="q-ans-panel">السلك قد يحمل بقايا من تجربة سابقة تُلوِّث النتيجة. HCl يُذيب الشوائب المعدنية. نُكرِّر التنظيف حتى يُعطي اللهب لوناً أزرق نقياً بلا لون مُضاف.</div>
+    </div>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9flametest'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const sol=solutions[S.solution||0];
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#1C2833'); bg.addColorStop(1,'#17202A');
+    const [r,g,b]=sol.rgb;
+
+    // Background
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#111820'); bg.addColorStop(1,'#1A2230');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    const steps=['جاهز — اختر محلولاً وابدأ','الخطوة ١: تنظيف السلك بـ HCl','الخطوة ٢: غمس السلك في المحلول','الخطوة ٣: إدخال في لهب البنسن'];
-    _lbl(c,steps[S.step||0],w/2,h*0.07,'#9DC8E8',Math.max(11,w*0.020));
-    // Bunsen + flame
-    c.fillStyle='#555'; c.fillRect(w*0.42,h*0.56,w*0.16,h*0.20);
-    c.fillStyle='#444'; c.fillRect(w*0.37,h*0.74,w*0.26,h*0.04);
-    if(S.step>=3){
-      for(let l=0;l<5;l++){
-        const fh=h*0.25+Math.sin(S.t*0.12+l)*h*0.025;
-        const grad=c.createRadialGradient(w*0.5,h*0.56,0,w*0.5,h*0.56-fh*0.5,fh);
-        grad.addColorStop(0,'#FFF'); grad.addColorStop(0.3,sol.col); grad.addColorStop(0.8,sol.col+'66'); grad.addColorStop(1,'transparent');
-        c.fillStyle=grad; c.beginPath(); c.ellipse(w*0.5,h*0.43,w*0.055,fh*0.42,0,0,Math.PI*2); c.fill();
+
+    // Step indicators
+    [1,2,3].forEach((step,i)=>{
+      const sx=w*(0.22+i*0.28), sy=h*0.06;
+      const done=S.step>=step, active=S.step===step;
+      c.fillStyle=done?'#27AE60':active?'#D4901A':'rgba(255,255,255,0.15)';
+      c.beginPath(); c.arc(sx,sy,11,0,Math.PI*2); c.fill();
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(10,w*0.018)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(done&&!active?'✓':step,sx,sy);
+      if(i<2){
+        c.strokeStyle=S.step>step?'#27AE60':'rgba(255,255,255,0.2)';
+        c.lineWidth=2; c.setLineDash([4,3]);
+        c.beginPath(); c.moveTo(sx+12,sy); c.lineTo(sx+w*0.28-12,sy); c.stroke();
+        c.setLineDash([]);
       }
+    });
+
+    // Bunsen burner
+    const bfx=w*0.50, bfy=h*0.58;
+    c.fillStyle='#444'; c.beginPath(); c.roundRect(bfx-w*0.055,bfy,w*0.11,h*0.18,5); c.fill();
+    c.fillStyle='#333'; c.beginPath(); c.roundRect(bfx-w*0.085,bfy+h*0.16,w*0.17,h*0.04,3); c.fill();
+
+    // Flame
+    if(S.step>=3){
+      const [fr,fg,fb]=[r,g,b];
+      for(let l=0;l<7;l++){
+        const fh=h*(0.22+0.04*Math.sin(S.t*0.12+l));
+        const fw=w*(0.04+0.01*Math.sin(S.t*0.09+l));
+        const grad=c.createRadialGradient(bfx,bfy,0,bfx,bfy-fh*0.5,fh);
+        grad.addColorStop(0,'#FFF'); grad.addColorStop(0.3,`rgba(${fr},${fg},${fb},0.95)`);
+        grad.addColorStop(0.8,`rgba(${fr},${fg},${fb},0.4)`); grad.addColorStop(1,'transparent');
+        c.fillStyle=grad; c.beginPath(); c.ellipse(bfx+(l-3)*w*0.02,bfy-fh*0.38,fw,fh*0.44,0,0,Math.PI*2); c.fill();
+      }
+      // Glow
+      const gl=c.createRadialGradient(bfx,bfy-h*0.15,0,bfx,bfy-h*0.15,h*0.28);
+      gl.addColorStop(0,`rgba(${r},${g},${b},0.25)`); gl.addColorStop(1,'transparent');
+      c.fillStyle=gl; c.fillRect(0,0,w,h);
     } else {
-      const g2=c.createRadialGradient(w*0.5,h*0.5,0,w*0.5,h*0.4,h*0.15);
-      g2.addColorStop(0,'#FFF'); g2.addColorStop(0.4,'#1A8FA8AA'); g2.addColorStop(1,'transparent');
-      c.fillStyle=g2; c.beginPath(); c.ellipse(w*0.5,h*0.46,w*0.04,h*0.10,0,0,Math.PI*2); c.fill();
+      // Blue pilot flame
+      for(let l=0;l<4;l++){
+        const fh=h*(0.10+0.015*Math.sin(S.t*0.1+l));
+        const grad=c.createRadialGradient(bfx,bfy,0,bfx,bfy-fh*0.5,fh);
+        grad.addColorStop(0,'#FFF'); grad.addColorStop(0.4,'#1A8FA8AA'); grad.addColorStop(1,'transparent');
+        c.fillStyle=grad; c.beginPath(); c.ellipse(bfx+(l-1.5)*w*0.015,bfy-fh*0.35,w*0.025,fh*0.4,0,0,Math.PI*2); c.fill();
+      }
     }
+
     // Wire
-    c.strokeStyle=S.step>=2?sol.col+'AA':'#8D6E63'; c.lineWidth=3;
-    c.beginPath(); c.moveTo(w*0.73,h*0.12); c.lineTo(w*0.50,h*0.42); c.stroke();
-    c.fillStyle='#777'; c.beginPath(); c.arc(w*0.73,h*0.12,6,0,Math.PI*2); c.fill();
-    // Beakers
-    if(S.step===1){
-      _drawBeakerU9(c,w*0.04,h*0.52,w*0.18,h*0.28,'#E74C3C',0.2);
-      _lbl(c,'HCl',w*0.04+w*0.09,h*0.84,'#C0392B',Math.max(10,w*0.018));
+    const wireStartX=w*0.72, wireStartY=h*0.15;
+    c.strokeStyle=S.step>=2?sol.col+'CC':'#888';
+    c.lineWidth=3;
+    if(S.step>=3){
+      c.beginPath(); c.moveTo(wireStartX,wireStartY); c.bezierCurveTo(wireStartX,h*0.45,bfx+w*0.05,bfy-h*0.06,bfx,bfy-h*0.03); c.stroke();
+    } else {
+      c.beginPath(); c.moveTo(wireStartX,wireStartY); c.lineTo(wireStartX-w*0.04,h*0.65); c.stroke();
     }
-    if(S.step>=2){
-      _drawBeakerU9(c,w*0.04,h*0.52,w*0.18,h*0.28,sol.col,0.28);
-      _lbl(c,sol.ion,w*0.04+w*0.09,h*0.84,sol.col,Math.max(10,w*0.018));
-    }
+    c.fillStyle='#888'; c.beginPath(); c.arc(wireStartX,wireStartY,5,0,Math.PI*2); c.fill();
+    c.fillStyle='#666'; c.fillRect(wireStartX-2,wireStartY-2,w*0.05,h*0.018);
+    _lbl(c,'مقبض السلك',wireStartX+w*0.05,wireStartY,'#888',Math.max(8,w*0.015));
+
+    // HCl beaker (step 1)
+    const hclBx=w*0.06, hclBy=h*0.50;
+    const hclBw=w*0.18, hclBh=h*0.28;
+    _drawBeakerU9(c,hclBx,hclBy,hclBw,hclBh,'#E74C3C',S.step>=1?0.25:0.08);
+    _lbl(c,'HCl مخفَّف',hclBx+hclBw/2,hclBy+hclBh+16,'#E74C3C',Math.max(8,w*0.015));
+
+    // Sample beaker (step 2+)
+    const smBx=w*0.06, smBy=h*0.20;
+    const smBw=w*0.18, smBh=h*0.25;
+    _drawBeakerU9(c,smBx,smBy,smBw,smBh,sol.col,S.step>=2?0.35:0.12);
+    _lbl(c,sol.ion,smBx+smBw/2,smBy+smBh+16,sol.col,Math.max(8,w*0.015));
+
+    // Result banner
     if(S.step===3){
-      c.fillStyle='rgba(0,0,0,0.4)'; c.beginPath(); c.roundRect(w*0.04,h*0.82,w*0.9,h*0.12,10); c.fill();
-      c.fillStyle=sol.col; c.font=`bold ${Math.max(11,w*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(`${sol.ion} → لهب ${sol.color}`,w/2,h*0.88);
+      c.fillStyle='rgba(0,0,0,0.55)';
+      c.beginPath(); c.roundRect(w*0.04,h*0.83,w*0.92,h*0.12,8); c.fill();
+      c.fillStyle=sol.col; c.font=`bold ${Math.max(12,w*0.022)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(`${sol.ion} → لهب ${sol.color} 🎯`,w/2,h*0.893);
     }
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
+// ══════════════════════════════════════════════════════════════
+// 🧪 9-3 ترسيب الكاتيونات — نسخة تفاعلية محسّنة
+// ══════════════════════════════════════════════════════════════
+
 // ══ 9-3 Tab 1: NaOH + كاتيونات ══
 function simG9CationPpt1(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, selected:0, drops:0, reacted:false, excess:false};
-  const S=simState;
   const cations=[
-    {ion:'Fe²⁺', naohCol:'#228B22', naohDesc:'راسب أخضر فاتح', excess:'يبقى الراسب', dissolve:false, eq:'Fe²⁺ + 2OH⁻ → Fe(OH)₂↓ (أخضر فاتح)'},
-    {ion:'Fe³⁺', naohCol:'#8B2500', naohDesc:'راسب بني-محمر',  excess:'يبقى الراسب', dissolve:false, eq:'Fe³⁺ + 3OH⁻ → Fe(OH)₃↓ (بني محمر)'},
-    {ion:'Cu²⁺', naohCol:'#1A8FA8', naohDesc:'راسب أزرق فاتح', excess:'يبقى الراسب', dissolve:false, eq:'Cu²⁺ + 2OH⁻ → Cu(OH)₂↓ (أزرق فاتح)'},
-    {ion:'Ca²⁺', naohCol:'#DDDDDD', naohDesc:'راسب أبيض', excess:'يبقى الراسب', dissolve:false, eq:'Ca²⁺ + 2OH⁻ → Ca(OH)₂↓ (أبيض)'},
-    {ion:'Zn²⁺', naohCol:'#E0E0E0', naohDesc:'راسب أبيض', excess:'يذوب في الفائض → [Zn(OH)₄]²⁻', dissolve:true, eq:'Zn²⁺ + 2OH⁻ → Zn(OH)₂↓ ثم يذوب في فائض NaOH'},
+    {ion:'Fe²⁺', col:'#388E3C', desc:'راسب أخضر فاتح',   excess:'يبقى الراسب', dissolve:false, eq:'Fe²⁺ + 2OH⁻ → Fe(OH)₂↓'},
+    {ion:'Fe³⁺', col:'#8B2500', desc:'راسب بني محمر',     excess:'يبقى الراسب', dissolve:false, eq:'Fe³⁺ + 3OH⁻ → Fe(OH)₃↓'},
+    {ion:'Cu²⁺', col:'#0288D1', desc:'راسب أزرق فاتح',   excess:'يبقى الراسب', dissolve:false, eq:'Cu²⁺ + 2OH⁻ → Cu(OH)₂↓'},
+    {ion:'Ca²⁺', col:'#BDBDBD', desc:'راسب أبيض',         excess:'يبقى الراسب', dissolve:false, eq:'Ca²⁺ + 2OH⁻ → Ca(OH)₂↓'},
+    {ion:'Zn²⁺', col:'#90A4AE', desc:'راسب أبيض',         excess:'يذوب → [Zn(OH)₄]²⁻', dissolve:true, eq:'Zn²⁺ + 2OH⁻ → Zn(OH)₂↓'},
   ];
+  simState={t:0, selected:0, drops:0, reacted:false, excess:false, animDropY:-1};
+  const S=simState;
+
+  window._cp1Select=function(i){
+    S.selected=i; S.drops=0; S.reacted=false; S.excess=false; S.animDropY=-1;
+    document.querySelectorAll('[id^=cp1-]').forEach((b,j)=>b.classList.toggle('active',j===i));
+    document.getElementById('cp1-result').innerHTML='<span style="opacity:0.5">أضِف NaOH لمشاهدة النتيجة</span>';
+  };
+
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">⚗️ اختر الكاتيون</div>
       <div class="ctrl-btns-grid-1">
-        ${cations.map((cat,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="cp1-${i}" onclick="simState.selected=${i};simState.drops=0;simState.reacted=false;simState.excess=false;document.querySelectorAll('[id^=cp1-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${cat.ion}</button>`).join('')}
+        ${cations.map((cat,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="cp1-${i}" 
+          style="border-right:4px solid ${cat.col}66"
+          onclick="window._cp1Select(${i})">${cat.ion}</button>`).join('')}
       </div>
     </div>
     <div class="ctrl-section">
-      <div class="ctrl-label">🔬 أضِف NaOH</div>
+      <div class="ctrl-label">🔬 أضِف النواشف</div>
       <div class="ctrl-btns-grid">
-        <button class="ctrl-btn action" onclick="if(simState.drops<6){simState.drops++;if(simState.drops>=2)simState.reacted=true}">+ قطرة NaOH</button>
-        <button class="ctrl-btn stop" onclick="simState.excess=true;simState.drops=8;simState.reacted=true">+ فائض NaOH</button>
+        <button class="ctrl-btn action" onclick="
+          if(simState.drops<8){simState.drops++;if(simState.drops>=2)simState.reacted=true;simState.animDropY=0;}
+          const c=document.getElementById('cp1-result');
+          const cat=({ion:'Fe²⁺',col:'#388E3C',desc:'راسب أخضر فاتح',excess:'يبقى الراسب',dissolve:false,eq:'Fe²⁺ + 2OH⁻ → Fe(OH)₂↓'},{ion:'Fe³⁺',col:'#8B2500',desc:'راسب بني محمر',excess:'يبقى الراسب',dissolve:false,eq:'Fe³⁺ + 3OH⁻ → Fe(OH)₃↓'},{ion:'Cu²⁺',col:'#0288D1',desc:'راسب أزرق فاتح',excess:'يبقى الراسب',dissolve:false,eq:'Cu²⁺ + 2OH⁻ → Cu(OH)₂↓'},{ion:'Ca²⁺',col:'#BDBDBD',desc:'راسب أبيض',excess:'يبقى الراسب',dissolve:false,eq:'Ca²⁺ + 2OH⁻ → Ca(OH)₂↓'},{ion:'Zn²⁺',col:'#90A4AE',desc:'راسب أبيض',excess:'يذوب → [Zn(OH)₄]²⁻',dissolve:true,eq:'Zn²⁺ + 2OH⁻ → Zn(OH)₂↓'})[simState.selected];
+          if(simState.drops>=2&&c)c.innerHTML='<span style=color:'+['#388E3C','#8B2500','#0288D1','#BDBDBD','#90A4AE'][simState.selected]+'>'+['راسب أخضر فاتح ✅','راسب بني محمر ✅','راسب أزرق فاتح ✅','راسب أبيض ✅','راسب أبيض ✅'][simState.selected]+'</span>'
+        ">+ قطرة NaOH</button>
+        <button class="ctrl-btn stop" onclick="
+          simState.excess=true;simState.drops=10;simState.reacted=true;
+          const el=document.getElementById('cp1-result');
+          const msgs=['يبقى الراسب','يبقى الراسب','يبقى الراسب','يبقى الراسب','يذوب → [Zn(OH)₄]²⁻'];
+          if(el)el.innerHTML='<strong>فائض NaOH: </strong>'+msgs[simState.selected];
+        ">+ فائض NaOH</button>
       </div>
-      <button class="ctrl-btn" style="margin-top:6px" onclick="simState.drops=0;simState.reacted=false;simState.excess=false">🔄 إعادة</button>
+      <button class="ctrl-btn" style="margin-top:6px" onclick="window._cp1Select(simState.selected)">🔄 إعادة</button>
+    </div>
+    <div id="cp1-result" class="info-box" style="min-height:36px;font-size:13px;text-align:center;margin-top:6px">
+      <span style="opacity:0.5">أضِف NaOH لمشاهدة النتيجة</span>
     </div>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ لماذا يذوب هيدروكسيد الزنك في الفائض؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">Zn(OH)₂ متذبذب (Amphoteric) — يتفاعل مع الأحماض والقواعد. في فائض NaOH: Zn(OH)₂ + 2OH⁻ → [Zn(OH)₄]²⁻ (يذوب). يُميِّزه عن Ca²⁺ الذي لا يذوب. هذا اختبار مهم!</div>
-    </div>`);
+      <div class="q-ans-panel">Zn(OH)₂ متذبذب (Amphoteric) — يتفاعل مع الأحماض والقواعد. في فائض NaOH: Zn(OH)₂ + 2OH⁻ → [Zn(OH)₄]²⁻ (يذوب). هذا يُميِّزه عن Ca²⁺ الذي لا يذوب!</div>
+    </div>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9cationppt'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const cat=cations[S.selected||0];
-    const prog=Math.min((S.drops||0)/5,1);
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#EDE7F6'); bg.addColorStop(1,'#D1C4E9');
+    const prog=Math.min((S.drops||0)/6,1);
+
+    // Background gradient
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F3E5F5'); bg.addColorStop(1,'#E8D5F0');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'NaOH يُرسِّب الكاتيونات',w/2,h*0.06,'#4A148C',Math.max(13,w*0.025));
-    // Left beaker (sample)
-    const bx1=w*0.07, by1=h*0.12, bw1=w*0.32, bh1=h*0.42;
-    _drawBeakerU9(c,bx1,by1,bw1,bh1,'#87CEEB',0.25);
+
+    _lbl(c,'NaOH يُرسِّب الكاتيونات',w/2,h*0.055,'#4A148C',Math.max(13,w*0.025));
+
+    // Sample beaker (left)
+    const bx1=w*0.06, by1=h*0.12, bw1=w*0.32, bh1=h*0.44;
+    _drawBeakerU9(c,bx1,by1,bw1,bh1,'#87CEEB',0.22);
     _lbl(c,`محلول ${cat.ion}`,bx1+bw1/2,by1+bh1+18,'#1E2D3D',Math.max(10,w*0.018));
-    // NaOH dropper
-    const dX=bx1+bw1/2, dY=by1-h*0.05;
-    c.fillStyle='#F3E5F5'; c.fillRect(dX-w*0.013,dY,w*0.026,h*0.055);
-    c.strokeStyle='#7B1FA2'; c.lineWidth=2; c.strokeRect(dX-w*0.013,dY,w*0.026,h*0.055);
-    _lbl(c,'NaOH',dX,dY-6,'#6B4E9A',Math.max(9,w*0.016));
-    if(S.drops>0){
-      for(let d=0;d<Math.min(S.drops,3);d++){
-        const dy2=by1+h*0.05+d*h*0.07;
-        if(dy2<by1+bh1*0.75){
-          c.fillStyle='#7B1FA288'; c.beginPath(); c.ellipse(dX,dy2,4,6,0,0,Math.PI*2); c.fill();
-        }
+
+    // NaOH dropper (animated drops)
+    const dX=bx1+bw1/2, dY=by1-h*0.07;
+    c.fillStyle='#F3E5F5'; c.strokeStyle='#7B1FA2'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(dX-w*0.016,dY,w*0.032,h*0.06,4); c.fill(); c.stroke();
+    _lbl(c,'NaOH',dX,dY-8,'#6B4E9A',Math.max(9,w*0.016));
+    // Dropper tip
+    c.fillStyle='#7B1FA2';
+    c.beginPath(); c.moveTo(dX-4,dY+h*0.06); c.lineTo(dX+4,dY+h*0.06); c.lineTo(dX,dY+h*0.075); c.closePath(); c.fill();
+
+    // Animated drop
+    if(S.drops>0 && S.animDropY>=0){
+      S.animDropY+=h*0.04;
+      const dropAlpha=S.animDropY<bh1*0.5?1:0;
+      if(dropAlpha>0){
+        c.fillStyle=`rgba(123,31,162,${dropAlpha*0.7})`;
+        c.beginPath(); c.ellipse(dX,dY+h*0.075+S.animDropY,4,6,0,0,Math.PI*2); c.fill();
       }
     }
-    // Right beaker (result)
-    const bx2=w*0.58, by2=by1, bw2=w*0.35, bh2=bh1;
-    _drawBeakerU9(c,bx2,by2,bw2,bh2,'#87CEEB',0.08);
+
+    // NaOH drop count indicator
+    if(S.drops>0){
+      for(let d=0;d<Math.min(S.drops,6);d++){
+        c.fillStyle='rgba(123,31,162,0.6)';
+        c.beginPath(); c.arc(bx1+bw1*0.2+d*bw1*0.11,by1+bh1*0.18,3,0,Math.PI*2); c.fill();
+      }
+    }
+
+    // Result beaker (right)
+    const bx2=w*0.58, by2=by1, bw2=w*0.36, bh2=bh1;
+    _drawBeakerU9(c,bx2,by2,bw2,bh2,'#87CEEB',0.06);
+
     if(S.reacted){
       const dissolved=cat.dissolve&&S.excess;
-      const alpha=dissolved?0.05:Math.min(prog+0.1,0.65);
-      const precipH=bh2*0.32*alpha*2;
       if(!dissolved){
-        c.fillStyle=cat.naohCol+(Math.round(alpha*200).toString(16).padStart(2,'0'));
-        c.fillRect(bx2,by2+bh2-precipH,bw2,precipH);
+        const pAlpha=Math.min(prog*1.2,0.75);
+        const pH=bh2*0.38*prog;
+        // Precipitate
+        c.fillStyle=cat.col+(Math.round(pAlpha*200).toString(16).padStart(2,'0'));
+        c.fillRect(bx2+2,by2+bh2-pH,bw2-4,pH);
+        // Precipitate particles
+        c.save(); c.beginPath(); c.rect(bx2+2,by2+bh2-pH,bw2-4,pH); c.clip();
+        for(let p=0;p<20;p++){
+          const px=bx2+5+((S.t*0.3+p*37)%(bw2-10));
+          const py=by2+bh2-pH+2+((S.t*0.1+p*17)%pH);
+          c.fillStyle=cat.col+'99'; c.beginPath(); c.arc(px,py,2+Math.sin(p)*1.5,0,Math.PI*2); c.fill();
+        }
+        c.restore();
+        // Turbid water above precipitate
+        c.fillStyle=cat.col+'18'; c.fillRect(bx2+2,by2,bw2-4,bh2-pH);
       } else {
-        c.fillStyle='rgba(26,143,168,0.12)'; c.fillRect(bx2,by2,bw2,bh2);
-        _lbl(c,'ذاب!',bx2+bw2/2,by2+bh2*0.5,'#1A8FA8',Math.max(11,w*0.020));
+        // Dissolved - clear solution
+        c.fillStyle='rgba(26,143,168,0.1)'; c.fillRect(bx2,by2,bw2,bh2);
+        _lbl(c,'محلول شفاف ← ذاب!',bx2+bw2/2,by2+bh2*0.45,'#1A8FA8',Math.max(11,w*0.020));
       }
     }
     _lbl(c,'الناتج',bx2+bw2/2,by2+bh2+18,'#1E2D3D',Math.max(10,w*0.018));
+
+    // Equation & result box
     if(S.reacted){
-      const iy=h*0.64, ih=h*0.22;
-      c.fillStyle='rgba(74,20,140,0.08)'; c.beginPath(); c.roundRect(w*0.04,iy,w*0.92,ih,10); c.fill();
-      _lbl(c,S.excess?cat.excess:cat.naohDesc,w/2,iy+ih*0.30,'#4A148C',Math.max(10,w*0.019));
-      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.015)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
-      c.fillText(cat.eq,w/2,iy+ih*0.70);
+      const ry=h*0.66, rh=h*0.22;
+      c.fillStyle='rgba(74,20,140,0.07)'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
+      c.strokeStyle='rgba(74,20,140,0.15)'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.stroke();
+      const dispText=S.excess?cat.excess:cat.desc;
+      _lbl(c,'🔬 '+dispText,w/2,ry+rh*0.28,'#4A148C',Math.max(11,w*0.021));
+      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText(cat.eq,w/2,ry+rh*0.65);
     }
     animFrame=requestAnimationFrame(draw);
   }
@@ -35411,81 +35734,131 @@ function simG9CationPpt1(){
 // ══ 9-3 Tab 2: NH₃ + كاتيونات ══
 function simG9CationPpt2(){
   cancelAnimationFrame(animFrame);
+  const cations=[
+    {ion:'Fe²⁺', col:'#388E3C', desc:'راسب أخضر فاتح (مثل NaOH)', excess:'يبقى الراسب', dissolve:false},
+    {ion:'Fe³⁺', col:'#8B2500', desc:'راسب بني محمر (مثل NaOH)',   excess:'يبقى الراسب', dissolve:false},
+    {ion:'Cu²⁺', col:'#0288D1', desc:'راسب أزرق فاتح أولاً',       excess:'أزرق داكن [Cu(NH₃)₄]²⁺', dissolve:true},
+    {ion:'Ca²⁺', col:'#BDBDBD', desc:'لا راسب واضح (NH₃ ضعيفة)',   excess:'لا تغيُّر', dissolve:false},
+    {ion:'Zn²⁺', col:'#90A4AE', desc:'راسب أبيض',                   excess:'يذوب → شفاف', dissolve:true},
+  ];
   simState={t:0, selected:0, drops:0, reacted:false, excess:false};
   const S=simState;
-  const cations=[
-    {ion:'Fe²⁺', ammCol:'#228B22', ammDesc:'راسب أخضر فاتح (مثل NaOH)', excess:'يبقى الراسب', dissolve:false},
-    {ion:'Fe³⁺', ammCol:'#8B2500', ammDesc:'راسب بني-محمر (مثل NaOH)', excess:'يبقى الراسب', dissolve:false},
-    {ion:'Cu²⁺', ammCol:'#1A8FA8', ammDesc:'راسب أزرق فاتح أولاً', excess:'يذوب → أزرق داكن [Cu(NH₃)₄]²⁺', dissolve:true},
-    {ion:'Ca²⁺', ammCol:'#EEEEEE', ammDesc:'لا راسب واضح (NH₃ ضعيفة)', excess:'لا تغيُّر', dissolve:false},
-    {ion:'Zn²⁺', ammCol:'#E0E0E0', ammDesc:'راسب أبيض', excess:'يذوب في الفائض → شفاف', dissolve:true},
-  ];
+
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">💨 اختر الكاتيون</div>
       <div class="ctrl-btns-grid-1">
-        ${cations.map((cat,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="cp2-${i}" onclick="simState.selected=${i};simState.drops=0;simState.reacted=false;simState.excess=false;document.querySelectorAll('[id^=cp2-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${cat.ion}</button>`).join('')}
+        ${cations.map((cat,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="cp2-${i}" 
+          style="border-right:4px solid ${cat.col}66"
+          onclick="simState.selected=${i};simState.drops=0;simState.reacted=false;simState.excess=false;document.querySelectorAll('[id^=cp2-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${cat.ion}</button>`).join('')}
       </div>
     </div>
     <div class="ctrl-section">
+      <div class="ctrl-label">إضافة الأمونيا NH₃</div>
       <div class="ctrl-btns-grid">
-        <button class="ctrl-btn action" onclick="if(simState.drops<6){simState.drops++;if(simState.drops>=2)simState.reacted=true}">+ قطرة NH₃</button>
-        <button class="ctrl-btn stop" onclick="simState.excess=true;simState.drops=8;simState.reacted=true">+ فائض NH₃</button>
+        <button class="ctrl-btn action" onclick="if(simState.drops<8){simState.drops++;if(simState.drops>=2)simState.reacted=true;}">+ قطرة NH₃</button>
+        <button class="ctrl-btn stop" onclick="simState.excess=true;simState.drops=10;simState.reacted=true;">+ فائض NH₃</button>
       </div>
-      <button class="ctrl-btn" style="margin-top:6px" onclick="simState.drops=0;simState.reacted=false;simState.excess=false">🔄 إعادة</button>
+      <button class="ctrl-btn" style="margin-top:6px" onclick="simState.drops=0;simState.reacted=false;simState.excess=false;">🔄 إعادة</button>
     </div>
     <div class="q-box" style="margin-top:8px">
-      <strong>❓ ما الفرق الرئيسي بين NaOH و NH₃ كواشف؟</strong>
+      <strong>❓ ما الفرق بين NaOH و NH₃ كواشف؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">Cu²⁺ يذوب في فائض NH₃ → أزرق داكن، بينما يبقى الراسب مع NaOH. Ca²⁺ لا يُرسَّب بـ NH₃ لأنها قاعدة ضعيفة (أيونات OH⁻ قليلة). هذه الفروق تُساعد في التمييز بين الكاتيونات!</div>
-    </div>`);
+      <div class="q-ans-panel">Cu²⁺ يذوب في فائض NH₃ → أزرق داكن جميل. Ca²⁺ لا يُرسَّب بـ NH₃ لأنها قاعدة ضعيفة. هذه الفروق تُساعد في التمييز الدقيق بين الكاتيونات!</div>
+    </div>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9cationppt'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const cat=cations[S.selected||0];
-    const prog=Math.min((S.drops||0)/5,1);
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#E8F5E9'); bg.addColorStop(1,'#C8E6C9');
+    const prog=Math.min((S.drops||0)/6,1);
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#E8F5E9'); bg.addColorStop(1,'#C8E6C9');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'NH₃ (الأمونيا) يُرسِّب الكاتيونات',w/2,h*0.06,'#1B5E20',Math.max(13,w*0.024));
-    const bx1=w*0.07, by1=h*0.12, bw1=w*0.32, bh1=h*0.42;
-    _drawBeakerU9(c,bx1,by1,bw1,bh1,'#87CEEB',0.25);
+
+    _lbl(c,'NH₃ (الأمونيا) — واشف الكاتيونات',w/2,h*0.055,'#1B5E20',Math.max(13,w*0.024));
+
+    // NH₃ gas bubbles rising in background
+    for(let b=0;b<6;b++){
+      const bx=w*(0.1+b*0.15), by_b=h*(0.8-((S.t*0.004+b*0.15)%0.7));
+      const ba=0.08+0.04*Math.sin(S.t*0.05+b);
+      c.fillStyle=`rgba(76,175,80,${ba})`;
+      c.beginPath(); c.arc(bx,by_b,4+b*1.5,0,Math.PI*2); c.fill();
+    }
+
+    // Sample beaker
+    const bx1=w*0.06, by1=h*0.12, bw1=w*0.32, bh1=h*0.44;
+    _drawBeakerU9(c,bx1,by1,bw1,bh1,'#87CEEB',0.22);
     _lbl(c,`محلول ${cat.ion}`,bx1+bw1/2,by1+bh1+18,'#1E2D3D',Math.max(10,w*0.018));
-    const dX=bx1+bw1/2, dY=by1-h*0.05;
-    c.fillStyle='#E8F5E9'; c.fillRect(dX-w*0.013,dY,w*0.026,h*0.055);
-    c.strokeStyle='#4CAF50'; c.lineWidth=2; c.strokeRect(dX-w*0.013,dY,w*0.026,h*0.055);
-    _lbl(c,'NH₃',dX,dY-6,'#2E7D32',Math.max(9,w*0.016));
-    const bx2=w*0.58, by2=by1, bw2=w*0.35, bh2=bh1;
-    _drawBeakerU9(c,bx2,by2,bw2,bh2,'#87CEEB',0.08);
+
+    // NH₃ dropper
+    const dX=bx1+bw1/2, dY=by1-h*0.07;
+    c.fillStyle='#E8F5E9'; c.strokeStyle='#4CAF50'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(dX-w*0.016,dY,w*0.032,h*0.06,4); c.fill(); c.stroke();
+    _lbl(c,'NH₃',dX,dY-8,'#2E7D32',Math.max(9,w*0.016));
+    // NH₃ molecules floating from dropper
+    for(let nm=0;nm<3;nm++){
+      const nx=dX+(nm-1)*8, ny=dY-nm*8-Math.sin(S.t*0.07+nm)*5;
+      c.fillStyle='rgba(76,175,80,0.35)'; c.beginPath(); c.arc(nx,ny,3,0,Math.PI*2); c.fill();
+    }
+
+    // Result beaker
+    const bx2=w*0.58, by2=by1, bw2=w*0.36, bh2=bh1;
+    _drawBeakerU9(c,bx2,by2,bw2,bh2,'#87CEEB',0.06);
+
     if(S.reacted){
       const dissolved=cat.dissolve&&S.excess;
-      const alpha=dissolved?0.04:Math.min(prog+0.1,0.62);
-      if(!dissolved){
-        const pH=bh2*0.32*alpha*2;
-        c.fillStyle=cat.ammCol+(Math.round(alpha*190).toString(16).padStart(2,'0'));
-        c.fillRect(bx2,by2+bh2-pH,bw2,pH);
+      if(!dissolved && cat.ion!=='Ca²⁺'){
+        const pA=Math.min(prog*1.1,0.72);
+        const pH=bh2*0.38*prog;
+        c.fillStyle=cat.col+(Math.round(pA*195).toString(16).padStart(2,'0'));
+        c.fillRect(bx2+2,by2+bh2-pH,bw2-4,pH);
+        c.fillStyle=cat.col+'15'; c.fillRect(bx2+2,by2,bw2-4,bh2-pH);
+      } else if(dissolved){
+        const exCol=S.selected===2?'#1565C0':'#78909C';
+        c.fillStyle=exCol+'22'; c.fillRect(bx2,by2,bw2,bh2);
+        _lbl(c,S.selected===2?'أزرق داكن ✨':'شفاف',bx2+bw2/2,by2+bh2*0.45,exCol,Math.max(11,w*0.019));
       } else {
-        const exCol=S.selected===2?'#1565C0':'#90A4AE';
-        c.fillStyle=exCol+'28'; c.fillRect(bx2,by2,bw2,bh2);
-        _lbl(c,S.selected===2?'أزرق داكن':'شفاف',bx2+bw2/2,by2+bh2*0.5,exCol,Math.max(11,w*0.019));
+        // Ca²⁺ - very slight turbidity
+        c.fillStyle='rgba(200,200,200,0.05)'; c.fillRect(bx2,by2,bw2,bh2);
       }
     }
     _lbl(c,'الناتج',bx2+bw2/2,by2+bh2+18,'#1E2D3D',Math.max(10,w*0.018));
+
     if(S.reacted){
-      const iy=h*0.64, ih=h*0.20;
-      c.fillStyle='rgba(27,94,32,0.08)'; c.beginPath(); c.roundRect(w*0.04,iy,w*0.92,ih,10); c.fill();
-      _lbl(c,S.excess?cat.excess:cat.ammDesc,w/2,iy+ih*0.42,'#1B5E20',Math.max(10,w*0.019));
+      const ry=h*0.66, rh=h*0.22;
+      c.fillStyle='rgba(27,94,32,0.07)'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
+      c.strokeStyle='rgba(27,94,32,0.15)'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.stroke();
+      const dispText=S.excess?cat.excess:cat.desc;
+      _lbl(c,'🔬 '+dispText,w/2,ry+rh*0.38,'#1B5E20',Math.max(11,w*0.021));
+      // Compare with NaOH
+      if(S.excess){
+        const compareTexts={
+          'Fe²⁺':'مثل NaOH — يبقى','Fe³⁺':'مثل NaOH — يبقى',
+          'Cu²⁺':'بخلاف NaOH — يذوب ويصبح أزرق داكن!',
+          'Ca²⁺':'بخلاف NaOH — NH₃ ضعيفة لا تُرسِّب Ca²⁺',
+          'Zn²⁺':'مثل NaOH — يذوب في الفائض'
+        };
+        c.fillStyle='#888'; c.font=`${Math.max(8,w*0.014)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='alphabetic';
+        c.fillText('مقارنة: '+compareTexts[cat.ion],w/2,ry+rh*0.78);
+      }
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ 9-3 Tab 3: حدِّد الكاتيون ══
-// lookup tables accessible to inline onclick handlers
-window._cp3Cations = ['Fe²⁺','Fe³⁺','Cu²⁺','Ca²⁺','Zn²⁺'];
-window._cp3Results = {
+// ══ 9-3 Tab 3: حدِّد الكاتيون (لعبة تعليمية) ══
+window._cp3Cations=['Fe²⁺','Fe³⁺','Cu²⁺','Ca²⁺','Zn²⁺'];
+window._cp3Colors={
+  'Fe²⁺':'#388E3C','Fe³⁺':'#8B2500','Cu²⁺':'#0288D1','Ca²⁺':'#BDBDBD','Zn²⁺':'#90A4AE'
+};
+window._cp3Results={
   'Fe²⁺':{naoh:'أخضر فاتح، يبقى',  nh3:'أخضر فاتح، يبقى'},
   'Fe³⁺':{naoh:'بني محمر، يبقى',    nh3:'بني محمر، يبقى'},
   'Cu²⁺':{naoh:'أزرق فاتح، يبقى',   nh3:'أزرق ثم يذوب → أزرق داكن'},
@@ -35496,550 +35869,1041 @@ function simG9CationPpt3(){
   cancelAnimationFrame(animFrame);
   const cations=window._cp3Cations;
   const results=window._cp3Results;
+  const colors=window._cp3Colors;
   let qi=Math.floor(Math.random()*cations.length);
   let useNaOH=Math.random()>0.5;
-  simState={t:0, qi, useNaOH, chosen:null};
+  simState={t:0, qi, useNaOH, chosen:null, score:0, streak:0, total:0};
   const S=simState;
-  function newQ(){
-    qi=Math.floor(Math.random()*cations.length);
-    useNaOH=Math.random()>0.5;
-    S.qi=qi; S.useNaOH=useNaOH; S.chosen=null;
+
+  window.newQCation3=function(){
+    let newQi; do{ newQi=Math.floor(Math.random()*cations.length); }while(newQi===S.qi&&cations.length>1);
+    S.qi=newQi; S.useNaOH=Math.random()>0.5; S.chosen=null;
+    document.querySelectorAll('[id^=cp3btn-]').forEach(b=>b.classList.remove('correct','wrong','active'));
+    const r=results[cations[S.qi]][S.useNaOH?'naoh':'nh3'];
+    document.getElementById('cp3-q').innerHTML=`عند إضافة <strong style="color:${S.useNaOH?'#7B1FA2':'#2E7D32'}">${S.useNaOH?'NaOH':'NH₃'}</strong> نحصل على: <strong>${r}</strong>`;
     document.getElementById('cp3-fb').innerHTML='';
-    document.getElementById('cp3-q').innerHTML='عند إضافة '+(useNaOH?'NaOH':'NH₃')+' نحصل على: <strong>'+results[cations[qi]][useNaOH?'naoh':'nh3']+'</strong> — ما الكاتيون؟';
-  }
+  };
+
+  window._cp3Answer=function(i){
+    if(S.chosen!==null) return;
+    S.chosen=cations[i]; S.total++;
+    const correct=cations[i]===cations[S.qi];
+    if(correct){ S.streak++; S.score+=10+(S.streak>1?S.streak*2:0); }
+    else { S.streak=0; }
+    document.getElementById('cp3-score').textContent=S.score;
+    document.getElementById('cp3-streak').textContent=S.streak>0?'🔥'.repeat(Math.min(S.streak,5)):'—';
+    const btn=document.getElementById('cp3btn-'+i);
+    if(btn) btn.classList.add(correct?'correct':'wrong');
+    if(!correct){
+      const cb=document.getElementById('cp3btn-'+S.qi);
+      if(cb) cb.classList.add('correct');
+    }
+    document.getElementById('cp3-fb').innerHTML=correct
+      ?`<span style="color:#27AE60">✅ ممتاز! ${S.streak>2?'سلسلة '+S.streak+' 🔥':''}</span>`
+      :`<span style="color:#C0392B">❌ الصحيح: <strong style="color:${colors[cations[S.qi]]}">${cations[S.qi]}</strong></span>`;
+    setTimeout(()=>{ if(S.chosen!==null) window.newQCation3(); }, 1600);
+  };
+
   controls(`
-    <div class="ctrl-section">
-      <div id="cp3-q" class="info-box" style="font-size:14px;text-align:center;line-height:1.6">
-        عند إضافة ${useNaOH?'NaOH':'NH₃'} نحصل على: <strong>${results[cations[qi]][useNaOH?'naoh':'nh3']}</strong> — ما الكاتيون؟
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <div style="text-align:center;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:6px">
+        <div style="font-size:10px;color:var(--text-secondary)">النقاط</div>
+        <div id="cp3-score" style="font-size:20px;font-weight:800;color:#27AE60">0</div>
+      </div>
+      <div style="text-align:center;background:rgba(212,144,26,0.1);border:1px solid rgba(212,144,26,0.3);border-radius:8px;padding:6px">
+        <div style="font-size:10px;color:var(--text-secondary)">السلسلة</div>
+        <div id="cp3-streak" style="font-size:16px;font-weight:800;color:#D4901A">—</div>
       </div>
     </div>
-    <div class="ctrl-btns-grid-1">
-      ${cations.map((cat)=>`<button class="ctrl-btn" onclick="(function(){var cats=window._cp3Cations;simState.chosen='${cat}';var correct='${cat}'===cats[simState.qi];document.getElementById('cp3-fb').innerHTML=correct?'<span style=color:#27AE60>✅ صحيح!</span>':'<span style=color:#C0392B>❌ الصحيح: '+cats[simState.qi]+'</span>';})();">${cat}</button>`).join('')}
+    <div id="cp3-q" class="info-box" style="font-size:13px;text-align:center;line-height:1.7;margin-bottom:8px">
+      عند إضافة <strong style="color:${useNaOH?'#7B1FA2':'#2E7D32'}">${useNaOH?'NaOH':'NH₃'}</strong> نحصل على: <strong>${results[cations[qi]][useNaOH?'naoh':'nh3']}</strong>
     </div>
-    <div id="cp3-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
-    <button class="ctrl-btn action" onclick="newQ()">🎲 سؤال جديد</button>`);
+    <div class="ctrl-label">ما الكاتيون المجهول؟</div>
+    <div class="ctrl-btns-grid-1">
+      ${cations.map((cat,i)=>`<button class="ctrl-btn" id="cp3btn-${i}" 
+        style="border-right:4px solid ${colors[cat]}77;transition:all 0.2s"
+        onclick="window._cp3Answer(${i})">${cat}</button>`).join('')}
+    </div>
+    <div id="cp3-fb" style="padding:8px;text-align:center;font-size:13px;font-weight:700;min-height:36px"></div>
+    <button class="ctrl-btn action" style="margin-top:4px" onclick="window.newQCation3()">🎲 سؤال جديد</button>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9cationppt'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#FFF8E7'); bg.addColorStop(1,'#FFE0B2');
+
+    // Background
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#FFF8E7'); bg.addColorStop(1,'#FFF3E0');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'جدول نتائج اختبار الترسيب',w/2,h*0.06,'#E65100',Math.max(13,w*0.025));
+
+    _lbl(c,'جدول نتائج اختبار الترسيب',w/2,h*0.055,'#E65100',Math.max(13,w*0.025));
+
+    // Draw comparison table
     const cols=['الكاتيون','مع NaOH','مع NH₃'];
     const rows=Object.entries(results);
-    const colW=w*0.30, rowH=h*0.11, sx=w*0.03, sy=h*0.11;
+    const colW=w*0.31, rowH=h*0.105, sx=w*0.02, sy=h*0.09;
+
+    // Header
     cols.forEach((col,i)=>{
-      c.fillStyle='#E65100'; c.beginPath(); c.roundRect(sx+i*colW,sy,colW-4,rowH*0.72,4); c.fill();
-      c.fillStyle='#fff'; c.font=`bold ${Math.max(10,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(col,sx+i*colW+colW/2-2,sy+rowH*0.36);
+      const hx=sx+i*colW, hy=sy;
+      c.fillStyle=i===0?'#E65100':S.useNaOH&&i===1?'#7B1FA2':!S.useNaOH&&i===2?'#2E7D32':'#546E7A';
+      c.beginPath(); c.roundRect(hx+1,hy,colW-3,rowH*0.68,4); c.fill();
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(9,w*0.017)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(col,hx+colW/2,hy+rowH*0.34);
     });
+
+    // Rows
     rows.forEach(([cat,res],ri)=>{
-      const ry=sy+rowH*(ri+0.72);
-      const isQ=cat===cations[S.qi];
-      c.fillStyle=isQ?'rgba(255,165,0,0.2)':'rgba(255,255,255,0.55)';
-      c.beginPath(); c.roundRect(sx,ry,w*0.92,rowH*0.88,4); c.fill();
-      if(isQ){c.strokeStyle='#FF6F00'; c.lineWidth=2; c.beginPath(); c.roundRect(sx,ry,w*0.92,rowH*0.88,4); c.stroke();}
-      const hideVal = isQ && !S.chosen;
-      const vals=[cat, hideVal?'???':res.naoh, hideVal?'???':res.nh3];
+      const ry=sy+rowH*(ri+0.68);
+      const isTarget=cat===cations[S.qi];
+      const isChosen=S.chosen===cat;
+
+      // Row background
+      let rowBg='rgba(255,255,255,0.6)';
+      if(isTarget && S.chosen){ rowBg='rgba(39,174,96,0.15)'; }
+      else if(isChosen && !isTarget){ rowBg='rgba(192,57,43,0.12)'; }
+      else if(isTarget && !S.chosen){ rowBg='rgba(255,165,0,0.15)'; }
+      c.fillStyle=rowBg;
+      c.beginPath(); c.roundRect(sx+1,ry,w*0.94,rowH*0.84,4); c.fill();
+
+      // Border for target row
+      if(isTarget){
+        c.strokeStyle=S.chosen?'#27AE60':'#FF8F00'; c.lineWidth=S.chosen?2:1.5;
+        c.beginPath(); c.roundRect(sx+1,ry,w*0.94,rowH*0.84,4); c.stroke();
+      }
+
+      // Colored dot for cation
+      c.fillStyle=colors[cat]; c.beginPath(); c.arc(sx+14,ry+rowH*0.42,6,0,Math.PI*2); c.fill();
+
+      // Cell values
+      const hideVals=isTarget&&!S.chosen;
+      const vals=[cat, hideVals?'???':res.naoh, hideVals?'???':res.nh3];
       vals.forEach((val,ci)=>{
-        c.fillStyle=isQ?'#E65100':'#1E2D3D';
-        c.font=`${Math.max(8,w*0.015)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText(val,sx+ci*colW+colW/2-2,ry+rowH*0.44);
+        const cx=sx+ci*colW+colW/2;
+        c.fillStyle=isTarget&&S.chosen?'#1B5E20':ci===0?colors[cat]:'#37474F';
+        c.font=`${Math.max(8,w*0.014)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(val,cx,ry+rowH*0.42);
       });
+
+      // Highlight active reagent column
+      if(!hideVals){
+        const hlCol=S.useNaOH?1:2;
+        c.strokeStyle=S.useNaOH?'rgba(123,31,162,0.2)':'rgba(46,125,50,0.2)';
+        c.lineWidth=1;
+        c.beginPath(); c.roundRect(sx+hlCol*colW+1,ry,colW-2,rowH*0.84,2); c.stroke();
+      }
     });
+
+    // Score display
+    if(S.score>0){
+      c.fillStyle='rgba(39,174,96,0.1)'; c.beginPath();
+      c.roundRect(w*0.70,h*0.82,w*0.26,h*0.12,8); c.fill();
+      c.fillStyle='#27AE60'; c.font=`bold ${Math.max(12,w*0.022)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('⭐ '+S.score,w*0.83,h*0.88);
+    }
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
+// ══════════════════════════════════════════════════════════════
+// ⚗️ 9-4 اختبار الأنيونات — نسخة تفاعلية محسّنة
+// ══════════════════════════════════════════════════════════════
+
 // ══ 9-4 Tab 1: Cl⁻ و Br⁻ بـ AgNO₃ ══
 function simG9AnionTest1(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, selected:0, drops:0, reacted:false};
-  const S=simState;
   const anions=[
-    {ion:'Cl⁻', col:'#F0F0F0', colName:'أبيض',        eq:'Ag⁺ + Cl⁻ → AgCl↓ (أبيض)',    nh3:'يذوب في NH₃ المخفَّفة'},
-    {ion:'Br⁻', col:'#FFFDE7', colName:'أصفر فاتح كريمي', eq:'Ag⁺ + Br⁻ → AgBr↓ (كريمي)', nh3:'يذوب في NH₃ المركَّزة فقط'},
-    {ion:'I⁻',  col:'#FFF9C4', colName:'أصفر',        eq:'Ag⁺ + I⁻ → AgI↓ (أصفر)',       nh3:'لا يذوب في NH₃ أبداً'},
+    {ion:'Cl⁻', col:'#E0E0E0', colName:'أبيض',       eq:'Ag⁺ + Cl⁻ → AgCl↓ (أبيض)',    nh3:'يذوب في NH₃ مخفَّفة ✅',    rgb:[220,220,220]},
+    {ion:'Br⁻', col:'#FFF59D', colName:'أصفر كريمي',  eq:'Ag⁺ + Br⁻ → AgBr↓ (كريمي)',  nh3:'يذوب في NH₃ مركَّزة فقط ⚠️', rgb:[255,245,157]},
+    {ion:'I⁻',  col:'#FFF176', colName:'أصفر',        eq:'Ag⁺ + I⁻ → AgI↓ (أصفر)',     nh3:'لا يذوب في NH₃ ❌',          rgb:[255,241,118]},
   ];
+  simState={t:0, selected:0, drops:0, reacted:false, testNH3:false, nh3Added:false};
+  const S=simState;
+
+  window._at1Select=function(i){
+    S.selected=i; S.drops=0; S.reacted=false; S.testNH3=false; S.nh3Added=false;
+    document.querySelectorAll('[id^=at1-]').forEach((b,j)=>b.classList.toggle('active',j===i));
+    document.getElementById('at1-res').innerHTML='<span style="opacity:0.5">أضِف AgNO₃ لمشاهدة التفاعل</span>';
+  };
+
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🥈 اختر الأنيون — الاختبار بـ AgNO₃</div>
+      <div class="ctrl-label">🥈 اختر الأنيون</div>
       <div class="ctrl-btns-grid">
-        ${anions.map((a,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="at1-${i}" onclick="simState.selected=${i};simState.drops=0;simState.reacted=false;document.querySelectorAll('[id^=at1-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${a.ion}</button>`).join('')}
+        ${anions.map((a,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="at1-${i}" onclick="window._at1Select(${i})">${a.ion}</button>`).join('')}
       </div>
     </div>
     <div class="ctrl-section">
-      <button class="ctrl-btn action" onclick="simState.drops=Math.min(simState.drops+1,5);if(simState.drops>=2)simState.reacted=true">+ قطرة AgNO₃</button>
-      <button class="ctrl-btn" style="margin-top:6px" onclick="simState.drops=0;simState.reacted=false">🔄 إعادة</button>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn action" onclick="simState.drops=Math.min(simState.drops+1,6);if(simState.drops>=2){simState.reacted=true;document.getElementById('at1-res').innerHTML='<strong>راسب '+['أبيض','أصفر كريمي','أصفر'][simState.selected]+'</strong> ← '+['AgCl','AgBr','AgI'][simState.selected];}">+ قطرة AgNO₃</button>
+        <button class="ctrl-btn" onclick="if(simState.reacted){simState.nh3Added=true;simState.testNH3=true;document.getElementById('at1-res').innerHTML='مع NH₃: '+['يذوب ← Cl⁻ مؤكَّد ✅','يذوب جزئياً ← Br⁻ ⚠️','لا يذوب ← I⁻ مؤكَّد ✅'][simState.selected];}else{alert('أضِف AgNO₃ أولاً!');}">+ اختبار NH₃</button>
+      </div>
+      <button class="ctrl-btn" style="margin-top:6px" onclick="window._at1Select(simState.selected)">🔄 إعادة</button>
     </div>
-    <div class="info-box" style="margin-top:8px;font-size:13px;text-align:center">💡 يُضاف HNO₃ المخفَّف أولاً لإزالة CO₃²⁻ التي قد تتداخل</div>
+    <div id="at1-res" class="info-box" style="min-height:36px;font-size:13px;text-align:center;margin-top:6px">
+      <span style="opacity:0.5">أضِف AgNO₃ لمشاهدة التفاعل</span>
+    </div>
+    <div class="info-box" style="margin-top:6px;font-size:12px;text-align:center">
+      💡 يُضاف HNO₃ المخفَّف أولاً لإزالة CO₃²⁻
+    </div>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ كيف نُميِّز Cl⁻ عن Br⁻ و I⁻؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">Cl⁻ → أبيض يذوب في NH₃ مخفَّفة | Br⁻ → كريمي يذوب في NH₃ مركَّزة فقط | I⁻ → أصفر لا يذوب. الفرق في لون الراسب وسلوكه مع الأمونيا!</div>
-    </div>`);
+      <div class="q-ans-panel">Cl⁻ أبيض يذوب في NH₃ مخفَّفة | Br⁻ كريمي يذوب في NH₃ مركَّزة فقط | I⁻ أصفر لا يذوب أبداً. الفرق في لون الراسب وسلوكه مع الأمونيا!</div>
+    </div>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9aniontest'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const anion=anions[S.selected||0];
-    const prog=Math.min((S.drops||0)/4,1);
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#ECEFF1'); bg.addColorStop(1,'#CFD8DC');
+    const prog=Math.min((S.drops||0)/5,1);
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#ECEFF1'); bg.addColorStop(1,'#CFD8DC');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'اختبار نترات الفضة AgNO₃',w/2,h*0.06,'#37474F',Math.max(13,w*0.025));
-    const bx1=w*0.06, by1=h*0.12, bw1=w*0.32, bh1=h*0.43;
+
+    _lbl(c,'اختبار نترات الفضة AgNO₃',w/2,h*0.055,'#37474F',Math.max(13,w*0.025));
+
+    // Sample beaker
+    const bx1=w*0.06, by1=h*0.12, bw1=w*0.32, bh1=h*0.44;
     _drawBeakerU9(c,bx1,by1,bw1,bh1,'#87CEEB',0.22);
     _lbl(c,`محلول ${anion.ion}`,bx1+bw1/2,by1+bh1+18,'#37474F',Math.max(10,w*0.018));
-    const dX=bx1+bw1/2, dY=by1-h*0.05;
-    c.fillStyle='#FFFDE7'; c.fillRect(dX-w*0.013,dY,w*0.026,h*0.055);
-    c.strokeStyle='#FFC107'; c.lineWidth=2; c.strokeRect(dX-w*0.013,dY,w*0.026,h*0.055);
-    _lbl(c,'AgNO₃',dX,dY-6,'#F57F17',Math.max(9,w*0.016));
+
+    // AgNO₃ dropper
+    const dX=bx1+bw1/2, dY=by1-h*0.07;
+    c.fillStyle='#FFFDE7'; c.strokeStyle='#FFC107'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(dX-w*0.016,dY,w*0.032,h*0.06,4); c.fill(); c.stroke();
+    _lbl(c,'AgNO₃',dX,dY-8,'#F57F17',Math.max(8,w*0.015));
+    c.fillStyle='#FFC107';
+    c.beginPath(); c.moveTo(dX-4,dY+h*0.06); c.lineTo(dX+4,dY+h*0.06); c.lineTo(dX,dY+h*0.075); c.closePath(); c.fill();
+
+    // Result beaker
     const bx2=w*0.59, by2=by1, bw2=w*0.35, bh2=bh1;
-    _drawBeakerU9(c,bx2,by2,bw2,bh2,'#87CEEB',0.08);
+    _drawBeakerU9(c,bx2,by2,bw2,bh2,'#87CEEB',0.06);
+
     if(S.reacted){
-      const pH=bh2*0.34;
-      c.fillStyle=anion.col+'CC'; c.fillRect(bx2,by2+bh2-pH,bw2,pH);
-      for(let p=0;p<18;p++){
-        c.fillStyle=anion.col; c.beginPath();
-        c.arc(bx2+8+Math.random()*(bw2-16),by2+bh2-pH+Math.random()*pH,2+Math.random()*3,0,Math.PI*2); c.fill();
+      // Check if dissolved after NH₃
+      const dissolved=S.nh3Added&&(anion.ion==='Cl⁻'||(anion.ion==='Br⁻'));
+      if(!dissolved){
+        const pH=bh2*0.36;
+        // Precipitate cloud effect
+        c.fillStyle=anion.col+'CC'; c.fillRect(bx2+2,by2+bh2-pH,bw2-4,pH);
+        // Particles
+        for(let p=0;p<22;p++){
+          const px=bx2+6+(p*31+S.t*0.3)%(bw2-12);
+          const py=by2+bh2-pH+3+(p*19+S.t*0.15)%pH;
+          c.fillStyle=anion.col+'99'; c.beginPath();
+          c.arc(px,py,1.5+Math.sin(p)*1,0,Math.PI*2); c.fill();
+        }
+        // Turbid water
+        c.fillStyle=anion.col+'14'; c.fillRect(bx2+2,by2,bw2-4,bh2-pH);
+      } else {
+        // Dissolved after NH₃
+        c.fillStyle='rgba(100,200,255,0.1)'; c.fillRect(bx2,by2,bw2,bh2);
+        _lbl(c,'ذاب! ✅',bx2+bw2/2,by2+bh2*0.45,'#1A8FA8',Math.max(11,w*0.020));
       }
     }
     _lbl(c,'الناتج',bx2+bw2/2,by2+bh2+18,'#1E2D3D',Math.max(10,w*0.018));
+
     if(S.reacted){
-      const ry=h*0.65, rh=h*0.22;
-      c.fillStyle='rgba(55,71,79,0.08)'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
-      _lbl(c,`✅ راسب ${anion.colName}`,w/2,ry+rh*0.28,'#37474F',Math.max(11,w*0.021));
+      const ry=h*0.65, rh=h*0.23;
+      c.fillStyle='rgba(55,71,79,0.07)'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
+      c.strokeStyle='rgba(55,71,79,0.12)'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.stroke();
+      _lbl(c,`✅ راسب ${anion.colName}`,w/2,ry+rh*0.25,'#37474F',Math.max(11,w*0.022));
       c.fillStyle='#555'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
-      c.fillText(anion.eq,w/2,ry+rh*0.57);
-      c.fillText('مع NH₃: '+anion.nh3,w/2,ry+rh*0.80);
+      c.fillText(anion.eq,w/2,ry+rh*0.55);
+      c.fillStyle=S.nh3Added?'#1A8FA8':'#888';
+      c.fillText('مع NH₃: '+anion.nh3,w/2,ry+rh*0.82);
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ 9-4 Tab 2: SO₄²⁻ بـ BaCl₂ ══
+// ══ 9-4 Tab 2: SO₄²⁻ بـ BaCl₂ (تفاعلي خطوة بخطوة) ══
 function simG9AnionTest2(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, drops:0, reacted:false, addedHCl:false};
+  simState={t:0, drops:0, reacted:false, addedHCl:false, showBaSO4:false};
   const S=simState;
+
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">⚪ الكشف عن SO₄²⁻ بـ BaCl₂</div>
-      <div class="info-box" style="font-size:13px;text-align:center">يُضاف HCl أولاً لإزالة CO₃²⁻ التي تُعطي راسباً أبيض زائفاً</div>
+      <div class="ctrl-label">⚪ اختبار SO₄²⁻ بكلوريد الباريوم BaCl₂</div>
+      <div class="info-box" style="font-size:12px;text-align:center;margin-bottom:8px">
+        ⚠️ يجب إضافة HCl أولاً لإزالة CO₃²⁻ التي تُعطي راسباً أبيض زائفاً
+      </div>
     </div>
     <div class="ctrl-section">
-      <button class="ctrl-btn" onclick="simState.addedHCl=true">١. أضِف HCl المخفَّف</button>
-      <button class="ctrl-btn action" style="margin-top:6px" onclick="if(simState.addedHCl){simState.drops++;if(simState.drops>=2)simState.reacted=true}">٢. أضِف BaCl₂</button>
-      <button class="ctrl-btn" style="margin-top:6px" onclick="simState.drops=0;simState.reacted=false;simState.addedHCl=false">🔄 إعادة</button>
+      <div class="ctrl-btns-grid-1">
+        <button class="ctrl-btn" id="at2-hcl" onclick="
+          simState.addedHCl=true;
+          document.getElementById('at2-hcl').classList.add('active');
+          document.getElementById('at2-status').textContent='✓ HCl مُضاف — جاهز لاختبار BaCl₂';
+          document.getElementById('at2-status').style.color='#27AE60';">
+          ١. أضِف HCl المخفَّف</button>
+        <button class="ctrl-btn action" onclick="
+          if(!simState.addedHCl){
+            document.getElementById('at2-status').textContent='❌ أضِف HCl أولاً!';
+            document.getElementById('at2-status').style.color='#C0392B';
+            return;
+          }
+          simState.drops++;if(simState.drops>=2)simState.reacted=true;
+          document.getElementById('at2-status').textContent='BaCl₂ مُضاف — '+simState.drops+' قطرة';
+        ">٢. أضِف BaCl₂</button>
+      </div>
+      <button class="ctrl-btn" style="margin-top:6px" onclick="
+        simState.drops=0;simState.reacted=false;simState.addedHCl=false;
+        document.getElementById('at2-hcl').classList.remove('active');
+        document.getElementById('at2-status').textContent='ابدأ بإضافة HCl أولاً';
+        document.getElementById('at2-status').style.color='';
+      ">🔄 إعادة</button>
+    </div>
+    <div id="at2-status" class="info-box" style="min-height:32px;font-size:13px;text-align:center;margin-top:4px">
+      ابدأ بإضافة HCl أولاً
     </div>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ لماذا يُضاف HCl أولاً؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">CO₃²⁻ تُرسِّب أيضاً مع Ba²⁺ → BaCO₃ أبيض. بإضافة HCl: CO₃²⁻ + 2H⁺ → H₂O + CO₂↑ (يُزال). أما BaSO₄ فلا يذوب في HCl — هذا هو مفتاح التمييز!</div>
-    </div>`);
+      <div class="q-ans-panel">CO₃²⁻ تُرسِّب أيضاً مع Ba²⁺ → BaCO₃ أبيض. بإضافة HCl: CO₃²⁻ + 2H⁺ → H₂O + CO₂↑. أما BaSO₄ فلا يذوب في HCl — هذا هو مفتاح التمييز!</div>
+    </div>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9aniontest'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#F5F5F5'); bg.addColorStop(1,'#EEEEEE');
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#F5F5F5'); bg.addColorStop(1,'#EEEEEE');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'اختبار كلوريد الباريوم BaCl₂',w/2,h*0.06,'#37474F',Math.max(13,w*0.025));
-    const bx=w*0.30, by=h*0.13, bw3=w*0.40, bh3=h*0.44;
-    _drawBeakerU9(c,bx,by,bw3,bh3,'#87CEEB',0.2);
+
+    _lbl(c,'اختبار كلوريد الباريوم BaCl₂',w/2,h*0.055,'#37474F',Math.max(13,w*0.025));
+
+    // Step indicators
+    ['إضافة HCl','إضافة BaCl₂','الراسب'].forEach((step,i)=>{
+      const sx=w*(0.20+i*0.30), sy=h*0.10;
+      const done=(i===0&&S.addedHCl)||(i===1&&S.reacted)||(i===2&&S.reacted);
+      c.fillStyle=done?'#27AE60':'rgba(0,0,0,0.15)';
+      c.beginPath(); c.arc(sx,sy,10,0,Math.PI*2); c.fill();
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(done?'✓':(i+1),sx,sy);
+      _lbl(c,step,sx,sy+18,done?'#27AE60':'#888',Math.max(8,w*0.013));
+      if(i<2){
+        c.strokeStyle=done?'rgba(39,174,96,0.4)':'rgba(0,0,0,0.15)'; c.lineWidth=1.5; c.setLineDash([3,3]);
+        c.beginPath(); c.moveTo(sx+11,sy); c.lineTo(sx+w*0.30-11,sy); c.stroke(); c.setLineDash([]);
+      }
+    });
+
+    // Main beaker
+    const bx=w*0.26, by=h*0.16, bw3=w*0.48, bh3=h*0.44;
+    _drawBeakerU9(c,bx,by,bw3,bh3,'#87CEEB',0.18);
     _lbl(c,'محلول SO₄²⁻',bx+bw3/2,by+bh3+18,'#37474F',Math.max(10,w*0.018));
+
+    // HCl layer
     if(S.addedHCl){
-      c.fillStyle='rgba(231,76,60,0.08)'; c.fillRect(bx,by,bw3,bh3);
-      _lbl(c,'HCl مُضاف ✓',bx+bw3/2,by+bh3*0.18,'#C0392B',Math.max(10,w*0.017));
-    }
-    if(S.reacted){
-      const pH=bh3*0.32;
-      c.fillStyle='rgba(215,215,215,0.95)'; c.fillRect(bx,by+bh3-pH,bw3,pH);
-      for(let p=0;p<16;p++){
-        c.fillStyle='rgba(185,185,185,0.8)'; c.beginPath();
-        c.arc(bx+8+Math.random()*(bw3-16),by+bh3-pH+Math.random()*pH,2+Math.random()*4,0,Math.PI*2); c.fill();
+      c.fillStyle='rgba(231,76,60,0.07)'; c.fillRect(bx+2,by,bw3-4,bh3*0.2);
+      _lbl(c,'HCl ✓',bx+bw3/2,by+bh3*0.1,'#C0392B',Math.max(9,w*0.016));
+      // Bubbles from CO₃²⁻ reacting
+      for(let b=0;b<5;b++){
+        const bba=((S.t*0.02+b*0.2)%1);
+        const bbx=bx+bw3*0.2+b*bw3*0.15;
+        const bby=by+bh3*(0.8-bba*0.6);
+        c.fillStyle=`rgba(231,76,60,${(1-bba)*0.3})`;
+        c.beginPath(); c.arc(bbx,bby,2+b,0,Math.PI*2); c.fill();
       }
     }
+
+    // BaSO₄ precipitate
     if(S.reacted){
-      const ry=h*0.67, rh=h*0.20;
-      c.fillStyle='rgba(55,71,79,0.08)'; c.beginPath(); c.roundRect(w*0.05,ry,w*0.90,rh,10); c.fill();
-      _lbl(c,'✅ راسب أبيض لا يذوب في HCl → SO₄²⁻ موجود!',w/2,ry+rh*0.32,'#27AE60',Math.max(11,w*0.020));
+      const pH=bh3*0.30;
+      c.fillStyle='rgba(210,210,210,0.92)'; c.fillRect(bx+2,by+bh3-pH,bw3-4,pH);
+      // Precipitate texture
+      for(let p=0;p<25;p++){
+        const px=bx+5+(p*41+S.t*0.2)%(bw3-10);
+        const py=by+bh3-pH+3+(p*23)%pH;
+        c.fillStyle='rgba(170,170,170,0.7)'; c.beginPath(); c.arc(px,py,1.5+Math.sin(p)*1,0,Math.PI*2); c.fill();
+      }
+    }
+
+    if(S.reacted){
+      const ry=h*0.70, rh=h*0.21;
+      c.fillStyle='rgba(55,71,79,0.07)'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
+      _lbl(c,'✅ راسب أبيض لا يذوب في HCl → SO₄²⁻ موجود!',w/2,ry+rh*0.30,'#27AE60',Math.max(11,w*0.020));
       c.fillStyle='#555'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
-      c.fillText('Ba²⁺ + SO₄²⁻ → BaSO₄↓ (أبيض)',w/2,ry+rh*0.74);
+      c.fillText('Ba²⁺ + SO₄²⁻ → BaSO₄↓ (أبيض لا يذوب)',w/2,ry+rh*0.72);
     } else if(!S.addedHCl){
-      _lbl(c,'أضِف HCl أولاً ثم BaCl₂',w/2,h*0.72,'#888',Math.max(11,w*0.020));
+      _lbl(c,'ابدأ بإضافة HCl أولاً 👆',w/2,h*0.72,'#888',Math.max(11,w*0.020));
+    } else {
+      _lbl(c,'الآن أضِف BaCl₂ 👆',w/2,h*0.72,'#1A8FA8',Math.max(11,w*0.020));
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ 9-4 Tab 3: CO₃²⁻ و NO₃⁻ ══
+// ══ 9-4 Tab 3: CO₃²⁻ و NO₃⁻ (محسّنة مع ورقة تبّاع الشمس) ══
 function simG9AnionTest3(){
   cancelAnimationFrame(animFrame);
   simState={t:0, gas:0, testing:false, progress:0};
   const S=simState;
   const anions=[
-    {ion:'CO₃²⁻', col:'#6B4E9A', bgCol:'#F3E5F5', test:'إضافة حمض HCl → CO₂ يُعكِّر ماء الجير', eq:'CO₃²⁻ + 2H⁺ → H₂O + CO₂↑ ثم Ca(OH)₂ + CO₂ → CaCO₃↓', result:'فوران + راسب أبيض في ماء الجير'},
-    {ion:'NO₃⁻',  col:'#C0392B', bgCol:'#FFF3E0', test:'NaOH + ألومنيوم → غاز الأمونيا', eq:'3NO₃⁻ + 8Al + 5OH⁻ + 2H₂O → 3NH₃↑ + 8AlO₂⁻', result:'غاز بنفاذ رائحة يُحوِّل ورقة تبّاع الشمس الحمراء إلى الأزرق'},
+    {ion:'CO₃²⁻', col:'#6B4E9A', bgCol:'#F3E5F5',
+     test:'إضافة حمض HCl → CO₂ يُعكِّر ماء الجير',
+     eq:'CO₃²⁻ + 2H⁺ → H₂O + CO₂↑',
+     eq2:'Ca(OH)₂ + CO₂ → CaCO₃↓ (ماء الجير يعكر)',
+     result:'فوران + راسب أبيض في ماء الجير'},
+    {ion:'NO₃⁻',  col:'#C0392B', bgCol:'#FFF3E0',
+     test:'NaOH + ألومنيوم → NH₃↑',
+     eq:'3NO₃⁻ + 8Al + 5OH⁻ + 2H₂O → 3NH₃↑ + 8AlO₂⁻',
+     eq2:'NH₃ يُحوِّل ورقة تبّاع الشمس الحمراء → زرقاء',
+     result:'رائحة نفّاذة + ورقة تبّاع الشمس تتحوّل للأزرق'},
   ];
+
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🌬️ اختر الأنيون</div>
+      <div class="ctrl-label">🌬️ اختر الأنيون للاختبار</div>
       <div class="ctrl-btns-grid">
-        ${anions.map((a,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="at3-${i}" onclick="simState.gas=${i};simState.testing=false;simState.progress=0;document.querySelectorAll('[id^=at3-]').forEach((b,j)=>b.classList.toggle('active',j===${i}))">${a.ion}</button>`).join('')}
+        ${anions.map((a,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="at3-${i}" 
+          style="border-right:4px solid ${a.col}66"
+          onclick="simState.gas=${i};simState.testing=false;simState.progress=0;
+          document.querySelectorAll('[id^=at3-]').forEach((b,j)=>b.classList.toggle('active',j===${i}));
+          document.getElementById('at3-desc').textContent='${a.test}'">
+          ${a.ion}</button>`).join('')}
       </div>
     </div>
+    <div id="at3-desc" class="info-box" style="font-size:12px;text-align:center;margin:6px 0">${anions[0].test}</div>
     <div class="ctrl-section">
-      <button class="ctrl-btn action" onclick="simState.testing=true">🧪 أجرِ الاختبار</button>
+      <button class="ctrl-btn action" onclick="simState.testing=true;simState.progress=0">🧪 أجرِ الاختبار</button>
       <button class="ctrl-btn" style="margin-top:6px" onclick="simState.testing=false;simState.progress=0">🔄 إعادة</button>
     </div>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ لماذا يُضاف الألومنيوم في اختبار NO₃⁻؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الألومنيوم عامل اختزال قويّ. في الوسط القلوي (NaOH + ماء) يختزل NO₃⁻ إلى NH₃. الغاز الناتج يُكشَف برائحته ولونه على ورقة تبّاع الشمس الحمراء (تتحوّل إلى الأزرق).</div>
-    </div>`);
+      <div class="q-ans-panel">الألومنيوم عامل اختزال قويّ يختزل NO₃⁻ إلى NH₃ في الوسط القلوي. الغاز الناتج يُكشَف برائحته وتأثيره على ورقة تبّاع الشمس الحمراء (تتحوّل للأزرق).</div>
+    </div>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9aniontest'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    if(S.testing && S.progress<100) S.progress+=0.65;
+    if(S.testing && S.progress<100) S.progress+=0.8;
     const anion=anions[S.gas||0];
     const prog=S.progress/100;
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,anion.bgCol); bg.addColorStop(1,'#fff');
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,anion.bgCol); bg.addColorStop(1,'#ffffff');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,`اختبار ${anion.ion}`,w/2,h*0.06,anion.col,Math.max(13,w*0.025));
-    const bx=w*0.28, by=h*0.12, bw4=w*0.44, bh4=h*0.42;
+
+    _lbl(c,`اختبار ${anion.ion}`,w/2,h*0.055,anion.col,Math.max(13,w*0.025));
+
+    // Main beaker
+    const bx=w*0.26, by=h*0.12, bw4=w*0.48, bh4=h*0.44;
     _drawBeakerU9(c,bx,by,bw4,bh4,'#87CEEB',0.2);
     _lbl(c,`محلول ${anion.ion}`,bx+bw4/2,by+bh4+18,anion.col,Math.max(10,w*0.018));
+
     if(S.testing){
       if(S.gas===0){
-        _bubbles(c,bx,by,bw4,bh4,S.t,anion.col+'66');
+        // CO₃²⁻ — Bubbles (CO₂ gas)
+        for(let b=0;b<15;b++){
+          const age=((S.t*0.025+b/15)%1);
+          const bx2=bx+bw4*0.15+b*(bw4*0.7/14);
+          const by2=by+bh4*(1-age);
+          const size=2+age*4;
+          const alpha=(1-age)*0.6*Math.min(prog*3,1);
+          c.fillStyle=`rgba(150,100,200,${alpha})`;
+          c.beginPath(); c.arc(bx2,by2,size,0,Math.PI*2); c.fill();
+        }
+        // Limewater beaker
         if(prog>0.25){
-          const lbx=w*0.80, lby=by+h*0.05, lbw=w*0.16, lbh=h*0.30;
-          const turb=prog*0.7;
-          c.fillStyle=`rgba(200,200,200,${turb*0.65})`; c.fillRect(lbx,lby+lbh*0.05,lbw,lbh*0.95);
-          c.strokeStyle='#90A4AE'; c.lineWidth=2;
-          c.beginPath(); c.moveTo(lbx,lby); c.lineTo(lbx,lby+lbh); c.lineTo(lbx+lbw,lby+lbh); c.lineTo(lbx+lbw,lby); c.stroke();
-          _lbl(c,'ماء الجير',lbx+lbw/2,lby+lbh+16,'#6B4E9A',Math.max(8,w*0.015));
-          if(prog>0.5) _lbl(c,'⚪ عكر',lbx+lbw/2,lby+lbh*0.7,'#888',Math.max(9,w*0.016));
+          const lbx=w*0.78, lby=by+h*0.04, lbw=w*0.18, lbh=h*0.30;
+          const turbidity=Math.min((prog-0.25)/0.5,1);
+          _drawBeakerU9(c,lbx,lby,lbw,lbh,'rgba(180,180,180,'+turbidity*0.7+')',0.25);
+          c.strokeStyle='#90A4AE'; c.lineWidth=1.5;
+          c.strokeRect(lbx,lby,lbw,lbh);
+          _lbl(c,'ماء الجير',lbx+lbw/2,lby+lbh+16,'#6B4E9A',Math.max(8,w*0.014));
+          if(turbidity>0.3) _lbl(c,'عكر ⚪',lbx+lbw/2,lby+lbh*0.5,'#7B1FA2',Math.max(8,w*0.015));
+
+          // CO₂ pipe
+          c.strokeStyle=anion.col+'66'; c.lineWidth=2;
+          c.beginPath(); c.moveTo(bx+bw4/2,by); c.bezierCurveTo(bx+bw4/2,by-h*0.06,lbx+lbw/2,lby-h*0.06,lbx+lbw/2,lby); c.stroke();
+          _lbl(c,'CO₂↑',bx+bw4/2+w*0.08,by-h*0.04,anion.col,Math.max(9,w*0.016));
         }
       } else {
-        for(let g=0;g<7;g++){
-          const age=(S.t*0.016+g*0.143)%1;
-          c.fillStyle=anion.col+(Math.round((1-age)*85).toString(16).padStart(2,'0'));
-          c.beginPath(); c.arc(bx+bw4/2+(g-3)*9,by-age*h*0.22,3+age*3,0,Math.PI*2); c.fill();
+        // NO₃⁻ — NH₃ gas
+        for(let g=0;g<12;g++){
+          const age=((S.t*0.018+g/12)%1);
+          const gx=bx+bw4*0.2+g*(bw4*0.6/11);
+          const gy=by-age*h*0.28;
+          const gsz=2+age*5;
+          c.fillStyle=`rgba(192,57,43,${(1-age)*0.5*Math.min(prog*3,1)})`;
+          c.beginPath(); c.arc(gx,gy,gsz,0,Math.PI*2); c.fill();
         }
-        const pw=w*0.14, ph=h*0.26, plx=w*0.80, ply=by-h*0.04;
-        const r1=192,g1=57,b1=43,r2=26,g2=143,b2=168;
-        const mr=Math.round(r1*(1-prog)+r2*prog);
-        const mg=Math.round(g1*(1-prog)+g2*prog);
-        const mb=Math.round(b1*(1-prog)+b2*prog);
-        c.fillStyle=`rgb(${mr},${mg},${mb})`; c.fillRect(plx,ply,pw,ph);
-        c.strokeStyle='#ccc'; c.lineWidth=1; c.strokeRect(plx,ply,pw,ph);
-        _lbl(c,'ورقة تبّاع الشمس',plx+pw/2,ply+ph+16,'#555',Math.max(8,w*0.015));
+
+        // Litmus paper with color transition
+        const lbx=w*0.76, lby=by-h*0.02, lbw=w*0.20, lbh=h*0.32;
+        const rr=192, rg_=57, rb=43, br_=26, bg_=143, bb=168;
+        const mr=Math.round(rr*(1-prog)+br_*prog);
+        const mg=Math.round(rg_*(1-prog)+bg_*prog);
+        const mb=Math.round(rb*(1-prog)+bb*prog);
+        // Paper gradient (red to blue)
+        const paperGrad=c.createLinearGradient(lbx,lby,lbx,lby+lbh);
+        paperGrad.addColorStop(0,`rgb(${mr},${mg},${mb})`);
+        paperGrad.addColorStop(1,`rgb(${Math.max(mr-20,0)},${Math.max(mg-20,0)},${Math.max(mb-20,0)})`);
+        c.fillStyle=paperGrad; c.beginPath(); c.roundRect(lbx,lby,lbw,lbh,4); c.fill();
+        c.strokeStyle='rgba(0,0,0,0.2)'; c.lineWidth=1.5;
+        c.beginPath(); c.roundRect(lbx,lby,lbw,lbh,4); c.stroke();
+
+        // Label on paper
+        c.fillStyle='rgba(255,255,255,0.7)'; c.font=`bold ${Math.max(8,w*0.015)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('ورقة تبّاع',lbx+lbw/2,lby+lbh*0.4);
+        c.fillText('الشمس',lbx+lbw/2,lby+lbh*0.6);
+
+        if(prog>0.4){
+          _lbl(c,prog>0.7?'أزرق! ✅':'يتحوّل...',lbx+lbw/2,lby+lbh+16,`rgb(${mr},${mg},${mb})`,Math.max(9,w*0.016));
+        }
+
+        // NH₃ arrow
+        _lbl(c,'NH₃↑',bx+bw4/2+w*0.06,by-h*0.05,anion.col,Math.max(9,w*0.016));
       }
     }
-    if(S.progress>55){
-      const ry=h*0.66, rh=h*0.22;
-      c.fillStyle=anion.col+'11'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
-      _lbl(c,'✅ '+anion.result,w/2,ry+rh*0.28,anion.col,Math.max(10,w*0.019));
+
+    // Result box
+    if(S.progress>50){
+      const ry=h*0.66, rh=h*0.24;
+      c.fillStyle=anion.col+'0D'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
+      c.strokeStyle=anion.col+'22'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.stroke();
+      _lbl(c,'✅ '+anion.result,w/2,ry+rh*0.23,anion.col,Math.max(10,w*0.019));
       c.fillStyle='#555'; c.font=`${Math.max(8,w*0.014)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
-      c.fillText(anion.eq.split(' ثم ')[0],w/2,ry+rh*0.60);
-      if(anion.eq.includes(' ثم ')) c.fillText(anion.eq.split(' ثم ')[1],w/2,ry+rh*0.82);
+      c.fillText(anion.eq,w/2,ry+rh*0.56);
+      c.fillText(anion.eq2,w/2,ry+rh*0.82);
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ 9-5 Tab 1: تحديد الكاتيون ══
+// ══════════════════════════════════════════════════════════════
+// 🔬 9-5 مختبر التحليل المتكامل — نسخة تفاعلية محسّنة
+// ══════════════════════════════════════════════════════════════
+
+// ══ 9-5 Tab 1: تحديد الكاتيون (لعبة تحديات) ══
 window._lab1Mysteries=[
-  {cation:'Fe³⁺', flameDesc:'برتقالي', naohDesc:'بني محمر'},
-  {cation:'Cu²⁺', flameDesc:'أخضر-أزرق', naohDesc:'أزرق فاتح'},
-  {cation:'Na⁺',  flameDesc:'أصفر', naohDesc:'لا راسب'},
-  {cation:'Fe²⁺', flameDesc:'برتقالي', naohDesc:'أخضر فاتح'},
-  {cation:'K⁺',   flameDesc:'أرجواني', naohDesc:'لا راسب'},
-  {cation:'Ca²⁺', flameDesc:'أحمر آجوري', naohDesc:'أبيض، يبقى'},
+  {cation:'Fe³⁺', flameDesc:'برتقالي',    naohDesc:'بني محمر',    col:'#8B2500', flameCol:'#FFA000'},
+  {cation:'Cu²⁺', flameDesc:'أخضر-أزرق', naohDesc:'أزرق فاتح',   col:'#0288D1', flameCol:'#00897B'},
+  {cation:'Na⁺',  flameDesc:'أصفر',       naohDesc:'لا راسب',     col:'#FDD835', flameCol:'#FDD835'},
+  {cation:'Fe²⁺', flameDesc:'برتقالي',    naohDesc:'أخضر فاتح',   col:'#388E3C', flameCol:'#FFA000'},
+  {cation:'K⁺',   flameDesc:'أرجواني',    naohDesc:'لا راسب',     col:'#AB47BC', flameCol:'#AB47BC'},
+  {cation:'Ca²⁺', flameDesc:'أحمر آجوري', naohDesc:'أبيض، يبقى', col:'#BDBDBD', flameCol:'#EF5350'},
 ];
 function simG9ChemLab1(){
   cancelAnimationFrame(animFrame);
   const mysteries=window._lab1Mysteries;
-  const flameCols={'Fe³⁺':'#FFA000','Cu²⁺':'#00897B','Na⁺':'#FDD835','Fe²⁺':'#FFA000','K⁺':'#7B1FA2','Ca²⁺':'#E64A19'};
-  const naohCols={'Fe³⁺':'#8B2500','Cu²⁺':'#1A8FA8','Na⁺':'#87CEEB','Fe²⁺':'#228B22','K⁺':'#87CEEB','Ca²⁺':'#DDDDDD'};
-  const cOpts=['Na⁺','K⁺','Cu²⁺','Fe²⁺','Fe³⁺','Ca²⁺'];
+  const cOpts=['Fe³⁺','Cu²⁺','Na⁺','Fe²⁺','K⁺','Ca²⁺'];
   let qi=Math.floor(Math.random()*mysteries.length);
-  simState={t:0, qi, chosen:null};
+  simState={t:0, qi, chosen:null, score:0, streak:0, total:0, test:'flame', hintsUsed:0};
   const S=simState;
-  function newQ(){
-    qi=Math.floor(Math.random()*mysteries.length);
-    S.qi=qi; S.chosen=null;
+
+  window.newQChemLab1=function(){
+    let nqi; do{ nqi=Math.floor(Math.random()*mysteries.length); }while(nqi===S.qi);
+    S.qi=nqi; S.chosen=null; S.test='flame'; S.hintsUsed=0;
+    document.querySelectorAll('[id^=lab1btn-]').forEach(b=>b.classList.remove('correct','wrong'));
     document.getElementById('lab1-fb').innerHTML='';
-    var m=mysteries[qi];
-    document.getElementById('lab1-clues').innerHTML='🔥 اللهب: <strong>'+m.flameDesc+'</strong><br>🧪 مع NaOH: <strong>'+m.naohDesc+'</strong>';
-  }
+    _updateLab1Clues();
+  };
+  window._lab1SetTest=function(t){
+    S.test=t;
+    document.querySelectorAll('[id^=lab1test-]').forEach(b=>b.classList.remove('active'));
+    document.getElementById('lab1test-'+t).classList.add('active');
+    _updateLab1Clues();
+  };
+  window._updateLab1Clues=function(){
+    const m=mysteries[S.qi];
+    const clues=S.test==='flame'
+      ?`🔥 لون اللهب: <strong>${m.flameDesc}</strong>`
+      :`🧪 مع NaOH: <strong>${m.naohDesc}</strong>`;
+    document.getElementById('lab1-clue').innerHTML=clues;
+  };
+  window._lab1Answer=function(cat){
+    if(S.chosen!==null) return;
+    S.chosen=cat; S.total++;
+    const correct=cat===mysteries[S.qi].cation;
+    if(correct){ S.streak++; S.score+=10+(S.streak>1?S.streak:0); }
+    else S.streak=0;
+    document.getElementById('lab1-score').textContent=S.score;
+    document.getElementById('lab1-streak').textContent=S.streak;
+    document.querySelectorAll('[id^=lab1btn-]').forEach(b=>{
+      if(b.dataset.cat===cat) b.classList.add(correct?'correct':'wrong');
+      if(!correct && b.dataset.cat===mysteries[S.qi].cation) b.classList.add('correct');
+    });
+    document.getElementById('lab1-fb').innerHTML=correct
+      ?`<span style="color:#27AE60">✅ ممتاز! ${mysteries[S.qi].cation} ${S.streak>2?'🔥 '+S.streak:''}!</span>`
+      :`<span style="color:#C0392B">❌ الصحيح: <strong>${mysteries[S.qi].cation}</strong></span>`;
+    setTimeout(()=>{ if(S.chosen!==null) window.newQChemLab1(); }, 1600);
+  };
+
+  const m=mysteries[qi];
   controls(`
-    <div class="ctrl-section">
-      <div id="lab1-clues" class="info-box" style="font-size:14px;line-height:1.8">
-        🔥 اللهب: <strong>${mysteries[qi].flameDesc}</strong><br>🧪 مع NaOH: <strong>${mysteries[qi].naohDesc}</strong>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <div style="text-align:center;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:6px">
+        <div style="font-size:10px;color:var(--text-secondary)">النقاط</div>
+        <div id="lab1-score" style="font-size:20px;font-weight:800;color:#27AE60">0</div>
+      </div>
+      <div style="text-align:center;background:rgba(212,144,26,0.1);border:1px solid rgba(212,144,26,0.3);border-radius:8px;padding:6px">
+        <div style="font-size:10px;color:var(--text-secondary)">السلسلة 🔥</div>
+        <div id="lab1-streak" style="font-size:20px;font-weight:800;color:#D4901A">0</div>
       </div>
     </div>
     <div class="ctrl-section">
-      <div class="ctrl-label">ما الكاتيون المجهول؟</div>
-      <div class="ctrl-btns-grid-1">
-        ${cOpts.map(cat=>`<button class="ctrl-btn" onclick="(function(){var m2=window._lab1Mysteries[simState.qi];simState.chosen='${cat}';var ok='${cat}'===m2.cation;document.getElementById('lab1-fb').innerHTML=ok?'<span style=color:#27AE60>✅ صحيح! الكاتيون: ${cat}</span>':'<span style=color:#C0392B>❌ خطأ — الصحيح: '+m2.cation+'</span>';})()">${cat}</button>`).join('')}
+      <div class="ctrl-label">🔍 اختر نوع الاختبار</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn active" id="lab1test-flame" onclick="window._lab1SetTest('flame')">🔥 اللهب</button>
+        <button class="ctrl-btn" id="lab1test-naoh" onclick="window._lab1SetTest('naoh')">🧪 NaOH</button>
       </div>
     </div>
-    <div id="lab1-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
-    <button class="ctrl-btn action" onclick="(function(){var m2=window._lab1Mysteries[simState.qi];document.getElementById('lab1-clues').innerHTML='🔥 اللهب: <strong>'+m2.flameDesc+'</strong><br>🧪 NaOH: <strong>'+m2.naohDesc+'</strong><br>✅ الجواب: <strong>'+m2.cation+'</strong>';})()">💡 أظهر الجواب</button>
-    <button class="ctrl-btn" style="margin-top:6px" onclick="newQ()">🎲 مادة جديدة</button>`);
+    <div id="lab1-clue" class="info-box" style="font-size:13px;text-align:center;margin:6px 0">
+      🔥 لون اللهب: <strong>${m.flameDesc}</strong>
+    </div>
+    <div class="ctrl-label">ما الكاتيون؟</div>
+    <div class="ctrl-btns-grid-1">
+      ${cOpts.map(cat=>`<button class="ctrl-btn" id="lab1btn-${cat.replace('+','p').replace('²','2').replace('³','3')}" data-cat="${cat}"
+        style="border-right:4px solid ${(mysteries.find(m=>m.cation===cat)||{col:'#888'}).col}55"
+        onclick="window._lab1Answer('${cat}')">${cat}</button>`).join('')}
+    </div>
+    <div id="lab1-fb" style="padding:8px;text-align:center;font-size:13px;font-weight:700;min-height:36px"></div>
+    <button class="ctrl-btn action" style="margin-top:4px" onclick="window.newQChemLab1()">🎲 كاتيون جديد</button>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9chemlab'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
-    const m=mysteries[S.qi||0];
-    const fc=flameCols[m.cation]||'#FFA000';
-    const nc=naohCols[m.cation]||'#87CEEB';
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#1A1A2E'); bg.addColorStop(1,'#0D1117');
+    const mystery=mysteries[S.qi||0];
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0F1A24'); bg.addColorStop(1,'#1A2A3A');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'🔬 حدِّد الكاتيون المجهول',w/2,h*0.07,'#9DC8E8',Math.max(13,w*0.025));
-    // mystery flask center
-    const cxa=w/2, cya=h*0.32;
-    c.fillStyle='rgba(26,143,168,0.12)'; c.beginPath(); c.arc(cxa,cya,h*0.13,0,Math.PI*2); c.fill();
-    c.strokeStyle='#4DD0E1AA'; c.lineWidth=2; c.beginPath(); c.arc(cxa,cya,h*0.13,0,Math.PI*2); c.stroke();
-    c.fillStyle='#fff'; c.font=`bold ${Math.max(22,w*0.048)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(S.chosen?m.cation:'؟',cxa,cya);
-    // Flame mini
-    for(let l=0;l<4;l++){
-      const fh=h*0.12+Math.sin(S.t*0.12+l)*h*0.015;
-      const grad=c.createRadialGradient(w*0.22,h*0.60,0,w*0.22,h*0.55,fh);
-      grad.addColorStop(0,'#FFF'); grad.addColorStop(0.3,fc); grad.addColorStop(1,'transparent');
-      c.fillStyle=grad; c.beginPath(); c.ellipse(w*0.22,h*0.57,w*0.04,fh*0.42,0,0,Math.PI*2); c.fill();
+
+    _lbl(c,'🔬 تحديد الكاتيون المجهول',w/2,h*0.055,'#9DC8E8',Math.max(13,w*0.025));
+
+    if(S.test==='flame'){
+      // Flame test visualization
+      const fx=w/2, fy=h*0.58;
+      const fCol=mystery.flameCol;
+      // Glow
+      const gl=c.createRadialGradient(fx,fy-h*0.12,0,fx,fy-h*0.12,h*0.30);
+      gl.addColorStop(0,fCol+'40'); gl.addColorStop(1,'transparent');
+      c.fillStyle=gl; c.fillRect(0,0,w,h);
+      for(let l=0;l<8;l++){
+        const fh=h*(0.28+0.04*Math.sin(S.t*0.11+l));
+        const fw=w*(0.05+0.01*Math.sin(S.t*0.09+l));
+        const grad=c.createRadialGradient(fx,fy,0,fx,fy-fh*0.5,fh);
+        grad.addColorStop(0,'#FFF'); grad.addColorStop(0.2,'#FFFDE7');
+        grad.addColorStop(0.45,fCol); grad.addColorStop(0.8,fCol+'55'); grad.addColorStop(1,'transparent');
+        c.fillStyle=grad; c.beginPath(); c.ellipse(fx+(l-3.5)*w*0.02,fy-fh*0.38,fw,fh*0.45,0,0,Math.PI*2); c.fill();
+      }
+      c.fillStyle='#3A3A3A'; c.beginPath(); c.roundRect(fx-w*0.05,fy,w*0.10,h*0.16,5); c.fill();
+      c.fillStyle='#2A2A2A'; c.beginPath(); c.roundRect(fx-w*0.08,fy+h*0.14,w*0.16,h*0.04,3); c.fill();
+      _lbl(c,'موقد بنسن',fx,fy+h*0.22,'#666',Math.max(9,w*0.016));
+      _lbl(c,'🔥 لون اللهب: '+mystery.flameDesc,w/2,h*0.15,fCol,Math.max(11,w*0.022));
+    } else {
+      // NaOH precipitation visualization
+      const bx=w*0.27, by=h*0.14, bw=w*0.46, bh=h*0.44;
+      const bg2=c.createLinearGradient(0,0,0,h);
+      bg2.addColorStop(0,'#EDE7F6'); bg2.addColorStop(1,'#D1C4E9');
+      // Partial background overlay
+      c.fillStyle='rgba(237,229,246,0.3)'; c.fillRect(0,0,w,h);
+      _drawBeakerU9(c,bx,by,bw,bh,'#87CEEB',0.15);
+      const naohColor=mystery.naohDesc.includes('بني')?'#8B2500':
+                      mystery.naohDesc.includes('أخضر')?'#388E3C':
+                      mystery.naohDesc.includes('أزرق')?'#0288D1':
+                      mystery.naohDesc.includes('أبيض')?'#BDBDBD':'transparent';
+      if(naohColor!=='transparent'){
+        const pH=bh*0.30;
+        c.fillStyle=naohColor+'BB'; c.fillRect(bx+2,by+bh-pH,bw-4,pH);
+        for(let p=0;p<18;p++){
+          const px=bx+5+(p*37+S.t*0.3)%(bw-10);
+          const py=by+bh-pH+3+(p*23)%pH;
+          c.fillStyle=naohColor+'77'; c.beginPath(); c.arc(px,py,1.5+Math.sin(p)*1,0,Math.PI*2); c.fill();
+        }
+      }
+      _lbl(c,'🧪 مع NaOH: '+mystery.naohDesc,w/2,h*0.12,'#4A148C',Math.max(11,w*0.020));
     }
-    c.fillStyle='#555'; c.fillRect(w*0.18,h*0.67,w*0.08,h*0.10);
-    _lbl(c,'اللهب: '+m.flameDesc,w*0.22,h*0.82,fc,Math.max(9,w*0.017));
-    // NaOH beaker mini
-    _drawBeakerU9(c,w*0.60,h*0.55,w*0.22,h*0.22,nc,0.55);
-    _lbl(c,'NaOH: '+m.naohDesc,w*0.71,h*0.82,'#9DC8E8',Math.max(9,w*0.017));
-    if(S.chosen){
-      const correct=S.chosen===m.cation;
-      _lbl(c,`إجابتك: ${S.chosen} ${correct?'✅':'❌'}`,w/2,h*0.92,correct?'#27AE60':'#C0392B',Math.max(12,w*0.022));
+
+    // Question mark or revealed
+    if(!S.chosen){
+      const pulse=1+0.06*Math.sin(S.t*0.07);
+      c.save(); c.translate(w*0.88,h*0.18); c.scale(pulse,pulse);
+      c.fillStyle='rgba(255,255,255,0.9)';
+      c.font=`bold ${Math.max(24,w*0.055)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('؟',0,0); c.restore();
+    } else {
+      c.fillStyle=mystery.col;
+      c.font=`bold ${Math.max(18,w*0.038)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(mystery.cation,w*0.88,h*0.18);
     }
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ 9-5 Tab 2: تحديد الأنيون ══
+// ══ 9-5 Tab 2: تحديد الأنيون (مع خرائط مفاهيم) ══
 window._lab2Mysteries=[
-  {anion:'Cl⁻',   ag:'أبيض يذوب في NH₃', ba:'لا راسب', hcl:'لا فوران'},
-  {anion:'Br⁻',   ag:'كريمي لا يذوب في NH₃ المخفَّفة', ba:'لا راسب', hcl:'لا فوران'},
-  {anion:'SO₄²⁻', ag:'لا راسب مميز', ba:'أبيض لا يذوب في HCl', hcl:'لا فوران'},
-  {anion:'CO₃²⁻', ag:'لا راسب مع Ag⁺ مباشرة', ba:'أبيض يذوب في HCl', hcl:'فوران — CO₂↑'},
-  {anion:'NO₃⁻',  ag:'لا راسب', ba:'لا راسب', hcl:'لا فوران (اختبر بـ Al+NaOH)'},
+  {anion:'Cl⁻',   ag:'راسب أبيض (يذوب في NH₃)', ba:'لا راسب', hcl:'لا فوران'},
+  {anion:'Br⁻',   ag:'راسب كريمي',               ba:'لا راسب', hcl:'لا فوران'},
+  {anion:'SO₄²⁻', ag:'لا راسب مميز',              ba:'أبيض لا يذوب في HCl', hcl:'لا فوران'},
+  {anion:'CO₃²⁻', ag:'لا راسب مع Ag⁺ مباشرة',    ba:'أبيض يذوب في HCl',   hcl:'فوران — CO₂↑'},
+  {anion:'NO₃⁻',  ag:'لا راسب',                   ba:'لا راسب',             hcl:'لا فوران (اختبر بـ Al+NaOH)'},
 ];
 function simG9ChemLab2(){
   cancelAnimationFrame(animFrame);
   const mysteries=window._lab2Mysteries;
   const aOpts=['Cl⁻','Br⁻','SO₄²⁻','CO₃²⁻','NO₃⁻'];
   let qi=Math.floor(Math.random()*mysteries.length);
-  simState={t:0, qi, chosen:null};
+  simState={t:0, qi, chosen:null, score:0, streak:0, total:0};
   const S=simState;
-  function newQ(){
-    qi=Math.floor(Math.random()*mysteries.length);
-    S.qi=qi; S.chosen=null;
+
+  window.newQChemLab2=function(){
+    let nqi; do{ nqi=Math.floor(Math.random()*mysteries.length); }while(nqi===S.qi);
+    S.qi=nqi; S.chosen=null;
+    document.querySelectorAll('[id^=lab2btn-]').forEach(b=>b.classList.remove('correct','wrong'));
     document.getElementById('lab2-fb').innerHTML='';
-    var m=mysteries[qi];
-    document.getElementById('lab2-clues').innerHTML='🥈 AgNO₃: <strong>'+m.ag+'</strong><br>⚪ BaCl₂: <strong>'+m.ba+'</strong><br>🫧 مع HCl: <strong>'+m.hcl+'</strong>';
-  }
+    _updateLab2();
+  };
+  window._updateLab2=function(){
+    const m=mysteries[S.qi];
+    document.getElementById('lab2-clues').innerHTML=`
+      🥈 AgNO₃: <strong>${m.ag}</strong><br>
+      ⚪ BaCl₂: <strong>${m.ba}</strong><br>
+      🫧 مع HCl: <strong>${m.hcl}</strong>`;
+  };
+  window._lab2Answer=function(anion){
+    if(S.chosen!==null) return;
+    S.chosen=anion; S.total++;
+    const correct=anion===mysteries[S.qi].anion;
+    if(correct){ S.streak++; S.score+=10+(S.streak>1?S.streak:0); }
+    else S.streak=0;
+    document.getElementById('lab2-score').textContent=S.score;
+    document.getElementById('lab2-streak').textContent=S.streak;
+    document.querySelectorAll('[id^=lab2btn-]').forEach(b=>{
+      if(b.dataset.anion===anion) b.classList.add(correct?'correct':'wrong');
+      if(!correct && b.dataset.anion===mysteries[S.qi].anion) b.classList.add('correct');
+    });
+    document.getElementById('lab2-fb').innerHTML=correct
+      ?`<span style="color:#27AE60">✅ ممتاز! ${S.streak>2?'سلسلة '+S.streak+' 🔥':''}</span>`
+      :`<span style="color:#C0392B">❌ الصحيح: <strong>${mysteries[S.qi].anion}</strong></span>`;
+    setTimeout(()=>{ if(S.chosen!==null) window.newQChemLab2(); }, 1600);
+  };
+
   controls(`
-    <div class="ctrl-section">
-      <div id="lab2-clues" class="info-box" style="font-size:13px;line-height:1.8">
-        🥈 AgNO₃: <strong>${mysteries[qi].ag}</strong><br>⚪ BaCl₂: <strong>${mysteries[qi].ba}</strong><br>🫧 مع HCl: <strong>${mysteries[qi].hcl}</strong>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <div style="text-align:center;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:6px">
+        <div style="font-size:10px;color:var(--text-secondary)">النقاط</div>
+        <div id="lab2-score" style="font-size:20px;font-weight:800;color:#27AE60">0</div>
+      </div>
+      <div style="text-align:center;background:rgba(212,144,26,0.1);border:1px solid rgba(212,144,26,0.3);border-radius:8px;padding:6px">
+        <div style="font-size:10px;color:var(--text-secondary)">السلسلة 🔥</div>
+        <div id="lab2-streak" style="font-size:20px;font-weight:800;color:#D4901A">0</div>
       </div>
     </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">ما الأنيون؟</div>
-      <div class="ctrl-btns-grid">
-        ${aOpts.map(a=>`<button class="ctrl-btn" onclick="(function(){var m2=window._lab2Mysteries[simState.qi];simState.chosen='${a}';var ok='${a}'===m2.anion;document.getElementById('lab2-fb').innerHTML=ok?'<span style=color:#27AE60>✅ صحيح!</span>':'<span style=color:#C0392B>❌ الصحيح: '+m2.anion+'</span>';})()">${a}</button>`).join('')}
-      </div>
+    <div id="lab2-clues" class="info-box" style="font-size:12px;line-height:2;margin-bottom:8px">
+      🥈 AgNO₃: <strong>${mysteries[qi].ag}</strong><br>
+      ⚪ BaCl₂: <strong>${mysteries[qi].ba}</strong><br>
+      🫧 مع HCl: <strong>${mysteries[qi].hcl}</strong>
     </div>
-    <div id="lab2-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
-    <button class="ctrl-btn action" onclick="(function(){var m2=window._lab2Mysteries[simState.qi];document.getElementById('lab2-clues').innerHTML='🥈 '+m2.ag+'<br>⚪ '+m2.ba+'<br>✅ الجواب: <strong>'+m2.anion+'</strong>';})()">💡 أظهر الجواب</button>
-    <button class="ctrl-btn" style="margin-top:6px" onclick="newQ()">🎲 أنيون جديد</button>`);
+    <div class="ctrl-label">ما الأنيون المجهول؟</div>
+    <div class="ctrl-btns-grid-1">
+      ${aOpts.map(a=>`<button class="ctrl-btn" id="lab2btn-${a.replace('⁻','n').replace('²','2')}" data-anion="${a}"
+        onclick="window._lab2Answer('${a}')">${a}</button>`).join('')}
+    </div>
+    <div id="lab2-fb" style="padding:8px;text-align:center;font-size:13px;font-weight:700;min-height:36px"></div>
+    <button class="ctrl-btn action" style="margin-top:4px" onclick="window.newQChemLab2()">🎲 أنيون جديد</button>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9chemlab'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const m=mysteries[S.qi||0];
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#0F2027'); bg.addColorStop(1,'#203A43');
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0F2027'); bg.addColorStop(1,'#203A43');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    _lbl(c,'🔬 حدِّد الأنيون المجهول',w/2,h*0.07,'#9DC8E8',Math.max(13,w*0.025));
+
+    _lbl(c,'🔬 حدِّد الأنيون المجهول',w/2,h*0.055,'#9DC8E8',Math.max(13,w*0.025));
+
     const tests=[
-      {label:'AgNO₃ 🥈', val:m.ag,  col:'#FDD835', x:0.18},
+      {label:'AgNO₃ 🥈', val:m.ag,  col:'#FDD835', x:0.17},
       {label:'BaCl₂ ⚪',  val:m.ba,  col:'#90A4AE', x:0.50},
-      {label:'HCl 🫧',    val:m.hcl, col:'#E74C3C', x:0.82},
+      {label:'HCl 🫧',    val:m.hcl, col:'#E74C3C', x:0.83},
     ];
-    const bw5=w*0.26, bh5=h*0.32, by5=h*0.14;
+    const bw5=w*0.27, bh5=h*0.34, by5=h*0.12;
+
     tests.forEach(t=>{
       const bx5=t.x*w-bw5/2;
-      _drawBeakerU9(c,bx5,by5,bw5,bh5,'#87CEEB',0.15);
-      _lbl(c,t.label,t.x*w,by5-7,t.col,Math.max(9,w*0.017));
-      c.fillStyle='rgba(255,255,255,0.08)'; c.beginPath(); c.roundRect(bx5+2,by5+bh5*0.52,bw5-4,bh5*0.44,4); c.fill();
-      c.fillStyle='#AAA'; c.font=`${Math.max(7,w*0.013)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      const w1=t.val.split('(')[0].trim();
-      c.fillText(w1,t.x*w,by5+bh5*0.68);
-      if(t.val.includes('(')){
-        c.fillText('('+t.val.split('(')[1],t.x*w,by5+bh5*0.82);
+      // Beaker
+      _drawBeakerU9(c,bx5,by5,bw5,bh5,'#87CEEB',0.12);
+      _lbl(c,t.label,t.x*w,by5-10,t.col,Math.max(9,w*0.017));
+
+      // Result panel in beaker
+      c.fillStyle='rgba(255,255,255,0.06)'; c.beginPath();
+      c.roundRect(bx5+3,by5+bh5*0.5,bw5-6,bh5*0.46,4); c.fill();
+
+      // Result text (word wrap)
+      c.fillStyle='#CCC'; c.font=`${Math.max(7,w*0.013)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      const words=t.val.split(' ');
+      let line='', lines=[], maxW=bw5*0.85;
+      words.forEach(word=>{
+        const test2=line?line+' '+word:word;
+        if(c.measureText(test2).width>maxW&&line){ lines.push(line); line=word; }
+        else line=test2;
+      });
+      lines.push(line);
+      const startY=by5+bh5*0.68;
+      lines.forEach((ln,li)=>c.fillText(ln,t.x*w,startY+li*(Math.max(7,w*0.013)*1.4)));
+
+      // Reaction indicator
+      const hasReaction=t.val!=='لا راسب'&&t.val!=='لا راسب مع Ag⁺ مباشرة'&&t.val!=='لا راسب مميز'&&t.val!=='لا فوران'&&t.val!=='لا فوران (اختبر بـ Al+NaOH)';
+      if(hasReaction){
+        c.fillStyle=t.col+'33'; c.fillRect(bx5+2,by5+bh5*0.5,bw5-4,6);
+        c.fillStyle=t.col; c.fillRect(bx5+2,by5+bh5*0.5,bw5-4,6);
       }
     });
+
+    // Answer section
     if(S.chosen){
       const correct=S.chosen===m.anion;
-      c.fillStyle='rgba(255,255,255,0.07)'; c.beginPath(); c.roundRect(w*0.1,h*0.58,w*0.80,h*0.12,10); c.fill();
-      _lbl(c,`إجابتك: ${S.chosen} ${correct?'✅':'❌'}`,w/2,h*0.647,correct?'#27AE60':'#C0392B',Math.max(13,w*0.024));
+      c.fillStyle=correct?'rgba(39,174,96,0.15)':'rgba(192,57,43,0.12)';
+      c.beginPath(); c.roundRect(w*0.1,h*0.58,w*0.80,h*0.12,10); c.fill();
+      c.strokeStyle=correct?'#27AE60':'#C0392B'; c.lineWidth=2;
+      c.beginPath(); c.roundRect(w*0.1,h*0.58,w*0.80,h*0.12,10); c.stroke();
+      _lbl(c,`إجابتك: ${S.chosen} ${correct?'✅':'❌'}`,w/2,h*0.645,correct?'#27AE60':'#C0392B',Math.max(12,w*0.023));
+    } else {
+      // Mystery unknown
+      const pulse=1+0.05*Math.sin(S.t*0.07);
+      c.save(); c.translate(w/2,h*0.645); c.scale(pulse,pulse);
+      c.fillStyle='rgba(255,255,255,0.85)';
+      c.font=`bold ${Math.max(20,w*0.04)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('الأنيون المجهول = ؟',0,0); c.restore();
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ 9-5 Tab 3: مادة مجهولة كاملة ══
+// ══ 9-5 Tab 3: مادة مجهولة كاملة (لعبة المحقق) ══
 function simG9ChemLab3(){
   cancelAnimationFrame(animFrame);
   const salts=[
     {salt:'FeCl₃',  cation:'Fe³⁺', anion:'Cl⁻',   flameDesc:'برتقالي', naohDesc:'بني محمر', agDesc:'أبيض', baDesc:'لا راسب', fc:'#FFA000', nc:'#8B2500'},
-    {salt:'CuSO₄',  cation:'Cu²⁺', anion:'SO₄²⁻', flameDesc:'أخضر-أزرق', naohDesc:'أزرق', agDesc:'لا راسب', baDesc:'أبيض (BaSO₄)', fc:'#00897B', nc:'#1A8FA8'},
+    {salt:'CuSO₄',  cation:'Cu²⁺', anion:'SO₄²⁻', flameDesc:'أخضر-أزرق', naohDesc:'أزرق فاتح', agDesc:'لا راسب', baDesc:'أبيض (BaSO₄)', fc:'#00897B', nc:'#1A8FA8'},
     {salt:'NaCl',   cation:'Na⁺',  anion:'Cl⁻',   flameDesc:'أصفر', naohDesc:'لا راسب', agDesc:'أبيض', baDesc:'لا راسب', fc:'#FDD835', nc:'#87CEEB'},
-    {salt:'FeSO₄',  cation:'Fe²⁺', anion:'SO₄²⁻', flameDesc:'برتقالي', naohDesc:'أخضر فاتح', agDesc:'لا راسب', baDesc:'أبيض (BaSO₄)', fc:'#FFA000', nc:'#228B22'},
+    {salt:'FeSO₄',  cation:'Fe²⁺', anion:'SO₄²⁻', flameDesc:'برتقالي', naohDesc:'أخضر فاتح', agDesc:'لا راسب', baDesc:'أبيض (BaSO₄)', fc:'#FFA000', nc:'#388E3C'},
     {salt:'Na₂CO₃', cation:'Na⁺',  anion:'CO₃²⁻', flameDesc:'أصفر', naohDesc:'لا راسب', agDesc:'لا راسب', baDesc:'أبيض يذوب في HCl', fc:'#FDD835', nc:'#87CEEB'},
   ];
   const cOpts=['Na⁺','K⁺','Cu²⁺','Fe²⁺','Fe³⁺','Ca²⁺'];
   const aOpts=['Cl⁻','SO₄²⁻','CO₃²⁻','NO₃⁻'];
   let qi=Math.floor(Math.random()*salts.length);
-  simState={t:0, qi, guessC:null, guessA:null, done:false};
+  simState={t:0, qi, guessC:null, guessA:null, done:false, score:0, streak:0, total:0, revealedTests:{}};
   const S=simState;
-  function newQ(){
-    qi=Math.floor(Math.random()*salts.length);
-    S.qi=qi; S.guessC=null; S.guessA=null; S.done=false;
+
+  window.newQChemLab3=function(){
+    let nqi; do{ nqi=Math.floor(Math.random()*salts.length); }while(nqi===S.qi);
+    S.qi=nqi; S.guessC=null; S.guessA=null; S.done=false; S.revealedTests={};
+    document.querySelectorAll('[id^=lab3c-],[id^=lab3a-]').forEach(b=>b.classList.remove('active','correct','wrong'));
     document.getElementById('lab3-fb').innerHTML='';
-    const m=salts[qi];
-    document.getElementById('lab3-res').innerHTML=`🔥 اللهب: <strong>${m.flameDesc}</strong><br>🧪 NaOH: <strong>${m.naohDesc}</strong><br>🥈 AgNO₃: <strong>${m.agDesc}</strong><br>⚪ BaCl₂: <strong>${m.baDesc}</strong>`;
-  }
+    _updateLab3Tests();
+  };
+  window._updateLab3Tests=function(){
+    const m=salts[S.qi];
+    ['flame','naoh','ag','ba'].forEach(test=>{
+      const el=document.getElementById('lab3-'+test);
+      if(el) el.textContent=S.revealedTests[test]?({
+        flame:'🔥 اللهب: '+m.flameDesc,naoh:'🧪 NaOH: '+m.naohDesc,
+        ag:'🥈 AgNO₃: '+m.agDesc,ba:'⚪ BaCl₂: '+m.baDesc
+      }[test]):'اضغط للكشف';
+    });
+  };
+  window._lab3RevealTest=function(test){
+    S.revealedTests[test]=true;
+    window._updateLab3Tests();
+    document.getElementById('lab3-'+test).style.opacity='1';
+    document.getElementById('lab3-'+test).style.color='var(--text-primary)';
+  };
+  window._lab3SelectCation=function(cat){
+    S.guessC=cat;
+    document.querySelectorAll('[id^=lab3c-]').forEach(b=>b.classList.remove('active'));
+    document.getElementById('lab3c-'+cat.replace('+','p').replace('²','2').replace('³','3')).classList.add('active');
+  };
+  window._lab3SelectAnion=function(a){
+    S.guessA=a;
+    document.querySelectorAll('[id^=lab3a-]').forEach(b=>b.classList.remove('active'));
+    document.getElementById('lab3a-'+a.replace('⁻','n').replace('²','2')).classList.add('active');
+  };
+  window._lab3Check=function(){
+    if(!S.guessC||!S.guessA){
+      document.getElementById('lab3-fb').innerHTML='<span style="color:#D4901A">⚠️ اختر الكاتيون والأنيون أولاً</span>';
+      return;
+    }
+    S.done=true; S.total++;
+    const m=salts[S.qi];
+    const ok=S.guessC===m.cation&&S.guessA===m.anion;
+    if(ok){ S.streak++; S.score+=15+(S.streak>1?S.streak*2:0); }
+    else S.streak=0;
+    document.getElementById('lab3-score').textContent=S.score;
+    document.getElementById('lab3-streak').textContent=S.streak;
+    document.getElementById('lab3-fb').innerHTML=ok
+      ?`<span style="color:#27AE60">🏆 ممتاز! المادة: <strong>${m.salt}</strong> ${S.streak>2?'🔥 سلسلة '+S.streak:''}!</span>`
+      :`<span style="color:#C0392B">❌ الجواب: ${m.cation} + ${m.anion} = <strong>${m.salt}</strong></span>`;
+    setTimeout(()=>{ if(S.done) window.newQChemLab3(); }, 2000);
+  };
+
+  const m=salts[qi];
   controls(`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <div style="text-align:center;background:rgba(39,174,96,0.1);border:1px solid rgba(39,174,96,0.3);border-radius:8px;padding:6px">
+        <div style="font-size:10px;color:var(--text-secondary)">النقاط</div>
+        <div id="lab3-score" style="font-size:20px;font-weight:800;color:#27AE60">0</div>
+      </div>
+      <div style="text-align:center;background:rgba(212,144,26,0.1);border:1px solid rgba(212,144,26,0.3);border-radius:8px;padding:6px">
+        <div style="font-size:10px;color:var(--text-secondary)">السلسلة 🔥</div>
+        <div id="lab3-streak" style="font-size:20px;font-weight:800;color:#D4901A">0</div>
+      </div>
+    </div>
     <div class="ctrl-section">
-      <div id="lab3-res" class="info-box" style="font-size:13px;line-height:2">
-        🔥 اللهب: <strong>${salts[qi].flameDesc}</strong><br>🧪 NaOH: <strong>${salts[qi].naohDesc}</strong><br>🥈 AgNO₃: <strong>${salts[qi].agDesc}</strong><br>⚪ BaCl₂: <strong>${salts[qi].baDesc}</strong>
+      <div class="ctrl-label">🕵️ اكشف الاختبارات (اضغط للكشف)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+        <button class="ctrl-btn" id="lab3-flame" onclick="window._lab3RevealTest('flame')" style="font-size:11px;opacity:0.6">🔥 اللهب</button>
+        <button class="ctrl-btn" id="lab3-naoh"  onclick="window._lab3RevealTest('naoh')"  style="font-size:11px;opacity:0.6">🧪 NaOH</button>
+        <button class="ctrl-btn" id="lab3-ag"    onclick="window._lab3RevealTest('ag')"    style="font-size:11px;opacity:0.6">🥈 AgNO₃</button>
+        <button class="ctrl-btn" id="lab3-ba"    onclick="window._lab3RevealTest('ba')"    style="font-size:11px;opacity:0.6">⚪ BaCl₂</button>
       </div>
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">الكاتيون:</div>
       <div class="ctrl-btns-grid">
-        ${cOpts.map(cat=>`<button class="ctrl-btn" onclick="simState.guessC='${cat}'">${cat}</button>`).join('')}
-      </div>
-      <div class="ctrl-label" style="margin-top:8px">الأنيون:</div>
-      <div class="ctrl-btns-grid">
-        ${aOpts.map(a=>`<button class="ctrl-btn" onclick="simState.guessA='${a}'">${a}</button>`).join('')}
+        ${cOpts.map(cat=>`<button class="ctrl-btn" id="lab3c-${cat.replace('+','p').replace('²','2').replace('³','3')}" 
+          onclick="window._lab3SelectCation('${cat}')">${cat}</button>`).join('')}
       </div>
     </div>
-    <button class="ctrl-btn action" onclick="
-      const m=salts[simState.qi];
-      const ok=simState.guessC===m.cation&&simState.guessA===m.anion;
-      simState.done=true;
-      document.getElementById('lab3-fb').innerHTML=ok?'<span style=color:#27AE60>🏆 ممتاز! المادة: '+m.salt+'</span>':'<span style=color:#C0392B>❌ الجواب: '+m.cation+' + '+m.anion+' = '+m.salt+'</span>';
-    ">✅ تحقّق</button>
-    <div id="lab3-fb" style="padding:8px;text-align:center;font-size:14px;font-weight:700;min-height:32px"></div>
-    <button class="ctrl-btn" style="margin-top:4px" onclick="newQ()">🎲 مادة جديدة</button>`);
+    <div class="ctrl-section">
+      <div class="ctrl-label">الأنيون:</div>
+      <div class="ctrl-btns-grid">
+        ${aOpts.map(a=>`<button class="ctrl-btn" id="lab3a-${a.replace('⁻','n').replace('²','2')}" 
+          onclick="window._lab3SelectAnion('${a}')">${a}</button>`).join('')}
+      </div>
+    </div>
+    <button class="ctrl-btn action" onclick="window._lab3Check()">🔬 تحقَّق من الإجابة</button>
+    <div id="lab3-fb" style="padding:8px;text-align:center;font-size:13px;font-weight:700;min-height:36px"></div>
+    <button class="ctrl-btn" style="margin-top:4px" onclick="window.newQChemLab3()">🎲 مادة جديدة</button>
+  `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9chemlab'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const salt=salts[S.qi||0];
-    // Background
-    const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,'#1A2A3A'); bg.addColorStop(1,'#0A1520');
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#1A2A3A'); bg.addColorStop(1,'#0A1520');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    const fs_title=Math.max(12,Math.min(w*0.024, 18));
-    const pad=fs_title*1.6;
+    _lbl(c,'🏆 مختبر التحليل الكيميائي الكامل',w/2,h*0.055,'#FFD700',Math.max(12,w*0.022));
 
-    // Title at top with safe padding
-    c.fillStyle='#FFD700'; c.font=`bold ${fs_title}px Tajawal`;
-    c.textAlign='center'; c.textBaseline='top';
-    c.fillText('🏆 مختبر التحليل الكيميائي الكامل', w/2, pad*0.4);
+    const cx=w/2, cy=h*0.46;
+    const cr=Math.min(w,h)*0.11;
+    const nr=Math.min(w,h)*0.08;
+    const r=Math.min(w,h)*0.27;
 
-    // Layout: central circle in middle of canvas
-    const cx=w/2, cy=h*0.48;
-    const cr=Math.min(w,h)*0.11; // central radius
-    const nr=Math.min(w,h)*0.08; // node radius
-    const r=Math.min(w,h)*0.28;  // distance from center to nodes
-
-    // Four nodes at 0°, 90°, 180°, 270°
     const tests2=[
-      {label:'اللهب 🔥', val:salt.flameDesc, col:salt.fc,   ang: -Math.PI/2}, // top
-      {label:'NaOH 🧪',  val:salt.naohDesc,  col:salt.nc,   ang:  0},          // right
-      {label:'AgNO₃ 🥈', val:salt.agDesc,    col:'#FDD835', ang:  Math.PI/2},  // bottom
-      {label:'BaCl₂ ⚪',  val:salt.baDesc,    col:'#90A4AE', ang:  Math.PI},    // left
+      {key:'flame', label:'اللهب 🔥', val:salt.flameDesc, col:salt.fc, ang:-Math.PI/2},
+      {key:'naoh',  label:'NaOH 🧪',  val:salt.naohDesc,  col:salt.nc, ang:0},
+      {key:'ag',    label:'AgNO₃ 🥈', val:salt.agDesc,    col:'#FDD835', ang:Math.PI/2},
+      {key:'ba',    label:'BaCl₂ ⚪',  val:salt.baDesc,    col:'#90A4AE', ang:Math.PI},
     ];
 
-    // Clamp node positions inside canvas
     tests2.forEach(t=>{
-      t.tx = Math.max(nr+4, Math.min(w-nr-4, cx + r*Math.cos(t.ang)));
-      t.ty = Math.max(nr+pad*2, Math.min(h-nr-4, cy + r*Math.sin(t.ang)));
+      t.tx=Math.max(nr+5,Math.min(w-nr-5,cx+r*Math.cos(t.ang)));
+      t.ty=Math.max(nr+25,Math.min(h-nr-5,cy+r*Math.sin(t.ang)));
     });
 
-    // Draw connecting lines
+    // Connecting lines
     tests2.forEach(t=>{
-      c.strokeStyle=t.col+'44'; c.lineWidth=1.5;
+      const revealed=S.revealedTests[t.key];
+      c.strokeStyle=revealed?t.col+'66':t.col+'22'; c.lineWidth=revealed?2:1.5;
+      if(revealed) c.setLineDash([]);
+      else c.setLineDash([5,5]);
       c.beginPath(); c.moveTo(cx,cy); c.lineTo(t.tx,t.ty); c.stroke();
+      c.setLineDash([]);
     });
 
     // Central mystery circle
-    c.fillStyle='rgba(255,215,0,0.12)'; c.beginPath(); c.arc(cx,cy,cr,0,Math.PI*2); c.fill();
-    c.strokeStyle='#FFD700BB'; c.lineWidth=2.5; c.beginPath(); c.arc(cx,cy,cr,0,Math.PI*2); c.stroke();
-    const fs_center=Math.max(14,Math.min(w*0.032,22));
-    c.fillStyle='#FFD700'; c.font=`bold ${fs_center}px Tajawal`;
+    const centerPulse=S.done?1:1+0.04*Math.sin(S.t*0.06);
+    c.save(); c.translate(cx,cy); c.scale(centerPulse,centerPulse);
+    c.fillStyle='rgba(255,215,0,0.12)'; c.beginPath(); c.arc(0,0,cr,0,Math.PI*2); c.fill();
+    c.strokeStyle=S.done?'#27AE60':'#FFD700BB'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(0,0,cr,0,Math.PI*2); c.stroke();
+    c.fillStyle=S.done?'#27AE60':'#FFD700';
+    c.font=`bold ${Math.max(13,Math.min(w*0.030,20))}px Tajawal`;
     c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(S.done?salt.salt:'مجهول', cx, cy);
+    c.fillText(S.done?salt.salt:'مجهول',0,0);
+    c.restore();
 
-    // Draw nodes
+    // Test nodes
     const fs1=Math.max(9,Math.min(w*0.015,13));
-    const fs2=Math.max(8,Math.min(w*0.013,11));
+    const fs2=Math.max(7,Math.min(w*0.013,11));
     tests2.forEach(t=>{
-      c.fillStyle=t.col+'22'; c.beginPath(); c.arc(t.tx,t.ty,nr,0,Math.PI*2); c.fill();
-      c.strokeStyle=t.col+'88'; c.lineWidth=1.5; c.beginPath(); c.arc(t.tx,t.ty,nr,0,Math.PI*2); c.stroke();
-      // label
-      c.fillStyle=t.col; c.font=`bold ${fs1}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(t.label, t.tx, t.ty - fs1*0.8);
-      // value — wrap inside node
-      c.fillStyle='#DDD'; c.font=`${fs2}px Tajawal`;
-      const words=t.val.split(' '), lineH=fs2*1.35, maxW=nr*1.7;
-      let line='', lines=[];
-      words.forEach(w2=>{ const tst=line?line+' '+w2:w2; if(c.measureText(tst).width>maxW&&line){lines.push(line);line=w2;}else line=tst; });
+      const revealed=S.revealedTests[t.key];
+      c.fillStyle=revealed?t.col+'2A':t.col+'0F';
+      c.beginPath(); c.arc(t.tx,t.ty,nr,0,Math.PI*2); c.fill();
+      c.strokeStyle=revealed?t.col+'99':t.col+'33'; c.lineWidth=revealed?2:1.5;
+      c.beginPath(); c.arc(t.tx,t.ty,nr,0,Math.PI*2); c.stroke();
+      c.fillStyle=revealed?t.col:'#666';
+      c.font=`bold ${fs1}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(t.label,t.tx,t.ty-fs1*0.8);
+      c.fillStyle=revealed?'#DDD':'#444';
+      c.font=`${fs2}px Tajawal`;
+      const words=t.val.split(' ');
+      let line='',lines=[],maxW2=nr*1.7;
+      words.forEach(word=>{ const test3=line?line+' '+word:word; if(c.measureText(test3).width>maxW2&&line){lines.push(line);line=word;}else line=test3; });
       lines.push(line);
-      const startY=t.ty+fs2*0.5;
-      lines.forEach((ln,li)=>c.fillText(ln,t.tx,startY+li*lineH));
+      const startY2=t.ty+fs2*0.5;
+      lines.forEach((ln,li)=>c.fillText(revealed?ln:'؟',t.tx,startY2+li*fs2*1.35));
     });
 
-    // Guess display at bottom
+    // Guess display
     if(S.guessC||S.guessA){
-      const gy=h*0.88;
-      c.fillStyle='rgba(255,215,0,0.08)'; c.beginPath(); c.roundRect(w*0.1,gy-h*0.045,w*0.8,h*0.085,10); c.fill();
-      c.fillStyle='#FFD700'; c.font=`bold ${Math.max(11,fs1)}px Tajawal`;
+      const gy=h*0.87;
+      c.fillStyle=S.done?'rgba(39,174,96,0.12)':'rgba(255,215,0,0.08)';
+      c.beginPath(); c.roundRect(w*0.08,gy-h*0.045,w*0.84,h*0.085,10); c.fill();
+      c.strokeStyle=S.done?'rgba(39,174,96,0.3)':'rgba(255,215,0,0.2)'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.08,gy-h*0.045,w*0.84,h*0.085,10); c.stroke();
+      c.fillStyle=S.done?'#27AE60':'#FFD700';
+      c.font=`bold ${Math.max(11,fs1)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('تخمينك: '+(S.guessC||'؟')+' + '+(S.guessA||'؟'), w/2, gy);
+      c.fillText('تخمينك: '+(S.guessC||'؟')+' + '+(S.guessA||'؟'),w/2,gy);
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
-
 </script>
 </body>
 </html>
