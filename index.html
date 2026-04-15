@@ -3938,6 +3938,15 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           </div>
         </div>
 
+        <div class="unit-card" onclick="openUnit('g9chem10', this)">
+          <div class="unit-num-badge c-teal">١٠</div>
+          <div>
+            <div class="unit-title">الأرض والغلاف الجوّي</div>
+            <div class="unit-topics">مكوّنات الهواء · الغازات النبيلة · مصادر التلوّث · الاحتراق الكامل وغير الكامل · المطر الحمضي · تأثير الدفيئة · التفكك الحراري للحجر الجيري · معالجة التربة</div>
+            <div class="unit-pill avail">🌍 ٥ استقصاءات متاحة</div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ══ sims: g9chem6 ══ -->
@@ -4147,6 +4156,67 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
               <div class="sim-num">٨-٤ · المعايرة والترسيب</div>
               <div class="sim-name">قطرة بقطرة حتى نقطة النهاية</div>
               <div class="sim-desc">أجرِ تجربة المعايرة لتحضير ملح نقي واكتشف كيف يُنتَج الراسب من تفاعل محلولين</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g9chem10 ══ -->
+      <div class="sims-wrap" id="sims-g9chem10" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة العاشرة — الأرض والغلاف الجوّي</div>
+          <div class="sims-count">٥ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9aircomp')">
+            <div class="sim-thumb t5">🌬️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-١ · مكوّنات الهواء والغازات النبيلة</div>
+              <div class="sim-name">ما الذي يملأ كل شهقة هواء؟</div>
+              <div class="sim-desc">استكشف تركيب الغلاف الجوّي، نسب الغازات، وخصائص الغازات النبيلة واستخداماتها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9combustion')">
+            <div class="sim-thumb t3">🔥</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-٢ · الاحتراق الكامل وغير الكامل</div>
+              <div class="sim-name">الوقود + الأكسجين = ماذا؟</div>
+              <div class="sim-desc">قارن بين احتراق الميثان الكامل وغير الكامل وشاهد فرق المنتجات: CO₂ أم CO الخطير؟</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9acidrain')">
+            <div class="sim-thumb t8">🌧️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-٣ · المطر الحمضي وتأثيره</div>
+              <div class="sim-name">الغازات + السحاب = مطر مدمِّر!</div>
+              <div class="sim-desc">تعرَّف على كيف يتكوَّن المطر الحمضي من SO₂ وNOₓ وتأثيره على الأبنية والتربة والكائنات</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9greenhouse')">
+            <div class="sim-thumb t6">🌡️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-٤ · تأثير الدفيئة والاحترار العالمي</div>
+              <div class="sim-name">الأرض تحت الغطاء الغازي!</div>
+              <div class="sim-desc">استكشف آلية تأثير الدفيئة وغازاته وكيف تُسبِّب الأنشطة البشرية الاحترار العالمي وتغيُّر المناخ</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9limestone')">
+            <div class="sim-thumb t2">🪨</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-٥ · الحجر الجيري والتفكك الحراري</div>
+              <div class="sim-name">من الصخرة إلى الجير الحيّ!</div>
+              <div class="sim-desc">تابع التفكك الحراري لكربونات الكالسيوم، وتحضير الجير الحيّ، ومعالجة التربة الحمضية</div>
             </div>
             <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
           </div>
@@ -4804,7 +4874,9 @@ function openUnit(id, el) {
     u8repro:'وحدة التكاثر 🧬 — بدأت من خلية واحدة! اكتشف رحلة الجنين من الإخصاب حتى الولادة.',
     g9chem6:'الوحدة السادسة ⚗️ — الأحماض والقواعد في كل مكان! اختر الاستقصاء الذي تريده.',
     g9chem7:'الوحدة السابعة ⚖️ — المعادلات الكيميائية تُخبرك بكل شيء عن التفاعل! وازنها واكتشف رموز الحالة.',
-    g9chem8:'الوحدة الثامنة 🧂 — الأملاح تتكوّن من أحماض وقواعد. من NaCl إلى CuSO₄ — اكتشف كيف!'
+    g9chem8:'الوحدة الثامنة 🧂 — الأملاح تتكوّن من أحماض وقواعد. من NaCl إلى CuSO₄ — اكتشف كيف!',
+    g9chem9:'الوحدة التاسعة 🔬 — التحليل الكيميائي يكشف أسرار المواد المجهولة!',
+    g9chem10:'الوحدة العاشرة 🌍 — الأرض تحت المجهر! استكشف الهواء والتلوّث والمناخ والحجر الجيري.'
   };
   if(hints[id]) setTimeout(function(){ buddySay(hints[id], 6000); }, 400);
 }
@@ -4940,7 +5012,13 @@ const SIM_META = {
   g9flametest: { title: 'نشاط 9-2 · اختبار اللهب', badge: '🔥 9', tabs: ['ألوان اللهب 🔥', 'حدِّد الكاتيون المجهول 🔍', 'نشاط: تجربة اللهب 🧪'] },
   g9cationppt: { title: 'نشاط 9-3 · ترسيب الكاتيونات', badge: '🧪 9', tabs: ['هيدروكسيد الصوديوم NaOH ⚗️', 'محلول الأمونيا NH₃ 💨', 'نشاط: حدِّد الكاتيون 🔬'] },
   g9aniontest: { title: 'نشاط 9-4 · اختبار الأنيونات', badge: '⚗️ 9', tabs: ['Cl⁻ و Br⁻ بنترات الفضة 🥈', 'SO₄²⁻ بكلوريد الباريوم ⚪', 'CO₃²⁻ و NO₃⁻ 🌬️'] },
-  g9chemlab:   { title: 'نشاط 9-5 · مختبر التحليل المتكامل', badge: '🔬 9', tabs: ['تحديد الكاتيون 🔍', 'تحديد الأنيون 🔍', 'مادة مجهولة كاملة 🧩'] }
+  g9chemlab:   { title: 'نشاط 9-5 · مختبر التحليل المتكامل', badge: '🔬 9', tabs: ['تحديد الكاتيون 🔍', 'تحديد الأنيون 🔍', 'مادة مجهولة كاملة 🧩'] },
+  // ── الصف التاسع — الوحدة ١٠: الأرض والغلاف الجوّي ──
+  g9aircomp:    { title: 'نشاط 10-1 · مكوّنات الهواء والغازات النبيلة', badge: '🌬️ 9', tabs: ['تركيب الغلاف الجوّي 📊', 'الغازات النبيلة واستخداماتها 💡', 'مقارنة غازات الهواء 🔬'] },
+  g9combustion: { title: 'نشاط 10-2 · الاحتراق الكامل وغير الكامل', badge: '🔥 9', tabs: ['احتراق الميثان الكامل 🔥', 'الاحتراق غير الكامل ⚠️', 'مقارنة المنتجات وتأثيرها 📊'] },
+  g9acidrain:   { title: 'نشاط 10-3 · المطر الحمضي وتأثيره', badge: '🌧️ 9', tabs: ['تكوُّن غازات المطر الحمضي ⚗️', 'تأثير المطر الحمضي على البيئة 🌿', 'حلول الحدّ من التلوّث 🛡️'] },
+  g9greenhouse: { title: 'نشاط 10-4 · تأثير الدفيئة والاحترار العالمي', badge: '🌡️ 9', tabs: ['آلية تأثير الدفيئة 🌍', 'غازات الدفيئة ومصادرها 🏭', 'التغيُّرات المناخية وحلولها ♻️'] },
+  g9limestone:  { title: 'نشاط 10-5 · الحجر الجيري والتفكك الحراري', badge: '🪨 9', tabs: ['التفكك الحراري لـ CaCO₃ 🔥', 'الجير الحيّ ومنتجاته 🏗️', 'معالجة التربة الحمضية 🌱'] }
 };
 
 // ===== UNIT 7 END-OF-UNIT QUIZ =====
@@ -5460,7 +5538,13 @@ function openSim(type) {
     g9flametest:'لون اللهب يكشف الكاتيون 🔥 — الصوديوم أصفر، والبوتاسيوم بنفسجي!',
     g9cationppt:'NaOH + كاتيون → راسب ملوّن 🧪 — لون الراسب هو السر!',
     g9aniontest:'نترات الفضة تكشف Cl⁻ وBr⁻ 🥈 — وكلوريد الباريوم يكشف الكبريتات!',
-    g9chemlab:  'تحدٍّ حقيقي: ما هذه المادة المجهولة؟ 🔬 — طبِّق كل اختبارات التحليل النوعي!'
+    g9chemlab:  'تحدٍّ حقيقي: ما هذه المادة المجهولة؟ 🔬 — طبِّق كل اختبارات التحليل النوعي!',
+    // ── الوحدة العاشرة: الأرض والغلاف الجوّي ──
+    g9aircomp:    '78% نيتروجين + 21% أكسجين + 1% غازات أخرى 🌬️ — شوف ما يملأ كل شهقة!',
+    g9combustion: 'الأكسجين الكافي = CO₂ + H₂O ✅ | الأكسجين الناقص = CO خطير ⚠️',
+    g9acidrain:   'SO₂ + NO₂ + مياه السحاب = مطر pH < 5 🌧️ — يُدمّر الأحجار والأشجار!',
+    g9greenhouse: 'CO₂ و CH₄ يحبسان الحرارة كالزجاج 🌡️ — الأرض تسخن والمناخ يتغيّر!',
+    g9limestone:  'CaCO₃ + حرارة شديدة → CaO + CO₂ 🪨 — الجير الحيّ يُعادل التربة الحمضية!'
   };
   var greet = simGreets[type] || 'استكشف وجرّب! 🔬';
   setTimeout(function(){ buddySay(greet, 6000); }, 800);
@@ -5709,7 +5793,13 @@ function startSim(type, tab) {
     g9flametest: [_s('simG9FlameTest1'), _s('simG9FlameTest2'), _s('simG9FlameTest3')],
     g9cationppt: [_s('simG9CationPpt1'), _s('simG9CationPpt2'), _s('simG9CationPpt3')],
     g9aniontest: [_s('simG9AnionTest1'), _s('simG9AnionTest2'), _s('simG9AnionTest3')],
-    g9chemlab:   [_s('simG9ChemLab1'), _s('simG9ChemLab2'), _s('simG9ChemLab3')]
+    g9chemlab:   [_s('simG9ChemLab1'), _s('simG9ChemLab2'), _s('simG9ChemLab3')],
+    // ── الوحدة العاشرة ──
+    g9aircomp:    [_s('simG9AirComp1'),    _s('simG9AirComp2'),    _s('simG9AirComp3')],
+    g9combustion: [_s('simG9Combustion1'), _s('simG9Combustion2'), _s('simG9Combustion3')],
+    g9acidrain:   [_s('simG9AcidRain1'),   _s('simG9AcidRain2'),   _s('simG9AcidRain3')],
+    g9greenhouse: [_s('simG9Greenhouse1'), _s('simG9Greenhouse2'), _s('simG9Greenhouse3')],
+    g9limestone:  [_s('simG9Limestone1'),  _s('simG9Limestone2'),  _s('simG9Limestone3')]
   };
   const fn = (fns[type] || [])[tab];
   if (fn) {
@@ -27569,6 +27659,37 @@ Object.assign(SIM_QUESTIONS, {
     opts: ['اختبار الترسيب مباشرةً','تحديد نوع الكاتيون ثم الأنيون','إضافة الأحماض فوراً','قياس درجة الغليان'],
     ans: 1,
     fb: '✅ التحليل النوعي يبدأ بتحديد الكاتيون (باستخدام اختبار اللهب والترسيب) ثم الأنيون (بنترات الفضة وكلوريد الباريوم والأحماض). هذا الترتيب المنهجي يضمن نتائج دقيقة!'
+  },
+  // ── الوحدة العاشرة: الأرض والغلاف الجوّي ──
+  g9aircomp: {
+    q: 'ما النسبة المئوية التقريبية للنيتروجين في الهواء الجاف؟',
+    opts: ['21%','50%','78%','99%'],
+    ans: 2,
+    fb: '✅ الهواء يتكوّن تقريباً من 78% نيتروجين (N₂) + 21% أكسجين (O₂) + 0.9% أرغون + 0.04% ثاني أكسيد الكربون + غازات نادرة أخرى. النيتروجين هو المكوّن الرئيسي!'
+  },
+  g9combustion: {
+    q: 'ما الناتج الرئيسي لاحتراق الميثان CH₄ احتراقاً غير كامل (مع نقص الأكسجين)؟',
+    opts: ['ثاني أكسيد الكربون CO₂','أكسيد الكربون CO','ثاني أكسيد الكبريت SO₂','النيتروجين N₂'],
+    ans: 1,
+    fb: '✅ الاحتراق غير الكامل (نقص O₂) ينتج أكسيد الكربون CO السام: 2CH₄ + 3O₂ → 2CO + 4H₂O. أما الاحتراق الكامل (O₂ وفير) فينتج CO₂ + H₂O. CO خطير لأنه يرتبط بالهيموغلوبين!'
+  },
+  g9acidrain: {
+    q: 'أيٌّ من الغازات التالية يُساهم بشكل رئيسي في تكوُّن المطر الحمضي؟',
+    opts: ['النيتروجين N₂ والأكسجين O₂','ثاني أكسيد الكبريت SO₂ وأكاسيد النيتروجين NOₓ','الأرغون والهيليوم','ثاني أكسيد الكربون وبخار الماء فقط'],
+    ans: 1,
+    fb: '✅ SO₂ + H₂O → H₂SO₃ (حمض الكبريتوز) | NO₂ + H₂O → HNO₃ (حمض النيتريك). هذه الأحماض تخفّض pH المطر إلى ما دون 5.6 مما يُسبّب المطر الحمضي الضار!'
+  },
+  g9greenhouse: {
+    q: 'أيٌّ من الغازات التالية أكثر فاعلية كغاز دفيئة بـ 20 مرة مقارنةً بثاني أكسيد الكربون؟',
+    opts: ['النيتروجين N₂','الأرغون Ar','الميثان CH₄','الأكسجين O₂'],
+    ans: 2,
+    fb: '✅ الميثان CH₄ فاعليته كغاز دفيئة تُقارب 20 مرة أكثر من CO₂! يصدر من مناجم الفحم والمواشي والمكبّات. وغازات الدفيئة الرئيسية هي: CO₂ وCH₄ وبخار الماء وأكاسيد النيتروجين.'
+  },
+  g9limestone: {
+    q: 'ما الناتجان الرئيسيان للتفكك الحراري لكربونات الكالسيوم CaCO₃؟',
+    opts: ['CaO + CO₂','Ca + CO₃','CaCl₂ + H₂O','Ca(OH)₂ + CO'],
+    ans: 0,
+    fb: '✅ CaCO₃(s) → CaO(s) + CO₂(g) — التفكك الحراري عند درجات حرارة مرتفعة جداً. CaO (الجير الحيّ) يتفاعل مع الماء: CaO + H₂O → Ca(OH)₂ (الجير المطفأ) القلوي الذي يُعادل التربة الحمضية!'
   }
 });
 
@@ -36932,6 +37053,1298 @@ function simG9ChemLab3(){
       c.textAlign='center'; c.textBaseline='middle';
       c.fillText('تخمينك: '+(S.guessC||'؟')+' + '+(S.guessA||'؟'),w/2,gy);
     }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// الوحدة العاشرة — الأرض والغلاف الجوّي
+// ══════════════════════════════════════════════════════════════════════
+
+// ══ 10-1 Tab 1: تركيب الغلاف الجوّي ══
+function simG9AirComp1(){
+  cancelAnimationFrame(animFrame);
+  const gases=[
+    {name:'النيتروجين N₂', pct:78, col:'#3498DB', angle:0},
+    {name:'الأكسجين O₂',   pct:21, col:'#E74C3C', angle:0},
+    {name:'الأرغون Ar',    pct:0.9,col:'#9B59B6', angle:0},
+    {name:'CO₂ + أخرى',   pct:0.1,col:'#2ECC71', angle:0},
+  ];
+  simState={t:0, highlight:-1};
+  const S=simState;
+
+  window._airSel=function(i){
+    S.highlight=(S.highlight===i)?-1:i;
+    document.querySelectorAll('[id^="air-btn-"]').forEach((b,j)=>b.classList.toggle('active',j===S.highlight));
+  };
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌬️ مكوّنات الهواء — انقر لتكبير القطاع</div>
+      <div class="ctrl-btns-grid">
+        ${gases.map((g,i)=>`<button class="ctrl-btn" id="air-btn-${i}" onclick="window._airSel(${i})" style="border-right:4px solid ${g.col}">${g.name}<br><small>${g.pct}%</small></button>`).join('')}
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;text-align:center">
+      💡 الهواء الجاف لا يحتوي على بخار ماء — في الواقع 0.2–4% بخار ماء!
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا النيتروجين لا يتفاعل بسهولة رغم كثرته؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">جزيء N₂ مستقر جداً بسبب الرابطة الثلاثية (N≡N) التي تحتاج طاقة ضخمة لكسرها — لهذا يُسمى "غير نشيط" في الظروف العادية!</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9aircomp'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    // sky gradient bg
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#87CEEB'); bg.addColorStop(1,'#E3F4FF');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    _lbl(c,'تركيب الهواء الجاف',w/2,h*0.07,'#1E2D3D',Math.max(13,w*0.026));
+
+    // Pie chart
+    const cx2=w*0.5, cy2=h*0.42, baseR=Math.min(w,h)*0.28;
+    let startA=-Math.PI/2;
+    gases.forEach((g,i)=>{
+      const sliceA=(g.pct/100)*2*Math.PI;
+      const isHl=(S.highlight===i);
+      const r=isHl?baseR*1.12:baseR;
+      const midA=startA+sliceA/2;
+      const ox=isHl?Math.cos(midA)*8:0, oy=isHl?Math.sin(midA)*8:0;
+
+      c.beginPath(); c.moveTo(cx2+ox,cy2+oy);
+      c.arc(cx2+ox,cy2+oy,r,startA,startA+sliceA);
+      c.closePath();
+      c.fillStyle=g.col+(isHl?'FF':'CC'); c.fill();
+      c.strokeStyle='#fff'; c.lineWidth=2; c.stroke();
+
+      if(g.pct>1){
+        const lx=cx2+ox+Math.cos(midA)*(r*0.65);
+        const ly=cy2+oy+Math.sin(midA)*(r*0.65);
+        c.fillStyle='#fff'; c.font=`bold ${Math.max(9,w*0.022)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(g.pct+'%',lx,ly);
+      }
+      startA+=sliceA;
+    });
+
+    // Legend
+    const ly0=h*0.74, lx0=w*0.05, lsp=h*0.065;
+    gases.forEach((g,i)=>{
+      const lx=lx0, ly=ly0+i*lsp;
+      c.fillStyle=g.col; c.fillRect(lx,ly-lsp*0.3,lsp*0.35,lsp*0.55);
+      c.fillStyle=(S.highlight===i)?g.col:'#1E2D3D';
+      c.font=`${S.highlight===i?'bold ':''}${Math.max(9,w*0.018)}px Tajawal`;
+      c.textAlign='right'; c.textBaseline='middle';
+      c.fillText(`${g.name} — ${g.pct}%`, w*0.95, ly);
+    });
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-1 Tab 2: الغازات النبيلة واستخداماتها ══
+function simG9AirComp2(){
+  cancelAnimationFrame(animFrame);
+  const nobles=[
+    {sym:'He',name:'هيليوم', use:'البالونات والغوص 🎈',col:'#3498DB',pct:'0.0005%',prop:'أخف من الهواء'},
+    {sym:'Ne',name:'نيون',   use:'لافتات النيون 💡',   col:'#E74C3C',pct:'0.0018%',prop:'يُضيء باللون الأحمر'},
+    {sym:'Ar',name:'أرغون',  use:'المصابيح الكهربائية 💡',col:'#9B59B6',pct:'0.93%', prop:'يمنع تأكسد الفتيل'},
+    {sym:'Kr',name:'كريبتون',use:'مصابيح فلاش 📸',    col:'#27AE60',pct:'0.0001%',prop:'ضوء أبيض ساطع'},
+    {sym:'Xe',name:'زينون',  use:'مصابيح السيارات 🚗',col:'#F39C12',pct:'0.000009%',prop:'ضوء أزرق قوي'},
+  ];
+  simState={t:0, sel:0, glow:0};
+  const S=simState;
+  window._nobleSel=function(i){ S.sel=i; S.glow=0; };
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💡 اختر الغاز النبيل</div>
+      <div class="ctrl-btns-grid">
+        ${nobles.map((g,i)=>`<button class="ctrl-btn${i===0?' active':''}" onclick="window._nobleSel(${i});document.querySelectorAll('[onclick*=\\'_nobleSel\\']').forEach((b,j)=>b.classList.toggle('active',j===i))" style="border-right:3px solid ${g.col}">${g.sym} — ${g.name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;text-align:center">
+      🔬 الغازات النبيلة: مستقرة جداً، لا تتفاعل في الظروف العادية، طبقتها الخارجية مكتملة
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا تُسمى "نبيلة"؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">شبيهة بـ"النبلاء" الذين لا يختلطون بالعامة! تمتلك 8 إلكترونات في مستواها الخارجي (إلا He: 2) مما يجعلها مستقرة تماماً وغير قادرة على تكوين مركبات في الظروف العادية.</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9aircomp'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++; S.glow=Math.min(S.glow+0.05,1);
+    c.fillStyle='#0A0E1A'; c.fillRect(0,0,w,h);
+    // stars
+    for(let i=0;i<30;i++){
+      const sx=(i*137+w)%w, sy=(i*91+h*0.3)%(h*0.4);
+      const bright=0.3+0.7*Math.abs(Math.sin(S.t*0.02+i));
+      c.fillStyle=`rgba(255,255,255,${bright*0.5})`; c.beginPath();
+      c.arc(sx,sy,0.8,0,Math.PI*2); c.fill();
+    }
+    const g=nobles[S.sel||0];
+    // glow effect
+    const grd=c.createRadialGradient(w/2,h*0.35,0,w/2,h*0.35,w*0.22);
+    grd.addColorStop(0,g.col+'88'); grd.addColorStop(1,g.col+'00');
+    c.fillStyle=grd; c.fillRect(0,0,w,h);
+
+    // Tube shape
+    const tx=w*0.3,ty=h*0.15,tw=w*0.4,th=h*0.38;
+    c.strokeStyle=g.col; c.lineWidth=4;
+    c.beginPath(); c.roundRect(tx,ty,tw,th,20); c.stroke();
+    // glowing gas fill
+    const gl=c.createLinearGradient(tx,ty,tx+tw,ty);
+    const alpha=Math.round((0.25+0.35*S.glow+0.1*Math.sin(S.t*0.05))*255).toString(16).padStart(2,'0');
+    gl.addColorStop(0,g.col+'22'); gl.addColorStop(0.5,g.col+alpha); gl.addColorStop(1,g.col+'22');
+    c.fillStyle=gl; c.beginPath(); c.roundRect(tx+4,ty+4,tw-8,th-8,17); c.fill();
+
+    _lbl(c,g.sym,w/2,h*0.37,g.col,Math.max(28,w*0.06));
+
+    // Info panel
+    const iy=h*0.58;
+    c.fillStyle='rgba(255,255,255,0.05)'; c.beginPath(); c.roundRect(w*0.04,iy,w*0.92,h*0.36,12); c.fill();
+    c.strokeStyle=g.col+'55'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(w*0.04,iy,w*0.92,h*0.36,12); c.stroke();
+    const fs=Math.max(9,w*0.022);
+    _lbl(c,g.name,w/2,iy+h*0.055,g.col,fs*1.2);
+    _lbl(c,'الاستخدام: '+g.use,w/2,iy+h*0.13,'#E0E8F0',fs);
+    _lbl(c,'النسبة في الهواء: '+g.pct,w/2,iy+h*0.21,'#B0C4D8',fs*0.9);
+    _lbl(c,'خاصية: '+g.prop,w/2,iy+h*0.29,'#90AEC8',fs*0.9);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-1 Tab 3: مقارنة غازات الهواء ══
+function simG9AirComp3(){
+  cancelAnimationFrame(animFrame);
+  const data=[
+    {name:'N₂',full:'النيتروجين',pct:78,col:'#3498DB',use:'الغلاف + تصنيع NH₃',react:'لا يتفاعل بسهولة'},
+    {name:'O₂',full:'الأكسجين', pct:21,col:'#E74C3C',use:'التنفس + الاحتراق',react:'نشيط — يتفاعل مع معظم المواد'},
+    {name:'CO₂',full:'ثاني أكسيد الكربون',pct:0.04,col:'#27AE60',use:'البناء الضوئي',react:'يُذيب في الماء → حمضي'},
+    {name:'H₂O',full:'بخار الماء',pct:2,col:'#1A8FA8',use:'دورة الماء + الطقس',react:'يتكثف → مطر وسحاب'},
+  ];
+  simState={t:0, sel:-1};
+  const S=simState;
+  window._airCmp=function(i){S.sel=(S.sel===i)?-1:i;};
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 انقر على العمود لمعرفة التفاصيل</div>
+    </div>
+    <div class="info-box" style="font-size:12px;text-align:center">
+      📊 النسب في الرسم ليست متناسبة بالكامل — CO₂ صغير جداً ليُرسم بنفس المقياس!
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ هل الهواء فوق المحيط مختلف عن هواء الصحراء؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">نعم! نسبة بخار الماء تتراوح بين 0.2% (صحراء) و4% (فوق المحيطات). أما N₂ و O₂ فنسبهما ثابتة تقريباً في كل الأرض.</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  cv.onclick=function(e){
+    const r=cv.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(cv.width/r.width);
+    const bw=cv.width*0.17, gap=cv.width*0.04, x0=cv.width*0.1;
+    data.forEach((_,i)=>{const bx=x0+i*(bw+gap); if(mx>=bx&&mx<=bx+bw) window._airCmp(i);});
+  };
+
+  function draw(){
+    if(currentSim!=='g9aircomp'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#EAF4FB'); bg.addColorStop(1,'#D6EAF8');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    _lbl(c,'مقارنة غازات الهواء',w/2,h*0.07,'#1E2D3D',Math.max(12,w*0.024));
+
+    const logPcts=[Math.log10(78+1),Math.log10(21+1),Math.log10(0.04+1)*4,Math.log10(2+1)];
+    const maxL=logPcts[0];
+    const bw=w*0.17, gap=w*0.04, x0=w*0.1, maxBarH=h*0.42, by0=h*0.65;
+
+    data.forEach((d,i)=>{
+      const bx=x0+i*(bw+gap);
+      const bh=maxBarH*(logPcts[i]/maxL);
+      const isS=(S.sel===i);
+      // Shadow
+      c.fillStyle='rgba(0,0,0,0.08)'; c.fillRect(bx+3,by0-bh+3,bw,bh);
+      // Bar
+      const gr=c.createLinearGradient(bx,by0-bh,bx,by0);
+      gr.addColorStop(0,d.col+(isS?'FF':'CC')); gr.addColorStop(1,d.col+'88');
+      c.fillStyle=gr; c.beginPath(); c.roundRect(bx,by0-bh,bw,bh,6); c.fill();
+      if(isS){c.strokeStyle=d.col; c.lineWidth=2.5; c.beginPath(); c.roundRect(bx,by0-bh,bw,bh,6); c.stroke();}
+
+      const fs=Math.max(9,w*0.018);
+      _lbl(c,d.name,bx+bw/2,by0-bh-8,d.col,fs);
+      _lbl(c,d.pct+'%',bx+bw/2,by0+fs*1.2,'#444',fs*0.9);
+    });
+
+    // Baseline
+    c.strokeStyle='#90A4AE'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(w*0.06,by0); c.lineTo(w*0.94,by0); c.stroke();
+
+    if(S.sel>=0){
+      const d=data[S.sel];
+      const py=h*0.72;
+      c.fillStyle='rgba(255,255,255,0.92)'; c.beginPath(); c.roundRect(w*0.04,py,w*0.92,h*0.22,10); c.fill();
+      c.strokeStyle=d.col+'66'; c.lineWidth=1.5; c.beginPath(); c.roundRect(w*0.04,py,w*0.92,h*0.22,10); c.stroke();
+      const fs2=Math.max(9,w*0.02);
+      _lbl(c,d.full,w/2,py+h*0.055,d.col,fs2*1.1);
+      _lbl(c,'الاستخدام: '+d.use,w/2,py+h*0.11,'#333',fs2*0.9);
+      _lbl(c,'التفاعلية: '+d.react,w/2,py+h*0.165,'#555',fs2*0.85);
+    }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-2 Tab 1: الاحتراق الكامل ══
+function simG9Combustion1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, burning:false, o2Level:100, products:[]};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔥 احتراق الميثان الكامل</div>
+      <div class="info-box" style="font-size:12px">
+        CH₄ + 2O₂ → CO₂ + 2H₂O<br>
+        <small>الأكسجين وافر ✅ — المنتجات: ثاني أكسيد الكربون + ماء</small>
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <button class="ctrl-btn action" id="comb1-fire" onclick="simState.burning=!simState.burning;this.textContent=simState.burning?'⏹ أوقف الاحتراق':'▶ ابدأ الاحتراق'">▶ ابدأ الاحتراق</button>
+      <button class="ctrl-btn" onclick="simState.burning=false;simState.t=0;simState.products=[];document.getElementById('comb1-fire').textContent='▶ ابدأ الاحتراق'">🔄 إعادة</button>
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px">
+      💡 اللهب الأزرق = احتراق كامل ✅ | اللهب البرتقالي/الأصفر = احتراق غير كامل ⚠️
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا الاحتراق الكامل أكثر أماناً؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">لأنه ينتج CO₂ و H₂O فقط — بينما الاحتراق غير الكامل ينتج CO (سام) والسخام (جسيمات ضارة). CO يرتبط بالهيموغلوبين ويمنع نقل الأكسجين!</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9combustion'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    c.fillStyle='#1A1A2E'; c.fillRect(0,0,w,h);
+
+    // Burner
+    const bx=w*0.38, by=h*0.62, bw2=w*0.24, bh2=h*0.08;
+    c.fillStyle='#607D8B'; c.fillRect(bx,by,bw2,bh2);
+    c.fillStyle='#455A64'; c.fillRect(bx-w*0.04,by+bh2,bw2+w*0.08,h*0.04);
+    _lbl(c,'موقد',bx+bw2/2,by+bh2+h*0.06,'#90A4AE',Math.max(9,w*0.018));
+
+    if(S.burning){
+      // Blue flame
+      for(let i=0;i<6;i++){
+        const fx=bx+bw2*0.15+i*(bw2*0.14);
+        const fh=h*(0.12+0.06*Math.sin(S.t*0.15+i*1.2));
+        const grad=c.createLinearGradient(fx,by-fh,fx,by);
+        grad.addColorStop(0,'rgba(30,144,255,0)');
+        grad.addColorStop(0.4,'rgba(100,180,255,0.9)');
+        grad.addColorStop(1,'rgba(0,200,255,1)');
+        c.fillStyle=grad;
+        c.beginPath();
+        c.moveTo(fx,by); c.quadraticCurveTo(fx-w*0.015,by-fh*0.5,fx,by-fh);
+        c.quadraticCurveTo(fx+w*0.015,by-fh*0.5,fx+w*0.02,by); c.closePath(); c.fill();
+      }
+
+      // Molecules rising
+      if(S.t%8===0) S.products.push({x:bx+bw2*0.3+Math.random()*bw2*0.4, y:by-h*0.05, type:Math.random()<0.33?'CO₂':'H₂O', vy:-1.2-Math.random(), vx:(Math.random()-0.5)*0.8, a:1});
+      S.products=S.products.filter(p=>p.a>0.05);
+      S.products.forEach(p=>{
+        p.y+=p.vy; p.x+=p.vx; p.a-=0.008;
+        c.globalAlpha=p.a;
+        c.fillStyle=p.type==='CO₂'?'#E74C3C':'#3498DB';
+        c.font=`bold ${Math.max(8,w*0.019)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(p.type,p.x,p.y);
+      });
+      c.globalAlpha=1;
+    }
+
+    // Equation box
+    const ey=h*0.08;
+    c.fillStyle='rgba(255,255,255,0.07)'; c.beginPath(); c.roundRect(w*0.04,ey,w*0.92,h*0.18,10); c.fill();
+    const fs=Math.max(10,w*0.022);
+    _lbl(c,'CH₄ + 2O₂ → CO₂ + 2H₂O',w/2,ey+h*0.06,'#64B5F6',fs*1.1);
+    _lbl(c,S.burning?'✅ الاحتراق الكامل جارٍ...':'انقر "ابدأ الاحتراق"',w/2,ey+h*0.13,S.burning?'#4CAF50':'#90A4AE',fs*0.9);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-2 Tab 2: الاحتراق غير الكامل ══
+function simG9Combustion2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, o2:100, burning:false, particles:[]};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚠️ الاحتراق غير الكامل (نقص O₂)</div>
+      <div class="info-box" style="font-size:12px;background:rgba(192,57,43,0.08);border-color:rgba(192,57,43,0.2)">
+        2CH₄ + 3O₂ → 2CO + 4H₂O<br>
+        <small style="color:#c0392b">⚠️ ينتج CO (سام) + سخام + لهب برتقالي</small>
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">تقليل الأكسجين: <span id="o2-val">100</span>%</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn" onclick="simState.o2=Math.max(20,simState.o2-10);document.getElementById('o2-val').textContent=simState.o2">➖ أقل O₂</button>
+        <button class="ctrl-btn" onclick="simState.o2=Math.min(100,simState.o2+10);document.getElementById('o2-val').textContent=simState.o2">➕ أكثر O₂</button>
+      </div>
+      <button class="ctrl-btn action" id="comb2-btn" onclick="simState.burning=!simState.burning;this.textContent=simState.burning?'⏹ أوقف':'▶ أشعل'">▶ أشعل</button>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ كيف يمنع CO نقل الأكسجين في الدم؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الهيموغلوبين يرتبط بـ CO بقوة 200 مرة أكثر من O₂! فيُكوِّن carboxyhemoglobin الذي لا يستطيع نقل O₂ — مما يؤدي للاختناق الصامت الخطير.</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9combustion'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    c.fillStyle='#1C1B2E'; c.fillRect(0,0,w,h);
+
+    const o2frac=S.o2/100;
+    const isComplete=S.o2>=80;
+
+    // Burner
+    const bx=w*0.38,by=h*0.62,bw2=w*0.24,bh2=h*0.08;
+    c.fillStyle='#607D8B'; c.fillRect(bx,by,bw2,bh2);
+
+    if(S.burning){
+      // Flame color shifts with O₂ level
+      const r=Math.round(30+(1-o2frac)*200), g2=Math.round(144*o2frac*0.8), b2=Math.round(255*o2frac);
+      for(let i=0;i<5;i++){
+        const fx=bx+bw2*0.1+i*(bw2*0.19);
+        const fh=h*(0.15+0.04*Math.sin(S.t*0.12+i));
+        const grad=c.createLinearGradient(fx,by-fh,fx,by);
+        grad.addColorStop(0,`rgba(${r},${g2},${b2},0)`);
+        grad.addColorStop(0.5,`rgba(${r},${g2},${b2},0.85)`);
+        grad.addColorStop(1,`rgba(255,200,50,1)`);
+        c.fillStyle=grad;
+        c.beginPath(); c.moveTo(fx,by);
+        c.quadraticCurveTo(fx-12,by-fh*0.5,fx,by-fh);
+        c.quadraticCurveTo(fx+12,by-fh*0.5,fx+16,by); c.closePath(); c.fill();
+      }
+
+      // Soot particles (more when less O₂)
+      if(Math.random()<(1-o2frac)*0.5) S.particles.push({x:bx+bw2*0.2+Math.random()*bw2*0.6,y:by-h*0.08,vx:(Math.random()-0.5)*0.6,vy:-0.9-Math.random()*0.6,a:0.8,r:1.5+Math.random()*2});
+      S.particles=S.particles.filter(p=>p.a>0.05);
+      S.particles.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a-=0.007;c.globalAlpha=p.a;c.fillStyle='#555';c.beginPath();c.arc(p.x,p.y,p.r,0,Math.PI*2);c.fill();});
+      c.globalAlpha=1;
+
+      // Product molecules
+      if(S.t%10===0){
+        const type=isComplete?'CO₂':(Math.random()<0.5?'CO':'سخام ⚫');
+        S.particles.push({x:bx+bw2/2+( Math.random()-0.5)*bw2,y:by-h*0.12,vx:(Math.random()-0.5)*0.9,vy:-1.5,a:1,label:type,r:0});
+      }
+      S.particles.filter(p=>p.label).forEach(p=>{
+        c.globalAlpha=Math.max(0,p.a); c.fillStyle=p.label==='CO₂'?'#64B5F6':p.label==='CO'?'#E74C3C':'#888';
+        c.font=`bold ${Math.max(8,w*0.017)}px Tajawal`;c.textAlign='center';c.textBaseline='middle';
+        c.fillText(p.label,p.x,p.y);
+      });
+      c.globalAlpha=1;
+    }
+
+    // Status panel
+    const sy=h*0.06;
+    c.fillStyle='rgba(255,255,255,0.06)'; c.beginPath(); c.roundRect(w*0.04,sy,w*0.92,h*0.22,10); c.fill();
+    const fs=Math.max(9,w*0.02);
+    _lbl(c,isComplete?'✅ احتراق كامل':'⚠️ احتراق غير كامل',w/2,sy+h*0.065,isComplete?'#4CAF50':'#FF7043',fs*1.1);
+    _lbl(c,'مستوى O₂: '+S.o2+'%  —  الناتج: '+(isComplete?'CO₂ + H₂O':'CO + سخام + H₂O'),w/2,sy+h*0.135,'#CFD8DC',fs*0.85);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-2 Tab 3: مقارنة المنتجات ══
+function simG9Combustion3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0};
+  const S=simState;
+
+  const rows=[
+    {label:'نوع الاحتراق',    complete:'كامل ✅',          incomplete:'غير كامل ⚠️'},
+    {label:'كمية O₂',        complete:'وفيرة (كافية)',     incomplete:'محدودة (ناقصة)'},
+    {label:'الناتج الرئيسي', complete:'CO₂ + H₂O',        incomplete:'CO + H₂O + سخام'},
+    {label:'لون اللهب',      complete:'أزرق 🔵',           incomplete:'برتقالي/أصفر 🟠'},
+    {label:'الخطورة',        complete:'CO₂: تأثير دفيئة', incomplete:'CO: سُمّي خطير جداً'},
+    {label:'الطاقة المنطلقة', complete:'أعلى طاقة',       incomplete:'طاقة أقل'},
+  ];
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📊 مقارنة الاحتراق الكامل وغير الكامل</div>
+    </div>
+    <div class="info-box" style="font-size:12px">
+      🚗 محرّكات السيارات تُنتج دائماً بعض CO — لذا يُركَّب المحوِّل الحفّاز!<br>
+      2CO + O₂ → 2CO₂ (المحوِّل الحفّاز يُحوِّل CO إلى CO₂ الأقل ضرراً)
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا نستخدم المحوِّل الحفّاز في السيارات؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">يحوِّل CO و NOₓ إلى CO₂ و N₂ و H₂O — مواد أقل ضرراً على الصحة والبيئة. المعادلتان: 2CO + O₂ → 2CO₂ | 2NO + 2CO → N₂ + 2CO₂</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9combustion'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#FFF8F0'); bg.addColorStop(1,'#FDEBD0');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    const rowH=h*0.115, cols=[w*0.04, w*0.36, w*0.68], colW=[w*0.3, w*0.3, w*0.28];
+    const headers=['الخاصية','كامل ✅','غير كامل ⚠️'];
+    const hColors=['#37474F','#1B5E20','#B71C1C'];
+
+    // Header
+    headers.forEach((hd,ci)=>{
+      c.fillStyle=ci===0?'#455A64':ci===1?'#2E7D32':'#C62828';
+      c.beginPath(); c.roundRect(cols[ci],h*0.05,colW[ci],rowH*0.8,6); c.fill();
+      c.fillStyle='#fff'; c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(hd,cols[ci]+colW[ci]/2,h*0.05+rowH*0.4);
+    });
+
+    // Rows
+    rows.forEach((row,ri)=>{
+      const ry=h*0.05+rowH*(ri+1);
+      const bg2=ri%2===0?'rgba(0,0,0,0.03)':'rgba(0,0,0,0)';
+      c.fillStyle=bg2; c.fillRect(cols[0],ry,w*0.92,rowH*0.9);
+
+      const vals=[row.label, row.complete, row.incomplete];
+      const fcols=['#333','#1B5E20','#C62828'];
+      vals.forEach((v,ci)=>{
+        c.fillStyle=fcols[ci];
+        c.font=`${ci===0?'bold ':''} ${Math.max(8,w*0.017)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='middle';
+        const words=v.split(' ');
+        if(v.length>14&&colW[ci]<w*0.3){
+          c.fillText(v.substring(0,Math.floor(v.length/2)),cols[ci]+colW[ci]/2,ry+rowH*0.28);
+          c.fillText(v.substring(Math.floor(v.length/2)),cols[ci]+colW[ci]/2,ry+rowH*0.62);
+        } else {
+          c.fillText(v,cols[ci]+colW[ci]/2,ry+rowH*0.45);
+        }
+      });
+      c.strokeStyle='rgba(0,0,0,0.06)'; c.lineWidth=0.5;
+      c.beginPath(); c.moveTo(cols[0],ry+rowH*0.9); c.lineTo(w*0.96,ry+rowH*0.9); c.stroke();
+    });
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-3 Tab 1: تكوُّن غازات المطر الحمضي ══
+function simG9AcidRain1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, step:0, particles:[]};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌧️ كيف يتكوَّن المطر الحمضي؟</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn action" onclick="if(simState.step<4){simState.step++;}" >التالي ▶</button>
+        <button class="ctrl-btn" onclick="simState.step=0;simState.particles=[]">🔄 إعادة</button>
+      </div>
+    </div>
+    <div id="ar1-info" class="info-box" style="font-size:12px;min-height:48px;text-align:center">
+      اضغط "التالي" لبدء رحلة تكوُّن المطر الحمضي خطوة بخطوة
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما الفرق بين SO₂ وNO₂ في تكوين المطر الحمضي؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">SO₂ يُكوِّن H₂SO₃ (حمض الكبريتوز) ثم يتأكسد إلى H₂SO₄ (كبريتيك). أما NO₂ فيُكوِّن HNO₃ (نيتريك). كلاهما يُخفِّض pH المطر إلى أقل من 5.6!</div>
+    </div>
+  `);
+
+  const steps=[
+    {msg:'🏭 المصانع والسيارات تُحرق الوقود وتُنتج SO₂ وNOₓ',col:'#E74C3C'},
+    {msg:'☁️ الغازات ترتفع إلى الغيوم وتذوب في قطرات الماء',col:'#3498DB'},
+    {msg:'⚗️ SO₂ + H₂O → H₂SO₃ | NO₂ + H₂O → HNO₃',col:'#9B59B6'},
+    {msg:'🌧️ يسقط المطر الحمضي (pH < 5.6) على الأرض',col:'#E67E22'},
+    {msg:'💀 يُدمِّر الأشجار والأبنية ويُحمِّض التربة والمياه',col:'#C0392B'},
+  ];
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9acidrain'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+
+    const el=document.getElementById('ar1-info');
+    if(el&&S.step>0&&S.step<=steps.length) el.innerHTML=`<span style="color:${steps[S.step-1].col}">${steps[S.step-1].msg}</span>`;
+
+    // Sky
+    const sky=c.createLinearGradient(0,0,0,h*0.55);
+    sky.addColorStop(0,'#4A4E6E'); sky.addColorStop(1,'#6E7FA3');
+    c.fillStyle=sky; c.fillRect(0,0,w,h*0.55);
+    // Ground
+    const grd=c.createLinearGradient(0,h*0.55,0,h);
+    grd.addColorStop(0,S.step>=4?'#8B6914':'#4E7A3A'); grd.addColorStop(1,S.step>=4?'#6B4E10':'#3A5E2A');
+    c.fillStyle=grd; c.fillRect(0,h*0.55,w,h*0.45);
+
+    // Factory (step 1+)
+    if(S.step>=1){
+      const fx=w*0.12, fy=h*0.34;
+      c.fillStyle='#546E7A'; c.fillRect(fx,fy,w*0.15,h*0.2);
+      c.fillStyle='#455A64'; c.fillRect(fx+w*0.04,h*0.55-h*0.08,w*0.035,h*0.08);
+      c.fillStyle='#37474F'; c.fillRect(fx+w*0.085,h*0.55-h*0.1,w*0.035,h*0.1);
+      // Smoke
+      for(let i=0;i<6;i++){
+        const px=fx+w*0.04+i*(w*0.013);
+        const py=h*0.55-h*0.08-(i+1)*h*0.025-Math.sin(S.t*0.05+i)*h*0.015;
+        c.fillStyle=`rgba(200,100,50,${0.4-i*0.05})`;
+        c.beginPath(); c.arc(px,py,w*0.012+i*1.5,0,Math.PI*2); c.fill();
+      }
+    }
+
+    // Cloud (step 2+)
+    if(S.step>=2){
+      const cloudX=w*0.45, cloudY=h*0.12;
+      c.fillStyle=S.step>=3?'rgba(180,120,200,0.85)':'rgba(160,160,180,0.85)';
+      [[0,0,0.12],[0.1,0.02,0.08],[-0.08,0.03,0.09],[0.04,-0.04,0.07]].forEach(([dx,dy,r])=>{
+        c.beginPath(); c.arc(cloudX+dx*w,cloudY+dy*h,r*w,0,Math.PI*2); c.fill();
+      });
+      if(S.step>=3){
+        _lbl(c,'H₂SO₃ / HNO₃',cloudX,cloudY+h*0.06,'#9B59B6',Math.max(8,w*0.017));
+      }
+    }
+
+    // Rain drops (step 4+)
+    if(S.step>=4){
+      if(S.t%3===0) S.particles.push({x:w*0.25+Math.random()*w*0.55, y:h*0.22, vy:2.5+Math.random()*1.5});
+      S.particles=S.particles.filter(p=>p.y<h*0.56);
+      S.particles.forEach(p=>{
+        p.y+=p.vy;
+        c.fillStyle='rgba(100,150,230,0.7)';
+        c.beginPath(); c.ellipse(p.x,p.y,2,4,0,0,Math.PI*2); c.fill();
+      });
+    }
+
+    // Damage effects (step 5)
+    if(S.step>=5){
+      // Dead trees
+      for(let i=0;i<3;i++){
+        const tx=w*0.35+i*w*0.2, ty=h*0.43;
+        c.strokeStyle='#5D4037'; c.lineWidth=3;
+        c.beginPath(); c.moveTo(tx,h*0.55); c.lineTo(tx,ty); c.stroke();
+        c.strokeStyle='#795548'; c.lineWidth=1.5;
+        c.beginPath(); c.moveTo(tx,ty+h*0.04); c.lineTo(tx-w*0.04,ty); c.stroke();
+        c.beginPath(); c.moveTo(tx,ty+h*0.04); c.lineTo(tx+w*0.035,ty+h*0.02); c.stroke();
+      }
+      _lbl(c,'تُدمِّر النباتات والأبنية',w/2,h*0.9,'#E74C3C',Math.max(9,w*0.02));
+    }
+
+    // Step indicator
+    for(let i=0;i<5;i++){
+      c.fillStyle=i<S.step?'#E74C3C':'rgba(255,255,255,0.2)';
+      c.beginPath(); c.arc(w*0.3+i*w*0.1,h*0.96,4,0,Math.PI*2); c.fill();
+    }
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-3 Tab 2: تأثير المطر الحمضي ══
+function simG9AcidRain2(){
+  cancelAnimationFrame(animFrame);
+  const targets=[
+    {name:'الحجر الجيري (المباني)',icon:'🏛️',effect:'يُذيب CaCO₃: CaCO₃ + H₂SO₄ → CaSO₄ + CO₂ + H₂O',damage:0,col:'#E67E22'},
+    {name:'الغابات والنباتات',    icon:'🌲',effect:'يُتلف الأوراق ويُحرر Al³⁺ السام من التربة',damage:0,col:'#27AE60'},
+    {name:'البحيرات والأنهار',    icon:'🐟',effect:'pH < 5 يقتل الأسماك والكائنات المائية',damage:0,col:'#3498DB'},
+    {name:'التربة الزراعية',      icon:'🌾',effect:'يُحرر معادن سامة ويُدمِّر المغذيات',damage:0,col:'#D4901A'},
+  ];
+  simState={t:0, sel:0, rain:false, drops:[]};
+  const S=simState;
+  window._arSel=function(i){S.sel=i;document.querySelectorAll('[id^="ar2-t-"]').forEach((b,j)=>b.classList.toggle('active',j===i));};
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌧️ اختر هدفاً ثم أمطره!</div>
+      <div class="ctrl-btns-grid">
+        ${targets.map((t,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="ar2-t-${i}" onclick="window._arSel(${i})">${t.icon} ${t.name.split('(')[0]}</button>`).join('')}
+      </div>
+      <button class="ctrl-btn action" onclick="simState.rain=!simState.rain;this.textContent=simState.rain?'⏹ أوقف':'🌧️ أمطر'">🌧️ أمطر</button>
+    </div>
+    <div id="ar2-effect" class="info-box" style="font-size:12px;text-align:center;min-height:40px">
+      اختر هدفاً لرؤية تأثير المطر الحمضي
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا يُسبِّب المطر الحمضي إطلاق Al³⁺ في التربة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الألومنيوم موجود في التربة كأملاح غير قابلة للذوبان — لكن الحموضة تُذيبه وتُحرر Al³⁺ السام الذي يتراكم في جذور النباتات ويمنع امتصاص الماء!</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9acidrain'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const target=targets[S.sel||0];
+    if(S.rain) target.damage=Math.min(1,target.damage+0.003);
+
+    const el=document.getElementById('ar2-effect');
+    if(el) el.innerHTML=`<strong style="color:${target.col}">${target.icon} ${target.name}</strong><br><small>${target.effect}</small><br><small>تلف: ${Math.round(target.damage*100)}%</small>`;
+
+    // Background
+    c.fillStyle='#1A2535'; c.fillRect(0,0,w,h);
+    // Ground
+    c.fillStyle=`rgb(${Math.round(60+target.damage*30)},${Math.round(80-target.damage*50)},${Math.round(40-target.damage*30)})`;
+    c.fillRect(0,h*0.6,w,h*0.4);
+
+    // Target illustration
+    const tc=target.col; const tdm=target.damage;
+    c.font=`${Math.min(w*0.18,80)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+    c.globalAlpha=Math.max(0.2,1-tdm*0.7); c.fillText(target.icon,w/2,h*0.4); c.globalAlpha=1;
+    if(tdm>0.3){
+      c.fillStyle=`rgba(200,50,50,${tdm*0.5})`;
+      c.beginPath(); c.arc(w/2,h*0.4,w*0.15,0,Math.PI*2); c.fill();
+    }
+
+    // pH meter
+    const pHval=Math.max(2,5.6-tdm*3.5);
+    const px=w*0.06, py=h*0.72, pw=w*0.88, pht=h*0.05;
+    c.fillStyle='rgba(255,255,255,0.1)'; c.fillRect(px,py,pw,pht);
+    const pColor=pHval<3?'#C0392B':pHval<4?'#E67E22':pHval<5?'#F39C12':'#27AE60';
+    c.fillStyle=pColor; c.fillRect(px,py,pw*(pHval/7),pht);
+    _lbl(c,`pH: ${pHval.toFixed(1)} — ${pHval<4?'حمضي جداً ☠️':pHval<5.6?'حمضي ضار':'طبيعي ✅'}`,w/2,py-8,pColor,Math.max(9,w*0.018));
+
+    // Rain
+    if(S.rain){
+      if(S.t%2===0) S.drops.push({x:Math.random()*w,y:0,vy:3.5+Math.random()*2});
+      S.drops=S.drops.filter(d=>d.y<h*0.6);
+      S.drops.forEach(d=>{d.y+=d.vy;c.fillStyle='rgba(100,180,255,0.6)';c.beginPath();c.ellipse(d.x,d.y,1.5,4,0,0,Math.PI*2);c.fill();});
+    }
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-3 Tab 3: حلول التلوّث ══
+function simG9AcidRain3(){
+  cancelAnimationFrame(animFrame);
+  const solutions=[
+    {title:'المحوِّل الحفّاز 🚗',  desc:'يُحوِّل CO و NOₓ إلى CO₂ و N₂',eq:'2NO + 2CO → N₂ + 2CO₂',eff:85,col:'#3498DB'},
+    {title:'إزالة الكبريت 🏭',     desc:'CaO يمتص SO₂ في مداخن المصانع',eq:'CaO + SO₂ → CaSO₃',eff:90,col:'#27AE60'},
+    {title:'وقود منخفض الكبريت ⛽',desc:'تكرير النفط لإزالة الكبريت',eq:'S + O₂ → SO₂ ← يُمنع',eff:70,col:'#F39C12'},
+    {title:'الطاقة المتجددة ☀️',   desc:'لا احتراق = لا ملوِّثات',eq:'صفر انبعاثات SO₂/NOₓ',eff:100,col:'#9B59B6'},
+  ];
+  simState={t:0, sel:0, active:[]};
+  const S=simState;
+  window._arSol=function(i){
+    S.sel=i;
+    if(!S.active.includes(i)) S.active.push(i);
+    document.querySelectorAll('[id^="ar3-s-"]').forEach((b,j)=>b.classList.toggle('active',j===i));
+  };
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🛡️ حلول الحدّ من التلوّث</div>
+      <div class="ctrl-btns-grid">
+        ${solutions.map((s,i)=>`<button class="ctrl-btn" id="ar3-s-${i}" onclick="window._arSol(${i})">${s.title}</button>`).join('')}
+      </div>
+    </div>
+    <div id="ar3-info" class="info-box" style="font-size:12px;min-height:50px;text-align:center">
+      اختر حلاً لمعرفة كيفية عمله
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ هل يكفي حلٌّ واحد للقضاء على المطر الحمضي؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">لا! يحتاج الأمر تكاملاً: محوِّلات حفّازة في السيارات + إزالة الكبريت في المصانع + وقود نظيف + طاقة متجددة. كل حلٍّ يُعالج مصدراً مختلفاً للتلوّث.</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9acidrain'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#E8F5E9'); bg.addColorStop(1,'#C8E6C9');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    const sol=solutions[S.sel||0];
+    const el=document.getElementById('ar3-info');
+    if(el) el.innerHTML=`<strong style="color:${sol.col}">${sol.title}</strong><br>${sol.desc}<br><code>${sol.eq}</code>`;
+
+    _lbl(c,'فعالية الحلول المختارة',w/2,h*0.07,'#1E2D3D',Math.max(12,w*0.024));
+
+    const bw=w*0.16, gap=w*0.04, x0=w*0.06, maxBH=h*0.42, by0=h*0.62;
+    solutions.forEach((s,i)=>{
+      const bx=x0+i*(bw+gap);
+      const active=S.active.includes(i);
+      const bh=active?maxBH*(s.eff/100):maxBH*0.05;
+      const isSel=(S.sel===i);
+
+      const gr=c.createLinearGradient(bx,by0-bh,bx,by0);
+      gr.addColorStop(0,s.col+(active?'FF':'44')); gr.addColorStop(1,s.col+(active?'88':'22'));
+      c.fillStyle=gr; c.beginPath(); c.roundRect(bx,by0-bh,bw,bh,6); c.fill();
+      if(isSel){c.strokeStyle=s.col;c.lineWidth=2.5;c.beginPath();c.roundRect(bx,by0-bh,bw,bh,6);c.stroke();}
+
+      const fs=Math.max(8,w*0.017);
+      if(active) _lbl(c,s.eff+'%',bx+bw/2,by0-bh-6,s.col,fs);
+
+      // Label (wrapped)
+      const parts=s.title.split(' ');
+      _lbl(c,parts[0],bx+bw/2,by0+fs*1.3,'#333',fs*0.85);
+      if(parts[1]) _lbl(c,parts[1],bx+bw/2,by0+fs*2.2,'#333',fs*0.85);
+    });
+
+    c.strokeStyle='#90A4AE'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(w*0.04,by0); c.lineTo(w*0.96,by0); c.stroke();
+
+    // Total pollution reduction
+    const totalEff=S.active.length===0?0:S.active.reduce((a,i)=>a+solutions[i].eff,0)/Math.max(1,S.active.length);
+    const ry=h*0.72;
+    c.fillStyle='rgba(39,174,96,0.1)'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,h*0.16,10); c.fill();
+    c.strokeStyle='rgba(39,174,96,0.3)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,h*0.16,10); c.stroke();
+    _lbl(c,`متوسط الفعالية المُختارة: ${Math.round(totalEff)}%`,w/2,ry+h*0.07,'#27AE60',Math.max(10,w*0.021));
+    _lbl(c,S.active.length===0?'اختر حلولاً لترى التأثير':S.active.length>=3?'✅ تغطية ممتازة!':'اختر حلولاً أكثر',w/2,ry+h*0.12,'#555',Math.max(9,w*0.018));
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-4 Tab 1: آلية تأثير الدفيئة ══
+function simG9Greenhouse1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, co2:0.04, photons:[], heat:[]};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌍 آلية تأثير الدفيئة — CO₂: <span id="gh1-co2">0.04</span>%</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn" onclick="simState.co2=Math.min(1.5,+(simState.co2+0.1).toFixed(2));document.getElementById('gh1-co2').textContent=simState.co2">⬆️ زِد CO₂</button>
+        <button class="ctrl-btn" onclick="simState.co2=Math.max(0.04,+(simState.co2-0.1).toFixed(2));document.getElementById('gh1-co2').textContent=simState.co2">⬇️ قلِّل CO₂</button>
+      </div>
+    </div>
+    <div class="info-box" style="font-size:12px">
+      ☀️ الشمس تُرسل موجات قصيرة → تخترق الغلاف → تُسخِّن الأرض → الأرض تُشعّ موجات حرارية طويلة → غازات الدفيئة تحبسها!
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما الفرق بين تأثير الدفيئة الطبيعي والمُعزَّز؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الطبيعي: ضروري للحياة — بدونه ستصل درجة حرارة الأرض إلى -18°C! أما المُعزَّز (بسبب الأنشطة البشرية): يرفع التركيز فوق الطبيعي ويُسبب الاحترار العالمي.</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9greenhouse'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+
+    // Space bg
+    c.fillStyle='#070B18'; c.fillRect(0,0,w,h);
+    for(let i=0;i<40;i++){const sx=(i*139)%w,sy=(i*97)%(h*0.35);c.fillStyle=`rgba(255,255,255,${0.2+0.5*Math.abs(Math.sin(S.t*0.02+i))})`;c.beginPath();c.arc(sx,sy,0.7,0,Math.PI*2);c.fill();}
+
+    // Atmosphere layer
+    const atY=h*0.2, atH=h*0.15;
+    const co2frac=Math.min(1,(S.co2-0.04)/1.46);
+    const atAlpha=0.15+co2frac*0.5;
+    c.fillStyle=`rgba(100,200,100,${atAlpha})`; c.fillRect(0,atY,w,atH);
+    _lbl(c,'الغلاف الجوّي + غازات الدفيئة',w/2,atY+atH/2,'#90EE90',Math.max(8,w*0.018));
+
+    // Earth
+    const er=w*0.22, ecx=w/2, ecy=h*0.78;
+    const eGrd=c.createRadialGradient(ecx-er*0.2,ecy-er*0.2,0,ecx,ecy,er);
+    const heatColor=Math.round(co2frac*60);
+    eGrd.addColorStop(0,`rgb(${60+heatColor},${140-heatColor},${80-heatColor*0.5})`);
+    eGrd.addColorStop(1,`rgb(${30+heatColor},${80-heatColor*0.5},${50-heatColor*0.3})`);
+    c.fillStyle=eGrd; c.beginPath(); c.arc(ecx,ecy,er,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(100,200,255,0.3)'; c.lineWidth=2; c.beginPath(); c.arc(ecx,ecy,er,0,Math.PI*2); c.stroke();
+    _lbl(c,'🌍',ecx,ecy+er*0.1,'',Math.min(w*0.12,50));
+
+    // Sun rays
+    if(S.t%6===0) S.photons.push({x:w*0.08,y:h*0.02,vx:0.8+Math.random()*0.4,vy:1.8+Math.random()*0.5,type:'solar',a:0.9});
+    // Heat rays from earth
+    if(S.t%8===0) S.heat.push({x:ecx+(Math.random()-0.5)*er*1.2,y:ecy-er*0.8,vx:(Math.random()-0.5)*0.6,vy:-1.5-Math.random(),type:'heat',a:0.8,bounced:false});
+
+    S.photons=S.photons.filter(p=>p.a>0.05&&p.x<w&&p.y<h);
+    S.heat=S.heat.filter(p=>p.a>0.05);
+
+    S.photons.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.a-=0.015;
+      c.globalAlpha=p.a; c.fillStyle='#FFD700';
+      c.beginPath(); c.arc(p.x,p.y,3,0,Math.PI*2); c.fill();
+    });
+
+    S.heat.forEach(p=>{
+      // Bounce off atmosphere
+      if(!p.bounced&&p.y<=atY+atH&&Math.random()<co2frac*0.7){p.bounced=true;p.vy=Math.abs(p.vy)*0.8;}
+      p.x+=p.vx; p.y+=p.vy; p.a-=0.01;
+      c.globalAlpha=p.a; c.fillStyle='#FF6B35';
+      c.beginPath(); c.arc(p.x,p.y,2.5,0,Math.PI*2); c.fill();
+    });
+    c.globalAlpha=1;
+
+    // Temperature indicator
+    const tmpY=h*0.04, tmpW=w*0.35;
+    const tmp=15+co2frac*8;
+    c.fillStyle='rgba(255,255,255,0.08)'; c.fillRect(w*0.32,tmpY,tmpW,h*0.055);
+    c.fillStyle=co2frac>0.4?'#FF5722':co2frac>0.2?'#FF9800':'#4CAF50';
+    c.fillRect(w*0.32,tmpY,tmpW*Math.min(1,tmp/25),h*0.055);
+    _lbl(c,`🌡️ ${tmp.toFixed(1)}°C`,w*0.32+tmpW/2,tmpY-5,'#FFD54F',Math.max(9,w*0.018));
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-4 Tab 2: غازات الدفيئة ومصادرها ══
+function simG9Greenhouse2(){
+  cancelAnimationFrame(animFrame);
+  const ghGases=[
+    {name:'CO₂',  full:'ثاني أكسيد الكربون', src:'الوقود الأحفوري + الاحتراق', pwr:1,  pct:76, col:'#E74C3C'},
+    {name:'CH₄',  full:'الميثان',             src:'المواشي + مكبّات النفايات + مناجم الفحم', pwr:20, pct:16, col:'#E67E22'},
+    {name:'N₂O',  full:'أكسيد ثنائي النيتروجين',src:'الأسمدة الزراعية',       pwr:298,pct:6,  col:'#9B59B6'},
+    {name:'H₂O',  full:'بخار الماء',          src:'التبخر الطبيعي',           pwr:1,  pct:36, col:'#3498DB'},
+    {name:'CFCs', full:'مركبات الكلوروفلوروكربون',src:'أجهزة التبريد القديمة',pwr:5000,pct:2, col:'#1A8FA8'},
+  ];
+  simState={t:0, sel:0};
+  const S=simState;
+  window._ghSel=function(i){S.sel=i;document.querySelectorAll('[id^="gh2-"]').forEach((b,j)=>b.classList.toggle('active',j===i));};
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🏭 اختر غاز دفيئة</div>
+      <div class="ctrl-btns-grid">
+        ${ghGases.map((g,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="gh2-${i}" onclick="window._ghSel(${i})" style="border-right:3px solid ${g.col}">${g.name}</button>`).join('')}
+      </div>
+    </div>
+    <div id="gh2-info" class="info-box" style="font-size:12px;min-height:60px;text-align:center">اختر غازاً لرؤية تفاصيله</div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا CH₄ أخطر من CO₂ رغم كميته الأقل؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">قوة تأثير الدفيئة للميثان أعلى بـ 20 مرة من CO₂ لكل وحدة كتلة — فهو يمتص الحرارة بكفاءة أعلى بكثير. لذا تقليل انبعاثات CH₄ له تأثير كبير نسبياً.</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9greenhouse'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#1A2535'); bg.addColorStop(1,'#0D1525');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    const g=ghGases[S.sel||0];
+    const el=document.getElementById('gh2-info');
+    if(el) el.innerHTML=`<strong style="color:${g.col}">${g.name} — ${g.full}</strong><br>المصدر: ${g.src}<br>قوة التأثير: <strong>${g.pwr}×</strong> مقارنةً بـ CO₂`;
+
+    _lbl(c,'غازات الدفيئة ومساهمتها',w/2,h*0.06,'#E0E8F0',Math.max(12,w*0.024));
+
+    // Donut chart
+    const cx2=w/2, cy2=h*0.38, r=Math.min(w,h)*0.22, innerR=r*0.5;
+    let startA=-Math.PI/2;
+    ghGases.forEach((gg,i)=>{
+      const sa=(gg.pct/136)*2*Math.PI;
+      const isSel=(S.sel===i);
+      const rr=isSel?r*1.1:r;
+      const midA=startA+sa/2;
+      c.beginPath(); c.moveTo(cx2+Math.cos(startA)*innerR,cy2+Math.sin(startA)*innerR);
+      c.arc(cx2,cy2,rr,startA,startA+sa);
+      c.arc(cx2,cy2,innerR,startA+sa,startA,true);
+      c.closePath();
+      c.fillStyle=gg.col+(isSel?'FF':'AA'); c.fill();
+      c.strokeStyle='#0D1525'; c.lineWidth=1.5; c.stroke();
+      if(gg.pct>5){
+        const lx=cx2+Math.cos(midA)*(r*0.72), ly=cy2+Math.sin(midA)*(r*0.72);
+        c.fillStyle='#fff'; c.font=`bold ${Math.max(8,w*0.017)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='middle'; c.fillText(gg.name,lx,ly);
+      }
+      startA+=sa;
+    });
+    _lbl(c,g.name,cx2,cy2+h*0.025,g.col,Math.max(13,w*0.027));
+
+    // Power bar
+    const py=h*0.71, ph=h*0.055, pw=w*0.88, maxPwr=5000;
+    _lbl(c,'قوة التأثير الإشعاعي (نسبة إلى CO₂)',w/2,py-8,'#90A4AE',Math.max(9,w*0.017));
+    c.fillStyle='rgba(255,255,255,0.07)'; c.fillRect(w*0.06,py,pw,ph);
+    c.fillStyle=g.col;
+    c.fillRect(w*0.06,py,pw*(Math.min(g.pwr,maxPwr)/maxPwr),ph);
+    _lbl(c,`${g.pwr}× CO₂`,w/2,py+ph+h*0.03,g.col,Math.max(9,w*0.02));
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-4 Tab 3: الحلول والمناخ ══
+function simG9Greenhouse3(){
+  cancelAnimationFrame(animFrame);
+  const changes=[
+    {label:'ذوبان الجليد',icon:'🧊',detail:'يرفع مستوى البحار 0.5-1 متر',severity:0.8},
+    {label:'موجات الحر',icon:'🌡️',detail:'تزيد تكرار الأعاصير والجفاف',severity:0.7},
+    {label:'انقراض الأنواع',icon:'🦋',detail:'تغيُّر الموائل يُهدد الكائنات',severity:0.65},
+    {label:'نقص المياه',icon:'💧',detail:'جفاف + ذوبان الثلوج = نقص',severity:0.75},
+  ];
+  const solutions2=[
+    {label:'طاقة شمسية ☀️',eff:0.85},
+    {label:'طاقة رياح 💨',eff:0.8},
+    {label:'تشجير 🌱',eff:0.5},
+    {label:'كهرباء النقل ⚡',eff:0.6},
+  ];
+  simState={t:0, activeS:[], year:2024, co2ppm:421};
+  const S=simState;
+  window._ghAct=function(i){
+    const idx=S.activeS.indexOf(i);
+    if(idx>=0) S.activeS.splice(idx,1); else S.activeS.push(i);
+    document.querySelectorAll('[id^="gh3-s-"]').forEach((b,j)=>b.classList.toggle('active',S.activeS.includes(j)));
+  };
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">♻️ فعِّل حلولاً للتخفيف من الاحترار</div>
+      <div class="ctrl-btns-grid">
+        ${solutions2.map((s,i)=>`<button class="ctrl-btn" id="gh3-s-${i}" onclick="window._ghAct(${i})">${s.label}</button>`).join('')}
+      </div>
+      <button class="ctrl-btn action" onclick="if(simState.year<2100){simState.year+=5;const eff=simState.activeS.reduce((a,i)=>(a+[0.85,0.8,0.5,0.6][i]),0)/4;simState.co2ppm=Math.max(280,simState.co2ppm+(simState.activeS.length>2?-2+eff*1:3));}" >⏩ تقدّم 5 سنوات</button>
+    </div>
+    <div class="info-box" style="font-size:12px">
+      🎯 الهدف: الحدّ من الاحترار إلى 1.5°C (اتفاقية باريس 2015)
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما هدف اتفاقية باريس 2015؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الحدّ من ارتفاع متوسط درجة الحرارة العالمية إلى ما دون 2°C فوق مستويات ما قبل الصناعة، مع السعي لتحقيق 1.5°C. تطلّب ذلك وصول الانبعاثات إلى الصفر في منتصف القرن!</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9greenhouse'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const co2norm=(S.co2ppm-280)/(800-280);
+    const tempRise=Math.round((co2norm*4)*10)/10;
+
+    const bg=c.createLinearGradient(0,0,0,h);
+    const r=Math.round(30+co2norm*100),g2=Math.round(50+co2norm*20);
+    bg.addColorStop(0,`rgb(${r},${g2},80)`); bg.addColorStop(1,`rgb(${r*0.5},${g2*0.8},40)`);
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    _lbl(c,`السنة: ${S.year}  |  CO₂: ${Math.round(S.co2ppm)} ppm  |  ارتفاع: +${tempRise}°C`,w/2,h*0.07,'#E8F4FF',Math.max(9,w*0.02));
+
+    // Climate change icons
+    const cx2=w/2, sz=Math.min(w*0.12,44);
+    changes.forEach((ch,i)=>{
+      const angle=-Math.PI/2+(i/changes.length)*Math.PI*2;
+      const rx=cx2+Math.cos(angle)*w*0.3, ry=h*0.38+Math.sin(angle)*h*0.2;
+      const sev=ch.severity*co2norm;
+      c.fillStyle=`rgba(255,100,50,${sev*0.3})`;
+      c.beginPath(); c.arc(rx,ry,sz*0.7,0,Math.PI*2); c.fill();
+      c.font=`${sz}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.globalAlpha=0.5+sev*0.5; c.fillText(ch.icon,rx,ry); c.globalAlpha=1;
+      _lbl(c,ch.label,rx,ry+sz*0.65,'#FFD8B0',Math.max(7,w*0.015));
+    });
+
+    // Progress bar
+    const py=h*0.72;
+    _lbl(c,S.activeS.length>0?`✅ ${S.activeS.length} حلول مُفعَّلة`:'⚠️ لا حلول مُفعَّلة — اختر!',w/2,py-8,S.activeS.length>0?'#4CAF50':'#FF7043',Math.max(9,w*0.019));
+    c.fillStyle='rgba(255,255,255,0.1)'; c.fillRect(w*0.06,py,w*0.88,h*0.05);
+    const targetCO2=421, prog=Math.max(0,(targetCO2-S.co2ppm)/(targetCO2-280));
+    c.fillStyle=S.co2ppm<421?'#4CAF50':'#FF7043';
+    c.fillRect(w*0.06,py,w*0.88*Math.min(1,1-co2norm+0.1),h*0.05);
+
+    const goal=tempRise<=1.5?'🎯 الهدف محقَّق!':tempRise<=2?'⚠️ قريب من الهدف':tempRise<=3?'❌ فوق الهدف':'💀 أزمة مناخية!';
+    const gcol=tempRise<=1.5?'#4CAF50':tempRise<=2?'#F39C12':'#E74C3C';
+    _lbl(c,goal,w/2,py+h*0.09,gcol,Math.max(10,w*0.022));
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-5 Tab 1: التفكك الحراري لـ CaCO₃ ══
+function simG9Limestone1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, temp:20, heating:false, stage:0, particles:[]};
+  const S=simState;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔥 التفكك الحراري: درجة الحرارة <span id="ls1-temp">20</span>°C</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn action" id="ls1-heat" onclick="simState.heating=!simState.heating;this.textContent=simState.heating?'⏹ أطفئ':'🔥 سخِّن'">🔥 سخِّن</button>
+        <button class="ctrl-btn" onclick="simState.heating=false;simState.temp=20;simState.stage=0;simState.particles=[];document.getElementById('ls1-temp').textContent='20'">🔄 إعادة</button>
+      </div>
+    </div>
+    <div class="info-box" style="font-size:12px">
+      CaCO₃(s) →<sup>حرارة</sup> CaO(s) + CO₂(g)<br>
+      <small>يحتاج درجة حرارة عالية جداً (أكثر من 840°C في المختبر)</small>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ لماذا يُسمى هذا التفاعل "تفككاً حرارياً"؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">لأن الحرارة تُفكِّك مركّبًا واحداً (CaCO₃) إلى مادتين (CaO + CO₂). هذا عكس التفاعل التركيبي — لذا يحتاج طاقة كبيرة ويكون ماصاً للحرارة (endothermic).</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9limestone'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    if(S.heating && S.temp<900) S.temp=Math.min(900,S.temp+1.5);
+    if(S.temp>=840) S.stage=2; else if(S.temp>=400) S.stage=1; else S.stage=Math.max(0,S.stage);
+    const el=document.getElementById('ls1-temp');
+    if(el) el.textContent=Math.round(S.temp);
+
+    // Background (furnace)
+    const bg=c.createLinearGradient(0,0,0,h);
+    const heat=S.temp/900;
+    bg.addColorStop(0,`rgb(${Math.round(20+heat*40)},${Math.round(20+heat*15)},20)`);
+    bg.addColorStop(1,`rgb(${Math.round(30+heat*50)},20,20)`);
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Furnace walls
+    c.fillStyle='#5D4037'; c.fillRect(w*0.05,h*0.18,w*0.9,h*0.55);
+    const flameGrd=c.createLinearGradient(0,h*0.73,0,h*0.55);
+    flameGrd.addColorStop(0,`rgba(255,${Math.round(100+heat*100)},0,${heat*0.8})`);
+    flameGrd.addColorStop(1,`rgba(255,200,0,0)`);
+    c.fillStyle=flameGrd; c.fillRect(w*0.05,h*0.55,w*0.9,h*0.18);
+
+    // Limestone chunk (CaCO₃)
+    const cx2=w*0.35, cy2=h*0.45;
+    if(S.stage<2){
+      c.fillStyle=`rgb(${Math.round(220+heat*20)},${Math.round(210-heat*80)},${Math.round(180-heat*100)})`;
+      c.beginPath(); c.roundRect(cx2-w*0.1,cy2-h*0.1,w*0.2*(1-heat*0.3),h*0.2,8); c.fill();
+      _lbl(c,'CaCO₃',cx2,cy2,'#1E2D3D',Math.max(10,w*0.022));
+      _lbl(c,'(الحجر الجيري)',cx2,cy2+h*0.06,'#555',Math.max(8,w*0.015));
+    }
+
+    // CaO product
+    if(S.stage>=2){
+      c.fillStyle='#F5F5DC';
+      c.beginPath(); c.roundRect(cx2-w*0.09,cy2-h*0.09,w*0.18,h*0.18,8); c.fill();
+      _lbl(c,'CaO',cx2,cy2,'#795548',Math.max(12,w*0.025));
+      _lbl(c,'الجير الحيّ',cx2,cy2+h*0.06,'#666',Math.max(8,w*0.015));
+
+      // CO₂ bubbles rising
+      if(S.t%4===0) S.particles.push({x:w*0.5+Math.random()*w*0.2,y:cy2-h*0.1,vy:-1.2-Math.random()*0.8,vx:(Math.random()-0.5)*0.5,a:0.9});
+    }
+
+    S.particles=S.particles.filter(p=>p.a>0.05);
+    S.particles.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a-=0.012;c.globalAlpha=p.a;c.fillStyle='#90CAF9';c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`;c.textAlign='center';c.textBaseline='middle';c.fillText('CO₂',p.x,p.y);});
+    c.globalAlpha=1;
+
+    // Equation
+    const ey=h*0.06;
+    c.fillStyle='rgba(255,255,255,0.08)'; c.beginPath(); c.roundRect(w*0.04,ey,w*0.92,h*0.1,8); c.fill();
+    _lbl(c,'CaCO₃(s) → CaO(s) + CO₂(g)',w/2,ey+h*0.06,'#FFD54F',Math.max(10,w*0.022));
+
+    // Temp gauge
+    const tgy=h*0.78, tgw=w*0.88;
+    c.fillStyle='rgba(255,255,255,0.08)'; c.fillRect(w*0.06,tgy,tgw,h*0.045);
+    const tCol=S.temp>=840?'#F44336':S.temp>=400?'#FF9800':'#2196F3';
+    c.fillStyle=tCol; c.fillRect(w*0.06,tgy,tgw*(S.temp/900),h*0.045);
+    _lbl(c,`${Math.round(S.temp)}°C — ${S.stage===2?'✅ تفكك حراري حادث!':S.stage===1?'🔥 تسخين متواصل...':'ابدأ التسخين'}`,w/2,tgy+h*0.09,tCol,Math.max(9,w*0.018));
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-5 Tab 2: الجير الحيّ ومنتجاته ══
+function simG9Limestone2(){
+  cancelAnimationFrame(animFrame);
+  const products=[
+    {name:'الجير الحيّ',      formula:'CaO',         src:'تفكك CaCO₃ الحراري',use:'تنقية الفولاذ + الزجاج',col:'#F5DEB3',rx:'CaO + H₂O → Ca(OH)₂'},
+    {name:'الجير المطفأ',     formula:'Ca(OH)₂',     src:'CaO + H₂O',         use:'معالجة مياه الصرف + طلاء',col:'#E8E8E8',rx:'Ca(OH)₂ + CO₂ → CaCO₃ + H₂O'},
+    {name:'ماء الجير',        formula:'Ca(OH)₂(aq)', src:'ذوبان Ca(OH)₂ في الماء',use:'الكشف عن CO₂',col:'#E3F2FD',rx:'Ca(OH)₂ + CO₂ → CaCO₃↓ (عكر)'},
+    {name:'كربونات الكالسيوم',formula:'CaCO₃',       src:'تفاعل Ca(OH)₂ + CO₂',use:'الحجر الجيري مجدداً',col:'#ECEFF1',rx:'مُرسَّب أبيض ← يُثبِّت CO₂'},
+  ];
+  simState={t:0, sel:0};
+  const S=simState;
+  window._lsSel=function(i){S.sel=i;document.querySelectorAll('[id^="ls2-"]').forEach((b,j)=>b.classList.toggle('active',j===i));};
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🏗️ منتجات الحجر الجيري</div>
+      <div class="ctrl-btns-grid">
+        ${products.map((p,i)=>`<button class="ctrl-btn${i===0?' active':''}" id="ls2-${i}" onclick="window._lsSel(${i})">${p.formula}</button>`).join('')}
+      </div>
+    </div>
+    <div id="ls2-info" class="info-box" style="font-size:12px;min-height:60px;text-align:center">اختر منتجاً</div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ كيف يُستخدم ماء الجير لاكتشاف CO₂؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">يُمرَّر CO₂ في ماء الجير الشفاف → يُرسِّب CaCO₃ الأبيض → يصبح المحلول عكراً. هذا دليل على وجود CO₂! وإن أضفنا كثيراً من CO₂ يذوب الراسب مجدداً مُكوِّناً Ca(HCO₃)₂.</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9limestone'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const bg2=c.createLinearGradient(0,0,0,h);
+    bg2.addColorStop(0,'#F5F0E8'); bg2.addColorStop(1,'#EAE4DA');
+    c.fillStyle=bg2; c.fillRect(0,0,w,h);
+
+    const p=products[S.sel||0];
+    const el=document.getElementById('ls2-info');
+    if(el) el.innerHTML=`<strong style="color:#795548">${p.name} (${p.formula})</strong><br>المصدر: ${p.src}<br>الاستخدام: ${p.use}<br><code>${p.rx}</code>`;
+
+    // Flow diagram
+    _lbl(c,'سلسلة منتجات الحجر الجيري',w/2,h*0.07,'#1E2D3D',Math.max(12,w*0.024));
+
+    const nodes=[
+      {x:w*0.5, y:h*0.2,  label:'CaCO₃',  sub:'الحجر الجيري',col:'#ECEFF1'},
+      {x:w*0.5, y:h*0.38, label:'CaO',     sub:'الجير الحيّ',  col:'#F5DEB3'},
+      {x:w*0.28,y:h*0.56, label:'Ca(OH)₂', sub:'الجير المطفأ', col:'#E8E8E8'},
+      {x:w*0.72,y:h*0.56, label:'Ca(OH)₂(aq)',sub:'ماء الجير', col:'#E3F2FD'},
+      {x:w*0.5, y:h*0.74, label:'CaCO₃↓',  sub:'راسب أبيض',   col:'#ECEFF1'},
+    ];
+    const arrows=[[0,1,'حرارة شديدة'],[1,2,'+ H₂O'],[2,3,'+ H₂O (زيادة)'],[2,4,'+ CO₂'],[3,4,'+ CO₂']];
+
+    // Arrows
+    arrows.forEach(([from,to,lbl])=>{
+      const nx1=nodes[from].x, ny1=nodes[from].y+h*0.04;
+      const nx2=nodes[to].x,   ny2=nodes[to].y-h*0.04;
+      c.strokeStyle='rgba(120,100,80,0.35)'; c.lineWidth=1.5;
+      c.beginPath(); c.moveTo(nx1,ny1); c.lineTo(nx2,ny2); c.stroke();
+      _lbl(c,lbl,(nx1+nx2)/2+w*0.04,(ny1+ny2)/2,'#7D6E5A',Math.max(7,w*0.014));
+    });
+
+    nodes.forEach((n,i)=>{
+      const isSel=(products[S.sel||0].formula.includes(n.label.replace('↓','').replace('(aq)','')));
+      const r=isSel?Math.min(w,h)*0.075:Math.min(w,h)*0.062;
+      c.fillStyle=n.col+(isSel?'FF':'CC');
+      c.beginPath(); c.arc(n.x,n.y,r,0,Math.PI*2); c.fill();
+      c.strokeStyle=isSel?'#795548':'#BDBDBD'; c.lineWidth=isSel?2.5:1.5;
+      c.beginPath(); c.arc(n.x,n.y,r,0,Math.PI*2); c.stroke();
+      _lbl(c,n.label,n.x,n.y,isSel?'#3E2723':'#546E7A',Math.max(9,w*0.02));
+      _lbl(c,n.sub,n.x,n.y+r+h*0.025,'#6D4C41',Math.max(7,w*0.015));
+    });
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══ 10-5 Tab 3: معالجة التربة الحمضية ══
+function simG9Limestone3(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, pH:4.0, limeAdded:0, crops:[]};
+  const S=simState;
+  // Generate some crop positions
+  for(let i=0;i<8;i++) S.crops.push({x:0.12+i*0.1, growth:0});
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌱 معالجة التربة الحمضية بمسحوق الحجر الجيري</div>
+      <div class="info-box" style="font-size:12px">
+        CaCO₃ + H₂SO₄ → CaSO₄ + CO₂ + H₂O<br>
+        <small>الحجر الجيري يُعادل أحماض التربة ويرفع pH</small>
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <button class="ctrl-btn action" onclick="if(simState.pH<7.5){simState.pH=Math.min(7.5,+(simState.pH+0.3).toFixed(1));simState.limeAdded++;}" >🪨 أضِف جيراً</button>
+      <button class="ctrl-btn" onclick="simState.pH=4.0;simState.limeAdded=0;simState.crops.forEach(c=>c.growth=0)">🔄 إعادة</button>
+    </div>
+    <div id="ls3-status" class="info-box" style="font-size:12px;text-align:center"></div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ما النطاق المثالي لـ pH التربة الزراعية؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">معظم المحاصيل تنمو بشكل أفضل عند pH 6.0–7.0. التربة الحمضية (pH < 5.5) تُفرز Al³⁺ وMn²⁺ السامَّين وتُقلِّل امتصاص العناصر الغذائية. إضافة الجير ترفع pH وتُحسِّن الإنتاجية!</div>
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9limestone'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+
+    // Update crops
+    const healthFrac=Math.max(0,(S.pH-3.5)/(7.5-3.5));
+    S.crops.forEach(crop=>{crop.growth=Math.min(1,crop.growth+(healthFrac>0.5?0.003:0.0005));});
+
+    const el=document.getElementById('ls3-status');
+    if(el){
+      const st=S.pH<5?'🔴 حمضي جداً — المحاصيل تتضرر':S.pH<6?'🟡 قليل الحموضة — يحتاج معالجة':S.pH<7?'🟢 مناسب للزراعة':'🔵 قلوي — زِد بحذر';
+      el.innerHTML=`pH التربة: <strong>${S.pH.toFixed(1)}</strong>  ${st}<br>كمية الجير المضافة: ${S.limeAdded} وحدة`;
+    }
+
+    // Sky
+    c.fillStyle=`rgb(${Math.round(100+healthFrac*100)},${Math.round(140+healthFrac*70)},${Math.round(180+healthFrac*60)})`; c.fillRect(0,0,w,h*0.48);
+    // Ground
+    const soilR=Math.round(80+healthFrac*50), soilG=Math.round(50+healthFrac*40);
+    c.fillStyle=`rgb(${soilR},${soilG},30)`; c.fillRect(0,h*0.48,w,h*0.52);
+
+    // pH bar
+    const pby=h*0.08, pbw=w*0.7, pbh=h*0.05;
+    const pbx=w*0.15;
+    const pGrd=c.createLinearGradient(pbx,0,pbx+pbw,0);
+    pGrd.addColorStop(0,'#E74C3C'); pGrd.addColorStop(0.35,'#F39C12'); pGrd.addColorStop(0.55,'#2ECC71'); pGrd.addColorStop(1,'#3498DB');
+    c.fillStyle=pGrd; c.beginPath(); c.roundRect(pbx,pby,pbw,pbh,6); c.fill();
+    // Indicator
+    const indX=pbx+pbw*((S.pH-3.5)/6);
+    c.fillStyle='#1E2D3D'; c.beginPath(); c.moveTo(indX,pby-4); c.lineTo(indX-5,pby-14); c.lineTo(indX+5,pby-14); c.closePath(); c.fill();
+    _lbl(c,`pH ${S.pH.toFixed(1)}`,indX,pby-16,'#1E2D3D',Math.max(8,w*0.018));
+    ['3.5','5','6','7','7+'].forEach((lbl,i)=>{const lx=pbx+pbw*(i/4);_lbl(c,lbl,lx,pby+pbh+h*0.025,'#666',Math.max(7,w*0.015));});
+
+    // Crops
+    S.crops.forEach((crop,i)=>{
+      const cx2=w*crop.x, baseY=h*0.48;
+      const stemH=h*0.18*crop.growth;
+      const leafSz=w*0.018*crop.growth;
+      if(stemH>2){
+        c.strokeStyle=`rgb(${Math.round(30+healthFrac*50)},${Math.round(100+healthFrac*80)},30)`;
+        c.lineWidth=2; c.beginPath(); c.moveTo(cx2,baseY); c.lineTo(cx2,baseY-stemH); c.stroke();
+        if(crop.growth>0.4){
+          c.fillStyle=`rgba(${Math.round(30+healthFrac*50)},${Math.round(120+healthFrac*80)},30,0.85)`;
+          c.beginPath(); c.arc(cx2,baseY-stemH,leafSz,0,Math.PI*2); c.fill();
+        }
+      }
+    });
+
+    // Lime particles floating
+    if(S.limeAdded>0){
+      for(let i=0;i<Math.min(S.limeAdded*3,20);i++){
+        const lx=(i*137+S.t*0.2)%w, ly=h*0.42+(i*47)%(h*0.08);
+        c.fillStyle='rgba(245,245,220,0.6)';
+        c.beginPath(); c.arc(lx,ly,1.5,0,Math.PI*2); c.fill();
+      }
+    }
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
