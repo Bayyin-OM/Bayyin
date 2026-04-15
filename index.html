@@ -1701,18 +1701,19 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
   align-items: center;
   gap: 0;
 }
-/* ── Top strip: brand + contacts ── */
+/* ── Brand centered on top, contacts row below ── */
 .footer-top {
   width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 28px 18px;
-  gap: 16px;
+  padding: 22px 28px 16px;
+  gap: 14px;
 }
 .footer-brand {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 13px;
 }
 /* شعار بيّن الأساسي — نفس ألوان العلم */
@@ -1735,7 +1736,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
 }
 .footer-contacts {
   display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
 }
 .footer-contact-item {
   display: flex; align-items: center; gap: 6px;
