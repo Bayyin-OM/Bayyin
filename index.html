@@ -37161,13 +37161,13 @@ function simG9AirComp2(){
   ];
   simState={t:0, sel:0, glow:0};
   const S=simState;
-  window._nobleSel=function(i){ S.sel=i; S.glow=0; };
+  window._nobleSel=function(i){ S.sel=i; S.glow=0; document.querySelectorAll('.noble-btn').forEach(function(b,j){b.classList.toggle('active',j===i);}); };
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">💡 اختر الغاز النبيل</div>
       <div class="ctrl-btns-grid">
-        ${nobles.map((g,i)=>`<button class="ctrl-btn${i===0?' active':''}" onclick="window._nobleSel(${i});document.querySelectorAll('[onclick*=\\'_nobleSel\\']').forEach((b,j)=>b.classList.toggle('active',j===i))" style="border-right:3px solid ${g.col}">${g.sym} — ${g.name}</button>`).join('')}
+        ${nobles.map((g,i)=>`<button class="ctrl-btn noble-btn${i===0?' active':''}" onclick="window._nobleSel(${i})" style="border-right:3px solid ${g.col}">${g.sym} — ${g.name}</button>`).join('')}
       </div>
     </div>
     <div class="info-box" style="margin-top:8px;font-size:12px;text-align:center">
