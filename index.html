@@ -37395,55 +37395,77 @@ function simG9AirComp3(){
       info.innerHTML=`<strong style="color:${d.col}">${d.icon} ${d.full} (${d.name})</strong><br>الاستخدام: ${d.use}<br>التفاعلية: ${d.react}`;
     } else if(info && S.sel<0){info.innerHTML='انقر على غاز لمعرفة تفاصيله';}
 
-    // Sky bg
-    const bg=c.createLinearGradient(0,0,0,h*0.6);
-    bg.addColorStop(0,'#1E3A5F'); bg.addColorStop(1,'#2E6B9E');
-    c.fillStyle=bg; c.fillRect(0,0,w,h*0.6);
-    c.fillStyle='#F0F4F8'; c.fillRect(0,h*0.6,w,h*0.4);
+    // Full white/light bg
+    c.fillStyle='#EEF2F7'; c.fillRect(0,0,w,h);
 
-    // Molecules simulation
+    // ── Top half: molecule simulation box ──
+    const simBoxH=h*0.42;
+    const simBg=c.createLinearGradient(0,0,0,simBoxH);
+    simBg.addColorStop(0,'#0F2A45'); simBg.addColorStop(1,'#1E4976');
+    c.fillStyle=simBg; c.fillRect(0,0,w,simBoxH);
+
+    // Title inside sim box
+    _lbl(c,'جزيئات الهواء',w/2,h*0.06,'rgba(255,255,255,0.7)',Math.max(9,w*0.018));
+
+    // Molecules
     S.molecules.forEach(m=>{
       m.x+=m.vx*(S.breathMode?2:1); m.y+=m.vy*(S.breathMode?1.5:1);
       if(m.x<0)m.x=1; if(m.x>1)m.x=0;
-      if(m.y<0||m.y>0.6){m.vy*=-1; m.y=Math.max(0,Math.min(0.6,m.y));}
+      const maxY=simBoxH/h;
+      if(m.y<0||m.y>maxY){m.vy*=-1; m.y=Math.max(0.01,Math.min(maxY-0.01,m.y));}
       const d=data[m.type];
       const isSel=(S.sel===m.type);
-      c.fillStyle=d.col+(isSel?'FF':'99');
-      const sz=isSel?5:3;
+      c.fillStyle=d.col+(isSel?'FF':'AA');
+      const sz=isSel?5:2.5;
       c.beginPath(); c.arc(m.x*w, m.y*h, sz, 0, Math.PI*2); c.fill();
-      if(isSel){c.strokeStyle=d.col+'66'; c.lineWidth=1; c.beginPath(); c.arc(m.x*w,m.y*h,sz+3,0,Math.PI*2); c.stroke();}
+      if(isSel){c.strokeStyle=d.col+'88'; c.lineWidth=1; c.beginPath(); c.arc(m.x*w,m.y*h,sz+3,0,Math.PI*2); c.stroke();}
     });
 
-    // Breath animation
+    // Breath animation (in sim box)
     if(S.breathMode){
-      const lungR=w*0.08*(1+0.2*Math.sin(S.t*0.05));
-      const lx=w*0.5, ly=h*0.3;
-      c.fillStyle='rgba(239,68,68,0.15)'; c.beginPath(); c.arc(lx-lungR*0.5,ly,lungR,0,Math.PI*2); c.fill();
-      c.fillStyle='rgba(239,68,68,0.15)'; c.beginPath(); c.arc(lx+lungR*0.5,ly,lungR,0,Math.PI*2); c.fill();
-      c.fillStyle='rgba(255,255,255,0.8)'; c.font=`${Math.max(9,w*0.022)}px Tajawal`; c.textAlign='center';
-      c.fillText('🫁 التنفس!', lx, ly+lungR+15);
+      const lungR=w*0.07*(1+0.18*Math.sin(S.t*0.05));
+      const lx=w*0.5, ly=simBoxH*0.55;
+      c.fillStyle='rgba(239,68,68,0.18)'; c.beginPath(); c.arc(lx-lungR*0.55,ly,lungR,0,Math.PI*2); c.fill();
+      c.fillStyle='rgba(239,68,68,0.18)'; c.beginPath(); c.arc(lx+lungR*0.55,ly,lungR,0,Math.PI*2); c.fill();
+      c.fillStyle='rgba(255,255,255,0.85)'; c.font=`${Math.max(8,w*0.02)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('🫁 التنفس!', lx, ly);
     }
 
-    // Bar chart at bottom
-    const barY=h*0.65, maxBH=h*0.25;
-    _lbl(c,'نسب غازات الهواء (مقياس لوغاريتمي)',w/2,h*0.63,'#2C3A4A',Math.max(9,w*0.018));
-    const logPcts=data.map(d=>Math.max(0.2,Math.log10(d.pct+0.001)*0.7+2.2));
+    // ── Bottom half: bar chart ──
+    const chartTop=simBoxH+h*0.06;
+    const barAreaH=h-chartTop-h*0.08;
+    const barY=chartTop+barAreaH;       // baseline of bars
+    const maxBH=barAreaH*0.85;
+
+    // Chart title
+    _lbl(c,'نسب غازات الهواء (مقياس لوغاريتمي)',w/2,simBoxH+h*0.04,'#2C3A4A',Math.max(8,w*0.018));
+
+    const logPcts=data.map(d=>Math.max(0.15,Math.log10(d.pct+0.001)*0.75+2.3));
     const maxLP=Math.max(...logPcts);
-    const bw=w*0.13, gap=w*0.04, x0=w*0.07;
+    // 5 bars across full width with even spacing
+    const totalBars=data.length;
+    const gap2=w*0.03;
+    const bw=(w-gap2*(totalBars+1))/totalBars;
     data.forEach((d,i)=>{
-      const bx=x0+i*(bw+gap);
+      const bx=gap2+i*(bw+gap2);
       const bh=maxBH*(logPcts[i]/maxLP);
       const isSel=(S.sel===i);
+      // Bar gradient
       const gr=c.createLinearGradient(bx,barY-bh,bx,barY);
-      gr.addColorStop(0,d.col); gr.addColorStop(1,d.col+'66');
-      c.fillStyle=gr; c.beginPath(); c.roundRect(bx,barY-bh,bw,bh,4); c.fill();
-      if(isSel){c.strokeStyle=d.col; c.lineWidth=2; c.beginPath(); c.roundRect(bx,barY-bh,bw,bh,4); c.stroke();}
-      c.fillStyle=isSel?d.col:'#2C3A4A'; c.font=`bold ${Math.max(8,w*0.016)}px Tajawal`;
-      c.textAlign='center'; c.fillText(d.name,bx+bw/2,barY+15);
-      c.fillStyle='#7A8A98'; c.font=`${Math.max(7,w*0.013)}px Tajawal`;
-      c.fillText(d.pct+'%',bx+bw/2,barY+28);
+      gr.addColorStop(0,d.col+(isSel?'FF':'DD')); gr.addColorStop(1,d.col+'55');
+      c.fillStyle=gr; c.beginPath(); c.roundRect(bx,barY-bh,bw,bh,5); c.fill();
+      // Selection border
+      if(isSel){c.strokeStyle=d.col; c.lineWidth=2.5; c.beginPath(); c.roundRect(bx,barY-bh,bw,bh,5); c.stroke();}
+      // Pct label above bar
+      const fs=Math.max(8,w*0.017);
+      c.fillStyle=isSel?d.col:'#4A5568'; c.font=`bold ${fs}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText(d.pct+'%', bx+bw/2, barY-bh-3);
+      // Gas name below baseline
+      c.fillStyle=isSel?d.col:'#2C3A4A'; c.font=`bold ${fs}px Tajawal`; c.textBaseline='top';
+      c.fillText(d.name, bx+bw/2, barY+4);
     });
-    c.strokeStyle='#CBD5E1'; c.lineWidth=1; c.beginPath(); c.moveTo(w*0.04,barY); c.lineTo(w*0.96,barY); c.stroke();
+    // Baseline
+    c.strokeStyle='#94A3B8'; c.lineWidth=1.5; c.beginPath(); c.moveTo(gap2*0.5,barY); c.lineTo(w-gap2*0.5,barY); c.stroke();
 
     animFrame=requestAnimationFrame(draw);
   }
