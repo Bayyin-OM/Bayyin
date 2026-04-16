@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>بيّن | الصف السادس</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="../style.css">
+<script src="../darkmode.js"></script>
+</head>
+<body class="app-mode">
+
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">🔬</div>
+    <h2 class="auth-title">منصة بيّن</h2>
+    <p class="auth-sub">سجّل دخولك للوصول إلى المختبرات التفاعلية</p>
+    <input type="email" id="auth-email" class="auth-input" placeholder="البريد الإلكتروني" autocomplete="email">
+    <input type="password" id="auth-pass" class="auth-input" placeholder="كلمة المرور" autocomplete="current-password">
+    <div id="auth-status"></div>
+    <button class="auth-btn" id="auth-submit-btn" onclick="handleLogin()">تسجيل دخول / إنشاء حساب</button>
+    <div id="payment-section"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none" class="">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="window.location.href='../index.html'" style="cursor:pointer">
+      <div class="brand-logo">ب</div>
+      <h2>بيّن</h2>
+    </div>
+    <div class="topbar-tabs">
+      <button class="topbar-tab" onclick="window.location.href='grade5.html'">🔭 الصف الخامس</button>
+      <button class="topbar-tab active" onclick="window.location.href='grade6.html'">📗 الصف السادس</button>
+      <button class="topbar-tab" onclick="window.location.href='grade7.html'">📚 الصف السابع</button>
+      <button class="topbar-tab" onclick="window.location.href='grade8.html'">📖 الصف الثامن</button>
+      <button class="topbar-tab" onclick="window.location.href='grade9.html'">📕 الصف التاسع</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+      <span id="sub-badge" class="sub-ok"></span>
+      <span id="visitor-counter"><span>👁️</span><span id="visit-count">٠</span></span>
+      <button id="dm-toggle" onclick="toggleDarkMode()" aria-pressed="false">
+        <svg class="dm-icon dm-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="dm-icon dm-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+        <span class="dm-label">داكن</span>
+      </button>
+      <button id="topbar-home-btn" onclick="window.location.href='../index.html'">🏠 الرئيسية</button>
+    </div>
+  </div>
+  <div id="content-area">
+  <div id="panel-6" class="main-content" style="display:none">
+    <div class="quran-banner">
+      <div class="quran-text">﴿ وَسَخَّرَ لَكُم مَّا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ جَمِيعًا ﴾</div>
+      <div class="quran-ref">سورة الجاثية · الآية ١٣</div>
+    </div>
+    <div class="panel-title">وحدات الصف السادس</div>
+    <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+    <div class="units-grid" id="grade6-units">
+      <div class="unit-card" onclick="openUnit('u6f', this)">
+        <div class="unit-num-badge">١</div>
+        <div>
+          <div class="unit-title">القوى والحركة</div>
+          <div class="unit-topics">القوى المتوازنة وغير المتوازنة · أنواع القوى · الكتلة والوزن · مقاومة الهواء · الاحتكاك</div>
+          <div class="unit-pill avail">🧪 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u6e', this)">
+        <div class="unit-num-badge">٢</div>
+        <div>
+          <div class="unit-title">المواد الموصِّلة والعازلة للكهرباء</div>
+          <div class="unit-topics">الموصلات والعوازل · الماء والكهرباء · المعادن · الدوائر الكهربائية · الجهد والمقاومة</div>
+          <div class="unit-pill avail">⚡ ٦ استقصاءات متاحة</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sims-u6f" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات القوى والحركة — الصف السادس</div>
+        <div class="sims-count">٥ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g6forces2')">
+          <div class="sim-thumb t1">🏹</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ١ · القوى المتوازنة وغير المتوازنة</div>
+            <div class="sim-name">سهام القوة</div>
+            <div class="sim-desc">ارسم سهام القوى وادرس حالات التوازن وعدمه</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6forces1')">
+          <div class="sim-thumb t2">💪</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٢ · كيف تعمل القوى</div>
+            <div class="sim-name">أنواع القوى</div>
+            <div class="sim-desc">استكشف الدفع والسحب والشد وتأثيرها على الحركة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6gravity')">
+          <div class="sim-thumb t3">⚖️</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٣ · الكتلة والوزن</div>
+            <div class="sim-name">الكتلة والوزن</div>
+            <div class="sim-desc">الفرق بين الكتلة والوزن وتأثير الجاذبية</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6airresist')">
+          <div class="sim-thumb t4">🪂</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٤ · مقاومة الهواء</div>
+            <div class="sim-name">السقوط في الهواء والقوى المتوازنة</div>
+            <div class="sim-desc">كيف تؤثر مقاومة الهواء على السقوط الحر</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6friction')">
+          <div class="sim-thumb t5">🔥</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٥ · الاحتكاك</div>
+            <div class="sim-name">استقصاء الاحتكاك</div>
+            <div class="sim-desc">اكتشف قوة الاحتكاك وتأثير السطح والوزن</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== وحدة الكهرباء — الصف السادس ===== -->
+    <div id="sims-u6e" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٢ — المواد الموصِّلة والعازلة للكهرباء</div>
+        <div class="sims-count">٦ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g6conductors')">
+          <div class="sim-thumb t2">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">5-1 · ما المواد الموصِّلة؟</div>
+            <div class="sim-name">مختبر الموصِّلات والعوازل</div>
+            <div class="sim-desc">اختبر مواد مختلفة واكتشف أيها يوصّل الكهرباء</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6waterconductor')">
+          <div class="sim-thumb t7">💧</div>
+          <div class="sim-body">
+            <div class="sim-num">5-2 · هل الماء يوصِّل الكهرباء؟</div>
+            <div class="sim-name">الماء النقي والماء المالح</div>
+            <div class="sim-desc">استقصِ الفرق بين الماء المقطّر والماء المالح</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6metalconductor')">
+          <div class="sim-thumb t4">🔩</div>
+          <div class="sim-body">
+            <div class="sim-num">5-3 · المعادن والكهرباء</div>
+            <div class="sim-name">أي المعادن أفضل موصِّلاً؟</div>
+            <div class="sim-desc">قارن بين النحاس والحديد والألومنيوم بالأميتر</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6circuit')">
+          <div class="sim-thumb t1">🔌</div>
+          <div class="sim-body">
+            <div class="sim-num">5-5 · بناء الدوائر الكهربائية</div>
+            <div class="sim-name">مختبر الدوائر التفاعلي 🔬</div>
+            <div class="sim-desc">ابنِ دوائر كهربائية حقيقية بخلايا ومصابيح ومفاتيح</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6circuitchange')">
+          <div class="sim-thumb t3">💡</div>
+          <div class="sim-body">
+            <div class="sim-num">5-6 · تغيير مكونات الدائرة</div>
+            <div class="sim-name">كيف يتغيّر سطوع المصباح؟</div>
+            <div class="sim-desc">أضف خلايا ومصابيح وراقب تأثير التغييرات</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6wirelength')">
+          <div class="sim-thumb t6">📏</div>
+          <div class="sim-body">
+            <div class="sim-num">5-8 · طول وسُمك السلك</div>
+            <div class="sim-name">السلك والمقاومة الكهربائية</div>
+            <div class="sim-desc">كيف يؤثر طول السلك وسُمكه في شدة التيار؟</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  </div>
+</div>
+
+<div id="sim-panel">
+  <div class="sim-panel-bar">
+    <button class="sim-close-btn" onclick="closeSim()">← رجوع</button>
+    <div class="sim-panel-title" id="simPanelTitle">المحاكاة</div>
+    <div class="sim-panel-badge" id="simPanelBadge">📗 الصف السادس</div>
+  </div>
+  <div class="sim-tabs-row" id="simTabsRow"></div>
+  <div class="sim-body-wrap">
+    <div class="sim-canvas-wrap">
+      <canvas id="simCanvas"></canvas>
+      <div class="data-display" id="dataDisplay" style="display:none"></div>
+      <div class="q-drawer" id="qDrawer">
+        <div class="q-drawer-title" id="qTitle"></div>
+        <div class="q-options" id="qOptions"></div>
+        <div class="q-feedback" id="qFeedback"></div>
+        <button onclick="toggleQuestion()" style="margin-top:8px;background:none;border:1px solid #ccc;border-radius:8px;padding:7px 16px;font-family:Tajawal;font-size:14px;cursor:pointer;color:#888">▼ إخفاء</button>
+      </div>
+    </div>
+    <div class="sim-controls-panel" id="simControlsPanel"></div>
+  </div>
+  <div class="q-toggle-bar" id="qToggleBar" style="display:none">
+    <button class="q-toggle-btn" id="qToggleBtn" onclick="toggleQuestion()">💡 ماذا نستنتج؟</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="buddy-wrap">
+  <div id="buddy-drag-handle">⠿</div>
+  <div id="buddy-avatar">🔬</div>
+  <div id="buddy-bubble" class="hidden"></div>
+  <button id="buddy-hide-btn" onclick="hideBuddy()">✕</button>
+</div>
+<button id="buddy-restore-btn" onclick="restoreBuddy()">🔬</button>
+
+<script src="../sims/core.js"></script>
+<script src="../sims/unit11_acids.js"></script>
+<script src="../sims/unit6.js"></script>
+<script src="../sims/unit7.js"></script>
+<script src="../sims/unit8.js"></script>
+<script src="../sims/unit9.js"></script>
+<script src="../sims/unit10.js"></script>
+<script src="../sims/unit11_magnets.js"></script>
+<script src="../sims/auth.js"></script>
+<script src="../sims/grade8_extra.js"></script>
+<script src="../sims/grade5_sims.js"></script>
+<script src="../sims/grade9_chem.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  [5,6,7,8,9].forEach(function(n) {
+    var p = document.getElementById('panel-'+n);
+    if (p) p.style.display = n === 6 ? 'block' : 'none';
+  });
+  if (6 === 9 && typeof switchG9Subject === 'function') {
+    switchG9Subject('chem');
+  }
+});
+</script>
+</body>
+</html>
