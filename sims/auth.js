@@ -160,6 +160,8 @@ function _unlockPlatform() {
   if (overlay) overlay.style.display = 'none';
   var landing = document.getElementById('landing');
   if (landing) landing.style.removeProperty('display');
+  var footer = document.getElementById('bayyin-footer');
+  if (footer) footer.style.display = 'block';
   document.getElementById('grade-picker').style.display = 'none';
   var app = document.getElementById('app');
   if (app) { app.style.display = 'none'; app.classList.remove('open'); }
