@@ -1673,7 +1673,7 @@ html.dark-mode #buddy-drag-handle { background: rgba(26,143,168,0.2); }
    BAYYIN FOOTER
 ═══════════════════════════════════════ */
 #bayyin-footer {
-  display: none;
+  display: block;
   width: 100%;
   background: var(--bg-landing, #F7F3EE);
   border-top: 3px solid #D4901A;
