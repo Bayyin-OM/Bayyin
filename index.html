@@ -4378,6 +4378,33 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
             </div>
             <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
           </div>
+          <div class="sim-card" onclick="openSim('g9refractN')">
+            <div class="sim-thumb t7">💎</div>
+            <div class="sim-body">
+              <div class="sim-num">١٣-٢ · معامل الانكسار</div>
+              <div class="sim-name">قِس سرعة الضوء في المادة</div>
+              <div class="sim-desc">قارن معاملات الانكسار لمواد مختلفة واحسب سرعة الضوء داخلها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9tir')">
+            <div class="sim-thumb t1">🌈</div>
+            <div class="sim-body">
+              <div class="sim-num">١٣-٣ · نشاط ٢-١٣</div>
+              <div class="sim-name">الانعكاس الكلي الداخلي</div>
+              <div class="sim-desc">استكشف الزاوية الحرجة وظاهرة الانعكاس الكلي الداخلي خطوةً بخطوة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9fiber')">
+            <div class="sim-thumb t5">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">١٣-٤ · الألياف البصرية</div>
+              <div class="sim-name">كيف يسافر الضوء في الليف؟</div>
+              <div class="sim-desc">راقب كيف يسافر الضوء داخل الألياف البصرية بالانعكاس الكلي المتكرر</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
         </div>
       </div>
 
@@ -4390,6 +4417,15 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
               <div class="sim-num">١٤-١ · العدسات والصور</div>
               <div class="sim-name">حرّك الجسم وشاهد الصورة</div>
               <div class="sim-desc">استكشف تأثير نوع العدسة وبعد الجسم على نوع الصورة وحجمها وموقعها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9raydiagram')">
+            <div class="sim-thumb t6">✏️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٤-٢ · نشاط ١-١٤</div>
+              <div class="sim-name">ارسم مخطط الأشعة</div>
+              <div class="sim-desc">ارسم الشعاعَين على الشاشة خطوةً بخطوة وحدّد موقع الصورة الحقيقية أو التقديرية</div>
             </div>
             <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
           </div>
@@ -5265,8 +5301,12 @@ const SIM_META = {
   g9fossil:  { title: '١١-٥ · الوقود الأحفوري والنووي', badge: '🛢️ 9', tabs: ['مقارنة المصادر ⛽', 'الأثر البيئي 🌍'] },
   g9efficiency:{ title: '١١-٦ · كفاءة الطاقة', badge: '📈 9', tabs: ['حساب الكفاءة 🔢', 'تقليل الفاقد ♻️'] },
   g9refl:   { title: 'الوحدة 12 · انعكاس الضوء', badge: '🪞 9', tabs: ['قانون الانعكاس 📐', 'مخطط الأشعة 🎯'] },
-  g9refract:{ title: 'الوحدة 13 · انكسار الضوء', badge: '🔎 9', tabs: ['قانون سنيل 📐', 'الزاوية الحرجة 🌈'] },
+  g9refract:{ title: '١٣-١ · قانون سنيل', badge: '🔎 9', tabs: ['قانون سنيل 📐', 'الزاوية الحرجة 🌈'] },
+  g9refractN:{ title: '١٣-٢ · معامل الانكسار', badge: '💎 9', tabs: ['قِس المعامل 🔢', 'قارن المواد 🧪'] },
+  g9tir:    { title: '١٣-٣ · الانعكاس الكلي الداخلي', badge: '🌈 9', tabs: ['استقصاء الزاوية الحرجة 🔬', 'كيف يعمل TIR؟ 💡'] },
+  g9fiber:  { title: '١٣-٤ · الألياف البصرية', badge: '🔬 9', tabs: ['الليف البصري 💡', 'تطبيقات TIR 📡'] },
   g9lens:   { title: 'الوحدة 14 · العدسات وتكوّن الصور', badge: '🔬 9', tabs: ['أنواع العدسات 🧪', 'موقع الصورة 🎯'] },
+  g9raydiagram:{ title: '١٤-٢ · نشاط ارسم مخطط الأشعة', badge: '✏️ 9', tabs: ['صورة حقيقية 🎯', 'صورة تقديرية 🔍'] },
   g9circuits:{ title: 'الوحدة 15 · الدوائر الكهربائية', badge: '🔌 9', tabs: ['متسلسلة/متوازية ⚡', 'تحليل الدائرة 📊'] },
   g9ohm:    { title: 'الوحدة 15 · قانون أوم والقدرة', badge: '📐 9', tabs: ['V=IR 🔢', 'القدرة والكفاءة 🔋'] }
 };
@@ -6080,7 +6120,11 @@ function startSim(type, tab) {
     g9efficiency:[simG9Efficiency1, simG9Efficiency2],
     g9refl:   [simG9Refl1, simG9Refl2],
     g9refract:[simG9Refract1, simG9Refract2],
+    g9refractN:[simG9RefractN1, simG9RefractN2],
+    g9tir:    [simG9TIR1, simG9TIR2],
+    g9fiber:  [simG9Fiber1, simG9Fiber2],
     g9lens:   [simG9Lens1, simG9Lens2],
+    g9raydiagram:[simG9RayDiagram1, simG9RayDiagram2],
     g9circuits:[simG9Circuits1, simG9Circuits2],
     g9ohm:    [simG9Ohm1, simG9Ohm2]
   };
@@ -41520,8 +41564,739 @@ function simG9Refract2(){
 }
 
 // ══════════════════════════════════════════════════════════
-// الصف التاسع — فيزياء الوحدة 13: العدسات
+// الصف التاسع — الوحدة 13: معامل الانكسار (١٣-٢)
 // ══════════════════════════════════════════════════════════
+function simG9RefractN1(){
+  cancelAnimationFrame(animFrame);
+  const MATERIALS=[
+    {name:'فراغ',   emoji:'🌌', n:1.000, color:'#94A3B8'},
+    {name:'هواء',   emoji:'💨', n:1.0003,color:'#BAE6FD'},
+    {name:'ماء',    emoji:'💧', n:1.33,  color:'#0EA5E9'},
+    {name:'زجاج',   emoji:'🪟', n:1.50,  color:'#67E8F9'},
+    {name:'برسبيكس',emoji:'🔷', n:1.50,  color:'#60A5FA'},
+    {name:'ألماس',  emoji:'💎', n:2.40,  color:'#A78BFA'},
+  ];
+  simState={mat:2, t:0};
+  window._refNMat=function(i){simState.mat=i; var btns=document.querySelectorAll('.matn-btn'); btns.forEach(b=>b.classList.remove('action')); var a=document.getElementById('mn-'+i); if(a) a.classList.add('action');};
+  const btnHtml = MATERIALS.map((m,i)=>`<button id="mn-${i}" class="ctrl-btn matn-btn${i===2?' action':''}" onclick="window._refNMat(${i})">${m.emoji} ${m.name}</button>`).join('');
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💎 اختر المادة الشفافة</div>
+      <div class="ctrl-btns-grid">${btnHtml}</div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>معامل الانكسار n = سرعة الضوء في الفراغ ÷ سرعة الضوء في المادة. كلما كانت المادة أكثف انكسر الضوء أكثر وتباطأت سرعته.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9refractN'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.018;
+    const t=simState.t, m=MATERIALS[simState.mat];
+    c.clearRect(0,0,w,h);
+    // Sky/Air zone
+    c.fillStyle='#EAF4FF'; c.fillRect(0,0,w,h*0.45);
+    // Material zone
+    const matGrad=c.createLinearGradient(0,h*0.45,0,h);
+    matGrad.addColorStop(0,m.color+'55'); matGrad.addColorStop(1,m.color+'22');
+    c.fillStyle=matGrad; c.fillRect(0,h*0.45,w,h*0.55);
+    // Interface line
+    c.strokeStyle='rgba(30,45,61,0.3)'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(0,h*0.45); c.lineTo(w,h*0.45); c.stroke();
+    // Normal (dashed)
+    c.setLineDash([6,5]); c.strokeStyle='#1A8FA8'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(w*0.5,h*0.08); c.lineTo(w*0.5,h*0.92); c.stroke(); c.setLineDash([]);
+    // Fixed angle of incidence = 40°
+    const i=40*Math.PI/180;
+    const r_rad=Math.asin(Math.min(0.999,(1.0/m.n)*Math.sin(i)));
+    const L=h*0.36;
+    const cx=w*0.5, cy=h*0.45;
+    // Incident ray (animated photon)
+    c.strokeStyle='#F59E0B'; c.lineWidth=4;
+    c.beginPath(); c.moveTo(cx-Math.sin(i)*L,cy-Math.cos(i)*L); c.lineTo(cx,cy); c.stroke();
+    // Refracted ray
+    c.strokeStyle=m.color==='#94A3B8'?'#F59E0B':m.color; c.lineWidth=4;
+    c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx+Math.sin(r_rad)*L,cy+Math.cos(r_rad)*L); c.stroke();
+    // Animated photon on incident
+    const pf=(t*0.25)%1;
+    const px=cx-Math.sin(i)*L*(1-pf), py=cy-Math.cos(i)*L*(1-pf);
+    c.fillStyle='#FFF7'; c.beginPath(); c.arc(px,py,7,0,Math.PI*2); c.fill();
+    c.fillStyle='#F59E0B'; c.beginPath(); c.arc(px,py,4.5,0,Math.PI*2); c.fill();
+    // Animated photon on refracted
+    const pf2=(t*0.25/m.n)%1;
+    const rx=cx+Math.sin(r_rad)*L*pf2, ry=cy+Math.cos(r_rad)*L*pf2;
+    c.fillStyle='#FFF7'; c.beginPath(); c.arc(rx,ry,7,0,Math.PI*2); c.fill();
+    c.fillStyle=m.color; c.beginPath(); c.arc(rx,ry,4.5,0,Math.PI*2); c.fill();
+    // Angle labels
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText(`i = 40°`, w*0.28, h*0.35);
+    c.fillText(`r = ${(r_rad*180/Math.PI).toFixed(1)}°`, w*0.72, h*0.58);
+    // Info panel
+    const panX=w*0.03, panY=h*0.05;
+    c.fillStyle='rgba(255,255,255,0.92)'; c.beginPath(); c.roundRect(panX,panY,w*0.38,h*0.28,12); c.fill();
+    c.strokeStyle=m.color; c.lineWidth=2; c.stroke();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText(`${m.emoji} ${m.name}`, panX+w*0.19, panY+h*0.055);
+    c.font=`bold ${Math.round(h*0.038)}px Tajawal`;
+    c.fillStyle=m.color; c.fillText(`n = ${m.n.toFixed(4)}`, panX+w*0.19, panY+h*0.125);
+    c.fillStyle='#555'; c.font=`${Math.round(h*0.025)}px Tajawal`;
+    const vlight=Math.round((3e8/m.n)/1e6)/100;
+    c.fillText(`v = ${vlight.toFixed(2)} × 10⁸ m/s`, panX+w*0.19, panY+h*0.185);
+    c.fillStyle='#888'; c.font=`${Math.round(h*0.021)}px Tajawal`;
+    c.fillText(`الضوء في الفراغ: 3×10⁸ m/s`, panX+w*0.19, panY+h*0.235);
+    // Labels on zones
+    c.fillStyle='rgba(30,45,61,0.6)'; c.font=`${Math.round(h*0.026)}px Tajawal`; c.textAlign='left';
+    c.fillText('هواء (n = 1.00)', w*0.55, h*0.1);
+    c.fillStyle=m.color; c.fillText(`${m.name} (n = ${m.n.toFixed(2)})`, w*0.55, h*0.9);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9RefractN2(){
+  cancelAnimationFrame(animFrame);
+  const MATS=[
+    {name:'ماء',    n:1.33, v:2.25, color:'#0EA5E9', emoji:'💧'},
+    {name:'برسبيكس',n:1.50, v:2.00, color:'#60A5FA', emoji:'🔷'},
+    {name:'زجاج',  n:1.60, v:1.88, color:'#67E8F9', emoji:'🪟'},
+    {name:'ألماس', n:2.40, v:1.25, color:'#A78BFA', emoji:'💎'},
+  ];
+  simState={t:0};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧪 مقارنة معاملات الانكسار</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">
+        كل مادة لها معامل انكسار مختلف يعكس كثافتها البصرية وسرعة الضوء بداخلها.
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما كبر معامل الانكسار، زادت كثافة الوسط البصرية، وقلّت سرعة الضوء فيه، وانكسر الضوء أكثر عند الدخول إليه.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9refractN'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.018;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#F8FAFC'; c.fillRect(0,0,w,h);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.036)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('مقارنة بين المواد الشفافة', w/2, h*0.02);
+    const barX=w*0.12, barW=w*0.55, barH=h*0.075, gap=h*0.115, top=h*0.1;
+    const maxN=2.5;
+    MATS.forEach((m,i)=>{
+      const y=top+i*gap;
+      // Label
+      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='right';
+      c.fillText(`${m.emoji} ${m.name}`, barX-6, y+barH*0.28);
+      // Background bar
+      c.fillStyle='#E2E8F0'; c.beginPath(); c.roundRect(barX,y,barW,barH,6); c.fill();
+      // Animated fill
+      const anim=Math.min(m.n/maxN, simState.t/5);
+      const grad=c.createLinearGradient(barX,0,barX+barW,0);
+      grad.addColorStop(0,m.color+'AA'); grad.addColorStop(1,m.color);
+      c.fillStyle=grad; c.beginPath(); c.roundRect(barX,y,barW*Math.min(1,anim),barH,6); c.fill();
+      // n value
+      c.fillStyle='white'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='left';
+      if(anim>0.15) c.fillText(`n = ${m.n}`, barX+6, y+barH*0.28);
+      // Speed
+      c.fillStyle='#475569'; c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='left';
+      c.fillText(`v = ${m.v} × 10⁸ m/s`, barX+barW+8, y+barH*0.3);
+      // Animated refraction angle preview (small)
+      const aX=w*0.88, aY=y+barH*0.5, aR=barH*0.55;
+      const inc=40*Math.PI/180, ref=Math.asin(Math.min(0.999,Math.sin(inc)/m.n));
+      c.strokeStyle=m.color; c.lineWidth=2;
+      c.beginPath(); c.moveTo(aX-aR*Math.sin(inc),aY-aR*Math.cos(inc)); c.lineTo(aX,aY); c.lineTo(aX+aR*Math.sin(ref),aY+aR*Math.cos(ref)); c.stroke();
+      c.setLineDash([3,3]); c.strokeStyle='#94A3B8'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(aX,aY-aR*0.9); c.lineTo(aX,aY+aR*0.9); c.stroke(); c.setLineDash([]);
+    });
+    // Reference line
+    c.strokeStyle='rgba(30,45,61,0.2)'; c.lineWidth=1.5; c.setLineDash([4,4]);
+    const refX=barX+barW*(1/maxN);
+    c.beginPath(); c.moveTo(refX,top-6); c.lineTo(refX,top+gap*MATS.length); c.stroke(); c.setLineDash([]);
+    c.fillStyle='rgba(30,45,61,0.5)'; c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText('n=1 (فراغ)', refX, top-10);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — الوحدة 13: الانعكاس الكلي الداخلي TIR (١٣-٣)
+// ══════════════════════════════════════════════════════════
+function simG9TIR1(){
+  cancelAnimationFrame(animFrame);
+  simState={angle:20, n:1.5, t:0};
+  window._tirA=function(v){simState.angle=+v; var e=document.getElementById('tir-a'); if(e) e.textContent=v+'°';};
+  window._tirN=function(v){simState.n=+v; var e=document.getElementById('tir-n'); if(e) e.textContent=(+v).toFixed(2);};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 استكشاء الزاوية الحرجة</div>
+      <div class="ctrl-label">زاوية السقوط i: <span id="tir-a">20°</span></div>
+      <input type="range" min="1" max="89" value="20" oninput="window._tirA(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._tirA(15)">⬇️ صغيرة</button>
+        <button class="ctrl-btn action" onclick="window._tirA(42)">🎯 حرجة</button>
+        <button class="ctrl-btn" onclick="window._tirA(65)">⬆️ كبيرة</button>
+      </div>
+      <div class="ctrl-label" style="margin-top:10px">معامل الانكسار n: <span id="tir-n">1.50</span></div>
+      <input type="range" min="1.30" max="2.00" step="0.01" value="1.50" oninput="window._tirN(this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الزاوية الحرجة = sin⁻¹(1/n). عند تجاوزها لا يخرج ضوء — كل الضوء ينعكس داخلياً بنسبة 100%.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9tir'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.02;
+    const t=simState.t, ang=simState.angle, n=simState.n;
+    const crit=Math.asin(1/n)*180/Math.PI;
+    const isTIR=ang>=crit;
+    c.clearRect(0,0,w,h);
+    // Zones (Glass below, Air above)
+    const intf=h*0.5;
+    c.fillStyle='#DFF7EC'; c.fillRect(0,0,w,intf); // glass (light enters from below)
+    c.fillStyle='#EAF4FF'; c.fillRect(0,intf,w,h-intf);
+    // Zone labels
+    c.fillStyle='rgba(30,45,61,0.55)'; c.font=`${Math.round(h*0.026)}px Tajawal`; c.textAlign='left';
+    c.fillText(`زجاج (n = ${n.toFixed(2)})`, w*0.04, intf-h*0.04);
+    c.fillText('هواء (n = 1.00)', w*0.04, intf+h*0.04);
+    // Interface
+    c.strokeStyle='rgba(30,45,61,0.25)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(0,intf); c.lineTo(w,intf); c.stroke();
+    // Normal
+    c.setLineDash([6,5]); c.strokeStyle='#1A8FA8'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(w*0.5,h*0.1); c.lineTo(w*0.5,h*0.9); c.stroke(); c.setLineDash([]);
+    const cx=w*0.5, cy=intf, ir=ang*Math.PI/180;
+    const L=h*0.36;
+    // Incident ray (upward from glass)
+    c.strokeStyle='#F59E0B'; c.lineWidth=5; c.lineCap='round';
+    c.beginPath(); c.moveTo(cx-Math.sin(ir)*L, cy+Math.cos(ir)*L); c.lineTo(cx,cy); c.stroke();
+    // Animated incident photon
+    const pf=(t*0.22)%1;
+    const ipx=cx-Math.sin(ir)*L*(1-pf), ipy=cy+Math.cos(ir)*L*(1-pf);
+    c.fillStyle='#FFF8'; c.beginPath(); c.arc(ipx,ipy,7,0,Math.PI*2); c.fill();
+    c.fillStyle='#F59E0B'; c.beginPath(); c.arc(ipx,ipy,4.5,0,Math.PI*2); c.fill();
+    c.lineCap='butt';
+    if(isTIR){
+      // Total internal reflection — reflected ray stays in glass
+      c.strokeStyle='#06B6D4'; c.lineWidth=5; c.lineCap='round';
+      c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx+Math.sin(ir)*L, cy+Math.cos(ir)*L); c.stroke(); c.lineCap='butt';
+      // Reflected photon
+      const rf2=(t*0.22)%1;
+      const rpx=cx+Math.sin(ir)*L*rf2, rpy=cy+Math.cos(ir)*L*rf2;
+      c.fillStyle='#FFF8'; c.beginPath(); c.arc(rpx,rpy,7,0,Math.PI*2); c.fill();
+      c.fillStyle='#06B6D4'; c.beginPath(); c.arc(rpx,rpy,4.5,0,Math.PI*2); c.fill();
+      // TIR label
+      c.fillStyle='#DC2626'; c.font=`bold ${Math.round(h*0.036)}px Tajawal`; c.textAlign='center';
+      c.fillText('⛔ انعكاس كلي داخلي TIR', w*0.5, h*0.08);
+      c.fillStyle='rgba(220,38,38,0.08)'; c.fillRect(0,0,w,intf);
+    } else {
+      // Partial refraction + partial reflection
+      const sinR=Math.sin(ir)*n;
+      if(sinR<=1){
+        const rr=Math.asin(sinR);
+        c.strokeStyle='#0EA5E9'; c.lineWidth=4; c.lineCap='round';
+        c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx+Math.sin(rr)*L*0.9, cy-Math.cos(rr)*L*0.9); c.stroke(); c.lineCap='butt';
+        // Refracted photon
+        const rf3=(t*0.22)%1;
+        const rfx=cx+Math.sin(rr)*L*0.9*rf3, rfy=cy-Math.cos(rr)*L*0.9*rf3;
+        c.fillStyle='#FFF8'; c.beginPath(); c.arc(rfx,rfy,6,0,Math.PI*2); c.fill();
+        c.fillStyle='#0EA5E9'; c.beginPath(); c.arc(rfx,rfy,3.5,0,Math.PI*2); c.fill();
+        // Weak reflected ray
+        c.strokeStyle='rgba(6,182,212,0.35)'; c.lineWidth=2;
+        c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx+Math.sin(ir)*L*0.5, cy+Math.cos(ir)*L*0.5); c.stroke();
+        c.fillStyle='#16A34A'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+        c.fillText('✅ الضوء يخرج للهواء', w*0.5, h*0.08);
+        c.fillStyle='#1E2D3D'; c.font=`${Math.round(h*0.026)}px Tajawal`;
+        c.fillText(`زاوية الانكسار = ${(rr*180/Math.PI).toFixed(1)}°`, w*0.5, h*0.14);
+      }
+    }
+    // Bottom display
+    const panY=h*0.84;
+    c.fillStyle='rgba(30,45,61,0.08)'; c.beginPath(); c.roundRect(w*0.05,panY,w*0.9,h*0.13,12); c.fill();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText(`زاوية السقوط i = ${ang}°   |   الزاوية الحرجة c = ${crit.toFixed(1)}°`, w*0.5, panY+h*0.04);
+    const status=isTIR?'🔴 i > c → انعكاس كلي':'🟢 i < c → ينكسر الضوء للخارج';
+    c.fillStyle=isTIR?'#DC2626':'#16A34A'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`;
+    c.fillText(status, w*0.5, panY+h*0.09);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9TIR2(){
+  cancelAnimationFrame(animFrame);
+  simState={scenario:'prism', t:0};
+  window._tirScene=function(s){simState.scenario=s; var btns=document.querySelectorAll('.tir-btn'); btns.forEach(b=>b.classList.remove('action')); var a=document.getElementById('ts-'+s); if(a) a.classList.add('action');};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💡 كيف يعمل الانعكاس الكلي؟</div>
+      <div class="ctrl-btns-grid">
+        <button id="ts-prism" class="ctrl-btn tir-btn action" onclick="window._tirScene('prism')">🔺 منشور</button>
+        <button id="ts-diamond" class="ctrl-btn tir-btn" onclick="window._tirScene('diamond')">💎 ألماس</button>
+        <button id="ts-pool" class="ctrl-btn tir-btn" onclick="window._tirScene('pool')">🏊 حوض سباحة</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الانعكاس الكلي الداخلي يُستخدم في المناشير البصرية والألماس والألياف البصرية لتوجيه الضوء بكفاءة 100%.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9tir'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.02;
+    const t=simState.t, sc=simState.scenario;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#0F172A'; c.fillRect(0,0,w,h);
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.034)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    if(sc==='prism'){
+      c.fillText('منشور يعكس الضوء بزاوية 90°',w/2,h*0.03);
+      // Prism shape
+      c.fillStyle='rgba(103,232,249,0.15)'; c.strokeStyle='#67E8F9'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(w*0.3,h*0.75); c.lineTo(w*0.7,h*0.75); c.lineTo(w*0.3,h*0.25); c.closePath(); c.fill(); c.stroke();
+      // Incoming ray (horizontal left)
+      const ry=h*0.5;
+      c.strokeStyle='#F59E0B'; c.lineWidth=4;
+      c.beginPath(); c.moveTo(w*0.06,ry); c.lineTo(w*0.3,ry); c.stroke();
+      // TIR inside prism (goes down)
+      c.strokeStyle='#0EA5E9'; c.lineWidth=4;
+      c.beginPath(); c.moveTo(w*0.3,ry); c.lineTo(w*0.3,h*0.75); c.stroke();
+      // Exit ray (downward)
+      c.strokeStyle='#22C55E'; c.lineWidth=4;
+      c.beginPath(); c.moveTo(w*0.3,h*0.75); c.lineTo(w*0.3,h*0.92); c.stroke();
+      // Animated photons
+      const f=((t*0.2)%1);
+      const segs=[{x1:w*0.06,y1:ry,x2:w*0.3,y2:ry,col:'#F59E0B'},{x1:w*0.3,y1:ry,x2:w*0.3,y2:h*0.75,col:'#0EA5E9'},{x1:w*0.3,y1:h*0.75,x2:w*0.3,y2:h*0.92,col:'#22C55E'}];
+      const totalLen=3, seg=Math.floor(f*totalLen), frac=(f*totalLen)%1;
+      if(seg<segs.length){const s=segs[seg];const px=s.x1+(s.x2-s.x1)*frac,py=s.y1+(s.y2-s.y1)*frac;c.fillStyle='white';c.beginPath();c.arc(px,py,7,0,Math.PI*2);c.fill();c.fillStyle=s.col;c.beginPath();c.arc(px,py,4.5,0,Math.PI*2);c.fill();}
+      c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='left';
+      c.fillText('شعاع ساقط →',w*0.06,ry-h*0.04);
+      c.fillText('↓ انعكاس كلي',w*0.32,ry+h*0.13);
+      c.fillText('↓ شعاع خارج',w*0.32,h*0.88);
+    } else if(sc==='diamond'){
+      c.fillText('الألماس يبرق بسبب الانعكاس الكلي (c≈25°)',w/2,h*0.03);
+      // Diamond shape
+      c.fillStyle='rgba(167,139,250,0.2)'; c.strokeStyle='#A78BFA'; c.lineWidth=2;
+      const dx=w*0.5, dy=h*0.5;
+      c.beginPath(); c.moveTo(dx,dy-h*0.28); c.lineTo(dx+w*0.22,dy); c.lineTo(dx,dy+h*0.32); c.lineTo(dx-w*0.22,dy); c.closePath(); c.fill(); c.stroke();
+      // Multiple TIR beams inside
+      const beams=[{x:dx-w*0.1,y:dy-h*0.1,ang:-40},{x:dx+w*0.05,y:dy-h*0.15,ang:50},{x:dx-w*0.05,y:dy+h*0.08,ang:-30}];
+      beams.forEach((b,i)=>{
+        const a=b.ang*Math.PI/180+t*0.3+i*1;
+        c.strokeStyle=`hsl(${260+i*30},80%,70%)`; c.lineWidth=2.5;
+        c.beginPath(); c.moveTo(b.x,b.y); c.lineTo(b.x+Math.cos(a)*w*0.18,b.y+Math.sin(a)*h*0.18); c.stroke();
+      });
+      c.fillStyle='rgba(255,255,255,0.75)'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+      c.fillText('الضوء يتردد داخل الألماس',w/2,h*0.87);
+      c.fillText('ويخرج متلألئاً من الوجوه الخارجية',w/2,h*0.92);
+    } else {
+      c.fillText('حوض سباحة — الضوء محبوس تحت الماء',w/2,h*0.03);
+      c.fillStyle='rgba(14,165,233,0.25)'; c.fillRect(0,h*0.45,w,h*0.55);
+      c.strokeStyle='#0EA5E9'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(0,h*0.45); c.lineTo(w,h*0.45); c.stroke();
+      // "window" in water where light can escape
+      const critW=Math.asin(1/1.33)*180/Math.PI;
+      c.fillStyle='rgba(255,255,255,0.15)'; c.beginPath(); c.arc(w*0.5,h*0.45,w*0.18,Math.PI,2*Math.PI); c.fill();
+      c.fillStyle='rgba(255,255,255,0.8)'; c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+      c.fillText(`نافذة هروب الضوء (زاوية حرجة ${critW.toFixed(0)}°)`,w*0.5,h*0.38);
+      // Rays from below
+      const nRays=5;
+      for(let i=0;i<nRays;i++){
+        const rayAng=(i/(nRays-1)-0.5)*Math.PI*1.2;
+        const startX=w*0.5+Math.sin(rayAng)*w*0.3, startY=h*0.85;
+        const endX=w*0.5, endY=h*0.45;
+        const isEscape=Math.abs(rayAng)<Math.asin(1/1.33);
+        c.strokeStyle=isEscape?'#F59E0B':'rgba(14,165,233,0.6)'; c.lineWidth=isEscape?3:2;
+        c.beginPath(); c.moveTo(startX,startY); c.lineTo(endX+(endX-startX)*0.1,endY+(endY-startY)*0.1); c.stroke();
+        if(isEscape){
+          c.beginPath(); c.moveTo(endX,endY); c.lineTo(endX+Math.sin(rayAng)*w*0.2,endY-h*0.25); c.stroke();
+        } else {
+          c.strokeStyle='rgba(14,165,233,0.5)'; c.beginPath(); c.moveTo(endX,endY); c.lineTo(startX+(startX-endX)*0.5,startY+(startY-endY)*0.5); c.stroke();
+        }
+      }
+      c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.round(h*0.023)}px Tajawal`; c.textAlign='center';
+      c.fillText('الأشعة خارج زاوية الهروب تنعكس كلياً داخل الماء',w/2,h*0.93);
+    }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — الوحدة 13: الألياف البصرية (١٣-٤)
+// ══════════════════════════════════════════════════════════
+function simG9Fiber1(){
+  cancelAnimationFrame(animFrame);
+  simState={bend:0.3, t:0, photons:[]};
+  for(let i=0;i<6;i++) simState.photons.push({phase:i/6, speed:0.4+Math.random()*0.1});
+  window._fiberBend=function(v){simState.bend=+v; var e=document.getElementById('fb-bend'); if(e) e.textContent=Math.round(v*100)+'%';};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💡 الليف البصري</div>
+      <div class="ctrl-label">مدى الانحناء: <span id="fb-bend">30%</span></div>
+      <input type="range" min="0" max="0.8" step="0.01" value="0.3" oninput="window._fiberBend(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn action" onclick="window._fiberBend(0);document.getElementById('fb-bend').textContent='0%'">📏 مستقيم</button>
+        <button class="ctrl-btn" onclick="window._fiberBend(0.4);document.getElementById('fb-bend').textContent='40%'">〰️ منحنٍ</button>
+        <button class="ctrl-btn" onclick="window._fiberBend(0.75);document.getElementById('fb-bend').textContent='75%'">🌀 منحنٍ جداً</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الضوء يتردد داخل الليف بالانعكاس الكلي الداخلي المتكرر — حتى مع الانحناء الشديد لا يتسرب الضوء للخارج.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9fiber'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.018;
+    const t=simState.t, bend=simState.bend;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#0F172A'; c.fillRect(0,0,w,h);
+    // Draw fiber path using bezier
+    const fiberW=h*0.09;
+    const p0={x:w*0.04,y:h*0.5};
+    const p3={x:w*0.96,y:h*0.5};
+    const cp1={x:w*0.35,y:h*0.5-h*bend};
+    const cp2={x:w*0.65,y:h*0.5+h*bend};
+    // Fiber cladding (outer)
+    c.strokeStyle='rgba(100,160,220,0.25)'; c.lineWidth=fiberW+8;
+    c.beginPath(); c.moveTo(p0.x,p0.y); c.bezierCurveTo(cp1.x,cp1.y,cp2.x,cp2.y,p3.x,p3.y); c.stroke();
+    // Fiber core
+    c.strokeStyle='rgba(30,60,120,0.9)'; c.lineWidth=fiberW;
+    c.beginPath(); c.moveTo(p0.x,p0.y); c.bezierCurveTo(cp1.x,cp1.y,cp2.x,cp2.y,p3.x,p3.y); c.stroke();
+    // Fiber inner glow
+    c.strokeStyle='rgba(100,200,255,0.12)'; c.lineWidth=fiberW*0.6;
+    c.beginPath(); c.moveTo(p0.x,p0.y); c.bezierCurveTo(cp1.x,cp1.y,cp2.x,cp2.y,p3.x,p3.y); c.stroke();
+    // Animated photons along bezier
+    const getBezier=(t)=>{
+      const mt=1-t;
+      return {
+        x:mt*mt*mt*p0.x+3*mt*mt*t*cp1.x+3*mt*t*t*cp2.x+t*t*t*p3.x,
+        y:mt*mt*mt*p0.y+3*mt*mt*t*cp1.y+3*mt*t*t*cp2.y+t*t*t*p3.y
+      };
+    };
+    simState.photons.forEach(ph=>{
+      ph.phase=(ph.phase+ph.speed*0.006)%1;
+      const pos=getBezier(ph.phase);
+      const glow=c.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,10);
+      glow.addColorStop(0,'rgba(255,220,60,0.9)'); glow.addColorStop(1,'rgba(255,220,60,0)');
+      c.fillStyle=glow; c.beginPath(); c.arc(pos.x,pos.y,10,0,Math.PI*2); c.fill();
+      c.fillStyle='#FFF7'; c.beginPath(); c.arc(pos.x,pos.y,5,0,Math.PI*2); c.fill();
+      c.fillStyle='#F59E0B'; c.beginPath(); c.arc(pos.x,pos.y,3,0,Math.PI*2); c.fill();
+    });
+    // Entry glow
+    const entryGlow=c.createRadialGradient(p0.x,p0.y,0,p0.x,p0.y,30);
+    entryGlow.addColorStop(0,'rgba(255,220,60,0.5)'); entryGlow.addColorStop(1,'rgba(255,220,60,0)');
+    c.fillStyle=entryGlow; c.beginPath(); c.arc(p0.x,p0.y,30,0,Math.PI*2); c.fill();
+    // Exit glow
+    const exitGlow=c.createRadialGradient(p3.x,p3.y,0,p3.x,p3.y,30);
+    exitGlow.addColorStop(0,'rgba(255,220,60,0.4)'); exitGlow.addColorStop(1,'rgba(255,220,60,0)');
+    c.fillStyle=exitGlow; c.beginPath(); c.arc(p3.x,p3.y,30,0,Math.PI*2); c.fill();
+    // Labels
+    c.fillStyle='rgba(255,255,255,0.8)'; c.font=`${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('📡 مصدر الضوء (ليزر)', p0.x+w*0.07, h*0.15);
+    c.fillText('📲 المستقبل', p3.x-w*0.07, h*0.15);
+    c.fillStyle='rgba(100,200,255,0.6)'; c.font=`${Math.round(h*0.024)}px Tajawal`;
+    c.fillText('الغلاف (cladding)', w/2, h*0.2);
+    c.fillStyle='rgba(30,140,220,0.8)';
+    c.fillText('القلب (core) — n أعلى', w/2, h*0.78);
+    c.fillStyle='rgba(255,220,60,0.9)'; c.font=`bold ${Math.round(h*0.025)}px Tajawal`;
+    c.fillText('⚡ الضوء يصل 100% بالانعكاس الكلي المتكرر', w/2, h*0.92);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Fiber2(){
+  cancelAnimationFrame(animFrame);
+  simState={app:'med', t:0};
+  window._fiberApp=function(a){simState.app=a; var btns=document.querySelectorAll('.fapp-btn'); btns.forEach(b=>b.classList.remove('action')); var el=document.getElementById('fa-'+a); if(el) el.classList.add('action');};
+  const APPS={
+    med:{name:'المنظار الداخلي', emoji:'🏥', desc:'يُستخدم في الطب لرؤية داخل جسم الإنسان دون جراحة. حزمتان: واحدة للإضاءة وأخرى للصورة.', color:'#22C55E'},
+    net:{name:'شبكات الاتصال', emoji:'🌐', desc:'تنقل الألياف البصرية إشارات رقمية بسرعة الضوء — أسرع وأوثوق من الكابلات النحاسية.', color:'#3B82F6'},
+    dec:{name:'الإضاءة الزخرفية', emoji:'💡', desc:'تُستخدم الألياف البصرية في الديكور والإضاءة لنقل الضوء لمسافات بعيدة دون فقد.', color:'#F59E0B'},
+  };
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📡 تطبيقات الألياف البصرية</div>
+      <div class="ctrl-btns-grid">
+        <button id="fa-med" class="ctrl-btn fapp-btn action" onclick="window._fiberApp('med')">🏥 طب</button>
+        <button id="fa-net" class="ctrl-btn fapp-btn" onclick="window._fiberApp('net')">🌐 اتصالات</button>
+        <button id="fa-dec" class="ctrl-btn fapp-btn" onclick="window._fiberApp('dec')">💡 ديكور</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الألياف البصرية ثورة تقنية تعتمد على TIR: لا فقد في الضوء، تحمل آلاف المكالمات في وقت واحد، وتُمكّن الطب من رؤية ما لا يُرى.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9fiber'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.02;
+    const t=simState.t, app=APPS[simState.app];
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#0F172A'; c.fillRect(0,0,w,h);
+    // Title
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.038)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(`${app.emoji} ${app.name}`, w/2, h*0.03);
+    // Animated fibers
+    const nFibers=simState.app==='net'?8:simState.app==='dec'?12:3;
+    const colors=['#22C55E','#3B82F6','#F59E0B','#EC4899','#A78BFA','#67E8F9','#FB923C','#FACC15','#86EFAC','#93C5FD','#FDA4AF','#FDE68A'];
+    for(let fi=0;fi<nFibers;fi++){
+      const yOffset=(fi/(nFibers-1)-0.5)*h*0.35;
+      const bend=(fi%2===0?1:-1)*0.15;
+      const p0={x:w*0.06,y:h*0.55+yOffset};
+      const p3={x:w*0.94,y:h*0.55+(fi%2===0?-1:1)*yOffset*0.5};
+      const cp1={x:w*0.35,y:p0.y-h*bend};
+      const cp2={x:w*0.65,y:p3.y+h*bend};
+      c.strokeStyle=colors[fi%colors.length]+'44'; c.lineWidth=6;
+      c.beginPath(); c.moveTo(p0.x,p0.y); c.bezierCurveTo(cp1.x,cp1.y,cp2.x,cp2.y,p3.x,p3.y); c.stroke();
+      // Photon
+      const ph=((t*0.3+fi*0.13)%1);
+      const mt=1-ph;
+      const px=mt*mt*mt*p0.x+3*mt*mt*ph*cp1.x+3*mt*ph*ph*cp2.x+ph*ph*ph*p3.x;
+      const py=mt*mt*mt*p0.y+3*mt*mt*ph*cp1.y+3*mt*ph*ph*cp2.y+ph*ph*ph*p3.y;
+      c.fillStyle=colors[fi%colors.length]; c.beginPath(); c.arc(px,py,5,0,Math.PI*2); c.fill();
+    }
+    // Description box
+    const bY=h*0.12;
+    c.fillStyle='rgba(255,255,255,0.08)'; c.beginPath(); c.roundRect(w*0.05,bY,w*0.9,h*0.22,14); c.fill();
+    c.strokeStyle=app.color+'66'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='rgba(255,255,255,0.88)'; c.font=`${Math.round(h*0.027)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    // Wrap text
+    const words=app.desc.split(' '); let line=''; let lineY=bY+h*0.065; const lineH=h*0.045;
+    words.forEach(word=>{
+      const test=line+word+' ';
+      if(c.measureText(test).width>w*0.82 && line!=''){
+        c.fillText(line.trim(),w/2,lineY); lineY+=lineH; line=word+' ';
+      } else { line=test; }
+    });
+    if(line) c.fillText(line.trim(),w/2,lineY);
+    // Stats
+    c.fillStyle=app.color; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
+    const stats={med:'تحمل حزمتين: إضاءة + تصوير',net:'تنقل مليار بت/ثانية',dec:'لا سخونة — أمان تام'};
+    c.fillText(`✨ ${stats[simState.app]}`, w/2, h*0.93);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — الوحدة 14: مخطط الأشعة التفاعلي (١٤-٢)
+// ══════════════════════════════════════════════════════════
+function simG9RayDiagram1(){
+  cancelAnimationFrame(animFrame);
+  simState={objD:180, f:80, t:0};
+  window._rdSet=function(v){
+    simState.objD=+v;
+    var e=document.getElementById('rd-d'); if(e) e.textContent=v+' px';
+  };
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">✏️ نشاط ١٤-١ · ارسم مخطط الأشعة</div>
+      <div class="ctrl-label">📏 بعد الجسم عن العدسة: <span id="rd-d">180 px</span></div>
+      <input type="range" min="85" max="280" value="180" oninput="window._rdSet(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._rdSet(280)">🔙 بعيد جداً (>2f)</button>
+        <button class="ctrl-btn action" onclick="window._rdSet(180)">📍 بين f و 2f</button>
+        <button class="ctrl-btn" onclick="window._rdSet(86)">🔍 قريب جداً (~f)</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الشعاع ١: يمرّ مستقيماً من الجسم عبر مركز العدسة. الشعاع ٢: يسقط موازياً للمحور وينكسر عند البؤرة. تقاطع الشعاعَين = موقع الصورة.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9raydiagram'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.016;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#FAFAF8'; c.fillRect(0,0,w,h);
+    const cx=w*0.52, cy=h*0.52, f=simState.f, dObj=simState.objD;
+    const objH=h*0.18;
+    // Axis
+    c.strokeStyle='rgba(30,45,61,0.25)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(w*0.04,cy); c.lineTo(w*0.96,cy); c.stroke();
+    // Axis arrows
+    c.fillStyle='rgba(30,45,61,0.25)';
+    c.beginPath(); c.moveTo(w*0.96,cy); c.lineTo(w*0.94,cy-5); c.lineTo(w*0.94,cy+5); c.closePath(); c.fill();
+    // Lens
+    const lensH=h*0.38;
+    c.strokeStyle='#3B82F6'; c.lineWidth=3.5;
+    c.beginPath(); c.moveTo(cx,cy-lensH); c.lineTo(cx,cy+lensH); c.stroke();
+    // Lens arrows (converging)
+    c.fillStyle='#3B82F6';
+    [[cx,cy-lensH,1],[cx,cy+lensH,-1]].forEach(([lx,ly,d])=>{
+      c.beginPath(); c.moveTo(lx,ly); c.lineTo(lx-10,ly+d*18); c.lineTo(lx+10,ly+d*18); c.closePath(); c.fill();
+    });
+    // Focal points
+    c.fillStyle='#DC2626';
+    c.beginPath(); c.arc(cx+f,cy,5,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc(cx-f,cy,5,0,Math.PI*2); c.fill();
+    // 2f points (small)
+    c.fillStyle='rgba(220,38,38,0.4)';
+    c.beginPath(); c.arc(cx+2*f,cy,3.5,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc(cx-2*f,cy,3.5,0,Math.PI*2); c.fill();
+    c.fillStyle='#DC2626'; c.font=`${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('F',cx+f,cy+h*0.04); c.fillText('F',cx-f,cy+h*0.04);
+    c.fillText('2f',cx+2*f,cy+h*0.04); c.fillText('2f',cx-2*f,cy+h*0.04);
+    // Object (arrow)
+    const ox=cx-dObj;
+    c.strokeStyle='#F59E0B'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-objH); c.stroke();
+    c.fillStyle='#F59E0B';
+    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(ox-7,cy-objH+14); c.lineTo(ox+7,cy-objH+14); c.closePath(); c.fill();
+    c.fillStyle='#92400E'; c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('الجسم', ox, cy-objH-h*0.025);
+    // Image via thin lens formula
+    const di=(f*dObj)/(dObj-f);
+    const imgH=-(objH*(di/dObj));
+    const isReal=di>0 && isFinite(di);
+    // Ray 1: Through center of lens (undeviated)
+    c.strokeStyle='rgba(239,68,68,0.85)'; c.lineWidth=2.5; c.setLineDash([]);
+    const r1endX=isReal?cx+di:cx+di*0.6;
+    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(r1endX,cy-objH*(isReal?di/dObj:0.6)); c.stroke();
+    // Ray 2: Parallel to axis then through focal point
+    c.strokeStyle='rgba(22,163,74,0.85)'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(cx,cy-objH); // horizontal part
+    c.stroke();
+    // After lens: toward F on other side (real image = through F; virtual = extend back)
+    if(isReal && di<w*0.6){
+      c.beginPath(); c.moveTo(cx,cy-objH); c.lineTo(cx+di,cy+imgH); c.stroke();
+    } else {
+      c.beginPath(); c.moveTo(cx,cy-objH); c.lineTo(cx+f*2,cy-objH+objH*(2*f/dObj)); c.stroke();
+    }
+    // Image
+    if(isReal && di>0 && di<w*0.45){
+      const ix=cx+di, ih=imgH;
+      c.strokeStyle='#0EA5E9'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,cy+ih); c.stroke();
+      c.fillStyle='#0EA5E9';
+      c.beginPath(); c.moveTo(ix,cy+ih); c.lineTo(ix-7,cy+ih-14); c.lineTo(ix+7,cy+ih-14); c.closePath(); c.fill();
+      c.fillStyle='#1E3A8A'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+      c.fillText('الصورة', ix, cy+ih-h*0.04);
+      // Properties panel
+      const mag=Math.abs(imgH/objH);
+      const bX=w*0.63, bY=h*0.07;
+      c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(bX,bY,w*0.34,h*0.34,12); c.fill();
+      c.strokeStyle='#0EA5E9'; c.lineWidth=1.5; c.stroke();
+      c.fillStyle='#0C4A6E'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='center';
+      c.fillText('📊 خصائص الصورة',bX+w*0.17,bY+h*0.048);
+      c.fillStyle='#1E3A8A'; c.font=`${Math.round(h*0.025)}px Tajawal`;
+      c.fillText(`النوع: ${isReal?'حقيقية ✅':'تقديرية'}`,bX+w*0.17,bY+h*0.1);
+      c.fillText(`الاتجاه: مقلوبة 🔃`,bX+w*0.17,bY+h*0.15);
+      c.fillText(`التكبير: ${mag.toFixed(2)}×`,bX+w*0.17,bY+h*0.2);
+      c.fillText(`بعد الصورة: ${di.toFixed(0)} px`,bX+w*0.17,bY+h*0.25);
+      c.fillText(di>dObj?'أبعد من الجسم 📍':'أقرب من الجسم 📍',bX+w*0.17,bY+h*0.3);
+    } else {
+      c.fillStyle='#DC2626'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+      c.fillText('الجسم قريب جداً من البؤرة', w*0.5, h*0.12);
+      c.fillStyle='#555'; c.font=`${Math.round(h*0.025)}px Tajawal`;
+      c.fillText('← أبعد الجسم أو ادفعه لما بعد f', w*0.5, h*0.18);
+    }
+    // Lens label
+    c.fillStyle='#3B82F6'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText(`عدسة محدّبة (f = ${f} px)`, cx, cy-lensH-h*0.025);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9RayDiagram2(){
+  cancelAnimationFrame(animFrame);
+  simState={objD:55, f:80, t:0};
+  window._rdSet2=function(v){simState.objD=+v; var e=document.getElementById('rd-d2'); if(e) e.textContent=v+' px';};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔍 العدسة المكبّرة (صورة تقديرية)</div>
+      <div class="ctrl-label">📏 بعد الجسم: <span id="rd-d2">55 px</span></div>
+      <input type="range" min="10" max="79" value="55" oninput="window._rdSet2(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._rdSet2(20)">🔍 قريب جداً</button>
+        <button class="ctrl-btn action" onclick="window._rdSet2(55)">📍 وسط</button>
+        <button class="ctrl-btn" onclick="window._rdSet2(75)">↗️ قريب من f</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>عندما يكون الجسم بين العدسة والبؤرة (d < f) تتكوّن صورة تقديرية: معتدلة، مكبّرة، وعلى نفس جهة الجسم. هذا هو مبدأ العدسة المكبّرة!</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9raydiagram'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.016;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#FAFAF8'; c.fillRect(0,0,w,h);
+    const cx=w*0.52, cy=h*0.52, f=simState.f, dObj=Math.min(simState.objD,f-1);
+    const objH=h*0.15;
+    // Axis
+    c.strokeStyle='rgba(30,45,61,0.2)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(w*0.04,cy); c.lineTo(w*0.96,cy); c.stroke();
+    // Lens
+    c.strokeStyle='#3B82F6'; c.lineWidth=3.5;
+    c.beginPath(); c.moveTo(cx,cy-h*0.35); c.lineTo(cx,cy+h*0.35); c.stroke();
+    c.fillStyle='#3B82F6';
+    [[cx,cy-h*0.35,1],[cx,cy+h*0.35,-1]].forEach(([lx,ly,d])=>{
+      c.beginPath(); c.moveTo(lx,ly); c.lineTo(lx-10,ly+d*18); c.lineTo(lx+10,ly+d*18); c.closePath(); c.fill();
+    });
+    // Focal points
+    c.fillStyle='#DC2626';
+    c.beginPath(); c.arc(cx+f,cy,5,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc(cx-f,cy,5,0,Math.PI*2); c.fill();
+    c.fillStyle='#DC2626'; c.font=`${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('F',cx+f,cy+h*0.04); c.fillText('F',cx-f,cy+h*0.04);
+    // Object
+    const ox=cx-dObj;
+    c.strokeStyle='#F59E0B'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-objH); c.stroke();
+    c.fillStyle='#F59E0B';
+    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(ox-7,cy-objH+14); c.lineTo(ox+7,cy-objH+14); c.closePath(); c.fill();
+    c.fillStyle='#92400E'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('الجسم', ox, cy-objH-h*0.03);
+    // Virtual image (di is negative for virtual)
+    const di=(f*dObj)/(dObj-f); // will be negative
+    const imgH=-(objH*(di/dObj)); // will be positive (upright)
+    const ix=cx+di; // left of lens
+    // Ray 1: through center
+    c.strokeStyle='rgba(239,68,68,0.8)'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(ox,cy-objH);
+    // Extend to virtual image side
+    c.lineTo(cx+di*0.5,cy-objH*(di*0.5/dObj)*(-1)); c.stroke();
+    // Dashed extension to virtual image
+    c.setLineDash([5,5]); c.strokeStyle='rgba(239,68,68,0.4)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(ix,cy+imgH); c.stroke(); c.setLineDash([]);
+    // Ray 2: parallel then through near focal point
+    c.strokeStyle='rgba(22,163,74,0.8)'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(cx,cy-objH); c.stroke();
+    // After lens toward F
+    c.beginPath(); c.moveTo(cx,cy-objH); c.lineTo(cx+f*1.5,cy-objH+objH*1.5/dObj*f); c.stroke();
+    // Dashed back to virtual image
+    c.setLineDash([5,5]); c.strokeStyle='rgba(22,163,74,0.4)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(cx,cy-objH); c.lineTo(ix,cy+imgH); c.stroke(); c.setLineDash([]);
+    // Virtual image (dashed arrow)
+    if(ix>w*0.05 && ix<cx){
+      c.strokeStyle='rgba(147,51,234,0.7)'; c.lineWidth=2.5; c.setLineDash([5,4]);
+      c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,cy+imgH); c.stroke(); c.setLineDash([]);
+      c.fillStyle='rgba(147,51,234,0.85)';
+      c.beginPath(); c.moveTo(ix,cy+imgH); c.lineTo(ix-7,cy+imgH-14); c.lineTo(ix+7,cy+imgH-14); c.closePath(); c.fill();
+      c.fillStyle='#6B21A8'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+      c.fillText('الصورة التقديرية', ix, cy+imgH-h*0.05);
+    }
+    // Properties panel
+    const mag=Math.abs(imgH/objH);
+    const bX=w*0.62, bY=h*0.07;
+    c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(bX,bY,w*0.35,h*0.36,12); c.fill();
+    c.strokeStyle='#9333EA'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='#6B21A8'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText('📊 خصائص الصورة',bX+w*0.175,bY+h*0.048);
+    c.fillStyle='#4C1D95'; c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText('النوع: تقديرية 🔮',bX+w*0.175,bY+h*0.1);
+    c.fillText('الاتجاه: معتدلة ✅',bX+w*0.175,bY+h*0.15);
+    c.fillText(`التكبير: ${mag.toFixed(1)}×`,bX+w*0.175,bY+h*0.2);
+    c.fillText('الجانب: نفس جهة الجسم',bX+w*0.175,bY+h*0.25);
+    c.fillStyle='#7C3AED'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`;
+    c.fillText('مبدأ العدسة المكبّرة 🔍',bX+w*0.175,bY+h*0.31);
+    // Lens label
+    c.fillStyle='#3B82F6'; c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText(`عدسة محدّبة (f = ${f} px)`, cx, cy-h*0.37);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
 function simG9Lens1(){
   cancelAnimationFrame(animFrame);
   simState={convex:true};
