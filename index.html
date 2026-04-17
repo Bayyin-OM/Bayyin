@@ -40454,7 +40454,115 @@ function simG9Solar1(){
   draw();
 }
 
-function simG9Solar2(){ simG9Energy2(); }
+function simG9Solar2(){
+  cancelAnimationFrame(animFrame);
+  simState={area:12, eff:18, irr:850, t:0};
+  window._sol2Set=function(k,v){
+    simState[k]=+v;
+    var el=document.getElementById('s2-'+k); if(el) el.textContent=(k==='eff'?v+'%':k==='irr'?v+' W/m²':v+' m²');
+  };
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📐 مساحة الألواح: <span id="s2-area">12 m²</span></div>
+      <input type="range" min="1" max="50" value="12" oninput="window._sol2Set('area',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">⚡ كفاءة اللوح: <span id="s2-eff">18%</span></div>
+      <input type="range" min="5" max="25" value="18" oninput="window._sol2Set('eff',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">☀️ شدة الإشعاع: <span id="s2-irr">850 W/m²</span></div>
+      <input type="range" min="200" max="1200" value="850" oninput="window._sol2Set('irr',this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:10px">
+        <button class="ctrl-btn" onclick="window._sol2Set('irr',300);document.querySelector('#s2-irr').textContent='300 W/m²'">🌥️ غائم</button>
+        <button class="ctrl-btn action" onclick="window._sol2Set('irr',850);document.querySelector('#s2-irr').textContent='850 W/m²'">⛅ جزئي</button>
+        <button class="ctrl-btn" onclick="window._sol2Set('irr',1100);document.querySelector('#s2-irr').textContent='1100 W/m²'">☀️ صافٍ</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>القدرة = المساحة × الإشعاع × الكفاءة. تضاعف المساحة يضاعف الإنتاج، والكفاءة الأعلى تعني ألواحاً أصغر لنفس الطاقة.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9solar'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.016;
+    c.clearRect(0,0,w,h);
+    // Sky gradient based on irradiance
+    const irrFrac=simState.irr/1200;
+    const skyTop=`rgba(${Math.round(135+40*(1-irrFrac))},${Math.round(185+30*(1-irrFrac))},${Math.round(220+35*(1-irrFrac))},1)`;
+    const bg=c.createLinearGradient(0,0,0,h*0.55);
+    bg.addColorStop(0, irrFrac>0.8?'#87CEEB':irrFrac>0.5?'#B0C4DE':'#C8D8E8');
+    bg.addColorStop(1,'#D4E8F5');
+    c.fillStyle=bg; c.fillRect(0,0,w,h*0.6);
+    c.fillStyle='#E8D5A3'; c.fillRect(0,h*0.6,w,h*0.4);
+    // Sun
+    const sunR=28+irrFrac*12;
+    const sunGlow=c.createRadialGradient(w*0.15,h*0.12,0,w*0.15,h*0.12,sunR*2.2);
+    sunGlow.addColorStop(0,`rgba(255,240,100,${0.5*irrFrac})`);
+    sunGlow.addColorStop(1,'rgba(255,240,100,0)');
+    c.fillStyle=sunGlow; c.beginPath(); c.arc(w*0.15,h*0.12,sunR*2.2,0,Math.PI*2); c.fill();
+    c.fillStyle=`rgba(255,220,60,${0.7+0.3*irrFrac})`; c.beginPath(); c.arc(w*0.15,h*0.12,sunR,0,Math.PI*2); c.fill();
+    // Clouds if low irradiance
+    if(simState.irr<700){
+      const cloudAlpha=Math.min(0.9,(700-simState.irr)/500);
+      c.fillStyle=`rgba(220,230,240,${cloudAlpha})`;
+      [[w*0.35,h*0.1,55,28],[w*0.55,h*0.07,40,22],[w*0.42,h*0.13,45,20]].forEach(([cx,cy,rx,ry])=>{
+        c.beginPath(); c.ellipse(cx+Math.sin(simState.t*0.3)*10,cy,rx,ry,0,0,Math.PI*2); c.fill();
+      });
+    }
+    // Solar panels on ground
+    const panelArea=Math.min(simState.area,50);
+    const nPanels=Math.min(panelArea,18), cols=Math.min(nPanels,6), rows=Math.ceil(nPanels/cols);
+    const pw=Math.min(55,w*0.08), ph=pw*0.6;
+    const startX=w*0.22, startY=h*0.55;
+    for(let i=0;i<nPanels;i++){
+      const col=i%cols, row=Math.floor(i/cols);
+      const px=startX+col*(pw+8), py=startY-row*(ph*0.7+5);
+      // Panel body
+      c.fillStyle='#1A3A6B'; c.beginPath(); c.roundRect(px,py,pw,ph,3); c.fill();
+      // Grid lines
+      c.strokeStyle='rgba(100,160,220,0.4)'; c.lineWidth=0.8;
+      for(let g=1;g<3;g++){c.beginPath();c.moveTo(px+pw*g/3,py);c.lineTo(px+pw*g/3,py+ph);c.stroke();}
+      for(let g=1;g<2;g++){c.beginPath();c.moveTo(px,py+ph*g/2);c.lineTo(px+pw,py+ph*g/2);c.stroke();}
+      // Shine effect
+      c.fillStyle=`rgba(180,220,255,${0.08+0.12*irrFrac})`; c.fillRect(px+2,py+2,pw*0.3,ph*0.35);
+    }
+    // Power calculations
+    const P_kW=(simState.area*simState.irr*(simState.eff/100)/1000);
+    const P_day=(P_kW*5).toFixed(1);
+    // Energy flow animation: rays from sun to panels
+    if(irrFrac>0.3){
+      c.strokeStyle=`rgba(255,220,60,${0.35*irrFrac})`;
+      c.lineWidth=1.5; c.setLineDash([5,8]);
+      const rayTargets=[[startX+pw/2,startY-ph/2],[startX+cols/2*(pw+8),startY-ph/2]];
+      rayTargets.forEach(([tx,ty])=>{
+        c.beginPath();
+        c.moveTo(w*0.15+sunR,h*0.12+sunR*0.5);
+        c.lineTo(tx,ty); c.stroke();
+      });
+      c.setLineDash([]);
+    }
+    // Power display box
+    const boxY=h*0.1, boxH=h*0.34;
+    c.fillStyle='rgba(255,255,255,0.92)';
+    c.beginPath(); c.roundRect(w*0.65,boxY,w*0.3,boxH,14); c.fill();
+    c.strokeStyle='rgba(26,143,168,0.3)'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='#1A3A6B'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('📊 الحساب', w*0.8, boxY+h*0.055);
+    c.fillStyle='#27AE60'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`;
+    c.fillText(`${P_kW.toFixed(2)} kW`, w*0.8, boxY+h*0.13);
+    c.fillStyle='#555'; c.font=`${Math.round(h*0.024)}px Tajawal`;
+    c.fillText(`اليومي ≈ ${P_day} kWh`, w*0.8, boxY+h*0.185);
+    c.fillText(`${simState.area} m² × ${simState.eff}%`, w*0.8, boxY+h*0.235);
+    // Power bar
+    const barX=w*0.67, barY=boxY+boxH-h*0.07, barW=w*0.26, barH=h*0.035;
+    const fracPow=Math.min(1,P_kW/18);
+    c.fillStyle='#E0E0E0'; c.beginPath(); c.roundRect(barX,barY,barW,barH,6); c.fill();
+    const barGrad=c.createLinearGradient(barX,0,barX+barW,0);
+    barGrad.addColorStop(0,'#27AE60'); barGrad.addColorStop(1,'#F4D03F');
+    c.fillStyle=barGrad; c.beginPath(); c.roundRect(barX,barY,barW*fracPow,barH,6); c.fill();
+    c.fillStyle='rgba(30,45,61,0.75)'; c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText(`القدرة: ${P_kW.toFixed(1)} / 18 kW`, w*0.8, barY+barH+h*0.025);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
 
 function simG9Wind1(){
   cancelAnimationFrame(animFrame);
@@ -40528,29 +40636,94 @@ function simG9Wind2(){
 
 function simG9Hydro1(){
   cancelAnimationFrame(animFrame);
-  simState={head:30,flow:50};
-  window._hySet=function(k,v){simState[k]=+v; var el=document.getElementById('hy-'+k); if(el) el.textContent=v;};
+  simState={head:30, flow:50, t:0, particles:[]};
+  window._hySet=function(k,v){simState[k]=+v; var el=document.getElementById('hy-'+k); if(el) el.textContent=(k==='head'?v+' m':v+'%');};
+  for(let i=0;i<18;i++) simState.particles.push({x:0.12+Math.random()*0.33,y:Math.random(),speed:0.002+Math.random()*0.002});
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">💧 فرق الارتفاع: <span id="hy-head">30</span> m</div>
+      <div class="ctrl-label">💧 ارتفاع الخزان: <span id="hy-head">30 m</span></div>
       <input type="range" min="5" max="80" value="30" oninput="window._hySet('head',this.value)" style="width:100%">
-      <div class="ctrl-label" style="margin-top:8px">معدل التدفق: <span id="hy-flow">50</span>%</div>
+      <div class="ctrl-label" style="margin-top:8px">🔧 معدل التدفق: <span id="hy-flow">50%</span></div>
       <input type="range" min="10" max="100" value="50" oninput="window._hySet('flow',this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:10px">
+        <button class="ctrl-btn" onclick="window._hySet('head',10);window._hySet('flow',20)">⬇️ منخفض</button>
+        <button class="ctrl-btn action" onclick="window._hySet('head',30);window._hySet('flow',50)">🔁 وسط</button>
+        <button class="ctrl-btn" onclick="window._hySet('head',70);window._hySet('flow',90)">⬆️ عالٍ</button>
+      </div>
     </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>القدرة = ρ × g × Q × h. رفع منسوب الماء أو زيادة التدفق يزيد الطاقة الكهرومائية المولَّدة.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9hydro'){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9hydro'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h); c.fillStyle='#E0F2FE'; c.fillRect(0,0,w,h);
-    c.fillStyle='#1D4ED8'; c.fillRect(w*0.08,h*0.22,w*0.22,h*0.5);
-    c.fillStyle='#0EA5E9'; c.fillRect(w*0.08,h*0.22,w*0.22,h*(simState.flow/100)*0.5);
-    c.strokeStyle='#64748B'; c.lineWidth=6; c.beginPath(); c.moveTo(w*0.3,h*0.65); c.lineTo(w*0.55,h*0.65); c.stroke();
-    const p=Math.round(simState.head*simState.flow*0.12);
-    c.fillStyle='rgba(30,45,61,0.9)'; c.font=`bold ${Math.min(18,Math.round(h*0.03))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
-    c.fillText('خزان ماء — ارتفاع '+simState.head+' m', w/2, h*0.06);
-    c.fillStyle='#0C4A6E'; c.font=`bold ${Math.round(h*0.034)}px Tajawal`; c.textBaseline='bottom';
-    c.fillText('قدرة نسبية: '+p+' — تدفق '+simState.flow+'%', w/2, h*0.93);
+    simState.t+=0.018;
+    const t=simState.t, flowFrac=simState.flow/100, headFrac=simState.head/80;
+    c.clearRect(0,0,w,h);
+    const sky=c.createLinearGradient(0,0,0,h*0.5);
+    sky.addColorStop(0,'#87CEEB'); sky.addColorStop(1,'#B8D8E8');
+    c.fillStyle=sky; c.fillRect(0,0,w,h);
+    c.fillStyle='#8B7355'; c.fillRect(0,h*0.72,w,h*0.28);
+    c.fillStyle='#7A8A6A';
+    c.beginPath(); c.moveTo(0,h*0.72); c.lineTo(0,h*0.38); c.lineTo(w*0.08,h*0.3); c.lineTo(w*0.12,h*0.72); c.closePath(); c.fill();
+    c.fillStyle='#7A8A6A';
+    c.beginPath(); c.moveTo(w*0.47,h*0.72); c.lineTo(w*0.47,h*0.25); c.lineTo(w*0.6,h*0.18); c.lineTo(w*0.72,h*0.72); c.closePath(); c.fill();
+    const waterY=h*(0.3+0.25*(1-headFrac));
+    const waterGrad=c.createLinearGradient(0,waterY,0,h*0.72);
+    waterGrad.addColorStop(0,'#0EA5E9'); waterGrad.addColorStop(1,'#1D4ED8');
+    c.fillStyle=waterGrad;
+    c.beginPath(); c.moveTo(w*0.12,waterY);
+    for(let x=w*0.12;x<=w*0.47;x+=8){ c.lineTo(x, waterY+Math.sin((x*0.05)+t*2.5)*3); }
+    c.lineTo(w*0.47,h*0.72); c.lineTo(w*0.12,h*0.72); c.closePath(); c.fill();
+    simState.particles.forEach(p=>{
+      p.x += p.speed*flowFrac;
+      if(p.x > 0.46) p.x = 0.13;
+      const px=p.x*w, py=waterY+8+p.y*(h*0.72-waterY-16);
+      if(py>h*0.72||py<waterY+4) return;
+      c.fillStyle='rgba(180,230,255,0.5)'; c.beginPath(); c.arc(px,py,2.5,0,Math.PI*2); c.fill();
+    });
+    const damGrad=c.createLinearGradient(w*0.47,0,w*0.52,0);
+    damGrad.addColorStop(0,'#4A5568'); damGrad.addColorStop(1,'#6B7280');
+    c.fillStyle=damGrad;
+    c.beginPath(); c.moveTo(w*0.47,h*0.22); c.lineTo(w*0.52,h*0.26); c.lineTo(w*0.52,h*0.72); c.lineTo(w*0.47,h*0.72); c.closePath(); c.fill();
+    c.strokeStyle='#374151'; c.lineWidth=10;
+    c.beginPath(); c.moveTo(w*0.49,h*0.55); c.lineTo(w*0.49,h*0.68); c.stroke();
+    if(flowFrac>0.1){
+      const jetLen=flowFrac*w*0.18;
+      const jetGrad=c.createLinearGradient(w*0.49,h*0.68,w*0.49+jetLen,h*0.68);
+      jetGrad.addColorStop(0,'#0EA5E9'); jetGrad.addColorStop(1,'rgba(14,165,233,0)');
+      c.fillStyle=jetGrad;
+      c.beginPath(); c.ellipse(w*0.49+jetLen/2,h*0.685,jetLen/2,5+flowFrac*6,0,0,Math.PI*2); c.fill();
+    }
+    const tx=w*0.58, ty=h*0.69;
+    c.fillStyle='#374151'; c.beginPath(); c.arc(tx,ty,16,0,Math.PI*2); c.fill();
+    c.save(); c.translate(tx,ty); c.rotate(t*3*flowFrac);
+    c.fillStyle='#64748B';
+    for(let i=0;i<4;i++){c.rotate(Math.PI/2);c.beginPath();c.moveTo(0,0);c.lineTo(12,4);c.lineTo(12,-4);c.closePath();c.fill();}
+    c.restore();
+    c.fillStyle='#4B5563'; c.beginPath(); c.roundRect(w*0.62,h*0.645,w*0.1,h*0.07,6); c.fill();
+    c.fillStyle='rgba(255,220,60,0.9)'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('⚡',w*0.67,h*0.7);
+    c.strokeStyle='#F59E0B'; c.lineWidth=2.5; c.setLineDash([5,5]);
+    c.beginPath(); c.moveTo(w*0.72,h*0.68); c.lineTo(w*0.88,h*0.68); c.stroke(); c.setLineDash([]);
+    const P=Math.round(simState.head*flowFrac*12);
+    const boxX=w*0.73, boxY=h*0.11;
+    c.fillStyle='rgba(255,255,255,0.93)'; c.beginPath(); c.roundRect(boxX,boxY,w*0.24,h*0.34,14); c.fill();
+    c.strokeStyle='rgba(14,165,233,0.3)'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='#0C4A6E'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText('⚡ الطاقة المولَّدة',boxX+w*0.12,boxY+h*0.052);
+    c.fillStyle='#0EA5E9'; c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
+    c.fillText(`${P} kW`,boxX+w*0.12,boxY+h*0.13);
+    c.fillStyle='#555'; c.font=`${Math.round(h*0.022)}px Tajawal`;
+    c.fillText(`ارتفاع: ${simState.head} m`,boxX+w*0.12,boxY+h*0.185);
+    c.fillText(`تدفق: ${simState.flow}%`,boxX+w*0.12,boxY+h*0.235);
+    const bY=boxY+h*0.275, bX=boxX+w*0.02, bW=w*0.2;
+    c.fillStyle='#E0E0E0'; c.beginPath(); c.roundRect(bX,bY,bW,h*0.03,4); c.fill();
+    const pGrad=c.createLinearGradient(bX,0,bX+bW,0);
+    pGrad.addColorStop(0,'#0EA5E9'); pGrad.addColorStop(1,'#06B6D4');
+    c.fillStyle=pGrad; c.beginPath(); c.roundRect(bX,bY,bW*Math.min(1,P/960),h*0.03,4); c.fill();
+    c.fillStyle='rgba(30,45,61,0.85)'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='right';
+    c.fillText(`↕ ${simState.head} m`,w*0.46,waterY+12);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -40590,98 +40763,435 @@ function simG9Hydro2(){
 
 function simG9Fossil1(){
   cancelAnimationFrame(animFrame);
-  simState={src:'fossil'};
-  window._fSrc=s=>{simState.src=s;};
+  simState={src:'coal', t:0};
+  const DATA={
+    coal:   {name:'الفحم',        emoji:'🪨', color:'#374151', co2:100, energy:65,  cost:35, risk:70, smoke:1.0},
+    oil:    {name:'النفط',        emoji:'🛢️', color:'#78350F', co2:88,  energy:80,  cost:55, risk:55, smoke:0.75},
+    gas:    {name:'الغاز الطبيعي', emoji:'🔥', color:'#0369A1', co2:55,  energy:78,  cost:60, risk:40, smoke:0.4},
+    nuclear:{name:'نووي',         emoji:'⚛️', color:'#6B21A8', co2:5,   energy:95,  cost:80, risk:85, smoke:0.0}
+  };
+  window._fSrc=function(s){simState.src=s; const btns=document.querySelectorAll('.fossil-btn'); btns.forEach(b=>b.classList.remove('action')); const active=document.getElementById('fb-'+s); if(active) active.classList.add('action');};
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">⛽ اختر المصدر</div>
+      <div class="ctrl-label">⛽ اختر مصدر الوقود</div>
       <div class="ctrl-btns-grid">
-        <button class="ctrl-btn action" onclick="window._fSrc('fossil')">وقود أحفوري</button>
-        <button class="ctrl-btn" onclick="window._fSrc('nuclear')">نووي</button>
+        <button id="fb-coal" class="ctrl-btn fossil-btn action" onclick="window._fSrc('coal')">🪨 فحم</button>
+        <button id="fb-oil" class="ctrl-btn fossil-btn" onclick="window._fSrc('oil')">🛢️ نفط</button>
+        <button id="fb-gas" class="ctrl-btn fossil-btn" onclick="window._fSrc('gas')">🔥 غاز</button>
+        <button id="fb-nuclear" class="ctrl-btn fossil-btn" onclick="window._fSrc('nuclear')">⚛️ نووي</button>
       </div>
     </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الوقود الأحفوري يُنتج CO₂ كثيراً. النووي كثافة عالية لكن مخاطر أعلى. الغاز أنظف الأحفوريات. لا مصدر مثالي.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9fossil'){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9fossil'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
-    const isF=simState.src==='fossil';
-    c.fillStyle=isF?'#EF4444':'#A855F7'; c.font=`bold ${Math.min(22,Math.round(h*0.042))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
-    c.fillText(isF?'الوقود الأحفوري':'الطاقة النووية',w/2,h*0.1);
-    const en=isF?78:92, co2=isF?88:8;
-    c.fillStyle='rgba(255,255,255,0.92)'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textBaseline='middle';
-    c.fillText('كثافة طاقة (نموذج): '+en+' / 100',w/2,h*0.42);
-    c.fillText('مؤشر انبعاثات تشغيل (نموذج): '+co2+' / 100',w/2,h*0.52);
-    c.fillStyle='rgba(255,255,255,0.55)'; c.font=`${Math.max(11,Math.round(h*0.022))}px Tajawal`; c.textBaseline='bottom';
-    c.fillText('قارن ثم افتح سؤال الاستنتاج من الأسفل',w/2,h*0.9);
+    simState.t+=0.02;
+    const t=simState.t, d=DATA[simState.src];
+    c.clearRect(0,0,w,h);
+    // Background
+    const bgGrad=c.createLinearGradient(0,0,0,h);
+    bgGrad.addColorStop(0,'#111827'); bgGrad.addColorStop(1,'#1F2937');
+    c.fillStyle=bgGrad; c.fillRect(0,0,w,h);
+    // Smoke / radiation effect
+    if(d.smoke > 0){
+      for(let i=0;i<5;i++){
+        const sx=w*0.5+Math.sin(t*0.5+i*1.2)*w*0.08;
+        const sy=h*(0.35-((t*0.06*d.smoke+i*0.12)%0.35));
+        const alpha=Math.max(0, 0.3*d.smoke - ((t*0.06*d.smoke+i*0.12)%0.35)*0.8);
+        const r=12+((t*30*d.smoke+i*40)%40);
+        c.fillStyle=`rgba(150,150,150,${alpha})`;
+        c.beginPath(); c.arc(sx,sy,r,0,Math.PI*2); c.fill();
+      }
+    } else {
+      // Nuclear glow
+      const glow=c.createRadialGradient(w*0.5,h*0.35,0,w*0.5,h*0.35,60);
+      glow.addColorStop(0,`rgba(168,85,247,${0.2+0.1*Math.sin(t)})`);
+      glow.addColorStop(1,'rgba(168,85,247,0)');
+      c.fillStyle=glow; c.beginPath(); c.arc(w*0.5,h*0.35,60,0,Math.PI*2); c.fill();
+    }
+    // Source icon area
+    c.fillStyle=d.color+'33'; c.beginPath(); c.arc(w*0.5,h*0.28,45,0,Math.PI*2); c.fill();
+    c.strokeStyle=d.color; c.lineWidth=2.5; c.stroke();
+    c.font=`${Math.round(h*0.065)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(d.emoji,w*0.5,h*0.28);
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textBaseline='top';
+    c.fillText(d.name,w*0.5,h*0.06);
+    // Metrics bars
+    const metrics=[
+      {label:'كثافة الطاقة', val:d.energy, color:'#22C55E'},
+      {label:'انبعاثات CO₂',  val:d.co2,    color:'#EF4444'},
+      {label:'الكُلفة',       val:d.cost,   color:'#F59E0B'},
+      {label:'المخاطر',       val:d.risk,   color:'#A855F7'},
+    ];
+    const barY0=h*0.5, barH=h*0.07, gap=h*0.095;
+    metrics.forEach((m,i)=>{
+      const y=barY0+i*gap;
+      const barX=w*0.28, barW=w*0.56;
+      // Label
+      c.fillStyle='rgba(255,255,255,0.85)'; c.font=`${Math.round(h*0.026)}px Tajawal`; c.textAlign='right';
+      c.fillText(m.label, w*0.26, y+barH*0.5);
+      // Background bar
+      c.fillStyle='rgba(255,255,255,0.08)'; c.beginPath(); c.roundRect(barX,y,barW,barH,5); c.fill();
+      // Animated fill
+      const anim=Math.min(m.val/100, simState.t/8);
+      const fillGrad=c.createLinearGradient(barX,0,barX+barW,0);
+      fillGrad.addColorStop(0,m.color+'BB'); fillGrad.addColorStop(1,m.color);
+      c.fillStyle=fillGrad; c.beginPath(); c.roundRect(barX,y,barW*Math.min(1,anim),barH,5); c.fill();
+      // Value text
+      c.fillStyle='white'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='left';
+      c.fillText(`${m.val}%`, barX+barW*Math.min(1,m.val/100)+4, y+barH*0.55);
+    });
+    // Bottom summary line
+    const isGood=d.co2<30;
+    c.fillStyle=isGood?'#22C55E':'#F59E0B';
+    c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText(isGood?'✅ انبعاثات منخفضة — خيار أنظف':'⚠️ انبعاثات عالية — تأثير على المناخ', w*0.5, h*0.94);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 function simG9Fossil2(){
   cancelAnimationFrame(animFrame);
-  simState={fossil:60,renew:40};
-  window._feSet=(k,v)=>{simState[k]=+v; if(k==='fossil') simState.renew=100-simState.fossil; else simState.fossil=100-simState.renew;
-    var f=document.getElementById('fe-f'); var r=document.getElementById('fe-r'); if(f) f.textContent=simState.fossil; if(r) r.textContent=simState.renew;};
+  simState={fossil:60, t:0};
+  window._feSet=function(k,v){
+    simState[k]=+v;
+    if(k==='fossil') simState.renew=100-simState.fossil; else simState.fossil=100-simState.renew;
+    var f=document.getElementById('fe-f'); var r=document.getElementById('fe-r');
+    if(f) f.textContent=simState.fossil; if(r) r.textContent=(100-simState.fossil);
+  };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🌍 الأثر البيئي للمزيج</div>
-      <div class="ctrl-label">أحفوري: <span id="fe-f">60</span>% — متجدد: <span id="fe-r">40</span>%</div>
+      <div class="ctrl-label">🌍 مزيج الطاقة في المدينة</div>
+      <div class="ctrl-label">⛽ أحفوري: <span id="fe-f">60</span>% — ♻️ متجدد: <span id="fe-r">40</span>%</div>
       <input type="range" min="0" max="100" value="60" oninput="window._feSet('fossil',this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:10px">
+        <button class="ctrl-btn" onclick="window._feSet('fossil',100)">💨 أحفوري كلياً</button>
+        <button class="ctrl-btn action" onclick="window._feSet('fossil',50)">⚖️ مختلط</button>
+        <button class="ctrl-btn" onclick="window._feSet('fossil',0)">🌿 متجدد كلياً</button>
+      </div>
     </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما زاد الاعتماد على المصادر المتجددة، قلّت انبعاثات CO₂ وتحسّن هواء المدينة وصحة السكان.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9fossil'){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9fossil'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h); c.fillStyle='#0B1220'; c.fillRect(0,0,w,h);
-    const co2=Math.round(simState.fossil*0.9 + simState.renew*0.15);
-    c.fillStyle='white'; c.font=`bold ${Math.min(22,Math.round(h*0.038))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
-    c.fillText('مزيج: أحفوري '+simState.fossil+'% — متجدد '+simState.renew+'%', w/2, h*0.08);
-    c.fillStyle=co2<35?'#22C55E':co2<60?'#F59E0B':'#EF4444';
-    c.font=`bold ${Math.round(h*0.034)}px Tajawal`;
-    c.fillText('مؤشر انبعاثات (نموذج): '+co2+' — '+(co2<35?'منخفض':'مرتفع'), w/2, h*0.14);
-    c.fillStyle='#64748B'; c.fillRect(w*0.2,h*0.55,w*0.6,24);
-    c.fillStyle='#EF4444'; c.fillRect(w*0.2,h*0.55,w*0.6*(simState.fossil/100),24);
-    c.fillStyle='#22C55E'; c.fillRect(w*0.2+w*0.6*(simState.fossil/100),h*0.55,w*0.6*(simState.renew/100),24);
+    simState.t+=0.02;
+    const t=simState.t, frac=simState.fossil/100, clean=1-frac;
+    c.clearRect(0,0,w,h);
+    // Dynamic sky based on pollution
+    const skyR=Math.round(100+frac*80), skyG=Math.round(150-frac*60), skyB=Math.round(200-frac*80);
+    const skyGrad=c.createLinearGradient(0,0,0,h*0.65);
+    skyGrad.addColorStop(0,`rgb(${skyR},${skyG},${skyB})`);
+    skyGrad.addColorStop(1,`rgb(${skyR+30},${skyG+20},${skyB-30})`);
+    c.fillStyle=skyGrad; c.fillRect(0,0,w,h);
+    // Smog layer
+    if(frac>0.1){
+      const smogAlpha=frac*0.5;
+      c.fillStyle=`rgba(120,100,60,${smogAlpha})`;
+      c.fillRect(0,h*0.35,w,h*0.2);
+    }
+    // Sun / visibility
+    const sunAlpha=0.2+clean*0.75;
+    const sunGlow=c.createRadialGradient(w*0.8,h*0.1,0,w*0.8,h*0.1,55);
+    sunGlow.addColorStop(0,`rgba(255,240,100,${sunAlpha})`);
+    sunGlow.addColorStop(1,'rgba(255,240,100,0)');
+    c.fillStyle=sunGlow; c.beginPath(); c.arc(w*0.8,h*0.1,55,0,Math.PI*2); c.fill();
+    c.fillStyle=`rgba(255,220,60,${sunAlpha})`; c.beginPath(); c.arc(w*0.8,h*0.1,22,0,Math.PI*2); c.fill();
+    // Smoke stacks (based on fossil %)
+    const nStacks=Math.round(frac*5)+1;
+    for(let i=0;i<nStacks;i++){
+      const sx=w*(0.1+i*0.18), sy=h*0.58;
+      c.fillStyle='#374151'; c.fillRect(sx-8,sy-h*0.12,16,h*0.12);
+      // Smoke puffs
+      for(let p=0;p<4;p++){
+        const py=(t*0.06*frac+p*0.18)%0.28;
+        const pr=10+py*35;
+        const pa=Math.max(0,frac*0.5*(1-py/0.28));
+        c.fillStyle=`rgba(100,90,70,${pa})`;
+        c.beginPath(); c.arc(sx+Math.sin(t+p)*8, sy-h*0.12-h*py, pr, 0, Math.PI*2); c.fill();
+      }
+    }
+    // Renewable elements (solar panels on rooftops, wind turbines)
+    if(clean>0.2){
+      // Wind turbines
+      for(let i=0;i<Math.round(clean*3);i++){
+        const tx=w*(0.15+i*0.3), ty=h*0.45;
+        c.strokeStyle='rgba(100,180,220,0.85)'; c.lineWidth=3;
+        c.beginPath(); c.moveTo(tx,ty); c.lineTo(tx,ty+h*0.12); c.stroke();
+        c.save(); c.translate(tx,ty); c.rotate(t*2.5*clean);
+        c.fillStyle='rgba(100,180,220,0.75)';
+        for(let b=0;b<3;b++){c.rotate(Math.PI*2/3);c.beginPath();c.moveTo(0,0);c.lineTo(18,4);c.lineTo(18,-4);c.closePath();c.fill();}
+        c.restore();
+      }
+    }
+    // City buildings
+    const buildings=[[0.04,0.32,0.1],[0.16,0.22,0.12],[0.29,0.28,0.1],[0.55,0.2,0.13],[0.7,0.3,0.09],[0.82,0.18,0.12],[0.91,0.26,0.07]];
+    buildings.forEach(([bx,bh,bw])=>{
+      c.fillStyle=`rgba(40,50,60,${0.6+frac*0.3})`;
+      c.fillRect(w*bx,h*(1-bh),w*bw,h*bh);
+      // Windows
+      c.fillStyle=`rgba(255,240,150,${0.4+clean*0.4})`;
+      for(let wr=0;wr<4;wr++) for(let wc=0;wc<3;wc++){
+        c.fillRect(w*bx+wc*(w*bw/3)+3,h*(1-bh)+wr*(h*bh/5)+5,w*bw/4,h*bh/7);
+      }
+    });
+    // Ground
+    c.fillStyle=`rgb(${Math.round(60-frac*20)},${Math.round(80-frac*15)},${Math.round(40)})`;
+    c.fillRect(0,h*0.78,w,h*0.22);
+    // CO2 indicator panel
+    const co2=Math.round(frac*90+clean*15);
+    const pColor=co2>65?'#EF4444':co2>35?'#F59E0B':'#22C55E';
+    const panX=w*0.03, panY=h*0.05;
+    c.fillStyle='rgba(0,0,0,0.6)'; c.beginPath(); c.roundRect(panX,panY,w*0.42,h*0.3,14); c.fill();
+    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText('مؤشر انبعاثات CO₂',panX+w*0.21,panY+h*0.055);
+    c.fillStyle=pColor; c.font=`bold ${Math.round(h*0.06)}px Tajawal`;
+    c.fillText(`${co2}`,panX+w*0.21,panY+h*0.155);
+    c.fillStyle='rgba(255,255,255,0.75)'; c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText(co2>65?'⚠️ تلوث عالٍ':co2>35?'🔶 متوسط':'✅ نظيف',panX+w*0.21,panY+h*0.22);
+    // CO2 bar
+    const bX=panX+w*0.03, bY=panY+h*0.25, bW=w*0.36;
+    c.fillStyle='rgba(255,255,255,0.15)'; c.beginPath(); c.roundRect(bX,bY,bW,h*0.028,4); c.fill();
+    c.fillStyle=pColor; c.beginPath(); c.roundRect(bX,bY,bW*(co2/100),h*0.028,4); c.fill();
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-function simG9Efficiency1(){ simG9Energy2(); }
-function simG9Efficiency2(){
+function simG9Efficiency1(){
   cancelAnimationFrame(animFrame);
-  simState={lossType:'heat',loss:35};
-  window._lsSet=function(v){simState.loss=+v; var e=document.getElementById('ls-v'); if(e) e.textContent=v;};
-  window._lsType=t=>{simState.lossType=t;};
+  simState={Ein:100, Eout:65, device:'bulb', t:0};
+  const DEVICES={
+    bulb:   {name:'مصباح كهربائي', emoji:'💡', defaultEff:15, color:'#F59E0B'},
+    led:    {name:'LED', emoji:'🔦', defaultEff:80, color:'#22C55E'},
+    motor:  {name:'محرك كهربائي', emoji:'⚙️', defaultEff:70, color:'#3B82F6'},
+    car:    {name:'محرك سيارة', emoji:'🚗', defaultEff:25, color:'#EF4444'},
+    solar:  {name:'لوح شمسي', emoji:'☀️', defaultEff:18, color:'#D97706'},
+  };
+  window._effDev=function(d){
+    simState.device=d;
+    simState.Eout=Math.round(simState.Ein*DEVICES[d].defaultEff/100);
+    var s=document.getElementById('eff-s'); if(s){s.min=1;s.max=simState.Ein;s.value=simState.Eout;}
+    var ev=document.getElementById('eff-eout'); if(ev) ev.textContent=simState.Eout;
+  };
+  window._effSetOut=function(v){simState.Eout=Math.min(+v, simState.Ein); var e=document.getElementById('eff-eout'); if(e) e.textContent=simState.Eout;};
+  window._effSetIn=function(v){simState.Ein=+v; simState.Eout=Math.min(simState.Eout,simState.Ein); var e=document.getElementById('eff-ein'); if(e) e.textContent=v; var s=document.getElementById('eff-s'); if(s){s.max=v;s.value=simState.Eout;}};
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">♻️ تقليل الفاقد</div>
+      <div class="ctrl-label">🔧 اختر الجهاز</div>
       <div class="ctrl-btns-grid">
-        <button class="ctrl-btn action" onclick="window._lsType('heat')">فاقد حراري</button>
-        <button class="ctrl-btn" onclick="window._lsType('friction')">احتكاك</button>
-        <button class="ctrl-btn" onclick="window._lsType('sound')">صوت</button>
+        <button class="ctrl-btn action" onclick="window._effDev('bulb')">💡 مصباح</button>
+        <button class="ctrl-btn" onclick="window._effDev('led')">🔦 LED</button>
+        <button class="ctrl-btn" onclick="window._effDev('motor')">⚙️ محرك</button>
+        <button class="ctrl-btn" onclick="window._effDev('car')">🚗 سيارة</button>
+        <button class="ctrl-btn" onclick="window._effDev('solar')">☀️ شمسي</button>
       </div>
-      <div class="ctrl-label" style="margin-top:8px">نسبة الفاقد: <span id="ls-v">35</span>%</div>
-      <input type="range" min="5" max="80" value="35" oninput="window._lsSet(this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">طاقة الدخل Ein: <span id="eff-ein">100</span> J</div>
+      <input type="range" min="20" max="300" value="100" oninput="window._effSetIn(this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">طاقة الخرج Eout: <span id="eff-eout">65</span> J</div>
+      <input id="eff-s" type="range" min="1" max="100" value="65" oninput="window._effSetOut(this.value)" style="width:100%">
     </div>
+    <div class="q-box"><strong>💡 الكفاءة = Eout ÷ Ein × 100%</strong><br>جرّب أجهزة مختلفة وقارن كفاءتها. LED أكفأ من المصباح العادي بكثير!</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9efficiency'){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9efficiency'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
-    const eff=100-simState.loss;
-    c.fillStyle='white'; c.font=`bold ${Math.min(24,Math.round(h*0.042))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
-    c.fillText('كفاءة = 100% − الفاقد ← '+eff+'%', w/2, h*0.08);
-    c.fillStyle='#22C55E'; c.fillRect(w*0.18,h*0.42,w*0.64*(eff/100),30);
-    c.fillStyle='#EF4444'; c.fillRect(w*0.18+w*0.64*(eff/100),h*0.42,w*0.64*(simState.loss/100),30);
-    c.fillStyle='rgba(255,255,255,.85)'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`;
-    c.fillText('فاقد: '+(simState.lossType==='heat'?'حرارة':simState.lossType==='friction'?'احتكاك':'صوت')+' — '+simState.loss+'%', w/2, h*0.58);
-    c.fillStyle='rgba(255,255,255,.5)'; c.font=`${Math.max(11,Math.round(h*0.021))}px Tajawal`; c.textBaseline='bottom';
-    c.fillText('اختر نوع الفاقد من الأزرار ثم قلّل النسبة وشاهد ارتفاع الشريط الأخضر', w/2, h*0.9);
+    simState.t+=0.022;
+    const t=simState.t, dev=DEVICES[simState.device];
+    const eff=simState.Ein>0?(simState.Eout/simState.Ein)*100:0;
+    const loss=100-eff;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#0F172A'; c.fillRect(0,0,w,h);
+    // Title
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.038)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(`${dev.emoji} ${dev.name}`, w*0.5, h*0.03);
+    // Sankey-style flow diagram
+    const flowY=h*0.22, flowH=h*0.12, boxW=w*0.18, boxH=flowH;
+    // Input box (left)
+    c.fillStyle='rgba(59,130,246,0.25)'; c.beginPath(); c.roundRect(w*0.04,flowY,boxW,boxH,8); c.fill();
+    c.strokeStyle='#3B82F6'; c.lineWidth=2; c.stroke();
+    c.fillStyle='#93C5FD'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText(`Ein`,w*0.04+boxW/2,flowY+boxH*0.22);
+    c.fillStyle='#DBEAFE'; c.font=`bold ${Math.round(h*0.034)}px Tajawal`;
+    c.fillText(`${simState.Ein} J`,w*0.04+boxW/2,flowY+boxH*0.62);
+    // Main flow arrow
+    const arrowColor='#60A5FA';
+    const flowX1=w*0.04+boxW, flowX2=w*0.4;
+    c.strokeStyle=arrowColor; c.lineWidth=Math.max(8, flowH*0.5);
+    c.lineCap='round'; c.beginPath(); c.moveTo(flowX1,flowY+boxH/2); c.lineTo(flowX2,flowY+boxH/2); c.stroke();
+    c.lineCap='butt';
+    // Animated energy particles on main flow
+    for(let i=0;i<5;i++){
+      const px=flowX1+((flowX2-flowX1)*((t*0.35+i*0.2)%1));
+      c.fillStyle='rgba(255,255,255,0.7)'; c.beginPath(); c.arc(px,flowY+boxH/2,4,0,Math.PI*2); c.fill();
+    }
+    // Device box (center)
+    c.fillStyle=dev.color+'44'; c.beginPath(); c.roundRect(w*0.4,flowY-boxH*0.3,boxW*1.1,boxH*1.6,12); c.fill();
+    c.strokeStyle=dev.color; c.lineWidth=2.5; c.stroke();
+    c.font=`${Math.round(h*0.05)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(dev.emoji, w*0.4+boxW*0.55, flowY+boxH*0.5);
+    // Useful output arrow (right)
+    const outFrac=Math.max(0.03,eff/100);
+    const outH=Math.max(6,flowH*outFrac);
+    c.strokeStyle=dev.color; c.lineWidth=Math.max(4,outH);
+    c.lineCap='round'; c.beginPath();
+    c.moveTo(w*0.4+boxW*1.1, flowY+boxH/2);
+    c.lineTo(w*0.82, flowY+boxH/2); c.stroke(); c.lineCap='butt';
+    // Animated useful output particles
+    for(let i=0;i<4;i++){
+      const px=(w*0.4+boxW*1.1)+((w*0.82-(w*0.4+boxW*1.1))*((t*0.3+i*0.25)%1));
+      c.fillStyle=dev.color+'CC'; c.beginPath(); c.arc(px,flowY+boxH/2,3,0,Math.PI*2); c.fill();
+    }
+    // Output box (right)
+    c.fillStyle=dev.color+'22'; c.beginPath(); c.roundRect(w*0.82,flowY,boxW,boxH,8); c.fill();
+    c.strokeStyle=dev.color; c.lineWidth=2; c.stroke();
+    c.fillStyle=dev.color; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('Eout',w*0.82+boxW/2,flowY+boxH*0.22);
+    c.font=`bold ${Math.round(h*0.034)}px Tajawal`;
+    c.fillText(`${simState.Eout} J`,w*0.82+boxW/2,flowY+boxH*0.62);
+    // Heat loss arrow (downward)
+    if(loss>2){
+      const lossH=Math.max(6,flowH*(loss/100));
+      c.strokeStyle='#EF4444'; c.lineWidth=Math.max(3,lossH*0.7); c.lineCap='round';
+      c.beginPath(); c.moveTo(w*0.55,flowY+boxH/2); c.lineTo(w*0.55,flowY+boxH/2+h*0.14); c.stroke(); c.lineCap='butt';
+      // Arrow head
+      c.fillStyle='#EF4444';
+      c.beginPath(); c.moveTo(w*0.55,flowY+boxH/2+h*0.15); c.lineTo(w*0.52,flowY+boxH/2+h*0.12); c.lineTo(w*0.58,flowY+boxH/2+h*0.12); c.closePath(); c.fill();
+      // Heat label
+      c.fillStyle='#FCA5A5'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+      c.fillText(`طاقة مهدرة: ${(simState.Ein-simState.Eout)} J`,w*0.55,flowY+boxH/2+h*0.18);
+      // Heat animation
+      for(let i=0;i<3;i++){
+        const hy=flowY+boxH/2+h*0.06*((t*0.4+i*0.33)%1);
+        c.fillStyle=`rgba(239,68,68,${0.4-((t*0.4+i*0.33)%1)*0.4})`;
+        c.font=`${Math.round(h*0.028)}px serif`; c.fillText('🌡️',w*0.55+Math.sin(t+i*2)*12,hy);
+      }
+    }
+    // Big efficiency display
+    const effColor=eff>=60?'#22C55E':eff>=30?'#F59E0B':'#EF4444';
+    const bigY=h*0.56;
+    c.fillStyle='rgba(255,255,255,0.06)'; c.beginPath(); c.roundRect(w*0.15,bigY,w*0.7,h*0.3,18); c.fill();
+    c.fillStyle=effColor; c.font=`bold ${Math.round(h*0.072)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(`${eff.toFixed(1)}%`, w*0.5, bigY+h*0.03);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.round(h*0.026)}px Tajawal`;
+    c.fillText(`الكفاءة = ${simState.Eout} ÷ ${simState.Ein} × 100`, w*0.5, bigY+h*0.135);
+    c.fillStyle=effColor; c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText(eff>=60?'✅ جيد':eff>=30?'🔶 متوسط':'❌ منخفض — معظم الطاقة تُهدر', w*0.5, bigY+h*0.195);
+    // Progress arc
+    const arcX=w*0.5, arcY=bigY-h*0.03;
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function simG9Efficiency2(){
+  cancelAnimationFrame(animFrame);
+  simState={lossType:'heat', loss:35, t:0};
+  window._lsSet=function(v){simState.loss=+v; var e=document.getElementById('ls-v'); if(e) e.textContent=v+'%';};
+  window._lsType=function(t){
+    simState.lossType=t;
+    const btns=['heat','friction','sound']; btns.forEach(b=>{ var el=document.getElementById('lt-'+b); if(el) el.classList.remove('action'); });
+    var a=document.getElementById('lt-'+t); if(a) a.classList.add('action');
+  };
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">♻️ نوع الطاقة المهدرة</div>
+      <div class="ctrl-btns-grid">
+        <button id="lt-heat" class="ctrl-btn action" onclick="window._lsType('heat')">🔥 حرارة</button>
+        <button id="lt-friction" class="ctrl-btn" onclick="window._lsType('friction')">⚙️ احتكاك</button>
+        <button id="lt-sound" class="ctrl-btn" onclick="window._lsType('sound')">🔊 صوت</button>
+      </div>
+      <div class="ctrl-label" style="margin-top:8px">نسبة الفاقد: <span id="ls-v">35%</span></div>
+      <input type="range" min="5" max="80" value="35" oninput="window._lsSet(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:10px">
+        <button class="ctrl-btn" onclick="window._lsSet(75);document.getElementById('ls-v').textContent='75%'">📉 فاقد عالٍ</button>
+        <button class="ctrl-btn action" onclick="window._lsSet(35);document.getElementById('ls-v').textContent='35%'">⚖️ متوسط</button>
+        <button class="ctrl-btn" onclick="window._lsSet(8);document.getElementById('ls-v').textContent='8%'">📈 فاقد منخفض</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>تقليل الفاقد بالعزل الحراري أو التزييت يرفع كفاءة الجهاز دون الحاجة لطاقة إضافية.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9efficiency'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    simState.t+=0.022;
+    const t=simState.t, lossFrac=simState.loss/100, eff=1-lossFrac;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#0F172A'; c.fillRect(0,0,w,h);
+    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.round(h*0.036)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('نظام تحويل الطاقة', w*0.5, h*0.03);
+    // Machine body
+    const mx=w*0.38, my=h*0.3, mw=w*0.24, mh=h*0.22;
+    const machineGrad=c.createLinearGradient(mx,my,mx+mw,my+mh);
+    machineGrad.addColorStop(0,'#1E3A5F'); machineGrad.addColorStop(1,'#2D5A8E');
+    c.fillStyle=machineGrad; c.beginPath(); c.roundRect(mx,my,mw,mh,12); c.fill();
+    c.strokeStyle='rgba(100,160,220,0.5)'; c.lineWidth=2; c.stroke();
+    // Spinning gear inside machine
+    c.save(); c.translate(mx+mw/2, my+mh/2); c.rotate(t*(1+eff));
+    c.strokeStyle='rgba(100,200,255,0.7)'; c.lineWidth=3;
+    for(let i=0;i<8;i++){
+      c.rotate(Math.PI/4);
+      c.beginPath(); c.moveTo(0,12); c.lineTo(0,22); c.stroke();
+    }
+    c.beginPath(); c.arc(0,0,12,0,Math.PI*2); c.fillStyle='rgba(100,200,255,0.3)'; c.fill(); c.stroke();
+    c.restore();
+    // Input energy arrow
+    c.strokeStyle='#3B82F6'; c.lineWidth=10+lossFrac*5; c.lineCap='round';
+    c.beginPath(); c.moveTo(w*0.06,my+mh/2); c.lineTo(mx,my+mh/2); c.stroke(); c.lineCap='butt';
+    c.fillStyle='#93C5FD'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('طاقة الدخل', w*0.14, my+mh/2-h*0.05);
+    c.fillText('100%', w*0.14, my+mh/2+h*0.025);
+    for(let i=0;i<4;i++){
+      const px=w*0.06+((w*0.32-w*0.06)*((t*0.3+i*0.25)%1));
+      c.fillStyle='rgba(147,197,253,0.8)'; c.beginPath(); c.arc(px,my+mh/2,4,0,Math.PI*2); c.fill();
+    }
+    // Useful output arrow
+    const outW=6+eff*16;
+    c.strokeStyle='#22C55E'; c.lineWidth=outW; c.lineCap='round';
+    c.beginPath(); c.moveTo(mx+mw, my+mh/2); c.lineTo(w*0.94,my+mh/2); c.stroke(); c.lineCap='butt';
+    c.fillStyle='#86EFAC'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('طاقة مفيدة', w*0.86, my+mh/2-h*0.05);
+    c.fillStyle='#22C55E'; c.fillText(`${Math.round(eff*100)}%`, w*0.86, my+mh/2+h*0.025);
+    for(let i=0;i<4;i++){
+      const px=(mx+mw)+((w*0.94-(mx+mw))*((t*0.28+i*0.25)%1));
+      c.fillStyle='rgba(134,239,172,0.8)'; c.beginPath(); c.arc(px,my+mh/2,3+eff*2,0,Math.PI*2); c.fill();
+    }
+    // Loss arrow (downward)
+    const lossType=simState.lossType;
+    const lossColor=lossType==='heat'?'#EF4444':lossType==='friction'?'#F59E0B':'#A855F7';
+    const lossEmoji=lossType==='heat'?'🔥':lossType==='friction'?'⚙️':'🔊';
+    const lossLabel=lossType==='heat'?'طاقة حرارية':lossType==='friction'?'احتكاك':'صوت';
+    const lossW=Math.max(5,lossFrac*22);
+    c.strokeStyle=lossColor; c.lineWidth=lossW; c.lineCap='round';
+    c.beginPath(); c.moveTo(mx+mw/2,my+mh); c.lineTo(mx+mw/2,h*0.7); c.stroke(); c.lineCap='butt';
+    c.fillStyle=lossColor; c.beginPath(); c.moveTo(mx+mw/2,h*0.72); c.lineTo(mx+mw/2-12,h*0.68); c.lineTo(mx+mw/2+12,h*0.68); c.closePath(); c.fill();
+    // Animated loss particles
+    for(let i=0;i<Math.round(lossFrac*6);i++){
+      const ry=(my+mh)+((h*0.7-(my+mh))*((t*0.25*lossFrac+i*0.18)%1));
+      const rx=mx+mw/2+Math.sin(t*2+i)*15*lossFrac;
+      const ra=Math.max(0,0.7-(((t*0.25*lossFrac+i*0.18)%1)*0.8));
+      c.fillStyle=lossColor.replace(')',`,${ra})`).replace('rgb','rgba');
+      c.font=`${Math.round(h*0.025)}px serif`; c.textAlign='center';
+      c.fillText(lossEmoji,rx,ry);
+    }
+    c.fillStyle=lossColor; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText(`${lossLabel}: ${simState.loss}%`, mx+mw/2, h*0.77);
+    // Bottom efficiency display
+    const effColor=eff>0.65?'#22C55E':eff>0.4?'#F59E0B':'#EF4444';
+    const dispY=h*0.81;
+    c.fillStyle='rgba(255,255,255,0.05)'; c.beginPath(); c.roundRect(w*0.12,dispY,w*0.76,h*0.14,14); c.fill();
+    // Horizontal efficiency bar
+    const barX=w*0.16, barW=w*0.68, barY2=dispY+h*0.03;
+    c.fillStyle='rgba(239,68,68,0.3)'; c.beginPath(); c.roundRect(barX,barY2,barW,h*0.035,6); c.fill();
+    const effGrad=c.createLinearGradient(barX,0,barX+barW,0);
+    effGrad.addColorStop(0,'#22C55E'); effGrad.addColorStop(0.6,'#86EFAC'); effGrad.addColorStop(1,'#F59E0B');
+    c.fillStyle=effGrad; c.beginPath(); c.roundRect(barX,barY2,barW*eff,h*0.035,6); c.fill();
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText(`الكفاءة = ${Math.round(eff*100)}% — الفاقد = ${simState.loss}%`, w*0.5, dispY+h*0.1);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
