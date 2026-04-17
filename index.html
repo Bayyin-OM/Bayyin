@@ -4864,6 +4864,60 @@ function switchGrade(g) {
 
 function switchG9Subject(subject) {
   window._g9ActiveSubject = subject;
+  // Defensive render: if physics panel is empty for any reason, rebuild its content.
+  if(subject === 'phys'){
+    var physPanel = document.getElementById('g9-phys');
+    if(physPanel){
+      var hasUnits = physPanel.querySelector('.unit-card');
+      var hasSims = physPanel.querySelector('#sims-g9phys11');
+      if(!hasUnits || !hasSims){
+        var unitsGrid = physPanel.querySelector('.units-grid');
+        if(unitsGrid){
+          unitsGrid.innerHTML = `
+            <div class="unit-card" onclick="openUnit('g9phys11', this)">
+              <div class="unit-num-badge c-green">١١</div>
+              <div>
+                <div class="unit-title">الطاقة والضوء</div>
+                <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · انعكاس الضوء</div>
+                <div class="unit-pill avail">🔓 متاح</div>
+              </div>
+            </div>
+          `;
+        }
+        if(!hasSims){
+          var oldWrap = physPanel.querySelector('#sims-g9phys11');
+          if(oldWrap) oldWrap.remove();
+          var wrap = document.createElement('div');
+          wrap.className = 'sims-wrap';
+          wrap.id = 'sims-g9phys11';
+          wrap.style.marginTop = '28px';
+          wrap.innerHTML = `
+            <div class="sims-grid">
+              <div class="sim-card" onclick="openSim('g9energy')">
+                <div class="sim-thumb t7">⚡</div>
+                <div class="sim-body">
+                  <div class="sim-num">١١-١ · موارد الطاقة</div>
+                  <div class="sim-name">صنّف المصادر واحسب الكفاءة</div>
+                  <div class="sim-desc">اسحب مصادر الطاقة لتصنيفها (متجددة/غير متجددة) ثم جرّب حاسبة الكفاءة والطاقة المفيدة</div>
+                </div>
+                <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+              </div>
+              <div class="sim-card" onclick="openSim('g9refl')">
+                <div class="sim-thumb t6">🪞</div>
+                <div class="sim-body">
+                  <div class="sim-num">١١-٢ · انعكاس الضوء</div>
+                  <div class="sim-name">زاوية السقوط = زاوية الانعكاس</div>
+                  <div class="sim-desc">حرّك الشعاع على المرآة وشاهد كيف تتغير الزوايا، ثم ارسم مخطط الأشعة (Ray diagram)</div>
+                </div>
+                <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+              </div>
+            </div>
+          `;
+          physPanel.appendChild(wrap);
+        }
+      }
+    }
+  }
   // Toggle subject panels
   ['chem','phys','bio'].forEach(function(s) {
     var panel = document.getElementById('g9-' + s);
