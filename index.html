@@ -4245,7 +4245,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         <div class="unit-card" onclick="openUnit('g9phys11', this)">
           <div class="unit-num-badge c-green">١١</div>
           <div>
-            <div class="unit-title">الطاقة والضوء</div>
+            <div class="unit-title">مصادر الطاقة</div>
             <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · القدرة</div>
             <div class="unit-pill avail">🔓 متاح</div>
           </div>
@@ -5018,7 +5018,7 @@ function switchG9Subject(subject) {
             <div class="unit-card" onclick="openUnit('g9phys11', this)">
               <div class="unit-num-badge c-green">١١</div>
               <div>
-                <div class="unit-title">الطاقة والضوء</div>
+                <div class="unit-title">مصادر الطاقة</div>
                 <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · القدرة</div>
                 <div class="unit-pill avail">🔓 متاح</div>
               </div>
@@ -39902,7 +39902,7 @@ function simG9Energy1(){
   }
 
   cv.onmousedown = (e)=>{
-    if(currentSim!=='g9energy' || currentTab!==0) return;
+    if(currentSim!=='g9energymix' || currentTab!==0) return;
     const r=cv.getBoundingClientRect();
     const mx=e.clientX-r.left, my=e.clientY-r.top;
     const w=cv.width, h=cv.height;
@@ -39966,7 +39966,7 @@ function simG9Energy1(){
   };
 
   function draw(){
-    if(currentSim!=='g9energy' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    if(currentSim!=='g9energymix' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h);
     simState.t += 0.02;
@@ -40074,7 +40074,7 @@ function simG9Energy2(){
 
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9energy' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    if(!((currentSim==='g9efficiency' && currentTab===0) || (currentSim==='g9solar' && currentTab===1))){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const eff = S.Euse/S.Ein;
@@ -40257,7 +40257,43 @@ function simG9Wind1(){
   }
   draw();
 }
-function simG9Wind2(){ simG9EnergyMix2(); }
+function simG9Wind2(){
+  cancelAnimationFrame(animFrame);
+  simState={n:6,v:10};
+  window._wfSet=function(k,v){simState[k]=+v; var el=document.getElementById('wf-'+k); if(el) el.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌀 مزرعة الرياح</div>
+      <div class="ctrl-label">عدد التوربينات: <span id="wf-n">6</span></div>
+      <input type="range" min="1" max="20" value="6" oninput="window._wfSet('n',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">سرعة الرياح: <span id="wf-v">10</span> m/s</div>
+      <input type="range" min="3" max="20" value="10" oninput="window._wfSet('v',this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>إنتاج المزرعة يعتمد على عدد التوربينات وسرعة الرياح معًا.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9wind' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#ECFEFF'; c.fillRect(0,0,w,h);
+    const cols=5,rows=4,total=simState.n,cellW=w*0.16,cellH=h*0.18;
+    let idx=0;
+    for(let r=0;r<rows;r++) for(let k=0;k<cols;k++){
+      if(idx>=total) break;
+      const x=w*0.12+k*cellW, y=h*0.28+r*cellH;
+      c.strokeStyle='#64748B'; c.lineWidth=2; c.beginPath(); c.moveTo(x,y); c.lineTo(x,y+40); c.stroke();
+      c.save(); c.translate(x,y); c.rotate((Date.now()/1000)*(simState.v/10));
+      c.fillStyle='#0EA5E9';
+      for(let i=0;i<3;i++){ c.rotate((Math.PI*2)/3); c.beginPath(); c.moveTo(0,0); c.lineTo(20,3); c.lineTo(20,-3); c.closePath(); c.fill(); }
+      c.restore(); idx++;
+    }
+    const out=Math.round(total*Math.pow(simState.v,3)/120);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
+    c.fillText('إنتاج المزرعة (نسبي): '+out, w/2, h*0.12);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
 
 function simG9Hydro1(){
   cancelAnimationFrame(animFrame);
@@ -40287,7 +40323,37 @@ function simG9Hydro1(){
   }
   draw();
 }
-function simG9Hydro2(){ simG9Refract2(); }
+function simG9Hydro2(){
+  cancelAnimationFrame(animFrame);
+  simState={tide:2.0,period:12};
+  window._tdSet=(k,v)=>{simState[k]=+v; var el=document.getElementById('td-'+k); if(el) el.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌙 طاقة المدّ والجزر</div>
+      <div class="ctrl-label">مدى المدّ: <span id="td-tide">2.0</span> m</div>
+      <input type="range" min="0.5" max="6" step="0.1" value="2.0" oninput="window._tdSet('tide',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">الدورة: <span id="td-period">12</span> ساعة</div>
+      <input type="range" min="6" max="24" value="12" oninput="window._tdSet('period',this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما زاد مدى المدّ ازدادت الطاقة المتاحة للتوليد.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9hydro' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,t=Date.now()/1000;
+    c.clearRect(0,0,w,h); c.fillStyle='#E0F2FE'; c.fillRect(0,0,w,h);
+    const A=simState.tide*10;
+    const y=h*0.55+Math.sin(t*2*Math.PI/simState.period)*A;
+    c.fillStyle='#0EA5E9'; c.beginPath(); c.moveTo(0,y);
+    for(let x=0;x<=w;x+=16){ c.lineTo(x, y+Math.sin((x+t*60)/40)*6); }
+    c.lineTo(w,h); c.lineTo(0,h); c.closePath(); c.fill();
+    const p=Math.round(simState.tide*simState.tide*22);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
+    c.fillText('قدرة مدّ/جزر نسبية: '+p, w/2, h*0.14);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
 
 function simG9Fossil1(){
   cancelAnimationFrame(animFrame);
@@ -40319,10 +40385,72 @@ function simG9Fossil1(){
   }
   draw();
 }
-function simG9Fossil2(){ simG9EnergyMix2(); }
+function simG9Fossil2(){
+  cancelAnimationFrame(animFrame);
+  simState={fossil:60,renew:40};
+  window._feSet=(k,v)=>{simState[k]=+v; if(k==='fossil') simState.renew=100-simState.fossil; else simState.fossil=100-simState.renew;
+    var f=document.getElementById('fe-f'); var r=document.getElementById('fe-r'); if(f) f.textContent=simState.fossil; if(r) r.textContent=simState.renew;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌍 الأثر البيئي للمزيج</div>
+      <div class="ctrl-label">أحفوري: <span id="fe-f">60</span>% — متجدد: <span id="fe-r">40</span>%</div>
+      <input type="range" min="0" max="100" value="60" oninput="window._feSet('fossil',this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>زيادة المصادر المتجددة تقلل غالبًا من الانبعاثات الكربونية.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9fossil' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#0B1220'; c.fillRect(0,0,w,h);
+    const co2=Math.round(simState.fossil*0.9 + simState.renew*0.15);
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.045)}px Tajawal`; c.textAlign='center';
+    c.fillText('مؤشر الانبعاثات: '+co2, w/2, h*0.18);
+    c.fillStyle=co2<35?'#22C55E':co2<60?'#F59E0B':'#EF4444';
+    c.fillText(co2<35?'منخفض':'مرتفع', w/2, h*0.28);
+    c.fillStyle='#64748B'; c.fillRect(w*0.2,h*0.55,w*0.6,24);
+    c.fillStyle='#EF4444'; c.fillRect(w*0.2,h*0.55,w*0.6*(simState.fossil/100),24);
+    c.fillStyle='#22C55E'; c.fillRect(w*0.2+w*0.6*(simState.fossil/100),h*0.55,w*0.6*(simState.renew/100),24);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
 
 function simG9Efficiency1(){ simG9Energy2(); }
-function simG9Efficiency2(){ simG9Ohm2(); }
+function simG9Efficiency2(){
+  cancelAnimationFrame(animFrame);
+  simState={lossType:'heat',loss:35};
+  window._lsSet=function(v){simState.loss=+v; var e=document.getElementById('ls-v'); if(e) e.textContent=v;};
+  window._lsType=t=>{simState.lossType=t;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">♻️ تقليل الفاقد</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn action" onclick="window._lsType('heat')">فاقد حراري</button>
+        <button class="ctrl-btn" onclick="window._lsType('friction')">احتكاك</button>
+        <button class="ctrl-btn" onclick="window._lsType('sound')">صوت</button>
+      </div>
+      <div class="ctrl-label" style="margin-top:8px">نسبة الفاقد: <span id="ls-v">35</span>%</div>
+      <input type="range" min="5" max="80" value="35" oninput="window._lsSet(this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>تحسين العزل وتقليل الاحتكاك ورفع جودة المكونات يرفع كفاءة النظام.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9efficiency' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
+    const eff=100-simState.loss;
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center';
+    c.fillText('كفاءة النظام: '+eff+'%', w/2, h*0.16);
+    c.fillStyle='#22C55E'; c.fillRect(w*0.2,h*0.45,w*0.6*(eff/100),28);
+    c.fillStyle='#EF4444'; c.fillRect(w*0.2+w*0.6*(eff/100),h*0.45,w*0.6*(simState.loss/100),28);
+    c.fillStyle='rgba(255,255,255,.8)'; c.font=`${Math.round(h*0.03)}px Tajawal`;
+    c.fillText('نوع الفاقد: '+(simState.lossType==='heat'?'حرارة':simState.lossType==='friction'?'احتكاك':'صوت'), w/2, h*0.62);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
 
 // ══════════════════════════════════════════════════════════
 // الصف التاسع — فيزياء الوحدة 11: انعكاس الضوء
