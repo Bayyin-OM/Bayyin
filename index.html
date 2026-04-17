@@ -5603,8 +5603,15 @@ const SIM_QUESTIONS = {
 
 let qAnswered = false;
 
+/** سؤال الاستنتاج للتاب الحالي (أو للاستقصاء بلا لاحقة تبويب) */
+function getActiveQuestion(){
+  if(!currentSim) return null;
+  const k = currentSim + '_' + currentTab;
+  return SIM_QUESTIONS[k] || SIM_QUESTIONS[currentSim] || null;
+}
+
 function loadQuestion(simType){
-  const q = SIM_QUESTIONS[simType];
+  const q = getActiveQuestion();
   const bar = document.getElementById('qToggleBar');
   const drawer = document.getElementById('qDrawer');
   // دايماً أظهر الزر — حتى لو ما في سؤال محدد
@@ -5627,7 +5634,7 @@ function loadQuestion(simType){
 
 function toggleQuestion(){
   const drawer = document.getElementById('qDrawer');
-  const q = SIM_QUESTIONS[currentSim];
+  const q = getActiveQuestion();
   // إذا ما في سؤال محدد — لا تفتح الـ drawer
   if(!q) return;
   drawer.classList.toggle('open');
@@ -5635,8 +5642,7 @@ function toggleQuestion(){
 
 function answerQ(i){
   if(qAnswered) return;
-  const simType = currentSim;
-  const q = SIM_QUESTIONS[simType];
+  const q = getActiveQuestion();
   if(!q) return;
   const opts = document.querySelectorAll('.q-opt');
   const fb = document.getElementById('qFeedback');
@@ -5801,7 +5807,13 @@ function openSim(type) {
     g9combustion: 'الأكسجين الكافي = CO₂ + H₂O ✅ | الأكسجين الناقص = CO خطير ⚠️',
     g9acidrain:   'SO₂ + NO₂ + مياه السحاب = مطر pH < 5 🌧️ — يُدمّر الأحجار والأشجار!',
     g9greenhouse: 'CO₂ و CH₄ يحبسان الحرارة كالزجاج 🌡️ — الأرض تسخن والمناخ يتغيّر!',
-    g9limestone:  'CaCO₃ + حرارة شديدة → CaO + CO₂ 🪨 — الجير الحيّ يُعادل التربة الحمضية!'
+    g9limestone:  'CaCO₃ + حرارة شديدة → CaO + CO₂ 🪨 — الجير الحيّ يُعادل التربة الحمضية!',
+    g9energymix: 'صنّف المصادر وصمّم المزيج ⚡ — ثم افتح «ماذا نستنتج» من الأسفل!',
+    g9solar:      'اللوح والشمس وزاوية السقوط ☀️ — انقر على الشاشة لمحاذاة اللوح!',
+    g9wind:       'الرياح تدور التوربين 💨 — لاحظ كيف تتغير القدرة مع السرعة!',
+    g9hydro:      'الماء والمدّ يحملان طاقة 🌊 — غيّر الارتفاع والتدفق!',
+    g9fossil:     'قارن الأحفوري والنووي 🛢️ — الانبعاثات والكثافة ليست متشابهة!',
+    g9efficiency: 'الكفاءة = المفيد ÷ المدخل 📈 — لا يوجد جهاز بلا فاقد!'
   };
   var greet = simGreets[type] || 'استكشف وجرّب! 🔬';
   setTimeout(function(){ buddySay(greet, 6000); }, 800);
@@ -5875,6 +5887,7 @@ function switchSimTab(i) {
   }
   resizeCanvas();
   startSim(currentSim, i);
+  setTimeout(function(){ if(currentSim) loadQuestion(currentSim); }, 400);
 }
 
 function resizeCanvas() {
@@ -28770,6 +28783,142 @@ Object.assign(SIM_QUESTIONS, {
   }
 });
 
+// ── الصف التاسع — فيزياء الوحدة 11: مصادر الطاقة (سؤال لكل تبويب) ──
+Object.assign(SIM_QUESTIONS, {
+  g9energymix_0: {
+    q: 'ما الذي يميّز مصادر الطاقة المتجددة عن غير المتجددة؟',
+    opts: [
+      'تتجدد بسرعة في الطبيعة مقارنةً باستهلاكنا لها',
+      'لا تُنتج أي طاقة على الإطلاق',
+      'تعتمد فقط على الفحم والنفط',
+      'لا يمكن استخدامها في توليد الكهرباء'
+    ],
+    ans: 0,
+    fb: '✅ المصادر المتجددة (شمس، رياح، ماء…) تُعاد تكوينها أو تتدفق باستمرار. أما الأحفورية والنووي فيعتمدان على وقود مخزّن يستهلك أسرع مما يتكوّن.'
+  },
+  g9energymix_1: {
+    q: 'ماذا يحدث غالباً عند زيادة حصة الوقود الأحفوري في مزيج الطاقة؟',
+    opts: [
+      'تقل الانبعاثات ويختفي الحاجة للشبكة',
+      'ترتفع الانبعاثات الحرارية غالباً مع بقاء تحديات أخرى للتشغيل',
+      'تختفي طاقة الرياح تماماً',
+      'تصبح جميع المصادر متجددة تلقائياً'
+    ],
+    ans: 1,
+    fb: '✅ الوقود الأحفوري يحرق كربوناً مخزّناً فيزداد CO₂. المزيج المتوازن يقلّل الانبعاثات ويُثبّت التزويد لكنه يحتاج تخطيطاً وتخزيناً وربط شبكة.'
+  },
+  g9solar_0: {
+    q: 'متى يكون سقوط أشعة الشمس على اللوح الشمسي أكثر فعالية تقريباً؟',
+    opts: [
+      'عندما تكون الأشعة شبه عمودية على سطح اللوح',
+      'عندما تكون الأشعة شبه مموازية للوح',
+      'عند إطفاء الشمس في المحاكاة فقط',
+      'لا تؤثر زاوية السقوط على الإنتاج'
+    ],
+    ans: 0,
+    fb: '✅ كلما اقتربت زاوية السقوط من العمود على السطح زادت المساحة الفعّالة للإشعاع، فيزداد الإنتاج (مع افتراض نفس شدة الإشعاع).'
+  },
+  g9solar_1: {
+    q: 'ماذا تعني كفاءة 30% لجهاز يحوّل الطاقة؟',
+    opts: [
+      '30% من طاقة الإدخال تُستغل كطاقة مفيدة والباقي فاقد غالباً',
+      'الجهاز يعمل 30 ساعة فقط',
+      '30% من الجهاز معطّل دائماً',
+      'طاقة الإدخال تساوي الصفر'
+    ],
+    ans: 0,
+    fb: '✅ الكفاءة = الطاقة المفيدة ÷ طاقة الإدخال. الباقي يضيع غالباً كحرارة أو احتكاك أو صوت — لذلك نحسّن العزل والتصميم.'
+  },
+  g9wind_0: {
+    q: 'كيف تتغير القدرة النسبية لتوربين رياح عند مضاعفة سرعة الرياح (تقريباً في هذا النموذج)؟',
+    opts: [
+      'تبقى كما هي',
+      'تتضاعف مرتين فقط',
+      'تزيد بشكل كبير (تقارب مكعب السرعة)',
+      'تنعدم تماماً'
+    ],
+    ans: 2,
+    fb: '✅ في الواقع القدرة تتناسب تقريباً مع مكعب سرعة الرياح P ∝ v³ — لذلك فرق بسيط في السرعة يغيّر الإنتاج كثيراً.'
+  },
+  g9wind_1: {
+    q: 'ما الذي يزيد إنتاج مزرعة الرياح في هذا الاستقصاء؟',
+    opts: [
+      'زيادة عدد التوربينات و/أو سرعة الرياح',
+      'إطفاء جميع التوربينات',
+      'تقليل سرعة الرياح فقط دون غير ذلك',
+      'عدد التوربينات لا يؤثر أبداً'
+    ],
+    ans: 0,
+    fb: '✅ الإنتاج يجمع مساهمة كل توربين، وكل توربين يستفيد من الريح الأقوى — لذلك العدد والسرعة معاً يحددان المخرجات.'
+  },
+  g9hydro_0: {
+    q: 'في الطاقة الكهرومائية، ماذا يحدث عند زيادة فرق الارتفاع ومعدل تدفق الماء معاً؟',
+    opts: [
+      'تقل القدرة المائية',
+      'تزداد القدرة المنتجة (في النموذج)',
+      'لا يتغيّر شيء',
+      'يتوقف الماء عن الحركة'
+    ],
+    ans: 1,
+    fb: '✅ طاقة الماء ترتبط بارتفاع السقوط وحجم التدفق — كلما زادا زادت الطاقة المتاحة للتوربينات (مع افتراض نفس الكفاءة).'
+  },
+  g9hydro_1: {
+    q: 'في طاقة المدّ والجزر، كيف يتأثر مؤشر الطاقة النسبي عند زيادة مدى المدّ؟',
+    opts: [
+      'ينخفض دائماً',
+      'يزداد لأن حجم الماء المتحرك والفرق في المستوى يكبر',
+      'لا علاقة لمدى المدّ بالطاقة',
+      'يصبح سالباً'
+    ],
+    ans: 1,
+    fb: '✅ مدى أكبر يعني فرق منسوب أعلى وكتلة ماء أوسع تتحرك — فيزداد الإمكان النظري لتوليد الطاقة (مع افتراض موقع مناسب للسدّ البحري).'
+  },
+  g9fossil_0: {
+    q: 'أي مقارنة تصف غالباً الفرق بين الوقود الأحفوري والطاقة النووية لتوليد الكهرباء؟',
+    opts: [
+      'كلاهما بلا انبعاثات كربونية',
+      'الأحفوري انبعاثات CO₂ عالية عادةً؛ النووي انبعاثات تشغيل منخفضة لكن مخاطر وبنية تحتية خاصة',
+      'النووي لا يُنتج طاقة',
+      'لا فرق بينهما بيئياً'
+    ],
+    ans: 1,
+    fb: '✅ الاحتراق الأحفوري يطلق CO₂. المفاعلات لا «تحرق» وقوداً كيميائياً بنفس الطريقة فانبعاثات التشغيل أقل، لكن هناك مخاطر تشغيل، نفايات مشعّة، وتكلفة أمان عالية.'
+  },
+  g9fossil_1: {
+    q: 'ماذا يحدث لمؤشر الانبعاثات عند استبدال جزء من الحصة الأحفورية بمصادر متجددة في المزيج؟',
+    opts: [
+      'يرتفع دائماً',
+      'يقل غالباً',
+      'يصبح صفراً فوراً دائماً',
+      'لا يتأثر أبداً'
+    ],
+    ans: 1,
+    fb: '✅ المتجددة تقلل غالباً حرق الوقود الكربوني في النموذج، فينخفض المؤشر — لكن التحول الحقيقي يحتاج شبكة وتخزين وتنويع مصادر.'
+  },
+  g9efficiency_0: {
+    q: 'لماذا لا تصل كفاءة أي جهاز حقيقي إلى 100% غالباً؟',
+    opts: [
+      'لأن جزءاً من الطاقة يضيع كحرارة واحتكاك وصوت',
+      'لأن القوانين تمنع أي إنتاج مفيد',
+      'لأن الكفاءة لا قيمة لها في الفيزياء',
+      'لأن الطاقة المفيدة دائماً أكبر من المدخلات'
+    ],
+    ans: 0,
+    fb: '✅ الفاقد الحراري والاحتكاك والتشويه في الدوائر والمحركات يجعل المخرجات المفيدة أقل من المدخلات — لذلك نحسّن العزل والتشحيم والتصميم.'
+  },
+  g9efficiency_1: {
+    q: 'ماذا يحدث لكفاءة النظام عند تقليل نسبة الفاقد (في هذا النموذج)؟',
+    opts: [
+      'تنخفض الكفاءة',
+      'ترتفع الكفاءة',
+      'تبقى 50% دائماً',
+      'تصبح الطاقة المفيدة صفراً'
+    ],
+    ans: 1,
+    fb: '✅ هنا الكفاءة = 100% − الفاقد. تقليل الفاقد يعني استغلالاً أفضل لنفس طاقة الإدخال — في الواقع نعالج نوع الفاقد (عزل، احتكاك، ضياع في المحوّلات…).'
+  }
+});
+
 
 window.addEventListener('DOMContentLoaded', function() {
   _checkSubscription();
@@ -39859,8 +40008,8 @@ function simG9Energy1(){
     t:0,
     items: items.map((it, i)=>({
       ...it,
-      x: 0.12 + (i%3)*0.26,
-      y: 0.22 + Math.floor(i/3)*0.13,
+      x: 0.14 + (i%3)*0.36,
+      y: 0.17 + Math.floor(i/3)*0.14,
       placed: null
     })),
     dragId: null,
@@ -39871,27 +40020,25 @@ function simG9Energy1(){
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">♻️ صنّف مصادر الطاقة</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">
-        اسحب كل بطاقة إلى الصندوق الصحيح: <strong>متجددة</strong> أو <strong>غير متجددة</strong>.
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.65;margin-top:4px">
+        اسحب كل بطاقة إلى المستطيل المناسب. اضغط <strong>💡 ماذا نستنتج؟</strong> أسفل الشاشة بعد التجربة.
       </div>
     </div>
-    <div class="info-box" id="g9e1-info">اسحب بطاقة وجرّب ✋</div>
+    <div class="info-box" id="g9e1-info" style="line-height:1.7">اسحب بطاقة باستخدام الفأرة أو اللمس ✋</div>
     <button class="ctrl-btn reset" style="width:100%;margin-top:6px" onclick="simG9Energy1()">↺ إعادة</button>
-    <div class="q-box" style="margin-top:10px">
-      <strong>💡 ماذا نستنتج؟</strong><br>
-      مصادر الطاقة ليست كلها متشابهة: بعضها متجدد ونظيف نسبيًا، وبعضها محدود ويساهم أكثر في الانبعاثات.
-    </div>
-    <div class="q-box" style="margin-top:10px">
-      <strong>❓ ما الفرق بين المتجددة وغير المتجددة؟</strong>
-      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">المتجددة تتجدد طبيعيًا بسرعة (الشمس، الرياح، الماء). غير المتجددة موارد محدودة تتكون عبر زمن طويل (الفحم، النفط، الغاز) أو تعتمد على وقود نووي.</div>
+    <div class="q-box" style="margin-top:10px;font-size:13px;line-height:1.7">
+      <strong>❓ تلميح سريع</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">عرض</button>
+      <div class="q-ans-panel">المتجددة: شمس، رياح، ماء، أمواج، حرارة أرضية… | غير المتجددة: أحفوريات ووقود نووي (وقود مخزّن).</div>
     </div>
   `);
 
   const cv = document.getElementById('simCanvas');
+  function g9e1CardMetrics(w,h){
+    return { cw: Math.min(200, w*0.26), ch: Math.max(40, Math.round(h*0.062)) };
+  }
   function hitCard(mx,my,w,h){
-    const c = cv.getContext('2d');
-    const cw=Math.min(180, w*0.24), ch=44;
+    const {cw,ch}=g9e1CardMetrics(w,h);
     for(const it of simState.items){
       const px=it.x*w, py=it.y*h;
       if(mx>px-cw/2 && mx<px+cw/2 && my>py-ch/2 && my<py+ch/2){
@@ -39901,10 +40048,12 @@ function simG9Energy1(){
     return null;
   }
 
-  cv.onmousedown = (e)=>{
-    if(currentSim!=='g9energymix') return;
+  function _g9e1Pos(e){
     const r=cv.getBoundingClientRect();
-    const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const p = (e.touches && e.touches[0]) ? e.touches[0] : ((e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : e);
+    return { mx: p.clientX - r.left, my: p.clientY - r.top };
+  }
+  function _g9e1Start(mx,my){
     const w=cv.width, h=cv.height;
     const hit=hitCard(mx,my,w,h);
     if(hit){
@@ -39912,57 +40061,82 @@ function simG9Energy1(){
       simState.ox = mx - hit.it.x*w;
       simState.oy = my - hit.it.y*h;
     }
-  };
-  cv.onmousemove = (e)=>{
+  }
+  function _g9e1Move(mx,my){
     if(!simState.dragId) return;
-    const r=cv.getBoundingClientRect();
-    const mx=e.clientX-r.left, my=e.clientY-r.top;
     const w=cv.width, h=cv.height;
     const it=simState.items.find(x=>x.id===simState.dragId);
     if(!it) return;
     it.x = (mx - simState.ox) / w;
     it.y = (my - simState.oy) / h;
-  };
-  cv.onmouseup = (e)=>{
+  }
+  function _g9e1End(mx,my){
     if(!simState.dragId) return;
-    const r=cv.getBoundingClientRect();
-    const mx=e.clientX-r.left, my=e.clientY-r.top;
     const w=cv.width, h=cv.height;
-
-    const renewBox = {x:w*0.08,y:h*0.60,w:w*0.4,h:h*0.30};
-    const nonBox   = {x:w*0.52,y:h*0.60,w:w*0.4,h:h*0.30};
+    const renewBox = {x:w*0.06,y:h*0.56,w:w*0.42,h:h*0.34};
+    const nonBox   = {x:w*0.52,y:h*0.56,w:w*0.42,h:h*0.34};
     const it=simState.items.find(x=>x.id===simState.dragId);
     simState.dragId=null;
     if(!it) return;
-
     const dropIn = (b)=> mx>b.x && mx<b.x+b.w && my>b.y && my<b.y+b.h;
     let placed=null;
     if(dropIn(renewBox)) placed='renew';
     else if(dropIn(nonBox)) placed='non';
     if(!placed) return;
-
     it.placed = placed;
-    // Snap into the box grid
     const arr = simState.items.filter(x=>x.placed===placed);
     const idx = arr.indexOf(it);
     const cols = 2;
     const sx = (placed==='renew'?renewBox.x:nonBox.x);
     const sy = (placed==='renew'?renewBox.y:nonBox.y);
     const bw = (placed==='renew'?renewBox.w:nonBox.w);
+    const rowGap = Math.max(46, Math.round(h*0.065));
+    const topPad = Math.max(56, Math.round(h*0.072));
     it.x = (sx + bw*0.25 + (idx%cols)*bw*0.5) / w;
-    // Keep cards away from helper text inside the drop zone.
-    it.y = (sy + 70 + Math.floor(idx/cols)*52) / h;
-
+    it.y = (sy + topPad + Math.floor(idx/cols)*rowGap) / h;
     const correct = (it.type===placed);
     const info=document.getElementById('g9e1-info');
     if(correct){
       U9Sound && U9Sound.win && U9Sound.win();
-      if(info) info.innerHTML = `✅ صحيح: <strong>${it.name}</strong> ${it.emoji} ${placed==='renew'?'متجددة':'غير متجددة'}.`;
+      if(info) info.innerHTML = `✅ صحيح: <strong>${it.name}</strong> ${it.emoji} — ${placed==='renew'?'متجددة':'غير متجددة'}.`;
     }else{
       U9Sound && U9Sound.ping && U9Sound.ping(200,0.2,0.15);
-      if(info) info.innerHTML = `❌ جرّب ثانية: <strong>${it.name}</strong> ${it.emoji} ليست هنا.`;
+      if(info) info.innerHTML = `❌ ليست في هذا الصندوق — أعد المحاولة: <strong>${it.name}</strong> ${it.emoji}`;
       it.placed = null;
     }
+  }
+
+  cv.onmousedown = (e)=>{
+    if(currentSim!=='g9energymix') return;
+    const {mx,my}=_g9e1Pos(e);
+    _g9e1Start(mx,my);
+  };
+  cv.onmousemove = (e)=>{
+    if(currentSim!=='g9energymix') return;
+    const {mx,my}=_g9e1Pos(e);
+    _g9e1Move(mx,my);
+  };
+  cv.onmouseup = (e)=>{
+    if(currentSim!=='g9energymix') return;
+    const {mx,my}=_g9e1Pos(e);
+    _g9e1End(mx,my);
+  };
+  cv.onmouseleave = ()=>{ if(simState.dragId) simState.dragId=null; };
+  cv.ontouchstart = (e)=>{
+    if(currentSim!=='g9energymix') return;
+    const {mx,my}=_g9e1Pos(e);
+    _g9e1Start(mx,my);
+  };
+  cv.ontouchmove = (e)=>{
+    if(!simState.dragId) return;
+    e.preventDefault();
+    const {mx,my}=_g9e1Pos(e);
+    _g9e1Move(mx,my);
+  };
+  cv.ontouchend = (e)=>{
+    if(currentSim!=='g9energymix') return;
+    const {mx,my}=_g9e1Pos(e);
+    _g9e1End(mx,my);
   };
 
   function draw(){
@@ -39974,27 +40148,27 @@ function simG9Energy1(){
     bg.addColorStop(0,'#F3F8FF'); bg.addColorStop(1,'#FFF7ED');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // Header
+    const titleSize = Math.round(Math.min(h*0.042, w*0.055));
     c.fillStyle='rgba(30,45,61,0.9)';
-    c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
-    c.fillText('صنّف مصادر الطاقة', w/2, 18);
+    c.font=`bold ${titleSize}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('صنّف مصادر الطاقة', w/2, 12);
+    c.fillStyle='rgba(30,45,61,0.45)'; c.font=`${Math.max(11, Math.round(titleSize*0.48))}px Tajawal`;
+    c.fillText('منطقة البطاقات أعلاه — مناطق الإسقاط أسفل', w/2, 12+titleSize+6);
 
-    // Drop zones
-    const renewBox = {x:w*0.08,y:h*0.60,w:w*0.4,h:h*0.30};
-    const nonBox   = {x:w*0.52,y:h*0.60,w:w*0.4,h:h*0.30};
+    const renewBox = {x:w*0.06,y:h*0.56,w:w*0.42,h:h*0.34};
+    const nonBox   = {x:w*0.52,y:h*0.56,w:w*0.42,h:h*0.34};
     const zone = (b, title, col)=>{
       c.fillStyle=col+'16'; c.beginPath(); c.roundRect(b.x,b.y,b.w,b.h,16); c.fill();
       c.strokeStyle=col+'66'; c.lineWidth=2; c.beginPath(); c.roundRect(b.x,b.y,b.w,b.h,16); c.stroke();
-      c.fillStyle=col; c.font=`bold ${Math.round(h*0.035)}px Tajawal`; c.textAlign='center';
-      c.fillText(title, b.x+b.w/2, b.y+10);
-      c.fillStyle='rgba(0,0,0,0.35)'; c.font=`${Math.round(h*0.023)}px Tajawal`;
-      c.fillText('اسحب البطاقات إلى هنا', b.x+b.w/2, b.y+38);
+      c.fillStyle=col; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+      c.fillText(title, b.x+b.w/2, b.y+8);
+      c.fillStyle='rgba(0,0,0,0.38)'; c.font=`${Math.max(11, Math.round(h*0.02))}px Tajawal`;
+      c.fillText('أسقط البطاقة داخل المستطيل', b.x+b.w/2, b.y+38);
     };
-    zone(renewBox,'♻️ مصادر متجددة','#16A34A');
-    zone(nonBox,'⛽ مصادر غير متجددة','#DC2626');
+    zone(renewBox,'♻️ متجددة','#16A34A');
+    zone(nonBox,'⛽ غير متجددة','#DC2626');
 
-    // Cards
-    const cw=Math.min(180, w*0.24), ch=44;
+    const {cw,ch}=g9e1CardMetrics(w,h);
     simState.items.forEach((it, i)=>{
       const x=it.x*w, y=it.y*h;
       const isDrag = simState.dragId===it.id;
@@ -40005,15 +40179,18 @@ function simG9Energy1(){
       c.strokeStyle=col+'55'; c.lineWidth=2; c.beginPath(); c.roundRect(x-cw/2,y-ch/2,cw,ch,14); c.stroke();
       c.shadowBlur=0;
       c.fillStyle=col; c.beginPath(); c.roundRect(x-cw/2,y-ch/2,8,ch,14); c.fill();
-      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(`${it.emoji} ${it.name}`, x, y+1);
+      const nameFont = Math.max(11, Math.round(h*0.024));
+      c.fillStyle='#1E2D3D'; c.font=`bold ${nameFont}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      const shortName = it.name.length>16 ? it.name.slice(0,15)+'…' : it.name;
+      c.fillText(`${it.emoji} ${shortName}`, x, y+1);
       c.restore();
     });
 
     const placedCount = simState.items.filter(it=>it.placed).length;
-    c.fillStyle='rgba(0,0,0,0.5)'; c.beginPath(); c.roundRect(w*0.32,h*0.12,w*0.36,26,13); c.fill();
-    c.fillStyle='white'; c.font=`${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(`تم تصنيف ${placedCount}/${simState.items.length}`, w/2, h*0.12+13);
+    const barY = h*0.915;
+    c.fillStyle='rgba(30,45,61,0.55)'; c.beginPath(); c.roundRect(w*0.2,barY,w*0.6,30,15); c.fill();
+    c.fillStyle='white'; c.font=`bold ${Math.max(12, Math.round(h*0.026))}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`تم التصنيف: ${placedCount} / ${simState.items.length}`, w/2, barY+15);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -40061,13 +40238,8 @@ function simG9Energy2(){
       <div class="ctrl-label" style="margin-top:8px">الزمن t: <span id="g9e-time">8</span> s</div>
       <input type="range" min="1" max="60" value="8" oninput="window._g9eSet('time',this.value)" style="width:100%">
     </div>
-    <div class="q-box">
-      <strong>💡 ماذا نستنتج؟</strong><br>
-      لا يمكن لأي جهاز تحويل 100% من الطاقة إلى طاقة مفيدة؛ دائمًا يوجد فاقد غالبًا على شكل حرارة.
-    </div>
-    <div class="q-box" style="margin-top:8px">
-      <strong>💡 تذكير</strong><br>
-      إذا كانت الكفاءة منخفضة فهذا يعني أن جزءًا من الطاقة ضاع في صورة حرارة/صوت/احتكاك.
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.65;opacity:0.95">
+      بعد ضبط القيم، افتح <strong>💡 ماذا نستنتج؟</strong> أسفل الشاشة وجاوب عن سؤال الكفاءة.
     </div>
   `);
   window._g9eSet('Ein', S.Ein);
@@ -40090,7 +40262,8 @@ function simG9Energy2(){
     // Title
     c.fillStyle='rgba(255,255,255,0.92)';
     c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
-    c.fillText('حاسبة الكفاءة', w/2, 16);
+    const simTitle = currentSim==='g9solar' ? 'الطاقة الشمسية — كفاءة التحويل' : 'حاسبة الكفاءة';
+    c.fillText(simTitle, w/2, 16);
 
     // Efficiency ring
     const cx=w*0.32, cy=h*0.55, r=Math.min(w,h)*0.18;
@@ -40128,11 +40301,14 @@ function simG9Energy2(){
     c.fillText(`Ein = ${S.Ein.toFixed(0)} J`, x1, by+bh*0.1+inH+36);
     c.fillText(`Euse = ${S.Euse.toFixed(0)} J`, x2, by+bh*0.1+inH+36);
 
-    // Power box
-    c.fillStyle='rgba(255,255,255,0.08)'; c.beginPath(); c.roundRect(w*0.08,h*0.78,w*0.84,56,16); c.fill();
+    const pboxTop = h*0.76;
+    c.fillStyle='rgba(255,255,255,0.08)'; c.beginPath(); c.roundRect(w*0.06,pboxTop,w*0.88,62,16); c.fill();
     c.strokeStyle='rgba(255,255,255,0.14)'; c.stroke();
-    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(`القدرة: Pin = ${pIn.toFixed(1)} W | Puse = ${pUse.toFixed(1)} W عند t = ${S.time.toFixed(0)} s`, w/2, h*0.78+28);
+    const pfs = Math.max(11, Math.round(h*0.024));
+    c.fillStyle='white'; c.font=`bold ${pfs}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`القدرة المدخلة: Pin = ${pIn.toFixed(1)} W`, w/2, pboxTop + 20);
+    c.fillStyle='rgba(255,255,255,0.88)'; c.font=`bold ${pfs}px Tajawal`;
+    c.fillText(`القدرة المفيدة: Puse = ${pUse.toFixed(1)} W — الزمن t = ${S.time.toFixed(0)} s`, w/2, pboxTop + 44);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -40144,6 +40320,15 @@ function simG9EnergyMix1(){ simG9Energy1(); }
 function simG9EnergyMix2(){
   cancelAnimationFrame(animFrame);
   simState={solar:20,wind:20,hydro:20,fossil:20,nuclear:20};
+  window._mixPreset=function(which){
+    if(which==='bal'){ simState.solar=20; simState.wind=20; simState.hydro=20; simState.fossil=20; simState.nuclear=20; }
+    if(which==='clean'){ simState.solar=35; simState.wind=30; simState.hydro=25; simState.fossil=5; simState.nuclear=5; }
+    if(which==='fossil'){ simState.solar=5; simState.wind=5; simState.hydro=10; simState.fossil=65; simState.nuclear=15; }
+    ['solar','wind','hydro','fossil','nuclear'].forEach(function(x){
+      var el=document.getElementById('mx-'+x); if(el) el.textContent=simState[x];
+      var rg=document.getElementById('mxr-'+x); if(rg) rg.value=simState[x];
+    });
+  };
   window._mixSet=function(k,v){
     simState[k]=+v;
     var sum=simState.solar+simState.wind+simState.hydro+simState.fossil+simState.nuclear;
@@ -40151,21 +40336,28 @@ function simG9EnergyMix2(){
     ['solar','wind','hydro','fossil','nuclear'].forEach(function(x){
       simState[x]=Math.round(simState[x]*100/sum);
       var el=document.getElementById('mx-'+x); if(el) el.textContent=simState[x];
+      var rg=document.getElementById('mxr-'+x); if(rg) rg.value=simState[x];
     });
   };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🧩 صمّم مزيج الطاقة (100%)</div>
-      <div style="font-size:13px;color:rgba(255,255,255,.75)">عدّل نسب المصادر ثم راقب الانبعاثات والاستدامة.</div>
+      <div class="ctrl-label">🧩 صمّم مزيج الطاقة (مجموع النسب ≈ 100%)</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.78);line-height:1.65;margin-top:4px">
+        حرّك المنزلقات أو اختر سيناريو جاهز. راقب الأعمدة ومؤشر الانبعاثات. سؤال الاستنتاج من الزر أسفل الشاشة.
+      </div>
+    </div>
+    <div class="ctrl-btns-grid" style="margin-top:6px">
+      <button class="ctrl-btn action" onclick="window._mixPreset('bal')">⚖️ متوازن</button>
+      <button class="ctrl-btn" onclick="window._mixPreset('clean')">🌿 أنظف</button>
+      <button class="ctrl-btn" onclick="window._mixPreset('fossil')">🛢️ أحفوري أكثر</button>
     </div>
     <div class="ctrl-section">
-      <div class="ctrl-label">☀️ شمسية <span id="mx-solar">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('solar',this.value)" style="width:100%">
-      <div class="ctrl-label">💨 رياح <span id="mx-wind">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('wind',this.value)" style="width:100%">
-      <div class="ctrl-label">💧 مائية <span id="mx-hydro">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('hydro',this.value)" style="width:100%">
-      <div class="ctrl-label">🛢️ أحفوري <span id="mx-fossil">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('fossil',this.value)" style="width:100%">
-      <div class="ctrl-label">⚛️ نووي <span id="mx-nuclear">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('nuclear',this.value)" style="width:100%">
+      <div class="ctrl-label">☀️ شمسية <span id="mx-solar">20</span>%</div><input id="mxr-solar" type="range" min="0" max="100" value="20" oninput="window._mixSet('solar',this.value)" style="width:100%">
+      <div class="ctrl-label">💨 رياح <span id="mx-wind">20</span>%</div><input id="mxr-wind" type="range" min="0" max="100" value="20" oninput="window._mixSet('wind',this.value)" style="width:100%">
+      <div class="ctrl-label">💧 مائية <span id="mx-hydro">20</span>%</div><input id="mxr-hydro" type="range" min="0" max="100" value="20" oninput="window._mixSet('hydro',this.value)" style="width:100%">
+      <div class="ctrl-label">🛢️ أحفوري <span id="mx-fossil">20</span>%</div><input id="mxr-fossil" type="range" min="0" max="100" value="20" oninput="window._mixSet('fossil',this.value)" style="width:100%">
+      <div class="ctrl-label">⚛️ نووي <span id="mx-nuclear">20</span>%</div><input id="mxr-nuclear" type="range" min="0" max="100" value="20" oninput="window._mixSet('nuclear',this.value)" style="width:100%">
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>مزيج الطاقة المتوازن يقلل الانبعاثات ويحافظ على استمرارية التزويد الكهربائي.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -40175,18 +40367,28 @@ function simG9EnergyMix2(){
     const vals=[simState.solar,simState.wind,simState.hydro,simState.fossil,simState.nuclear];
     const cols=['#F59E0B','#22C55E','#0EA5E9','#EF4444','#A855F7'];
     const names=['شمسية','رياح','مائية','أحفوري','نووي'];
-    let x=w*0.12, y=h*0.75, bw=w*0.12, gap=w*0.04;
+    const n=5, gap=w*0.028, bw=(w*0.82 - gap*(n-1))/n, x0=w*0.09;
+    const baseY=h*0.68, maxH=h*0.42;
     vals.forEach((v,i)=>{
-      const bh=h*0.55*(v/100);
-      c.fillStyle=cols[i]; c.beginPath(); c.roundRect(x+i*(bw+gap),y-bh,bw,bh,10); c.fill();
-      c.fillStyle='white'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
-      c.fillText(v+'%',x+i*(bw+gap)+bw/2,y-bh-8);
-      c.fillText(names[i],x+i*(bw+gap)+bw/2,y+20);
+      const bh=maxH*(v/100);
+      const bx=x0+i*(bw+gap);
+      c.fillStyle=cols[i];
+      c.beginPath(); c.roundRect(bx,baseY-bh,bw,bh,10); c.fill();
+      c.fillStyle='rgba(255,255,255,.92)'; c.font=`bold ${Math.max(11,Math.round(h*0.022))}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText(v+'%', bx+bw/2, baseY-bh-6);
+    });
+    const lblY = baseY+14;
+    c.fillStyle='rgba(148,163,184,.95)'; c.font=`${Math.max(11,Math.round(h*0.02))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    names.forEach((nm,i)=>{
+      const bx=x0+i*(bw+gap);
+      c.fillText(nm, bx+bw/2, lblY);
     });
     const emissions=Math.round(simState.fossil*1.0 + simState.nuclear*0.15 + simState.hydro*0.08 + simState.wind*0.03 + simState.solar*0.02);
-    c.fillStyle='rgba(255,255,255,.9)'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`;
-    c.fillText('مؤشر الانبعاثات: '+emissions, w/2, h*0.12);
-    c.fillText(emissions<30?'✅ منخفض':'⚠️ مرتفع', w/2, h*0.18);
+    c.fillStyle='rgba(255,255,255,.95)'; c.font=`bold ${Math.min(22,Math.round(h*0.038))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('مؤشر الانبعاثات (نموذج تعليمي): '+emissions, w/2, h*0.08);
+    c.fillStyle= emissions<30 ? '#4ADE80' : '#FBBF24';
+    c.font=`bold ${Math.round(h*0.028)}px Tajawal`;
+    c.fillText(emissions<30?'حالة: منخفض نسبياً':'حالة: مرتفع نسبياً — قلّل الأحفوري', w/2, h*0.08 + Math.round(h*0.045));
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -40195,32 +40397,58 @@ function simG9EnergyMix2(){
 function simG9Solar1(){
   cancelAnimationFrame(animFrame);
   simState={angle:45,irr:70};
-  window._solSet=function(k,v){simState[k]=+v; var el=document.getElementById('sol-'+k); if(el) el.textContent=v;};
+  window._solSet=function(k,v){simState[k]=+v; var el=document.getElementById('sol-'+k); if(el) el.textContent=v; var r=document.getElementById('solr-'+k); if(r) r.value=v;};
+  window._solAngle=function(a){ window._solSet('angle', a); };
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">☀️ زاوية اللوح: <span id="sol-angle">45</span>°</div>
-      <input type="range" min="0" max="90" value="45" oninput="window._solSet('angle',this.value)" style="width:100%">
+      <input id="solr-angle" type="range" min="0" max="90" value="45" oninput="window._solSet('angle',this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._solAngle(0)">0° أفقي</button>
+        <button class="ctrl-btn action" onclick="window._solAngle(45)">45°</button>
+        <button class="ctrl-btn" onclick="window._solAngle(90)">90° عمودي</button>
+      </div>
       <div class="ctrl-label" style="margin-top:8px">شدة الإشعاع: <span id="sol-irr">70</span>%</div>
-      <input type="range" min="20" max="100" value="70" oninput="window._solSet('irr',this.value)" style="width:100%">
+      <input id="solr-irr" type="range" min="20" max="100" value="70" oninput="window._solSet('irr',this.value)" style="width:100%">
+      <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.65">انقر قرب اللوح على الشاشة لمحاذاة الزاوية تقريباً مع اتجاه الشعاع.</div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>أفضل إنتاج للطاقة الشمسية عندما تكون الأشعة عمودية تقريبًا على اللوح.</div>
   `);
   const cv=document.getElementById('simCanvas');
+  cv.onclick=function(e){
+    if(currentSim!=='g9solar') return;
+    const r=cv.getBoundingClientRect();
+    const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const w=cv.width, h=cv.height;
+    const px=w*0.58, py=h*0.62;
+    const dx=mx-px, dy=my-py;
+    let deg=Math.atan2(dy,dx)*180/Math.PI;
+    deg=Math.max(0, Math.min(90, Math.round(-deg)));
+    window._solSet('angle', deg);
+  };
   function draw(){
     if(currentSim!=='g9solar'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#EAF4FF'; c.fillRect(0,0,w,h);
     const ang=simState.angle*Math.PI/180;
-    const sunX=w*0.15,sunY=h*0.15;
-    c.fillStyle='rgba(255,215,80,0.95)'; c.beginPath(); c.arc(sunX,sunY,34,0,Math.PI*2); c.fill();
-    const px=w*0.6,py=h*0.68,l=130;
-    c.save(); c.translate(px,py); c.rotate(-ang+Math.PI/4);
-    c.fillStyle='#64748B'; c.fillRect(-l/2,-10,l,20); c.restore();
-    c.strokeStyle='rgba(245,158,11,0.75)'; c.lineWidth=3;
-    for(let i=0;i<8;i++){ c.beginPath(); c.moveTo(sunX+20+i*6,sunY+15+i*3); c.lineTo(px-20,py-40+i*2); c.stroke(); }
-    const efficiency=Math.max(0,Math.cos((ang-Math.PI/4))*0.9)*(simState.irr/100);
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
-    c.fillText('الكفاءة التقريبية: '+Math.round(efficiency*100)+'%',w/2,h*0.9);
+    const sunX=w*0.14,sunY=h*0.18;
+    c.fillStyle='rgba(255,215,80,0.95)'; c.beginPath(); c.arc(sunX,sunY,32,0,Math.PI*2); c.fill();
+    const px=w*0.58,py=h*0.62,l=Math.min(150,w*0.34);
+    c.save(); c.translate(px,py); c.rotate(-ang);
+    c.fillStyle='#475569'; c.strokeStyle='#334155'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(-l/2,-12,l,24,8); c.fill(); c.stroke();
+    c.fillStyle='rgba(30,58,138,0.25)'; c.fillRect(-l/2,-12,l,24);
+    c.restore();
+    const effRaw=Math.cos(ang);
+    const efficiency=Math.max(0, effRaw)*0.92*(simState.irr/100);
+    c.strokeStyle='rgba(245,158,11,0.55)'; c.lineWidth=2.5;
+    const sx=sunX+28, sy=sunY+22, ex=px-18, ey=py-6;
+    c.beginPath(); c.moveTo(sx,sy); c.lineTo(ex,ey); c.stroke();
+    c.setLineDash([6,6]); c.strokeStyle='rgba(245,158,11,0.35)'; c.beginPath();
+    c.moveTo(px,py); c.lineTo(px,py+70); c.stroke(); c.setLineDash([]);
+    c.fillStyle='rgba(30,45,61,0.88)'; c.font=`bold ${Math.min(20,Math.round(h*0.034))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('شعاع شمسي — زاوية سطح اللوح: '+simState.angle+'°', w/2, h*0.06);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textBaseline='bottom';
+    c.fillText('كفاءة تقريبية: '+Math.round(efficiency*100)+'%', w/2, h*0.94);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -40236,8 +40464,8 @@ function simG9Wind1(){
     <div class="ctrl-section">
       <div class="ctrl-label">💨 سرعة الرياح: <span id="wind-v">8</span> m/s</div>
       <input type="range" min="2" max="20" value="8" oninput="window._windV(this.value)" style="width:100%">
+      <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.65">في النموذج التقريبي: القدرة ∝ v³. جرّب السرعات ثم سؤال الاستنتج من الأسفل.</div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>القدرة من الرياح تزيد تقريبًا مع مكعب سرعة الرياح (P ∝ v³).</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -40251,8 +40479,10 @@ function simG9Wind1(){
     for(let i=0;i<3;i++){ c.rotate((Math.PI*2)/3); c.beginPath(); c.moveTo(0,0); c.lineTo(r,8); c.lineTo(r,-8); c.closePath(); c.fill(); }
     c.restore();
     const p=Math.round(Math.pow(speed,3));
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign='center';
-    c.fillText('قدرة نسبية: '+p, w/2, h*0.12);
+    c.fillStyle='rgba(30,45,61,0.88)'; c.font=`bold ${Math.min(20,Math.round(h*0.034))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('توربين رياح — سرعة '+speed+' m/s', w/2, h*0.06);
+    c.fillStyle='#0F172A'; c.font=`bold ${Math.round(h*0.038)}px Tajawal`; c.textBaseline='bottom';
+    c.fillText('قدرة نسبية ∝ v³ ← '+p, w/2, h*0.93);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -40269,7 +40499,6 @@ function simG9Wind2(){
       <div class="ctrl-label" style="margin-top:8px">سرعة الرياح: <span id="wf-v">10</span> m/s</div>
       <input type="range" min="3" max="20" value="10" oninput="window._wfSet('v',this.value)" style="width:100%">
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>إنتاج المزرعة يعتمد على عدد التوربينات وسرعة الرياح معًا.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -40288,8 +40517,10 @@ function simG9Wind2(){
       c.restore(); idx++;
     }
     const out=Math.round(total*Math.pow(simState.v,3)/120);
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
-    c.fillText('إنتاج المزرعة (نسبي): '+out, w/2, h*0.12);
+    c.fillStyle='rgba(30,45,61,0.88)'; c.font=`bold ${Math.min(20,Math.round(h*0.032))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('مزرعة رياح — '+total+' توربين', w/2, h*0.05);
+    c.fillStyle='#0F172A'; c.font=`bold ${Math.round(h*0.036)}px Tajawal`; c.textBaseline='bottom';
+    c.fillText('إنتاج نسبي: '+out+' (سرعة '+simState.v+' m/s)', w/2, h*0.92);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -40306,7 +40537,6 @@ function simG9Hydro1(){
       <div class="ctrl-label" style="margin-top:8px">معدل التدفق: <span id="hy-flow">50</span>%</div>
       <input type="range" min="10" max="100" value="50" oninput="window._hySet('flow',this.value)" style="width:100%">
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما زاد فرق الارتفاع وتدفق الماء زادت القدرة المنتجة.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -40317,8 +40547,10 @@ function simG9Hydro1(){
     c.fillStyle='#0EA5E9'; c.fillRect(w*0.08,h*0.22,w*0.22,h*(simState.flow/100)*0.5);
     c.strokeStyle='#64748B'; c.lineWidth=6; c.beginPath(); c.moveTo(w*0.3,h*0.65); c.lineTo(w*0.55,h*0.65); c.stroke();
     const p=Math.round(simState.head*simState.flow*0.12);
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign='center';
-    c.fillText('قدرة نسبية: '+p, w*0.72, h*0.2);
+    c.fillStyle='rgba(30,45,61,0.9)'; c.font=`bold ${Math.min(18,Math.round(h*0.03))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('خزان ماء — ارتفاع '+simState.head+' m', w/2, h*0.06);
+    c.fillStyle='#0C4A6E'; c.font=`bold ${Math.round(h*0.034)}px Tajawal`; c.textBaseline='bottom';
+    c.fillText('قدرة نسبية: '+p+' — تدفق '+simState.flow+'%', w/2, h*0.93);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -40335,7 +40567,6 @@ function simG9Hydro2(){
       <div class="ctrl-label" style="margin-top:8px">الدورة: <span id="td-period">12</span> ساعة</div>
       <input type="range" min="6" max="24" value="12" oninput="window._tdSet('period',this.value)" style="width:100%">
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما زاد مدى المدّ ازدادت الطاقة المتاحة للتوليد.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -40348,8 +40579,10 @@ function simG9Hydro2(){
     for(let x=0;x<=w;x+=16){ c.lineTo(x, y+Math.sin((x+t*60)/40)*6); }
     c.lineTo(w,h); c.lineTo(0,h); c.closePath(); c.fill();
     const p=Math.round(simState.tide*simState.tide*22);
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
-    c.fillText('قدرة مدّ/جزر نسبية: '+p, w/2, h*0.14);
+    c.fillStyle='rgba(30,45,61,0.9)'; c.font=`bold ${Math.min(18,Math.round(h*0.03))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('مدّ وجزر — مدى '+simState.tide+' m | دورة '+simState.period+' س', w/2, h*0.055);
+    c.fillStyle='#0C4A6E'; c.font=`bold ${Math.round(h*0.034)}px Tajawal`; c.textBaseline='bottom';
+    c.fillText('قدرة نسبية: '+p, w/2, h*0.92);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -40367,7 +40600,6 @@ function simG9Fossil1(){
         <button class="ctrl-btn" onclick="window._fSrc('nuclear')">نووي</button>
       </div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>المصادر تختلف في كثافة الطاقة والانبعاثات والمخاطر التشغيلية.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -40375,12 +40607,14 @@ function simG9Fossil1(){
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
     const isF=simState.src==='fossil';
-    c.fillStyle=isF?'#EF4444':'#A855F7'; c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center';
-    c.fillText(isF?'الوقود الأحفوري':'الطاقة النووية',w/2,h*0.15);
+    c.fillStyle=isF?'#EF4444':'#A855F7'; c.font=`bold ${Math.min(22,Math.round(h*0.042))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(isF?'الوقود الأحفوري':'الطاقة النووية',w/2,h*0.1);
     const en=isF?78:92, co2=isF?88:8;
-    c.fillStyle='white'; c.font=`${Math.round(h*0.04)}px Tajawal`;
-    c.fillText('كثافة طاقة: '+en+'/100',w/2,h*0.42);
-    c.fillText('انبعاثات: '+co2+'/100',w/2,h*0.56);
+    c.fillStyle='rgba(255,255,255,0.92)'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textBaseline='middle';
+    c.fillText('كثافة طاقة (نموذج): '+en+' / 100',w/2,h*0.42);
+    c.fillText('مؤشر انبعاثات تشغيل (نموذج): '+co2+' / 100',w/2,h*0.52);
+    c.fillStyle='rgba(255,255,255,0.55)'; c.font=`${Math.max(11,Math.round(h*0.022))}px Tajawal`; c.textBaseline='bottom';
+    c.fillText('قارن ثم افتح سؤال الاستنتاج من الأسفل',w/2,h*0.9);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -40396,7 +40630,6 @@ function simG9Fossil2(){
       <div class="ctrl-label">أحفوري: <span id="fe-f">60</span>% — متجدد: <span id="fe-r">40</span>%</div>
       <input type="range" min="0" max="100" value="60" oninput="window._feSet('fossil',this.value)" style="width:100%">
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>زيادة المصادر المتجددة تقلل غالبًا من الانبعاثات الكربونية.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -40404,10 +40637,11 @@ function simG9Fossil2(){
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#0B1220'; c.fillRect(0,0,w,h);
     const co2=Math.round(simState.fossil*0.9 + simState.renew*0.15);
-    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.045)}px Tajawal`; c.textAlign='center';
-    c.fillText('مؤشر الانبعاثات: '+co2, w/2, h*0.18);
+    c.fillStyle='white'; c.font=`bold ${Math.min(22,Math.round(h*0.038))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('مزيج: أحفوري '+simState.fossil+'% — متجدد '+simState.renew+'%', w/2, h*0.08);
     c.fillStyle=co2<35?'#22C55E':co2<60?'#F59E0B':'#EF4444';
-    c.fillText(co2<35?'منخفض':'مرتفع', w/2, h*0.28);
+    c.font=`bold ${Math.round(h*0.034)}px Tajawal`;
+    c.fillText('مؤشر انبعاثات (نموذج): '+co2+' — '+(co2<35?'منخفض':'مرتفع'), w/2, h*0.14);
     c.fillStyle='#64748B'; c.fillRect(w*0.2,h*0.55,w*0.6,24);
     c.fillStyle='#EF4444'; c.fillRect(w*0.2,h*0.55,w*0.6*(simState.fossil/100),24);
     c.fillStyle='#22C55E'; c.fillRect(w*0.2+w*0.6*(simState.fossil/100),h*0.55,w*0.6*(simState.renew/100),24);
@@ -40433,7 +40667,6 @@ function simG9Efficiency2(){
       <div class="ctrl-label" style="margin-top:8px">نسبة الفاقد: <span id="ls-v">35</span>%</div>
       <input type="range" min="5" max="80" value="35" oninput="window._lsSet(this.value)" style="width:100%">
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>تحسين العزل وتقليل الاحتكاك ورفع جودة المكونات يرفع كفاءة النظام.</div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
@@ -40441,12 +40674,14 @@ function simG9Efficiency2(){
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
     const eff=100-simState.loss;
-    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center';
-    c.fillText('كفاءة النظام: '+eff+'%', w/2, h*0.16);
-    c.fillStyle='#22C55E'; c.fillRect(w*0.2,h*0.45,w*0.6*(eff/100),28);
-    c.fillStyle='#EF4444'; c.fillRect(w*0.2+w*0.6*(eff/100),h*0.45,w*0.6*(simState.loss/100),28);
-    c.fillStyle='rgba(255,255,255,.8)'; c.font=`${Math.round(h*0.03)}px Tajawal`;
-    c.fillText('نوع الفاقد: '+(simState.lossType==='heat'?'حرارة':simState.lossType==='friction'?'احتكاك':'صوت'), w/2, h*0.62);
+    c.fillStyle='white'; c.font=`bold ${Math.min(24,Math.round(h*0.042))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('كفاءة = 100% − الفاقد ← '+eff+'%', w/2, h*0.08);
+    c.fillStyle='#22C55E'; c.fillRect(w*0.18,h*0.42,w*0.64*(eff/100),30);
+    c.fillStyle='#EF4444'; c.fillRect(w*0.18+w*0.64*(eff/100),h*0.42,w*0.64*(simState.loss/100),30);
+    c.fillStyle='rgba(255,255,255,.85)'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`;
+    c.fillText('فاقد: '+(simState.lossType==='heat'?'حرارة':simState.lossType==='friction'?'احتكاك':'صوت')+' — '+simState.loss+'%', w/2, h*0.58);
+    c.fillStyle='rgba(255,255,255,.5)'; c.font=`${Math.max(11,Math.round(h*0.021))}px Tajawal`; c.textBaseline='bottom';
+    c.fillText('اختر نوع الفاقد من الأزرار ثم قلّل النسبة وشاهد ارتفاع الشريط الأخضر', w/2, h*0.9);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
