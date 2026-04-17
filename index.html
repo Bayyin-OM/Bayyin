@@ -4246,7 +4246,39 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           <div class="unit-num-badge c-green">١١</div>
           <div>
             <div class="unit-title">الطاقة والضوء</div>
-            <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · انعكاس الضوء</div>
+            <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · القدرة</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys12', this)">
+          <div class="unit-num-badge c-teal">١٢</div>
+          <div>
+            <div class="unit-title">انعكاس الضوء</div>
+            <div class="unit-topics">قانون الانعكاس · العمود المقام · مخطط الأشعة</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys13', this)">
+          <div class="unit-num-badge c-purple">١٣</div>
+          <div>
+            <div class="unit-title">انكسار الضوء</div>
+            <div class="unit-topics">الانتقال بين الأوساط · قانون سنيل · الزاوية الحرجة</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys14', this)">
+          <div class="unit-num-badge c-gold">١٤</div>
+          <div>
+            <div class="unit-title">العدسات وتكوُّن الصور</div>
+            <div class="unit-topics">عدسة محدبة ومقعرة · صورة حقيقية وتقديرية · البعد البؤري</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys15', this)">
+          <div class="unit-num-badge c-green">١٥</div>
+          <div>
+            <div class="unit-title">الدوائر الكهربائية</div>
+            <div class="unit-topics">دائرة متسلسلة ومتوازية · قانون أوم · القدرة والكفاءة</div>
             <div class="unit-pill avail">🔓 متاح</div>
           </div>
         </div>
@@ -4256,26 +4288,135 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
       <div class="sims-wrap" id="sims-g9phys11" style="margin-top:28px">
         <div class="sims-grid">
 
-          <div class="sim-card" onclick="openSim('g9energy')">
+          <div class="sim-card" onclick="openSim('g9energymix')">
             <div class="sim-thumb t7">⚡</div>
             <div class="sim-body">
-              <div class="sim-num">١١-١ · موارد الطاقة</div>
-              <div class="sim-name">صنّف المصادر واحسب الكفاءة</div>
-              <div class="sim-desc">اسحب مصادر الطاقة لتصنيفها (متجددة/غير متجددة) ثم جرّب حاسبة الكفاءة والطاقة المفيدة</div>
+              <div class="sim-num">١١-١ · تصنيف مصادر الطاقة</div>
+              <div class="sim-name">متجددة أم غير متجددة؟</div>
+              <div class="sim-desc">اسحب المصادر إلى التصنيف الصحيح، ثم استكشف مزيج الطاقة الأنسب للبيئة</div>
             </div>
             <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
           </div>
 
+          <div class="sim-card" onclick="openSim('g9solar')">
+            <div class="sim-thumb t6">☀️</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٢ · الطاقة الشمسية</div>
+              <div class="sim-name">شدة الإشعاع والخلايا الشمسية</div>
+              <div class="sim-desc">غيّر زاوية اللوح وشدة الإشعاع ولاحظ أثر ذلك على القدرة والكفاءة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9wind')">
+            <div class="sim-thumb t2">💨</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٣ · طاقة الرياح</div>
+              <div class="sim-name">سرعة الرياح والتوربينات</div>
+              <div class="sim-desc">اختبر تأثير سرعة الرياح وعدد التوربينات على الإنتاج الكهربائي</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9hydro')">
+            <div class="sim-thumb t8">🌊</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٤ · المائية والمدّ والجزر</div>
+              <div class="sim-name">منسوب الماء والطاقة الناتجة</div>
+              <div class="sim-desc">شاهد كيف يؤثر فرق الارتفاع وتدفّق الماء والمدّ والجزر على القدرة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9fossil')">
+            <div class="sim-thumb t3">🛢️</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٥ · الوقود الأحفوري والنووي</div>
+              <div class="sim-name">الطاقة مقابل الأثر البيئي</div>
+              <div class="sim-desc">قارن كثافة الطاقة والانبعاثات والمخاطر بين المصادر غير المتجددة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9efficiency')">
+            <div class="sim-thumb t5">📈</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٦ · كفاءة الطاقة</div>
+              <div class="sim-name">Ein و Eout والقدرة</div>
+              <div class="sim-desc">احسب الكفاءة والطاقة المهدرة والقدرة، ثم حسّن أداء النظام</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys12 ══ -->
+      <div class="sims-wrap" id="sims-g9phys12" style="margin-top:28px">
+        <div class="sims-grid">
           <div class="sim-card" onclick="openSim('g9refl')">
             <div class="sim-thumb t6">🪞</div>
             <div class="sim-body">
-              <div class="sim-num">١١-٢ · انعكاس الضوء</div>
+              <div class="sim-num">١٢-١ · انعكاس الضوء</div>
               <div class="sim-name">زاوية السقوط = زاوية الانعكاس</div>
               <div class="sim-desc">حرّك الشعاع على المرآة وشاهد كيف تتغير الزوايا، ثم ارسم مخطط الأشعة (Ray diagram)</div>
             </div>
             <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
           </div>
+        </div>
+      </div>
 
+      <!-- ══ sims: g9phys13 ══ -->
+      <div class="sims-wrap" id="sims-g9phys13" style="margin-top:28px">
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('g9refract')">
+            <div class="sim-thumb t6">🔎</div>
+            <div class="sim-body">
+              <div class="sim-num">١٣-١ · انكسار الضوء</div>
+              <div class="sim-name">من الهواء إلى الزجاج</div>
+              <div class="sim-desc">غيّر زاوية السقوط ومعامل الانكسار وشاهد زاوية الانكسار حسب قانون سنيل</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys14 ══ -->
+      <div class="sims-wrap" id="sims-g9phys14" style="margin-top:28px">
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('g9lens')">
+            <div class="sim-thumb t7">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">١٤-١ · العدسات والصور</div>
+              <div class="sim-name">حرّك الجسم وشاهد الصورة</div>
+              <div class="sim-desc">استكشف تأثير نوع العدسة وبعد الجسم على نوع الصورة وحجمها وموقعها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys15 ══ -->
+      <div class="sims-wrap" id="sims-g9phys15" style="margin-top:28px">
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('g9circuits')">
+            <div class="sim-thumb t2">🔌</div>
+            <div class="sim-body">
+              <div class="sim-num">١٥-١ · بناء الدوائر</div>
+              <div class="sim-name">متسلسلة أم متوازية؟</div>
+              <div class="sim-desc">قارن سطوع المصابيح والتيار عند تبديل نوع التوصيل وعدد المصابيح</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9ohm')">
+            <div class="sim-thumb t8">📐</div>
+            <div class="sim-body">
+              <div class="sim-num">١٥-٢ · قانون أوم والقدرة</div>
+              <div class="sim-name">V و I و R بشكل حيّ</div>
+              <div class="sim-desc">غيّر فرق الجهد والمقاومة واحسب التيار والقدرة والكفاءة مباشرة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
         </div>
       </div>
     </div>
@@ -4878,7 +5019,7 @@ function switchG9Subject(subject) {
               <div class="unit-num-badge c-green">١١</div>
               <div>
                 <div class="unit-title">الطاقة والضوء</div>
-                <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · انعكاس الضوء</div>
+                <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · القدرة</div>
                 <div class="unit-pill avail">🔓 متاح</div>
               </div>
             </div>
@@ -4899,15 +5040,6 @@ function switchG9Subject(subject) {
                   <div class="sim-num">١١-١ · موارد الطاقة</div>
                   <div class="sim-name">صنّف المصادر واحسب الكفاءة</div>
                   <div class="sim-desc">اسحب مصادر الطاقة لتصنيفها (متجددة/غير متجددة) ثم جرّب حاسبة الكفاءة والطاقة المفيدة</div>
-                </div>
-                <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
-              </div>
-              <div class="sim-card" onclick="openSim('g9refl')">
-                <div class="sim-thumb t6">🪞</div>
-                <div class="sim-body">
-                  <div class="sim-num">١١-٢ · انعكاس الضوء</div>
-                  <div class="sim-name">زاوية السقوط = زاوية الانعكاس</div>
-                  <div class="sim-desc">حرّك الشعاع على المرآة وشاهد كيف تتغير الزوايا، ثم ارسم مخطط الأشعة (Ray diagram)</div>
                 </div>
                 <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
               </div>
@@ -4976,7 +5108,11 @@ function openUnit(id, el) {
     g9chem8:'الوحدة الثامنة 🧂 — الأملاح تتكوّن من أحماض وقواعد. من NaCl إلى CuSO₄ — اكتشف كيف!',
     g9chem9:'الوحدة التاسعة 🔬 — التحليل الكيميائي يكشف أسرار المواد المجهولة!',
     g9chem10:'الوحدة العاشرة 🌍 — الأرض تحت المجهر! استكشف الهواء والتلوّث والمناخ والحجر الجيري.',
-    g9phys11:'الوحدة الحادية عشرة ⚡🪞 — صنّف مصادر الطاقة وتعلّم الكفاءة، ثم جرّب انعكاس الضوء وارسم الأشعة!'
+    g9phys11:'الوحدة الحادية عشرة ⚡ — استكشف جميع مصادر الطاقة وقارنها واحسب الكفاءة والقدرة.',
+    g9phys12:'الوحدة الثانية عشرة 🪞 — طبّق قانون الانعكاس وارسم مسارات الأشعة.',
+    g9phys13:'الوحدة الثالثة عشرة 🔎 — جرّب انكسار الضوء بين الأوساط واكتشف أثر معامل الانكسار.',
+    g9phys14:'الوحدة الرابعة عشرة 🔬 — حرّك الجسم أمام العدسة وشاهد كيف تتكون الصورة.',
+    g9phys15:'الوحدة الخامسة عشرة 🔌 — ابنِ دوائر كهربائية وقارن قانون أوم والقدرة.'
   };
   if(hints[id]) setTimeout(function(){ buddySay(hints[id], 6000); }, 400);
 }
@@ -5121,9 +5257,18 @@ const SIM_META = {
   g9greenhouse: { title: 'نشاط 10-4 · تأثير الدفيئة والاحترار العالمي', badge: '🌡️ 9', tabs: ['آلية تأثير الدفيئة 🌍', 'غازات الدفيئة ومصادرها 🏭', 'التغيُّرات المناخية وحلولها ♻️'] },
   g9limestone:  { title: 'نشاط 10-5 · الحجر الجيري والتفكك الحراري', badge: '🪨 9', tabs: ['التفكك الحراري لـ CaCO₃ 🔥', 'الجير الحيّ ومنتجاته 🏗️', 'معالجة التربة الحمضية 🌱'] }
   ,
-  // ── الصف التاسع — فيزياء: الوحدة 11 ──
-  g9energy: { title: 'الوحدة 11 · موارد الطاقة والكفاءة', badge: '⚡ 9', tabs: ['صنّف المصادر ♻️', 'حاسبة الكفاءة 📈'] },
-  g9refl:   { title: 'الوحدة 11 · انعكاس الضوء', badge: '🪞 9', tabs: ['قانون الانعكاس 📐', 'مخطط الأشعة 🎯'] }
+  // ── الصف التاسع — فيزياء: الوحدة 11 (مصادر الطاقة) ──
+  g9energymix:{ title: '١١-١ · تصنيف مصادر الطاقة', badge: '⚡ 9', tabs: ['متجددة/غير متجددة ♻️', 'مزيج الطاقة 🧩'] },
+  g9solar:   { title: '١١-٢ · الطاقة الشمسية', badge: '☀️ 9', tabs: ['زاوية السقوط ☀️', 'القدرة والكفاءة 📈'] },
+  g9wind:    { title: '١١-٣ · طاقة الرياح', badge: '💨 9', tabs: ['سرعة الرياح 💨', 'مزرعة رياح 🌀'] },
+  g9hydro:   { title: '١١-٤ · الطاقة المائية والمدّ والجزر', badge: '🌊 9', tabs: ['الطاقة المائية 💧', 'المدّ والجزر 🌙'] },
+  g9fossil:  { title: '١١-٥ · الوقود الأحفوري والنووي', badge: '🛢️ 9', tabs: ['مقارنة المصادر ⛽', 'الأثر البيئي 🌍'] },
+  g9efficiency:{ title: '١١-٦ · كفاءة الطاقة', badge: '📈 9', tabs: ['حساب الكفاءة 🔢', 'تقليل الفاقد ♻️'] },
+  g9refl:   { title: 'الوحدة 12 · انعكاس الضوء', badge: '🪞 9', tabs: ['قانون الانعكاس 📐', 'مخطط الأشعة 🎯'] },
+  g9refract:{ title: 'الوحدة 13 · انكسار الضوء', badge: '🔎 9', tabs: ['قانون سنيل 📐', 'الزاوية الحرجة 🌈'] },
+  g9lens:   { title: 'الوحدة 14 · العدسات وتكوّن الصور', badge: '🔬 9', tabs: ['أنواع العدسات 🧪', 'موقع الصورة 🎯'] },
+  g9circuits:{ title: 'الوحدة 15 · الدوائر الكهربائية', badge: '🔌 9', tabs: ['متسلسلة/متوازية ⚡', 'تحليل الدائرة 📊'] },
+  g9ohm:    { title: 'الوحدة 15 · قانون أوم والقدرة', badge: '📐 9', tabs: ['V=IR 🔢', 'القدرة والكفاءة 🔋'] }
 };
 
 // ===== UNIT 7 END-OF-UNIT QUIZ =====
@@ -5913,9 +6058,18 @@ function startSim(type, tab) {
     g9acidrain:   [_s('simG9AcidRain1'),   _s('simG9AcidRain2'),   _s('simG9AcidRain3')],
     g9greenhouse: [_s('simG9Greenhouse1'), _s('simG9Greenhouse2'), _s('simG9Greenhouse3')],
     g9limestone:  [_s('simG9Limestone1'),  _s('simG9Limestone2'),  _s('simG9Limestone3')],
-    // ── فيزياء الصف التاسع — الوحدة 11 ──
-    g9energy: [simG9Energy1, simG9Energy2],
-    g9refl:   [simG9Refl1, simG9Refl2]
+    // ── فيزياء الصف التاسع — الوحدة 11 (مصادر الطاقة) ──
+    g9energymix:[simG9EnergyMix1, simG9EnergyMix2],
+    g9solar:   [simG9Solar1, simG9Solar2],
+    g9wind:    [simG9Wind1, simG9Wind2],
+    g9hydro:   [simG9Hydro1, simG9Hydro2],
+    g9fossil:  [simG9Fossil1, simG9Fossil2],
+    g9efficiency:[simG9Efficiency1, simG9Efficiency2],
+    g9refl:   [simG9Refl1, simG9Refl2],
+    g9refract:[simG9Refract1, simG9Refract2],
+    g9lens:   [simG9Lens1, simG9Lens2],
+    g9circuits:[simG9Circuits1, simG9Circuits2],
+    g9ohm:    [simG9Ohm1, simG9Ohm2]
   };
   const fn = (fns[type] || [])[tab];
   if (fn) {
@@ -39724,6 +39878,10 @@ function simG9Energy1(){
     <div class="info-box" id="g9e1-info">اسحب بطاقة وجرّب ✋</div>
     <button class="ctrl-btn reset" style="width:100%;margin-top:6px" onclick="simG9Energy1()">↺ إعادة</button>
     <div class="q-box" style="margin-top:10px">
+      <strong>💡 ماذا نستنتج؟</strong><br>
+      مصادر الطاقة ليست كلها متشابهة: بعضها متجدد ونظيف نسبيًا، وبعضها محدود ويساهم أكثر في الانبعاثات.
+    </div>
+    <div class="q-box" style="margin-top:10px">
       <strong>❓ ما الفرق بين المتجددة وغير المتجددة؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
       <div class="q-ans-panel">المتجددة تتجدد طبيعيًا بسرعة (الشمس، الرياح، الماء). غير المتجددة موارد محدودة تتكون عبر زمن طويل (الفحم، النفط، الغاز) أو تعتمد على وقود نووي.</div>
@@ -39771,8 +39929,8 @@ function simG9Energy1(){
     const mx=e.clientX-r.left, my=e.clientY-r.top;
     const w=cv.width, h=cv.height;
 
-    const renewBox = {x:w*0.08,y:h*0.62,w:w*0.4,h:h*0.28};
-    const nonBox   = {x:w*0.52,y:h*0.62,w:w*0.4,h:h*0.28};
+    const renewBox = {x:w*0.08,y:h*0.60,w:w*0.4,h:h*0.30};
+    const nonBox   = {x:w*0.52,y:h*0.60,w:w*0.4,h:h*0.30};
     const it=simState.items.find(x=>x.id===simState.dragId);
     simState.dragId=null;
     if(!it) return;
@@ -39792,7 +39950,8 @@ function simG9Energy1(){
     const sy = (placed==='renew'?renewBox.y:nonBox.y);
     const bw = (placed==='renew'?renewBox.w:nonBox.w);
     it.x = (sx + bw*0.25 + (idx%cols)*bw*0.5) / w;
-    it.y = (sy + 34 + Math.floor(idx/cols)*52) / h;
+    // Keep cards away from helper text inside the drop zone.
+    it.y = (sy + 70 + Math.floor(idx/cols)*52) / h;
 
     const correct = (it.type===placed);
     const info=document.getElementById('g9e1-info');
@@ -39821,15 +39980,15 @@ function simG9Energy1(){
     c.fillText('صنّف مصادر الطاقة', w/2, 18);
 
     // Drop zones
-    const renewBox = {x:w*0.08,y:h*0.62,w:w*0.4,h:h*0.28};
-    const nonBox   = {x:w*0.52,y:h*0.62,w:w*0.4,h:h*0.28};
+    const renewBox = {x:w*0.08,y:h*0.60,w:w*0.4,h:h*0.30};
+    const nonBox   = {x:w*0.52,y:h*0.60,w:w*0.4,h:h*0.30};
     const zone = (b, title, col)=>{
       c.fillStyle=col+'16'; c.beginPath(); c.roundRect(b.x,b.y,b.w,b.h,16); c.fill();
       c.strokeStyle=col+'66'; c.lineWidth=2; c.beginPath(); c.roundRect(b.x,b.y,b.w,b.h,16); c.stroke();
       c.fillStyle=col; c.font=`bold ${Math.round(h*0.035)}px Tajawal`; c.textAlign='center';
       c.fillText(title, b.x+b.w/2, b.y+10);
-      c.fillStyle='rgba(0,0,0,0.35)'; c.font=`${Math.round(h*0.025)}px Tajawal`;
-      c.fillText('اسحب البطاقات إلى هنا', b.x+b.w/2, b.y+42);
+      c.fillStyle='rgba(0,0,0,0.35)'; c.font=`${Math.round(h*0.023)}px Tajawal`;
+      c.fillText('اسحب البطاقات إلى هنا', b.x+b.w/2, b.y+38);
     };
     zone(renewBox,'♻️ مصادر متجددة','#16A34A');
     zone(nonBox,'⛽ مصادر غير متجددة','#DC2626');
@@ -39872,10 +40031,14 @@ function simG9Energy2(){
     if(k==='Ein')  S.Ein =clamp(S.Ein,1,500);
     if(k==='time') S.time=clamp(S.time,1,60);
     const eff = (S.Euse/S.Ein)*100;
-    document.getElementById('g9e-eff').textContent = isFinite(eff)?eff.toFixed(0):'0';
-    document.getElementById('g9e-ein').textContent = S.Ein.toFixed(0);
-    document.getElementById('g9e-euse').textContent= S.Euse.toFixed(0);
-    document.getElementById('g9e-time').textContent= S.time.toFixed(0);
+    var effEl = document.getElementById('g9e-eff');
+    var einEl = document.getElementById('g9e-ein');
+    var useEl = document.getElementById('g9e-euse');
+    var tEl   = document.getElementById('g9e-time');
+    if(effEl) effEl.textContent = isFinite(eff)?eff.toFixed(0):'0';
+    if(einEl) einEl.textContent = S.Ein.toFixed(0);
+    if(useEl) useEl.textContent = S.Euse.toFixed(0);
+    if(tEl)   tEl.textContent   = S.time.toFixed(0);
   };
 
   controls(`
@@ -39887,7 +40050,8 @@ function simG9Energy2(){
     </div>
     <div class="info-box" style="text-align:center">
       الكفاءة = <strong>الطاقة المفيدة ÷ طاقة الإدخال × 100%</strong><br>
-      <span style="font-size:12px;opacity:0.8">يمكنك أيضاً حساب القدرة \(P = E/t\)</span>
+      الكفاءة الحالية: <strong><span id="g9e-eff">30</span>%</strong><br>
+      <span style="font-size:12px;opacity:0.8">يمكنك أيضاً حساب القدرة (P = E/t)</span>
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">طاقة الإدخال Ein: <span id="g9e-ein">100</span> J</div>
@@ -39898,6 +40062,10 @@ function simG9Energy2(){
       <input type="range" min="1" max="60" value="8" oninput="window._g9eSet('time',this.value)" style="width:100%">
     </div>
     <div class="q-box">
+      <strong>💡 ماذا نستنتج؟</strong><br>
+      لا يمكن لأي جهاز تحويل 100% من الطاقة إلى طاقة مفيدة؛ دائمًا يوجد فاقد غالبًا على شكل حرارة.
+    </div>
+    <div class="q-box" style="margin-top:8px">
       <strong>💡 تذكير</strong><br>
       إذا كانت الكفاءة منخفضة فهذا يعني أن جزءًا من الطاقة ضاع في صورة حرارة/صوت/احتكاك.
     </div>
@@ -39971,6 +40139,191 @@ function simG9Energy2(){
   draw();
 }
 
+// Wrappers + extended unit 11 simulations
+function simG9EnergyMix1(){ simG9Energy1(); }
+function simG9EnergyMix2(){
+  cancelAnimationFrame(animFrame);
+  simState={solar:20,wind:20,hydro:20,fossil:20,nuclear:20};
+  window._mixSet=function(k,v){
+    simState[k]=+v;
+    var sum=simState.solar+simState.wind+simState.hydro+simState.fossil+simState.nuclear;
+    if(sum===0) return;
+    ['solar','wind','hydro','fossil','nuclear'].forEach(function(x){
+      simState[x]=Math.round(simState[x]*100/sum);
+      var el=document.getElementById('mx-'+x); if(el) el.textContent=simState[x];
+    });
+  };
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧩 صمّم مزيج الطاقة (100%)</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.75)">عدّل نسب المصادر ثم راقب الانبعاثات والاستدامة.</div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">☀️ شمسية <span id="mx-solar">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('solar',this.value)" style="width:100%">
+      <div class="ctrl-label">💨 رياح <span id="mx-wind">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('wind',this.value)" style="width:100%">
+      <div class="ctrl-label">💧 مائية <span id="mx-hydro">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('hydro',this.value)" style="width:100%">
+      <div class="ctrl-label">🛢️ أحفوري <span id="mx-fossil">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('fossil',this.value)" style="width:100%">
+      <div class="ctrl-label">⚛️ نووي <span id="mx-nuclear">20</span>%</div><input type="range" min="0" max="100" value="20" oninput="window._mixSet('nuclear',this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>مزيج الطاقة المتوازن يقلل الانبعاثات ويحافظ على استمرارية التزويد الكهربائي.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9energymix' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#0F172A'; c.fillRect(0,0,w,h);
+    const vals=[simState.solar,simState.wind,simState.hydro,simState.fossil,simState.nuclear];
+    const cols=['#F59E0B','#22C55E','#0EA5E9','#EF4444','#A855F7'];
+    const names=['شمسية','رياح','مائية','أحفوري','نووي'];
+    let x=w*0.12, y=h*0.75, bw=w*0.12, gap=w*0.04;
+    vals.forEach((v,i)=>{
+      const bh=h*0.55*(v/100);
+      c.fillStyle=cols[i]; c.beginPath(); c.roundRect(x+i*(bw+gap),y-bh,bw,bh,10); c.fill();
+      c.fillStyle='white'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+      c.fillText(v+'%',x+i*(bw+gap)+bw/2,y-bh-8);
+      c.fillText(names[i],x+i*(bw+gap)+bw/2,y+20);
+    });
+    const emissions=Math.round(simState.fossil*1.0 + simState.nuclear*0.15 + simState.hydro*0.08 + simState.wind*0.03 + simState.solar*0.02);
+    c.fillStyle='rgba(255,255,255,.9)'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`;
+    c.fillText('مؤشر الانبعاثات: '+emissions, w/2, h*0.12);
+    c.fillText(emissions<30?'✅ منخفض':'⚠️ مرتفع', w/2, h*0.18);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Solar1(){
+  cancelAnimationFrame(animFrame);
+  simState={angle:45,irr:70};
+  window._solSet=function(k,v){simState[k]=+v; var el=document.getElementById('sol-'+k); if(el) el.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">☀️ زاوية اللوح: <span id="sol-angle">45</span>°</div>
+      <input type="range" min="0" max="90" value="45" oninput="window._solSet('angle',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">شدة الإشعاع: <span id="sol-irr">70</span>%</div>
+      <input type="range" min="20" max="100" value="70" oninput="window._solSet('irr',this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>أفضل إنتاج للطاقة الشمسية عندما تكون الأشعة عمودية تقريبًا على اللوح.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9solar' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#EAF4FF'; c.fillRect(0,0,w,h);
+    const ang=simState.angle*Math.PI/180;
+    const sunX=w*0.15,sunY=h*0.15;
+    c.fillStyle='rgba(255,215,80,0.95)'; c.beginPath(); c.arc(sunX,sunY,34,0,Math.PI*2); c.fill();
+    const px=w*0.6,py=h*0.68,l=130;
+    c.save(); c.translate(px,py); c.rotate(-ang+Math.PI/4);
+    c.fillStyle='#64748B'; c.fillRect(-l/2,-10,l,20); c.restore();
+    c.strokeStyle='rgba(245,158,11,0.75)'; c.lineWidth=3;
+    for(let i=0;i<8;i++){ c.beginPath(); c.moveTo(sunX+20+i*6,sunY+15+i*3); c.lineTo(px-20,py-40+i*2); c.stroke(); }
+    const efficiency=Math.max(0,Math.cos((ang-Math.PI/4))*0.9)*(simState.irr/100);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
+    c.fillText('الكفاءة التقريبية: '+Math.round(efficiency*100)+'%',w/2,h*0.9);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Solar2(){ simG9Energy2(); }
+
+function simG9Wind1(){
+  cancelAnimationFrame(animFrame);
+  simState={v:8};
+  window._windV=v=>{simState.v=+v; var el=document.getElementById('wind-v'); if(el) el.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💨 سرعة الرياح: <span id="wind-v">8</span> m/s</div>
+      <input type="range" min="2" max="20" value="8" oninput="window._windV(this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>القدرة من الرياح تزيد تقريبًا مع مكعب سرعة الرياح (P ∝ v³).</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9wind' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#ECFEFF'; c.fillRect(0,0,w,h);
+    const cx=w*0.5,cy=h*0.5,r=70,speed=simState.v;
+    c.strokeStyle='#64748B'; c.lineWidth=6; c.beginPath(); c.moveTo(cx,cy); c.lineTo(cx,h*0.85); c.stroke();
+    c.save(); c.translate(cx,cy); c.rotate((Date.now()/1000)*(speed/8));
+    c.fillStyle='#0EA5E9';
+    for(let i=0;i<3;i++){ c.rotate((Math.PI*2)/3); c.beginPath(); c.moveTo(0,0); c.lineTo(r,8); c.lineTo(r,-8); c.closePath(); c.fill(); }
+    c.restore();
+    const p=Math.round(Math.pow(speed,3));
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign='center';
+    c.fillText('قدرة نسبية: '+p, w/2, h*0.12);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function simG9Wind2(){ simG9EnergyMix2(); }
+
+function simG9Hydro1(){
+  cancelAnimationFrame(animFrame);
+  simState={head:30,flow:50};
+  window._hySet=function(k,v){simState[k]=+v; var el=document.getElementById('hy-'+k); if(el) el.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💧 فرق الارتفاع: <span id="hy-head">30</span> m</div>
+      <input type="range" min="5" max="80" value="30" oninput="window._hySet('head',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">معدل التدفق: <span id="hy-flow">50</span>%</div>
+      <input type="range" min="10" max="100" value="50" oninput="window._hySet('flow',this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما زاد فرق الارتفاع وتدفق الماء زادت القدرة المنتجة.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9hydro' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#E0F2FE'; c.fillRect(0,0,w,h);
+    c.fillStyle='#1D4ED8'; c.fillRect(w*0.08,h*0.22,w*0.22,h*0.5);
+    c.fillStyle='#0EA5E9'; c.fillRect(w*0.08,h*0.22,w*0.22,h*(simState.flow/100)*0.5);
+    c.strokeStyle='#64748B'; c.lineWidth=6; c.beginPath(); c.moveTo(w*0.3,h*0.65); c.lineTo(w*0.55,h*0.65); c.stroke();
+    const p=Math.round(simState.head*simState.flow*0.12);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign='center';
+    c.fillText('قدرة نسبية: '+p, w*0.72, h*0.2);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function simG9Hydro2(){ simG9Refract2(); }
+
+function simG9Fossil1(){
+  cancelAnimationFrame(animFrame);
+  simState={src:'fossil'};
+  window._fSrc=s=>{simState.src=s;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">⛽ اختر المصدر</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn action" onclick="window._fSrc('fossil')">وقود أحفوري</button>
+        <button class="ctrl-btn" onclick="window._fSrc('nuclear')">نووي</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>المصادر تختلف في كثافة الطاقة والانبعاثات والمخاطر التشغيلية.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9fossil' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
+    const isF=simState.src==='fossil';
+    c.fillStyle=isF?'#EF4444':'#A855F7'; c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center';
+    c.fillText(isF?'الوقود الأحفوري':'الطاقة النووية',w/2,h*0.15);
+    const en=isF?78:92, co2=isF?88:8;
+    c.fillStyle='white'; c.font=`${Math.round(h*0.04)}px Tajawal`;
+    c.fillText('كثافة طاقة: '+en+'/100',w/2,h*0.42);
+    c.fillText('انبعاثات: '+co2+'/100',w/2,h*0.56);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function simG9Fossil2(){ simG9EnergyMix2(); }
+
+function simG9Efficiency1(){ simG9Energy2(); }
+function simG9Efficiency2(){ simG9Ohm2(); }
+
 // ══════════════════════════════════════════════════════════
 // الصف التاسع — فيزياء الوحدة 11: انعكاس الضوء
 // ══════════════════════════════════════════════════════════
@@ -39997,6 +40350,10 @@ function simG9Refl1(){
     <div class="info-box" style="text-align:center">
       <strong>زاوية السقوط = زاوية الانعكاس</strong><br>
       i = r
+    </div>
+    <div class="q-box" style="margin-top:10px">
+      <strong>💡 ماذا نستنتج؟</strong><br>
+      عند انعكاس الضوء عن مرآة مستوية تكون زاوية السقوط مساوية تمامًا لزاوية الانعكاس، والزوايا تُقاس من العمود المقام.
     </div>
   `);
 
@@ -40094,6 +40451,10 @@ function simG9Refl2(){
     </div>
     <button class="ctrl-btn reset" style="width:100%;margin-top:6px" onclick="simG9Refl2()">↺ إعادة</button>
     <div class="q-box" style="margin-top:10px">
+      <strong>💡 ماذا نستنتج؟</strong><br>
+      مخطط الأشعة يساعدنا على تحديد اتجاه الصورة ومسار الضوء بدقة، وهو أداة أساسية لفهم المرايا والأجهزة البصرية.
+    </div>
+    <div class="q-box" style="margin-top:10px">
       <strong>❓ كيف نرسم مخطط الأشعة؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
       <div class="q-ans-panel">ارسم العمود المقام عند نقطة السقوط، ارسم الشعاع الساقط، ثم ارسم الشعاع المنعكس بحيث تكون زاوية السقوط = زاوية الانعكاس (بالنسبة للعمود المقام).</div>
@@ -40179,6 +40540,289 @@ function simG9Refl2(){
     c.fillStyle='white'; c.font=`${Math.round(h*0.028)}px Tajawal`; c.textBaseline='middle';
     c.fillText(`زاوية السقوط ≈ ${incAng.toFixed(0)}°  |  زاوية الانعكاس ≈ ${incAng.toFixed(0)}°`, w/2, h*0.88+20);
 
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — فيزياء الوحدة 12: انكسار الضوء
+// ══════════════════════════════════════════════════════════
+function simG9Refract1(){
+  cancelAnimationFrame(animFrame);
+  simState={a:35,n2:1.5};
+  window._setRefA=v=>{simState.a=+v; var el=document.getElementById('rf-a'); if(el) el.textContent=v;};
+  window._setRefN=v=>{simState.n2=+v; var el=document.getElementById('rf-n'); if(el) el.textContent=(+v).toFixed(2);};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔎 انكسار الضوء (قانون سنيل)</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">الوسط 1: هواء (n=1.00) — الوسط 2: مادة شفافة.</div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">زاوية السقوط i: <span id="rf-a">35</span>°</div>
+      <input type="range" min="5" max="80" value="35" oninput="window._setRefA(this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">معامل انكسار الوسط 2: <span id="rf-n">1.50</span></div>
+      <input type="range" min="1.10" max="2.00" step="0.01" value="1.50" oninput="window._setRefN(this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما زاد معامل الانكسار انحنى الشعاع أكثر نحو العمود المقام.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9refract' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle='#EAF4FF'; c.fillRect(0,0,w,h*0.5);
+    c.fillStyle='#DFF7EC'; c.fillRect(0,h*0.5,w,h*0.5);
+    c.strokeStyle='rgba(30,45,61,0.35)'; c.lineWidth=3; c.beginPath(); c.moveTo(0,h*0.5); c.lineTo(w,h*0.5); c.stroke();
+    const cx=w*0.5, cy=h*0.5;
+    c.setLineDash([6,5]); c.strokeStyle='#1A8FA8'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(cx, h*0.12); c.lineTo(cx, h*0.88); c.stroke(); c.setLineDash([]);
+
+    const i=simState.a*Math.PI/180, n1=1, n2=simState.n2;
+    const sr=Math.min(0.999, (n1/n2)*Math.sin(i));
+    const r=Math.asin(sr);
+    const L=Math.min(w,h)*0.42;
+    const p0={x:cx-Math.sin(i)*L,y:cy-Math.cos(i)*L};
+    const p1={x:cx+Math.sin(r)*L,y:cy+Math.cos(r)*L};
+
+    c.strokeStyle='#F59E0B'; c.lineWidth=5; c.beginPath(); c.moveTo(p0.x,p0.y); c.lineTo(cx,cy); c.stroke();
+    c.strokeStyle='#0EA5E9'; c.lineWidth=5; c.beginPath(); c.moveTo(cx,cy); c.lineTo(p1.x,p1.y); c.stroke();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText(`i = ${simState.a.toFixed(0)}°`, cx-w*0.16, cy-h*0.07);
+    c.fillText(`r = ${(r*180/Math.PI).toFixed(1)}°`, cx+w*0.16, cy+h*0.08);
+    c.font=`${Math.round(h*0.027)}px Tajawal`;
+    c.fillText(`n₁ sin(i) = n₂ sin(r)`, w/2, h*0.92);
+    c.fillText(`هواء n=1.00`, w*0.12, h*0.1);
+    c.fillText(`وسط 2 n=${n2.toFixed(2)}`, w*0.14, h*0.58);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Refract2(){
+  cancelAnimationFrame(animFrame);
+  simState={n1:1.5,a:35};
+  window._setCritA=v=>{simState.a=+v; var el=document.getElementById('cr-a'); if(el) el.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌈 الزاوية الحرجة والانعكاس الكلي</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">من الزجاج إلى الهواء: عندما i > الزاوية الحرجة يحدث انعكاس كلي.</div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">زاوية السقوط i: <span id="cr-a">35</span>°</div>
+      <input type="range" min="5" max="80" value="35" oninput="window._setCritA(this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الزاوية الحرجة للانتقال من وسط كثيف إلى أقل كثافة تساوي c = sin⁻¹(n₂/n₁).</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9refract' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+    const cx=w*0.5, cy=h*0.5;
+    c.fillStyle='#DFF7EC'; c.fillRect(0,0,w,h*0.5);
+    c.fillStyle='#EAF4FF'; c.fillRect(0,h*0.5,w,h*0.5);
+    c.strokeStyle='rgba(30,45,61,0.35)'; c.lineWidth=3; c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke();
+    c.setLineDash([6,5]); c.strokeStyle='#1A8FA8'; c.beginPath(); c.moveTo(cx,h*0.12); c.lineTo(cx,h*0.88); c.stroke(); c.setLineDash([]);
+    const n1=1.5,n2=1.0,i=simState.a*Math.PI/180,crit=Math.asin(n2/n1);
+    const L=Math.min(w,h)*0.4;
+    const p0={x:cx-Math.sin(i)*L,y:cy+Math.cos(i)*L};
+    c.strokeStyle='#F59E0B'; c.lineWidth=5; c.beginPath(); c.moveTo(p0.x,p0.y); c.lineTo(cx,cy); c.stroke();
+    if(i>crit){
+      const pRef={x:cx+Math.sin(i)*L,y:cy+Math.cos(i)*L};
+      c.strokeStyle='#06B6D4'; c.lineWidth=5; c.beginPath(); c.moveTo(cx,cy); c.lineTo(pRef.x,pRef.y); c.stroke();
+      c.fillStyle='#DC2626'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center'; c.fillText('انعكاس كلي داخلي', w/2, h*0.1);
+    }else{
+      const r=Math.asin((n1/n2)*Math.sin(i));
+      const pRefr={x:cx+Math.sin(r)*L,y:cy-Math.cos(r)*L};
+      c.strokeStyle='#0EA5E9'; c.lineWidth=5; c.beginPath(); c.moveTo(cx,cy); c.lineTo(pRefr.x,pRefr.y); c.stroke();
+      c.fillStyle='#16A34A'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center'; c.fillText('انكسار للخارج', w/2, h*0.1);
+    }
+    c.fillStyle='#1E2D3D'; c.font=`${Math.round(h*0.028)}px Tajawal`;
+    c.fillText(`i = ${simState.a.toFixed(0)}°`, w*0.18, h*0.88);
+    c.fillText(`c = ${(crit*180/Math.PI).toFixed(1)}°`, w*0.82, h*0.88);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — فيزياء الوحدة 13: العدسات
+// ══════════════════════════════════════════════════════════
+function simG9Lens1(){
+  cancelAnimationFrame(animFrame);
+  simState={convex:true};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 أنواع العدسات</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn action" onclick="simState.convex=true">عدسة محدبة</button>
+        <button class="ctrl-btn" onclick="simState.convex=false">عدسة مقعرة</button>
+      </div>
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>المحدبة تجمع الأشعة، والمقعرة تفرّق الأشعة.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9lens' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#F7FAFC'; c.fillRect(0,0,w,h);
+    const x=w*0.5;
+    c.strokeStyle='#94A3B8'; c.lineWidth=2; c.beginPath(); c.moveTo(0,h*0.5); c.lineTo(w,h*0.5); c.stroke();
+    c.fillStyle='rgba(59,130,246,0.22)';
+    c.beginPath();
+    if(simState.convex){
+      c.moveTo(x-18,h*0.22); c.quadraticCurveTo(x+20,h*0.5,x-18,h*0.78); c.lineTo(x+18,h*0.78); c.quadraticCurveTo(x-20,h*0.5,x+18,h*0.22); c.closePath();
+    }else{
+      c.moveTo(x-18,h*0.22); c.quadraticCurveTo(x-2,h*0.5,x-18,h*0.78); c.lineTo(x+18,h*0.78); c.quadraticCurveTo(x+2,h*0.5,x+18,h*0.22); c.closePath();
+    }
+    c.fill(); c.strokeStyle='#3B82F6'; c.stroke();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
+    c.fillText(simState.convex?'عدسة محدبة (مجمِّعة)':'عدسة مقعرة (مفرِّقة)', w/2, h*0.12);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Lens2(){
+  cancelAnimationFrame(animFrame);
+  simState={d:120,f:70};
+  window._lensD=v=>{simState.d=+v; var e=document.getElementById('lens-d'); if(e) e.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🎯 موقع الجسم d: <span id="lens-d">120</span> px</div>
+      <input type="range" min="60" max="220" value="120" oninput="window._lensD(this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما تغيّر بعد الجسم عن العدسة تغيّر مكان الصورة وحجمها وقد تكون حقيقية أو تقديرية.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9lens' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#F8FAFC'; c.fillRect(0,0,w,h);
+    const cx=w*0.5, cy=h*0.6, f=simState.f, dox=simState.d;
+    c.strokeStyle='#94A3B8'; c.lineWidth=2; c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke();
+    c.strokeStyle='#3B82F6'; c.lineWidth=4; c.beginPath(); c.moveTo(cx,h*0.2); c.lineTo(cx,h*0.86); c.stroke();
+    // focal points
+    c.fillStyle='#1E2D3D'; c.font=`${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('F',cx-f,cy+18); c.fillText('F',cx+f,cy+18);
+    // object arrow
+    const ox=cx-dox, oh=80;
+    c.strokeStyle='#F59E0B'; c.lineWidth=4; c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-oh); c.stroke();
+    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ox-7,cy-oh+14); c.lineTo(ox+7,cy-oh+14); c.closePath(); c.fillStyle='#F59E0B'; c.fill();
+    // thin lens formula (scaled px)
+    const fpx=f, dopx=Math.max(40,dox), dipx=(fpx*dopx)/(dopx-fpx);
+    const real = dipx>0 && isFinite(dipx) && dipx<500;
+    if(real){
+      const ix=cx+dipx, ih=oh*(dipx/dopx);
+      c.strokeStyle='#06B6D4'; c.lineWidth=4; c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,cy+ih); c.stroke();
+      c.fillStyle='#06B6D4'; c.beginPath(); c.moveTo(ix,cy+ih); c.lineTo(ix-7,cy+ih-14); c.lineTo(ix+7,cy+ih-14); c.closePath(); c.fill();
+      c.fillStyle='#1E2D3D'; c.fillText('صورة حقيقية مقلوبة',w*0.78,h*0.18);
+    }else{
+      c.fillStyle='#1E2D3D'; c.fillText('صورة تقديرية (عند d ≤ f)',w*0.72,h*0.18);
+    }
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — فيزياء الوحدة 14: الدوائر وقانون أوم
+// ══════════════════════════════════════════════════════════
+function simG9Circuits1(){
+  cancelAnimationFrame(animFrame);
+  simState={parallel:false,n:2,v:6};
+  window._setPar=v=>{simState.parallel=!!v;};
+  window._setBulbs=v=>{simState.n=+v; var e=document.getElementById('c-n'); if(e) e.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔌 نوع التوصيل</div>
+      <div class="ctrl-btns-grid">
+        <button class="ctrl-btn action" onclick="window._setPar(0)">متسلسلة</button>
+        <button class="ctrl-btn" onclick="window._setPar(1)">متوازية</button>
+      </div>
+      <div class="ctrl-label" style="margin-top:8px">عدد المصابيح: <span id="c-n">2</span></div>
+      <input type="range" min="1" max="4" value="2" oninput="window._setBulbs(this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>في التوصيل المتوازي يبقى سطوع المصابيح أفضل من المتسلسل عند نفس البطارية.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9circuits'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#0F172A'; c.fillRect(0,0,w,h);
+    const n=simState.n, parallel=simState.parallel;
+    const bright = parallel ? 1 : 1/Math.max(1,n*0.8);
+    c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
+    c.fillText(parallel?'دائرة متوازية':'دائرة متسلسلة', w/2, h*0.1);
+    for(let i=0;i<n;i++){
+      const x=w*(0.2+i*(0.6/Math.max(1,n-1))), y=h*0.52;
+      c.strokeStyle='#94A3B8'; c.lineWidth=2;
+      if(parallel){ c.beginPath(); c.moveTo(x,y-90); c.lineTo(x,y+90); c.stroke(); }
+      c.fillStyle=`rgba(255,220,90,${0.2+0.8*bright})`; c.beginPath(); c.arc(x,y,28,0,Math.PI*2); c.fill();
+      c.strokeStyle='#F59E0B'; c.lineWidth=3; c.stroke();
+    }
+    c.fillStyle='white'; c.font=`${Math.round(h*0.028)}px Tajawal`; c.fillText(`السطوع التقريبي: ${(bright*100).toFixed(0)}%`, w/2, h*0.88);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Circuits2(){ simG9Circuits1(); }
+
+function simG9Ohm1(){
+  cancelAnimationFrame(animFrame);
+  simState={V:12,R:6};
+  window._setOhm=(k,v)=>{simState[k]=+v; var e=document.getElementById('o-'+k); if(e) e.textContent=v;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">فرق الجهد V: <span id="o-V">12</span> V</div>
+      <input type="range" min="1" max="24" value="12" oninput="window._setOhm('V',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">المقاومة R: <span id="o-R">6</span> Ω</div>
+      <input type="range" min="1" max="20" value="6" oninput="window._setOhm('R',this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>عند ثبات R، زيادة V تزيد I. وعند ثبات V، زيادة R تقلل I.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9ohm' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
+    const I=simState.V/simState.R, P=simState.V*I;
+    c.fillStyle='white'; c.textAlign='center';
+    c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.fillText('قانون أوم',w/2,h*0.12);
+    c.font=`bold ${Math.round(h*0.045)}px Tajawal`; c.fillText(`I = V / R = ${I.toFixed(2)} A`,w/2,h*0.4);
+    c.font=`${Math.round(h*0.04)}px Tajawal`; c.fillText(`P = V × I = ${P.toFixed(1)} W`,w/2,h*0.52);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Ohm2(){
+  cancelAnimationFrame(animFrame);
+  simState={Ein:120,Eout:78};
+  window._setEff=(k,v)=>{simState[k]=+v; if(k==='Eout'&&simState.Eout>simState.Ein) simState.Eout=simState.Ein; var e=document.getElementById('ef-'+k); if(e) e.textContent=simState[k];};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">Ein: <span id="ef-Ein">120</span> J</div>
+      <input type="range" min="20" max="300" value="120" oninput="window._setEff('Ein',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">Eout: <span id="ef-Eout">78</span> J</div>
+      <input type="range" min="0" max="300" value="78" oninput="window._setEff('Eout',this.value)" style="width:100%">
+    </div>
+    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الكفاءة = Eout / Ein × 100%، وتحسين الدائرة يقلل الطاقة المهدرة.</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9ohm' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h); c.fillStyle='#0B1220'; c.fillRect(0,0,w,h);
+    const eff=simState.Ein? (simState.Eout/simState.Ein)*100:0;
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center';
+    c.fillText('القدرة والكفاءة',w/2,h*0.12);
+    c.font=`bold ${Math.round(h*0.08)}px Tajawal`; c.fillStyle=eff>70?'#22C55E':eff>40?'#F59E0B':'#EF4444';
+    c.fillText(`${eff.toFixed(1)}%`,w/2,h*0.45);
+    c.fillStyle='rgba(255,255,255,0.82)'; c.font=`${Math.round(h*0.035)}px Tajawal`;
+    c.fillText(`Ein=${simState.Ein} J  |  Eout=${simState.Eout} J`,w/2,h*0.58);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
