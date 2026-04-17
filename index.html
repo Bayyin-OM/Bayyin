@@ -6025,7 +6025,7 @@ function simIndicator1() {
 
   const SOLUTIONS = [
     { id:'s1', label:'عصير\nالليمون',  ph:2.5, color:'#C0392B', bgCol:'rgba(220,180,80,',  type:'acid',    emoji:'🍋', typeLabel:'حمضي قوي' },
-    { id:'s2', label:'ماء مالح',       ph:7,   color:'#7D6B91', bgCol:'rgba(180,195,215,', type:'neutral', emoji:'💧', typeLabel:'متعادل' },
+    { id:'s2', label:'ماء نقي',        ph:7,   color:'#7D6B91', bgCol:'rgba(180,195,215,', type:'neutral', emoji:'💧', typeLabel:'متعادل' },
     { id:'s3', label:'محلول\nالصابون', ph:10,  color:'#1A6A9A', bgCol:'rgba(180,210,230,', type:'base',    emoji:'🧼', typeLabel:'قلوي' },
     { id:'s4', label:'مشروب\nالكولا',  ph:3.5, color:'#8B3A2A', bgCol:'rgba(180,120,90,',  type:'acid',    emoji:'🥤', typeLabel:'حمضي' },
     { id:'s5', label:'هيدروكسيد\nالكالسيوم', ph:12, color:'#1A5276', bgCol:'rgba(190,205,220,', type:'base', emoji:'🧪', typeLabel:'قلوي قوي' },
@@ -6219,7 +6219,7 @@ function simIndicator1() {
       // pH label
       c.font=`bold ${Math.max(10,Math.round(w*0.02))}px Tajawal`;
       c.fillStyle='#1A8FA8';
-      c.fillText('pH '+sol.ph, bx, by+12+lLines.length*14);
+      c.fillText('pH '+sol.ph, bx, by+18+lLines.length*14);
 
       // Ripple ring
       if(lastDipped===sol.id && dipAnim>0) {
@@ -18247,8 +18247,10 @@ function simVariation2() {
   };
 
   // 15 simulated students shown as avatars
+  const omaniNames = ['نورة','سارة','فاطمة','مريم','هند','خالد','محمد','عمر','يوسف','سالم','أحمد','علي','زيد','ريم','لطيفة'];
   const students = Array.from({length:15},(_,i) => ({
     id:i,
+    name: omaniNames[i],
     height: 145+Math.round(Math.random()*28),
     foot: 36+Math.round(Math.random()*8),
     hand: Math.round((14+Math.random()*5)*10)/10,
@@ -18327,7 +18329,7 @@ function simVariation2() {
         s.measured=true; simState.selected=s.id;
         const tr=traits[simState.trait];
         const val=s[simState.trait];
-        document.getElementById('v2Info').innerHTML=`طالب #${s.id+1}: <strong style="color:${tr.color}">${val}${tr.unit}</strong> (${tr.label})`;
+        document.getElementById('v2Info').innerHTML=`${s.name}: <strong style="color:${tr.color}">${val}${tr.unit}</strong> (${tr.label})`;
         U9Sound.ping(300+val*5,0.2,0.15);
         setTimeout(()=>{simState.selected=null;},500);
       }
@@ -18365,6 +18367,10 @@ function simVariation2() {
         const emojis=['👦','👧','🧒'];
         c.font=`${Math.round(h*0.075)}px serif`; c.textAlign='center';
         c.fillText(emojis[s.id%3],sx,sy+8+pulse);
+        // اسم الطالب
+        c.fillStyle=s.measured?tr.color:'rgba(60,60,80,0.6)';
+        c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+        c.fillText(s.name,sx,sy-14+pulse);
         if(s.measured){
           c.fillStyle=tr.color; c.beginPath(); c.roundRect(sx-18,sy+16+pulse,36,18,9); c.fill();
           c.fillStyle='white'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
@@ -19261,6 +19267,15 @@ function simVertebrates2() {
       c.fillText(`${simState.score} / ${simState.total}`,w/2,h*0.63);
       c.fillStyle='#5A6A7A'; c.font=`${Math.round(h*0.034)}px Tajawal`;
       c.fillText(perfect?'حصلت على كل الإجابات!':'جرِّب مجدداً 💪',w/2,h*0.74);
+      // ── زر إعادة في نهاية اللعبة ──
+      const rbW=140, rbH=38, rbX=w/2-rbW/2, rbY=h*0.83;
+      const rbHov=simState._endHover;
+      c.fillStyle=rbHov?'#1A8FA8':'rgba(26,143,168,0.85)';
+      c.beginPath(); c.roundRect(rbX,rbY,rbW,rbH,19); c.fill();
+      c.fillStyle='white'; c.font=`bold ${Math.round(h*0.036)}px Tajawal`; c.textAlign='center';
+      c.fillText('🔄 إعادة اللعب',w/2,rbY+rbH*0.67);
+      simState._endBtn={x:rbX,y:rbY,w:rbW,h:rbH};
+
       animFrame=requestAnimationFrame(()=>{try{draw()}catch(e){}});
       return;
     }
@@ -19328,6 +19343,34 @@ function simVertebrates2() {
     animFrame=requestAnimationFrame(()=>{try{draw()}catch(e){}});
   }
   draw();
+
+  // ── onclick للكانفاس (زر إعادة في نهاية اللعبة) ──
+  const canvas2=document.getElementById('simCanvas');
+  canvas2.addEventListener('click',function(ev){
+    if(!simState._endBtn) return;
+    const rect=canvas2.getBoundingClientRect();
+    const mx=(ev.clientX-rect.left)*canvas2.width/rect.width;
+    const my=(ev.clientY-rect.top)*canvas2.height/rect.height;
+    const b=simState._endBtn;
+    if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h){
+      simState.remaining=[...animals].sort(()=>Math.random()-0.5);
+      simState.current=simState.remaining.pop()||null;
+      simState.score=0; simState.streak=0; simState.fb=null;
+      simState._endBtn=null; simState._endHover=false;
+      document.getElementById('v2Score').textContent='النقاط: 0 🔥0';
+      document.getElementById('v2Info').textContent='صنِّف الحيوان!';
+      U9Sound.ping(523,0.25,0.2);
+    }
+  });
+  canvas2.addEventListener('mousemove',function(ev){
+    if(!simState._endBtn) return;
+    const rect=canvas2.getBoundingClientRect();
+    const mx=(ev.clientX-rect.left)*canvas2.width/rect.width;
+    const my=(ev.clientY-rect.top)*canvas2.height/rect.height;
+    const b=simState._endBtn;
+    simState._endHover=(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);
+    canvas2.style.cursor=simState._endHover?'pointer':'default';
+  });
 }
 
 // ══════════════════════════════════════════════════════════
