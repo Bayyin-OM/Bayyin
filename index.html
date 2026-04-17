@@ -39902,7 +39902,7 @@ function simG9Energy1(){
   }
 
   cv.onmousedown = (e)=>{
-    if(currentSim!=='g9energymix' || currentTab!==0) return;
+    if(currentSim!=='g9energymix') return;
     const r=cv.getBoundingClientRect();
     const mx=e.clientX-r.left, my=e.clientY-r.top;
     const w=cv.width, h=cv.height;
@@ -39966,7 +39966,7 @@ function simG9Energy1(){
   };
 
   function draw(){
-    if(currentSim!=='g9energymix' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    if(currentSim!=='g9energymix'){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h);
     simState.t += 0.02;
@@ -40074,7 +40074,7 @@ function simG9Energy2(){
 
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(!((currentSim==='g9efficiency' && currentTab===0) || (currentSim==='g9solar' && currentTab===1))){ cancelAnimationFrame(animFrame); return; }
+    if(!(currentSim==='g9efficiency' || currentSim==='g9solar')){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const eff = S.Euse/S.Ein;
@@ -40169,7 +40169,7 @@ function simG9EnergyMix2(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9energymix' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9energymix'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#0F172A'; c.fillRect(0,0,w,h);
     const vals=[simState.solar,simState.wind,simState.hydro,simState.fossil,simState.nuclear];
@@ -40207,7 +40207,7 @@ function simG9Solar1(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9solar' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9solar'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#EAF4FF'; c.fillRect(0,0,w,h);
     const ang=simState.angle*Math.PI/180;
@@ -40241,7 +40241,7 @@ function simG9Wind1(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9wind' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9wind'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#ECFEFF'; c.fillRect(0,0,w,h);
     const cx=w*0.5,cy=h*0.5,r=70,speed=simState.v;
@@ -40273,7 +40273,7 @@ function simG9Wind2(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9wind' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9wind'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#ECFEFF'; c.fillRect(0,0,w,h);
     const cols=5,rows=4,total=simState.n,cellW=w*0.16,cellH=h*0.18;
@@ -40310,7 +40310,7 @@ function simG9Hydro1(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9hydro' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9hydro'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#E0F2FE'; c.fillRect(0,0,w,h);
     c.fillStyle='#1D4ED8'; c.fillRect(w*0.08,h*0.22,w*0.22,h*0.5);
@@ -40339,7 +40339,7 @@ function simG9Hydro2(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9hydro' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9hydro'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,t=Date.now()/1000;
     c.clearRect(0,0,w,h); c.fillStyle='#E0F2FE'; c.fillRect(0,0,w,h);
     const A=simState.tide*10;
@@ -40371,7 +40371,7 @@ function simG9Fossil1(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9fossil' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9fossil'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
     const isF=simState.src==='fossil';
@@ -40400,7 +40400,7 @@ function simG9Fossil2(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9fossil' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9fossil'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#0B1220'; c.fillRect(0,0,w,h);
     const co2=Math.round(simState.fossil*0.9 + simState.renew*0.15);
@@ -40437,7 +40437,7 @@ function simG9Efficiency2(){
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9efficiency' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9efficiency'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h); c.fillStyle='#111827'; c.fillRect(0,0,w,h);
     const eff=100-simState.loss;
