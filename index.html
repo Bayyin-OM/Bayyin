@@ -9168,48 +9168,101 @@ function simCircuitBuilder1() {
   draw();
 }
 
-// 5-5 TAB 2: بناء الدائرة بالرموز — سحب وإفلات تفاعلي
+// 5-5 TAB 2: بناء الدائرة بالرموز — سحب حر + أسلاك snap تلقائية
 function simCircuitBuilder2() {
   cancelAnimationFrame(animFrame);
 
-  // ───── مكتبة الرموز ─────
   var SYMS = [
-    {id:'cell', name:'خلية كهربائية', desc:'1.5V', hasPower:true,  isSwitch:false, isLoad:true},
-    {id:'bat',  name:'بطارية',        desc:'3V',   hasPower:true,  isSwitch:false, isLoad:true},
-    {id:'bulb', name:'مصباح',         desc:'💡',   hasPower:false, isSwitch:false, isLoad:true},
-    {id:'swO',  name:'مفتاح مفتوح',   desc:'❌',   hasPower:false, isSwitch:true,  isOpen:true},
-    {id:'swC',  name:'مفتاح مغلق',    desc:'✅',   hasPower:false, isSwitch:true,  isOpen:false},
-    {id:'amm',  name:'أميتر',         desc:'A',    hasPower:false, isSwitch:false, isLoad:false},
-    {id:'wire', name:'سلك',           desc:'—',    hasPower:false, isSwitch:false, isLoad:false},
+    {id:'cell', name:'خلية كهربائية', hasPower:true,  isSwitch:false, isLoad:false, isOpen:false},
+    {id:'bat',  name:'بطارية',        hasPower:true,  isSwitch:false, isLoad:false, isOpen:false},
+    {id:'bulb', name:'مصباح',         hasPower:false, isSwitch:false, isLoad:true,  isOpen:false},
+    {id:'swO',  name:'مفتاح مفتوح',   hasPower:false, isSwitch:true,  isLoad:false, isOpen:true},
+    {id:'swC',  name:'مفتاح مغلق',    hasPower:false, isSwitch:true,  isLoad:false, isOpen:false},
+    {id:'amm',  name:'أميتر',         hasPower:false, isSwitch:false, isLoad:false, isOpen:false},
   ];
 
-  // الحالة: قائمة المكونات الموضوعة على اللوحة
-  simState = { t:0, placed:[], dragging:null, dragOffX:0, dragOffY:0, nextId:0 };
+  // نصف-عرض الرمز للحصول على نقطتي الوصل (يمين ويسار)
+  var HALF = { cell:28, bat:24, bulb:28, swO:22, swC:22, amm:28 };
+  var SNAP_DIST = 38; // مسافة الـ snap بالبكسل
 
-  // ─── تحقق هل الدائرة مكتملة ───
-  function circuitOK() {
-    var p = simState.placed;
-    var hasPower  = p.some(function(c){ return SYMS.find(function(s){return s.id===c.type;}).hasPower; });
-    var hasLoad   = p.some(function(c){ var s=SYMS.find(function(s){return s.id===c.type;}); return s.isLoad && !s.hasPower; });
-    var openSw    = p.some(function(c){ return c.type==='swO'; });
-    return hasPower && hasLoad && !openSw && p.length >= 2;
+  simState = { t:0, placed:[], conns:[], dragging:null, dragOffX:0, dragOffY:0, nextId:0 };
+
+  // نقطتا وصل كل مكوّن
+  function ports(comp){
+    var h = HALF[comp.type]||28;
+    return [
+      {x: comp.x - h, y: comp.y, side:'L'},
+      {x: comp.x + h, y: comp.y, side:'R'}
+    ];
   }
 
-  // ─── رسم رمز ───
-  function drawSym(c, type, cx, cy, sc, lit) {
-    sc = sc||1;
-    var ink = isDarkMode()?'#D8E4F0':'#2C3A4A';
-    c.strokeStyle = ink; c.fillStyle = ink;
-    c.lineWidth = 2.5*sc; c.lineCap='round'; c.lineJoin='round';
-    c.textBaseline='middle';
+  // هل الدائرة مكتملة؟ — تحقق بالرسم البياني للاتصالات
+  function circuitOK(){
+    var p = simState.placed;
+    if(p.length < 2) return false;
+    var hasPower = p.some(function(c){ return SYMS.find(function(s){return s.id===c.type;}).hasPower; });
+    var hasLoad  = p.some(function(c){ return SYMS.find(function(s){return s.id===c.type;}).isLoad; });
+    var hasOpenSw= p.some(function(c){ return c.type==='swO'; });
+    if(!hasPower||!hasLoad||hasOpenSw) return false;
+    // تحقق أن كل المكونات متصلة في حلقة (graph traversal)
+    var adj = {};
+    p.forEach(function(c){ adj[c.id]=[]; });
+    simState.conns.forEach(function(cn){
+      if(adj[cn.a]!==undefined && adj[cn.b]!==undefined){
+        adj[cn.a].push(cn.b); adj[cn.b].push(cn.a);
+      }
+    });
+    // BFS من أول مكوّن
+    var visited={}, queue=[p[0].id];
+    visited[p[0].id]=true;
+    while(queue.length){
+      var cur=queue.shift();
+      (adj[cur]||[]).forEach(function(nb){ if(!visited[nb]){visited[nb]=true;queue.push(nb);} });
+    }
+    return p.every(function(c){ return visited[c.id]; });
+  }
 
+  // إعادة حساب الاتصالات التلقائية
+  function recalcConns(){
+    var conns=[];
+    var p=simState.placed;
+    for(var i=0;i<p.length;i++){
+      var pi=ports(p[i]);
+      for(var j=i+1;j<p.length;j++){
+        var pj=ports(p[j]);
+        // أقرب زوج من المنافذ
+        var best=null, bestD=SNAP_DIST;
+        for(var a=0;a<2;a++){
+          for(var b=0;b<2;b++){
+            var dx=pi[a].x-pj[b].x, dy=pi[a].y-pj[b].y;
+            var d=Math.sqrt(dx*dx+dy*dy);
+            if(d<bestD){ bestD=d; best={ai:a,bi:b,d:d}; }
+          }
+        }
+        if(best){
+          conns.push({a:p[i].id,b:p[j].id,
+            x1:pi[best.ai].x,y1:pi[best.ai].y,
+            x2:pj[best.bi].x,y2:pj[best.bi].y});
+        }
+      }
+    }
+    simState.conns=conns;
+  }
+
+  // رسم رمز على canvas
+  function drawSym(c, type, cx, cy, sc, lit){
+    sc=sc||1;
+    var ink=isDarkMode()?'#D8E4F0':'#2C3A4A';
+    c.strokeStyle=ink; c.fillStyle=ink;
+    c.lineWidth=2.5*sc; c.lineCap='round'; c.lineJoin='round';
+    c.textBaseline='middle';
     if(type==='cell'){
       c.beginPath(); c.moveTo(cx-28*sc,cy); c.lineTo(cx-6*sc,cy); c.stroke();
       c.lineWidth=4.5*sc; c.beginPath(); c.moveTo(cx-6*sc,cy-13*sc); c.lineTo(cx-6*sc,cy+13*sc); c.stroke();
       c.lineWidth=1.8*sc; c.beginPath(); c.moveTo(cx+6*sc,cy-7*sc); c.lineTo(cx+6*sc,cy+7*sc); c.stroke();
       c.lineWidth=2.5*sc; c.beginPath(); c.moveTo(cx+6*sc,cy); c.lineTo(cx+28*sc,cy); c.stroke();
       c.font='bold '+(10*sc)+'px Arial'; c.textAlign='center';
-      c.fillText('+',cx+18*sc,cy-15*sc); c.fillText('−',cx-18*sc,cy-15*sc);
+      c.fillText('+',cx+18*sc,cy-16*sc); c.fillText('−',cx-18*sc,cy-16*sc);
     } else if(type==='bat'){
       var offs=[-12,0,12];
       offs.forEach(function(off,i){
@@ -9220,35 +9273,40 @@ function simCircuitBuilder2() {
       c.beginPath(); c.moveTo(cx-24*sc,cy); c.lineTo(cx-12*sc,cy); c.stroke();
       c.beginPath(); c.moveTo(cx+12*sc,cy); c.lineTo(cx+24*sc,cy); c.stroke();
     } else if(type==='bulb'){
-      if(lit){ c.shadowBlur=18*sc; c.shadowColor='rgba(255,220,0,.8)'; }
-      c.strokeStyle=lit?'#F39C12':ink; c.fillStyle='transparent';
+      if(lit){ c.shadowBlur=18*sc; c.shadowColor='rgba(255,220,0,.85)'; }
+      c.strokeStyle=lit?'#F39C12':ink;
       c.lineWidth=2.5*sc; c.beginPath(); c.arc(cx,cy,16*sc,0,Math.PI*2); c.stroke();
       c.beginPath(); c.moveTo(cx-9*sc,cy+9*sc); c.lineTo(cx+9*sc,cy-9*sc);
       c.moveTo(cx+9*sc,cy+9*sc); c.lineTo(cx-9*sc,cy-9*sc); c.stroke();
+      c.strokeStyle=lit?'#F39C12':ink;
       c.beginPath(); c.moveTo(cx,cy+16*sc); c.lineTo(cx-10*sc,cy+26*sc); c.lineTo(cx+10*sc,cy+26*sc); c.closePath(); c.stroke();
+      // أسلاك الطرفين
+      c.strokeStyle=ink; c.lineWidth=2.5*sc;
+      c.beginPath(); c.moveTo(cx-28*sc,cy); c.lineTo(cx-16*sc,cy); c.stroke();
+      c.beginPath(); c.moveTo(cx+16*sc,cy); c.lineTo(cx+28*sc,cy); c.stroke();
       c.shadowBlur=0;
     } else if(type==='swO'){
       c.beginPath(); c.moveTo(cx-22*sc,cy); c.lineTo(cx-8*sc,cy); c.stroke();
       c.beginPath(); c.moveTo(cx-8*sc,cy); c.lineTo(cx+6*sc,cy-16*sc); c.stroke();
       c.beginPath(); c.moveTo(cx+8*sc,cy); c.lineTo(cx+22*sc,cy); c.stroke();
-      c.fillStyle=ink; c.beginPath(); c.arc(cx-8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
+      c.fillStyle=ink;
+      c.beginPath(); c.arc(cx-8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
       c.beginPath(); c.arc(cx+8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
     } else if(type==='swC'){
       c.beginPath(); c.moveTo(cx-22*sc,cy); c.lineTo(cx+22*sc,cy); c.stroke();
-      c.fillStyle=ink; c.beginPath(); c.arc(cx-8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
+      c.fillStyle=ink;
+      c.beginPath(); c.arc(cx-8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
       c.beginPath(); c.arc(cx+8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
     } else if(type==='amm'){
       c.beginPath(); c.arc(cx,cy,16*sc,0,Math.PI*2); c.stroke();
       c.font='bold '+(14*sc)+'px Arial'; c.textAlign='center'; c.fillStyle=ink; c.fillText('A',cx,cy+1);
       c.beginPath(); c.moveTo(cx-28*sc,cy); c.lineTo(cx-16*sc,cy); c.stroke();
       c.beginPath(); c.moveTo(cx+16*sc,cy); c.lineTo(cx+28*sc,cy); c.stroke();
-    } else if(type==='wire'){
-      c.beginPath(); c.moveTo(cx-30*sc,cy); c.lineTo(cx+30*sc,cy); c.stroke();
     }
     c.strokeStyle=ink; c.fillStyle=ink; c.shadowBlur=0;
   }
 
-  // ─── لوح الأدوات (يمين — Panel) ───
+  // ─── Panel ───
   elCtrl(`
     <div class="ctrl-section">
       <div class="ctrl-label">📐 اسحب رمزاً إلى اللوحة</div>
@@ -9258,109 +9316,90 @@ function simCircuitBuilder2() {
       <button onclick="window._clearBoard()" style="width:100%;padding:8px;border-radius:8px;background:rgba(192,57,43,.08);border:1.5px solid rgba(192,57,43,.25);color:#C0392B;font-family:Tajawal;font-size:13px;cursor:pointer">🗑️ مسح اللوحة</button>
     </div>
     <div class="info-box" style="font-size:12px;margin-top:4px">
-      💡 اسحب الرموز من اللوحة إلى المساحة البيضاء<br>
-      🔄 دائرة مكتملة = مصدر طاقة + حمل + مفتاح مغلق
+      💡 اسحب الرموز بحرية على اللوحة<br>
+      🔗 الأسلاك تتصل تلقائياً عند التقريب<br>
+      🗑️ دبل-كليك على رمز لحذفه
     </div>
     <div id="cir-status" class="info-box" style="font-size:13px;margin-top:4px;text-align:center;min-height:36px"></div>`);
 
-  // ─── إنشاء الـ Palette HTML ───
   var palette = document.getElementById('sym-palette');
-  if(palette) {
-    SYMS.forEach(function(s) {
-      var btn = document.createElement('div');
-      btn.id = 'pal-'+s.id;
-      btn.style.cssText = 'padding:7px 10px;border-radius:10px;border:2px solid rgba(26,143,168,.3);background:rgba(26,143,168,.06);font-family:Tajawal;font-size:12px;font-weight:700;cursor:grab;user-select:none;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px;transition:all .15s;color:var(--text-primary)';
-      var cvMini = document.createElement('canvas');
-      cvMini.width=72; cvMini.height=44;
-      cvMini.style.cssText='display:block;';
+  if(palette){
+    SYMS.forEach(function(s){
+      var btn=document.createElement('div');
+      btn.style.cssText='padding:7px 10px;border-radius:10px;border:2px solid rgba(26,143,168,.3);background:rgba(26,143,168,.06);font-family:Tajawal;font-size:12px;font-weight:700;cursor:grab;user-select:none;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px;transition:all .15s;color:var(--text-primary)';
+      var cvMini=document.createElement('canvas');
+      cvMini.width=72; cvMini.height=44; cvMini.style.cssText='display:block';
       btn.appendChild(cvMini);
-      var lbl = document.createElement('div');
+      var lbl=document.createElement('div');
       lbl.style.cssText='font-size:10px;text-align:center;color:var(--text-secondary)';
-      lbl.textContent = s.name;
-      btn.appendChild(lbl);
+      lbl.textContent=s.name; btn.appendChild(lbl);
       palette.appendChild(btn);
-
-      // رسم رمز صغير على mini-canvas
-      (function(cvM, sType){
-        var cx=cvM.getContext('2d');
-        cx.clearRect(0,0,72,44);
-        cx.strokeStyle='#2C3A4A'; cx.fillStyle='#2C3A4A';
-        // رسم مصغّر
-        drawSym(cx, sType, 36, 22, 0.72, false);
-      })(cvMini, s.id);
-
-      // Drag من الـ palette
-      btn.addEventListener('mousedown', function(e){ startPalDrag(e, s.id); });
-      btn.addEventListener('touchstart', function(e){ startPalDrag(e, s.id); },{passive:false});
+      (function(cvM,sType){
+        var ctx2=cvM.getContext('2d');
+        ctx2.strokeStyle='#2C3A4A'; ctx2.fillStyle='#2C3A4A';
+        drawSym(ctx2,sType,36,22,0.68,false);
+      })(cvMini,s.id);
+      btn.addEventListener('mousedown',function(e){ startPalDrag(e,s.id); });
+      btn.addEventListener('touchstart',function(e){ startPalDrag(e,s.id); },{passive:false});
     });
   }
 
-  window._clearBoard = function(){
-    simState.placed = [];
-    try{ U9Sound.thud(); }catch(ex){}
+  window._clearBoard=function(){
+    simState.placed=[]; simState.conns=[];
+    try{U9Sound.thud();}catch(ex){}
   };
 
-  // ─── منطق السحب من Palette → Canvas ───
-  var ghostDrag = null; // {type, x, y}
+  var ghostDrag=null;
 
-  function getPos(e, canvas){
-    var r=canvas.getBoundingClientRect(), sc=canvas.width/r.width;
-    var s = e.touches ? e.touches[0] : e;
-    return { x:(s.clientX-r.left)*sc, y:(s.clientY-r.top)*sc };
+  function getPos(e,canvas){
+    var r=canvas.getBoundingClientRect(),sc2=canvas.width/r.width;
+    var s=e.touches?e.touches[0]:e;
+    return {x:(s.clientX-r.left)*sc2, y:(s.clientY-r.top)*sc2};
   }
 
-  function startPalDrag(e, symId){
+  function startPalDrag(e,symId){
     e.preventDefault();
-    var cv2 = document.getElementById('simCanvas');
-    if(!cv2) return;
-    var s = e.touches ? e.touches[0] : e;
-    var r = cv2.getBoundingClientRect(), sc2=cv2.width/r.width;
-    ghostDrag = { type: symId, x:(s.clientX-r.left)*sc2, y:(s.clientY-r.top)*sc2 };
+    var cv2=document.getElementById('simCanvas'); if(!cv2) return;
+    var s=e.touches?e.touches[0]:e;
+    var r=cv2.getBoundingClientRect(),sc2=cv2.width/r.width;
+    ghostDrag={type:symId, x:(s.clientX-r.left)*sc2, y:(s.clientY-r.top)*sc2};
   }
 
-  var cv = document.getElementById('simCanvas');
+  var cv=document.getElementById('simCanvas');
 
-  // Mouse
-  cv.addEventListener('mousedown', function(e){
+  cv.addEventListener('mousedown',function(e){
     if(ghostDrag) return;
-    var p = getPos(e, cv);
-    // هل ضغط على مكوّن موجود؟
+    var p=getPos(e,cv);
     for(var i=simState.placed.length-1;i>=0;i--){
       var comp=simState.placed[i];
-      if(Math.abs(p.x-comp.x)<40&&Math.abs(p.y-comp.y)<32){
-        simState.dragging = i;
-        simState.dragOffX = p.x - comp.x;
-        simState.dragOffY = p.y - comp.y;
-        return;
+      if(Math.abs(p.x-comp.x)<40&&Math.abs(p.y-comp.y)<34){
+        simState.dragging=i; simState.dragOffX=p.x-comp.x; simState.dragOffY=p.y-comp.y; return;
       }
     }
   });
 
-  document.addEventListener('mousemove', function(e){
+  document.addEventListener('mousemove',function(e){
     var cv2=document.getElementById('simCanvas'); if(!cv2) return;
     var p=getPos(e,cv2);
     if(ghostDrag){ ghostDrag.x=p.x; ghostDrag.y=p.y; }
-    else if(simState.dragging!==null){
-      simState.placed[simState.dragging].x = p.x - simState.dragOffX;
-      simState.placed[simState.dragging].y = p.y - simState.dragOffY;
+    else if(simState.dragging!==null && simState.placed && simState.placed[simState.dragging]){
+      simState.placed[simState.dragging].x=p.x-simState.dragOffX;
+      simState.placed[simState.dragging].y=p.y-simState.dragOffY;
+      recalcConns();
     }
   });
 
-  document.addEventListener('mouseup', function(e){
+  document.addEventListener('mouseup',function(e){
     var cv2=document.getElementById('simCanvas'); if(!cv2) return;
     var p=getPos(e,cv2);
     if(ghostDrag){
-      // وضع مكوّن جديد
-      simState.placed.push({ id:simState.nextId++, type:ghostDrag.type, x:ghostDrag.x, y:ghostDrag.y });
-      ghostDrag=null;
+      simState.placed.push({id:simState.nextId++, type:ghostDrag.type, x:ghostDrag.x, y:ghostDrag.y});
+      ghostDrag=null; recalcConns();
       try{U9Sound.ping(500,.08,.12);}catch(ex){}
-    } else if(simState.dragging!==null){
-      simState.dragging=null;
-    }
+    } else if(simState.dragging!==null){ simState.dragging=null; recalcConns(); }
   });
 
-  // Touch
-  cv.addEventListener('touchstart', function(e){
+  cv.addEventListener('touchstart',function(e){
     if(ghostDrag) return;
     e.preventDefault();
     var p=getPos(e,cv);
@@ -9372,37 +9411,40 @@ function simCircuitBuilder2() {
     }
   },{passive:false});
 
-  cv.addEventListener('touchmove', function(e){
+  cv.addEventListener('touchmove',function(e){
     e.preventDefault();
     var p=getPos(e,cv);
     if(ghostDrag){ ghostDrag.x=p.x; ghostDrag.y=p.y; }
-    else if(simState.dragging!==null){
+    else if(simState.dragging!==null && simState.placed && simState.placed[simState.dragging]){
       simState.placed[simState.dragging].x=p.x-simState.dragOffX;
       simState.placed[simState.dragging].y=p.y-simState.dragOffY;
+      recalcConns();
     }
   },{passive:false});
 
-  cv.addEventListener('touchend', function(e){
+  cv.addEventListener('touchend',function(e){
     if(ghostDrag){
-      simState.placed.push({ id:simState.nextId++, type:ghostDrag.type, x:ghostDrag.x, y:ghostDrag.y });
-      ghostDrag=null;
+      simState.placed.push({id:simState.nextId++, type:ghostDrag.type, x:ghostDrag.x, y:ghostDrag.y});
+      ghostDrag=null; recalcConns();
       try{U9Sound.ping(500,.08,.12);}catch(ex){}
-    } else if(simState.dragging!==null){ simState.dragging=null; }
+    } else if(simState.dragging!==null){ simState.dragging=null; recalcConns(); }
   });
 
-  // ─── دبل-كليك لحذف ───
-  cv.addEventListener('dblclick', function(e){
+  cv.addEventListener('dblclick',function(e){
     var p=getPos(e,cv);
     for(var i=simState.placed.length-1;i>=0;i--){
-      if(Math.abs(p.x-simState.placed[i].x)<40&&Math.abs(p.y-simState.placed[i].y)<32){
-        simState.placed.splice(i,1); return;
+      if(Math.abs(p.x-simState.placed[i].x)<40&&Math.abs(p.y-simState.placed[i].y)<34){
+        var removedId=simState.placed[i].id;
+        simState.placed.splice(i,1);
+        simState.conns=simState.conns.filter(function(cn){return cn.a!==removedId&&cn.b!==removedId;});
+        recalcConns(); return;
       }
     }
   });
 
-  // ─── رسم الإلكترونات المتحركة ───
-  var electrons = [];
-  for(var ei=0;ei<8;ei++) electrons.push({t:Math.random(), s:0.5+Math.random()*0.5});
+  // إلكترونات تسير على الأسلاك
+  var electrons=[];
+  for(var ei=0;ei<10;ei++) electrons.push({t:Math.random(),s:0.4+Math.random()*0.4});
 
   function draw(){
     if(currentSim!=='g6circuit'){ cancelAnimationFrame(animFrame); return; }
@@ -9413,9 +9455,9 @@ function simCircuitBuilder2() {
     var ok=circuitOK();
 
     // خلفية اللوحة
-    c.fillStyle=isDarkMode()?'rgba(255,255,255,.03)':'rgba(255,255,255,.7)';
+    c.fillStyle=isDarkMode()?'rgba(255,255,255,.03)':'rgba(255,255,255,.72)';
     c.beginPath(); c.roundRect(12,10,w-24,h-20,14); c.fill();
-    c.strokeStyle=ok?'rgba(39,174,96,.35)':'rgba(0,0,0,.08)'; c.lineWidth=1.5;
+    c.strokeStyle=ok?'rgba(39,174,96,.4)':'rgba(0,0,0,.08)'; c.lineWidth=1.5;
     c.beginPath(); c.roundRect(12,10,w-24,h-20,14); c.stroke();
 
     // شبكة نقاط
@@ -9426,39 +9468,95 @@ function simCircuitBuilder2() {
       }
     }
 
-    // ─── Ghost (المكوّن الذي يُسحب من Palette) ───
-    if(ghostDrag){
-      c.globalAlpha=0.55;
-      drawSym(c, ghostDrag.type, ghostDrag.x, ghostDrag.y, 1, false);
-      c.globalAlpha=1;
-    }
-
-    // ─── المكونات الموضوعة ───
-    simState.placed.forEach(function(comp){
-      var isDraggingThis = (simState.dragging !== null && simState.placed[simState.dragging] === comp);
-      if(isDraggingThis){ c.globalAlpha=0.75; }
-      drawSym(c, comp.type, comp.x, comp.y, 1, ok && comp.type==='bulb');
-      c.globalAlpha=1;
-
-      // مؤشر الحذف (hover hint)
-      c.font='9px Tajawal'; c.fillStyle='rgba(192,57,43,.45)'; c.textAlign='center';
-      c.fillText('×٢ للحذف', comp.x, comp.y+36);
+    // ─── رسم الأسلاك المتصلة ───
+    simState.conns.forEach(function(cn){
+      var wireColor = ok ? '#27AE60' : (isDarkMode()?'#4A6080':'#90A0B0');
+      c.strokeStyle=wireColor; c.lineWidth=2.5; c.lineCap='round';
+      // سلك L-شكل (أفقي ثم رأسي) لدعم الدوائر غير الخطية
+      c.beginPath();
+      c.moveTo(cn.x1,cn.y1);
+      // إذا على نفس الارتفاع تقريباً — خط مستقيم، وإلا L-شكل
+      if(Math.abs(cn.y1-cn.y2)<12){
+        c.lineTo(cn.x2,cn.y2);
+      } else {
+        var mx=(cn.x1+cn.x2)/2;
+        c.lineTo(mx,cn.y1);
+        c.lineTo(mx,cn.y2);
+        c.lineTo(cn.x2,cn.y2);
+      }
+      c.stroke();
+      // نقطة الوصل
+      c.fillStyle=ok?'#27AE60':'#78909C';
+      c.beginPath(); c.arc(cn.x1,cn.y1,3.5,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(cn.x2,cn.y2,3.5,0,Math.PI*2); c.fill();
     });
 
-    // إلكترونات متحركة إذا الدائرة مكتملة
-    if(ok && simState.placed.length > 0){
-      electrons.forEach(function(el){
-        el.t = (el.t + 0.008*el.s) % 1;
-        // ترتيب المكونات دائري تقريبي بحسب X
-        var sorted = simState.placed.slice().sort(function(a,b){return a.x-b.x;});
-        var n=sorted.length;
-        var seg=Math.floor(el.t*n), frac=(el.t*n)-seg;
-        if(seg<n){
-          var a=sorted[seg], b2=sorted[(seg+1)%n];
-          var ex=a.x+(b2.x-a.x)*frac, ey=a.y+(b2.y-a.y)*frac;
-          c.fillStyle='rgba(0,200,255,'+(0.8-el.t*.2)+')';
-          c.beginPath(); c.arc(ex,ey,4,0,Math.PI*2); c.fill();
+    // ─── Ghost ───
+    if(ghostDrag){
+      c.globalAlpha=0.52;
+      drawSym(c,ghostDrag.type,ghostDrag.x,ghostDrag.y,1,false);
+      c.globalAlpha=1;
+      // منافذ ghost
+      var gh={x:ghostDrag.x,y:ghostDrag.y,type:ghostDrag.type};
+      ports(gh).forEach(function(pt){
+        c.fillStyle='rgba(26,143,168,.6)';
+        c.beginPath(); c.arc(pt.x,pt.y,5,0,Math.PI*2); c.fill();
+      });
+    }
+
+    // ─── المكونات ───
+    simState.placed.forEach(function(comp){
+      var isDraggingThis=(simState.dragging!==null && simState.placed[simState.dragging]===comp);
+      if(isDraggingThis){ c.globalAlpha=0.78; }
+      drawSym(c,comp.type,comp.x,comp.y,1,ok&&comp.type==='bulb');
+      c.globalAlpha=1;
+      // منافذ الوصل — تضيء عند snap قريب
+      ports(comp).forEach(function(pt){
+        var nearSnap=false;
+        if(!isDraggingThis){
+          simState.placed.forEach(function(other){
+            if(other.id===comp.id) return;
+            ports(other).forEach(function(opt){
+              var dx=pt.x-opt.x,dy=pt.y-opt.y;
+              if(Math.sqrt(dx*dx+dy*dy)<SNAP_DIST) nearSnap=true;
+            });
+          });
         }
+        c.fillStyle=nearSnap?'rgba(39,174,96,.8)':'rgba(26,143,168,.35)';
+        c.beginPath(); c.arc(pt.x,pt.y,nearSnap?5:3.5,0,Math.PI*2); c.fill();
+      });
+      // مؤشر حذف
+      c.font='9px Tajawal'; c.fillStyle='rgba(192,57,43,.4)'; c.textAlign='center';
+      c.fillText('×٢ للحذف',comp.x,comp.y+(comp.type==='bulb'?44:38));
+    });
+
+    // ─── إلكترونات على الأسلاك ───
+    if(ok && simState.conns.length>0){
+      var totalWires=simState.conns.length;
+      electrons.forEach(function(el){
+        el.t=(el.t+0.006*el.s)%1;
+        var wireIdx=Math.floor(el.t*totalWires);
+        var frac=(el.t*totalWires)-wireIdx;
+        var cn=simState.conns[wireIdx];
+        if(!cn) return;
+        var ex,ey;
+        if(Math.abs(cn.y1-cn.y2)<12){
+          ex=cn.x1+(cn.x2-cn.x1)*frac;
+          ey=cn.y1+(cn.y2-cn.y1)*frac;
+        } else {
+          var mx=(cn.x1+cn.x2)/2;
+          var seg1Len=Math.abs(mx-cn.x1), seg2Len=Math.abs(cn.y2-cn.y1), seg3Len=Math.abs(cn.x2-mx);
+          var total=seg1Len+seg2Len+seg3Len||1;
+          var t=frac*total;
+          if(t<seg1Len){ ex=cn.x1+(mx-cn.x1)*(t/seg1Len); ey=cn.y1; }
+          else if(t<seg1Len+seg2Len){ ex=mx; ey=cn.y1+(cn.y2-cn.y1)*((t-seg1Len)/seg2Len); }
+          else { ex=mx+(cn.x2-mx)*((t-seg1Len-seg2Len)/seg3Len); ey=cn.y2; }
+        }
+        var alpha=0.75+Math.sin(simState.t*3+el.t*10)*0.2;
+        c.fillStyle='rgba(0,210,255,'+alpha+')';
+        c.shadowBlur=6; c.shadowColor='rgba(0,200,255,.6)';
+        c.beginPath(); c.arc(ex,ey,4,0,Math.PI*2); c.fill();
+        c.shadowBlur=0;
       });
     }
 
@@ -9466,20 +9564,22 @@ function simCircuitBuilder2() {
     var st=document.getElementById('cir-status');
     if(st){
       if(simState.placed.length===0){
-        st.textContent='💡 اسحب رموزاً من القائمة لبناء دائرتك!'; st.style.color='#888';
+        st.textContent='💡 اسحب رموزاً وقرّب أطرافها لتتصل!'; st.style.color='#888'; st.style.background='';
       } else if(ok){
-        st.innerHTML='✅ <strong>الدائرة مكتملة!</strong> التيار يسري 🔌⚡';
+        st.innerHTML='✅ <strong>الدائرة مكتملة!</strong> التيار يسري ⚡';
         st.style.color='#27AE60'; st.style.background='rgba(39,174,96,.08)';
       } else {
         var missing=[];
         var hasPow=simState.placed.some(function(c2){return SYMS.find(function(s){return s.id===c2.type;}).hasPower;});
-        var hasLd=simState.placed.some(function(c2){var s=SYMS.find(function(ss){return ss.id===c2.type;});return s.isLoad&&!s.hasPower;});
+        var hasLd=simState.placed.some(function(c2){return SYMS.find(function(s){return s.id===c2.type;}).isLoad;});
         var hasOpenSw=simState.placed.some(function(c2){return c2.type==='swO';});
-        if(!hasPow) missing.push('مصدر طاقة (خلية/بطارية)');
-        if(!hasLd)  missing.push('حمل (مصباح)');
-        if(hasOpenSw) missing.push('أغلق المفتاح!');
-        st.innerHTML='⚠️ ينقص: '+missing.join(' · '); st.style.color='#D4901A';
-        st.style.background='rgba(212,144,26,.07)';
+        var connected=simState.conns.length>0;
+        if(!hasPow) missing.push('مصدر طاقة');
+        if(!hasLd)  missing.push('مصباح');
+        if(hasOpenSw) missing.push('أغلق المفتاح');
+        if(!connected&&simState.placed.length>1) missing.push('قرّب الأطراف لتتصل');
+        st.innerHTML='⚠️ ينقص: '+missing.join(' · ');
+        st.style.color='#D4901A'; st.style.background='rgba(212,144,26,.07)';
       }
     }
 
