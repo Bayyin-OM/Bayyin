@@ -6210,16 +6210,24 @@ function simIndicator1() {
       c.font=`${Math.round(bW*0.45)}px serif`; c.textAlign='center'; c.textBaseline='middle';
       c.fillText(sol.emoji, bx, by-bH*0.35);
 
-      // Text label below
-      c.font=`bold ${Math.max(9,Math.round(w*0.018))}px Tajawal`;
-      c.fillStyle='#334'; c.textAlign='center'; c.textBaseline='top';
-      const lLines=sol.label.split('\n');
-      lLines.forEach((line,li)=>c.fillText(line, bx, by+12+li*14));
+      // Text label below (more spacing for readability)
+      const labelFontSize = Math.max(9, Math.round(w * 0.018));
+      const phFontSize = Math.max(10, Math.round(w * 0.02));
+      const lineStep = Math.max(15, Math.round(labelFontSize * 1.55));
+      const labelY = by + 14;
+      const phGap = 10; // extra gap between label and pH
 
-      // pH label
-      c.font=`bold ${Math.max(10,Math.round(w*0.02))}px Tajawal`;
-      c.fillStyle='#1A8FA8';
-      c.fillText('pH = '+sol.ph, bx, by+16+lLines.length*14);
+      c.font = `bold ${labelFontSize}px Tajawal`;
+      c.fillStyle = '#334';
+      c.textAlign = 'center';
+      c.textBaseline = 'top';
+      const lLines = sol.label.split('\n');
+      lLines.forEach((line, li) => c.fillText(line, bx, labelY + li * lineStep));
+
+      // pH label (placed with clear separation)
+      c.font = `bold ${phFontSize}px Tajawal`;
+      c.fillStyle = '#1A8FA8';
+      c.fillText('pH = ' + sol.ph, bx, labelY + lLines.length * lineStep + phGap);
 
       // Ripple ring
       if(lastDipped===sol.id && dipAnim>0) {
@@ -18373,19 +18381,41 @@ function simVariation2() {
           c.beginPath(); c.roundRect(sx-14,sy-barH+8,28,barH,[4,4,0,0]); c.fill();
           c.strokeStyle=tr.color+'88'; c.lineWidth=1.5; c.stroke();
         }
-        // Avatar
+        // Avatar + name (stacked vertically: emoji then name then value)
         const pulse=sel?Math.sin(t*0.25)*5:0;
         const emojis=['👦','👧','🧒'];
-        c.font=`${Math.round(h*0.075)}px serif`; c.textAlign='center';
-        c.fillText(emojis[s.id%3],sx,sy+8+pulse);
-        // Name label for easier classroom interaction
+        const emojiSize=Math.round(h*0.075);
+        const nameSize=Math.round(h*0.022);
+        const valueSize=Math.round(h*0.028);
+        const emojiY=sy+4+pulse;
+        const nameY=emojiY+Math.max(26,Math.round(emojiSize*0.72));
+        const valueBoxY=nameY+Math.max(18,Math.round(nameSize*1.7));
+
+        c.font=`${emojiSize}px serif`;
+        c.textAlign='center';
+        c.textBaseline='middle';
+        c.fillStyle='rgba(0,0,0,0.92)';
+        c.fillText(emojis[s.id%3],sx,emojiY);
+
+        // Name label (clearly below the emoji)
+        c.textBaseline='top';
         c.fillStyle='rgba(30,45,61,0.9)';
-        c.font=`bold ${Math.round(h*0.022)}px Tajawal`;
-        c.fillText(s.name,sx,sy-14+pulse);
+        c.font=`bold ${nameSize}px Tajawal`;
+        c.fillText(s.name,sx,nameY);
+
+        // Measured value pill (below the name, avoids overlap)
         if(s.measured){
-          c.fillStyle=tr.color; c.beginPath(); c.roundRect(sx-18,sy+16+pulse,36,18,9); c.fill();
-          c.fillStyle='white'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
-          c.fillText(val+(simState.trait==='height'||simState.trait==='hand'?'':''),sx,sy+28+pulse);
+          c.fillStyle=tr.color;
+          c.beginPath(); c.roundRect(sx-18,valueBoxY,36,18,9); c.fill();
+          c.fillStyle='white';
+          c.font=`bold ${valueSize}px Tajawal`;
+          c.textAlign='center';
+          c.textBaseline='middle';
+          c.fillText(
+            val + (simState.trait==='height'||simState.trait==='hand' ? '' : ''),
+            sx,
+            valueBoxY + 9
+          );
         }
         if(sel){
           c.strokeStyle=tr.color; c.lineWidth=3;
