@@ -6219,7 +6219,7 @@ function simIndicator1() {
       // pH label
       c.font=`bold ${Math.max(10,Math.round(w*0.02))}px Tajawal`;
       c.fillStyle='#1A8FA8';
-      c.fillText('pH '+sol.ph, bx, by+18+lLines.length*14);
+      c.fillText('pH = '+sol.ph, bx, by+16+lLines.length*14);
 
       // Ripple ring
       if(lastDipped===sol.id && dipAnim>0) {
@@ -6725,33 +6725,40 @@ function simIndicator2() {
   // ── Step 3: Filter ──
   function drawStepFilter(c,w,h) {
     const cx=w/2;
-    // Funnel
+    // Funnel (triangle) above a beaker (more "lab" looking)
+    const funnelTop=h*0.17, funnelMid=h*0.41;
     c.strokeStyle='#888'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(cx-55,h*0.2); c.lineTo(cx,h*0.45); c.lineTo(cx+55,h*0.2); c.stroke();
-    c.beginPath(); c.moveTo(cx-55,h*0.2); c.lineTo(cx+55,h*0.2); c.stroke();
+    c.beginPath(); c.moveTo(cx-60,funnelTop); c.lineTo(cx,funnelMid); c.lineTo(cx+60,funnelTop); c.stroke();
+    c.beginPath(); c.moveTo(cx-60,funnelTop); c.lineTo(cx+60,funnelTop); c.stroke();
     // Filter paper
-    c.fillStyle='rgba(255,240,200,0.6)'; c.strokeStyle='#DEB887';
-    c.beginPath(); c.moveTo(cx-50,h*0.21); c.lineTo(cx,h*0.44); c.lineTo(cx+50,h*0.21); c.closePath();
+    c.fillStyle='rgba(255,240,200,0.65)'; c.strokeStyle='#DEB887';
+    c.beginPath(); c.moveTo(cx-54,funnelTop+2); c.lineTo(cx,funnelMid-2); c.lineTo(cx+54,funnelTop+2); c.closePath();
     c.fill(); c.stroke();
-    // Tube below
-    c.strokeStyle='#666';
-    c.beginPath(); c.moveTo(cx-5,h*0.45); c.lineTo(cx-5,h*0.7); c.stroke();
-    c.beginPath(); c.moveTo(cx+5,h*0.45); c.lineTo(cx+5,h*0.7); c.stroke();
-    // Test tube
-    c.fillStyle='rgba(200,200,255,0.3)'; c.strokeStyle='#888';
-    c.beginPath(); c.roundRect(cx-18,h*0.65,36,55,18); c.fill(); c.stroke();
+    // Funnel neck
+    c.strokeStyle='#777';
+    c.beginPath(); c.moveTo(cx-6,funnelMid); c.lineTo(cx-6,h*0.56); c.stroke();
+    c.beginPath(); c.moveTo(cx+6,funnelMid); c.lineTo(cx+6,h*0.56); c.stroke();
+
+    // Beaker
+    const bW=Math.min(w*0.28,160), bH=Math.min(h*0.22,120);
+    const bX=cx-bW/2, bY=h*0.58;
+    c.fillStyle='rgba(210,225,255,0.28)'; c.strokeStyle='#888'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(bX,bY,bW,bH,16); c.fill(); c.stroke();
+    // Beaker rim
+    c.strokeStyle='rgba(120,150,200,0.7)'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(bX+10,bY); c.lineTo(bX+bW-10,bY); c.stroke();
 
     // Liquid dripping
     const fill = simState.anim ? Math.min(simState.animT*1.2, 1) : simState.liquid;
     if(fill>0) {
-      // Drop in tube
-      const dropY=h*0.45+fill*(h*0.25);
+      // Drop in beaker
+      const dropY=funnelMid+fill*(h*0.18);
       c.fillStyle='rgba(160,100,130,0.4)';
       c.beginPath(); c.arc(cx,dropY,4,0,Math.PI*2); c.fill();
-      // Liquid in test tube
-      const liqH=fill*40;
-      c.fillStyle='rgba(170,110,140,0.3)';
-      c.beginPath(); c.roundRect(cx-14,h*0.65+55-liqH,28,liqH,liqH<18?liqH:0); c.fill();
+      // Liquid in beaker
+      const liqH=fill*(bH*0.65);
+      c.fillStyle='rgba(170,110,140,0.28)';
+      c.beginPath(); c.roundRect(bX+10,bY+bH-liqH-8,bW-20,liqH, liqH<16?liqH:0); c.fill();
     }
     if(!simState.anim) {
       c.font='14px Tajawal'; c.fillStyle='#888'; c.textAlign='center';
@@ -8418,7 +8425,7 @@ function simWaterConductor1() {
     c.beginPath(); c.moveTo(gx-gw*.9,gy-gh*.75); c.lineTo(gx+gw*.9,gy-gh*.75); c.stroke();
     // تسمية
     c.font='bold 14px Tajawal'; c.fillStyle=isDarkMode()?'#7EC8E3':'#1565C0'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(s>0?'ماء مالح 🧂':'ماء مقطَّر 💧',gx,gy-gh*.38);
+    c.fillText(s>0?'ماء نقي 💧':'ماء مقطَّر 💧',gx,gy-gh*.38);
 
     // ── أقطاب الألمنيوم ──
     [-1,1].forEach(function(side){
@@ -18247,10 +18254,14 @@ function simVariation2() {
   };
 
   // 15 simulated students shown as avatars
-  const omaniNames = ['نورة','سارة','فاطمة','مريم','هند','خالد','محمد','عمر','يوسف','سالم','أحمد','علي','زيد','ريم','لطيفة'];
+  const omaniNames = [
+    'أحمد','فاطمة','سالم','مريم','خالد',
+    'عائشة','ناصر','خولة','سعيد','ميّ',
+    'حمد','زينب','راشد','شيماء','عبدالله'
+  ];
   const students = Array.from({length:15},(_,i) => ({
     id:i,
-    name: omaniNames[i],
+    name: omaniNames[i % omaniNames.length],
     height: 145+Math.round(Math.random()*28),
     foot: 36+Math.round(Math.random()*8),
     hand: Math.round((14+Math.random()*5)*10)/10,
@@ -18367,9 +18378,9 @@ function simVariation2() {
         const emojis=['👦','👧','🧒'];
         c.font=`${Math.round(h*0.075)}px serif`; c.textAlign='center';
         c.fillText(emojis[s.id%3],sx,sy+8+pulse);
-        // اسم الطالب
-        c.fillStyle=s.measured?tr.color:'rgba(60,60,80,0.6)';
-        c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+        // Name label for easier classroom interaction
+        c.fillStyle='rgba(30,45,61,0.9)';
+        c.font=`bold ${Math.round(h*0.022)}px Tajawal`;
         c.fillText(s.name,sx,sy-14+pulse);
         if(s.measured){
           c.fillStyle=tr.color; c.beginPath(); c.roundRect(sx-18,sy+16+pulse,36,18,9); c.fill();
@@ -19079,7 +19090,8 @@ function simVertebrates1() {
           const pad = 12;
           const hdrH = lh + 10;                    // header (name only)
           const subH = lh - 4;                     // example row
-          const ph = hdrH + subH + pad + cl.traits.length * lh + pad;
+          // Extra breathing room so last trait line never gets clipped
+          const ph = hdrH + subH + pad + cl.traits.length * lh + pad + 12;
           const pw = Math.min(w*0.48, Math.max(w*0.32, 220));
 
           // Position: center on animal, open upward, clamp
@@ -19145,7 +19157,7 @@ function simVertebrates1() {
             // Clip so text can't escape card
             c.save();
             c.beginPath();
-            c.rect(bx + 6, rowY, pw - 26, lh);
+            c.rect(bx + 6, rowY, pw - 26, lh + 2);
             c.clip();
             c.fillText(tr, bx + pw - 22, rowY + lh * 0.72);
             c.restore();
@@ -19208,6 +19220,7 @@ function simVertebrates2() {
       <div class="ctrl-label">🎯 صنِّف الحيوان!</div>
     </div>
     <div id="v2Score" style="text-align:center;font-size:26px;font-weight:800;color:#3498DB;margin:6px 0">النقاط: 0 🔥0</div>
+    <button class="ctrl-btn" id="btnV2Retry" style="width:100%;margin-bottom:6px;background:rgba(26,143,168,0.18);border-color:rgba(26,143,168,0.45);color:#1A8FA8">🔄 إعادة المحاولة</button>
     <div class="ctrl-section">
       <div style="display:flex;flex-direction:column;gap:3px">
         ${Object.entries(clsDefs).map(([k,v])=>`<button class="ctrl-btn" id="bva_${k}"
@@ -19222,6 +19235,18 @@ function simVertebrates2() {
       ثدييّات: شعر + إرضاع
     </div>
   `);
+
+  function resetV2(){
+    simState.remaining=[...animals].sort(()=>Math.random()-0.5);
+    simState.current=simState.remaining.pop()||null;
+    simState.score=0; simState.streak=0; simState.fb=null;
+    const sc=document.getElementById('v2Score');
+    const info=document.getElementById('v2Info');
+    if(sc) sc.textContent='النقاط: 0 🔥0';
+    if(info) info.textContent='صنِّف الحيوان بناءً على وصفه!';
+    U9Sound.ping(330,0.2,0.15);
+  }
+  btn('btnV2Retry', resetV2);
 
   window._tryAnswerV2Fn = function(cls){
     if(!simState.current||simState.fb!=null) return;
@@ -19267,14 +19292,17 @@ function simVertebrates2() {
       c.fillText(`${simState.score} / ${simState.total}`,w/2,h*0.63);
       c.fillStyle='#5A6A7A'; c.font=`${Math.round(h*0.034)}px Tajawal`;
       c.fillText(perfect?'حصلت على كل الإجابات!':'جرِّب مجدداً 💪',w/2,h*0.74);
-      // ── زر إعادة في نهاية اللعبة ──
-      const rbW=140, rbH=38, rbX=w/2-rbW/2, rbY=h*0.83;
-      const rbHov=simState._endHover;
-      c.fillStyle=rbHov?'#1A8FA8':'rgba(26,143,168,0.85)';
-      c.beginPath(); c.roundRect(rbX,rbY,rbW,rbH,19); c.fill();
-      c.fillStyle='white'; c.font=`bold ${Math.round(h*0.036)}px Tajawal`; c.textAlign='center';
-      c.fillText('🔄 إعادة اللعب',w/2,rbY+rbH*0.67);
-      simState._endBtn={x:rbX,y:rbY,w:rbW,h:rbH};
+
+      // Canvas retry button
+      const rbW=Math.min(180, w*0.5), rbH=40;
+      const rbX=w/2-rbW/2, rbY=h*0.80;
+      c.shadowColor='rgba(26,143,168,0.25)'; c.shadowBlur=14; c.shadowOffsetY=4;
+      c.fillStyle='rgba(26,143,168,0.92)';
+      c.beginPath(); c.roundRect(rbX,rbY,rbW,rbH,20); c.fill();
+      c.shadowBlur=0; c.shadowOffsetY=0;
+      c.fillStyle='white'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
+      c.fillText('🔄 إعادة المحاولة', w/2, rbY+rbH*0.68);
+      simState._retryBtn={x:rbX,y:rbY,w:rbW,h:rbH};
 
       animFrame=requestAnimationFrame(()=>{try{draw()}catch(e){}});
       return;
@@ -19342,35 +19370,19 @@ function simVertebrates2() {
 
     animFrame=requestAnimationFrame(()=>{try{draw()}catch(e){}});
   }
-  draw();
-
-  // ── onclick للكانفاس (زر إعادة في نهاية اللعبة) ──
-  const canvas2=document.getElementById('simCanvas');
-  canvas2.addEventListener('click',function(ev){
-    if(!simState._endBtn) return;
-    const rect=canvas2.getBoundingClientRect();
-    const mx=(ev.clientX-rect.left)*canvas2.width/rect.width;
-    const my=(ev.clientY-rect.top)*canvas2.height/rect.height;
-    const b=simState._endBtn;
-    if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h){
-      simState.remaining=[...animals].sort(()=>Math.random()-0.5);
-      simState.current=simState.remaining.pop()||null;
-      simState.score=0; simState.streak=0; simState.fb=null;
-      simState._endBtn=null; simState._endHover=false;
-      document.getElementById('v2Score').textContent='النقاط: 0 🔥0';
-      document.getElementById('v2Info').textContent='صنِّف الحيوان!';
-      U9Sound.ping(523,0.25,0.2);
+  // Canvas click: allow retry from inside the canvas end screen
+  const cv=document.getElementById('simCanvas');
+  cv.onclick=function(ev){
+    if(currentSim!=='vertebrates'||currentTab!==1) return;
+    if(simState && simState._retryBtn && !simState.current){
+      const r=cv.getBoundingClientRect();
+      const mx=(ev.clientX-r.left)*(cv.width/r.width);
+      const my=(ev.clientY-r.top)*(cv.height/r.height);
+      const b=simState._retryBtn;
+      if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h){ resetV2(); return; }
     }
-  });
-  canvas2.addEventListener('mousemove',function(ev){
-    if(!simState._endBtn) return;
-    const rect=canvas2.getBoundingClientRect();
-    const mx=(ev.clientX-rect.left)*canvas2.width/rect.width;
-    const my=(ev.clientY-rect.top)*canvas2.height/rect.height;
-    const b=simState._endBtn;
-    simState._endHover=(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h);
-    canvas2.style.cursor=simState._endHover?'pointer':'default';
-  });
+  };
+  draw();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -19589,13 +19601,14 @@ function simInvertebrates1() {
 function simInvertebrates2() {
 
   // ── بيانات الحشرة ──
+  const INSECT_Y_SHIFT = 0.09;
   const insectParts = [
-    {id:'antennae', label:'قرنا الاستشعار', desc:'تُحسّ بالروائح واللمس والصوت',          tx:0.36, ty:0.03},
-    {id:'head',     label:'الرأس',          desc:'يحتوي على العينين والفم وقرني الاستشعار', tx:0.36, ty:0.14},
-    {id:'wings',    label:'الأجنحة',        desc:'زوجان من الأجنحة للطيران',              tx:0.36, ty:0.29},
-    {id:'thorax',   label:'الصدر',          desc:'مركز الحركة — ترتبط به الأرجل والأجنحة', tx:0.36, ty:0.38},
-    {id:'legs',     label:'الأرجل (٦)',     desc:'ستة أرجل مفصليّة ترتبط بالصدر',        tx:0.36, ty:0.50},
-    {id:'abdomen',  label:'البطن',          desc:'يحتوي على معظم الأعضاء الداخلية',      tx:0.36, ty:0.64},
+    {id:'antennae', label:'قرنا الاستشعار', desc:'تُحسّ بالروائح واللمس والصوت',          tx:0.36, ty:0.03+INSECT_Y_SHIFT},
+    {id:'head',     label:'الرأس',          desc:'يحتوي على العينين والفم وقرني الاستشعار', tx:0.36, ty:0.14+INSECT_Y_SHIFT},
+    {id:'wings',    label:'الأجنحة',        desc:'زوجان من الأجنحة للطيران',              tx:0.36, ty:0.29+INSECT_Y_SHIFT},
+    {id:'thorax',   label:'الصدر',          desc:'مركز الحركة — ترتبط به الأرجل والأجنحة', tx:0.36, ty:0.38+INSECT_Y_SHIFT},
+    {id:'legs',     label:'الأرجل (٦)',     desc:'ستة أرجل مفصليّة ترتبط بالصدر',        tx:0.36, ty:0.50+INSECT_Y_SHIFT},
+    {id:'abdomen',  label:'البطن',          desc:'يحتوي على معظم الأعضاء الداخلية',      tx:0.36, ty:0.64+INSECT_Y_SHIFT},
   ];
 
 
@@ -19867,7 +19880,7 @@ function simInvertebrates2() {
     c.fillText(isIns?'سِمِّ أجزاء الحشرة — اسحب التسميات!':'سِمِّ أجزاء العنكبوت — اسحب التسميات!', w/2, 26);
 
     // ارسم الحشرة أو العنكبوت
-    if(isIns) drawInsect(c,bx,w,h);
+    if(isIns){ c.save(); c.translate(0, h*INSECT_Y_SHIFT); drawInsect(c,bx,w,h); c.restore(); }
     else drawSpider(c,bx,w,h);
 
     // دوائر الأهداف + تسميات الموضوعة
@@ -20090,7 +20103,8 @@ function simDichotomous1() {
     } else {
       // ── QUESTION CARD ──────────────────────────────────────────────────
       const cardW = Math.min(w*0.82, 560);
-      const cardH = Math.round(h*0.24);
+      // Make the "puzzle" question clearer/bigger (prevents cramped text)
+      const cardH = Math.round(h*0.28);
       const cardX = (w-cardW)/2;
       const cardY = h*0.1;
 
@@ -20108,9 +20122,9 @@ function simDichotomous1() {
       c.fillText('السؤال ' + (simState.path.length+1) + ' من ' + treeDepth, w/2, cardY+Math.round(cardH*0.25));
 
       // Question text
-      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign='center';
+      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.048)}px Tajawal`; c.textAlign='center';
       const qText=node.q;
-      if(qText.length>16){
+      if(qText.length>14){
         const sp=qText.lastIndexOf(' ',Math.round(qText.length/2));
         const br=sp>0?sp:Math.round(qText.length/2);
         c.fillText(qText.substring(0,br), w/2, cardY+Math.round(cardH*0.62));
@@ -20203,7 +20217,7 @@ function simDichotomous1() {
       else dkEl.innerHTML=`🎉 <strong>${node.name}</strong>`;
     }
     if(dkRes){
-      if(node.q) dkRes.textContent='اضغط على الكانفس للإجابة';
+      if(node.q) dkRes.textContent='حلّ اللغز: اضغط نعم أو لا (من اللوحة أو من الأزرار على الكانفس)';
       else dkRes.innerHTML=`<em style="color:${node.col}">💡 ${node.fact}</em>`;
     }
 
@@ -20458,7 +20472,7 @@ function simDichotomous2() {
         if(isActive){ c.strokeStyle='#1A8FA8'; c.lineWidth=2; c.stroke(); }
         c.shadowBlur=0;
         c.globalAlpha=isActive?1:0.2;
-        c.font=`${Math.round(h*0.08)}px serif`; c.textAlign='center';
+        c.font=`${Math.round(h*0.10)}px serif`; c.textAlign='center';
         c.fillText(a.name.split(' ')[1]||'🐾', ax, ay+bob);
         c.fillStyle=isActive?'#1E2D3D':'#888';
         c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
@@ -39529,3 +39543,4 @@ function simG9Limestone3(){
 </script>
 </body>
 </html>
+د
