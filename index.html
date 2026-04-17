@@ -4242,7 +4242,41 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
       <div class="panel-title">كتاب الفيزياء — الصف التاسع</div>
       <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
       <div class="units-grid" style="margin-top:16px">
-        <!-- وحدات الفيزياء ستُضاف هنا -->
+        <div class="unit-card" onclick="openUnit('g9phys11', this)">
+          <div class="unit-num-badge c-green">١١</div>
+          <div>
+            <div class="unit-title">الطاقة والضوء</div>
+            <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · انعكاس الضوء</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys11 ══ -->
+      <div class="sims-wrap" id="sims-g9phys11" style="margin-top:28px">
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9energy')">
+            <div class="sim-thumb t7">⚡</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-١ · موارد الطاقة</div>
+              <div class="sim-name">صنّف المصادر واحسب الكفاءة</div>
+              <div class="sim-desc">اسحب مصادر الطاقة لتصنيفها (متجددة/غير متجددة) ثم جرّب حاسبة الكفاءة والطاقة المفيدة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9refl')">
+            <div class="sim-thumb t6">🪞</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٢ · انعكاس الضوء</div>
+              <div class="sim-name">زاوية السقوط = زاوية الانعكاس</div>
+              <div class="sim-desc">حرّك الشعاع على المرآة وشاهد كيف تتغير الزوايا، ثم ارسم مخطط الأشعة (Ray diagram)</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
       </div>
     </div>
 
@@ -4887,7 +4921,8 @@ function openUnit(id, el) {
     g9chem7:'الوحدة السابعة ⚖️ — المعادلات الكيميائية تُخبرك بكل شيء عن التفاعل! وازنها واكتشف رموز الحالة.',
     g9chem8:'الوحدة الثامنة 🧂 — الأملاح تتكوّن من أحماض وقواعد. من NaCl إلى CuSO₄ — اكتشف كيف!',
     g9chem9:'الوحدة التاسعة 🔬 — التحليل الكيميائي يكشف أسرار المواد المجهولة!',
-    g9chem10:'الوحدة العاشرة 🌍 — الأرض تحت المجهر! استكشف الهواء والتلوّث والمناخ والحجر الجيري.'
+    g9chem10:'الوحدة العاشرة 🌍 — الأرض تحت المجهر! استكشف الهواء والتلوّث والمناخ والحجر الجيري.',
+    g9phys11:'الوحدة الحادية عشرة ⚡🪞 — صنّف مصادر الطاقة وتعلّم الكفاءة، ثم جرّب انعكاس الضوء وارسم الأشعة!'
   };
   if(hints[id]) setTimeout(function(){ buddySay(hints[id], 6000); }, 400);
 }
@@ -5031,6 +5066,10 @@ const SIM_META = {
   g9acidrain:   { title: 'نشاط 10-3 · المطر الحمضي وتأثيره', badge: '🌧️ 9', tabs: ['تكوُّن غازات المطر الحمضي ⚗️', 'تأثير المطر الحمضي على البيئة 🌿', 'حلول الحدّ من التلوّث 🛡️'] },
   g9greenhouse: { title: 'نشاط 10-4 · تأثير الدفيئة والاحترار العالمي', badge: '🌡️ 9', tabs: ['آلية تأثير الدفيئة 🌍', 'غازات الدفيئة ومصادرها 🏭', 'التغيُّرات المناخية وحلولها ♻️'] },
   g9limestone:  { title: 'نشاط 10-5 · الحجر الجيري والتفكك الحراري', badge: '🪨 9', tabs: ['التفكك الحراري لـ CaCO₃ 🔥', 'الجير الحيّ ومنتجاته 🏗️', 'معالجة التربة الحمضية 🌱'] }
+  ,
+  // ── الصف التاسع — فيزياء: الوحدة 11 ──
+  g9energy: { title: 'الوحدة 11 · موارد الطاقة والكفاءة', badge: '⚡ 9', tabs: ['صنّف المصادر ♻️', 'حاسبة الكفاءة 📈'] },
+  g9refl:   { title: 'الوحدة 11 · انعكاس الضوء', badge: '🪞 9', tabs: ['قانون الانعكاس 📐', 'مخطط الأشعة 🎯'] }
 };
 
 // ===== UNIT 7 END-OF-UNIT QUIZ =====
@@ -5819,7 +5858,10 @@ function startSim(type, tab) {
     g9combustion: [_s('simG9Combustion1'), _s('simG9Combustion2'), _s('simG9Combustion3')],
     g9acidrain:   [_s('simG9AcidRain1'),   _s('simG9AcidRain2'),   _s('simG9AcidRain3')],
     g9greenhouse: [_s('simG9Greenhouse1'), _s('simG9Greenhouse2'), _s('simG9Greenhouse3')],
-    g9limestone:  [_s('simG9Limestone1'),  _s('simG9Limestone2'),  _s('simG9Limestone3')]
+    g9limestone:  [_s('simG9Limestone1'),  _s('simG9Limestone2'),  _s('simG9Limestone3')],
+    // ── فيزياء الصف التاسع — الوحدة 11 ──
+    g9energy: [simG9Energy1, simG9Energy2],
+    g9refl:   [simG9Refl1, simG9Refl2]
   };
   const fn = (fns[type] || [])[tab];
   if (fn) {
@@ -18424,9 +18466,27 @@ function simVariation2() {
       });
 
       const measCount=simState.students.filter(s=>s.measured).length;
-      c.fillStyle='rgba(0,0,0,0.45)'; c.beginPath(); c.roundRect(w/2-80,h-32,160,24,12); c.fill();
-      c.fillStyle='white'; c.font=`${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
-      c.fillText(`تم قياس ${measCount}/15 طالباً`,w/2,h-15);
+      const measTxt = `تم قياس ${measCount}/15 طالباً`;
+      const measFont = Math.round(h*0.034);
+      c.save();
+      c.font = `bold ${measFont}px Tajawal`;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      const padX = 16, pillH = 30;
+      const pillW = Math.ceil(c.measureText(measTxt).width) + padX*2;
+      const pillX = w/2 - pillW/2;
+      const pillY = h - 34;
+      c.shadowColor = 'rgba(0,0,0,0.25)';
+      c.shadowBlur = 8;
+      c.fillStyle = 'rgba(0,0,0,0.72)';
+      c.beginPath(); c.roundRect(pillX, pillY, pillW, pillH, 14); c.fill();
+      c.shadowBlur = 0;
+      c.strokeStyle = 'rgba(255,255,255,0.18)';
+      c.lineWidth = 1.2;
+      c.beginPath(); c.roundRect(pillX, pillY, pillW, pillH, 14); c.stroke();
+      c.fillStyle = 'white';
+      c.fillText(measTxt, w/2, pillY + pillH/2 + 1);
+      c.restore();
 
     } else {
       // Stats + distribution chart
@@ -23812,7 +23872,7 @@ function simParallel12b() {
     // نشاط 8: المواد — بدون صوت
     // metals, nonmetals, metalcompare, materials
     // نشاط 10: التصنيف
-    variation:      'birds_soft',
+    variation:      null,
     plantclass:     'forest',
     vertebrates:    'birds_soft',
     invertebrates:  'forest',
@@ -39570,7 +39630,505 @@ function simG9Limestone3(){
   }
   draw();
 }
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — فيزياء الوحدة 11: موارد الطاقة والكفاءة
+// ══════════════════════════════════════════════════════════
+function simG9Energy1(){
+  cancelAnimationFrame(animFrame);
+  const items = [
+    {id:'solar',   name:'الطاقة الشمسية',       emoji:'☀️', type:'renew'},
+    {id:'wind',    name:'طاقة الرياح',          emoji:'💨', type:'renew'},
+    {id:'hydro',   name:'الطاقة الكهرومائية',   emoji:'💧', type:'renew'},
+    {id:'tidal',   name:'طاقة المدّ والجزر',    emoji:'🌊', type:'renew'},
+    {id:'geo',     name:'الطاقة الحرارية الجوفية', emoji:'🌋', type:'renew'},
+    {id:'coal',    name:'الفحم',                emoji:'🪨', type:'non'},
+    {id:'oil',     name:'النفط',                emoji:'🛢️', type:'non'},
+    {id:'gas',     name:'الغاز الطبيعي',        emoji:'🔥', type:'non'},
+    {id:'nuclear', name:'الطاقة النووية',       emoji:'⚛️', type:'non'}
+  ];
+  simState = {
+    t:0,
+    items: items.map((it, i)=>({
+      ...it,
+      x: 0.12 + (i%3)*0.26,
+      y: 0.22 + Math.floor(i/3)*0.13,
+      placed: null
+    })),
+    dragId: null,
+    ox: 0, oy: 0,
+    score: 0
+  };
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">♻️ صنّف مصادر الطاقة</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">
+        اسحب كل بطاقة إلى الصندوق الصحيح: <strong>متجددة</strong> أو <strong>غير متجددة</strong>.
+      </div>
+    </div>
+    <div class="info-box" id="g9e1-info">اسحب بطاقة وجرّب ✋</div>
+    <button class="ctrl-btn reset" style="width:100%;margin-top:6px" onclick="simG9Energy1()">↺ إعادة</button>
+    <div class="q-box" style="margin-top:10px">
+      <strong>❓ ما الفرق بين المتجددة وغير المتجددة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">المتجددة تتجدد طبيعيًا بسرعة (الشمس، الرياح، الماء). غير المتجددة موارد محدودة تتكون عبر زمن طويل (الفحم، النفط، الغاز) أو تعتمد على وقود نووي.</div>
+    </div>
+  `);
+
+  const cv = document.getElementById('simCanvas');
+  function hitCard(mx,my,w,h){
+    const c = cv.getContext('2d');
+    const cw=Math.min(180, w*0.24), ch=44;
+    for(const it of simState.items){
+      const px=it.x*w, py=it.y*h;
+      if(mx>px-cw/2 && mx<px+cw/2 && my>py-ch/2 && my<py+ch/2){
+        return {it, cw, ch};
+      }
+    }
+    return null;
+  }
+
+  cv.onmousedown = (e)=>{
+    if(currentSim!=='g9energy' || currentTab!==0) return;
+    const r=cv.getBoundingClientRect();
+    const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const w=cv.width, h=cv.height;
+    const hit=hitCard(mx,my,w,h);
+    if(hit){
+      simState.dragId = hit.it.id;
+      simState.ox = mx - hit.it.x*w;
+      simState.oy = my - hit.it.y*h;
+    }
+  };
+  cv.onmousemove = (e)=>{
+    if(!simState.dragId) return;
+    const r=cv.getBoundingClientRect();
+    const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const w=cv.width, h=cv.height;
+    const it=simState.items.find(x=>x.id===simState.dragId);
+    if(!it) return;
+    it.x = (mx - simState.ox) / w;
+    it.y = (my - simState.oy) / h;
+  };
+  cv.onmouseup = (e)=>{
+    if(!simState.dragId) return;
+    const r=cv.getBoundingClientRect();
+    const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const w=cv.width, h=cv.height;
+
+    const renewBox = {x:w*0.08,y:h*0.62,w:w*0.4,h:h*0.28};
+    const nonBox   = {x:w*0.52,y:h*0.62,w:w*0.4,h:h*0.28};
+    const it=simState.items.find(x=>x.id===simState.dragId);
+    simState.dragId=null;
+    if(!it) return;
+
+    const dropIn = (b)=> mx>b.x && mx<b.x+b.w && my>b.y && my<b.y+b.h;
+    let placed=null;
+    if(dropIn(renewBox)) placed='renew';
+    else if(dropIn(nonBox)) placed='non';
+    if(!placed) return;
+
+    it.placed = placed;
+    // Snap into the box grid
+    const arr = simState.items.filter(x=>x.placed===placed);
+    const idx = arr.indexOf(it);
+    const cols = 2;
+    const sx = (placed==='renew'?renewBox.x:nonBox.x);
+    const sy = (placed==='renew'?renewBox.y:nonBox.y);
+    const bw = (placed==='renew'?renewBox.w:nonBox.w);
+    it.x = (sx + bw*0.25 + (idx%cols)*bw*0.5) / w;
+    it.y = (sy + 34 + Math.floor(idx/cols)*52) / h;
+
+    const correct = (it.type===placed);
+    const info=document.getElementById('g9e1-info');
+    if(correct){
+      U9Sound && U9Sound.win && U9Sound.win();
+      if(info) info.innerHTML = `✅ صحيح: <strong>${it.name}</strong> ${it.emoji} ${placed==='renew'?'متجددة':'غير متجددة'}.`;
+    }else{
+      U9Sound && U9Sound.ping && U9Sound.ping(200,0.2,0.15);
+      if(info) info.innerHTML = `❌ جرّب ثانية: <strong>${it.name}</strong> ${it.emoji} ليست هنا.`;
+      it.placed = null;
+    }
+  };
+
+  function draw(){
+    if(currentSim!=='g9energy' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h);
+    simState.t += 0.02;
+    const bg=c.createLinearGradient(0,0,w,h);
+    bg.addColorStop(0,'#F3F8FF'); bg.addColorStop(1,'#FFF7ED');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Header
+    c.fillStyle='rgba(30,45,61,0.9)';
+    c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('صنّف مصادر الطاقة', w/2, 18);
+
+    // Drop zones
+    const renewBox = {x:w*0.08,y:h*0.62,w:w*0.4,h:h*0.28};
+    const nonBox   = {x:w*0.52,y:h*0.62,w:w*0.4,h:h*0.28};
+    const zone = (b, title, col)=>{
+      c.fillStyle=col+'16'; c.beginPath(); c.roundRect(b.x,b.y,b.w,b.h,16); c.fill();
+      c.strokeStyle=col+'66'; c.lineWidth=2; c.beginPath(); c.roundRect(b.x,b.y,b.w,b.h,16); c.stroke();
+      c.fillStyle=col; c.font=`bold ${Math.round(h*0.035)}px Tajawal`; c.textAlign='center';
+      c.fillText(title, b.x+b.w/2, b.y+10);
+      c.fillStyle='rgba(0,0,0,0.35)'; c.font=`${Math.round(h*0.025)}px Tajawal`;
+      c.fillText('اسحب البطاقات إلى هنا', b.x+b.w/2, b.y+42);
+    };
+    zone(renewBox,'♻️ مصادر متجددة','#16A34A');
+    zone(nonBox,'⛽ مصادر غير متجددة','#DC2626');
+
+    // Cards
+    const cw=Math.min(180, w*0.24), ch=44;
+    simState.items.forEach((it, i)=>{
+      const x=it.x*w, y=it.y*h;
+      const isDrag = simState.dragId===it.id;
+      c.save();
+      c.shadowColor='rgba(0,0,0,0.18)'; c.shadowBlur=isDrag?16:10;
+      const col = it.type==='renew' ? '#16A34A' : '#DC2626';
+      c.fillStyle='rgba(255,255,255,0.92)'; c.beginPath(); c.roundRect(x-cw/2,y-ch/2,cw,ch,14); c.fill();
+      c.strokeStyle=col+'55'; c.lineWidth=2; c.beginPath(); c.roundRect(x-cw/2,y-ch/2,cw,ch,14); c.stroke();
+      c.shadowBlur=0;
+      c.fillStyle=col; c.beginPath(); c.roundRect(x-cw/2,y-ch/2,8,ch,14); c.fill();
+      c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(`${it.emoji} ${it.name}`, x, y+1);
+      c.restore();
+    });
+
+    const placedCount = simState.items.filter(it=>it.placed).length;
+    c.fillStyle='rgba(0,0,0,0.5)'; c.beginPath(); c.roundRect(w*0.32,h*0.12,w*0.36,26,13); c.fill();
+    c.fillStyle='white'; c.font=`${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`تم تصنيف ${placedCount}/${simState.items.length}`, w/2, h*0.12+13);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Energy2(){
+  cancelAnimationFrame(animFrame);
+  simState = { t:0, Ein:100, Euse:30, time:8, mode:'energy' };
+  const S=simState;
+  function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
+  window._g9eSet = function(k,v){
+    S[k]=+v;
+    if(k==='Euse') S.Euse=clamp(S.Euse,0,S.Ein);
+    if(k==='Ein')  S.Ein =clamp(S.Ein,1,500);
+    if(k==='time') S.time=clamp(S.time,1,60);
+    const eff = (S.Euse/S.Ein)*100;
+    document.getElementById('g9e-eff').textContent = isFinite(eff)?eff.toFixed(0):'0';
+    document.getElementById('g9e-ein').textContent = S.Ein.toFixed(0);
+    document.getElementById('g9e-euse').textContent= S.Euse.toFixed(0);
+    document.getElementById('g9e-time').textContent= S.time.toFixed(0);
+  };
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📈 حاسبة الكفاءة</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">
+        غيّر طاقة الإدخال والطاقة المفيدة، وشاهد نسبة الكفاءة.
+      </div>
+    </div>
+    <div class="info-box" style="text-align:center">
+      الكفاءة = <strong>الطاقة المفيدة ÷ طاقة الإدخال × 100%</strong><br>
+      <span style="font-size:12px;opacity:0.8">يمكنك أيضاً حساب القدرة \(P = E/t\)</span>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">طاقة الإدخال Ein: <span id="g9e-ein">100</span> J</div>
+      <input type="range" min="10" max="500" value="100" oninput="window._g9eSet('Ein',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">الطاقة المفيدة Euse: <span id="g9e-euse">30</span> J</div>
+      <input type="range" min="0" max="500" value="30" oninput="window._g9eSet('Euse',this.value)" style="width:100%">
+      <div class="ctrl-label" style="margin-top:8px">الزمن t: <span id="g9e-time">8</span> s</div>
+      <input type="range" min="1" max="60" value="8" oninput="window._g9eSet('time',this.value)" style="width:100%">
+    </div>
+    <div class="q-box">
+      <strong>💡 تذكير</strong><br>
+      إذا كانت الكفاءة منخفضة فهذا يعني أن جزءًا من الطاقة ضاع في صورة حرارة/صوت/احتكاك.
+    </div>
+  `);
+  window._g9eSet('Ein', S.Ein);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9energy' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const eff = S.Euse/S.Ein;
+    const effPct = isFinite(eff)?eff*100:0;
+    const pIn = S.Ein/S.time;
+    const pUse = S.Euse/S.time;
+
+    // Background
+    const bg=c.createLinearGradient(0,0,w,h);
+    bg.addColorStop(0,'#0B1220'); bg.addColorStop(1,'#102A43');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Title
+    c.fillStyle='rgba(255,255,255,0.92)';
+    c.font=`bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('حاسبة الكفاءة', w/2, 16);
+
+    // Efficiency ring
+    const cx=w*0.32, cy=h*0.55, r=Math.min(w,h)*0.18;
+    c.strokeStyle='rgba(255,255,255,0.14)'; c.lineWidth=18; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.stroke();
+    const start=-Math.PI/2;
+    const col = effPct>=70 ? '#22C55E' : effPct>=40 ? '#F59E0B' : '#EF4444';
+    c.strokeStyle=col; c.lineWidth=18; c.beginPath(); c.arc(cx,cy,r,start,start+Math.PI*2*clamp(eff,0,1)); c.stroke();
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.075)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`${Math.round(effPct)}%`, cx, cy);
+    c.font=`${Math.round(h*0.028)}px Tajawal`; c.fillStyle='rgba(255,255,255,0.8)';
+    c.fillText('الكفاءة', cx, cy + r*0.72);
+
+    // Sankey-ish bars
+    const bx=w*0.58, by=h*0.3, bw=w*0.32, bh=h*0.5;
+    c.fillStyle='rgba(255,255,255,0.06)'; c.beginPath(); c.roundRect(bx,by,bw,bh,18); c.fill();
+    c.strokeStyle='rgba(255,255,255,0.12)'; c.lineWidth=1.5; c.beginPath(); c.roundRect(bx,by,bw,bh,18); c.stroke();
+
+    const inH = bh*0.85;
+    const useH = inH*clamp(eff,0,1);
+    const lossH = inH-useH;
+    const barW = bw*0.26;
+    const x1=bx+bw*0.22, x2=bx+bw*0.62;
+    // Input
+    c.fillStyle='rgba(59,130,246,0.85)'; c.beginPath(); c.roundRect(x1-barW/2, by+bh*0.1, barW, inH, 12); c.fill();
+    // Useful
+    c.fillStyle='rgba(34,197,94,0.85)'; c.beginPath(); c.roundRect(x2-barW/2, by+bh*0.1+(inH-useH), barW, useH, 12); c.fill();
+    // Loss
+    c.fillStyle='rgba(239,68,68,0.75)'; c.beginPath(); c.roundRect(x2-barW/2, by+bh*0.1, barW, lossH, 12); c.fill();
+
+    const fsz=Math.round(h*0.028);
+    c.fillStyle='rgba(255,255,255,0.92)'; c.font=`bold ${fsz}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('إدخال', x1, by+bh*0.1+inH+10);
+    c.fillText('مفيدة', x2, by+bh*0.1+(inH-useH)+useH+10);
+    c.fillStyle='rgba(255,255,255,0.75)'; c.font=`${Math.round(h*0.024)}px Tajawal`;
+    c.fillText(`Ein = ${S.Ein.toFixed(0)} J`, x1, by+bh*0.1+inH+36);
+    c.fillText(`Euse = ${S.Euse.toFixed(0)} J`, x2, by+bh*0.1+inH+36);
+
+    // Power box
+    c.fillStyle='rgba(255,255,255,0.08)'; c.beginPath(); c.roundRect(w*0.08,h*0.78,w*0.84,56,16); c.fill();
+    c.strokeStyle='rgba(255,255,255,0.14)'; c.stroke();
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`القدرة: Pin = ${pIn.toFixed(1)} W | Puse = ${pUse.toFixed(1)} W عند t = ${S.time.toFixed(0)} s`, w/2, h*0.78+28);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف التاسع — فيزياء الوحدة 11: انعكاس الضوء
+// ══════════════════════════════════════════════════════════
+function simG9Refl1(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, ang:30, dragging:false};
+  const S=simState;
+  window._setReflAng = function(v){
+    S.ang = +v;
+    const a=document.getElementById('refl-ang');
+    if(a) a.textContent = (+v).toFixed(0);
+  };
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📐 قانون الانعكاس</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">
+        غيّر زاوية السقوط بالنسبة للعمود المقام (Normal) وشاهد زاوية الانعكاس.
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">زاوية السقوط i: <span id="refl-ang">30</span>°</div>
+      <input type="range" min="5" max="80" value="30" oninput="window._setReflAng(this.value)" style="width:100%">
+    </div>
+    <div class="info-box" style="text-align:center">
+      <strong>زاوية السقوط = زاوية الانعكاس</strong><br>
+      i = r
+    </div>
+  `);
+
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9refl' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    const bg=c.createLinearGradient(0,0,w,h);
+    bg.addColorStop(0,'#F8FAFC'); bg.addColorStop(1,'#EAF2FF');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    const midX=w*0.5, midY=h*0.56;
+    const mirrorY=midY;
+
+    // Mirror line
+    c.strokeStyle='rgba(30,45,61,0.35)'; c.lineWidth=8; c.lineCap='round';
+    c.beginPath(); c.moveTo(w*0.18,mirrorY); c.lineTo(w*0.82,mirrorY); c.stroke();
+    c.strokeStyle='rgba(255,255,255,0.55)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(w*0.18,mirrorY-2); c.lineTo(w*0.82,mirrorY-2); c.stroke();
+    c.fillStyle='rgba(30,45,61,0.8)'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('مرآة مستوية', midX, mirrorY-8);
+
+    // Normal
+    c.strokeStyle='rgba(26,143,168,0.7)'; c.lineWidth=3; c.setLineDash([6,5]);
+    c.beginPath(); c.moveTo(midX, mirrorY- h*0.33); c.lineTo(midX, mirrorY + h*0.24); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle='rgba(26,143,168,0.95)'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textBaseline='top';
+    c.fillText('العمود المقام', midX, mirrorY + 8);
+
+    // Rays
+    const i = (Math.PI/180)*S.ang;
+    const L = Math.min(w,h)*0.55;
+    const incDir = {x: Math.sin(i), y: Math.cos(i)}; // toward mirror (down)
+    const refDir = {x: Math.sin(i), y: -Math.cos(i)}; // away (up)
+
+    const p0 = {x: midX - incDir.x*L, y: mirrorY - incDir.y*L};
+    const hit = {x: midX, y: mirrorY};
+    const p1 = {x: midX + refDir.x*L, y: mirrorY + refDir.y*L};
+
+    // Incident (yellow)
+    c.strokeStyle='#F59E0B'; c.lineWidth=5; c.lineCap='round';
+    c.beginPath(); c.moveTo(p0.x,p0.y); c.lineTo(hit.x,hit.y); c.stroke();
+    // Reflected (cyan)
+    c.strokeStyle='#06B6D4'; c.lineWidth=5;
+    c.beginPath(); c.moveTo(hit.x,hit.y); c.lineTo(p1.x,p1.y); c.stroke();
+
+    // Arrow heads
+    function arrow(x1,y1,x2,y2,col){
+      const ang=Math.atan2(y2-y1,x2-x1);
+      const ah=14;
+      c.fillStyle=col;
+      c.beginPath();
+      c.moveTo(x2,y2);
+      c.lineTo(x2-ah*Math.cos(ang-0.5), y2-ah*Math.sin(ang-0.5));
+      c.lineTo(x2-ah*Math.cos(ang+0.5), y2-ah*Math.sin(ang+0.5));
+      c.closePath(); c.fill();
+    }
+    arrow(p0.x,p0.y, hit.x,hit.y,'#F59E0B');
+    arrow(hit.x,hit.y, p1.x,p1.y,'#06B6D4');
+
+    // Angle arcs
+    const arcR=Math.min(w,h)*0.09;
+    c.lineWidth=3;
+    c.strokeStyle='rgba(245,158,11,0.9)';
+    c.beginPath(); c.arc(midX,mirrorY,arcR, -Math.PI/2, -Math.PI/2 + i, false); c.stroke();
+    c.strokeStyle='rgba(6,182,212,0.9)';
+    c.beginPath(); c.arc(midX,mirrorY,arcR, -Math.PI/2 - i, -Math.PI/2, false); c.stroke();
+
+    c.fillStyle='rgba(30,45,61,0.92)'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(`i = ${Math.round(S.ang)}°  |  r = ${Math.round(S.ang)}°`, midX, mirrorY + h*0.27);
+    c.fillStyle='rgba(30,45,61,0.65)'; c.font=`${Math.round(h*0.024)}px Tajawal`;
+    c.fillText('لاحظ أن الزوايا تُقاس من العمود المقام وليس من سطح المرآة', midX, mirrorY + h*0.32);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Refl2(){
+  cancelAnimationFrame(animFrame);
+  simState={t:0, boxX:0.25, boxY:0.3, ang:-25, dragging:false, dragMode:null};
+  const S=simState;
+  const cv=document.getElementById('simCanvas');
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🎯 مخطط الأشعة (Ray diagram)</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">
+        اسحب صندوق الأشعة لتغيير مكانه، وغيّر الزاوية لرسم الشعاع الساقط والمنعكس.
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">زاوية الشعاع: <span id="rd-ang">-25</span>°</div>
+      <input type="range" min="-75" max="75" value="-25" oninput="simState.ang=+this.value;document.getElementById('rd-ang').textContent=this.value" style="width:100%">
+    </div>
+    <button class="ctrl-btn reset" style="width:100%;margin-top:6px" onclick="simG9Refl2()">↺ إعادة</button>
+    <div class="q-box" style="margin-top:10px">
+      <strong>❓ كيف نرسم مخطط الأشعة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">ارسم العمود المقام عند نقطة السقوط، ارسم الشعاع الساقط، ثم ارسم الشعاع المنعكس بحيث تكون زاوية السقوط = زاوية الانعكاس (بالنسبة للعمود المقام).</div>
+    </div>
+  `);
+
+  cv.onmousedown = (e)=>{
+    if(currentSim!=='g9refl' || currentTab!==1) return;
+    const r=cv.getBoundingClientRect();
+    const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const w=cv.width, h=cv.height;
+    const bx=S.boxX*w, by=S.boxY*h;
+    if(Math.hypot(mx-bx,my-by)<34){ S.dragging=true; }
+  };
+  cv.onmousemove = (e)=>{
+    if(!S.dragging) return;
+    const r=cv.getBoundingClientRect();
+    const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const w=cv.width, h=cv.height;
+    S.boxX = Math.max(0.12, Math.min(0.88, mx/w));
+    S.boxY = Math.max(0.12, Math.min(0.52, my/h));
+  };
+  cv.onmouseup = ()=>{ S.dragging=false; };
+
+  function draw(){
+    if(currentSim!=='g9refl' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h); S.t++;
+    c.fillStyle='#F7FAFC'; c.fillRect(0,0,w,h);
+
+    // Mirror as vertical line for variety
+    const mx=w*0.66;
+    c.strokeStyle='rgba(30,45,61,0.35)'; c.lineWidth=10; c.lineCap='round';
+    c.beginPath(); c.moveTo(mx,h*0.18); c.lineTo(mx,h*0.86); c.stroke();
+    c.strokeStyle='rgba(255,255,255,0.6)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(mx-2,h*0.18); c.lineTo(mx-2,h*0.86); c.stroke();
+
+    // Hit point at mirror where ray meets (solve intersection with line x=mx)
+    const bx=S.boxX*w, by=S.boxY*h;
+    const ang=(Math.PI/180)*S.ang;
+    const dir={x:Math.cos(ang), y:Math.sin(ang)};
+
+    // parametric: p = (bx,by) + t*dir. Find t where x=mx
+    const tHit = (mx - bx) / (dir.x || 1e-6);
+    const hx = mx;
+    const hy = by + tHit*dir.y;
+
+    // Clamp if no intersection in bounds
+    const hitY = Math.max(h*0.2, Math.min(h*0.84, hy));
+
+    // Normal (horizontal) at hit point since mirror vertical
+    c.strokeStyle='rgba(26,143,168,0.7)'; c.lineWidth=3; c.setLineDash([6,5]);
+    c.beginPath(); c.moveTo(mx- w*0.22, hitY); c.lineTo(mx+ w*0.16, hitY); c.stroke();
+    c.setLineDash([]);
+
+    // Incident ray from box to hit
+    c.strokeStyle='#F59E0B'; c.lineWidth=5; c.lineCap='round';
+    c.beginPath(); c.moveTo(bx,by); c.lineTo(hx, hitY); c.stroke();
+
+    // Reflected ray: reflect across normal (horizontal) => invert y component
+    const refDir={x:-dir.x, y:dir.y}; // mirror vertical reflection flips x
+    const L=Math.min(w,h)*0.8;
+    const rx = hx + refDir.x*L;
+    const ry = hitY + refDir.y*L;
+    c.strokeStyle='#06B6D4'; c.lineWidth=5;
+    c.beginPath(); c.moveTo(hx,hitY); c.lineTo(rx,ry); c.stroke();
+
+    // Ray box
+    c.shadowColor='rgba(0,0,0,0.2)'; c.shadowBlur=10;
+    c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(bx-34,by-22,68,44,14); c.fill();
+    c.shadowBlur=0;
+    c.strokeStyle='rgba(245,158,11,0.55)'; c.lineWidth=2; c.stroke();
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('Ray', bx, by);
+
+    // Labels
+    c.fillStyle='rgba(30,45,61,0.9)'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('اسحب الصندوق (Ray box) ثم راقب الانعكاس', w/2, 18);
+
+    // Angle calc relative to normal (horizontal): angle between ray and normal = |atan2(dy,dx)| for incident toward mirror
+    const incAng = Math.abs(Math.atan2(dir.y, dir.x)) * 180/Math.PI;
+    c.fillStyle='rgba(0,0,0,0.55)'; c.beginPath(); c.roundRect(w*0.12,h*0.88,w*0.76,40,14); c.fill();
+    c.fillStyle='white'; c.font=`${Math.round(h*0.028)}px Tajawal`; c.textBaseline='middle';
+    c.fillText(`زاوية السقوط ≈ ${incAng.toFixed(0)}°  |  زاوية الانعكاس ≈ ${incAng.toFixed(0)}°`, w/2, h*0.88+20);
+
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
 </script>
 </body>
 </html>
-د
