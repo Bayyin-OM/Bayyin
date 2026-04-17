@@ -1,5 +1,3 @@
-
-
 // ═══════════════════════════════════════
 // FOOTER VISIBILITY CONTROLLER
 // ═══════════════════════════════════════
@@ -1335,7 +1333,14 @@ function startSim(type, tab) {
     g9combustion: [_s('simG9Combustion1'), _s('simG9Combustion2'), _s('simG9Combustion3')],
     g9acidrain:   [_s('simG9AcidRain1'),   _s('simG9AcidRain2'),   _s('simG9AcidRain3')],
     g9greenhouse: [_s('simG9Greenhouse1'), _s('simG9Greenhouse2'), _s('simG9Greenhouse3')],
-    g9limestone:  [_s('simG9Limestone1'),  _s('simG9Limestone2'),  _s('simG9Limestone3')]
+    g9limestone:  [_s('simG9Limestone1'),  _s('simG9Limestone2'),  _s('simG9Limestone3')],
+    // ── الوحدة الحادية عشرة: مصادر الطاقة (فيزياء) ──
+    g9energy:     [simE11Energy1,     simE11Energy2],
+    g9fossil:     [simE11Fossil1,     simE11Fossil2],
+    g9solar:      [simE11Solar1,      simE11Solar2],
+    g9efficiency: [simE11Efficiency1, simE11Efficiency2],
+    g9hydro:      [simE11Hydro1,      simE11Hydro2],
+    g9future:     [simE11Future1,     simE11Future2]
   };
   const fn = (fns[type] || [])[tab];
   if (fn) {
