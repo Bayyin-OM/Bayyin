@@ -2989,6 +2989,16 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
 
+        <div class="sim-card" onclick="openSim('g6bodyconductor')">
+          <div class="sim-thumb t9">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">5-2b · هل أجسامنا توصّل الكهرباء؟</div>
+            <div class="sim-name">خطر الصعقة الكهربائية ⚠️</div>
+            <div class="sim-desc">اكتشف لماذا لمس الكهرباء المكشوفة خطير جداً على الإنسان</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
         <div class="sim-card" onclick="openSim('g6metalconductor')">
           <div class="sim-thumb t4">🔩</div>
           <div class="sim-body">
@@ -4931,6 +4941,7 @@ const SIM_META = {
   // وحدة الكهرباء — الصف السادس
   g6conductors:     { title: '5-1 · ما المواد الموصِّلة للكهرباء؟', badge: '⚡ 6', tabs: ['مختبر الاختبار 🔬', 'جدول النتائج 📋'] },
   g6waterconductor: { title: '5-2 · هل الماء يوصِّل الكهرباء؟', badge: '⚡ 6', tabs: ['اسحب الملعقة وجرّب! 💧🧂'] },
+  g6bodyconductor:  { title: '5-2b · هل أجسامنا توصّل الكهرباء؟', badge: '⚡ 6', tabs: ['خطر الصعقة الكهربائية ⚠️'] },
   g6metalconductor: { title: '5-3 · المعادن والكهرباء', badge: '⚡ 6', tabs: ['قياس التيار بالأميتر ⚡', 'مقارنة المعادن 🔩'] },
   g6circuit:        { title: '5-5 · مختبر الدوائر الكهربائية', badge: '⚡ 6', tabs: ['ابنِ دائرتك 🔌', 'رموز الدائرة 📐'] },
   g6circuitchange:  { title: '5-6 · تغيير مكونات الدائرة', badge: '⚡ 6', tabs: ['إضافة مصابيح 💡', 'إضافة خلايا 🔋'] },
@@ -5142,6 +5153,12 @@ const SIM_QUESTIONS = {
     opts: ['لأنه أثقل من الماء النقي','لأنه يحتوي على أملاح مذابة تسمح بمرور الكهرباء','لأن درجة حرارته أعلى','لأنه مصنوع من جزيئات مختلفة'],
     ans: 1,
     fb: '✅ الأملاح المذابة في الماء تتفكك إلى أيونات موجبة وسالبة، وهذه الأيونات هي التي تحمل الشحنة الكهربائية وتسمح بمرور التيار.'
+  },
+  g6bodyconductor: {
+    q: 'لماذا يُعدّ لمس الكهرباء المكشوفة خطيراً جداً على الإنسان؟',
+    opts: ['لأن جسم الإنسان موصِّل للكهرباء بسبب الماء والأملاح فيه','لأن الجلد معزول تماماً','لأن الكهرباء لا تمر عبر الجسم','لأن الجسم مصنوع من بلاستيك'],
+    ans: 0,
+    fb: '✅ جسم الإنسان يحتوي على نسبة عالية من الماء والأملاح المعدنية، مما يجعله موصلاً جيداً للكهرباء. لذا فإن لمس الكهرباء المكشوفة يمكن أن يُسبب صعقة كهربائية قاتلة!'
   },
   g6metalconductor: {
     q: 'لماذا تُستخدم الأسلاك الكهربائية من النحاس وليس الحديد؟',
@@ -5487,6 +5504,7 @@ function openSim(type) {
     // وحدة الكهرباء — الصف السادس
     g6conductors:'المعادن موصِّلة والبلاستيك عازل ⚡ — جرّب كل مادة!',
     g6waterconductor:'الماء النقي لا يوصِّل لكن الماء المالح يوصِّل! 💧 لماذا؟',
+    g6bodyconductor:'جسم الإنسان يوصِّل الكهرباء! ⚡ لا تلمس الأسلاك المكشوفة أبداً!',
     g6metalconductor:'كل المعادن توصِّل لكن بكفاءة مختلفة 🔩 — شوف الأميتر!',
     g6circuit:'ابنِ دائرتك الأولى 🔌 — بطارية + سلك + مصباح = نور!',
     g6circuitchange:'كيف يؤثر عدد المصابيح على السطوع؟ 💡 جرّب وشوف!',
@@ -5711,6 +5729,7 @@ function startSim(type, tab) {
     // وحدة الكهرباء — الصف السادس
     g6conductors:     [simConductors1, simConductors2],
     g6waterconductor: [simWaterConductor1, simWaterConductor2],
+    g6bodyconductor:  [simBodyConductor1],
     g6metalconductor: [simMetalConductor1, simMetalConductor2],
     g6circuit:        [simCircuitBuilder1, simCircuitBuilder2],
     g6circuitchange:  [simCircuitChange1, simCircuitChange2],
@@ -7263,7 +7282,7 @@ function simNeutral2() {
     const lbl=document.getElementById('dropCount'); if(lbl) lbl.textContent=simState.drops+' mL';
     const pLbl=document.getElementById('burettePhLbl');
     if(pLbl){ pLbl.textContent=simState.ph.toFixed(1); pLbl.style.color=getPhColor(simState.ph); }
-    simState.particles.push({x:0.45+Math.random()*0.2, y:0.5+Math.random()*0.25, vx:(Math.random()-0.5)*0.003, vy:(Math.random()-0.5)*0.003});
+    simState.particles.push({x:0.46+Math.random()*0.08, y:0.72+Math.random()*0.15, vx:(Math.random()-0.5)*0.003, vy:(Math.random()-0.5)*0.003});
     if(simState.particles.length>40) simState.particles.shift();
     const msg=document.getElementById('buretteMsg');
     if(msg){
@@ -7275,56 +7294,200 @@ function simNeutral2() {
   const canvas = document.getElementById('simCanvas');
   function draw(){
     const c=canvas.getContext('2d'); const w=canvas.width, h=canvas.height;
-    c.clearRect(0,0,w,h); c.fillStyle='#F5F8FA'; c.fillRect(0,0,w,h);
+    c.clearRect(0,0,w,h);
+    c.fillStyle=isDarkMode()?'#141C28':'#F5F8FA'; c.fillRect(0,0,w,h);
     simState.t+=0.025;
     const ph=simState.ph;
     const phC=getPhColor(ph);
     const r2=parseInt(phC.slice(1,3),16), g2=parseInt(phC.slice(3,5),16), b2=parseInt(phC.slice(5,7),16);
-    // burette (vertical tube)
-    c.fillStyle='rgba(255,255,255,0.6)'; c.strokeStyle='rgba(0,0,0,0.2)'; c.lineWidth=1.5;
-    c.beginPath(); c.roundRect(w*0.43, h*0.04, 24, h*0.55, 6); c.fill(); c.stroke();
-    // acid in burette
-    const acidFill = Math.max(0, 1 - simState.drops/40);
-    c.fillStyle='rgba(192,57,43,0.35)';
-    c.beginPath(); c.roundRect(w*0.43+2, h*0.04+2, 20, (h*0.55-4)*acidFill, 4); c.fill();
-    // drop animation
-    if(simState.flowing){ simState.flowT+=0.08; if(simState.flowT>1) simState.flowing=false; }
-    if(simState.flowing){
-      const dropY = h*0.59 + simState.flowT*(h*0.28-h*0.59+h*0.59);
-      c.fillStyle='rgba(192,57,43,0.8)';
-      c.beginPath(); c.arc(w*0.455, h*0.59+simState.flowT*h*0.2, 5, 0, Math.PI*2); c.fill();
-    }
-    // conical flask
-    const fx=w*0.5, ftop=h*0.6, fbotW=130, ftopW=40, fh=130;
+
+    // ══════════════════════════════════════════════
+    // الكونيكال فلاسك (Conical Flask / Erlenmeyer)
+    // موضوع في المنتصف أسفل الكانفاس
+    // ══════════════════════════════════════════════
+    const fx = w*0.5;
+    const ftopW = 36, fbotW = Math.min(130, w*0.45), fh = Math.min(130, h*0.32);
+    const fNeckH = 28;           // ارتفاع العنق
+    const fBaseY = h*0.94;       // قاع الدورق
+    const fTopY  = fBaseY - fh;  // أعلى الجزء المخروطي
+    const fNeckTopY = fTopY - fNeckH; // فتحة العنق
+
+    // رسم الدورق
     c.beginPath();
-    c.moveTo(fx-ftopW/2, ftop); c.lineTo(fx-fbotW/2, ftop+fh); c.lineTo(fx+fbotW/2, ftop+fh); c.lineTo(fx+ftopW/2, ftop);
-    c.closePath(); c.fillStyle='rgba(255,255,255,0.4)'; c.fill(); c.strokeStyle='rgba(0,0,0,0.18)'; c.lineWidth=2; c.stroke();
-    // liquid in flask
-    c.save(); c.clip();
-    c.fillStyle=`rgba(${r2},${g2},${b2},0.38)`;
-    c.fillRect(fx-fbotW/2, ftop+fh*0.5, fbotW, fh*0.5);
-    // wave
-    c.fillStyle=`rgba(${r2},${g2},${b2},0.15)`;
-    for(let xi=0;xi<fbotW;xi+=3){const wy=Math.sin(xi*0.2+simState.t*3)*5; c.fillRect(fx-fbotW/2+xi, ftop+fh*0.5+wy, 3, 8);}
-    c.restore();
-    // particles
+    // العنق
+    c.moveTo(fx - ftopW/2, fNeckTopY);
+    c.lineTo(fx - ftopW/2, fTopY);
+    // الجانبان المائلان
+    c.lineTo(fx - fbotW/2, fBaseY);
+    // القاع
+    c.lineTo(fx + fbotW/2, fBaseY);
+    // العودة
+    c.lineTo(fx + ftopW/2, fTopY);
+    c.lineTo(fx + ftopW/2, fNeckTopY);
+    c.closePath();
+    c.fillStyle='rgba(220,240,255,0.35)'; c.fill();
+    c.strokeStyle=isDarkMode()?'rgba(180,210,240,0.5)':'rgba(0,80,160,0.22)'; c.lineWidth=2.2; c.stroke();
+
+    // السائل داخل الدورق (مع موجة)
+    const liquidTop = fTopY + (fBaseY - fTopY)*0.45;
+    c.save();
+    // clip to flask shape
+    c.beginPath();
+    c.moveTo(fx-ftopW/2, fNeckTopY); c.lineTo(fx-ftopW/2, fTopY);
+    c.lineTo(fx-fbotW/2, fBaseY); c.lineTo(fx+fbotW/2, fBaseY);
+    c.lineTo(fx+ftopW/2, fTopY); c.lineTo(fx+ftopW/2, fNeckTopY);
+    c.closePath(); c.clip();
+
+    // السائل الثابت
+    c.fillStyle=`rgba(${r2},${g2},${b2},0.4)`;
+    c.fillRect(fx-fbotW/2-2, liquidTop, fbotW+4, fBaseY-liquidTop+2);
+
+    // موجة على السطح
+    c.beginPath();
+    for(let xi=0;xi<=fbotW;xi+=2){
+      const wy = liquidTop + Math.sin((xi*0.15)+simState.t*2.5)*4;
+      if(xi===0) c.moveTo(fx-fbotW/2+xi, wy);
+      else c.lineTo(fx-fbotW/2+xi, wy);
+    }
+    c.lineTo(fx+fbotW/2, fBaseY); c.lineTo(fx-fbotW/2, fBaseY); c.closePath();
+    c.fillStyle=`rgba(${r2},${g2},${b2},0.18)`; c.fill();
+
+    // جزيئات داخل الدورق
     simState.particles.forEach(p=>{
       p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0.3||p.x>0.7) p.vx=-p.vx;
-      if(p.y<0.6||p.y>0.88) p.vy=-p.vy;
-      c.fillStyle=ph<7?'rgba(192,57,43,0.7)':ph>7?'rgba(41,128,185,0.7)':'rgba(39,174,96,0.6)';
+      // حدود الحوض (تقريبية)
+      const fracY=(p.y*h-fTopY)/(fBaseY-fTopY);
+      const halfW=(ftopW/2+(fbotW/2-ftopW/2)*Math.max(0,fracY))/w;
+      if(p.x<fx/w-halfW||p.x>fx/w+halfW) p.vx=-p.vx;
+      if(p.y*h<liquidTop||p.y*h>fBaseY-8) p.vy=-p.vy;
+      c.fillStyle=ph<7?`rgba(${r2},${g2},${b2},0.75)`:ph>7?'rgba(41,128,185,0.75)':'rgba(39,174,96,0.7)';
       c.beginPath(); c.arc(p.x*w, p.y*h, 4, 0, Math.PI*2); c.fill();
     });
-    // pH display
-    c.font='bold 20px Tajawal'; c.fillStyle=phC; c.textAlign='center';
-    c.fillText('pH = '+ph.toFixed(1), fx, ftop+fh+22);
-    // small pH bar
-    const barX=w*0.07, barY=h*0.06, barW=w*0.33, barH=14;
-    for(let i=0;i<=13;i++){c.fillStyle=phColors[i]; c.fillRect(barX+i*barW/14,barY,barW/14+1,barH);}
-    const arrowX=barX+ph*barW/14;
-    c.strokeStyle='#333'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(arrowX,barY+barH); c.lineTo(arrowX,barY+barH+8); c.stroke();
-    c.fillStyle=phC; c.beginPath(); c.arc(arrowX,barY+barH+12,5,0,Math.PI*2); c.fill();
+    c.restore();
+
+    // حافة الدورق فوق السائل (لمعان)
+    c.strokeStyle=isDarkMode()?'rgba(180,210,240,0.5)':'rgba(0,80,160,0.22)'; c.lineWidth=2.2;
+    c.beginPath();
+    c.moveTo(fx-ftopW/2, fNeckTopY); c.lineTo(fx-ftopW/2, fTopY);
+    c.lineTo(fx-fbotW/2, fBaseY); c.lineTo(fx+fbotW/2, fBaseY);
+    c.lineTo(fx+ftopW/2, fTopY); c.lineTo(fx+ftopW/2, fNeckTopY);
+    c.stroke();
+    // حافة العنق (فتحة)
+    c.beginPath(); c.moveTo(fx-ftopW/2-3, fNeckTopY); c.lineTo(fx+ftopW/2+3, fNeckTopY); c.stroke();
+
+    // pH تحت الدورق
+    c.font='bold 18px Tajawal'; c.fillStyle=phC; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('pH = '+ph.toFixed(1), fx, fBaseY+6);
+
+    // ══════════════════════════════════════════════
+    // البيورت (Burette) — رأسية حقيقية فوق الدورق
+    // ══════════════════════════════════════════════
+    const bw = 18;               // عرض البيورت
+    const bx = fx - bw/2;       // مواءمة مع محور الدورق
+    const bTopY  = h*0.03;      // أعلى البيورت
+    const bBotY  = fNeckTopY - 4; // أسفل البيورت (فوق فتحة الدورق مباشرة)
+    const bH     = bBotY - bTopY;
+
+    // جسم البيورت (أنبوب زجاجي)
+    // ظل خفيف
+    c.fillStyle='rgba(0,0,0,0.06)';
+    c.beginPath(); c.roundRect(bx+3, bTopY+3, bw, bH, 4); c.fill();
+
+    // الزجاج الشفاف
+    c.fillStyle='rgba(220,240,255,0.25)';
+    c.beginPath(); c.roundRect(bx, bTopY, bw, bH, 4); c.fill();
+
+    // السائل داخل البيورت (الحمض يتناقص)
+    const acidFill = Math.max(0, 1 - simState.drops/40);
+    const acidH = (bH - 8) * acidFill;
+    if(acidH > 2){
+      const grad = c.createLinearGradient(bx, bTopY+4, bx+bw, bTopY+4);
+      grad.addColorStop(0,'rgba(192,57,43,0.6)');
+      grad.addColorStop(0.5,'rgba(220,80,60,0.5)');
+      grad.addColorStop(1,'rgba(192,57,43,0.55)');
+      c.fillStyle=grad;
+      c.beginPath(); c.roundRect(bx+2, bTopY+4, bw-4, acidH, 3); c.fill();
+    }
+
+    // تدريجات البيورت (خطوط القياس)
+    c.strokeStyle=isDarkMode()?'rgba(150,190,220,0.6)':'rgba(0,60,120,0.3)'; c.lineWidth=1;
+    for(let ti=0; ti<=10; ti++){
+      const ty = bTopY + 4 + (bH-8)*(ti/10);
+      const tickW = ti%5===0 ? bw*0.55 : bw*0.3;
+      c.beginPath(); c.moveTo(bx+bw-tickW, ty); c.lineTo(bx+bw, ty); c.stroke();
+      if(ti%5===0){
+        c.font=`${Math.max(8,w*0.018)}px Arial`;
+        c.fillStyle=isDarkMode()?'rgba(150,200,230,0.8)':'rgba(0,60,120,0.7)';
+        c.textAlign='right'; c.textBaseline='middle';
+        c.fillText((ti*4)+'', bx-3, ty);
+      }
+    }
+
+    // حواف البيورت
+    c.strokeStyle=isDarkMode()?'rgba(180,215,245,0.55)':'rgba(0,80,160,0.28)'; c.lineWidth=1.8;
+    c.beginPath(); c.roundRect(bx, bTopY, bw, bH, 4); c.stroke();
+
+    // ─── الصنبور (Stopcock) ───
+    const scy = bBotY - 14; // موضع الصنبور
+    // جسم الصنبور
+    c.fillStyle=isDarkMode()?'#3A5070':'#8BA8C8';
+    c.beginPath(); c.roundRect(bx-8, scy-5, bw+16, 10, 5); c.fill();
+    c.strokeStyle=isDarkMode()?'rgba(180,220,255,0.4)':'rgba(0,60,120,0.4)'; c.lineWidth=1.2;
+    c.beginPath(); c.roundRect(bx-8, scy-5, bw+16, 10, 5); c.stroke();
+    // مقبض الصنبور
+    c.fillStyle='#5A8AB8';
+    c.beginPath(); c.roundRect(bx+bw+8, scy-3, 18, 6, 3); c.fill();
+
+    // ─── طرف البيورت المدبّب (tip) ─── يدخل في عنق الدورق
+    const tipTopY = bBotY;
+    const tipBotY = fNeckTopY;
+    c.fillStyle='rgba(200,230,255,0.35)';
+    c.strokeStyle=isDarkMode()?'rgba(180,215,245,0.55)':'rgba(0,80,160,0.28)'; c.lineWidth=1.8;
+    c.beginPath();
+    c.moveTo(fx-5, tipTopY); c.lineTo(fx+5, tipTopY);
+    c.lineTo(fx+3, tipBotY); c.lineTo(fx-3, tipBotY);
+    c.closePath(); c.fill(); c.stroke();
+
+    // ─── تدفق القطرة ───
+    if(simState.flowing){ simState.flowT+=0.07; if(simState.flowT>1) simState.flowing=false; }
+    if(simState.flowing){
+      const dropStartY = tipBotY;
+      const dropEndY   = liquidTop - 6;
+      const dropY = dropStartY + simState.flowT*(dropEndY - dropStartY);
+      const dropR = 4 + simState.flowT*2;
+      c.fillStyle=`rgba(${r2},${g2},${b2},${0.9-simState.flowT*0.3})`;
+      c.beginPath(); c.arc(fx, dropY, dropR, 0, Math.PI*2); c.fill();
+      // خيط ماء بين الطرف والقطرة
+      if(simState.flowT < 0.4){
+        c.strokeStyle=`rgba(${r2},${g2},${b2},0.5)`; c.lineWidth=2;
+        c.beginPath(); c.moveTo(fx, tipBotY); c.lineTo(fx, dropY-dropR); c.stroke();
+      }
+    }
+
+    // ── تسمية "NaOH" على البيورت ───
+    c.save(); c.translate(bx-14, bTopY+bH*0.4); c.rotate(-Math.PI/2);
+    c.font=`bold ${Math.max(9,w*0.02)}px Arial`;
+    c.fillStyle=isDarkMode()?'rgba(200,100,90,0.8)':'rgba(160,40,30,0.75)';
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('NaOH (قاعدة)', 0, 0);
+    c.restore();
+
+    // ══════════════════════════════════════════════
+    // شريط pH الصغير (أعلى اليسار)
+    // ══════════════════════════════════════════════
+    const barX=w*0.04, barY=h*0.045, barW=Math.min(w*0.35, 120), barH=12;
+    for(let i=0;i<=13;i++){
+      c.fillStyle=phColors[i];
+      c.fillRect(barX+i*barW/14, barY, barW/14+1, barH);
+    }
+    c.strokeStyle='rgba(0,0,0,0.15)'; c.lineWidth=1;
+    c.beginPath(); c.rect(barX, barY, barW, barH); c.stroke();
+    const arrowX2=barX+ph*barW/14;
+    c.fillStyle=phC;
+    c.beginPath(); c.moveTo(arrowX2-5, barY+barH+2); c.lineTo(arrowX2+5, barY+barH+2); c.lineTo(arrowX2, barY+barH+9); c.closePath(); c.fill();
+    c.font=`bold ${Math.max(9,w*0.022)}px Tajawal`; c.fillStyle=phC; c.textAlign='center';
+    c.fillText('pH '+ph.toFixed(1), arrowX2, barY+barH+20);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -8332,6 +8495,221 @@ function simWaterConductor1() {
 function simWaterConductor2() { simWaterConductor1(); }
 
 // ─────────────────────────────────────────────────────
+// 5-2b: هل أجسامنا توصّل الكهرباء؟ — استقصاء الصعقة الكهربائية
+// ─────────────────────────────────────────────────────
+function simBodyConductor1() {
+  cancelAnimationFrame(animFrame);
+  simState = { t:0, scene:'intro', shocked:false, shockAnim:0, touched:false,
+    bodyType:'wet', showCircuit:false };
+
+  var bodyTypes = [
+    { id:'wet',   label:'يد مبللة بالماء', water:70, salt:true,  conducts:true,  R:'~1 kΩ',  risk:'خطر شديد 🔴' },
+    { id:'dry',   label:'يد جافة',          water:15, salt:true,  conducts:true,  R:'~50 kΩ', risk:'خطر كبير 🟠' },
+    { id:'shoe',  label:'حذاء مطاطي 🥿',    water:0,  salt:false, conducts:false, R:'> 1 MΩ', risk:'آمن نسبياً 🟢' },
+  ];
+
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧪 اختر الحالة</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button id="bt0" onclick="simState.bodyType='wet';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(231,76,60,.5);background:rgba(231,76,60,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#C0392B">💧 يد مبللة بالماء</button>
+        <button id="bt1" onclick="simState.bodyType='dry';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(212,144,26,.5);background:rgba(212,144,26,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#D4901A">🖐️ يد جافة</button>
+        <button id="bt2" onclick="simState.bodyType='shoe';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(39,174,96,.5);background:rgba(39,174,96,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#27AE60">🥿 حذاء مطاطي</button>
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚡ اضغط للمس السلك!</div>
+      <button id="touchBtn" onclick="window._doTouch()" style="width:100%;padding:12px;border-radius:12px;background:rgba(192,57,43,.12);border:2.5px solid rgba(192,57,43,.5);color:#C0392B;font-family:Tajawal;font-size:16px;font-weight:800;cursor:pointer">⚠️ المس السلك المكشوف</button>
+    </div>
+    <div class="info-box" style="font-size:13px;margin-top:6px">
+      🫀 جسم الإنسان يحتوي على ~60% ماء وأملاح معدنية — مما يجعله موصِّلاً جيداً للكهرباء!<br>
+      ⚡ التيار اللازم لإحداث صعقة قاتلة: 100 mA فقط!
+    </div>
+    <div class="q-box" style="font-size:13px;margin-top:6px">
+      <strong>❓ لماذا تكون الصعقة أشد خطورةً باليد المبللة؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">الماء على الجلد يخفّض مقاومة الجسم بشكل كبير، مما يسمح بمرور تيار أكبر خلال الجسم وهو أكثر خطورة على القلب والجهاز العصبي.</div>
+    </div>`);
+
+  var bTypes = bodyTypes;
+  window._doTouch = function() {
+    var bt = bTypes.find(function(b){ return b.id === simState.bodyType; });
+    if(bt && bt.conducts) {
+      simState.shocked = true; simState.shockAnim = 0;
+      try{ U9Sound.ping(80,.3,.4); }catch(e){}
+    } else {
+      simState.shocked = false;
+      try{ U9Sound.ping(600,.1,.1); }catch(e){}
+    }
+  };
+
+  var cv = document.getElementById('simCanvas');
+  function draw() {
+    var c = elCtx(), w = elW(), h = elH();
+    c.clearRect(0,0,w,h);
+    simState.t += 0.04;
+    if(simState.shocked && simState.shockAnim < 1) simState.shockAnim = Math.min(1, simState.shockAnim + 0.05);
+
+    var bt = bTypes.find(function(b){ return b.id === simState.bodyType; }) || bTypes[0];
+    var shocked = simState.shocked && bt.conducts;
+    var sa = simState.shockAnim;
+
+    // Background
+    var bgCol = shocked ? 'rgba(255,'+(200-sa*150|0)+','+(200-sa*150|0)+',.3)' : (isDarkMode()?'#141C28':'#EEF4FF');
+    c.fillStyle = bgCol; c.fillRect(0,0,w,h);
+
+    // === الجدار / المنفذ الكهربائي ===
+    var wallX = w*0.12, wallY = h*0.1, wallW = 36, wallH = h*0.55;
+    c.fillStyle = isDarkMode()?'#2C3A4E':'#D0D8E8';
+    c.beginPath(); c.roundRect(wallX-10, wallY, wallW+20, wallH, 8); c.fill();
+    // فتحات المنفذ
+    c.fillStyle = '#222';
+    c.beginPath(); c.roundRect(wallX+2, wallY+wallH*0.3, 10, 22, 3); c.fill();
+    c.beginPath(); c.roundRect(wallX+wallW-12, wallY+wallH*0.3, 10, 22, 3); c.fill();
+    c.font='bold 10px Tajawal'; c.fillStyle='#E74C3C'; c.textAlign='center';
+    c.fillText('220V', wallX+wallW/2, wallY+wallH*0.22);
+
+    // السلك المكشوف يخرج من المنفذ
+    var wireY = wallY + wallH*0.41 + 11;
+    var wireEndX = w*0.38;
+    // السلك الأحمر
+    c.strokeStyle = shocked?('rgba(255,'+(100-sa*100|0)+',0,'+(0.8+sa*.2)+')'):' #E74C3C';
+    c.lineWidth = 4;
+    c.beginPath(); c.moveTo(wallX+wallW, wireY); c.lineTo(wireEndX, wireY); c.stroke();
+    // نهاية السلك المكشوف
+    c.fillStyle = '#E74C3C';
+    c.beginPath(); c.arc(wireEndX, wireY, 7, 0, Math.PI*2); c.fill();
+    // ⚡ إشارة خطر تومض
+    if(Math.sin(simState.t*6) > 0 && !shocked) {
+      c.font='22px serif'; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('⚡', wireEndX+18, wireY);
+    }
+
+    // === شخصية الإنسان ===
+    var px = w*0.6, py = h*0.12;
+    var shakeX = shocked ? Math.sin(simState.t*30)*8*sa : 0;
+
+    // جسم الشخص - بسيط ومعبّر
+    c.save(); c.translate(shakeX, 0);
+
+    // الرأس
+    c.fillStyle = '#FDBCB4'; c.strokeStyle = '#D4876A'; c.lineWidth=2;
+    c.beginPath(); c.arc(px, py+20, 22, 0, Math.PI*2); c.fill(); c.stroke();
+    // العيون
+    if(shocked && sa > 0.3) {
+      // عيون مذعورة X_X
+      c.strokeStyle='#C0392B'; c.lineWidth=2.5;
+      [-8,8].forEach(function(ex){
+        c.beginPath(); c.moveTo(px+ex-5,py+14); c.lineTo(px+ex+5,py+24); c.stroke();
+        c.beginPath(); c.moveTo(px+ex+5,py+14); c.lineTo(px+ex-5,py+24); c.stroke();
+      });
+    } else {
+      c.fillStyle='#333';
+      c.beginPath(); c.arc(px-8,py+18,4,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(px+8,py+18,4,0,Math.PI*2); c.fill();
+    }
+    // الفم
+    if(shocked && sa > 0.3) {
+      c.strokeStyle='#C0392B'; c.lineWidth=2.5;
+      c.beginPath(); c.arc(px, py+28, 9, 0, Math.PI); c.stroke(); // فم مفتوح
+    } else {
+      c.strokeStyle='#D4876A'; c.lineWidth=2;
+      c.beginPath(); c.arc(px, py+28, 7, 0, Math.PI); c.stroke();
+    }
+
+    // الجسم
+    var bodyColor = shocked?('rgba(255,'+(200-sa*120|0)+','+(50+sa*20|0)+',.9)'):'#4A90D9';
+    c.fillStyle = bodyColor;
+    c.beginPath(); c.roundRect(px-20, py+42, 40, 70, 8); c.fill();
+    c.strokeStyle='rgba(0,0,0,.15)'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(px-20, py+42, 40, 70, 8); c.stroke();
+
+    // الذراع اليسار (يلمس السلك)
+    var armEndX = wireEndX + 5;
+    var armEndY = wireY;
+    c.strokeStyle = '#FDBCB4'; c.lineWidth=12; c.lineCap='round';
+    c.beginPath(); c.moveTo(px-18, py+60); c.quadraticCurveTo(px-50, py+80, armEndX, armEndY); c.stroke();
+    c.strokeStyle='rgba(0,0,0,.1)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(px-18, py+60); c.quadraticCurveTo(px-50, py+80, armEndX, armEndY); c.stroke();
+    // اليد
+    c.fillStyle='#FDBCB4'; c.beginPath(); c.arc(armEndX, armEndY, 11, 0, Math.PI*2); c.fill();
+
+    // الذراع الأيمن
+    c.strokeStyle='#FDBCB4'; c.lineWidth=12; c.lineCap='round';
+    c.beginPath(); c.moveTo(px+18, py+60); c.lineTo(px+38, py+100); c.stroke();
+
+    // الساقان
+    [-12, 12].forEach(function(lx2,li){
+      c.strokeStyle='#2C5E8A'; c.lineWidth=14; c.lineCap='round';
+      c.beginPath(); c.moveTo(px+lx2, py+112); c.lineTo(px+lx2+(li===0?-6:6), py+155); c.stroke();
+      // الحذاء
+      if(bt.id==='shoe'){
+        c.strokeStyle='#2C2C2C'; c.lineWidth=16; c.lineCap='round';
+        c.beginPath(); c.moveTo(px+lx2+(li===0?-6:6), py+148); c.lineTo(px+lx2+(li===0?-20:20), py+158); c.stroke();
+      } else {
+        c.fillStyle='#8B6E4E';
+        c.beginPath(); c.ellipse(px+lx2+(li===0?-10:10), py+158, 16, 8, 0, 0, Math.PI*2); c.fill();
+      }
+    });
+
+    // مسار التيار عبر الجسم (إذا توصيل)
+    if(shocked && bt.conducts){
+      var numArrows = Math.floor(sa*8);
+      for(var ai=0; ai<numArrows; ai++){
+        var at = ((simState.t*2 + ai/8))%1;
+        // من اليد → الجسم → الأرض
+        var pathPoints = [
+          {x:armEndX, y:armEndY},
+          {x:px-18,   y:py+60},
+          {x:px,      y:py+90},
+          {x:px,      y:py+130},
+          {x:px,      y:py+160},
+        ];
+        var seg = Math.floor(at*(pathPoints.length-1));
+        var segT = (at*(pathPoints.length-1)) - seg;
+        if(seg < pathPoints.length-1){
+          var ax2 = pathPoints[seg].x + (pathPoints[seg+1].x - pathPoints[seg].x)*segT;
+          var ay2 = pathPoints[seg].y + (pathPoints[seg+1].y - pathPoints[seg].y)*segT;
+          c.fillStyle='rgba(255,220,0,'+(0.9-at*.4)+')';
+          c.beginPath(); c.arc(ax2, ay2, 5+Math.random()*3, 0, Math.PI*2); c.fill();
+        }
+      }
+      // وميض حول الجسم
+      if(sa > 0.5){
+        var flashAlpha = Math.max(0, Math.sin(simState.t*20)*0.4);
+        c.fillStyle='rgba(255,255,0,'+flashAlpha+')';
+        c.beginPath(); c.ellipse(px, py+85, 45, 80, 0, 0, Math.PI*2); c.fill();
+      }
+    }
+
+    c.restore();
+
+    // === معلومات في الأسفل ===
+    var infoY = h*0.78;
+    c.fillStyle = isDarkMode()?'rgba(20,28,40,.88)':'rgba(255,255,255,.88)';
+    c.beginPath(); c.roundRect(w*.03, infoY, w*.94, h*.19, 12); c.fill();
+    c.strokeStyle = shocked?'rgba(192,57,43,.4)':'rgba(26,143,168,.25)'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(w*.03, infoY, w*.94, h*.19, 12); c.stroke();
+
+    c.font = 'bold 14px Tajawal'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillStyle = shocked ? '#C0392B' : (bt.conducts?'#D4901A':'#27AE60');
+    var statusMsg = shocked ? '⚡ صعقة كهربائية! التيار يمر عبر الجسم!' :
+                   (!bt.conducts ? '✅ الحذاء المطاطي يعزلك عن الأرض!' :
+                   '⚠️ ' + bt.label + ' — ' + bt.risk);
+    c.fillText(statusMsg, w/2, infoY + h*.05);
+
+    c.font='13px Tajawal'; c.fillStyle=isDarkMode()?'#8AA8C0':'#555';
+    c.fillText('مقاومة الجسم: ' + bt.R + '  |  ' + bt.risk, w/2, infoY + h*.11);
+
+    c.font='12px Tajawal'; c.fillStyle=isDarkMode()?'#6A8898':'#888';
+    c.fillText(bt.conducts?'جسم الإنسان يحتوي على ~60% ماء وأملاح → موصِّل للكهرباء!':'المطاط عازل — لا يمرر التيار', w/2, infoY + h*.165);
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ─────────────────────────────────────────────────────
 // 5-3 TAB 1: أميتر تفاعلي — اضغط على المعدن وشوف التيار
 // ─────────────────────────────────────────────────────
 function simMetalConductor1() {
@@ -8790,77 +9168,320 @@ function simCircuitBuilder1() {
   draw();
 }
 
-// 5-5 TAB 2: رموز الدائرة الكهربائية
+// 5-5 TAB 2: بناء الدائرة بالرموز — سحب وإفلات تفاعلي
 function simCircuitBuilder2() {
   cancelAnimationFrame(animFrame);
-  var symbols=[
-    {name:'خلية كهربائية',draw:'cell',  desc:'مصدر الطاقة — جهد 1.5V'},
-    {name:'بطارية',       draw:'bat',   desc:'خليتان أو أكثر — جهد 3V'},
-    {name:'مصباح',        draw:'bulb',  desc:'يحوّل الكهرباء إلى ضوء'},
-    {name:'مفتاح مفتوح',  draw:'swO',   desc:'يقطع مسار الكهرباء'},
-    {name:'مفتاح مغلق',   draw:'swC',   desc:'يكمل مسار الكهرباء'},
-    {name:'أميتر',        draw:'amm',   desc:'يقيس شدة التيار (A)'},
-    {name:'جرس كهربائي',  draw:'bell',  desc:'يحوّل الكهرباء إلى صوت'},
-    {name:'سلك التوصيل',  draw:'wire',  desc:'يوصّل مكونات الدائرة'},
+
+  // ───── مكتبة الرموز ─────
+  var SYMS = [
+    {id:'cell', name:'خلية كهربائية', desc:'1.5V', hasPower:true,  isSwitch:false, isLoad:true},
+    {id:'bat',  name:'بطارية',        desc:'3V',   hasPower:true,  isSwitch:false, isLoad:true},
+    {id:'bulb', name:'مصباح',         desc:'💡',   hasPower:false, isSwitch:false, isLoad:true},
+    {id:'swO',  name:'مفتاح مفتوح',   desc:'❌',   hasPower:false, isSwitch:true,  isOpen:true},
+    {id:'swC',  name:'مفتاح مغلق',    desc:'✅',   hasPower:false, isSwitch:true,  isOpen:false},
+    {id:'amm',  name:'أميتر',         desc:'A',    hasPower:false, isSwitch:false, isLoad:false},
+    {id:'wire', name:'سلك',           desc:'—',    hasPower:false, isSwitch:false, isLoad:false},
   ];
-  simState={t:0,showIdx:0};
 
-  elCtrl(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">📐 مكتبة رموز الدوائر</div>
-      <div style="display:flex;flex-direction:column;gap:4px">
-        ${symbols.map(function(s,i){ return '<button onclick="simState.showIdx='+i+';try{U9Sound.ping();}catch(e){}" id="sy'+i+'" style="padding:7px 10px;border-radius:8px;border:1.5px solid rgba(0,0,0,.1);background:white;font-family:Tajawal;font-size:13px;cursor:pointer;text-align:right;display:flex;align-items:center;gap:8px;transition:all .2s"><span style="color:#1A8FA8;font-weight:700;min-width:18px">'+(i+1)+'</span>'+s.name+'</button>'; }).join('')}
-      </div>
-    </div>`);
+  // الحالة: قائمة المكونات الموضوعة على اللوحة
+  simState = { t:0, placed:[], dragging:null, dragOffX:0, dragOffY:0, nextId:0 };
 
-  var cv=document.getElementById('simCanvas');
-  function drawSym(c,type,cx,cy,sc){
-    sc=sc||1;
-    c.strokeStyle=isDarkMode()?'#D8E4F0':'#2C3A4A'; c.lineWidth=2.5*sc; c.fillStyle=isDarkMode()?'#D8E4F0':'#2C3A4A';
-    if(type==='cell'){ c.beginPath(); c.moveTo(cx-30*sc,cy); c.lineTo(cx-6*sc,cy); c.stroke(); c.lineWidth=4*sc; c.beginPath(); c.moveTo(cx-6*sc,cy-12*sc); c.lineTo(cx-6*sc,cy+12*sc); c.stroke(); c.lineWidth=1.5*sc; c.beginPath(); c.moveTo(cx+6*sc,cy-6*sc); c.lineTo(cx+6*sc,cy+6*sc); c.stroke(); c.lineWidth=2.5*sc; c.beginPath(); c.moveTo(cx+6*sc,cy); c.lineTo(cx+30*sc,cy); c.stroke(); c.font='bold '+(11*sc)+'px Arial'; c.textAlign='center'; c.fillText('+',cx+14*sc,cy-14*sc); c.fillText('−',cx-14*sc,cy-14*sc); }
-    else if(type==='bat'){ [-10,0,10].forEach(function(off){ c.lineWidth=off===0?1.5*sc:3.5*sc; c.beginPath(); c.moveTo(cx+off*sc,cy-10*sc); c.lineTo(cx+off*sc,cy+10*sc); c.stroke(); }); c.lineWidth=2.5*sc; c.beginPath(); c.moveTo(cx-22*sc,cy); c.lineTo(cx-10*sc,cy); c.stroke(); c.beginPath(); c.moveTo(cx+10*sc,cy); c.lineTo(cx+22*sc,cy); c.stroke(); }
-    else if(type==='bulb'){ c.beginPath(); c.arc(cx,cy,18*sc,0,Math.PI*2); c.stroke(); c.beginPath(); c.moveTo(cx-10*sc,cy+10*sc); c.lineTo(cx+10*sc,cy-10*sc); c.moveTo(cx+10*sc,cy+10*sc); c.lineTo(cx-10*sc,cy-10*sc); c.stroke(); c.beginPath(); c.moveTo(cx,cy+18*sc); c.lineTo(cx-12*sc,cy+28*sc); c.lineTo(cx+12*sc,cy+28*sc); c.closePath(); c.stroke(); }
-    else if(type==='swO'){ c.beginPath(); c.moveTo(cx-22*sc,cy); c.lineTo(cx-8*sc,cy); c.stroke(); c.beginPath(); c.moveTo(cx-8*sc,cy); c.lineTo(cx+8*sc,cy-14*sc); c.stroke(); c.beginPath(); c.moveTo(cx+8*sc,cy); c.lineTo(cx+22*sc,cy); c.stroke(); c.beginPath(); c.arc(cx-8*sc,cy,3*sc,0,Math.PI*2); c.fill(); c.beginPath(); c.arc(cx+8*sc,cy,3*sc,0,Math.PI*2); c.fill(); }
-    else if(type==='swC'){ c.beginPath(); c.moveTo(cx-22*sc,cy); c.lineTo(cx+22*sc,cy); c.stroke(); c.beginPath(); c.arc(cx-8*sc,cy,3*sc,0,Math.PI*2); c.fill(); c.beginPath(); c.arc(cx+8*sc,cy,3*sc,0,Math.PI*2); c.fill(); }
-    else if(type==='amm'){ c.beginPath(); c.arc(cx,cy,18*sc,0,Math.PI*2); c.stroke(); c.font='bold '+(15*sc)+'px Arial'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('A',cx,cy); c.lineWidth=2.5*sc; c.beginPath(); c.moveTo(cx-30*sc,cy); c.lineTo(cx-18*sc,cy); c.stroke(); c.beginPath(); c.moveTo(cx+18*sc,cy); c.lineTo(cx+30*sc,cy); c.stroke(); }
-    else if(type==='bell'){ c.beginPath(); c.arc(cx,cy-8*sc,16*sc,Math.PI,0); c.lineTo(cx+16*sc,cy+8*sc); c.lineTo(cx-16*sc,cy+8*sc); c.closePath(); c.stroke(); c.beginPath(); c.moveTo(cx-6*sc,cy+10*sc); c.lineTo(cx+6*sc,cy+10*sc); c.stroke(); c.beginPath(); c.arc(cx,cy+13*sc,3*sc,0,Math.PI*2); c.stroke(); }
-    else if(type==='wire'){ c.beginPath(); c.moveTo(cx-32*sc,cy); c.lineTo(cx+32*sc,cy); c.stroke(); }
+  // ─── تحقق هل الدائرة مكتملة ───
+  function circuitOK() {
+    var p = simState.placed;
+    var hasPower  = p.some(function(c){ return SYMS.find(function(s){return s.id===c.type;}).hasPower; });
+    var hasLoad   = p.some(function(c){ var s=SYMS.find(function(s){return s.id===c.type;}); return s.isLoad && !s.hasPower; });
+    var openSw    = p.some(function(c){ return c.type==='swO'; });
+    return hasPower && hasLoad && !openSw && p.length >= 2;
   }
 
-  function draw(){
-    var c=elCtx(),w=elW(),h=elH();
-    c.clearRect(0,0,w,h); c.fillStyle=isDarkMode()?'#141C28':'#F0F4F8'; c.fillRect(0,0,w,h);
-    simState.t+=.02;
-    var idx=simState.showIdx||0, sym=symbols[idx];
+  // ─── رسم رمز ───
+  function drawSym(c, type, cx, cy, sc, lit) {
+    sc = sc||1;
+    var ink = isDarkMode()?'#D8E4F0':'#2C3A4A';
+    c.strokeStyle = ink; c.fillStyle = ink;
+    c.lineWidth = 2.5*sc; c.lineCap='round'; c.lineJoin='round';
+    c.textBaseline='middle';
 
-    // تسليط الضوء على الزر المختار
-    symbols.forEach(function(_,i){
-      var b=document.getElementById('sy'+i);
-      if(b){b.style.borderColor=i===idx?'#1A8FA8':'rgba(0,0,0,.1)';b.style.background=i===idx?'rgba(26,143,168,.08)':'white';b.style.fontWeight=i===idx?'700':'400';}
+    if(type==='cell'){
+      c.beginPath(); c.moveTo(cx-28*sc,cy); c.lineTo(cx-6*sc,cy); c.stroke();
+      c.lineWidth=4.5*sc; c.beginPath(); c.moveTo(cx-6*sc,cy-13*sc); c.lineTo(cx-6*sc,cy+13*sc); c.stroke();
+      c.lineWidth=1.8*sc; c.beginPath(); c.moveTo(cx+6*sc,cy-7*sc); c.lineTo(cx+6*sc,cy+7*sc); c.stroke();
+      c.lineWidth=2.5*sc; c.beginPath(); c.moveTo(cx+6*sc,cy); c.lineTo(cx+28*sc,cy); c.stroke();
+      c.font='bold '+(10*sc)+'px Arial'; c.textAlign='center';
+      c.fillText('+',cx+18*sc,cy-15*sc); c.fillText('−',cx-18*sc,cy-15*sc);
+    } else if(type==='bat'){
+      var offs=[-12,0,12];
+      offs.forEach(function(off,i){
+        c.lineWidth=(i===1?1.8:4)*sc;
+        c.beginPath(); c.moveTo(cx+off*sc,cy-11*sc); c.lineTo(cx+off*sc,cy+11*sc); c.stroke();
+      });
+      c.lineWidth=2.5*sc;
+      c.beginPath(); c.moveTo(cx-24*sc,cy); c.lineTo(cx-12*sc,cy); c.stroke();
+      c.beginPath(); c.moveTo(cx+12*sc,cy); c.lineTo(cx+24*sc,cy); c.stroke();
+    } else if(type==='bulb'){
+      if(lit){ c.shadowBlur=18*sc; c.shadowColor='rgba(255,220,0,.8)'; }
+      c.strokeStyle=lit?'#F39C12':ink; c.fillStyle='transparent';
+      c.lineWidth=2.5*sc; c.beginPath(); c.arc(cx,cy,16*sc,0,Math.PI*2); c.stroke();
+      c.beginPath(); c.moveTo(cx-9*sc,cy+9*sc); c.lineTo(cx+9*sc,cy-9*sc);
+      c.moveTo(cx+9*sc,cy+9*sc); c.lineTo(cx-9*sc,cy-9*sc); c.stroke();
+      c.beginPath(); c.moveTo(cx,cy+16*sc); c.lineTo(cx-10*sc,cy+26*sc); c.lineTo(cx+10*sc,cy+26*sc); c.closePath(); c.stroke();
+      c.shadowBlur=0;
+    } else if(type==='swO'){
+      c.beginPath(); c.moveTo(cx-22*sc,cy); c.lineTo(cx-8*sc,cy); c.stroke();
+      c.beginPath(); c.moveTo(cx-8*sc,cy); c.lineTo(cx+6*sc,cy-16*sc); c.stroke();
+      c.beginPath(); c.moveTo(cx+8*sc,cy); c.lineTo(cx+22*sc,cy); c.stroke();
+      c.fillStyle=ink; c.beginPath(); c.arc(cx-8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(cx+8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
+    } else if(type==='swC'){
+      c.beginPath(); c.moveTo(cx-22*sc,cy); c.lineTo(cx+22*sc,cy); c.stroke();
+      c.fillStyle=ink; c.beginPath(); c.arc(cx-8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(cx+8*sc,cy,3.5*sc,0,Math.PI*2); c.fill();
+    } else if(type==='amm'){
+      c.beginPath(); c.arc(cx,cy,16*sc,0,Math.PI*2); c.stroke();
+      c.font='bold '+(14*sc)+'px Arial'; c.textAlign='center'; c.fillStyle=ink; c.fillText('A',cx,cy+1);
+      c.beginPath(); c.moveTo(cx-28*sc,cy); c.lineTo(cx-16*sc,cy); c.stroke();
+      c.beginPath(); c.moveTo(cx+16*sc,cy); c.lineTo(cx+28*sc,cy); c.stroke();
+    } else if(type==='wire'){
+      c.beginPath(); c.moveTo(cx-30*sc,cy); c.lineTo(cx+30*sc,cy); c.stroke();
+    }
+    c.strokeStyle=ink; c.fillStyle=ink; c.shadowBlur=0;
+  }
+
+  // ─── لوح الأدوات (يمين — Panel) ───
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📐 اسحب رمزاً إلى اللوحة</div>
+      <div id="sym-palette" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center"></div>
+    </div>
+    <div class="ctrl-section" style="margin-top:4px">
+      <button onclick="window._clearBoard()" style="width:100%;padding:8px;border-radius:8px;background:rgba(192,57,43,.08);border:1.5px solid rgba(192,57,43,.25);color:#C0392B;font-family:Tajawal;font-size:13px;cursor:pointer">🗑️ مسح اللوحة</button>
+    </div>
+    <div class="info-box" style="font-size:12px;margin-top:4px">
+      💡 اسحب الرموز من اللوحة إلى المساحة البيضاء<br>
+      🔄 دائرة مكتملة = مصدر طاقة + حمل + مفتاح مغلق
+    </div>
+    <div id="cir-status" class="info-box" style="font-size:13px;margin-top:4px;text-align:center;min-height:36px"></div>`);
+
+  // ─── إنشاء الـ Palette HTML ───
+  var palette = document.getElementById('sym-palette');
+  if(palette) {
+    SYMS.forEach(function(s) {
+      var btn = document.createElement('div');
+      btn.id = 'pal-'+s.id;
+      btn.style.cssText = 'padding:7px 10px;border-radius:10px;border:2px solid rgba(26,143,168,.3);background:rgba(26,143,168,.06);font-family:Tajawal;font-size:12px;font-weight:700;cursor:grab;user-select:none;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:56px;transition:all .15s;color:var(--text-primary)';
+      var cvMini = document.createElement('canvas');
+      cvMini.width=72; cvMini.height=44;
+      cvMini.style.cssText='display:block;';
+      btn.appendChild(cvMini);
+      var lbl = document.createElement('div');
+      lbl.style.cssText='font-size:10px;text-align:center;color:var(--text-secondary)';
+      lbl.textContent = s.name;
+      btn.appendChild(lbl);
+      palette.appendChild(btn);
+
+      // رسم رمز صغير على mini-canvas
+      (function(cvM, sType){
+        var cx=cvM.getContext('2d');
+        cx.clearRect(0,0,72,44);
+        cx.strokeStyle='#2C3A4A'; cx.fillStyle='#2C3A4A';
+        // رسم مصغّر
+        drawSym(cx, sType, 36, 22, 0.72, false);
+      })(cvMini, s.id);
+
+      // Drag من الـ palette
+      btn.addEventListener('mousedown', function(e){ startPalDrag(e, s.id); });
+      btn.addEventListener('touchstart', function(e){ startPalDrag(e, s.id); },{passive:false});
+    });
+  }
+
+  window._clearBoard = function(){
+    simState.placed = [];
+    try{ U9Sound.thud(); }catch(ex){}
+  };
+
+  // ─── منطق السحب من Palette → Canvas ───
+  var ghostDrag = null; // {type, x, y}
+
+  function getPos(e, canvas){
+    var r=canvas.getBoundingClientRect(), sc=canvas.width/r.width;
+    var s = e.touches ? e.touches[0] : e;
+    return { x:(s.clientX-r.left)*sc, y:(s.clientY-r.top)*sc };
+  }
+
+  function startPalDrag(e, symId){
+    e.preventDefault();
+    var cv2 = document.getElementById('simCanvas');
+    if(!cv2) return;
+    var s = e.touches ? e.touches[0] : e;
+    var r = cv2.getBoundingClientRect(), sc2=cv2.width/r.width;
+    ghostDrag = { type: symId, x:(s.clientX-r.left)*sc2, y:(s.clientY-r.top)*sc2 };
+  }
+
+  var cv = document.getElementById('simCanvas');
+
+  // Mouse
+  cv.addEventListener('mousedown', function(e){
+    if(ghostDrag) return;
+    var p = getPos(e, cv);
+    // هل ضغط على مكوّن موجود؟
+    for(var i=simState.placed.length-1;i>=0;i--){
+      var comp=simState.placed[i];
+      if(Math.abs(p.x-comp.x)<40&&Math.abs(p.y-comp.y)<32){
+        simState.dragging = i;
+        simState.dragOffX = p.x - comp.x;
+        simState.dragOffY = p.y - comp.y;
+        return;
+      }
+    }
+  });
+
+  document.addEventListener('mousemove', function(e){
+    var cv2=document.getElementById('simCanvas'); if(!cv2) return;
+    var p=getPos(e,cv2);
+    if(ghostDrag){ ghostDrag.x=p.x; ghostDrag.y=p.y; }
+    else if(simState.dragging!==null){
+      simState.placed[simState.dragging].x = p.x - simState.dragOffX;
+      simState.placed[simState.dragging].y = p.y - simState.dragOffY;
+    }
+  });
+
+  document.addEventListener('mouseup', function(e){
+    var cv2=document.getElementById('simCanvas'); if(!cv2) return;
+    var p=getPos(e,cv2);
+    if(ghostDrag){
+      // وضع مكوّن جديد
+      simState.placed.push({ id:simState.nextId++, type:ghostDrag.type, x:ghostDrag.x, y:ghostDrag.y });
+      ghostDrag=null;
+      try{U9Sound.ping(500,.08,.12);}catch(ex){}
+    } else if(simState.dragging!==null){
+      simState.dragging=null;
+    }
+  });
+
+  // Touch
+  cv.addEventListener('touchstart', function(e){
+    if(ghostDrag) return;
+    e.preventDefault();
+    var p=getPos(e,cv);
+    for(var i=simState.placed.length-1;i>=0;i--){
+      var comp=simState.placed[i];
+      if(Math.abs(p.x-comp.x)<44&&Math.abs(p.y-comp.y)<36){
+        simState.dragging=i; simState.dragOffX=p.x-comp.x; simState.dragOffY=p.y-comp.y; return;
+      }
+    }
+  },{passive:false});
+
+  cv.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    var p=getPos(e,cv);
+    if(ghostDrag){ ghostDrag.x=p.x; ghostDrag.y=p.y; }
+    else if(simState.dragging!==null){
+      simState.placed[simState.dragging].x=p.x-simState.dragOffX;
+      simState.placed[simState.dragging].y=p.y-simState.dragOffY;
+    }
+  },{passive:false});
+
+  cv.addEventListener('touchend', function(e){
+    if(ghostDrag){
+      simState.placed.push({ id:simState.nextId++, type:ghostDrag.type, x:ghostDrag.x, y:ghostDrag.y });
+      ghostDrag=null;
+      try{U9Sound.ping(500,.08,.12);}catch(ex){}
+    } else if(simState.dragging!==null){ simState.dragging=null; }
+  });
+
+  // ─── دبل-كليك لحذف ───
+  cv.addEventListener('dblclick', function(e){
+    var p=getPos(e,cv);
+    for(var i=simState.placed.length-1;i>=0;i--){
+      if(Math.abs(p.x-simState.placed[i].x)<40&&Math.abs(p.y-simState.placed[i].y)<32){
+        simState.placed.splice(i,1); return;
+      }
+    }
+  });
+
+  // ─── رسم الإلكترونات المتحركة ───
+  var electrons = [];
+  for(var ei=0;ei<8;ei++) electrons.push({t:Math.random(), s:0.5+Math.random()*0.5});
+
+  function draw(){
+    if(currentSim!=='g6circuit'){ cancelAnimationFrame(animFrame); return; }
+    var c=elCtx(), w=elW(), h=elH();
+    c.clearRect(0,0,w,h);
+    c.fillStyle=isDarkMode()?'#0E1620':'#EEF2FB'; c.fillRect(0,0,w,h);
+    simState.t+=0.025;
+    var ok=circuitOK();
+
+    // خلفية اللوحة
+    c.fillStyle=isDarkMode()?'rgba(255,255,255,.03)':'rgba(255,255,255,.7)';
+    c.beginPath(); c.roundRect(12,10,w-24,h-20,14); c.fill();
+    c.strokeStyle=ok?'rgba(39,174,96,.35)':'rgba(0,0,0,.08)'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(12,10,w-24,h-20,14); c.stroke();
+
+    // شبكة نقاط
+    c.fillStyle=isDarkMode()?'rgba(255,255,255,.07)':'rgba(0,0,0,.06)';
+    for(var gx=36;gx<w-20;gx+=28){
+      for(var gy=36;gy<h-20;gy+=28){
+        c.beginPath(); c.arc(gx,gy,1.5,0,Math.PI*2); c.fill();
+      }
+    }
+
+    // ─── Ghost (المكوّن الذي يُسحب من Palette) ───
+    if(ghostDrag){
+      c.globalAlpha=0.55;
+      drawSym(c, ghostDrag.type, ghostDrag.x, ghostDrag.y, 1, false);
+      c.globalAlpha=1;
+    }
+
+    // ─── المكونات الموضوعة ───
+    simState.placed.forEach(function(comp){
+      var isDraggingThis = (simState.dragging !== null && simState.placed[simState.dragging] === comp);
+      if(isDraggingThis){ c.globalAlpha=0.75; }
+      drawSym(c, comp.type, comp.x, comp.y, 1, ok && comp.type==='bulb');
+      c.globalAlpha=1;
+
+      // مؤشر الحذف (hover hint)
+      c.font='9px Tajawal'; c.fillStyle='rgba(192,57,43,.45)'; c.textAlign='center';
+      c.fillText('×٢ للحذف', comp.x, comp.y+36);
     });
 
-    // اسم الرمز
-    c.font='bold 20px Tajawal'; c.fillStyle=isDarkMode()?'#E8F2FA':'#1E2D3D'; c.textAlign='center'; c.textBaseline='top';
-    c.fillText(sym.name,w/2,h*.04);
+    // إلكترونات متحركة إذا الدائرة مكتملة
+    if(ok && simState.placed.length > 0){
+      electrons.forEach(function(el){
+        el.t = (el.t + 0.008*el.s) % 1;
+        // ترتيب المكونات دائري تقريبي بحسب X
+        var sorted = simState.placed.slice().sort(function(a,b){return a.x-b.x;});
+        var n=sorted.length;
+        var seg=Math.floor(el.t*n), frac=(el.t*n)-seg;
+        if(seg<n){
+          var a=sorted[seg], b2=sorted[(seg+1)%n];
+          var ex=a.x+(b2.x-a.x)*frac, ey=a.y+(b2.y-a.y)*frac;
+          c.fillStyle='rgba(0,200,255,'+(0.8-el.t*.2)+')';
+          c.beginPath(); c.arc(ex,ey,4,0,Math.PI*2); c.fill();
+        }
+      });
+    }
 
-    // الرمز الكبير
-    drawSym(c,sym.draw,w/2,h*.35,2.8);
-
-    // الوصف
-    c.font='15px Tajawal'; c.fillStyle=isDarkMode()?'#8AA8C0':'#5A6A7A'; c.textAlign='center'; c.textBaseline='top';
-    c.fillText(sym.desc,w/2,h*.58);
-
-    // دائرة مثال
-    c.fillStyle=isDarkMode()?'rgba(30,42,56,.6)':'rgba(255,255,255,.6)';
-    c.beginPath(); c.roundRect(w*.04,h*.66,w*.92,h*.3,12); c.fill();
-    c.font='12px Tajawal'; c.fillStyle=isDarkMode()?'#7A9AB5':'#888'; c.textAlign='center'; c.textBaseline='top';
-    c.fillText('مثال: دائرة كاملة بالرموز',w/2,h*.68);
-    var dcx=w/2,dcy=h*.82,dr=Math.min(w,h)*.09;
-    c.strokeStyle=isDarkMode()?'rgba(255,255,255,.3)':'rgba(0,0,0,.15)'; c.lineWidth=1.5; c.setLineDash([]);
-    c.beginPath(); c.rect(dcx-dr*1.8,dcy-dr*.6,dr*3.6,dr*1.2); c.stroke();
-    drawSym(c,'cell',dcx-dr*1.4,dcy,.6);
-    drawSym(c,'swC', dcx,dcy-dr*.6,.55);
-    drawSym(c,'bulb',dcx+dr*1.2,dcy,.5);
+    // ─── شريط الحالة ───
+    var st=document.getElementById('cir-status');
+    if(st){
+      if(simState.placed.length===0){
+        st.textContent='💡 اسحب رموزاً من القائمة لبناء دائرتك!'; st.style.color='#888';
+      } else if(ok){
+        st.innerHTML='✅ <strong>الدائرة مكتملة!</strong> التيار يسري 🔌⚡';
+        st.style.color='#27AE60'; st.style.background='rgba(39,174,96,.08)';
+      } else {
+        var missing=[];
+        var hasPow=simState.placed.some(function(c2){return SYMS.find(function(s){return s.id===c2.type;}).hasPower;});
+        var hasLd=simState.placed.some(function(c2){var s=SYMS.find(function(ss){return ss.id===c2.type;});return s.isLoad&&!s.hasPower;});
+        var hasOpenSw=simState.placed.some(function(c2){return c2.type==='swO';});
+        if(!hasPow) missing.push('مصدر طاقة (خلية/بطارية)');
+        if(!hasLd)  missing.push('حمل (مصباح)');
+        if(hasOpenSw) missing.push('أغلق المفتاح!');
+        st.innerHTML='⚠️ ينقص: '+missing.join(' · '); st.style.color='#D4901A';
+        st.style.background='rgba(212,144,26,.07)';
+      }
+    }
 
     animFrame=requestAnimationFrame(draw);
   }
