@@ -31023,7 +31023,7 @@ function simG5MirrorFlat() {
     if (currentSim !== 'g5mirror') return;
     c.fillStyle = '#1a1a2e'; c.fillRect(0,0,w,h);
     const mx = w * 0.55, my = h * 0.5;
-    const mLen = h * 0.35;
+    const mLen = h * 0.28;
     // Mirror
     c.strokeStyle = '#C0C0FF'; c.lineWidth = 4;
     c.beginPath(); c.moveTo(mx, my - mLen); c.lineTo(mx, my + mLen); c.stroke();
@@ -31032,7 +31032,7 @@ function simG5MirrorFlat() {
     mirGrad.addColorStop(0,'rgba(200,200,255,0.3)'); mirGrad.addColorStop(1,'rgba(200,200,255,0)');
     c.fillStyle = mirGrad; c.fillRect(mx-10, my-mLen, 16, mLen*2);
     c.fillStyle='#aac'; c.font=`${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText('مرآة مستوية', mx, Math.min(my + mLen + 22, h*0.82));
+    c.fillText('مرآة مستوية', mx, Math.min(my + mLen + 22, h*0.80));
     // Normal line with laser source icon
     if (S.showNormal) {
       // Normal dashed line
@@ -31098,14 +31098,23 @@ function simG5MirrorFlat() {
     c.fillText(angleText, refLX, refLY);
     // Ray labels near endpoints
     c.fillStyle='#FFD700'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('شعاع ساقط', ix, iy - 14);
+    c.fillText('شعاع ساقط', ix, Math.max(22, iy - 14));
     c.fillStyle='#FF6B9D';
-    c.fillText('شعاع منعكس', mx + rayLen * Math.cos(rad), iy - 14);
-    // Law label
-    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(11,w*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText('قانون الانعكاس: زاوية السقوط = زاوية الانعكاس', w/2, h*0.86);
-    c.fillStyle='rgba(200,200,255,0.6)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
-    c.fillText('حرّك الماوس/إصبعك للأعلى والأسفل لتغيير الزاوية', w/2, h*0.92);
+    c.fillText('شعاع منعكس', mx + rayLen * Math.cos(rad), Math.max(22, iy - 14));
+    // Law label — with background box to prevent overlap
+    const lawText = 'قانون الانعكاس: زاوية السقوط = زاوية الانعكاس';
+    const lawFontSz = Math.max(13, Math.min(w*0.026, 20));
+    c.font = `bold ${lawFontSz}px Tajawal`;
+    const lawW = c.measureText(lawText).width + 32;
+    const lawX = (w - lawW) / 2;
+    const lawY = h * 0.91;
+    c.fillStyle = 'rgba(10,10,30,0.82)';
+    c.beginPath(); c.roundRect(lawX, lawY - lawFontSz - 4, lawW, lawFontSz + 16, 8); c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.92)'; c.textAlign = 'center';
+    c.fillText(lawText, w/2, lawY);
+    const instrText = 'حرّك الماوس/إصبعك للأعلى والأسفل لتغيير الزاوية';
+    c.fillStyle='rgba(200,200,255,0.7)'; c.font=`${Math.max(10,w*0.019)}px Tajawal`;
+    c.fillText(instrText, w/2, h * 0.97);
     animFrame = requestAnimationFrame(draw);
   }
   draw();
@@ -31387,16 +31396,16 @@ function simG5ReflectionCompare() {
     const colW = w / surfaces.length;
 
     // Light source (single flashlight at top center)
-    const srcX = w * 0.5, srcY = h * 0.06;
+    const srcX = w * 0.5, srcY = h * 0.09;
     const srcGlow = c.createRadialGradient(srcX, srcY, 0, srcX, srcY, w*0.07);
     srcGlow.addColorStop(0,'rgba(255,220,60,0.9)'); srcGlow.addColorStop(1,'rgba(255,220,60,0)');
     c.fillStyle=srcGlow; c.beginPath(); c.arc(srcX, srcY, w*0.07, 0, Math.PI*2); c.fill();
     c.fillStyle='#FFE040'; c.beginPath(); c.arc(srcX, srcY, w*0.02, 0, Math.PI*2); c.fill();
-    c.fillStyle='rgba(255,220,80,0.95)'; c.font=`bold ${Math.max(9,w*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('🔦 مصدر الضوء', srcX, srcY + w*0.04);
+    c.fillStyle='rgba(255,220,80,0.95)'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('🔦 مصدر الضوء', srcX, Math.max(h*0.025, srcY - w*0.045));
 
     surfaces.forEach((surf, i) => {
-      const bx = i * colW, by = h*0.55;
+      const bx = i * colW, by = h*0.48;
       const surfCX = bx + colW*0.5;
       // Surface
       const surfGrad = c.createLinearGradient(bx, by, bx+colW-4, by);
@@ -31436,7 +31445,7 @@ function simG5ReflectionCompare() {
       }
 
       // Reflected image of object on surface (🔦 icon blurred based on roughness)
-      const imgY = by + h*0.12;
+      const imgY = by + h*0.10;
       const imgAlpha = surf.reflectivity;
       const blur = surf.roughness;
       c.save();
@@ -31453,20 +31462,20 @@ function simG5ReflectionCompare() {
       c.globalAlpha = 1;
       c.fillStyle = blur < 0.2 ? '#7DF' : blur < 0.5 ? '#FD7' : '#F87';
       c.font=`${Math.max(8,w*0.015)}px Tajawal`; c.textAlign='center';
-      c.fillText(blur < 0.2 ? 'صورة واضحة' : blur < 0.5 ? 'صورة خافتة' : 'صورة غير واضحة', surfCX, imgY + 22);
+      c.fillText(blur < 0.2 ? 'صورة واضحة' : blur < 0.5 ? 'صورة خافتة' : 'صورة غير واضحة', surfCX, imgY + 20);
       c.restore();
 
       // Labels
       c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`;
-      c.textAlign='center'; c.fillText(surf.name, bx+colW/2, h*0.69);
+      c.textAlign='center'; c.fillText(surf.name, bx+colW/2, by + h*0.175);
       c.fillStyle=`rgba(255,200,100,${surf.reflectivity+0.2})`;
       c.font=`${Math.max(9,w*0.018)}px Tajawal`;
-      c.fillText(`${Math.round(surf.reflectivity*100)}% انعكاس`, bx+colW/2, h*0.74);
+      c.fillText(`${Math.round(surf.reflectivity*100)}% انعكاس`, bx+colW/2, by + h*0.225);
     });
     c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`;
-    c.textAlign='center'; c.fillText('مقارنة انعكاس الضوء على أسطح مختلفة', w/2, h*0.83);
+    c.textAlign='center'; c.fillText('مقارنة انعكاس الضوء على أسطح مختلفة', w/2, h*0.87);
     c.fillStyle='rgba(255,220,100,0.7)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`;
-    c.fillText('← حرّك الماوس لتغيير زاوية الضوء →', w/2, h*0.89);
+    c.fillText('← حرّك الماوس لتغيير زاوية الضوء →', w/2, h*0.93);
     animFrame = requestAnimationFrame(draw);
   }
   draw();
