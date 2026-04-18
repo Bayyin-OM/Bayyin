@@ -6165,8 +6165,8 @@ function openSim(type) {
     g6gravity:    'الكتلة ثابتة لكن الوزن يتغيّر! 🌍 — جرّب على القمر والمريخ!',
     g6airresist:  'الهواء يُقاوم السقوط 🪂 — غيّر المساحة وشوف الفرق!',
     g6friction:   'الاحتكاك 🔥 — جرّب أسطح مختلفة وشوف كيف يبطّئ الحركة!',
-    g6frictionInquiry: 'ما العوامل التي تُغيّر قوة الاحتكاك؟ 🔬 — استقصِ وتحقّق!'
-    g6work:           'هل بُذل شغل؟ 🔬 — شاهد الكرة واحسب الشغل المبذول في ملعب كرة القدم!'
+    g6frictionInquiry: 'ما العوامل التي تُغيّر قوة الاحتكاك؟ 🔬 — استقصِ وتحقّق!',
+    g6work:           'هل بُذل شغل؟ 🔬 — شاهد الكرة واحسب الشغل المبذول في ملعب كرة القدم!',
   };
   var greet = simGreets[type] || 'استكشف وجرّب! 🔬';
   setTimeout(function(){ buddySay(greet, 6000); }, 800);
@@ -21739,44 +21739,6 @@ function simGenetics2() {
 </script>
 
 <script>
-/* ── Dark Mode ── */
-(function() {
-  var STORAGE_KEY = 'bayyin-dark-mode';
-  function applyMode(isDark) {
-    document.documentElement.classList[isDark?'add':'remove']('dark-mode');
-    updateBtn(isDark);
-    updateFooter(isDark);
-  }
-  function updateBtn(isDark) {
-    var btn = document.getElementById('dm-toggle');
-    if (!btn) return;
-    var moon  = btn.querySelector('.dm-moon');
-    var sun   = btn.querySelector('.dm-sun');
-    var label = btn.querySelector('.dm-label');
-    if (moon)  moon.style.display  = isDark ? 'none'  : 'block';
-    if (sun)   sun.style.display   = isDark ? 'block' : 'none';
-    if (label) label.textContent   = isDark ? 'فاتح'  : 'داكن';
-    btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-  }
-  function updateFooter(isDark) {
-    var f = document.getElementById('sticky-credit');
-    if (!f) return;
-    f.style.background     = isDark ? '#1A2230' : '#f0f4f7';
-    f.style.borderTopColor = isDark ? 'rgba(26,143,168,0.3)' : 'rgba(26,143,168,0.2)';
-  }
-  window.toggleDarkMode = function() {
-    var isDark = document.documentElement.classList.toggle('dark-mode');
-    try { localStorage.setItem(STORAGE_KEY, isDark ? '1' : '0'); } catch(e){}
-    updateBtn(isDark); updateFooter(isDark);
-  };
-  var saved = ''; try { saved = localStorage.getItem(STORAGE_KEY); } catch(e){}
-  if (saved === '1') document.documentElement.classList.add('dark-mode');
-  document.addEventListener('DOMContentLoaded', function() {
-    var isDark = document.documentElement.classList.contains('dark-mode');
-    updateBtn(isDark); updateFooter(isDark);
-  });
-})();
-
 /* ── Buddy ── */
 var _buddyTimer = null;
 
