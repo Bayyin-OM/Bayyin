@@ -31348,23 +31348,23 @@ function simG5ReflectionCompare() {
 <div class="ctrl-section">
   <div class="ctrl-label">✨ مقارنة الأسطح العاكسة</div>
   <div class="ctrl-desc">
-    حرّك الماوس أفقياً لتغيير زاوية الضوء وشاهد كيف تختلف درجة انعكاسه على كل سطح
+    شاهد كيف تنعكس صورة البطة على كل سطح — المرآة تعطي صورة واضحة والسطوح الخشنة تشتّت الصورة
   </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">📊 ترتيب الأسطح (الأعلى انعكاساً)</div>
   <div class="ctrl-desc">
-    🥇 المرآة (٩٥٪)<br>
-    🥈 الورق اللامع (٧٠٪)<br>
-    🥉 القماش (٣٠٪)<br>
-    ▪ الورق الخشن (١٠٪)
+    🥇 المرآة — انعكاس منتظم (٩٥٪)<br>
+    🥈 الورق اللامع — انعكاس شبه منتظم (٧٠٪)<br>
+    🥉 القماش — انعكاس منتشر (٣٠٪)<br>
+    ▪ الورق الخشن — انعكاس منتشر جداً (١٠٪)
   </div>
 </div>
 <div class="q-box">
   <strong>❓ أسئلة الكتاب (و٤ · د٤):</strong><br>
   لماذا السطوح اللامعة تعكس الضوء أفضل من الخشنة؟
   <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-  <div class="q-ans-panel">السطوح اللامعة منتظمة وملساء فتعكس الأشعة بزاوية ثابتة (انعكاس منتظم). السطوح الخشنة تشتّت الأشعة في اتجاهات مختلفة (انعكاس منتشر).</div>
+  <div class="q-ans-panel">السطوح اللامعة منتظمة وملساء فتعكس الأشعة بزاوية ثابتة (انعكاس منتظم) فتظهر الصورة واضحة. السطوح الخشنة تشتّت الأشعة في اتجاهات مختلفة (انعكاس منتشر) فتختفي الصورة.</div>
 </div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
@@ -31372,110 +31372,268 @@ function simG5ReflectionCompare() {
   const S = simState;
   if (!S.rInit) {
     S.rInit = true;
-    S.lightAngle = 30;
     S.t = 0;
-    cv.onmousemove = function(e) {
-      const rect = cv.getBoundingClientRect();
-      S.lightAngle = Math.max(10, Math.min(80, (e.clientX-rect.left)/cv.offsetWidth*80));
-    };
-    cv.ontouchmove = function(e) { e.preventDefault();
-      const rect = cv.getBoundingClientRect();
-      S.lightAngle = Math.max(10, Math.min(80, (e.touches[0].clientX-rect.left)/cv.offsetWidth*80));
-    };
+    // Pre-render the duck to an offscreen canvas
+    S.duckCanvas = document.createElement('canvas');
+    S.duckCanvas.width = 120; S.duckCanvas.height = 80;
+    const dc = S.duckCanvas.getContext('2d');
+    drawDuckScene(dc, 120, 80);
   }
+  S.t = 0;
+
+  // Draw a duck using canvas shapes
+  function drawDuckScene(dc, dw, dh) {
+    // Sky / water background
+    const skyGrad = dc.createLinearGradient(0,0,0,dh*0.55);
+    skyGrad.addColorStop(0,'#87CEEB'); skyGrad.addColorStop(1,'#B0E0F0');
+    dc.fillStyle = skyGrad; dc.fillRect(0,0,dw,dh*0.55);
+    // Water
+    const waterGrad = dc.createLinearGradient(0,dh*0.55,0,dh);
+    waterGrad.addColorStop(0,'#1E6B8C'); waterGrad.addColorStop(1,'#0A3D5C');
+    dc.fillStyle = waterGrad; dc.fillRect(0,dh*0.55,dw,dh*0.45);
+
+    const cx = dw*0.5, cy = dh*0.47;
+    const sc = dw/120;
+
+    // Body
+    dc.save();
+    dc.translate(cx, cy);
+    dc.beginPath();
+    dc.ellipse(0, 0, 35*sc, 22*sc, 0, 0, Math.PI*2);
+    dc.fillStyle = '#8B6914'; dc.fill();
+    dc.strokeStyle='#5a3f00'; dc.lineWidth=1; dc.stroke();
+
+    // Wing highlight
+    dc.beginPath();
+    dc.ellipse(-5*sc, 2*sc, 22*sc, 13*sc, -0.2, 0, Math.PI*2);
+    dc.fillStyle='#A07820'; dc.fill();
+
+    // Head
+    dc.beginPath();
+    dc.ellipse(28*sc, -14*sc, 13*sc, 12*sc, 0, 0, Math.PI*2);
+    dc.fillStyle='#1A6B3A'; dc.fill();
+    dc.strokeStyle='#0a3d20'; dc.lineWidth=1; dc.stroke();
+
+    // Neck
+    dc.beginPath();
+    dc.ellipse(20*sc, -6*sc, 7*sc, 10*sc, -0.3, 0, Math.PI*2);
+    dc.fillStyle='#1A6B3A'; dc.fill();
+
+    // White ring
+    dc.beginPath();
+    dc.arc(22*sc, -7*sc, 5*sc, 0, Math.PI*2);
+    dc.strokeStyle='white'; dc.lineWidth=2.5*sc; dc.stroke();
+
+    // Beak
+    dc.beginPath();
+    dc.ellipse(40*sc, -13*sc, 9*sc, 5*sc, 0.1, 0, Math.PI*2);
+    dc.fillStyle='#E8A020'; dc.fill();
+    dc.strokeStyle='#b07010'; dc.lineWidth=0.8; dc.stroke();
+
+    // Eye
+    dc.beginPath();
+    dc.arc(33*sc, -16*sc, 2.5*sc, 0, Math.PI*2);
+    dc.fillStyle='#1a1a1a'; dc.fill();
+    dc.beginPath();
+    dc.arc(33.8*sc, -16.8*sc, 0.8*sc, 0, Math.PI*2);
+    dc.fillStyle='white'; dc.fill();
+
+    // Tail
+    dc.beginPath();
+    dc.moveTo(-35*sc, -5*sc);
+    dc.quadraticCurveTo(-50*sc, -20*sc, -42*sc, -5*sc);
+    dc.fillStyle='#5a3f00'; dc.fill();
+
+    dc.restore();
+
+    // Feet
+    dc.strokeStyle='#E8A020'; dc.lineWidth=1.5*sc;
+    dc.beginPath(); dc.moveTo(cx-8*sc, cy+18*sc); dc.lineTo(cx-5*sc, cy+28*sc); dc.stroke();
+    dc.beginPath(); dc.moveTo(cx+5*sc, cy+18*sc); dc.lineTo(cx+8*sc, cy+28*sc); dc.stroke();
+  }
+
   const surfaces = [
-    { name:'مرآة', roughness:0, color:'#E0E0FF', reflectivity:0.95 },
-    { name:'ورق لامع', roughness:0.15, color:'#FFFFCC', reflectivity:0.7 },
-    { name:'قماش', roughness:0.6, color:'#DEB887', reflectivity:0.3 },
-    { name:'ورق خشن', roughness:1, color:'#C8A882', reflectivity:0.1 },
+    { name:'مرآة', roughness:0, color:'#C8D8FF', reflectivity:0.95, label:'انعكاس منتظم', labelColor:'#4DF' },
+    { name:'ورق لامع', roughness:0.2, color:'#FFFACC', reflectivity:0.7, label:'انعكاس شبه منتظم', labelColor:'#FD7' },
+    { name:'قماش', roughness:0.65, color:'#DEBB8A', reflectivity:0.3, label:'انعكاس منتشر', labelColor:'#FA8' },
+    { name:'ورق خشن', roughness:1.0, color:'#C8A882', reflectivity:0.1, label:'انعكاس منتشر جداً', labelColor:'#F55' },
   ];
+
   function draw() {
     if (currentSim !== 'g5reflection') return;
-    S.t = (S.t || 0) + 0.015;
-    c.fillStyle='#0a0a18'; c.fillRect(0,0,w,h);
+    S.t = (S.t || 0) + 0.02;
+    c.fillStyle='#0d1520'; c.fillRect(0,0,w,h);
     const colW = w / surfaces.length;
 
-    // Light source (single flashlight at top center)
-    const srcX = w * 0.5, srcY = h * 0.09;
-    const srcGlow = c.createRadialGradient(srcX, srcY, 0, srcX, srcY, w*0.07);
-    srcGlow.addColorStop(0,'rgba(255,220,60,0.9)'); srcGlow.addColorStop(1,'rgba(255,220,60,0)');
-    c.fillStyle=srcGlow; c.beginPath(); c.arc(srcX, srcY, w*0.07, 0, Math.PI*2); c.fill();
-    c.fillStyle='#FFE040'; c.beginPath(); c.arc(srcX, srcY, w*0.02, 0, Math.PI*2); c.fill();
-    c.fillStyle='rgba(255,220,80,0.95)'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText('🔦 مصدر الضوء', srcX, Math.max(h*0.025, srcY - w*0.045));
+    // Title
+    c.fillStyle='rgba(255,255,255,0.9)';
+    c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`;
+    c.textAlign='center';
+    c.fillText('كيف تنعكس صورة البطة على أسطح مختلفة؟', w/2, h*0.05);
+
+    // Draw duck above surfaces (original object)
+    const duckSrcW = colW * 0.65, duckSrcH = duckSrcW * (80/120);
+    const duckSrcY = h * 0.1;
 
     surfaces.forEach((surf, i) => {
-      const bx = i * colW, by = h*0.48;
-      const surfCX = bx + colW*0.5;
-      // Surface
-      const surfGrad = c.createLinearGradient(bx, by, bx+colW-4, by);
-      surfGrad.addColorStop(0, surf.color+'AA'); surfGrad.addColorStop(1, surf.color+'55');
-      c.fillStyle = surfGrad; c.fillRect(bx+2, by, colW-4, h*0.08);
-      // Texture for rough surfaces
-      if (surf.roughness > 0) {
-        c.strokeStyle = 'rgba(0,0,0,0.3)'; c.lineWidth = 1;
-        for (let x2 = bx+2; x2 < bx+colW-2; x2 += 6) {
-          const jitter = (Math.random()-0.5)*surf.roughness*8;
-          c.beginPath(); c.moveTo(x2, by); c.lineTo(x2+3, by+jitter+h*0.04); c.stroke();
+      const bx = i * colW;
+      const surfCX = bx + colW * 0.5;
+      const surfY = h * 0.52; // surface line Y
+      const surfH = h * 0.06;
+
+      // --- DUCK ABOVE SURFACE (original) ---
+      const duckAboveX = surfCX - duckSrcW/2;
+      const duckAboveY = surfY - duckSrcH - h*0.02;
+      if (S.duckCanvas) {
+        c.save();
+        c.globalAlpha = 1;
+        c.drawImage(S.duckCanvas, duckAboveX, duckAboveY, duckSrcW, duckSrcH);
+        c.restore();
+      }
+
+      // "الجسم الأصلي" label only on first column
+      if (i === 0) {
+        c.fillStyle='rgba(255,255,255,0.7)';
+        c.font=`${Math.max(8,w*0.013)}px Tajawal`;
+        c.textAlign='center';
+        c.fillText('الجسم الأصلي', surfCX, duckAboveY - 4);
+      }
+
+      // --- SURFACE ---
+      // Base color
+      const surfGrad = c.createLinearGradient(bx, surfY, bx, surfY+surfH);
+      surfGrad.addColorStop(0, surf.color + 'EE');
+      surfGrad.addColorStop(1, surf.color + '88');
+      c.fillStyle = surfGrad;
+      c.fillRect(bx+1, surfY, colW-2, surfH);
+
+      // Surface texture (bumps for rough)
+      if (surf.roughness > 0.1) {
+        const bump = surf.roughness * 5;
+        c.strokeStyle = 'rgba(0,0,0,0.25)'; c.lineWidth = 1;
+        c.beginPath();
+        for (let x2 = bx; x2 <= bx+colW; x2 += 8) {
+          const y2 = surfY + bump * Math.sin((x2 - bx) * 0.8 + S.t * 0.1);
+          x2 === bx ? c.moveTo(x2, y2) : c.lineTo(x2, y2);
         }
-      }
-      // Incident ray from source to surface
-      const ry = by;
-      const rx = surfCX;
-      c.strokeStyle='rgba(255,215,0,0.85)'; c.lineWidth=2;
-      c.beginPath(); c.moveTo(srcX, srcY+w*0.02); c.lineTo(rx, ry); c.stroke();
-      // Arrow on incident ray
-      const angInc = Math.atan2(ry-(srcY+w*0.02), rx-srcX);
-      const midIncX = srcX+(rx-srcX)*0.6, midIncY = (srcY+w*0.02)+(ry-(srcY+w*0.02))*0.6;
-      c.fillStyle='rgba(255,215,0,0.85)';
-      c.save(); c.translate(midIncX,midIncY); c.rotate(angInc);
-      c.beginPath(); c.moveTo(7,0); c.lineTo(-4,3); c.lineTo(-4,-3); c.fill(); c.restore();
-
-      // Reflected rays (spread based on roughness)
-      const rad2 = (90 - S.lightAngle) * Math.PI/180;
-      const numRays = Math.max(1, Math.round(1 + surf.roughness*6));
-      for (let r2 = 0; r2 < numRays; r2++) {
-        const spread = (r2/(numRays-1||1) - 0.5) * surf.roughness * 80 * Math.PI/180;
-        const reflAngle = rad2 + spread;
-        const brightness = surf.reflectivity / numRays * 3;
-        c.strokeStyle = `rgba(255,200,100,${Math.min(0.9, brightness)})`;
-        c.lineWidth = Math.max(0.5, 2 * surf.reflectivity);
-        c.beginPath(); c.moveTo(rx, ry);
-        c.lineTo(rx + Math.cos(reflAngle)*h*0.2, ry - Math.sin(reflAngle)*h*0.2); c.stroke();
+        c.stroke();
+      } else {
+        // Mirror shine line
+        c.strokeStyle='rgba(255,255,255,0.6)'; c.lineWidth=1.5;
+        c.beginPath(); c.moveTo(bx+2, surfY+2); c.lineTo(bx+colW-2, surfY+2); c.stroke();
       }
 
-      // Reflected image of object on surface (🔦 icon blurred based on roughness)
-      const imgY = by + h*0.10;
-      const imgAlpha = surf.reflectivity;
-      const blur = surf.roughness;
-      c.save();
-      c.globalAlpha = imgAlpha;
-      // Draw reflected emoji upside down
-      c.save();
-      c.translate(surfCX, imgY);
-      c.scale(1, -1);
-      c.font=`${Math.max(14, w*0.028*(1-blur*0.4))}px serif`;
+      // Surface name label
+      c.fillStyle='rgba(30,30,30,0.85)';
+      c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`;
       c.textAlign='center';
-      c.fillText('🔦', 0, 0);
-      c.restore();
-      // Clarity label
-      c.globalAlpha = 1;
-      c.fillStyle = blur < 0.2 ? '#7DF' : blur < 0.5 ? '#FD7' : '#F87';
-      c.font=`${Math.max(8,w*0.015)}px Tajawal`; c.textAlign='center';
-      c.fillText(blur < 0.2 ? 'صورة واضحة' : blur < 0.5 ? 'صورة خافتة' : 'صورة غير واضحة', surfCX, imgY + 20);
+      c.fillText(surf.name, surfCX, surfY + surfH*0.65);
+
+      // --- REFLECTED DUCK BELOW SURFACE ---
+      const reflW = duckSrcW;
+      const reflH = duckSrcH;
+      const reflX = surfCX - reflW/2;
+      const reflY = surfY + surfH + h*0.01;
+
+      if (S.duckCanvas) {
+        // Create offscreen to apply distortion
+        const offC = document.createElement('canvas');
+        offC.width = Math.ceil(reflW); offC.height = Math.ceil(reflH);
+        const oc = offC.getContext('2d');
+
+        if (surf.roughness < 0.05) {
+          // Perfect mirror: flip vertically, full alpha
+          oc.save();
+          oc.translate(0, reflH);
+          oc.scale(1, -1);
+          oc.globalAlpha = surf.reflectivity;
+          oc.drawImage(S.duckCanvas, 0, 0, reflW, reflH);
+          oc.restore();
+        } else {
+          // Distorted reflection: draw row by row with horizontal offset
+          const strips = Math.max(4, Math.floor(reflH));
+          for (let row = 0; row < strips; row++) {
+            const srcRow = strips - 1 - row; // flip
+            const xShift = (Math.random()-0.5) * surf.roughness * reflW * 0.35;
+            const warpY = (Math.random()-0.5) * surf.roughness * 3;
+            const srcFrac = srcRow / strips;
+            const dstFrac = row / strips;
+            oc.drawImage(
+              S.duckCanvas,
+              0, srcFrac * 80, 120, 80/strips,
+              xShift, dstFrac * reflH + warpY, reflW, reflH/strips
+            );
+          }
+          // Apply alpha overlay to fade
+          oc.globalCompositeOperation = 'destination-in';
+          oc.fillStyle = `rgba(0,0,0,${surf.reflectivity})`;
+          oc.fillRect(0,0,reflW,reflH);
+        }
+
+        // Draw with blur effect for rough surfaces
+        c.save();
+        if (surf.roughness > 0.5) {
+          c.filter = `blur(${Math.round(surf.roughness * 5)}px)`;
+        }
+        c.globalAlpha = surf.reflectivity;
+        c.drawImage(offC, reflX, reflY, reflW, reflH);
+        c.filter = 'none';
+        c.restore();
+      }
+
+      // Animated light rays (incident + reflected)
+      const rayPhase = S.t * 0.7 + i * 0.8;
+      const incAngle = 0.6 + Math.sin(rayPhase) * 0.2;
+      const rayLen = h * 0.12;
+      // Incident ray (coming from above-left)
+      const rayEndX = surfCX + Math.cos(Math.PI + incAngle) * rayLen * 0.4;
+      const rayStartX = surfCX + Math.cos(Math.PI + incAngle) * rayLen;
+      const rayStartY = surfY - Math.sin(incAngle) * rayLen;
+      c.save();
+      c.strokeStyle = 'rgba(255,220,60,0.8)'; c.lineWidth = 2;
+      c.setLineDash([6,3]);
+      c.beginPath(); c.moveTo(rayStartX, rayStartY); c.lineTo(surfCX, surfY); c.stroke();
+
+      // Reflected rays
+      const numRays = Math.max(1, Math.round(1 + surf.roughness * 5));
+      for (let r = 0; r < numRays; r++) {
+        const spread = (r/(numRays-1||1) - 0.5) * surf.roughness * 1.4;
+        const reflAng = incAngle + spread;
+        const alpha = (surf.reflectivity / numRays) * 2.5;
+        c.strokeStyle = `rgba(255,200,80,${Math.min(0.85, alpha)})`;
+        c.lineWidth = Math.max(0.5, 1.8 * surf.reflectivity);
+        c.beginPath();
+        c.moveTo(surfCX, surfY);
+        c.lineTo(surfCX + Math.cos(reflAng) * rayLen * 0.7, surfY - Math.sin(reflAng) * rayLen * 0.7);
+        c.stroke();
+      }
+      c.setLineDash([]);
       c.restore();
 
-      // Labels
-      c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`;
-      c.textAlign='center'; c.fillText(surf.name, bx+colW/2, by + h*0.175);
-      c.fillStyle=`rgba(255,200,100,${surf.reflectivity+0.2})`;
-      c.font=`${Math.max(9,w*0.018)}px Tajawal`;
-      c.fillText(`${Math.round(surf.reflectivity*100)}% انعكاس`, bx+colW/2, by + h*0.225);
+      // Clarity label + reflectivity %
+      const clarityColors = ['#4DF','#FD7','#FA8','#F55'];
+      const clarityLabels = ['صورة واضحة جداً ✅','صورة واضحة 🟡','صورة ضبابية 🟠','لا صورة ❌'];
+      const clarityIdx = surf.roughness < 0.1 ? 0 : surf.roughness < 0.3 ? 1 : surf.roughness < 0.7 ? 2 : 3;
+      c.fillStyle = clarityColors[clarityIdx];
+      c.font = `bold ${Math.max(8,w*0.016)}px Tajawal`;
+      c.textAlign = 'center';
+      c.fillText(clarityLabels[clarityIdx], surfCX, reflY + reflH + h*0.025);
+      c.fillStyle = `rgba(255,210,100,0.9)`;
+      c.font = `${Math.max(8,w*0.015)}px Tajawal`;
+      c.fillText(`${Math.round(surf.reflectivity*100)}٪ انعكاس`, surfCX, reflY + reflH + h*0.048);
+
+      // Type label
+      c.fillStyle = 'rgba(200,200,200,0.7)';
+      c.font = `${Math.max(7,w*0.013)}px Tajawal`;
+      c.fillText(surf.label, surfCX, reflY + reflH + h*0.068);
+
+      // Divider
+      if (i < surfaces.length-1) {
+        c.strokeStyle='rgba(255,255,255,0.08)'; c.lineWidth=1;
+        c.beginPath(); c.moveTo(bx+colW, h*0.07); c.lineTo(bx+colW, h*0.97); c.stroke();
+      }
     });
-    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`;
-    c.textAlign='center'; c.fillText('مقارنة انعكاس الضوء على أسطح مختلفة', w/2, h*0.87);
-    c.fillStyle='rgba(255,220,100,0.7)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`;
-    c.fillText('← حرّك الماوس لتغيير زاوية الضوء →', w/2, h*0.93);
+
     animFrame = requestAnimationFrame(draw);
   }
   draw();
