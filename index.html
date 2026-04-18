@@ -31327,16 +31327,29 @@ function simG6Work1() {
   panel.innerHTML = `
 <div class="ctrl-section">
   <div class="ctrl-label">⚽ استقصاء الشغل المبذول</div>
-  <div class="ctrl-desc">الشغل = القوة × المسافة<br>لكن هل يُبذل شغل دائماً؟ شاهد واكتشف!</div>
+  <div class="ctrl-desc">الشغل = القوة × المسافة<br>غيّر قوة الركلة وشاهد كيف يتغيّر الشغل!</div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">💪 قوة الركلة</div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px;" id="force-btns">
+    <button onclick="window._setForce(100,this)" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid #E0E0E0;background:white;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;text-align:right;transition:all 0.2s;">
+      🟢 ركلة خفيفة — <span style="color:#27AE60;">100 نيوتن</span>
+    </button>
+    <button onclick="window._setForce(200,this)" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid #E0E0E0;background:white;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;text-align:right;transition:all 0.2s;">
+      🟡 ركلة متوسطة — <span style="color:#D4901A;">200 نيوتن</span>
+    </button>
+    <button onclick="window._setForce(350,this)" style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid #E0E0E0;background:white;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;text-align:right;transition:all 0.2s;">
+      🔴 ركلة قوية — <span style="color:#C0392B;">350 نيوتن</span>
+    </button>
+  </div>
 </div>
 <div class="ctrl-section" id="kick-ctrl">
-  <div class="ctrl-label">🧒 ماذا يفعل الولد؟</div>
   <div id="kick-status" style="padding:10px;border-radius:10px;background:rgba(192,57,43,0.1);border:1.5px solid rgba(192,57,43,0.3);color:#C0392B;font-family:Tajawal;font-size:14px;font-weight:700;text-align:center;margin-bottom:10px;">
-    ⛔ الكرة لا تتحرك — لم يُبذل شغل!
+    ⛔ اختر قوة الركلة أولاً
   </div>
-  <button id="kick-btn" onclick="window._kickBall && window._kickBall()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#27AE60,#1E8449);color:white;border:none;font-family:Tajawal;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(39,174,96,0.3);">
-      ⚽ اركل الكرة!
-    </button>
+  <button id="kick-btn" onclick="window._kickBall && window._kickBall()" disabled style="width:100%;padding:13px;border-radius:12px;background:#ccc;color:white;border:none;font-family:Tajawal;font-size:16px;font-weight:700;cursor:not-allowed;opacity:0.7;">
+    ⚽ اركل الكرة!
+  </button>
 </div>
 <div class="ctrl-section" id="work-result" style="display:none">
   <div class="ctrl-label">📊 النتيجة</div>
@@ -31355,12 +31368,13 @@ function simG6Work1() {
   const S = simState;
 
   // State
-  S.w1 = S.w1 || { phase: 'idle', ballX: 0, ballY: 0, ballVx: 0, kicked: false, trail: [], t: 0 };
+  S.w1 = S.w1 || { phase: 'idle', ballX: 0, ballY: 0, ballVx: 0, kicked: false, trail: [], t: 0, force: null };
   const ws = S.w1;
   ws.phase = 'idle';
   ws.kicked = false;
   ws.trail = [];
   ws.t = 0;
+  ws.force = null;
 
   // Field dimensions
   const fieldX = w * 0.05, fieldY = h * 0.22, fieldW = w * 0.9, fieldH = h * 0.55;
@@ -31372,7 +31386,47 @@ function simG6Work1() {
   const goalX = fieldX + fieldW - goalW;
   const goalY = fieldY + fieldH * 0.35;
 
+  // Force colours
+  const FORCE_COLORS = { 100: '#27AE60', 200: '#D4901A', 350: '#C0392B' };
+  const FORCE_SPEEDS = { 100: 0.007, 200: 0.012, 350: 0.019 };
+
+  window._setForce = function(f, btn) {
+    ws.force = f;
+    // Reset sim if ball was kicked
+    if (ws.kicked) {
+      ws.kicked = false;
+      ws.phase = 'idle';
+      ws.trail = [];
+      ws.ballX = boyX + fieldW * 0.1;
+      ws.ballY = fieldY + fieldH * 0.68;
+      ws.ballVx = 0;
+      document.getElementById('work-result').style.display = 'none';
+    }
+    // Highlight selected button
+    document.querySelectorAll('#force-btns button').forEach(b => {
+      b.style.background = 'white';
+      b.style.borderColor = '#E0E0E0';
+      b.style.transform = '';
+    });
+    btn.style.background = FORCE_COLORS[f] + '18';
+    btn.style.borderColor = FORCE_COLORS[f];
+    btn.style.transform = 'scale(1.02)';
+    // Enable kick button
+    const kickBtn = document.getElementById('kick-btn');
+    kickBtn.disabled = false;
+    kickBtn.style.background = `linear-gradient(135deg,${FORCE_COLORS[f]},${FORCE_COLORS[f]}cc)`;
+    kickBtn.style.cursor = 'pointer';
+    kickBtn.style.opacity = '1';
+    kickBtn.textContent = '⚽ اركل الكرة!';
+    const st = document.getElementById('kick-status');
+    st.style.background = FORCE_COLORS[f] + '18';
+    st.style.borderColor = FORCE_COLORS[f] + '55';
+    st.style.color = FORCE_COLORS[f];
+    st.textContent = `💪 القوة المختارة: ${f} نيوتن — جاهز للركل!`;
+  };
+
   window._kickBall = function() {
+    if (!ws.force) return;
     if (ws.kicked) {
       // Reset
       ws.kicked = false;
@@ -31382,21 +31436,23 @@ function simG6Work1() {
       ws.ballY = fieldY + fieldH * 0.68;
       ws.ballVx = 0;
       document.getElementById('kick-btn').textContent = '⚽ اركل الكرة!';
-      document.getElementById('kick-status').style.background = 'rgba(192,57,43,0.1)';
-      document.getElementById('kick-status').style.borderColor = 'rgba(192,57,43,0.3)';
-      document.getElementById('kick-status').style.color = '#C0392B';
-      document.getElementById('kick-status').textContent = '⛔ الكرة لا تتحرك — لم يُبذل شغل!';
+      const st = document.getElementById('kick-status');
+      st.style.background = FORCE_COLORS[ws.force] + '18';
+      st.style.borderColor = FORCE_COLORS[ws.force] + '55';
+      st.style.color = FORCE_COLORS[ws.force];
+      st.textContent = `💪 القوة المختارة: ${ws.force} نيوتن — جاهز للركل!`;
       document.getElementById('work-result').style.display = 'none';
       return;
     }
     ws.kicked = true;
     ws.phase = 'moving';
-    ws.ballVx = fieldW * 0.012;
+    ws.ballVx = fieldW * FORCE_SPEEDS[ws.force];
     document.getElementById('kick-btn').textContent = '🔄 أعِد التجربة';
-    document.getElementById('kick-status').style.background = 'rgba(39,174,96,0.1)';
-    document.getElementById('kick-status').style.borderColor = 'rgba(39,174,96,0.3)';
-    document.getElementById('kick-status').style.color = '#1e8449';
-    document.getElementById('kick-status').textContent = '✅ الكرة تتحرك — يُبذل شغل! 🎉';
+    const st = document.getElementById('kick-status');
+    st.style.background = 'rgba(39,174,96,0.1)';
+    st.style.borderColor = 'rgba(39,174,96,0.3)';
+    st.style.color = '#1e8449';
+    st.textContent = '✅ الكرة تتحرك — يُبذل شغل! 🎉';
   };
 
   function drawField() {
@@ -31575,17 +31631,18 @@ function simG6Work1() {
       // Show result when ball reaches goal area
       if (ws.ballX > fieldX + fieldW * 0.55) {
         const distM = Math.round((ws.ballX - (boyX + fieldW * 0.1)) / fieldW * 10 * 10) / 10;
-        const force = 200;
+        const force = ws.force || 200;
         const work = Math.round(force * distM);
+        const col = FORCE_COLORS[force];
         const wr = document.getElementById('work-result');
         if (wr) {
           wr.style.display = 'block';
           document.getElementById('work-calc').innerHTML =
-            `⚡ <strong>القوة المبذولة:</strong> ${force} نيوتن<br>` +
+            `💪 <strong>القوة المبذولة:</strong> <span style="color:${col};font-weight:900;">${force} نيوتن</span><br>` +
             `📏 <strong>المسافة المقطوعة:</strong> ${distM} متر<br>` +
             `━━━━━━━━━━━━━━━━━<br>` +
             `📐 الشغل = القوة × المسافة<br>` +
-            `🟢 <strong>الشغل = ${force} × ${distM} = ${work} جول</strong>`;
+            `🟢 <strong style="color:${col};">الشغل = ${force} × ${distM} = ${work} جول</strong>`;
         }
       }
     }
@@ -31611,12 +31668,13 @@ function simG6Work1() {
 
     // Arrow showing force direction when kicked
     if (ws.kicked && ws.phase==='moving' && ws.ballX < goalX) {
-      c.strokeStyle='#FF4444'; c.fillStyle='#FF4444'; c.lineWidth=3;
+      const arrowCol = (ws.force && FORCE_COLORS[ws.force]) || '#FF4444';
+      c.strokeStyle=arrowCol; c.fillStyle=arrowCol; c.lineWidth=3;
       const arrowY = ws.ballY - 28;
       c.beginPath(); c.moveTo(ws.ballX-30, arrowY); c.lineTo(ws.ballX+30, arrowY); c.stroke();
       c.beginPath(); c.moveTo(ws.ballX+30, arrowY); c.lineTo(ws.ballX+18, arrowY-7); c.lineTo(ws.ballX+18, arrowY+7); c.fill();
       c.font=`bold ${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center';
-      c.fillText('القوة →', ws.ballX, arrowY-12);
+      c.fillText(`${ws.force || 200} ن →`, ws.ballX, arrowY-12);
     }
 
     animFrame = requestAnimationFrame(draw);
