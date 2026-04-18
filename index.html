@@ -9150,13 +9150,6 @@ function simBodyConductor1() {
       </div>
     </div>
     <div class="ctrl-section">
-      <div class="ctrl-label">🔗 نوع السلك</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button id="wt0" onclick="simState.wireType='bare';simState.shocked=false;simState.shockAnim=0;"      style="padding:9px;border-radius:10px;border:2px solid rgba(231,76,60,.5);background:rgba(231,76,60,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#C0392B">⚠️ سلك مكشوف (تالف)</button>
-        <button id="wt1" onclick="simState.wireType='insulated';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(39,174,96,.5);background:rgba(39,174,96,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#27AE60">✅ سلك معزول (سليم)</button>
-      </div>
-    </div>
-    <div class="ctrl-section">
       <button id="touchBtn" onclick="window._doTouch()" style="width:100%;padding:12px;border-radius:12px;background:rgba(192,57,43,.12);border:2.5px solid rgba(192,57,43,.5);color:#C0392B;font-family:Tajawal;font-size:16px;font-weight:800;cursor:pointer">⚠️ المس السلك</button>
     </div>
     <div class="info-box" style="font-size:13px">
@@ -9170,9 +9163,8 @@ function simBodyConductor1() {
 
   window._doTouch = function() {
     if(!simState.switchOn){ try{U9Sound.ping(600,.1,.05);}catch(e){} return; }
-    var wt = wireTypes.find(function(w){ return w.id===simState.wireType; });
     var bt = bodyTypes.find(function(b){ return b.id===simState.bodyType; });
-    if(wt && !wt.safe && bt && bt.conducts){
+    if(bt && bt.conducts){
       simState.shocked=true; simState.shockAnim=0;
       try{U9Sound.ping(80,.3,.4);}catch(e){}
     } else {
@@ -9188,9 +9180,8 @@ function simBodyConductor1() {
     if(simState.shocked && simState.shockAnim<1) simState.shockAnim=Math.min(1,simState.shockAnim+0.05);
 
     var bt = bodyTypes.find(function(b){return b.id===simState.bodyType;})||bodyTypes[0];
-    var wt = wireTypes.find(function(ww){return ww.id===simState.wireType;})||wireTypes[0];
     var isOn = simState.switchOn;
-    var shocked = simState.shocked && bt.conducts && isOn && !wt.safe;
+    var shocked = simState.shocked && bt.conducts && isOn;
     var sa = simState.shockAnim;
 
     // خلفية
@@ -9238,15 +9229,8 @@ function simBodyConductor1() {
     c.fillStyle=isDarkMode()?'#8AA8C0':'#666'; c.font='9px Tajawal'; c.textAlign='center'; c.textBaseline='top';
     c.fillText('قابس', plugX+plugW/2, plugY+plugH+3);
 
-    // السلك
-    if(wt.id==='insulated'){
-      c.strokeStyle='#27AE60'; c.lineWidth=9; c.lineCap='round';
-      c.beginPath(); c.moveTo(wireStartX,wireY); c.lineTo(wireEndX,wireY); c.stroke();
-      c.strokeStyle='#888'; c.lineWidth=5; c.lineCap='round';
-      c.beginPath(); c.moveTo(wireStartX,wireY); c.lineTo(wireEndX,wireY); c.stroke();
-      c.strokeStyle='rgba(255,255,255,.25)'; c.lineWidth=2;
-      c.beginPath(); c.moveTo(wireStartX,wireY-2); c.lineTo(wireEndX-10,wireY-2); c.stroke();
-    } else {
+    // السلك — دائماً مكشوف (خطر)
+    if(true){
       c.strokeStyle=(isOn&&shocked)?('rgba(255,'+(80-sa*80|0)+',0,.9)'):'#B87333';
       c.lineWidth=5; c.lineCap='round';
       c.beginPath(); c.moveTo(wireStartX,wireY); c.lineTo(wireEndX,wireY); c.stroke();
@@ -9256,21 +9240,31 @@ function simBodyConductor1() {
       }
     }
     // نهاية السلك
-    c.fillStyle=wt.id==='insulated'?'#27AE60':'#E74C3C';
+    c.fillStyle='#E74C3C';
     c.beginPath(); c.arc(wireEndX,wireY,6,0,Math.PI*2); c.fill();
 
-    // === مفتاح ON/OFF ===
+    // === مفتاح ON/OFF — كبير وقابل للنقر ===
     var swX=w*0.55, swY=h*0.07;
-    var swW=52, swH=24;
-    c.fillStyle=isDarkMode()?'#1C2A3A':'#DDE4F0';
-    c.beginPath(); c.roundRect(swX-swW/2,swY-swH/2,swW,swH,swH/2); c.fill();
-    var sliderX=isOn?swX+swW/2-swH/2-2:swX-swW/2+swH/2+2;
+    var swW=72, swH=32;
+    // تخزين موقع المفتاح لمعالجة النقر
+    simState._swX=swX; simState._swY=swY; simState._swW=swW; simState._swH=swH;
+    // خلفية التبديل
+    c.fillStyle=isOn?'rgba(39,174,96,.15)':'rgba(192,57,43,.12)';
+    c.strokeStyle=isOn?'rgba(39,174,96,.5)':'rgba(192,57,43,.4)'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(swX-swW/2,swY-swH/2,swW,swH,swH/2); c.fill(); c.stroke();
+    // الزلاجة
+    var sliderX=isOn?swX+swW/2-swH/2-3:swX-swW/2+swH/2+3;
     c.fillStyle=isOn?'#27AE60':'#E74C3C';
-    c.beginPath(); c.arc(sliderX,swY,swH/2-3,0,Math.PI*2); c.fill();
-    c.fillStyle='white'; c.font='bold 9px Arial'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(isOn?'ON':'OFF', swX+(isOn?-12:12), swY);
-    c.fillStyle=isDarkMode()?'#aaa':'#555'; c.font='10px Tajawal'; c.textAlign='center'; c.textBaseline='top';
-    c.fillText('مفتاح التيار', swX, swY+swH/2+4);
+    c.shadowBlur=8; c.shadowColor=isOn?'rgba(39,174,96,.5)':'rgba(192,57,43,.4)';
+    c.beginPath(); c.arc(sliderX,swY,swH/2-4,0,Math.PI*2); c.fill();
+    c.shadowBlur=0;
+    c.fillStyle='white'; c.font='bold 10px Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(isOn?'ON':'OFF', isOn?swX-14:swX+14, swY);
+    c.fillStyle=isDarkMode()?'#aaa':'#555'; c.font='bold 11px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('اضغط للتبديل', swX, swY+swH/2+4);
+    // مؤشر الحالة
+    c.fillStyle=isOn?'#E74C3C':'#27AE60'; c.font='bold 12px Tajawal'; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText(isOn?'⚡ الكهرباء مفعّلة':'🔒 آمن — لا تيار', swX, swY-swH/2-4);
 
     // === الشخص ===
     var px=w*0.68, py=h*0.1;
@@ -9359,23 +9353,39 @@ function simBodyConductor1() {
 
     var statusMsg, statusCol;
     if(!isOn){       statusMsg='🔒 OFF — لا يمر تيار، لا خطر'; statusCol='#27AE60'; }
-    else if(wt.safe){statusMsg='✅ السلك المعزول آمن — العازل يحمي من المس'; statusCol='#27AE60'; }
     else if(shocked){ statusMsg='⚡ صعقة كهربائية! التيار يمر عبر الجسم!'; statusCol='#C0392B'; }
     else {           statusMsg='⚠️ '+bt.label+' — '+bt.risk; statusCol='#D4901A'; }
 
     c.font='bold 13px Tajawal'; c.fillStyle=statusCol; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(statusMsg, w/2, infoY+h*.045);
     c.font='12px Tajawal'; c.fillStyle=isDarkMode()?'#8AA8C0':'#555'; c.textAlign='center';
-    c.fillText('السلك: '+wt.label+'  |  مقاومة الجسم: '+bt.R+'  |  '+bt.risk, w/2, infoY+h*.1);
+    c.fillText('نوع الجلد: '+bt.label+'  |  مقاومة الجسم: '+bt.R+'  |  '+bt.risk, w/2, infoY+h*.1);
     c.font='11px Tajawal'; c.fillStyle=isDarkMode()?'#6A8898':'#888'; c.textAlign='center';
-    c.fillText(wt.safe?'العزل يمنع التيار — دائماً استخدم أسلاكاً سليمة':'السلك التالف خطر — لا تلمسه أبداً!', w/2, infoY+h*.15);
+    c.fillText('السلك المكشوف خطر — لا تلمسه أبداً!', w/2, infoY+h*.15);
 
     animFrame=requestAnimationFrame(draw);
   }
+
+  // جعل مفتاح ON/OFF على الكانفس قابلاً للنقر
+  var cv2=document.getElementById('simCanvas');
+  function handleSwClick(e){
+    var r=cv2.getBoundingClientRect(), sc=cv2.width/r.width;
+    var src=e.touches?e.touches[0]:e;
+    var px2=(src.clientX-r.left)*sc, py2=(src.clientY-r.top)*sc;
+    var ss=simState;
+    if(ss._swX&&ss._swY&&ss._swW&&ss._swH){
+      if(px2>ss._swX-ss._swW/2&&px2<ss._swX+ss._swW/2&&py2>ss._swY-ss._swH/2&&py2<ss._swY+ss._swH/2){
+        simState.switchOn=!simState.switchOn;
+        simState.shocked=false; simState.shockAnim=0;
+        try{U9Sound.ping(simState.switchOn?500:300,.12,.1);}catch(ex){}
+      }
+    }
+  }
+  cv2.addEventListener('click', handleSwClick);
+  cv2.addEventListener('touchend', function(e){ e.preventDefault(); handleSwClick(e.changedTouches?{clientX:e.changedTouches[0].clientX,clientY:e.changedTouches[0].clientY}:e); }, {passive:false});
+
   draw();
 }
-// ─────────────────────────────────────────────────────
-// 5-3 TAB 1: أميتر تفاعلي — اضغط على المعدن وشوف التيار
 // ─────────────────────────────────────────────────────
 function simMetalConductor1() {
   cancelAnimationFrame(animFrame);
@@ -9891,6 +9901,7 @@ function simCircuitBuilder2() {
   function recalcConns(){
     var conns=[];
     var p=simState.placed;
+    if(!p || !p.length){ simState.conns=[]; return; }
     for(var i=0;i<p.length;i++){
       var pi=ports(p[i]);
       for(var j=i+1;j<p.length;j++){
@@ -10324,17 +10335,37 @@ function simCircuitChange1() {
     c.strokeStyle='#555'; c.lineWidth=2;
     c.beginPath(); if(simState.swOn){c.moveTo(swx-10,swy);c.lineTo(swx+10,swy);}else{c.moveTo(swx-10,swy+2);c.lineTo(swx+10,swy-6);} c.stroke();
 
-    // مصابيح (أسفل)
+    // مصابيح (أسفل) - مع تأثير إضاءة بصري واضح
     var sp=pw/(nb+1);
     for(var bi=0;bi<nb;bi++){
       var lx=px+sp*(bi+1), ly=py+ph, lbr=on?s.br:0;
-      if(lbr>.05){c.shadowBlur=14*lbr+Math.sin(simState.t*4+bi)*4*lbr; c.shadowColor='rgba(255,220,0,.7)';}
-      c.fillStyle=lbr>.05?('rgba(255,230,80,'+(0.4+lbr*.5)+')'):'rgba(200,200,200,.5)';
+      // هالة خارجية كبيرة عند الإضاءة
+      if(lbr>.05){
+        var grd=c.createRadialGradient(lx,ly,0,lx,ly,40+lbr*30);
+        grd.addColorStop(0,'rgba(255,240,80,'+(lbr*.6)+')');
+        grd.addColorStop(0.5,'rgba(255,200,0,'+(lbr*.25)+')');
+        grd.addColorStop(1,'rgba(255,180,0,0)');
+        c.fillStyle=grd; c.beginPath(); c.arc(lx,ly,40+lbr*30,0,Math.PI*2); c.fill();
+        c.shadowBlur=20*lbr+Math.sin(simState.t*4+bi)*6*lbr; c.shadowColor='rgba(255,220,0,.8)';
+      }
+      // جسم المصباح
+      c.fillStyle=lbr>.05?('rgba(255,'+(200+lbr*55|0)+','+(60-lbr*30|0)+','+(0.5+lbr*.5)+')'):'rgba(180,180,180,.5)';
       c.beginPath(); c.arc(lx,ly,15,0,Math.PI*2); c.fill();
       c.shadowBlur=0;
-      c.strokeStyle=lbr>.05?'rgba(255,180,0,.6)':'#BBB'; c.lineWidth=1.5;
+      c.strokeStyle=lbr>.05?'rgba(255,180,0,'+(lbr*.9)+')':'#BBB'; c.lineWidth=2;
       c.beginPath(); c.arc(lx,ly,15,0,Math.PI*2); c.stroke();
+      // خيوط المصباح
+      if(lbr>.1){
+        c.strokeStyle='rgba(255,200,0,'+(lbr*.7)+')'; c.lineWidth=1.5;
+        c.beginPath(); c.moveTo(lx-4,ly+4); c.lineTo(lx,ly-6); c.lineTo(lx+4,ly+4); c.stroke();
+      }
+      // قاعدة المصباح
       c.fillStyle='#555'; c.beginPath(); c.roundRect(lx-7,ly+11,14,8,3); c.fill();
+      // نسبة السطوع فوق المصباح
+      if(on){
+        c.font='bold 11px Tajawal'; c.fillStyle=lbr>.3?'#D4901A':'#999'; c.textAlign='center'; c.textBaseline='bottom';
+        c.fillText(Math.round(lbr*100)+'%',lx,ly-18);
+      }
     }
 
     // معلومات
@@ -10420,16 +10451,29 @@ function simCircuitChange2() {
     c.font='11px Tajawal'; c.fillStyle=isDarkMode()?'#aaa':'#777'; c.textAlign='center'; c.textBaseline='top';
     c.fillText(V.toFixed(1)+'V',sx,sy+n*22+4);
 
-    // مصباح
-    var lx=w*.72, ly=h*.38, lsz=25+br*12;
-    if(br>.1){ c.shadowBlur=25*br+Math.sin(simState.t*4)*6*br; c.shadowColor='rgba(255,220,0,'+(br*.8)+')'; }
+    // مصباح - مع تأثير إضاءة بصري واضح
+    var lx=w*.72, ly=h*.38, lsz=22+br*16;
+    if(br>.1){
+      // هالة كبيرة خارجية
+      var grd2=c.createRadialGradient(lx,ly,0,lx,ly,lsz+40);
+      grd2.addColorStop(0,'rgba(255,240,80,'+(br*.5)+')');
+      grd2.addColorStop(0.5,'rgba(255,200,0,'+(br*.2)+')');
+      grd2.addColorStop(1,'rgba(255,180,0,0)');
+      c.fillStyle=grd2; c.beginPath(); c.arc(lx,ly,lsz+40,0,Math.PI*2); c.fill();
+      c.shadowBlur=30*br+Math.sin(simState.t*4)*8*br; c.shadowColor='rgba(255,220,0,'+(br*.8)+')';
+    }
     c.fillStyle='rgba(255,'+(200+br*55|0)+','+(60-br*30|0)+','+(0.3+br*.7)+')';
     c.beginPath(); c.arc(lx,ly,lsz,0,Math.PI*2); c.fill();
     c.shadowBlur=0;
-    c.strokeStyle=br>.05?'rgba(255,180,0,'+(br*.7)+')':'#BBB'; c.lineWidth=2;
+    c.strokeStyle=br>.05?'rgba(255,180,0,'+(br*.8)+')':'#BBB'; c.lineWidth=2.5;
     c.beginPath(); c.arc(lx,ly,lsz,0,Math.PI*2); c.stroke();
+    // خيوط المصباح
+    if(br>.1){
+      c.strokeStyle='rgba(255,200,0,'+(br*.8)+')'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(lx-5,ly+6); c.lineTo(lx,ly-8); c.lineTo(lx+5,ly+6); c.stroke();
+    }
     c.fillStyle='#555'; c.beginPath(); c.roundRect(lx-12,ly+lsz,24,12,3); c.fill();
-    c.font='bold 13px Tajawal'; c.fillStyle=isDarkMode()?'#E8F2FA':'#1E2D3D'; c.textAlign='center'; c.textBaseline='top';
+    c.font='bold 15px Tajawal'; c.fillStyle=isDarkMode()?'#E8F2FA':'#1E2D3D'; c.textAlign='center'; c.textBaseline='top';
     c.fillText(Math.round(br*100)+'%',lx,ly+lsz+14);
 
     // أسهم الطاقة
@@ -10577,30 +10621,48 @@ function simWireLength1() {
     c.fillStyle=isDarkMode()?'#aaa':'#555'; c.font='10px Tajawal'; c.textAlign='center'; c.textBaseline='top';
     c.fillText('\u0628\u0637\u0627\u0631\u064a\u0629', batCx, batCy+bh/2+5);
 
-    // ── الأميتر (دائرة مع إبرة) ──
-    var amR=18;
-    c.fillStyle=isDarkMode()?'#1C2B3A':'#F0F4F8';
-    c.strokeStyle='#1A8FA8'; c.lineWidth=2.5;
+    // ── الأميتر (دائرة مع إبرة) - كبير وواضح ──
+    var amR=28;
+    // ظل خارجي
+    c.shadowBlur=8; c.shadowColor='rgba(26,143,168,.25)';
+    c.fillStyle=isDarkMode()?'#1C2B3A':'#FFFFFF';
+    c.strokeStyle='#1A8FA8'; c.lineWidth=3;
     c.beginPath(); c.arc(amCx, amCy, amR, 0, Math.PI*2); c.fill(); c.stroke();
-    c.strokeStyle='rgba(26,143,168,.3)'; c.lineWidth=1;
-    c.beginPath(); c.arc(amCx, amCy, amR+4, 0, Math.PI*2); c.stroke();
-    c.fillStyle='#E74C3C'; c.font='bold 11px Arial'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('A', amCx, amCy-4);
-    var needleAngle = -Math.PI*0.7 + (I/1.5)*Math.PI*1.4;
-    c.strokeStyle='#E74C3C'; c.lineWidth=2; c.lineCap='round';
-    c.beginPath(); c.moveTo(amCx, amCy+2);
-    c.lineTo(amCx + Math.cos(needleAngle)*14, amCy + Math.sin(needleAngle)*14); c.stroke();
-    c.strokeStyle=isDarkMode()?'#4A6580':'#999'; c.lineWidth=1;
-    for(var ti=0;ti<=6;ti++){
-      var ta=-Math.PI*0.7+(ti/6)*Math.PI*1.4;
+    c.shadowBlur=0;
+    // حلقة خارجية زخرفية
+    c.strokeStyle='rgba(26,143,168,.2)'; c.lineWidth=2;
+    c.beginPath(); c.arc(amCx, amCy, amR+5, 0, Math.PI*2); c.stroke();
+    // خلفية نصف دائرة للمقياس
+    c.fillStyle=isDarkMode()?'rgba(26,143,168,.08)':'rgba(26,143,168,.06)';
+    c.beginPath(); c.moveTo(amCx,amCy); c.arc(amCx,amCy,amR-4,-Math.PI*0.7,Math.PI*0.7*0.7); c.closePath(); c.fill();
+    // علامات المقياس
+    c.strokeStyle=isDarkMode()?'#5A8AAA':'#AAB8C8'; c.lineWidth=1.5;
+    for(var ti=0;ti<=8;ti++){
+      var ta=-Math.PI*0.7+(ti/8)*Math.PI*1.4;
+      var isMajor=(ti%2===0);
       c.beginPath();
-      c.moveTo(amCx+Math.cos(ta)*12, amCy+Math.sin(ta)*12);
-      c.lineTo(amCx+Math.cos(ta)*(amR-2), amCy+Math.sin(ta)*(amR-2)); c.stroke();
+      c.moveTo(amCx+Math.cos(ta)*(amR-4), amCy+Math.sin(ta)*(amR-4));
+      c.lineTo(amCx+Math.cos(ta)*(amR-(isMajor?10:6)), amCy+Math.sin(ta)*(amR-(isMajor?10:6))); c.stroke();
     }
-    c.fillStyle='#1A8FA8'; c.font='bold 11px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    // حرف A
+    c.fillStyle='#1A8FA8'; c.font='bold 14px Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('A', amCx, amCy-8);
+    // الإبرة
+    var needleAngle = -Math.PI*0.7 + (I/1.5)*Math.PI*1.4;
+    // ظل الإبرة
+    c.strokeStyle='rgba(231,76,60,.3)'; c.lineWidth=4; c.lineCap='round';
+    c.beginPath(); c.moveTo(amCx, amCy+3);
+    c.lineTo(amCx + Math.cos(needleAngle)*(amR-7), amCy + Math.sin(needleAngle)*(amR-7)); c.stroke();
+    c.strokeStyle='#E74C3C'; c.lineWidth=2.5; c.lineCap='round';
+    c.beginPath(); c.moveTo(amCx, amCy+3);
+    c.lineTo(amCx + Math.cos(needleAngle)*(amR-7), amCy + Math.sin(needleAngle)*(amR-7)); c.stroke();
+    // مركز الإبرة
+    c.fillStyle='#2C3A4A'; c.beginPath(); c.arc(amCx,amCy+3,4,0,Math.PI*2); c.fill();
+    // قراءة التيار مكبّرة أسفل الأميتر
+    c.fillStyle=isDarkMode()?'#6ECFEE':'#1A8FA8'; c.font='bold 13px Tajawal'; c.textAlign='center'; c.textBaseline='top';
     c.fillText(I.toFixed(3)+' A', amCx, amCy+amR+6);
-    c.fillStyle=isDarkMode()?'#aaa':'#555'; c.font='10px Tajawal';
-    c.fillText('\u0623\u0645\u064a\u062a\u0631', amCx, amCy+amR+18);
+    c.fillStyle=isDarkMode()?'#aaa':'#777'; c.font='10px Tajawal';
+    c.fillText('\u0623\u0645\u064a\u062a\u0631', amCx, amCy+amR+21);
 
     // ── خلاصة ──
     c.fillStyle=isDarkMode()?'rgba(20,28,40,.85)':'rgba(255,255,255,.85)';
@@ -10678,16 +10740,64 @@ function simWireLength2() {
       c.fillStyle='rgba(0,210,255,'+(0.8-et*.4)+')'; c.beginPath(); c.arc(wx+ww2*et,wy,3.5,0,Math.PI*2); c.fill();
     }
 
-    // دائرة
-    c.strokeStyle=I>.5?'#27AE60':'#E67E22'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(wx,wy); c.lineTo(wx,h*.18); c.lineTo(w*.35,h*.18); c.stroke();
-    c.beginPath(); c.moveTo(wx+ww2,wy); c.lineTo(wx+ww2,h*.18); c.lineTo(w*.65,h*.18); c.stroke();
-    c.fillStyle='#2C3E50'; c.beginPath(); c.roundRect(w*.24,h*.09,56,28,5); c.fill();
-    c.fillStyle='#F39C12'; c.fillRect(w*.24+8,h*.09+5,40,18);
-    c.fillStyle='white'; c.font='bold 9px Arial'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('1.5V',w*.24+28,h*.09+14);
-    c.fillStyle=isDarkMode()?'#1E2A38':'white'; c.strokeStyle='rgba(0,0,0,.2)'; c.lineWidth=1.5;
-    c.beginPath(); c.arc(w*.73,h*.18,14,0,Math.PI*2); c.fill(); c.stroke();
-    c.fillStyle='#E74C3C'; c.font='bold 11px Arial'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('A',w*.73,h*.18);
+    // ── الدائرة الكاملة (بطارية + أميتر + أسلاك توصيل) ──
+    var circWireCol = I>.5?'#27AE60':'#E67E22';
+    var topY = h*.16;
+    var batCx = w*.5, batCy = topY;
+    var amCx2 = wx, amCy2 = topY;
+
+    // الأسلاك العلوية
+    c.strokeStyle=circWireCol; c.lineWidth=2.5;
+    // السلك العلوي الأيسر: من الأميتر للبطارية
+    c.beginPath(); c.moveTo(amCx2, amCy2); c.lineTo(batCx-30, batCy); c.stroke();
+    // السلك العلوي الأيمن: من البطارية لنهاية السلك التجريبي
+    c.beginPath(); c.moveTo(batCx+30, batCy); c.lineTo(wx+ww2, topY); c.stroke();
+    // السلك الرأسي الأيسر
+    c.beginPath(); c.moveTo(amCx2, amCy2+20); c.lineTo(wx, wy); c.stroke();
+    // السلك الرأسي الأيمن
+    c.beginPath(); c.moveTo(wx+ww2, wy); c.lineTo(wx+ww2, topY); c.stroke();
+
+    // ── البطارية ──
+    var bw=52, bh=26;
+    c.fillStyle='#2C3E50'; c.beginPath(); c.roundRect(batCx-bw/2, batCy-bh/2-2, bw, bh+4, 6); c.fill();
+    c.fillStyle='#E74C3C'; c.fillRect(batCx-bw/2+3, batCy-bh/2, 8, bh);
+    c.fillStyle='#27AE60'; c.fillRect(batCx+bw/2-11, batCy-bh/2, 8, bh);
+    c.fillStyle='#F39C12'; c.fillRect(batCx-bw/2+14, batCy-bh/2+2, bw-28, bh-4);
+    c.fillStyle='white'; c.font='bold 9px Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('1.5V', batCx, batCy);
+    c.fillStyle='white'; c.font='bold 8px Arial';
+    c.fillText('\u2212', batCx-bw/2+7, batCy); c.fillText('+', batCx+bw/2-7, batCy);
+    c.fillStyle=isDarkMode()?'#aaa':'#555'; c.font='10px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('\u0628\u0637\u0627\u0631\u064a\u0629', batCx, batCy+bh/2+4);
+
+    // ── الأميتر (دائرة مع إبرة) ──
+    var amR2=20;
+    c.shadowBlur=6; c.shadowColor='rgba(26,143,168,.2)';
+    c.fillStyle=isDarkMode()?'#1C2B3A':'#FFFFFF';
+    c.strokeStyle='#1A8FA8'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(amCx2, amCy2, amR2, 0, Math.PI*2); c.fill(); c.stroke();
+    c.shadowBlur=0;
+    c.strokeStyle='rgba(26,143,168,.2)'; c.lineWidth=1.5;
+    c.beginPath(); c.arc(amCx2, amCy2, amR2+4, 0, Math.PI*2); c.stroke();
+    // علامات المقياس
+    c.strokeStyle=isDarkMode()?'#5A8AAA':'#BBB'; c.lineWidth=1;
+    for(var ti2=0;ti2<=6;ti2++){
+      var ta2=-Math.PI*0.7+(ti2/6)*Math.PI*1.4;
+      c.beginPath();
+      c.moveTo(amCx2+Math.cos(ta2)*(amR2-5), amCy2+Math.sin(ta2)*(amR2-5));
+      c.lineTo(amCx2+Math.cos(ta2)*(amR2-2), amCy2+Math.sin(ta2)*(amR2-2)); c.stroke();
+    }
+    c.fillStyle='#1A8FA8'; c.font='bold 11px Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('A', amCx2, amCy2-5);
+    var needleAngle2 = -Math.PI*0.7 + (I/1.5)*Math.PI*1.4;
+    c.strokeStyle='#E74C3C'; c.lineWidth=2; c.lineCap='round';
+    c.beginPath(); c.moveTo(amCx2, amCy2+3);
+    c.lineTo(amCx2 + Math.cos(needleAngle2)*15, amCy2 + Math.sin(needleAngle2)*15); c.stroke();
+    c.fillStyle='#2C3A4A'; c.beginPath(); c.arc(amCx2, amCy2+3, 3, 0, Math.PI*2); c.fill();
+    c.fillStyle=isDarkMode()?'#6ECFEE':'#1A8FA8'; c.font='bold 10px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(I.toFixed(3)+' A', amCx2, amCy2+amR2+5);
+    c.fillStyle=isDarkMode()?'#aaa':'#666'; c.font='9px Tajawal';
+    c.fillText('\u0623\u0645\u064a\u062a\u0631', amCx2, amCy2+amR2+17);
 
     // خلاصة
     c.fillStyle=isDarkMode()?'rgba(20,28,40,.85)':'rgba(255,255,255,.85)';
