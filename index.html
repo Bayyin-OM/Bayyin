@@ -824,6 +824,196 @@ html.dark-mode .unit-num-badge.c-purple { background: rgba(107,78,154,0.18); col
   padding: 4px 12px; border-radius: 20px; font-size: 15px; font-weight: 600;
 }
 
+/* ===== INTERACTIVE WHITEBOARD ===== */
+#wb-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: none;
+}
+#wb-overlay.wb-open {
+  display: flex;
+  animation: wbFadeIn 0.22s ease;
+}
+@keyframes wbFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+#wb-card {
+  width: 100%;
+  max-width: 1100px;
+  height: 90vh;
+  max-height: 820px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-card);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+  border: 1.5px solid var(--border-color);
+}
+#wb-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: var(--bg-topbar);
+  border-bottom: 1.5px solid var(--border-color);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+#wb-toolbar-title {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 60px;
+}
+.wb-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+}
+.wb-tool-group-label {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.wb-color-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+.wb-color-btn:hover { transform: scale(1.18); }
+.wb-color-btn.wb-active {
+  border-color: var(--text-primary);
+  transform: scale(1.22);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.wb-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 9px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid var(--border-color);
+  transition: all 0.18s;
+  white-space: nowrap;
+  background: var(--bg-ctrl-btn);
+  color: var(--text-primary);
+}
+.wb-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+.wb-action-btn:active { transform: translateY(0); }
+.wb-eraser-btn.wb-active {
+  background: rgba(212,144,26,0.15);
+  border-color: rgba(212,144,26,0.5);
+  color: #D4901A;
+}
+.wb-clear-btn {
+  background: rgba(192,57,43,0.07);
+  border-color: rgba(192,57,43,0.28);
+  color: #C0392B;
+}
+.wb-clear-btn:hover { background: rgba(192,57,43,0.16); }
+.wb-close-btn {
+  background: var(--bg-ctrl-btn);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+.wb-close-btn:hover {
+  background: rgba(192,57,43,0.12);
+  border-color: rgba(192,57,43,0.4);
+  color: #C0392B;
+}
+#wb-size-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 72px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--border-color);
+  outline: none;
+  cursor: pointer;
+}
+#wb-size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #1A8FA8;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+#wb-canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-canvas);
+  cursor: crosshair;
+}
+#wb-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+/* زر فتح السبورة في شريط الاستقصاء */
+#wb-open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  border-radius: 8px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid rgba(39,174,96,0.35);
+  background: rgba(39,174,96,0.08);
+  color: #27AE60;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+#wb-open-btn:hover {
+  background: rgba(39,174,96,0.18);
+  border-color: rgba(39,174,96,0.55);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(39,174,96,0.2);
+}
+html.dark-mode #wb-open-btn {
+  background: rgba(39,174,96,0.12);
+  border-color: rgba(39,174,96,0.4);
+  color: #4DC880;
+}
+html.dark-mode #wb-open-btn:hover {
+  background: rgba(39,174,96,0.22);
+}
+
 /* SIM TABS */
 .sim-tabs-row {
   display: flex; gap: 0; background: white;
@@ -4514,6 +4704,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
     <button class="sim-close-btn" onclick="closeSim()">← رجوع</button>
     <div class="sim-panel-title" id="simPanelTitle">المحاكاة</div>
     <div class="sim-panel-badge" id="simPanelBadge">الوحدة ٧</div>
+    <button id="wb-open-btn" onclick="wbOpen()" title="افتح السبورة التفاعلية">✏️ سبورة</button>
   </div>
   <div class="sim-tabs-row" id="simTabsRow"></div>
   <div class="sim-body-wrap">
@@ -44430,6 +44621,249 @@ function simG9Ohm2(){
   }
   draw();
 }
+
+// ══════════════════════════════════════════════════════════
+// 🖊 السبورة التفاعلية — Interactive Whiteboard
+// يدعم الماوس + اللمس (iPad / Tablet)
+// ══════════════════════════════════════════════════════════
+(function () {
+  'use strict';
+
+  const WB = {
+    isOpen:    false,
+    isDrawing: false,
+    isEraser:  false,
+    color:     '#1A8FA8',
+    lineWidth: 5,
+    canvas:    null,
+    ctx:       null,
+  };
+
+  let overlay, canvas, ctx, eraserBtn, sizeSlider, bwBtn, initialized = false;
+
+  function initCanvas() {
+    WB.canvas = canvas = document.getElementById('wb-canvas');
+    WB.ctx    = ctx    = canvas.getContext('2d');
+    resizeCanvas();
+    window.addEventListener('resize', () => { if (WB.isOpen) resizeCanvas(); });
+  }
+
+  function resizeCanvas() {
+    if (!canvas) return;
+    const wrap = document.getElementById('wb-canvas-wrap');
+    // حفظ الرسم قبل تغيير الحجم
+    let saved = null;
+    if (canvas.width > 0 && canvas.height > 0) {
+      try { saved = ctx.getImageData(0, 0, canvas.width, canvas.height); } catch(e) {}
+    }
+    canvas.width  = wrap.clientWidth  || wrap.offsetWidth;
+    canvas.height = wrap.clientHeight || wrap.offsetHeight;
+    if (saved) { try { ctx.putImageData(saved, 0, 0); } catch(e) {} }
+  }
+
+  /* ── منطق الرسم ── */
+  function startDraw(x, y) {
+    WB.isDrawing = true;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+
+  function draw(x, y) {
+    if (!WB.isDrawing) return;
+    ctx.lineWidth   = WB.isEraser ? WB.lineWidth * 5 : WB.lineWidth;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+    ctx.globalCompositeOperation = WB.isEraser ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = WB.isEraser ? 'rgba(0,0,0,1)' : WB.color;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+
+  function endDraw() {
+    if (!WB.isDrawing) return;
+    WB.isDrawing = false;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.beginPath();
+  }
+
+  /* ── تحويل إحداثيات اللمس/الماوس ── */
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width  / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top)  * scaleY,
+    };
+  }
+
+  /* ── أحداث الماوس ── */
+  function bindMouseEvents() {
+    canvas.addEventListener('mousedown',  e => { e.preventDefault(); const p=getPos(e); startDraw(p.x,p.y); });
+    canvas.addEventListener('mousemove',  e => { e.preventDefault(); const p=getPos(e); draw(p.x,p.y); });
+    canvas.addEventListener('mouseup',    endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+  }
+
+  /* ── أحداث اللمس (iPad / Android) ── */
+  function bindTouchEvents() {
+    canvas.addEventListener('touchstart',  e => { e.preventDefault(); const p=getPos(e); startDraw(p.x,p.y); }, { passive: false });
+    canvas.addEventListener('touchmove',   e => { e.preventDefault(); const p=getPos(e); draw(p.x,p.y);      }, { passive: false });
+    canvas.addEventListener('touchend',    e => { e.preventDefault(); endDraw(); }, { passive: false });
+    canvas.addEventListener('touchcancel', e => { e.preventDefault(); endDraw(); }, { passive: false });
+  }
+
+  /* ── أزرار الألوان ── */
+  function bindColorBtns() {
+    document.querySelectorAll('.wb-color-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        WB.color    = btn.dataset.color;
+        WB.isEraser = false;
+        eraserBtn.classList.remove('wb-active');
+        document.querySelectorAll('.wb-color-btn').forEach(b => b.classList.remove('wb-active'));
+        btn.classList.add('wb-active');
+      });
+    });
+  }
+
+  /* ── تحديث لون الأسود/الأبيض حسب الوضع ── */
+  function updateBwColor() {
+    if (!bwBtn) return;
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    const c = isDark ? '#E8F2FA' : '#1E2D3D';
+    bwBtn.dataset.color = c;
+    bwBtn.style.background = c;
+    if (bwBtn.classList.contains('wb-active')) WB.color = c;
+  }
+
+  /* ── شريط الحجم ── */
+  function bindSizeSlider() {
+    sizeSlider = document.getElementById('wb-size-slider');
+    sizeSlider.addEventListener('input', () => { WB.lineWidth = parseInt(sizeSlider.value); });
+  }
+
+  /* ── الممحاة ── */
+  function bindEraserBtn() {
+    eraserBtn = document.getElementById('wb-eraser-btn');
+    eraserBtn.addEventListener('click', () => {
+      WB.isEraser = !WB.isEraser;
+      eraserBtn.classList.toggle('wb-active', WB.isEraser);
+      if (!WB.isEraser) {
+        document.querySelectorAll('.wb-color-btn').forEach(b => {
+          if (b.dataset.color === WB.color) b.classList.add('wb-active');
+        });
+      } else {
+        document.querySelectorAll('.wb-color-btn').forEach(b => b.classList.remove('wb-active'));
+      }
+    });
+  }
+
+  /* ── مسح الكل ── */
+  function bindClearBtn() {
+    document.getElementById('wb-clear-btn').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+  }
+
+  /* ── فتح السبورة ── */
+  window.wbOpen = function () {
+    if (!initialized) { initAll(); initialized = true; }
+    overlay.classList.add('wb-open');
+    WB.isOpen = true;
+    // تأخير صغير لضمان أن العنصر مرئي قبل حساب الأبعاد
+    setTimeout(resizeCanvas, 30);
+    updateBwColor();
+  };
+
+  /* ── إغلاق السبورة ── */
+  window.wbClose = function () {
+    overlay.classList.remove('wb-open');
+    WB.isOpen = false;
+  };
+
+  /* ── الإغلاق ── */
+  function bindCloseBtn() {
+    document.getElementById('wb-close-btn').addEventListener('click', wbClose);
+    overlay.addEventListener('click', e => { if (e.target === overlay) wbClose(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && WB.isOpen) wbClose(); });
+  }
+
+  /* ── التهيئة الكاملة ── */
+  function initAll() {
+    overlay   = document.getElementById('wb-overlay');
+    bwBtn     = document.getElementById('wb-bw-btn');
+    initCanvas();
+    bindMouseEvents();
+    bindTouchEvents();
+    bindColorBtns();
+    bindSizeSlider();
+    bindEraserBtn();
+    bindClearBtn();
+    bindCloseBtn();
+    // مراقبة تغيير الوضع الداكن
+    new MutationObserver(updateBwColor).observe(
+      document.documentElement,
+      { attributes: true, attributeFilter: ['class'] }
+    );
+  }
+
+})();
+// ══════════════════════════════════════════════════════════
+// نهاية كود السبورة التفاعلية
+// ══════════════════════════════════════════════════════════
 </script>
+
+<!-- ===== INTERACTIVE WHITEBOARD OVERLAY ===== -->
+<div id="wb-overlay" role="dialog" aria-modal="true" aria-label="السبورة التفاعلية">
+  <div id="wb-card">
+
+    <!-- شريط الأدوات -->
+    <div id="wb-toolbar">
+      <span id="wb-toolbar-title">🖊 السبورة التفاعلية</span>
+
+      <!-- مجموعة الألوان -->
+      <div class="wb-tool-group">
+        <span class="wb-tool-group-label">الألوان</span>
+        <button class="wb-color-btn wb-active" style="background:#1A8FA8" data-color="#1A8FA8" title="أزرق مخضر"></button>
+        <button class="wb-color-btn" style="background:#C0392B" data-color="#C0392B" title="أحمر"></button>
+        <button class="wb-color-btn" style="background:#27AE60" data-color="#27AE60" title="أخضر"></button>
+        <button class="wb-color-btn" style="background:#D4901A" data-color="#D4901A" title="ذهبي"></button>
+        <button class="wb-color-btn" style="background:#6B4E9A" data-color="#6B4E9A" title="بنفسجي"></button>
+        <button class="wb-color-btn" id="wb-bw-btn" style="background:#1E2D3D" data-color="#1E2D3D" title="أسود / أبيض"></button>
+      </div>
+
+      <!-- حجم القلم -->
+      <div class="wb-tool-group">
+        <span class="wb-tool-group-label">الحجم</span>
+        <input type="range" id="wb-size-slider" min="2" max="28" value="5" title="حجم القلم / الممحاة">
+      </div>
+
+      <!-- الممحاة -->
+      <button class="wb-action-btn wb-eraser-btn" id="wb-eraser-btn" title="ممحاة">🧹 ممحاة</button>
+
+      <!-- مسح الكل -->
+      <button class="wb-action-btn wb-clear-btn" id="wb-clear-btn" title="مسح الكل">🗑 مسح الكل</button>
+
+      <!-- إغلاق -->
+      <button class="wb-action-btn wb-close-btn" id="wb-close-btn" title="إغلاق">✕ إغلاق</button>
+    </div>
+
+    <!-- منطقة الرسم -->
+    <div id="wb-canvas-wrap">
+      <canvas id="wb-canvas"></canvas>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>
