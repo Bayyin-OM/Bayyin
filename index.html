@@ -22510,36 +22510,86 @@ function simMagField3() {
   cv.addEventListener('touchend',()=>S.drag=false);
 
   function drawEarth(cx,cy,r){
-    const eg=c.createRadialGradient(cx-r*.3,cy-r*.3,r*.05,cx,cy,r);
-    eg.addColorStop(0,'#5DADE2'); eg.addColorStop(.6,'#2E86C1'); eg.addColorStop(1,'#1A5276');
-    c.fillStyle=eg; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.fill();
-    c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1.5; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.stroke();
-    // Land
-    c.fillStyle='#27AE60';
-    c.beginPath(); c.ellipse(cx-r*.12,cy-r*.15,r*.2,r*.28,0,0,Math.PI*2); c.fill();
-    c.beginPath(); c.ellipse(cx+r*.1,cy+r*.08,r*.16,r*.22,0.3,0,Math.PI*2); c.fill();
-    c.beginPath(); c.ellipse(cx-r*.25,cy+r*.12,r*.1,r*.14,-0.2,0,Math.PI*2); c.fill();
-    // Ice caps
-    c.fillStyle='rgba(255,255,255,0.88)';
-    c.beginPath(); c.ellipse(cx,cy-r,r*.38,r*.13,0,0,Math.PI*2); c.fill();
-    c.beginPath(); c.ellipse(cx,cy+r,r*.32,r*.11,0,0,Math.PI*2); c.fill();
-    // Geographic pole labels
-    const fs=Math.max(11,Math.round(r*.2));
-    c.font=`bold ${fs}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillStyle='#E8F4FF'; c.fillText('ش. جغرافي',cx,cy-r-r*.28);
-    c.fillStyle='#E8F4FF'; c.fillText('ج. جغرافي',cx,cy+r+r*.28);
-    // Internal magnetic poles (S at geographic North, N at geographic South)
-    const axR=r*.58;
-    c.fillStyle='rgba(41,128,185,0.8)';
-    c.beginPath(); c.arc(cx,cy-axR,r*.16,0,Math.PI*2); c.fill();
-    c.strokeStyle='rgba(255,255,255,0.4)'; c.lineWidth=1; c.stroke();
-    c.font=`bold ${Math.max(10,Math.round(r*.18))}px Tajawal`; c.fillStyle='white'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('ج🔵',cx,cy-axR);
+    // Atmosphere glow
+    const atm=c.createRadialGradient(cx,cy,r*0.92,cx,cy,r*1.18);
+    atm.addColorStop(0,'rgba(100,180,255,0.18)'); atm.addColorStop(1,'transparent');
+    c.fillStyle=atm; c.beginPath(); c.arc(cx,cy,r*1.18,0,Math.PI*2); c.fill();
 
-    c.fillStyle='rgba(192,57,43,0.8)';
-    c.beginPath(); c.arc(cx,cy+axR,r*.16,0,Math.PI*2); c.fill();
-    c.strokeStyle='rgba(255,255,255,0.4)'; c.lineWidth=1; c.stroke();
-    c.fillStyle='white'; c.fillText('ش🔴',cx,cy+axR);
+    // Ocean
+    const eg=c.createRadialGradient(cx-r*.28,cy-r*.28,r*.04,cx,cy,r);
+    eg.addColorStop(0,'#6EC6F0'); eg.addColorStop(0.45,'#2E86C1'); eg.addColorStop(1,'#1A4F7A');
+    c.fillStyle=eg; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.fill();
+
+    // Continents clipped to globe
+    c.save(); c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.clip();
+
+    // Africa
+    c.fillStyle='#3DBE6A';
+    c.beginPath(); c.moveTo(cx-r*.08,cy-r*.38);
+    c.bezierCurveTo(cx+r*.18,cy-r*.42, cx+r*.22,cy-r*.18, cx+r*.16,cy+r*.02);
+    c.bezierCurveTo(cx+r*.12,cy+r*.18, cx+r*.02,cy+r*.42, cx-r*.04,cy+r*.48);
+    c.bezierCurveTo(cx-r*.16,cy+r*.42, cx-r*.22,cy+r*.18, cx-r*.18,cy+r*.02);
+    c.bezierCurveTo(cx-r*.2,cy-r*.1, cx-r*.18,cy-r*.3, cx-r*.08,cy-r*.38);
+    c.fill();
+
+    // Americas
+    c.fillStyle='#2EAA5C';
+    c.beginPath(); c.moveTo(cx-r*.55,cy-r*.45);
+    c.bezierCurveTo(cx-r*.38,cy-r*.5, cx-r*.32,cy-r*.3, cx-r*.34,cy-r*.1);
+    c.bezierCurveTo(cx-r*.32,cy+r*.1, cx-r*.38,cy+r*.3, cx-r*.44,cy+r*.5);
+    c.bezierCurveTo(cx-r*.56,cy+r*.44, cx-r*.62,cy+r*.22, cx-r*.6,cy+r*.05);
+    c.bezierCurveTo(cx-r*.58,cy-r*.15, cx-r*.62,cy-r*.35, cx-r*.55,cy-r*.45);
+    c.fill();
+
+    // Asia
+    c.fillStyle='#38C26E';
+    c.beginPath(); c.moveTo(cx+r*.18,cy-r*.42);
+    c.bezierCurveTo(cx+r*.45,cy-r*.48, cx+r*.68,cy-r*.32, cx+r*.72,cy-r*.12);
+    c.bezierCurveTo(cx+r*.7,cy+r*.05, cx+r*.55,cy+r*.18, cx+r*.38,cy+r*.12);
+    c.bezierCurveTo(cx+r*.28,cy+r*.08, cx+r*.18,cy-r*.05, cx+r*.18,cy-r*.42);
+    c.fill();
+
+    // Australia
+    c.fillStyle='#2EAA5C';
+    c.beginPath(); c.ellipse(cx+r*.55,cy+r*.35,r*.16,r*.13,0.2,0,Math.PI*2); c.fill();
+
+    // Antarctica
+    c.fillStyle='rgba(240,248,255,0.82)';
+    c.beginPath(); c.ellipse(cx,cy+r,r*0.72,r*0.18,0,0,Math.PI*2); c.fill();
+
+    // Arctic
+    c.fillStyle='rgba(240,248,255,0.72)';
+    c.beginPath(); c.ellipse(cx,cy-r,r*0.6,r*0.15,0,0,Math.PI*2); c.fill();
+
+    c.restore();
+
+    // Globe rim shading
+    const rim=c.createRadialGradient(cx-r*.4,cy-r*.4,r*.2,cx,cy,r);
+    rim.addColorStop(0,'rgba(255,255,255,0.12)'); rim.addColorStop(0.7,'transparent'); rim.addColorStop(1,'rgba(0,30,80,0.28)');
+    c.fillStyle=rim; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(100,180,255,0.35)'; c.lineWidth=2; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.stroke();
+
+    // Geographic pole labels outside globe
+    const fs=Math.max(12,Math.round(r*.19));
+    c.font=`bold ${fs}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillStyle='rgba(200,230,255,0.95)'; c.fillText('◉ ش. جغرافي',cx,cy-r-r*.22);
+    c.fillStyle='rgba(200,230,255,0.95)'; c.fillText('◉ ج. جغرافي',cx,cy+r+r*.22);
+
+    // Magnetic pole dots on surface — NO text inside globe
+    const axR=r*.62;
+    c.fillStyle='rgba(41,128,185,0.9)';
+    c.beginPath(); c.arc(cx,cy-axR,r*.09,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(150,210,255,0.9)'; c.lineWidth=2; c.stroke();
+
+    c.fillStyle='rgba(192,57,43,0.9)';
+    c.beginPath(); c.arc(cx,cy+axR,r*.09,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(255,150,130,0.9)'; c.lineWidth=2; c.stroke();
+
+    // Legend labels beside dots
+    const lfs=Math.max(10,Math.round(r*.15));
+    c.font=`bold ${lfs}px Tajawal`; c.textBaseline='middle';
+    c.fillStyle='rgba(100,180,255,0.9)'; c.textAlign='left'; c.fillText(' مغناطيسي ج',cx+r*.12,cy-axR);
+    c.fillStyle='rgba(255,120,100,0.9)'; c.fillText(' مغناطيسي ش',cx+r*.12,cy+axR);
   }
 
   function drawFieldLines3(earthCx,earthCy,earthR){
@@ -30230,40 +30280,38 @@ window.addEventListener('DOMContentLoaded', function() {
 
 function repro_gametes2(){
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
 
-  // Initialise game state
-  if(!simState.repro_gametes2){
-    simState.repro_gametes2={t:0,drag:null,dragX:0,dragY:0,correct:new Set(),wrong:new Set(),flash:null,flashT:0,initialized:false,shuffled:[]};
+  // Init state
+  if(!simState.repro_gametes2||!simState.repro_gametes2.initialized){
+    const CARDS=[
+      {id:0,trait:'حجمها كبير جداً',          type:'بويضة'},
+      {id:1,trait:'لها ذيل تسبح به',           type:'حيوان منوي'},
+      {id:2,trait:'تنتج في المبيض',            type:'بويضة'},
+      {id:3,trait:'تنتج في الخصية',            type:'حيوان منوي'},
+      {id:4,trait:'تحمل كروموسوم X أنثوي',    type:'بويضة'},
+      {id:5,trait:'تنتقل في قناة البيض',       type:'بويضة'},
+      {id:6,trait:'تسبح نحو البويضة',          type:'حيوان منوي'},
+      {id:7,trait:'حجمها صغير جداً',           type:'حيوان منوي'},
+      {id:8,trait:'تحمل X أو Y (ذكري)',        type:'حيوان منوي'},
+      {id:9,trait:'خلية جنسية أنثوية',         type:'بويضة'},
+    ];
+    simState.repro_gametes2={
+      t:0,drag:null,dragX:0,dragY:0,
+      correct:new Set(),wrong:new Set(),
+      flash:null,flashT:0,initialized:true,
+      cards:CARDS,
+      shuffled:[...CARDS].sort(()=>Math.random()-0.5)
+    };
   }
   const S=simState.repro_gametes2;
-
-  // Cards data
-  const ALL_CARDS=[
-    {id:0, trait:'حجمها كبير جداً',          type:'بويضة'},
-    {id:1, trait:'لها ذيل تسبح به',           type:'حيوان منوي'},
-    {id:2, trait:'تنتج في المبيض',            type:'بويضة'},
-    {id:3, trait:'تنتج في الخصية',            type:'حيوان منوي'},
-    {id:4, trait:'تحمل 23 كروموسوم (أنثوي)', type:'بويضة'},
-    {id:5, trait:'تنتقل في قناة البيض',       type:'بويضة'},
-    {id:6, trait:'تسبح نحو البويضة',          type:'حيوان منوي'},
-    {id:7, trait:'حجمها صغير جداً',           type:'حيوان منوي'},
-    {id:8, trait:'تحمل 23 كروموسوم (ذكري)',  type:'حيوان منوي'},
-    {id:9, trait:'خلية جنسية أنثوية',         type:'بويضة'},
-  ];
-
-  if(!S.initialized){
-    S.shuffled=[...ALL_CARDS].sort(()=>Math.random()-0.5);
-    S.initialized=true;
-  }
+  const CARDS=S.cards;
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🎮 مطابقة الكروموسومات</div>
       <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.9;margin:6px 0">
-        اسحب كل بطاقة وأفلتها في العمود الصحيح 🖐<br>
-        🟢 صحيح = تثبت &nbsp; 🔴 خطأ = ترجع
+        اسحب كل بطاقة وأفلتها في العمود الصحيح<br>
+        🟢 صحيح = تثبت &nbsp;|&nbsp; 🔴 خطأ = ترجع
       </div>
       <button class="ctrl-btn reset" onclick="simState.repro_gametes2=null;repro_gametes2()">↺ إعادة اللعبة</button>
     </div>
@@ -30275,298 +30323,208 @@ function repro_gametes2(){
     <div class="q-box" style="margin-top:8px">
       <strong>❓ لماذا 23 + 23 = 46؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">كل مشيج يحمل نصف العدد — عند الإخصاب يتحد النصفان ليعطيا الخلية الكاملة 46 كروموسوماً.</div>
+      <div class="q-ans-panel">كل مشيج يحمل نصف العدد — عند الإخصاب يتحد النصفان ليعطيا 46 كروموسوماً.</div>
     </div>`);
 
-  // ── Layout constants (computed each draw from canvas size) ──
-  function layout(w,h){
-    const pad=Math.round(w*0.02);
-    const zoneW=Math.round(w*0.27);
-    const zoneH=Math.round(h*0.80);
-    const zoneY=Math.round(h*0.12);
+  // Layout helper
+  function L(w,h){
+    const pad=Math.round(w*0.018);
+    const zW=Math.round(w*0.265);
+    const zH=Math.round(h*0.80);
+    const zY=Math.round(h*0.13);
     const z1x=pad;
-    const z2x=w-pad-zoneW;
-    const midX=zoneW+pad;
-    const midW=w-2*(zoneW+pad);
-    const cardW=Math.round(midW*0.92);
-    const cardH=Math.min(Math.round(h*0.085),44);
-    const cardX=midX+(midW-cardW)/2;
-    return {zoneW,zoneH,zoneY,z1x,z2x,midX,midW,cardW,cardH,cardX};
+    const z2x=w-pad-zW;
+    const midX=z1x+zW+pad;
+    const midW=z2x-midX-pad;
+    const cW=Math.round(midW*0.92);
+    const cH=Math.min(Math.round(h*0.082),44);
+    const cX=midX+Math.round((midW-cW)/2);
+    return {zW,zH,zY,z1x,z2x,midX,midW,cW,cH,cX};
   }
 
-  // ── Draw ──
-  function draw(){
-    if(currentSim!=='repro_gametes') return;
-    S.t+=0.04;
-    const w=cv.width, h=cv.height;
-    c.clearRect(0,0,w,h);
-
-    // Background
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#0A1A30'); bg.addColorStop(1,'#142850');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    const L=layout(w,h);
-
-    // Title
-    c.fillStyle='rgba(180,220,255,0.9)';
-    c.font=`bold ${Math.min(15,w*0.032)}px Tajawal`;
-    c.textAlign='center'; c.textBaseline='top';
-    c.fillText('🎮 مطابقة خصائص الأمشاج — اسحب وأفلت',w/2,h*0.015);
-
-    // Score
-    const correctCount=S.correct.size;
-    c.font=`bold ${Math.min(14,w*0.03)}px Tajawal`;
-    c.fillStyle='rgba(255,220,100,0.95)';
-    c.fillText(`✅ ${correctCount} / ${ALL_CARDS.length}`,w/2,h*0.055);
-
-    if(correctCount===ALL_CARDS.length){
-      // Win animation
-      const pulse=0.85+Math.sin(S.t*4)*0.15;
-      c.save(); c.globalAlpha=pulse;
-      c.font=`bold ${Math.min(22,w*0.048)}px Tajawal`;
-      c.fillStyle='#FFD700';
-      c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('🎉 ممتاز! اكتملت المطابقة!',w/2,h*0.5);
-      c.restore();
-      animFrame=requestAnimationFrame(draw); return;
-    }
-
-    // Drop zones
-    const zones=[
-      {x:L.z1x, label:'🥚 البويضة',       col:'rgba(255,160,50,', type:'بويضة'},
-      {x:L.z2x, label:'🏊 الحيوان المنوي', col:'rgba(26,143,168,',  type:'حيوان منوي'},
-    ];
-    zones.forEach(z=>{
-      c.fillStyle=z.col+'0.12)'; c.strokeStyle=z.col+'0.55)'; c.lineWidth=2.5;
-      c.beginPath(); c.roundRect(z.x,L.zoneY,L.zoneW,L.zoneH,12); c.fill(); c.stroke();
-      c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`;
-      c.fillStyle=z.col+'0.95)'; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(z.label, z.x+L.zoneW/2, L.zoneY-16);
-    });
-
-    // Placed cards inside zones
-    const eggPlaced=[...S.correct].map(id=>ALL_CARDS.find(c2=>c2.id===id)).filter(card=>card&&card.type==='بويضة');
-    const sperPlaced=[...S.correct].map(id=>ALL_CARDS.find(c2=>c2.id===id)).filter(card=>card&&card.type==='حيوان منوي');
-    [eggPlaced, sperPlaced].forEach((arr,zi)=>{
-      const zx=zi===0?L.z1x:L.z2x;
-      const cW=L.zoneW*0.88, cH=Math.min(Math.round(h*0.078),38);
-      arr.forEach((card,ci)=>{
-        const bx=zx+(L.zoneW-cW)/2;
-        const by=L.zoneY+8+ci*(cH+5);
-        c.fillStyle=zi===0?'rgba(255,160,50,0.22)':'rgba(26,143,168,0.22)';
-        c.strokeStyle=zi===0?'rgba(255,160,50,0.5)':'rgba(26,143,168,0.5)'; c.lineWidth=1.5;
-        c.beginPath(); c.roundRect(bx,by,cW,cH,8); c.fill(); c.stroke();
-        c.font=`${Math.min(11,w*0.024)}px Tajawal`; c.fillStyle='rgba(255,255,255,0.88)';
-        c.textAlign='center'; c.textBaseline='middle';
-        c.fillText('✅ '+card.trait, bx+cW/2, by+cH/2);
-      });
-    });
-
-    // Unplaced cards in centre column
-    let ci=0;
-    S.shuffled.forEach(card=>{
-      if(S.correct.has(card.id)) return;
-      const isDragging=(S.drag===card.id);
-      const isWrong=S.wrong.has(card.id);
-      const bx=isDragging ? S.dragX-L.cardW/2 : L.cardX;
-      const by=isDragging ? S.dragY-L.cardH/2 : L.zoneY+8+ci*(L.cardH+7);
-      if(!isDragging) ci++;
-
-      const shine=isWrong?'rgba(231,76,60,0.35)':'rgba(255,255,255,0.1)';
-      const stroke=isWrong?'rgba(231,76,60,0.8)':'rgba(255,255,255,0.25)';
-      if(isDragging){ c.save(); c.shadowColor='rgba(100,200,255,0.6)'; c.shadowBlur=18; }
-      c.fillStyle=shine; c.strokeStyle=stroke; c.lineWidth=isDragging?2.5:1.8;
-      c.beginPath(); c.roundRect(bx,by,L.cardW,L.cardH,10); c.fill(); c.stroke();
-      if(isDragging) c.restore();
-
-      c.font=`${Math.min(12,w*0.026)}px Tajawal`; c.fillStyle='white';
-      c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(card.trait, bx+L.cardW/2, by+L.cardH/2);
-    });
-
-    // Flash feedback
-    if(S.flash){
-      S.flashT++;
-      c.font=`bold ${Math.min(19,w*0.04)}px Tajawal`;
-      c.fillStyle=S.flash==='correct'?'#4AE88A':'#FF6060';
-      c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(S.flash==='correct'?'✅ صحيح!':'❌ حاولي مجدداً',w/2,h*0.9);
-      if(S.flashT>45){ S.flash=null; S.flashT=0; }
-    }
-
-    animFrame=requestAnimationFrame(draw);
+  // Pointer helpers
+  function gp(e){
+    const cv=document.getElementById('simCanvas');
+    if(!cv)return{x:0,y:0};
+    const r=cv.getBoundingClientRect(),sc=cv.width/r.width;
+    const s=e.touches?e.touches[0]:(e.changedTouches?e.changedTouches[0]:e);
+    return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};
   }
 
-  // ── Helpers ──
-  function gp(e){ const r=cv.getBoundingClientRect(),sc=cv.width/r.width; const s=e.touches?e.touches[0]:e; return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc}; }
-
-  function cardAtPos(px,py,w,h){
-    const L=layout(w,h);
-    let ci=0;
+  function cardAt(px,py,w,h){
+    const l=L(w,h);
+    let idx=0;
     for(const card of S.shuffled){
       if(S.correct.has(card.id)){continue;}
-      const bx=L.cardX, by=L.zoneY+8+ci*(L.cardH+7);
-      ci++;
-      if(px>=bx&&px<=bx+L.cardW&&py>=by&&py<=by+L.cardH) return card;
+      const bx=l.cX,by=l.zY+8+idx*(l.cH+7);
+      idx++;
+      if(px>=bx&&px<=bx+l.cW&&py>=by&&py<=by+l.cH)return card;
     }
     return null;
   }
 
-  function drop(px,py){
-    if(S.drag===null) return;
-    const w=cv.width,h=cv.height;
-    const L=layout(w,h);
-    const card=ALL_CARDS.find(c2=>c2.id===S.drag);
+  function doDown(e){
+    if(currentSim!=='repro_gametes')return;
+    const cv=document.getElementById('simCanvas');
+    if(!cv)return;
+    const p=gp(e),w=cv.width,h=cv.height;
+    const card=cardAt(p.x,p.y,w,h);
+    if(card){S.drag=card.id;S.dragX=p.x;S.dragY=p.y;}
+  }
+  function doMove(e){
+    if(currentSim!=='repro_gametes'||S.drag===null)return;
+    const p=gp(e);S.dragX=p.x;S.dragY=p.y;
+  }
+  function doUp(e){
+    if(currentSim!=='repro_gametes'||S.drag===null)return;
+    const cv=document.getElementById('simCanvas');
+    if(!cv){S.drag=null;return;}
+    const p=gp(e),w=cv.width,h=cv.height;
+    const l=L(w,h);
+    const card=CARDS.find(c=>c.id===S.drag);
     if(card){
-      const inZ1=px>=L.z1x&&px<=L.z1x+L.zoneW&&py>=L.zoneY&&py<=L.zoneY+L.zoneH;
-      const inZ2=px>=L.z2x&&px<=L.z2x+L.zoneW&&py>=L.zoneY&&py<=L.zoneY+L.zoneH;
+      const inZ1=p.x>=l.z1x&&p.x<=l.z1x+l.zW&&p.y>=l.zY&&p.y<=l.zY+l.zH;
+      const inZ2=p.x>=l.z2x&&p.x<=l.z2x+l.zW&&p.y>=l.zY&&p.y<=l.zY+l.zH;
       if(inZ1||inZ2){
         const dropped=inZ1?'بويضة':'حيوان منوي';
         if(dropped===card.type){
-          S.correct.add(card.id); S.wrong.delete(card.id); S.flash='correct';
-          try{U9Sound.ping(660,.1,.12);}catch(e2){}
+          S.correct.add(card.id);S.wrong.delete(card.id);S.flash='correct';S.flashT=0;
+          try{U9Sound.ping(660,.1,.12);}catch(_){}
         } else {
-          S.wrong.add(card.id); S.flash='wrong'; S.flashT=0;
-          try{U9Sound.ping(180,.15,.15);}catch(e2){}
-          setTimeout(()=>{ S.wrong.delete(card.id); },1300);
+          S.wrong.add(card.id);S.flash='wrong';S.flashT=0;
+          try{U9Sound.ping(180,.15,.15);}catch(_){}
+          setTimeout(()=>{S.wrong.delete(card.id);},1300);
         }
       }
     }
     S.drag=null;
   }
 
-  // Remove old listeners by cloning canvas
-  const newCv=cv.cloneNode(true);
-  cv.parentNode.replaceChild(newCv,cv);
-  const cv2=document.getElementById('simCanvas');
-  const c2=cv2.getContext('2d');
-  // Re-alias c to c2 for draw loop
-  Object.assign(c,c2);
+  // Attach events directly to canvas (no clone)
+  const _cv=document.getElementById('simCanvas');
+  if(_cv){
+    if(!_cv._rg2_bound){
+      _cv._rg2_bound=true;
+      _cv.addEventListener('mousedown', doDown);
+      _cv.addEventListener('mousemove', doMove);
+      _cv.addEventListener('mouseup',   doUp);
+      _cv.addEventListener('touchstart',e=>{e.preventDefault();doDown(e);},{passive:false});
+      _cv.addEventListener('touchmove', e=>{e.preventDefault();doMove(e);},{passive:false});
+      _cv.addEventListener('touchend',  e=>{e.preventDefault();doUp(e);},  {passive:false});
+    } else {
+      // Rebind with fresh closures by toggling flag
+      _cv._rg2_bound=false;
+      _cv.addEventListener('mousedown', doDown);
+      _cv.addEventListener('mousemove', doMove);
+      _cv.addEventListener('mouseup',   doUp);
+      _cv.addEventListener('touchstart',e=>{e.preventDefault();doDown(e);},{passive:false});
+      _cv.addEventListener('touchmove', e=>{e.preventDefault();doMove(e);},{passive:false});
+      _cv.addEventListener('touchend',  e=>{e.preventDefault();doUp(e);},  {passive:false});
+      _cv._rg2_bound=true;
+    }
+  }
 
-  // Events on new canvas
-  cv2.addEventListener('mousedown',e=>{
-    if(currentSim!=='repro_gametes') return;
-    const p=gp(e),w=cv2.width,h=cv2.height;
-    const card=cardAtPos(p.x,p.y,w,h);
-    if(card){S.drag=card.id;S.dragX=p.x;S.dragY=p.y;}
-  });
-  cv2.addEventListener('mousemove',e=>{
-    if(currentSim!=='repro_gametes'||S.drag===null) return;
-    const p=gp(e); S.dragX=p.x; S.dragY=p.y;
-  });
-  cv2.addEventListener('mouseup',e=>{
-    if(currentSim!=='repro_gametes') return;
-    const p=gp(e); drop(p.x,p.y);
-  });
-  cv2.addEventListener('touchstart',e=>{
-    if(currentSim!=='repro_gametes') return;
-    e.preventDefault();
-    const p=gp(e),w=cv2.width,h=cv2.height;
-    const card=cardAtPos(p.x,p.y,w,h);
-    if(card){S.drag=card.id;S.dragX=p.x;S.dragY=p.y;}
-  },{passive:false});
-  cv2.addEventListener('touchmove',e=>{
-    if(currentSim!=='repro_gametes'||S.drag===null) return;
-    e.preventDefault(); const p=gp(e); S.dragX=p.x; S.dragY=p.y;
-  },{passive:false});
-  cv2.addEventListener('touchend',e=>{
-    if(currentSim!=='repro_gametes') return;
-    e.preventDefault();
-    const p=gp({touches:e.changedTouches});
-    drop(p.x,p.y);
-  },{passive:false});
-
-  // Draw function re-bound to new canvas
   function draw(){
-    if(currentSim!=='repro_gametes') return;
+    if(currentSim!=='repro_gametes')return;
     S.t+=0.04;
-    const w=cv2.width, h=cv2.height;
-    const ctx=cv2.getContext('2d');
+    const cv=document.getElementById('simCanvas');
+    if(!cv)return;
+    const ctx=cv.getContext('2d');
+    const w=cv.width,h=cv.height;
     ctx.clearRect(0,0,w,h);
+
+    // Background
     const bg=ctx.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#0A1A30'); bg.addColorStop(1,'#142850');
-    ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
-    const L=layout(w,h);
+    bg.addColorStop(0,'#0A1A30');bg.addColorStop(1,'#142850');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
 
+    const l=L(w,h);
+
+    // Title
     ctx.fillStyle='rgba(180,220,255,0.9)';
-    ctx.font=`bold ${Math.min(15,w*0.032)}px Tajawal`;
-    ctx.textAlign='center'; ctx.textBaseline='top';
-    ctx.fillText('🎮 مطابقة خصائص الأمشاج — اسحب وأفلت',w/2,h*0.015);
+    ctx.font=`bold ${Math.min(15,w*0.031)}px Tajawal`;
+    ctx.textAlign='center';ctx.textBaseline='top';
+    ctx.fillText('🎮 مطابقة خصائص الأمشاج — اسحب وأفلت',w/2,h*0.014);
 
-    const correctCount=S.correct.size;
-    ctx.font=`bold ${Math.min(14,w*0.03)}px Tajawal`;
+    // Score
+    const done=S.correct.size;
+    ctx.font=`bold ${Math.min(14,w*0.030)}px Tajawal`;
     ctx.fillStyle='rgba(255,220,100,0.95)';
-    ctx.fillText(`✅ ${correctCount} / ${ALL_CARDS.length}`,w/2,h*0.055);
+    ctx.fillText(`✅ ${done} / ${CARDS.length}`,w/2,h*0.055);
 
-    if(correctCount===ALL_CARDS.length){
-      const pulse=0.85+Math.sin(S.t*4)*0.15;
-      ctx.save(); ctx.globalAlpha=pulse;
-      ctx.font=`bold ${Math.min(22,w*0.048)}px Tajawal`;
-      ctx.fillStyle='#FFD700'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    // Win screen
+    if(done===CARDS.length){
+      const p=0.85+Math.sin(S.t*4)*0.15;
+      ctx.save();ctx.globalAlpha=p;
+      ctx.font=`bold ${Math.min(22,w*0.047)}px Tajawal`;
+      ctx.fillStyle='#FFD700';ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.fillText('🎉 ممتاز! اكتملت المطابقة!',w/2,h*0.5);
       ctx.restore();
-      animFrame=requestAnimationFrame(draw); return;
+      animFrame=requestAnimationFrame(draw);return;
     }
 
-    const zones=[
-      {x:L.z1x, label:'🥚 البويضة',       col:'rgba(255,160,50,', type:'بويضة'},
-      {x:L.z2x, label:'🏊 الحيوان المنوي', col:'rgba(26,143,168,',  type:'حيوان منوي'},
+    // Drop zones
+    const ZONES=[
+      {x:l.z1x,label:'🥚 البويضة',       col:'rgba(255,160,50,', type:'بويضة'},
+      {x:l.z2x,label:'🏊 الحيوان المنوي', col:'rgba(26,143,168,',  type:'حيوان منوي'},
     ];
-    zones.forEach(z=>{
-      ctx.fillStyle=z.col+'0.12)'; ctx.strokeStyle=z.col+'0.55)'; ctx.lineWidth=2.5;
-      ctx.beginPath(); ctx.roundRect(z.x,L.zoneY,L.zoneW,L.zoneH,12); ctx.fill(); ctx.stroke();
-      ctx.font=`bold ${Math.min(13,w*0.027)}px Tajawal`;
-      ctx.fillStyle=z.col+'0.95)'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(z.label, z.x+L.zoneW/2, L.zoneY-16);
+    ZONES.forEach(z=>{
+      ctx.fillStyle=z.col+'0.12)';ctx.strokeStyle=z.col+'0.55)';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.roundRect(z.x,l.zY,l.zW,l.zH,12);ctx.fill();ctx.stroke();
+      ctx.font=`bold ${Math.min(13,w*0.026)}px Tajawal`;
+      ctx.fillStyle=z.col+'0.95)';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(z.label,z.x+l.zW/2,l.zY-16);
     });
 
-    const eggP=[...S.correct].map(id=>ALL_CARDS.find(c2=>c2.id===id)).filter(card=>card&&card.type==='بويضة');
-    const sprP=[...S.correct].map(id=>ALL_CARDS.find(c2=>c2.id===id)).filter(card=>card&&card.type==='حيوان منوي');
-    [eggP,sprP].forEach((arr,zi)=>{
-      const zx=zi===0?L.z1x:L.z2x;
-      const cW=L.zoneW*0.88, cH=Math.min(Math.round(h*0.078),38);
+    // Placed cards in zones
+    const eggDone=CARDS.filter(c=>S.correct.has(c.id)&&c.type==='بويضة');
+    const sprDone=CARDS.filter(c=>S.correct.has(c.id)&&c.type==='حيوان منوي');
+    [eggDone,sprDone].forEach((arr,zi)=>{
+      const zx=ZONES[zi].x;
+      const cW2=l.zW*0.88,cH2=Math.min(Math.round(h*0.076),38);
       arr.forEach((card,ci)=>{
-        const bx=zx+(L.zoneW-cW)/2, by=L.zoneY+8+ci*(cH+5);
+        const bx=zx+(l.zW-cW2)/2,by=l.zY+8+ci*(cH2+5);
         ctx.fillStyle=zi===0?'rgba(255,160,50,0.22)':'rgba(26,143,168,0.22)';
-        ctx.strokeStyle=zi===0?'rgba(255,160,50,0.5)':'rgba(26,143,168,0.5)'; ctx.lineWidth=1.5;
-        ctx.beginPath(); ctx.roundRect(bx,by,cW,cH,8); ctx.fill(); ctx.stroke();
-        ctx.font=`${Math.min(11,w*0.024)}px Tajawal`; ctx.fillStyle='rgba(255,255,255,0.88)';
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.fillText('✅ '+card.trait, bx+cW/2, by+cH/2);
+        ctx.strokeStyle=zi===0?'rgba(255,160,50,0.5)':'rgba(26,143,168,0.5)';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.roundRect(bx,by,cW2,cH2,8);ctx.fill();ctx.stroke();
+        ctx.font=`${Math.min(11,w*0.023)}px Tajawal`;ctx.fillStyle='rgba(255,255,255,0.88)';
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('✅ '+card.trait,bx+cW2/2,by+cH2/2);
       });
     });
 
+    // Unplaced centre cards
     let ci=0;
     S.shuffled.forEach(card=>{
-      if(S.correct.has(card.id)) return;
-      const isDragging=(S.drag===card.id);
+      if(S.correct.has(card.id))return;
+      const isDrag=(S.drag===card.id);
       const isWrong=S.wrong.has(card.id);
-      const bx=isDragging ? S.dragX-L.cardW/2 : L.cardX;
-      const by=isDragging ? S.dragY-L.cardH/2 : L.zoneY+8+ci*(L.cardH+7);
-      if(!isDragging) ci++;
-      if(isDragging){ ctx.save(); ctx.shadowColor='rgba(100,200,255,0.6)'; ctx.shadowBlur=18; }
-      ctx.fillStyle=isWrong?'rgba(231,76,60,0.35)':'rgba(255,255,255,0.1)';
-      ctx.strokeStyle=isWrong?'rgba(231,76,60,0.8)':'rgba(255,255,255,0.28)'; ctx.lineWidth=isDragging?2.5:1.8;
-      ctx.beginPath(); ctx.roundRect(bx,by,L.cardW,L.cardH,10); ctx.fill(); ctx.stroke();
-      if(isDragging) ctx.restore();
-      ctx.font=`${Math.min(12,w*0.026)}px Tajawal`; ctx.fillStyle='white';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(card.trait, bx+L.cardW/2, by+L.cardH/2);
+      const bx=isDrag?S.dragX-l.cW/2:l.cX;
+      const by=isDrag?S.dragY-l.cH/2:l.zY+8+ci*(l.cH+7);
+      if(!isDrag)ci++;
+      if(isDrag){ctx.save();ctx.shadowColor='rgba(120,210,255,0.7)';ctx.shadowBlur=20;}
+      ctx.fillStyle=isWrong?'rgba(231,76,60,0.32)':'rgba(255,255,255,0.10)';
+      ctx.strokeStyle=isWrong?'rgba(231,76,60,0.85)':isDrag?'rgba(120,210,255,0.8)':'rgba(255,255,255,0.25)';
+      ctx.lineWidth=isDrag?2.8:1.8;
+      ctx.beginPath();ctx.roundRect(bx,by,l.cW,l.cH,10);ctx.fill();ctx.stroke();
+      if(isDrag)ctx.restore();
+      ctx.font=`${Math.min(12,w*0.026)}px Tajawal`;ctx.fillStyle='white';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(card.trait,bx+l.cW/2,by+l.cH/2);
     });
 
+    // Flash
     if(S.flash){
       S.flashT++;
-      ctx.font=`bold ${Math.min(19,w*0.04)}px Tajawal`;
+      ctx.font=`bold ${Math.min(19,w*0.040)}px Tajawal`;
       ctx.fillStyle=S.flash==='correct'?'#4AE88A':'#FF6060';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(S.flash==='correct'?'✅ صحيح!':'❌ حاولي مجدداً',w/2,h*0.9);
-      if(S.flashT>45){ S.flash=null; S.flashT=0; }
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(S.flash==='correct'?'✅ صحيح!':'❌ حاولي مجدداً',w/2,h*0.91);
+      if(S.flashT>45){S.flash=null;S.flashT=0;}
     }
 
     animFrame=requestAnimationFrame(draw);
   }
-
   draw();
 }
 
