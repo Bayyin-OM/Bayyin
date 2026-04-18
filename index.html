@@ -31483,9 +31483,10 @@ function simG5TransparentTest() {
     }
 
     // ── الجسم / المادة في الوسط ──
+    const shadowAlpha = mat ? 1 - trans : 0;
+
     if (mat) {
       // ظل على الأرض (قبل المادة — جانب المصدر لا ظل، جانب الحائط ظل)
-      const shadowAlpha = 1 - trans;
       if (shadowAlpha > 0.05) {
         const shGrad = c.createLinearGradient(matX + matW, 0, w*0.90, 0);
         shGrad.addColorStop(0, `rgba(0,0,0,${shadowAlpha * 0.7})`);
@@ -44364,4 +44365,4 @@ function simG9Ohm2(){
 }
 </script>
 </body>
-</html>
+</html>v
