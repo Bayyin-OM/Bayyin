@@ -3125,7 +3125,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         <div>
           <div class="unit-title">القوى والحركة</div>
           <div class="unit-topics">الكتلة والوزن · مخطط القوى · القوى المتوازنة وغير المتوازنة · الاحتكاك · استقصاء الاحتكاك · مقاومة الهواء</div>
-          <div class="unit-pill avail">🧪 ٦ استقصاءات متاحة</div>
+          <div class="unit-pill avail">🧪 ٧ استقصاءات متاحة</div>
         </div>
       </div>
 
@@ -3202,6 +3202,16 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
             <div class="sim-num">٤-٦ · مقاومة الهواء</div>
             <div class="sim-name">مقاومة الهواء</div>
             <div class="sim-desc">كيف تؤثر مقاومة الهواء على السقوط الحر</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6work')">
+          <div class="sim-thumb t1">⚽</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-٧ · الشغل المبذول</div>
+            <div class="sim-name">استقصاء الشغل المبذول</div>
+            <div class="sim-desc">هل الكرة تتحرك؟ احسب الشغل المبذول من القوة والمسافة في ملعب كرة القدم</div>
           </div>
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
@@ -5478,6 +5488,7 @@ const SIM_META = {
   g6friction:  { title: '٤-٤ · الاحتكاك', badge: '🔥 6', tabs: ['الاحتكاك 🔥'] },
   g6frictionInquiry: { title: '٤-٥ · استقصاء الاحتكاك', badge: '🔬 6', tabs: ['العوامل المؤثرة 🔬', 'الاحتكاك الجزيئي 🔬'] },
   g6airresist: { title: '٤-٦ · مقاومة الهواء', badge: '🪂 6', tabs: ['السقوط الحر 🪂', 'القوى المتوازنة ⚡', 'استقصاء المظلة 🔬'] },
+  g6work:      { title: '٤-٧ · الشغل المبذول', badge: '⚽ 6', tabs: ['استقصاء الشغل ⚽', 'احسب الشغل 🧮', 'ماذا تستنتج؟ 💡'] },
   // وحدة الكهرباء — الصف السادس
   g6conductors:     { title: '5-1 · ما المواد الموصِّلة للكهرباء؟', badge: '⚡ 6', tabs: ['مختبر الاختبار 🔬', 'جدول النتائج 📋'] },
   g6waterconductor: { title: '5-2 · هل الماء يوصِّل الكهرباء؟', badge: '⚡ 6', tabs: ['اسحب الملعقة وجرّب! 💧🧂'] },
@@ -6155,6 +6166,7 @@ function openSim(type) {
     g6airresist:  'الهواء يُقاوم السقوط 🪂 — غيّر المساحة وشوف الفرق!',
     g6friction:   'الاحتكاك 🔥 — جرّب أسطح مختلفة وشوف كيف يبطّئ الحركة!',
     g6frictionInquiry: 'ما العوامل التي تُغيّر قوة الاحتكاك؟ 🔬 — استقصِ وتحقّق!'
+    g6work:           'هل بُذل شغل؟ 🔬 — شاهد الكرة واحسب الشغل المبذول في ملعب كرة القدم!'
   };
   var greet = simGreets[type] || 'استكشف وجرّب! 🔬';
   setTimeout(function(){ buddySay(greet, 6000); }, 800);
@@ -6321,6 +6333,7 @@ function startSim(type, tab) {
     g6airresist: [simAirResist1, simAirResist2, simAirResist3],
     g6friction:  [simFriction1],
     g6frictionInquiry: [simFriction2, simFriction3],
+    g6work:           [simG6Work1, simG6Work2, simG6Work3],
     // وحدة الكهرباء — الصف السادس
     g6conductors:     [simConductors1, simConductors2],
     g6waterconductor: [simWaterConductor1, simWaterConductor2],
@@ -29401,7 +29414,7 @@ Object.assign(SIM_QUESTIONS, {
     fb: '✅ السطح الأملس يحافظ على توازي الأشعة المنعكسة فيتكوّن حزم واضحة وصورة. السطح الخشن يشتّت الاتجاهات (انعكاس متشتت).'
   },
   g9refltype_1: {
-    q: 'لماذا تُصمَّم شاشات العرض لتعكس الضوء بشكل متشتت؟',
+    q: 'لماذا تُصمَّم شاشات العرض لتعكس الضوء بشكل متشتت؟',
     opts: [
       'لكي يرى الجمهور من زوايا مختلفة دون صورة لامعة ضيقة',
       'لكي لا يرى أحد الشاشة',
@@ -31340,6 +31353,569 @@ function simG5BehindYou() {
     ctx.restore();
   }
 
+  draw();
+}
+
+
+// ===== الصف السادس — الشغل المبذول =====
+
+function simG6Work1() {
+  // TAB 1: ملعب كرة القدم — الشغل مبذول أم لا؟
+  const panel = document.getElementById('simControlsPanel');
+  panel.innerHTML = `
+<div class="ctrl-section">
+  <div class="ctrl-label">⚽ استقصاء الشغل المبذول</div>
+  <div class="ctrl-desc">الشغل = القوة × المسافة<br>لكن هل يُبذل شغل دائماً؟ شاهد واكتشف!</div>
+</div>
+<div class="ctrl-section" id="kick-ctrl">
+  <div class="ctrl-label">🧒 ماذا يفعل الولد؟</div>
+  <div id="kick-status" style="padding:10px;border-radius:10px;background:rgba(192,57,43,0.1);border:1.5px solid rgba(192,57,43,0.3);color:#C0392B;font-family:Tajawal;font-size:14px;font-weight:700;text-align:center;margin-bottom:10px;">
+    ⛔ الكرة لا تتحرك — لم يُبذل شغل!
+  </div>
+  <button id="kick-btn" onclick="window._kickBall && window._kickBall()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(135deg,#27AE60,#1E8449);color:white;border:none;font-family:Tajawal;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(39,174,96,0.3);">
+      ⚽ اركل الكرة!
+    </button>
+</div>
+<div class="ctrl-section" id="work-result" style="display:none">
+  <div class="ctrl-label">📊 النتيجة</div>
+  <div id="work-calc" style="font-family:Tajawal;font-size:13px;line-height:2;padding:8px;background:rgba(39,174,96,0.08);border-radius:10px;border:1.5px solid rgba(39,174,96,0.25);">
+  </div>
+</div>
+<div class="q-box" style="margin-top:12px">
+  <strong>❓ سؤال:</strong> متى يُبذل الشغل على جسم ما؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 الإجابة</button>
+  <div class="q-ans-panel">يُبذل الشغل فقط عندما تؤثر قوة في جسم <strong>ويتحرك</strong> في اتجاه القوة. إذا لم يتحرك الجسم → الشغل = صفر.</div>
+</div>`;
+
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+
+  // State
+  S.w1 = S.w1 || { phase: 'idle', ballX: 0, ballY: 0, ballVx: 0, kicked: false, trail: [], t: 0 };
+  const ws = S.w1;
+  ws.phase = 'idle';
+  ws.kicked = false;
+  ws.trail = [];
+  ws.t = 0;
+
+  // Field dimensions
+  const fieldX = w * 0.05, fieldY = h * 0.22, fieldW = w * 0.9, fieldH = h * 0.55;
+  const goalW = fieldW * 0.08, goalH = fieldH * 0.3;
+  const boyX = fieldX + fieldW * 0.25;
+  const boyY = fieldY + fieldH * 0.62;
+  ws.ballX = boyX + fieldW * 0.1;
+  ws.ballY = fieldY + fieldH * 0.68;
+  const goalX = fieldX + fieldW - goalW;
+  const goalY = fieldY + fieldH * 0.35;
+
+  window._kickBall = function() {
+    if (ws.kicked) {
+      // Reset
+      ws.kicked = false;
+      ws.phase = 'idle';
+      ws.trail = [];
+      ws.ballX = boyX + fieldW * 0.1;
+      ws.ballY = fieldY + fieldH * 0.68;
+      ws.ballVx = 0;
+      document.getElementById('kick-btn').textContent = '⚽ اركل الكرة!';
+      document.getElementById('kick-status').style.background = 'rgba(192,57,43,0.1)';
+      document.getElementById('kick-status').style.borderColor = 'rgba(192,57,43,0.3)';
+      document.getElementById('kick-status').style.color = '#C0392B';
+      document.getElementById('kick-status').textContent = '⛔ الكرة لا تتحرك — لم يُبذل شغل!';
+      document.getElementById('work-result').style.display = 'none';
+      return;
+    }
+    ws.kicked = true;
+    ws.phase = 'moving';
+    ws.ballVx = fieldW * 0.012;
+    document.getElementById('kick-btn').textContent = '🔄 أعِد التجربة';
+    document.getElementById('kick-status').style.background = 'rgba(39,174,96,0.1)';
+    document.getElementById('kick-status').style.borderColor = 'rgba(39,174,96,0.3)';
+    document.getElementById('kick-status').style.color = '#1e8449';
+    document.getElementById('kick-status').textContent = '✅ الكرة تتحرك — يُبذل شغل! 🎉';
+  };
+
+  function drawField() {
+    // Sky gradient
+    const sky = c.createLinearGradient(0,0,0,fieldY);
+    sky.addColorStop(0,'#87CEEB'); sky.addColorStop(1,'#B8E0F0');
+    c.fillStyle = sky; c.fillRect(0,0,w,fieldY+10);
+
+    // Grass
+    const grass = c.createLinearGradient(fieldX, fieldY, fieldX, fieldY+fieldH);
+    grass.addColorStop(0,'#2E8B3A'); grass.addColorStop(1,'#1E6B2A');
+    c.fillStyle = grass; c.fillRect(fieldX, fieldY, fieldW, fieldH);
+
+    // Field stripes
+    for (let i=0; i<8; i++) {
+      const stripW = fieldW/8;
+      if (i%2===0) { c.fillStyle='rgba(255,255,255,0.04)'; c.fillRect(fieldX+i*stripW, fieldY, stripW, fieldH); }
+    }
+
+    // Field lines
+    c.strokeStyle='rgba(255,255,255,0.6)'; c.lineWidth=2;
+    // Border
+    c.strokeRect(fieldX+2, fieldY+2, fieldW-4, fieldH-4);
+    // Center line
+    c.beginPath(); c.moveTo(fieldX+fieldW/2, fieldY+2); c.lineTo(fieldX+fieldW/2, fieldY+fieldH-2); c.stroke();
+    // Center circle
+    c.beginPath(); c.arc(fieldX+fieldW/2, fieldY+fieldH/2, fieldH*0.18, 0, Math.PI*2); c.stroke();
+    // Center dot
+    c.fillStyle='white'; c.beginPath(); c.arc(fieldX+fieldW/2, fieldY+fieldH/2, 4, 0, Math.PI*2); c.fill();
+
+    // Goal posts (right side)
+    c.fillStyle='white'; c.lineWidth=3;
+    c.strokeStyle='white';
+    c.strokeRect(goalX, goalY, goalW, goalH);
+    c.fillStyle='rgba(255,255,255,0.1)'; c.fillRect(goalX, goalY, goalW, goalH);
+
+    // Goal net lines
+    c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=0.8;
+    for (let nx=goalX; nx<goalX+goalW; nx+=12) {
+      c.beginPath(); c.moveTo(nx, goalY); c.lineTo(nx, goalY+goalH); c.stroke();
+    }
+    for (let ny=goalY; ny<goalY+goalH; ny+=10) {
+      c.beginPath(); c.moveTo(goalX, ny); c.lineTo(goalX+goalW, ny); c.stroke();
+    }
+  }
+
+  function drawBoy(bx, by, kicked) {
+    const sc = h * 0.0012;
+    // Shadow
+    c.fillStyle='rgba(0,0,0,0.15)';
+    c.beginPath(); c.ellipse(bx, by+2, 16*sc*50, 5*sc*50, 0, 0, Math.PI*2); c.fill();
+
+    // Legs
+    c.strokeStyle='#1565C0'; c.lineWidth=5;
+    // Left leg
+    c.beginPath(); c.moveTo(bx, by-20); c.lineTo(bx-12, by); c.stroke();
+    // Right leg (kicked)
+    c.beginPath();
+    if (kicked && ws.phase==='moving') {
+      c.moveTo(bx, by-20); c.lineTo(bx+18, by-10);
+    } else {
+      c.moveTo(bx, by-20); c.lineTo(bx+10, by);
+    }
+    c.stroke();
+    // Shoes
+    c.fillStyle='#1A1A1A';
+    c.beginPath(); c.ellipse(bx-12, by+3, 8, 4, 0, 0, Math.PI*2); c.fill();
+    c.beginPath();
+    if (kicked && ws.phase==='moving') {
+      c.ellipse(bx+18, by-8, 9, 4, -0.4, 0, Math.PI*2);
+    } else {
+      c.ellipse(bx+10, by+3, 8, 4, 0, 0, Math.PI*2);
+    }
+    c.fill();
+
+    // Body
+    c.fillStyle='#E53935'; c.lineWidth=2; c.strokeStyle='#B71C1C';
+    c.beginPath(); c.roundRect(bx-12, by-55, 24, 35, 5); c.fill(); c.stroke();
+    // Arms
+    c.strokeStyle='#E53935'; c.lineWidth=5;
+    if (kicked && ws.phase==='moving') {
+      c.beginPath(); c.moveTo(bx-10, by-45); c.lineTo(bx-28, by-30); c.stroke();
+      c.beginPath(); c.moveTo(bx+10, by-45); c.lineTo(bx+22, by-25); c.stroke();
+    } else {
+      c.beginPath(); c.moveTo(bx-10, by-45); c.lineTo(bx-22, by-32); c.stroke();
+      c.beginPath(); c.moveTo(bx+10, by-45); c.lineTo(bx+22, by-32); c.stroke();
+    }
+    // Head
+    c.fillStyle='#FFCC80';
+    c.beginPath(); c.arc(bx, by-65, 15, 0, Math.PI*2); c.fill();
+    c.strokeStyle='#FF9800'; c.lineWidth=1.5; c.stroke();
+    // Hair
+    c.fillStyle='#5D3A1A';
+    c.beginPath(); c.arc(bx, by-75, 12, Math.PI, Math.PI*2); c.fill();
+    // Eyes
+    c.fillStyle='#333';
+    c.beginPath(); c.arc(bx-5, by-66, 2, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc(bx+5, by-66, 2, 0, Math.PI*2); c.fill();
+    // Smile
+    c.strokeStyle='#333'; c.lineWidth=1.5;
+    c.beginPath(); c.arc(bx, by-60, 6, 0.2, Math.PI-0.2); c.stroke();
+  }
+
+  function drawBall(bx, by) {
+    // Ball shadow
+    c.fillStyle='rgba(0,0,0,0.2)';
+    c.beginPath(); c.ellipse(bx, by+12, 12, 4, 0, 0, Math.PI*2); c.fill();
+    // Ball
+    const ballR = Math.max(10, w*0.022);
+    const ballGrad = c.createRadialGradient(bx-3, by-3, 1, bx, by, ballR);
+    ballGrad.addColorStop(0,'#ffffff'); ballGrad.addColorStop(0.5,'#eeeeee'); ballGrad.addColorStop(1,'#cccccc');
+    c.fillStyle = ballGrad;
+    c.beginPath(); c.arc(bx, by, ballR, 0, Math.PI*2); c.fill();
+    c.strokeStyle='#555'; c.lineWidth=1.5; c.stroke();
+    // Pentagon patches
+    c.fillStyle='#222';
+    const patches = [
+      [0,-ballR*0.5],[ballR*0.4,ballR*0.3],[-ballR*0.4,ballR*0.3]
+    ];
+    patches.forEach(([px,py])=>{
+      c.beginPath();
+      for (let a=0;a<5;a++) {
+        const ang = a*Math.PI*2/5 - Math.PI/2;
+        const pr = ballR*0.28;
+        a===0 ? c.moveTo(bx+px+Math.cos(ang)*pr, by+py+Math.sin(ang)*pr)
+               : c.lineTo(bx+px+Math.cos(ang)*pr, by+py+Math.sin(ang)*pr);
+      }
+      c.closePath(); c.fill();
+    });
+  }
+
+  function draw() {
+    if (currentSim !== 'g6work') return;
+    ws.t += 0.03;
+
+    c.fillStyle = '#87CEEB'; c.fillRect(0,0,w,h);
+    drawField();
+
+    // Trail
+    if (ws.trail.length > 1) {
+      for (let ti=1; ti<ws.trail.length; ti++) {
+        const alpha = (ti/ws.trail.length)*0.6;
+        c.strokeStyle = `rgba(255,200,50,${alpha})`;
+        c.lineWidth = Math.max(1, ti/ws.trail.length*4);
+        c.setLineDash([6,4]);
+        c.beginPath();
+        c.moveTo(ws.trail[ti-1].x, ws.trail[ti-1].y);
+        c.lineTo(ws.trail[ti].x, ws.trail[ti].y);
+        c.stroke();
+      }
+      c.setLineDash([]);
+      // Distance arrow
+      if (ws.trail.length > 5) {
+        const tx0 = ws.trail[0].x, ty0 = ws.trail[0].y;
+        const txN = ws.trail[ws.trail.length-1].x, tyN = ws.trail[ws.trail.length-1].y;
+        const dist = Math.round((txN-tx0)/fieldW*100*10)/10;
+        c.strokeStyle='#FFD700'; c.fillStyle='#FFD700'; c.lineWidth=2; c.setLineDash([]);
+        c.beginPath(); c.moveTo(tx0, ty0+24); c.lineTo(txN, tyN+24);
+        // Arrow heads
+        c.moveTo(txN, tyN+24); c.lineTo(txN-8, tyN+19); c.moveTo(txN, tyN+24); c.lineTo(txN-8, tyN+29);
+        c.stroke();
+        c.font=`bold ${Math.max(10,w*0.018)}px Tajawal`; c.textAlign='center';
+        c.fillText(`المسافة: ${dist} م`, (tx0+txN)/2, ty0+44);
+      }
+    }
+
+    // Update ball position
+    if (ws.phase === 'moving' && ws.ballX < goalX + goalW/2) {
+      ws.trail.push({ x: ws.ballX, y: ws.ballY });
+      if (ws.trail.length > 80) ws.trail.shift();
+      ws.ballX += ws.ballVx;
+      ws.ballVx *= 0.997;
+      // Slight bounce
+      ws.ballY = fieldY + fieldH * 0.68 - Math.abs(Math.sin(ws.t * 8)) * 8;
+
+      // Show result when ball reaches goal area
+      if (ws.ballX > fieldX + fieldW * 0.55) {
+        const distM = Math.round((ws.ballX - (boyX + fieldW * 0.1)) / fieldW * 10 * 10) / 10;
+        const force = 200;
+        const work = Math.round(force * distM);
+        const wr = document.getElementById('work-result');
+        if (wr) {
+          wr.style.display = 'block';
+          document.getElementById('work-calc').innerHTML =
+            `⚡ <strong>القوة المبذولة:</strong> ${force} نيوتن<br>` +
+            `📏 <strong>المسافة المقطوعة:</strong> ${distM} متر<br>` +
+            `━━━━━━━━━━━━━━━━━<br>` +
+            `📐 الشغل = القوة × المسافة<br>` +
+            `🟢 <strong>الشغل = ${force} × ${distM} = ${work} جول</strong>`;
+        }
+      }
+    }
+
+    // Draw boy
+    drawBoy(boyX, boyY, ws.kicked);
+
+    // Draw ball
+    drawBall(ws.ballX, ws.ballY);
+
+    // Status label above scene
+    c.fillStyle='rgba(0,0,0,0.55)';
+    c.beginPath(); c.roundRect(w*0.1, h*0.04, w*0.8, h*0.11, 12); c.fill();
+    c.fillStyle='white';
+    c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`;
+    c.textAlign='center';
+    if (!ws.kicked) {
+      c.fillText('⛔ الكرة ساكنة — الشغل المبذول = صفر', w/2, h*0.1);
+    } else {
+      c.fillStyle='#4DF';
+      c.fillText('✅ الكرة تتحرك — يُبذل شغل!', w/2, h*0.1);
+    }
+
+    // Arrow showing force direction when kicked
+    if (ws.kicked && ws.phase==='moving' && ws.ballX < goalX) {
+      c.strokeStyle='#FF4444'; c.fillStyle='#FF4444'; c.lineWidth=3;
+      const arrowY = ws.ballY - 28;
+      c.beginPath(); c.moveTo(ws.ballX-30, arrowY); c.lineTo(ws.ballX+30, arrowY); c.stroke();
+      c.beginPath(); c.moveTo(ws.ballX+30, arrowY); c.lineTo(ws.ballX+18, arrowY-7); c.lineTo(ws.ballX+18, arrowY+7); c.fill();
+      c.font=`bold ${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center';
+      c.fillText('القوة →', ws.ballX, arrowY-12);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG6Work2() {
+  // TAB 2: احسب الشغل — تجارب متعددة
+  const panel = document.getElementById('simControlsPanel');
+  panel.innerHTML = `
+<div class="ctrl-section">
+  <div class="ctrl-label">🧮 احسب الشغل بنفسك</div>
+  <div class="ctrl-desc">غيّر القوة والمسافة واحسب الشغل المبذول</div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">⚡ القوة المبذولة (نيوتن)</div>
+  <input type="range" id="force-slider" min="50" max="500" value="200" step="50"
+    style="width:100%;margin:8px 0"
+    oninput="document.getElementById('force-val').textContent=this.value;window._calcWork&&window._calcWork()">
+  <div style="text-align:center;font-family:Tajawal;font-weight:700;color:var(--text-primary)">
+    <span id="force-val">200</span> نيوتن
+  </div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📏 المسافة المقطوعة (متر)</div>
+  <input type="range" id="dist-slider" min="1" max="20" value="8" step="1"
+    style="width:100%;margin:8px 0"
+    oninput="document.getElementById('dist-val').textContent=this.value;window._calcWork&&window._calcWork()">
+  <div style="text-align:center;font-family:Tajawal;font-weight:700;color:var(--text-primary)">
+    <span id="dist-val">8</span> متر
+  </div>
+</div>
+<div id="work-box" style="padding:14px;border-radius:12px;background:rgba(39,174,96,0.08);border:2px solid rgba(39,174,96,0.3);margin-top:4px;font-family:Tajawal;font-size:14px;line-height:2.2;text-align:center">
+  <div style="font-size:13px;color:var(--text-secondary)">الشغل = القوة × المسافة</div>
+  <div id="work-formula" style="font-size:16px;font-weight:700;color:#1e8449">
+    الشغل = 200 × 8 = 1600 جول
+  </div>
+</div>
+<div class="q-box" style="margin-top:12px">
+  <strong>❓ جرّب:</strong> إذا تضاعفت المسافة، ماذا يحدث للشغل؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 الإجابة</button>
+  <div class="q-ans-panel">يتضاعف الشغل أيضاً! الشغل يتناسب طردياً مع كل من القوة والمسافة.</div>
+</div>`;
+
+  window._calcWork = function() {
+    const F = parseInt(document.getElementById('force-slider').value);
+    const d = parseInt(document.getElementById('dist-slider').value);
+    const W = F * d;
+    document.getElementById('work-formula').textContent = `الشغل = ${F} × ${d} = ${W} جول`;
+    document.getElementById('work-formula').style.color = W > 2000 ? '#E53935' : W > 1000 ? '#F57C00' : '#1e8449';
+  };
+
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  S.w2t = 0;
+
+  function draw() {
+    if (currentSim !== 'g6work') return;
+    S.w2t += 0.02;
+    c.fillStyle = '#0d1520'; c.fillRect(0,0,w,h);
+
+    const F = document.getElementById('force-slider') ? parseInt(document.getElementById('force-slider').value) : 200;
+    const d = document.getElementById('dist-slider') ? parseInt(document.getElementById('dist-slider').value) : 8;
+    const W = F * d;
+
+    // Draw football pitch top-down view
+    const fieldX = w*0.04, fieldY = h*0.05, fieldW = w*0.92, fieldH = h*0.45;
+    const grass = c.createLinearGradient(fieldX,fieldY,fieldX,fieldY+fieldH);
+    grass.addColorStop(0,'#2E8B3A'); grass.addColorStop(1,'#236828');
+    c.fillStyle=grass; c.beginPath(); c.roundRect(fieldX,fieldY,fieldW,fieldH,8); c.fill();
+    c.strokeStyle='white'; c.lineWidth=2; c.strokeRect(fieldX+4,fieldY+4,fieldW-8,fieldH-8);
+    c.beginPath(); c.moveTo(fieldX+fieldW/2,fieldY+4); c.lineTo(fieldX+fieldW/2,fieldY+fieldH-4); c.stroke();
+    c.beginPath(); c.arc(fieldX+fieldW/2, fieldY+fieldH/2, fieldH*0.2, 0, Math.PI*2); c.stroke();
+
+    // Ball start and end position based on distance
+    const ballStartX = fieldX + fieldW*0.1;
+    const ballY = fieldY + fieldH*0.5;
+    const maxDist = fieldW * 0.8;
+    const ballTravelX = (d/20) * maxDist;
+    const ballEndX = ballStartX + ballTravelX;
+
+    // Animated ball position
+    const progress = (Math.sin(S.w2t * 0.8) + 1) / 2; // 0 to 1
+    const ballX = ballStartX + progress * ballTravelX;
+
+    // Trail
+    c.strokeStyle='rgba(255,220,50,0.5)'; c.lineWidth=2; c.setLineDash([6,4]);
+    c.beginPath(); c.moveTo(ballStartX, ballY); c.lineTo(ballEndX, ballY); c.stroke();
+    c.setLineDash([]);
+
+    // Distance bracket
+    c.strokeStyle='#FFD700'; c.fillStyle='#FFD700'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(ballStartX, ballY+26); c.lineTo(ballEndX, ballY+26); c.stroke();
+    c.beginPath(); c.moveTo(ballStartX,ballY+20); c.lineTo(ballStartX,ballY+32); c.stroke();
+    c.beginPath(); c.moveTo(ballEndX,ballY+20); c.lineTo(ballEndX,ballY+32); c.stroke();
+    c.font=`bold ${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
+    c.fillText(`${d} متر`, (ballStartX+ballEndX)/2, ballY+46);
+
+    // Force arrow
+    if (progress < 0.95) {
+      c.strokeStyle='#FF5252'; c.fillStyle='#FF5252'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(ballX-20, ballY-30); c.lineTo(ballX+20, ballY-30); c.stroke();
+      c.beginPath(); c.moveTo(ballX+20,ballY-30); c.lineTo(ballX+8,ballY-37); c.lineTo(ballX+8,ballY-23); c.fill();
+      c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center';
+      c.fillStyle='#FF5252'; c.fillText(`${F} ن`, ballX, ballY-42);
+    }
+
+    // Ball
+    const br = Math.max(10,w*0.022);
+    const bg = c.createRadialGradient(ballX-3,ballY-3,1,ballX,ballY,br);
+    bg.addColorStop(0,'#fff'); bg.addColorStop(1,'#ccc');
+    c.fillStyle=bg; c.beginPath(); c.arc(ballX,ballY,br,0,Math.PI*2); c.fill();
+    c.strokeStyle='#555'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='#222';
+    [[0,-br*0.5],[br*0.4,br*0.3],[-br*0.4,br*0.3]].forEach(([px,py])=>{
+      c.beginPath();
+      for(let a=0;a<5;a++){const ag=a*Math.PI*2/5-Math.PI/2,r=br*0.28;a===0?c.moveTo(ballX+px+Math.cos(ag)*r,ballY+py+Math.sin(ag)*r):c.lineTo(ballX+px+Math.cos(ag)*r,ballY+py+Math.sin(ag)*r);}
+      c.closePath(); c.fill();
+    });
+
+    // Work display
+    const workColor = W > 2000 ? '#FF5252' : W > 1000 ? '#FFA726' : '#66BB6A';
+    const barW = Math.min(w*0.88, (W/10000)*w*0.88);
+
+    c.fillStyle='rgba(255,255,255,0.06)'; c.beginPath(); c.roundRect(w*0.06,h*0.56,w*0.88,h*0.08,8); c.fill();
+    const barGrad = c.createLinearGradient(w*0.06,0,w*0.06+barW,0);
+    barGrad.addColorStop(0,'#27AE60'); barGrad.addColorStop(1,workColor);
+    c.fillStyle=barGrad; c.beginPath(); c.roundRect(w*0.06,h*0.56,barW,h*0.08,8); c.fill();
+
+    c.fillStyle='white'; c.font=`bold ${Math.max(12,w*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText(`⚡ ${F} ن × ${d} م = ${W} جول`, w/2, h*0.615);
+
+    // Summary cards
+    const cards = [
+      { label:'القوة', val:`${F} ن`, color:'#FF5252', icon:'⚡' },
+      { label:'المسافة', val:`${d} م`, color:'#FFA726', icon:'📏' },
+      { label:'الشغل', val:`${W} ج`, color:'#66BB6A', icon:'💡' },
+    ];
+    const cardW = w*0.28, cardH = h*0.15;
+    cards.forEach((card,i)=>{
+      const cx = w*0.06 + i*(cardW + w*0.025);
+      const cy = h*0.7;
+      c.fillStyle='rgba(255,255,255,0.07)'; c.beginPath(); c.roundRect(cx,cy,cardW,cardH,10); c.fill();
+      c.strokeStyle=card.color+'66'; c.lineWidth=1.5; c.strokeRect(cx+0.5,cy+0.5,cardW-1,cardH-1);
+      c.fillStyle=card.color; c.font=`${Math.max(18,w*0.04)}px serif`; c.textAlign='center';
+      c.fillText(card.icon, cx+cardW/2, cy+cardH*0.38);
+      c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(8,w*0.014)}px Tajawal`;
+      c.fillText(card.label, cx+cardW/2, cy+cardH*0.6);
+      c.fillStyle='white'; c.font=`bold ${Math.max(10,w*0.02)}px Tajawal`;
+      c.fillText(card.val, cx+cardW/2, cy+cardH*0.85);
+    });
+
+    c.fillStyle='rgba(255,255,255,0.5)'; c.font=`${Math.max(8,w*0.014)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشغل = القوة (نيوتن) × المسافة (متر) → الناتج بالجول', w/2, h*0.93);
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG6Work3() {
+  // TAB 3: ماذا تستنتج؟ — ملخص + سؤال اختياري
+  const panel = document.getElementById('simControlsPanel');
+  panel.innerHTML = `
+<div class="ctrl-section">
+  <div class="ctrl-label">💡 ماذا تستنتج؟</div>
+  <div class="ctrl-desc">لخّص ما تعلّمته عن الشغل المبذول</div>
+</div>
+<div class="ctrl-section" style="background:rgba(39,174,96,0.06);border-radius:12px;padding:12px;border:1.5px solid rgba(39,174,96,0.2)">
+  <div style="font-family:Tajawal;font-size:14px;line-height:2.2;color:var(--text-primary)">
+    ✅ <strong>الشغل يُبذل فقط عند تحرّك الجسم</strong><br>
+    📐 <strong>الشغل = القوة × المسافة</strong><br>
+    📏 <strong>وحدة الشغل هي الجول (J)</strong><br>
+    ⛔ <strong>إذا لم يتحرك الجسم → الشغل = صفر</strong><br>
+    🏟️ <strong>مثال:</strong> ركل كرة بقوة 200 ن على مسافة 8 م<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;→ الشغل = 200 × 8 = 1600 جول
+  </div>
+</div>
+<div class="q-box" style="margin-top:10px">
+  <strong>❓ سؤال التحقق:</strong><br>
+  ولد يدفع جداراً بقوة 300 نيوتن لكن الجدار لا يتحرك. كم مقدار الشغل المبذول؟
+  <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 الإجابة</button>
+  <div class="q-ans-panel">الشغل = صفر! لأن الجدار لم يتحرك، ورغم أن القوة مبذولة إلا أن الإزاحة = 0، فالشغل = 300 × 0 = <strong>0 جول</strong>.</div>
+</div>`;
+
+  const cv = document.getElementById('simCanvas');
+  const c = cv.getContext('2d');
+  const w = cv.width, h = cv.height;
+  const S = simState;
+  S.w3t = 0;
+
+  function draw() {
+    if (currentSim !== 'g6work') return;
+    S.w3t += 0.02;
+
+    c.fillStyle='#0d1520'; c.fillRect(0,0,w,h);
+
+    // Title
+    c.fillStyle='white'; c.font=`bold ${Math.max(13,w*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('📋 ملخص: قانون الشغل المبذول', w/2, h*0.07);
+
+    // Formula box
+    const fboxX=w*0.08, fboxY=h*0.1, fboxW=w*0.84, fboxH=h*0.15;
+    const fgrad=c.createLinearGradient(fboxX,fboxY,fboxX+fboxW,fboxY+fboxH);
+    fgrad.addColorStop(0,'rgba(39,174,96,0.2)'); fgrad.addColorStop(1,'rgba(39,174,96,0.05)');
+    c.fillStyle=fgrad; c.beginPath(); c.roundRect(fboxX,fboxY,fboxW,fboxH,12); c.fill();
+    c.strokeStyle='rgba(39,174,96,0.4)'; c.lineWidth=2; c.strokeRect(fboxX+1,fboxY+1,fboxW-2,fboxH-2);
+    c.fillStyle='#4DF'; c.font=`bold ${Math.max(16,w*0.036)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشغل (ج) = القوة (ن) × المسافة (م)', w/2, fboxY+fboxH*0.45);
+    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(10,w*0.018)}px Tajawal`;
+    c.fillText('W = F × d    →    الجول = نيوتن × متر', w/2, fboxY+fboxH*0.8);
+
+    // Three scenario cards
+    const scenarios = [
+      { title:'جسم ساكن', icon:'⛔', F:200, d:0, color:'#FF5252', note:'لا حركة = لا شغل' },
+      { title:'كرة تتحرك', icon:'⚽', F:200, d:8, color:'#66BB6A', note:'شغل = 1600 ج' },
+      { title:'قوة أكبر', icon:'💪', F:400, d:8, color:'#FFA726', note:'شغل = 3200 ج' },
+    ];
+    const cW=w*0.28, cH=h*0.28, cY=h*0.3;
+    scenarios.forEach((sc,i)=>{
+      const cx=w*0.06+i*(cW+w*0.025);
+      c.fillStyle='rgba(255,255,255,0.05)'; c.beginPath(); c.roundRect(cx,cY,cW,cH,12); c.fill();
+      c.strokeStyle=sc.color+'55'; c.lineWidth=1.5; c.strokeRect(cx+1,cY+1,cW-2,cH-2);
+      // Pulsing icon
+      const pulse = 1+Math.sin(S.w3t*2+i*1.2)*0.08;
+      c.font=`${Math.max(22,w*0.05)*pulse}px serif`; c.textAlign='center';
+      c.fillText(sc.icon, cx+cW/2, cY+cH*0.3);
+      c.fillStyle='white'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`;
+      c.fillText(sc.title, cx+cW/2, cY+cH*0.48);
+      c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(8,w*0.014)}px Tajawal`;
+      c.fillText(`F=${sc.F}ن  d=${sc.d}م`, cx+cW/2, cY+cH*0.63);
+      c.fillStyle=sc.color; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`;
+      c.fillText(sc.note, cx+cW/2, cY+cH*0.8);
+      const W=sc.F*sc.d;
+      // Mini bar
+      const bX=cx+cW*0.1, bY=cY+cH*0.88, bW=(cW*0.8), bH=h*0.02;
+      c.fillStyle='rgba(255,255,255,0.1)'; c.beginPath(); c.roundRect(bX,bY,bW,bH,4); c.fill();
+      const filled = W>0 ? Math.min(1,W/3200)*bW : 0;
+      if(filled>0){const bg2=c.createLinearGradient(bX,0,bX+filled,0);bg2.addColorStop(0,'#27AE60');bg2.addColorStop(1,sc.color);c.fillStyle=bg2;c.beginPath();c.roundRect(bX,bY,filled,bH,4);c.fill();}
+    });
+
+    // Key rule boxes at bottom
+    const rules = [
+      { text:'إذا تحرّك الجسم → شغل موجود ✅', color:'#66BB6A' },
+      { text:'إذا لم يتحرك → الشغل = صفر ⛔', color:'#FF5252' },
+      { text:'القوة أكبر أو مسافة أطول → شغل أكبر 📈', color:'#FFA726' },
+    ];
+    const rY = h*0.64;
+    rules.forEach((rule,i)=>{
+      const ry=rY+i*h*0.1;
+      c.fillStyle='rgba(255,255,255,0.04)'; c.beginPath(); c.roundRect(w*0.06,ry,w*0.88,h*0.085,8); c.fill();
+      c.strokeStyle=rule.color+'44'; c.lineWidth=1; c.strokeRect(w*0.06+1,ry+1,w*0.88-2,h*0.085-2);
+      c.fillStyle=rule.color; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+      c.fillText(rule.text, w/2, ry+h*0.053);
+    });
+
+    animFrame = requestAnimationFrame(draw);
+  }
   draw();
 }
 
@@ -45646,7 +46222,7 @@ function simG9Lens1(){
     }
     c.fill(); c.strokeStyle='#3B82F6'; c.stroke();
     c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
-    c.fillText(simState.convex?'عدسة محدبة (مجمِّعة)':'عدسة مقعرة (مفرِّقة)', w/2, h*0.12);
+    c.fillText(simState.convex?'عدسة محدبة (مجمِّعة)':'عدسة مقعرة (مفرِّقة)', w/2, h*0.12);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
