@@ -987,7 +987,7 @@ html.dark-mode .unit-num-badge.c-purple { background: rgba(107,78,154,0.18); col
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 13px;
+  padding: 7px 14px;
   border-radius: 8px;
   font-family: 'Tajawal', sans-serif;
   font-size: 14px;
@@ -998,12 +998,46 @@ html.dark-mode .unit-num-badge.c-purple { background: rgba(107,78,154,0.18); col
   color: #27AE60;
   transition: all 0.18s;
   white-space: nowrap;
+  line-height: 1;
 }
 #wb-open-btn:hover {
   background: rgba(39,174,96,0.18);
   border-color: rgba(39,174,96,0.55);
   transform: translateY(-1px);
   box-shadow: 0 3px 10px rgba(39,174,96,0.2);
+}
+/* داخل شريط الاستقصاء: padding أصغر قليلاً */
+.sim-panel-bar #wb-open-btn,
+#wb-open-btn-sim {
+  padding: 6px 12px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 8px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid rgba(39,174,96,0.35);
+  background: rgba(39,174,96,0.08);
+  color: #27AE60;
+  transition: all 0.18s;
+  white-space: nowrap;
+  line-height: 1;
+}
+#wb-open-btn-sim:hover {
+  background: rgba(39,174,96,0.18);
+  border-color: rgba(39,174,96,0.55);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(39,174,96,0.2);
+}
+html.dark-mode #wb-open-btn-sim {
+  background: rgba(39,174,96,0.12);
+  border-color: rgba(39,174,96,0.4);
+  color: #4DC880;
+}
+html.dark-mode #wb-open-btn-sim:hover {
+  background: rgba(39,174,96,0.22);
 }
 html.dark-mode #wb-open-btn {
   background: rgba(39,174,96,0.12);
@@ -2852,6 +2886,8 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           <span style="font-size:9px;font-weight:500;opacity:0.75">زيارة</span>
         </span>
       </span>
+      <!-- whiteboard button -->
+      <button id="wb-open-btn" onclick="wbOpen()" title="افتح السبورة التفاعلية">✏️ سبورة</button>
       <!-- home button -->
       <button id="topbar-home-btn" onclick="goToLanding()" title="العودة للصفحة الرئيسية">
         🏠 الرئيسية
@@ -4704,7 +4740,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
     <button class="sim-close-btn" onclick="closeSim()">← رجوع</button>
     <div class="sim-panel-title" id="simPanelTitle">المحاكاة</div>
     <div class="sim-panel-badge" id="simPanelBadge">الوحدة ٧</div>
-    <button id="wb-open-btn" onclick="wbOpen()" title="افتح السبورة التفاعلية">✏️ سبورة</button>
+    <button id="wb-open-btn-sim" onclick="wbOpen()" title="افتح السبورة التفاعلية">✏️ سبورة</button>
   </div>
   <div class="sim-tabs-row" id="simTabsRow"></div>
   <div class="sim-body-wrap">
@@ -31736,17 +31772,23 @@ function simG5TransparentTest() {
     if (mat && shadowAlpha > 0.05) {
       const wallShadowH = beamH * (0.6 + shadowAlpha * 1.8);
       const shCol = `rgba(0,0,0,${Math.min(0.92, shadowAlpha * 0.95)})`;
-      const wsGrad = c.createRadialGradient(w*0.89, ly, 0, w*0.89, ly, wallShadowH);
+      const wsGrad = c.createRadialGradient(w*0.94, ly, 0, w*0.94, ly, wallShadowH);
       wsGrad.addColorStop(0, shCol);
       wsGrad.addColorStop(1, 'rgba(0,0,0,0)');
       c.fillStyle = wsGrad;
-      c.beginPath(); c.ellipse(w*0.89, ly, w*0.055, wallShadowH/1.5, 0, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.ellipse(w*0.94, ly, w*0.055, wallShadowH/1.5, 0, 0, Math.PI*2); c.fill();
     } else if (!mat) {
-      // بقعة ضوء على الحائط
-      const wlGrad = c.createRadialGradient(w*0.89, ly, 0, w*0.89, ly, w*0.08);
+      // بقعة ضوء على الحائط في منتصفه
+      const wlGrad = c.createRadialGradient(w*0.94, ly, 0, w*0.94, ly, w*0.08);
       wlGrad.addColorStop(0, 'rgba(255,240,100,0.9)');
       wlGrad.addColorStop(1, 'rgba(255,220,50,0)');
-      c.fillStyle = wlGrad; c.beginPath(); c.arc(w*0.89, ly, w*0.08, 0, Math.PI*2); c.fill();
+      c.fillStyle = wlGrad; c.beginPath(); c.arc(w*0.94, ly, w*0.08, 0, Math.PI*2); c.fill();
+    } else if (trans > 0.05) {
+      // بقعة ضوء جزئية عند وجود مادة شفافة جزئياً
+      const wlGrad2 = c.createRadialGradient(w*0.94, ly, 0, w*0.94, ly, w*0.07 * trans);
+      wlGrad2.addColorStop(0, `rgba(255,240,100,${trans * 0.85})`);
+      wlGrad2.addColorStop(1, 'rgba(255,220,50,0)');
+      c.fillStyle = wlGrad2; c.beginPath(); c.arc(w*0.94, ly, w*0.07, 0, Math.PI*2); c.fill();
     }
 
     c.fillStyle = '#8A7040'; c.font = `bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign = 'center';
@@ -31754,24 +31796,37 @@ function simG5TransparentTest() {
 
     // ── مقياس الضوء على الحائط ──
     const pct = Math.round(trans * 100);
-    const barX = w*0.895, barTop = h*0.15, barH = h*0.55, barW = w*0.022;
+    // الشريط في منتصف الحائط
+    const barW = w * 0.018;
+    const barX = w * 0.94; // منتصف الحائط (w*0.88 → w*1.0)
+    const barTop = h * 0.18, barH = h * 0.48;
     // خلفية الشريط
-    c.fillStyle = 'rgba(0,0,0,0.25)';
+    c.fillStyle = 'rgba(0,0,0,0.22)';
     c.beginPath(); c.roundRect(barX - barW/2, barTop, barW, barH, 4); c.fill();
     // الجزء المضيء
     const litH = barH * trans;
-    const barGrad = c.createLinearGradient(0, barTop + barH - litH, 0, barTop + barH);
-    barGrad.addColorStop(0, 'rgba(255,240,80,0.9)');
-    barGrad.addColorStop(1, 'rgba(255,200,20,0.7)');
-    c.fillStyle = barGrad;
-    c.beginPath(); c.roundRect(barX - barW/2, barTop + barH - litH, barW, litH, 4); c.fill();
-    // النسبة
-    c.fillStyle = pct > 50 ? '#FFD700' : pct > 0 ? '#E67E22' : '#C0392B';
-    c.font = `bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign = 'center';
-    c.fillText(`${pct}%`, barX, barTop + barH + h*0.045);
-    c.fillStyle = 'rgba(0,0,0,0.55)'; c.font = `${Math.max(8,w*0.015)}px Tajawal`;
-    c.fillText('ضوء', barX, barTop + barH + h*0.075);
-    c.fillText('نافذ', barX, barTop + barH + h*0.100);
+    if (litH > 0) {
+      const barGrad = c.createLinearGradient(0, barTop + barH - litH, 0, barTop + barH);
+      barGrad.addColorStop(0, 'rgba(255,240,80,0.95)');
+      barGrad.addColorStop(1, 'rgba(255,200,20,0.75)');
+      c.fillStyle = barGrad;
+      c.beginPath(); c.roundRect(barX - barW/2, barTop + barH - litH, barW, litH, 4); c.fill();
+    }
+    // ── النسبة والنص في منتصف الحائط ──
+    const pctColor = pct > 50 ? '#FFD700' : pct > 0 ? '#E67E22' : '#E74C3C';
+    // خلفية شبه شفافة خلف النص لوضوح أفضل
+    const labelY = barTop + barH + h * 0.06;
+    c.fillStyle = 'rgba(0,0,0,0.35)';
+    c.beginPath(); c.roundRect(barX - w*0.058, labelY - h*0.038, w*0.116, h*0.088, 6); c.fill();
+    // النسبة المئوية
+    c.fillStyle = pctColor;
+    c.font = `bold ${Math.max(12, w*0.026)}px Tajawal`;
+    c.textAlign = 'center';
+    c.fillText(`${pct}%`, barX, labelY);
+    // نص "ضوء نافذ" في سطر واحد
+    c.fillStyle = 'rgba(255,255,255,0.85)';
+    c.font = `${Math.max(9, w*0.016)}px Tajawal`;
+    c.fillText('ضوء نافذ', barX, labelY + h * 0.038);
 
     // ── تعليمة إذا لا مادة ──
     if (!mat) {
