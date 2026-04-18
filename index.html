@@ -5883,7 +5883,11 @@ function openSim(type) {
     g9wind:       'الرياح تدور التوربين 💨 — لاحظ كيف تتغير القدرة مع السرعة!',
     g9hydro:      'الماء والمدّ يحملان طاقة 🌊 — غيّر الارتفاع والتدفق!',
     g9fossil:     'قارن الأحفوري والنووي 🛢️ — الانبعاثات والكثافة ليست متشابهة!',
-    g9efficiency: 'الكفاءة = المفيد ÷ المدخل 📈 — لا يوجد جهاز بلا فاقد!'
+    g9efficiency: 'الكفاءة = المفيد ÷ المدخل 📈 — لا يوجد جهاز بلا فاقد!',
+    g9refl:       'جرّب زاوية السقوط وشاهد i = r 🪞 — ثم افتح «ماذا نستنتج»!',
+    g9refltype:   'قارن بين انعكاس منتظم ومتشتت — نفس القانون عند كل نقطة!',
+    g9refract:    'غيّر n وزاوية السقوط — قانون سنيل بين يديك 🔎',
+    g9refractN:   'كل مادة تبطئ الضوء بشكل مختلف 💎 — لاحظ n و v'
   };
   var greet = simGreets[type] || 'استكشف وجرّب! 🔬';
   setTimeout(function(){ buddySay(greet, 6000); }, 800);
@@ -28993,6 +28997,80 @@ Object.assign(SIM_QUESTIONS, {
     ],
     ans: 1,
     fb: '✅ هنا الكفاءة = 100% − الفاقد. تقليل الفاقد يعني استغلالاً أفضل لنفس طاقة الإدخال — في الواقع نعالج نوع الفاقد (عزل، احتكاك، ضياع في المحوّلات…).'
+  },
+  // ── الصف التاسع — فيزياء 12–13: انعكاس وانكسار الضوء ──
+  g9refl_0: {
+    q: 'في الانعكاس عن سطح مستوٍ (كالمرآة)، ما العلاقة بين زاوية السقوط i وزاوية الانعكاس r (كلتاهما بالنسبة للعمود المقام)؟',
+    opts: ['i = 2r', 'i = r', 'i + r = 90°', 'لا علاقة بينهما'],
+    ans: 1,
+    fb: '✅ قانون الانعكاس: زاوية السقوط = زاوية الانعكاس، وتُقاس الزاويتان من العمود المقام وليس من سطح المرآة مباشرة.'
+  },
+  g9refl_1: {
+    q: 'ما الغرض الأساسي من رسم مخطط الأشعة عند دراسة المرايا؟',
+    opts: [
+      'زخرفة الرسم فقط',
+      'تتبّع مسار الضوء وتحديد اتجاه الصور والأشعة المنعكسة',
+      'قياس كتلة المرآة',
+      'إثبات أن الضوء لا ينعكس'
+    ],
+    ans: 1,
+    fb: '✅ مخطط الأشعة يُظهر الشعاع الساقط والعمود والشعاع المنعكس — فيساعد على فهم أين تتكوّن الصورة وكيف تتغيّر مع موضع الجسم والمرآة.'
+  },
+  g9refract_0: {
+    q: 'عند مرور ضوء من الهواء إلى وسط أكثر كثافة بصرياً (n أكبر)، ماذا يحدث للشعاع المنكسر بالنسبة للعمود المقام؟',
+    opts: [
+      'يبتعد عن العمود (زاوية انكسار أكبر من زاوية السقوط)',
+      'يقترب من العمود (زاوية انكسار أصغر من زاوية السقوط)',
+      'يمشي بلا انحناء دائماً',
+      'ينعكس كلياً دائماً'
+    ],
+    ans: 1,
+    fb: '✅ حسب قانون سنيل: عند الدخول إلى وسط أكثر كثافة (n₂ > n₁) ينثني الشعاع نحو العمود، أي r < i.'
+  },
+  g9refract_1: {
+    q: 'عند انتقال الضوء من زجاج (n₁ أكبر) إلى هواء (n₂ أصغر)، متى يحدث الانعكاس الكلي الداخلي؟',
+    opts: [
+      'عند أي زاوية سقوط',
+      'عندما تزيد زاوية السقوط عن الزاوية الحرجة',
+      'عندما يكون n₁ = n₂',
+      'فقط عند زاوية سقوط صفر'
+    ],
+    ans: 1,
+    fb: '✅ إذا تجاوزت زاوية السقوط الزاوية الحرجة c حيث sin c = n₂/n₁، لا يوجد حل لقانون سنيل للانكسار في الوسط الثاني — فينعكس كل الضوء داخل الوسط الأكثر كثافة.'
+  },
+  g9refltype_0: {
+    q: 'أين يحدث الانعكاس المنتظم غالباً؟',
+    opts: ['على سطح خشن جداً', 'على سطح أملس جداً مثل مرآة', 'داخل الماء فقط', 'في الفراغ فقط'],
+    ans: 1,
+    fb: '✅ السطح الأملس يحافظ على توازي الأشعة المنعكسة فيتكوّن حزم واضحة وصورة. السطح الخشن يشتّت الاتجاهات (انعكاس متشتت).'
+  },
+  g9refltype_1: {
+    q: 'لماذا تُصمَّم شاشات العرض لتعكس الضوء بشكل متشتت؟',
+    opts: [
+      'لكي يرى الجمهور من زوايا مختلفة دون صورة لامعة ضيقة',
+      'لكي لا يرى أحد الشاشة',
+      'لزيادة انعكاس منتظم فقط',
+      'لأن الشاشة مرآة كاملة'
+    ],
+    ans: 0,
+    fb: '✅ الانعكاس المتشتت يوزّع الضوء في اتجاهات متعددة فيمكن رؤية الصورة من أماكن مختلفة دون وهج مركز (على عكس المرآة اللامعة).'
+  },
+  g9refractN_0: {
+    q: 'ما العلاقة بين معامل الانكسار n وسرعة الضوء v داخل المادة؟',
+    opts: [
+      'كلما زاد n زادت v دائماً',
+      'n = c/v حيث c سرعة الضوء في الفراغ — فكلما زاد n قلّت v',
+      'لا علاقة بين n و v',
+      'n يعني لون المادة فقط'
+    ],
+    ans: 1,
+    fb: '✅ n = c/v تقريباً في المادة. المادة الأكثر كثافة بصرياً تبطئ الضوء أكثر فتكون n أكبر.'
+  },
+  g9refractN_1: {
+    q: 'عند ثبات زاوية السقوط من الهواء، ماذا يحدث لزاوية الانكسار عند الدخول إلى مادة ذات n أكبر؟',
+    opts: ['تزداد', 'تنقص', 'تبقى دائماً 90°', 'تصبح صفراً دائماً'],
+    ans: 1,
+    fb: '✅ من n₁ sin i = n₂ sin r: إذا زاد n₂ ينقص sin r فيقل r — الشعاع ينحني أكثر نحو العمود.'
   }
 });
 
@@ -41732,11 +41810,13 @@ function simG9ReflType1(){
         <button id="rfs-rough" class="ctrl-btn rfs-btn" onclick="window._rfSurf('rough',1)">🧱 جدار خشن</button>
       </div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الانعكاس المنتظم يحدث على الأسطح الملساء (كالمرايا)، والانعكاس المتشتت يحدث على الأسطح الخشنة. كلاهما يتبع قانون الانعكاس عند كل نقطة.</div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      راقب اتجاه الأشعة المنعكسة. سؤال الاستنتاج من زر <strong>💡 ماذا نستنتج؟</strong> أسفل الشاشة.
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9refltype'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9refltype'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     simState.t+=0.018;
     const t=simState.t, r=simState.roughness, sc=simState.surface;
@@ -41842,11 +41922,13 @@ function simG9ReflType2(){
         <button id="rfa-road" class="ctrl-btn rfa-btn" onclick="window._rfApp('road')">🛑 علامة طريق</button>
       </div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الانعكاس المنتظم يُستخدم حين نحتاج صورة واضحة (مرايا، تلسكوبات). الانعكاس المتشتت يُستخدم حين نريد توزيع الضوء (شاشات، علامات طريق).</div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      لاحظ نوع الانعكاس لكل تطبيق. ثم جاوب من زر الاستنتاج أسفل الشاشة.
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9refltype'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9refltype'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     simState.t+=0.02;
     const t=simState.t, app=APPS[simState.app];
@@ -41921,108 +42003,181 @@ function simG9ReflType2(){
   draw();
 }
 // ══════════════════════════════════════════════════════════
-// الصف التاسع — فيزياء الوحدة 11: انعكاس الضوء
+// الصف التاسع — فيزياء الوحدة 12: انعكاس الضوء (أسلوب تفاعلي قريب من PhET)
 // ══════════════════════════════════════════════════════════
 function simG9Refl1(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, ang:30, dragging:false};
+  simState={t:0, ang:35, showNormal:true, showWaves:true, drag:false};
   const S=simState;
-  window._setReflAng = function(v){
-    S.ang = +v;
-    const a=document.getElementById('refl-ang');
-    if(a) a.textContent = (+v).toFixed(0);
+  function clampAng(v){ return Math.max(5, Math.min(80, Math.round(v))); }
+  window._setReflAng=function(v){
+    S.ang=clampAng(+v);
+    var a=document.getElementById('refl-ang'); if(a) a.textContent=S.ang;
+    var rg=document.getElementById('refl-rg'); if(rg) rg.value=S.ang;
+  };
+  window._reflPreset=function(a){ window._setReflAng(a); };
+  window._reflTN=function(){
+    S.showNormal=!S.showNormal;
+    var b=document.getElementById('refl-tn');
+    if(b){ b.classList.toggle('action',S.showNormal); b.textContent=S.showNormal?'العمود: ظاهر':'العمود: مخفي'; }
+  };
+  window._reflTW=function(){
+    S.showWaves=!S.showWaves;
+    var b=document.getElementById('refl-tw');
+    if(b){ b.classList.toggle('action',S.showWaves); b.textContent=S.showWaves?'موجات ضوء: نعم':'موجات ضوء: لا'; }
   };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">📐 قانون الانعكاس</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">
-        غيّر زاوية السقوط بالنسبة للعمود المقام (Normal) وشاهد زاوية الانعكاس.
+      <div class="ctrl-label">📐 قانون الانعكاس — مرآة مستوية</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.65;margin-top:4px">
+        حرّك شريط الزاوية، أو <strong>اسحب مقبض الشعاع</strong> على الشاشة. الزوايا من العمود المقام. سؤال الاستنتاج من الزر أسفل الشاشة.
       </div>
     </div>
     <div class="ctrl-section">
-      <div class="ctrl-label">زاوية السقوط i: <span id="refl-ang">30</span>°</div>
-      <input type="range" min="5" max="80" value="30" oninput="window._setReflAng(this.value)" style="width:100%">
+      <div class="ctrl-label">زاوية السقوط i = زاوية الانعكاس r : <span id="refl-ang">35</span>°</div>
+      <input id="refl-rg" type="range" min="5" max="80" value="35" oninput="window._setReflAng(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._reflPreset(10)">10°</button>
+        <button class="ctrl-btn action" onclick="window._reflPreset(35)">35°</button>
+        <button class="ctrl-btn" onclick="window._reflPreset(55)">55°</button>
+        <button class="ctrl-btn" onclick="window._reflPreset(75)">75°</button>
+      </div>
     </div>
-    <div class="info-box" style="text-align:center">
-      <strong>زاوية السقوط = زاوية الانعكاس</strong><br>
-      i = r
+    <div class="ctrl-btns-grid">
+      <button id="refl-tn" class="ctrl-btn action" onclick="window._reflTN()">العمود: ظاهر</button>
+      <button id="refl-tw" class="ctrl-btn action" onclick="window._reflTW()">موجات ضوء: نعم</button>
     </div>
-    <div class="q-box" style="margin-top:10px">
-      <strong>💡 ماذا نستنتج؟</strong><br>
-      عند انعكاس الضوء عن مرآة مستوية تكون زاوية السقوط مساوية تمامًا لزاوية الانعكاس، والزوايا تُقاس من العمود المقام.
+    <div class="info-box" style="margin-top:10px;text-align:center;line-height:1.75;font-size:13px">
+      <strong>i = r</strong> (بالنسبة للعمود)<br>
+      اسحب الدائرة البرتقالية عند طرف الشعاع الساقط لتدويره.
     </div>
   `);
 
   const cv=document.getElementById('simCanvas');
+  function rayGeom(w,h){
+    const midX=w*0.5, midY=h*0.56, mirrorY=midY;
+    const i=(Math.PI/180)*S.ang, L=Math.min(w,h)*0.52;
+    const incDir={x:Math.sin(i), y:Math.cos(i)};
+    const refDir={x:Math.sin(i), y:-Math.cos(i)};
+    const p0={x:midX-incDir.x*L,y:mirrorY-incDir.y*L};
+    const hit={x:midX,y:mirrorY};
+    const p1={x:midX+refDir.x*L,y:mirrorY+refDir.y*L};
+    return {midX,midY,mirrorY,i,L,p0,hit,p1};
+  }
+  function distPointSeg(px,py,x1,y1,x2,y2){
+    const dx=x2-x1, dy=y2-y1, t=Math.max(0,Math.min(1,((px-x1)*dx+(py-y1)*dy)/(dx*dx+dy*dy||1)));
+    const qx=x1+t*dx, qy=y1+t*dy;
+    return Math.hypot(px-qx,py-qy);
+  }
+  function posFromEvt(e){
+    const r=cv.getBoundingClientRect();
+    const p=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
+    return {mx:p.clientX-r.left,my:p.clientY-r.top};
+  }
+  function tryStartDrag(mx,my,w,h){
+    const G=rayGeom(w,h);
+    const dTip=Math.hypot(mx-G.p0.x,my-G.p0.y);
+    const dSeg=distPointSeg(mx,my,G.p0.x,G.p0.y,G.hit.x,G.hit.y);
+    if(dTip<26||dSeg<18){ S.drag=true; return true; }
+    return false;
+  }
+  function updateAngFromPointer(mx,my,w,h){
+    const G=rayGeom(w,h);
+    const dx=G.midX-mx, dy=G.mirrorY-my;
+    if(dy<8) return;
+    let deg=Math.atan2(Math.abs(dx),dy)*180/Math.PI;
+    window._setReflAng(deg);
+  }
+  cv.onmousedown=function(e){ if(currentSim!=='g9refl')return; const {mx,my}=posFromEvt(e); tryStartDrag(mx,my,cv.width,cv.height); };
+  cv.onmousemove=function(e){
+    if(!S.drag||currentSim!=='g9refl') return;
+    const {mx,my}=posFromEvt(e);
+    updateAngFromPointer(mx,my,cv.width,cv.height);
+  };
+  cv.onmouseup=cv.onmouseleave=function(){ S.drag=false; };
+  cv.ontouchstart=function(e){ if(currentSim!=='g9refl')return; const {mx,my}=posFromEvt(e); if(tryStartDrag(mx,my,cv.width,cv.height)) e.preventDefault(); };
+  cv.ontouchmove=function(e){
+    if(!S.drag) return;
+    e.preventDefault();
+    const {mx,my}=posFromEvt(e);
+    updateAngFromPointer(mx,my,cv.width,cv.height);
+  };
+  cv.ontouchend=function(){ S.drag=false; };
+
   function draw(){
-    if(currentSim!=='g9refl' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    if(currentSim!=='g9refl'){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height;
-    c.clearRect(0,0,w,h); S.t++;
+    c.clearRect(0,0,w,h); S.t+=0.02;
     const bg=c.createLinearGradient(0,0,w,h);
-    bg.addColorStop(0,'#F8FAFC'); bg.addColorStop(1,'#EAF2FF');
+    bg.addColorStop(0,'#F0F9FF'); bg.addColorStop(1,'#EEF2FF');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    const midX=w*0.5, midY=h*0.56;
-    const mirrorY=midY;
+    const {midX,midY,mirrorY,i,L,p0,hit,p1}=rayGeom(w,h);
 
-    // Mirror line
-    c.strokeStyle='rgba(30,45,61,0.35)'; c.lineWidth=8; c.lineCap='round';
-    c.beginPath(); c.moveTo(w*0.18,mirrorY); c.lineTo(w*0.82,mirrorY); c.stroke();
-    c.strokeStyle='rgba(255,255,255,0.55)'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(w*0.18,mirrorY-2); c.lineTo(w*0.82,mirrorY-2); c.stroke();
-    c.fillStyle='rgba(30,45,61,0.8)'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
-    c.fillText('مرآة مستوية', midX, mirrorY-8);
+    c.fillStyle='rgba(30,45,61,0.06)'; c.fillRect(0,0,w,mirrorY);
 
-    // Normal
-    c.strokeStyle='rgba(26,143,168,0.7)'; c.lineWidth=3; c.setLineDash([6,5]);
-    c.beginPath(); c.moveTo(midX, mirrorY- h*0.33); c.lineTo(midX, mirrorY + h*0.24); c.stroke();
-    c.setLineDash([]);
-    c.fillStyle='rgba(26,143,168,0.95)'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textBaseline='top';
-    c.fillText('العمود المقام', midX, mirrorY + 8);
+    c.strokeStyle='rgba(30,45,61,0.4)'; c.lineWidth=10; c.lineCap='round';
+    c.beginPath(); c.moveTo(w*0.16,mirrorY); c.lineTo(w*0.84,mirrorY); c.stroke();
+    c.strokeStyle='rgba(255,255,255,0.65)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(w*0.16,mirrorY-2); c.lineTo(w*0.84,mirrorY-2); c.stroke();
+    c.fillStyle='rgba(30,45,61,0.85)'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('سطح مرآة مستوية', midX, mirrorY-10);
 
-    // Rays
-    const i = (Math.PI/180)*S.ang;
-    const L = Math.min(w,h)*0.55;
-    const incDir = {x: Math.sin(i), y: Math.cos(i)}; // toward mirror (down)
-    const refDir = {x: Math.sin(i), y: -Math.cos(i)}; // away (up)
+    if(S.showNormal){
+      c.strokeStyle='rgba(26,143,168,0.75)'; c.lineWidth=3; c.setLineDash([7,6]);
+      c.beginPath(); c.moveTo(midX, mirrorY-h*0.34); c.lineTo(midX, mirrorY+h*0.22); c.stroke(); c.setLineDash([]);
+      c.fillStyle='#1A8FA8'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textBaseline='top';
+      c.fillText('N عمود مقام', midX+6, mirrorY+10);
+    }
 
-    const p0 = {x: midX - incDir.x*L, y: mirrorY - incDir.y*L};
-    const hit = {x: midX, y: mirrorY};
-    const p1 = {x: midX + refDir.x*L, y: mirrorY + refDir.y*L};
+    function drawRayTube(x1,y1,x2,y2,isInc){
+      if(!S.showWaves){
+        c.strokeStyle=isInc?'#D97706':'#0891B2'; c.lineWidth=5; c.lineCap='round';
+        c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+        return;
+      }
+      const grad=c.createLinearGradient(x1,y1,x2,y2);
+      if(isInc){ grad.addColorStop(0,'#FDE68A'); grad.addColorStop(0.5,'#F59E0B'); grad.addColorStop(1,'#EA580C'); }
+      else { grad.addColorStop(0,'#67E8F9'); grad.addColorStop(0.5,'#06B6D4'); grad.addColorStop(1,'#0E7490'); }
+      c.strokeStyle=grad; c.lineWidth=7; c.lineCap='round';
+      c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+      const steps=10, wx=x2-x1, wy=y2-y1;
+      for(let k=0;k<=steps;k++){
+        const t=k/steps, px=x1+wx*t, py=y1+wy*t, ph=Math.sin(S.t*3+k*0.7)*4;
+        c.strokeStyle=isInc?'rgba(245,158,11,0.35)':'rgba(6,182,212,0.35)';
+        c.lineWidth=2;
+        c.beginPath(); c.moveTo(px-ph,py); c.lineTo(px+ph,py); c.stroke();
+      }
+    }
+    drawRayTube(p0.x,p0.y,hit.x,hit.y,true);
+    drawRayTube(hit.x,hit.y,p1.x,p1.y,false);
 
-    // Incident (yellow)
-    c.strokeStyle='#F59E0B'; c.lineWidth=5; c.lineCap='round';
-    c.beginPath(); c.moveTo(p0.x,p0.y); c.lineTo(hit.x,hit.y); c.stroke();
-    // Reflected (cyan)
-    c.strokeStyle='#06B6D4'; c.lineWidth=5;
-    c.beginPath(); c.moveTo(hit.x,hit.y); c.lineTo(p1.x,p1.y); c.stroke();
-
-    // Arrow heads
     function arrow(x1,y1,x2,y2,col){
-      const ang=Math.atan2(y2-y1,x2-x1);
-      const ah=14;
+      const ang=Math.atan2(y2-y1,x2-x1), ah=13;
       c.fillStyle=col;
-      c.beginPath();
-      c.moveTo(x2,y2);
-      c.lineTo(x2-ah*Math.cos(ang-0.5), y2-ah*Math.sin(ang-0.5));
-      c.lineTo(x2-ah*Math.cos(ang+0.5), y2-ah*Math.sin(ang+0.5));
+      c.beginPath(); c.moveTo(x2,y2);
+      c.lineTo(x2-ah*Math.cos(ang-0.45), y2-ah*Math.sin(ang-0.45));
+      c.lineTo(x2-ah*Math.cos(ang+0.45), y2-ah*Math.sin(ang+0.45));
       c.closePath(); c.fill();
     }
-    arrow(p0.x,p0.y, hit.x,hit.y,'#F59E0B');
-    arrow(hit.x,hit.y, p1.x,p1.y,'#06B6D4');
+    arrow(p0.x,p0.y,hit.x,hit.y,'#B45309');
+    arrow(hit.x,hit.y,p1.x,p1.y,'#0E7490');
 
-    // Angle arcs
-    const arcR=Math.min(w,h)*0.09;
-    c.lineWidth=3;
-    c.strokeStyle='rgba(245,158,11,0.9)';
-    c.beginPath(); c.arc(midX,mirrorY,arcR, -Math.PI/2, -Math.PI/2 + i, false); c.stroke();
-    c.strokeStyle='rgba(6,182,212,0.9)';
-    c.beginPath(); c.arc(midX,mirrorY,arcR, -Math.PI/2 - i, -Math.PI/2, false); c.stroke();
+    c.strokeStyle='rgba(245,158,11,0.85)'; c.lineWidth=2.5;
+    const arcR=Math.min(w,h)*0.095;
+    c.beginPath(); c.arc(midX,mirrorY,arcR,-Math.PI/2,-Math.PI/2+i,false); c.stroke();
+    c.strokeStyle='rgba(6,182,212,0.85)';
+    c.beginPath(); c.arc(midX,mirrorY,arcR,-Math.PI/2-i,-Math.PI/2,false); c.stroke();
 
-    c.fillStyle='rgba(30,45,61,0.92)'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
-    c.fillText(`i = ${Math.round(S.ang)}°  |  r = ${Math.round(S.ang)}°`, midX, mirrorY + h*0.27);
-    c.fillStyle='rgba(30,45,61,0.65)'; c.font=`${Math.round(h*0.024)}px Tajawal`;
-    c.fillText('لاحظ أن الزوايا تُقاس من العمود المقام وليس من سطح المرآة', midX, mirrorY + h*0.32);
+    c.fillStyle='#F59E0B'; c.beginPath(); c.arc(p0.x,p0.y,14+Math.sin(S.t*4)*2,0,Math.PI*2); c.fill();
+    c.strokeStyle='white'; c.lineWidth=2; c.stroke();
+    c.fillStyle='white'; c.font=`bold ${11}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('اسحب',p0.x,p0.y);
+
+    c.fillStyle='rgba(15,23,42,0.9)'; c.font=`bold ${Math.min(20,Math.round(h*0.032))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('i = '+Math.round(S.ang)+'°   |   r = '+Math.round(S.ang)+'°', midX, mirrorY+h*0.26);
+    c.fillStyle='rgba(51,65,85,0.75)'; c.font=`${Math.round(h*0.022)}px Tajawal`;
+    c.fillText('قانون الانعكاس: زاوية السقوط = زاوية الانعكاس (من العمود)', midX, mirrorY+h*0.31);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -42031,52 +42186,77 @@ function simG9Refl1(){
 
 function simG9Refl2(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, boxX:0.25, boxY:0.3, ang:-25, dragging:false, dragMode:null};
+  simState={t:0, boxX:0.22, boxY:0.32, ang:-28, dragging:false, showExt:true};
   const S=simState;
   const cv=document.getElementById('simCanvas');
+  window._rdSetAng=function(v){S.ang=+v; var e=document.getElementById('rd-ang'); if(e)e.textContent=v; var r=document.getElementById('rd-rg'); if(r)r.value=v;};
+  window._rdToggleExt=function(){
+    S.showExt=!S.showExt;
+    var b=document.getElementById('rd-ext'); if(b){ b.classList.toggle('action',S.showExt); b.textContent=S.showExt?'امتداد افتراضي: ظاهر':'امتداد افتراضي: مخفي'; }
+  };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🎯 مخطط الأشعة (Ray diagram)</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">
-        اسحب صندوق الأشعة لتغيير مكانه، وغيّر الزاوية لرسم الشعاع الساقط والمنعكس.
+      <div class="ctrl-label">🎯 مخطط الأشعة — مرآة عمودية</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.65;margin-top:4px">
+        اسحب <strong>صندوق المصدر</strong> على الشاشة (أو باللمس). غيّر زاوية الشعاع. راقب تساوي زاويتي السقوط والانعكاس عن <em>العمود الأفقي</em> عند المرآة.
       </div>
     </div>
     <div class="ctrl-section">
-      <div class="ctrl-label">زاوية الشعاع: <span id="rd-ang">-25</span>°</div>
-      <input type="range" min="-75" max="75" value="-25" oninput="simState.ang=+this.value;document.getElementById('rd-ang').textContent=this.value" style="width:100%">
+      <div class="ctrl-label">ميل الشعاع (°): <span id="rd-ang">-28</span></div>
+      <input id="rd-rg" type="range" min="-75" max="75" value="-28" oninput="window._rdSetAng(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._rdSetAng(-50)">↙️ −50</button>
+        <button class="ctrl-btn action" onclick="window._rdSetAng(-28)">وسط</button>
+        <button class="ctrl-btn" onclick="window._rdSetAng(40)">↗️ 40</button>
+      </div>
     </div>
-    <button class="ctrl-btn reset" style="width:100%;margin-top:6px" onclick="simG9Refl2()">↺ إعادة</button>
-    <div class="q-box" style="margin-top:10px">
-      <strong>💡 ماذا نستنتج؟</strong><br>
-      مخطط الأشعة يساعدنا على تحديد اتجاه الصورة ومسار الضوء بدقة، وهو أداة أساسية لفهم المرايا والأجهزة البصرية.
+    <div class="ctrl-btns-grid">
+      <button id="rd-ext" class="ctrl-btn action" onclick="window._rdToggleExt()">امتداد افتراضي: ظاهر</button>
     </div>
-    <div class="q-box" style="margin-top:10px">
-      <strong>❓ كيف نرسم مخطط الأشعة؟</strong>
-      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">ارسم العمود المقام عند نقطة السقوط، ارسم الشعاع الساقط، ثم ارسم الشعاع المنعكس بحيث تكون زاوية السقوط = زاوية الانعكاس (بالنسبة للعمود المقام).</div>
+    <button class="ctrl-btn reset" style="width:100%;margin-top:8px" onclick="simG9Refl2()">↺ إعادة</button>
+    <div class="q-box" style="margin-top:10px;font-size:13px;line-height:1.7">
+      <strong>❓ كيف أرسم المخطط؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">عرض</button>
+      <div class="q-ans-panel">عمود عند نقطة السقوط على المرآة → شعاع ساقط → شعاع منعكس بنفس الزاوية عن العمود. الامتداد الافتراضي يساعد على تخيّل مسار الضوء.</div>
     </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.65">سؤال «ماذا نستنتج» عن مخطط الأشعة من الزر أسفل الشاشة.</div>
   `);
 
-  cv.onmousedown = (e)=>{
-    if(currentSim!=='g9refl' || currentTab!==1) return;
+  function _rdPos(e){
     const r=cv.getBoundingClientRect();
-    const mx=e.clientX-r.left, my=e.clientY-r.top;
-    const w=cv.width, h=cv.height;
+    const p=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
+    return {mx:p.clientX-r.left,my:p.clientY-r.top};
+  }
+  cv.onmousedown=function(e){
+    if(currentSim!=='g9refl') return;
+    const {mx,my}=_rdPos(e), w=cv.width, h=cv.height;
     const bx=S.boxX*w, by=S.boxY*h;
-    if(Math.hypot(mx-bx,my-by)<34){ S.dragging=true; }
+    if(Math.hypot(mx-bx,my-by)<38) S.dragging=true;
   };
-  cv.onmousemove = (e)=>{
+  cv.onmousemove=function(e){
     if(!S.dragging) return;
-    const r=cv.getBoundingClientRect();
-    const mx=e.clientX-r.left, my=e.clientY-r.top;
-    const w=cv.width, h=cv.height;
-    S.boxX = Math.max(0.12, Math.min(0.88, mx/w));
-    S.boxY = Math.max(0.12, Math.min(0.52, my/h));
+    const {mx,my}=_rdPos(e), w=cv.width, h=cv.height;
+    S.boxX=Math.max(0.1,Math.min(0.55,mx/w));
+    S.boxY=Math.max(0.12,Math.min(0.55,my/h));
   };
-  cv.onmouseup = ()=>{ S.dragging=false; };
+  cv.onmouseup=cv.onmouseleave=function(){ S.dragging=false; };
+  cv.ontouchstart=function(e){
+    if(currentSim!=='g9refl') return;
+    const {mx,my}=_rdPos(e), w=cv.width, h=cv.height;
+    const bx=S.boxX*w, by=S.boxY*h;
+    if(Math.hypot(mx-bx,my-by)<42){ S.dragging=true; e.preventDefault(); }
+  };
+  cv.ontouchmove=function(e){
+    if(!S.dragging) return;
+    e.preventDefault();
+    const {mx,my}=_rdPos(e), w=cv.width, h=cv.height;
+    S.boxX=Math.max(0.1,Math.min(0.55,mx/w));
+    S.boxY=Math.max(0.12,Math.min(0.55,my/h));
+  };
+  cv.ontouchend=function(){ S.dragging=false; };
 
   function draw(){
-    if(currentSim!=='g9refl' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    if(currentSim!=='g9refl'){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     c.fillStyle='#F7FAFC'; c.fillRect(0,0,w,h);
@@ -42118,17 +42298,24 @@ function simG9Refl2(){
     c.strokeStyle='#06B6D4'; c.lineWidth=5;
     c.beginPath(); c.moveTo(hx,hitY); c.lineTo(rx,ry); c.stroke();
 
+    if(S.showExt){
+      c.setLineDash([9,7]); c.strokeStyle='rgba(6,182,212,0.42)'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(hx,hitY); c.lineTo(hx-refDir.x*w*0.55, hitY-refDir.y*w*0.55); c.stroke(); c.setLineDash([]);
+      c.fillStyle='rgba(6,182,212,0.75)'; c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+      c.fillText('امتداد الشعاع (خلف المرآة)', hx-refDir.x*w*0.28, hitY-refDir.y*w*0.28-8);
+    }
+
     // Ray box
     c.shadowColor='rgba(0,0,0,0.2)'; c.shadowBlur=10;
-    c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(bx-34,by-22,68,44,14); c.fill();
+    c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(bx-36,by-24,72,48,14); c.fill();
     c.shadowBlur=0;
     c.strokeStyle='rgba(245,158,11,0.55)'; c.lineWidth=2; c.stroke();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('Ray', bx, by);
+    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('مصدر ضوء', bx, by);
 
     // Labels
-    c.fillStyle='rgba(30,45,61,0.9)'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
-    c.fillText('اسحب الصندوق (Ray box) ثم راقب الانعكاس', w/2, 18);
+    c.fillStyle='rgba(30,45,61,0.9)'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('اسحب «مصدر الضوء» — راقب تساوي الزاويتين عن العمود الأفقي', w/2, 14);
 
     // Angle calc relative to normal (horizontal): angle between ray and normal = |atan2(dy,dx)| for incident toward mirror
     const incAng = Math.abs(Math.atan2(dir.y, dir.x)) * 180/Math.PI;
@@ -42142,54 +42329,150 @@ function simG9Refl2(){
 }
 
 // ══════════════════════════════════════════════════════════
-// الصف التاسع — فيزياء الوحدة 12: انكسار الضوء
+// الصف التاسع — فيزياء الوحدة 13: انكسار الضوء (قانون سنيل — PhET-style)
 // ══════════════════════════════════════════════════════════
 function simG9Refract1(){
   cancelAnimationFrame(animFrame);
-  simState={a:35,n2:1.5};
-  window._setRefA=v=>{simState.a=+v; var el=document.getElementById('rf-a'); if(el) el.textContent=v;};
-  window._setRefN=v=>{simState.n2=+v; var el=document.getElementById('rf-n'); if(el) el.textContent=(+v).toFixed(2);};
+  simState={a:35,n2:1.5,drag:false,t:0,showNorm:true};
+  const S=simState;
+  window._setRefA=function(v){S.a=+v; var el=document.getElementById('rf-a'); if(el)el.textContent=v; var rg=document.getElementById('rf-rga'); if(rg)rg.value=v;};
+  window._setRefN=function(v){S.n2=+v; var el=document.getElementById('rf-n'); if(el)el.textContent=(+v).toFixed(2); var rg=document.getElementById('rf-rgn'); if(rg)rg.value=v;};
+  window._rfMat=function(n){ window._setRefN(n); };
+  window._rfTN=function(){
+    S.showNorm=!S.showNorm;
+    var b=document.getElementById('rf-tn'); if(b){ b.classList.toggle('action',S.showNorm); b.textContent=S.showNorm?'العمود: ظاهر':'العمود: مخفي'; }
+  };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🔎 انكسار الضوء (قانون سنيل)</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">الوسط 1: هواء (n=1.00) — الوسط 2: مادة شفافة.</div>
+      <div class="ctrl-label">🔎 قانون سنيل — هواء → مادة</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.65;margin-top:4px">
+        n₁ = 1.00 (هواء). غيّر n₂ وزاوية السقوط i. اسحب <strong>مقبض الشعاع</strong> على الشاشة. تحقق من n₁sin i = n₂sin r. الاستنتاج من الزر أسفل الشاشة.
+      </div>
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">زاوية السقوط i: <span id="rf-a">35</span>°</div>
-      <input type="range" min="5" max="80" value="35" oninput="window._setRefA(this.value)" style="width:100%">
-      <div class="ctrl-label" style="margin-top:8px">معامل انكسار الوسط 2: <span id="rf-n">1.50</span></div>
-      <input type="range" min="1.10" max="2.00" step="0.01" value="1.50" oninput="window._setRefN(this.value)" style="width:100%">
+      <input id="rf-rga" type="range" min="5" max="85" value="35" oninput="window._setRefA(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._setRefA(15)">15°</button>
+        <button class="ctrl-btn action" onclick="window._setRefA(35)">35°</button>
+        <button class="ctrl-btn" onclick="window._setRefA(60)">60°</button>
+      </div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما زاد معامل الانكسار انحنى الشعاع أكثر نحو العمود المقام.</div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">معامل الانكسار n₂: <span id="rf-n">1.50</span></div>
+      <input id="rf-rgn" type="range" min="1.10" max="2.20" step="0.01" value="1.50" oninput="window._setRefN(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._rfMat(1.33)">💧 ماء 1.33</button>
+        <button class="ctrl-btn action" onclick="window._rfMat(1.50)">🪟 زجاج 1.50</button>
+        <button class="ctrl-btn" onclick="window._rfMat(2.00)">💎 شبه ألماس 2.00</button>
+      </div>
+    </div>
+    <div class="ctrl-btns-grid">
+      <button id="rf-tn" class="ctrl-btn action" onclick="window._rfTN()">العمود: ظاهر</button>
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      عند الدخول إلى وسط أكثر كثافة ينثني الشعاع <strong>نحو العمود</strong> (r أصغر من i).
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
-  function draw(){
-    if(currentSim!=='g9refract' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    c.fillStyle='#EAF4FF'; c.fillRect(0,0,w,h*0.5);
-    c.fillStyle='#DFF7EC'; c.fillRect(0,h*0.5,w,h*0.5);
-    c.strokeStyle='rgba(30,45,61,0.35)'; c.lineWidth=3; c.beginPath(); c.moveTo(0,h*0.5); c.lineTo(w,h*0.5); c.stroke();
-    const cx=w*0.5, cy=h*0.5;
-    c.setLineDash([6,5]); c.strokeStyle='#1A8FA8'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(cx, h*0.12); c.lineTo(cx, h*0.88); c.stroke(); c.setLineDash([]);
-
-    const i=simState.a*Math.PI/180, n1=1, n2=simState.n2;
-    const sr=Math.min(0.999, (n1/n2)*Math.sin(i));
+  function geom(w,h){
+    const cx=w*0.5, cy=h*0.5, L=Math.min(w,h)*0.44;
+    const i=S.a*Math.PI/180, n1=1, n2=S.n2;
+    const sr=Math.min(1,(n1/n2)*Math.sin(i));
     const r=Math.asin(sr);
-    const L=Math.min(w,h)*0.42;
     const p0={x:cx-Math.sin(i)*L,y:cy-Math.cos(i)*L};
     const p1={x:cx+Math.sin(r)*L,y:cy+Math.cos(r)*L};
+    return {cx,cy,L,i,r,n1,n2,p0,p1};
+  }
+  function posE(e){
+    const r=cv.getBoundingClientRect();
+    const p=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
+    return {mx:p.clientX-r.left,my:p.clientY-r.top};
+  }
+  function tryDrag(mx,my,w,h){
+    const G=geom(w,h);
+    if(Math.hypot(mx-G.p0.x,my-G.p0.y)<24){ S.drag=true; return; }
+    if(Math.abs(mx-G.cx)<22&&my<G.cy-10&&my>G.cy-G.L-20) S.drag=true;
+  }
+  function ptrToAngle(mx,my,w,h){
+    const G=geom(w,h);
+    const dx=G.cx-mx, dy=G.cy-my;
+    if(dy<6) return;
+    let deg=Math.atan2(Math.abs(dx),dy)*180/Math.PI;
+    window._setRefA(Math.max(5,Math.min(85,Math.round(deg))));
+  }
+  cv.onmousedown=function(e){ if(currentSim!=='g9refract')return; const {mx,my}=posE(e); tryDrag(mx,my,cv.width,cv.height); };
+  cv.onmousemove=function(e){ if(!S.drag||currentSim!=='g9refract')return; ptrToAngle(posE(e).mx,posE(e).my,cv.width,cv.height); };
+  cv.onmouseup=cv.onmouseleave=function(){ S.drag=false; };
+  cv.ontouchstart=function(e){ if(currentSim!=='g9refract')return; tryDrag(posE(e).mx,posE(e).my,cv.width,cv.height); if(S.drag)e.preventDefault(); };
+  cv.ontouchmove=function(e){ if(!S.drag)return; e.preventDefault(); const p=posE(e); ptrToAngle(p.mx,p.my,cv.width,cv.height); };
+  cv.ontouchend=function(){ S.drag=false; };
 
-    c.strokeStyle='#F59E0B'; c.lineWidth=5; c.beginPath(); c.moveTo(p0.x,p0.y); c.lineTo(cx,cy); c.stroke();
-    c.strokeStyle='#0EA5E9'; c.lineWidth=5; c.beginPath(); c.moveTo(cx,cy); c.lineTo(p1.x,p1.y); c.stroke();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
-    c.fillText(`i = ${simState.a.toFixed(0)}°`, cx-w*0.16, cy-h*0.07);
-    c.fillText(`r = ${(r*180/Math.PI).toFixed(1)}°`, cx+w*0.16, cy+h*0.08);
-    c.font=`${Math.round(h*0.027)}px Tajawal`;
-    c.fillText(`n₁ sin(i) = n₂ sin(r)`, w/2, h*0.92);
-    c.fillText(`هواء n=1.00`, w*0.12, h*0.1);
-    c.fillText(`وسط 2 n=${n2.toFixed(2)}`, w*0.14, h*0.58);
+  function draw(){
+    if(currentSim!=='g9refract'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    S.t+=0.02;
+    c.clearRect(0,0,w,h);
+    const sky=c.createLinearGradient(0,0,0,h*0.5);
+    sky.addColorStop(0,'#E0F2FE'); sky.addColorStop(1,'#BAE6FD');
+    c.fillStyle=sky; c.fillRect(0,0,w,h*0.5);
+    const mat=c.createLinearGradient(0,h*0.5,0,h);
+    const hue=S.n2>1.8?'180,70%':'200,65%';
+    mat.addColorStop(0,`hsla(${hue},0.35,0.92,0.95)`);
+    mat.addColorStop(1,`hsla(${hue},0.45,0.75,0.9)`);
+    c.fillStyle=mat; c.fillRect(0,h*0.5,w,h*0.5);
+    c.strokeStyle='rgba(30,45,61,0.45)'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(0,h*0.5); c.lineTo(w,h*0.5); c.stroke();
+
+    const {cx,cy,L,i,r,n1,n2,p0,p1}=geom(w,h);
+
+    if(S.showNorm){
+      c.setLineDash([7,6]); c.strokeStyle='rgba(26,143,168,0.75)'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(cx,h*0.1); c.lineTo(cx,h*0.9); c.stroke(); c.setLineDash([]);
+    }
+
+    function waveRay(x1,y1,x2,y2,inc){
+      const gr=c.createLinearGradient(x1,y1,x2,y2);
+      if(inc){ gr.addColorStop(0,'#FDE68A'); gr.addColorStop(1,'#EA580C'); }
+      else { gr.addColorStop(0,'#7DD3FC'); gr.addColorStop(1,'#0369A1'); }
+      c.strokeStyle=gr; c.lineWidth=6; c.lineCap='round';
+      c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+      const wx=x2-x1, wy=y2-y1;
+      for(let k=0;k<=8;k++){
+        const t=k/8, px=x1+wx*t, py=y1+wy*t, ph=Math.sin(S.t*2.8+k*0.8)*3.5;
+        c.strokeStyle=inc?'rgba(234,88,12,0.35)':'rgba(3,105,161,0.35)'; c.lineWidth=2;
+        c.beginPath(); c.moveTo(px-ph,py); c.lineTo(px+ph,py); c.stroke();
+      }
+    }
+    waveRay(p0.x,p0.y,cx,cy,true);
+    waveRay(cx,cy,p1.x,p1.y,false);
+
+    c.fillStyle='#F59E0B'; c.beginPath(); c.arc(p0.x,p0.y,13+Math.sin(S.t*3)*1.5,0,Math.PI*2); c.fill();
+    c.strokeStyle='white'; c.lineWidth=2; c.stroke();
+    c.fillStyle='white'; c.font=`bold 10px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('اسحب',p0.x,p0.y);
+
+    const arcR=Math.min(w,h)*0.09;
+    c.strokeStyle='rgba(245,158,11,0.85)'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(cx,cy,arcR,-Math.PI/2,-Math.PI/2+i,false); c.stroke();
+    c.strokeStyle='rgba(14,165,233,0.85)';
+    c.beginPath(); c.arc(cx,cy,arcR,-Math.PI/2,-Math.PI/2+i+r,false); c.stroke();
+
+    c.fillStyle='rgba(15,23,42,0.9)'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('i = '+S.a.toFixed(0)+'°', cx-w*0.18, cy-h*0.12);
+    c.fillText('r = '+(r*180/Math.PI).toFixed(1)+'°', cx+w*0.18, cy+h*0.1);
+
+    c.fillStyle='rgba(30,45,61,0.55)'; c.font=`${Math.round(h*0.022)}px Tajawal`;
+    c.fillText('هواء n₁ = '+n1.toFixed(2), w*0.12, h*0.08);
+    c.fillText('مادة n₂ = '+n2.toFixed(2), w*0.12, h*0.62);
+
+    c.fillStyle='rgba(255,255,255,0.92)'; c.beginPath(); c.roundRect(w*0.18,h*0.78,w*0.64,46,12); c.fill();
+    c.strokeStyle='rgba(26,143,168,0.25)'; c.stroke();
+    c.fillStyle='#0C4A6E'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`;
+    c.fillText('n₁ sin(i) = '+ (n1*Math.sin(i)).toFixed(3) +'   |   n₂ sin(r) = '+ (n2*Math.sin(r)).toFixed(3), w/2, h*0.805);
+    c.fillStyle='#64748B'; c.font=`${Math.round(h*0.02)}px Tajawal`;
+    c.fillText('يجب أن يتطابقا (نموذج رقمي)', w/2, h*0.835);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -42197,46 +42480,115 @@ function simG9Refract1(){
 
 function simG9Refract2(){
   cancelAnimationFrame(animFrame);
-  simState={n1:1.5,a:35};
-  window._setCritA=v=>{simState.a=+v; var el=document.getElementById('cr-a'); if(el) el.textContent=v;};
+  simState={n1:1.52,a:42,drag:false,t:0};
+  const S=simState;
+  window._setCritA=function(v){S.a=+v; var el=document.getElementById('cr-a'); if(el)el.textContent=v; var rg=document.getElementById('cr-rg'); if(rg)rg.value=v;};
+  window._setCritN=function(v){S.n1=+v; var el=document.getElementById('cr-n'); if(el)el.textContent=(+v).toFixed(2); var rg=document.getElementById('cr-rgn'); if(rg)rg.value=v;};
+  window._critPreset=function(mode){
+    var n1=S.n1, n2=1, cdeg=Math.asin(n2/n1)*180/Math.PI;
+    if(mode==='below') window._setCritA(Math.max(5,Math.round(cdeg-6)));
+    if(mode==='at') window._setCritA(Math.round(cdeg));
+    if(mode==='above') window._setCritA(Math.min(80,Math.round(cdeg+8)));
+  };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🌈 الزاوية الحرجة والانعكاس الكلي</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-top:4px">من الزجاج إلى الهواء: عندما i > الزاوية الحرجة يحدث انعكاس كلي.</div>
+      <div class="ctrl-label">🌈 زاوية حرجة — زجاج → هواء</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.65;margin-top:4px">
+        الوسط السفلي: زجاج (n₁). الأعلى: هواء (n₂ = 1). إذا تجاوزت i الزاوية الحرجة c يحدث <strong>انعكاس كلي داخلي</strong>. اسحب مقبض الشعاع على الشاشة.
+      </div>
     </div>
     <div class="ctrl-section">
-      <div class="ctrl-label">زاوية السقوط i: <span id="cr-a">35</span>°</div>
-      <input type="range" min="5" max="80" value="35" oninput="window._setCritA(this.value)" style="width:100%">
+      <div class="ctrl-label">معامل n₁ للزجاج: <span id="cr-n">1.52</span></div>
+      <input id="cr-rgn" type="range" min="1.35" max="1.75" step="0.01" value="1.52" oninput="window._setCritN(this.value)" style="width:100%">
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الزاوية الحرجة للانتقال من وسط كثيف إلى أقل كثافة تساوي c = sin⁻¹(n₂/n₁).</div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">زاوية السقوط i: <span id="cr-a">42</span>°</div>
+      <input id="cr-rg" type="range" min="5" max="80" value="42" oninput="window._setCritA(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:8px">
+        <button class="ctrl-btn" onclick="window._critPreset('below')">قبل الحرجة</button>
+        <button class="ctrl-btn action" onclick="window._critPreset('at')">عند c تقريباً</button>
+        <button class="ctrl-btn" onclick="window._critPreset('above')">بعد الحرجة</button>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      c = sin⁻¹(n₂/n₁). جرّب الأزرار ثم افتح سؤال الاستنتاج من الأسفل.
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
-  function draw(){
-    if(currentSim!=='g9refract' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    const cx=w*0.5, cy=h*0.5;
-    c.fillStyle='#DFF7EC'; c.fillRect(0,0,w,h*0.5);
-    c.fillStyle='#EAF4FF'; c.fillRect(0,h*0.5,w,h*0.5);
-    c.strokeStyle='rgba(30,45,61,0.35)'; c.lineWidth=3; c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke();
-    c.setLineDash([6,5]); c.strokeStyle='#1A8FA8'; c.beginPath(); c.moveTo(cx,h*0.12); c.lineTo(cx,h*0.88); c.stroke(); c.setLineDash([]);
-    const n1=1.5,n2=1.0,i=simState.a*Math.PI/180,crit=Math.asin(n2/n1);
-    const L=Math.min(w,h)*0.4;
+  function geom(w,h){
+    const cx=w*0.5, cy=h*0.5, L=Math.min(w,h)*0.42;
+    const i=S.a*Math.PI/180, n1=S.n1, n2=1;
+    const crit=Math.asin(n2/n1);
+    const tir=i>crit;
+    let r=0, pRefr={x:cx,y:cy};
+    if(!tir) r=Math.asin(Math.min(0.999,(n1/n2)*Math.sin(i)));
+    if(!tir) pRefr={x:cx+Math.sin(r)*L,y:cy-Math.cos(r)*L};
     const p0={x:cx-Math.sin(i)*L,y:cy+Math.cos(i)*L};
-    c.strokeStyle='#F59E0B'; c.lineWidth=5; c.beginPath(); c.moveTo(p0.x,p0.y); c.lineTo(cx,cy); c.stroke();
-    if(i>crit){
+    return {cx,cy,L,i,n1,n2,crit,tir,r,p0,pRefr};
+  }
+  function posE(e){
+    const r=cv.getBoundingClientRect();
+    const p=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
+    return {mx:p.clientX-r.left,my:p.clientY-r.top};
+  }
+  cv.onmousedown=function(e){ if(currentSim!=='g9refract')return; const {mx,my}=posE(e),w=cv.width,h=cv.height,G=geom(w,h);
+    if(Math.hypot(mx-G.p0.x,my-G.p0.y)<24) S.drag=true;
+  };
+  cv.onmousemove=function(e){ if(!S.drag||currentSim!=='g9refract')return; const {mx,my}=posE(e),w=cv.width,h=cv.height,G=geom(w,h);
+    const dx=G.cx-mx, dy=my-G.cy;
+    if(dy>8){ let deg=Math.atan2(Math.abs(dx),dy)*180/Math.PI; window._setCritA(Math.max(5,Math.min(80,Math.round(deg)))); }
+  };
+  cv.onmouseup=cv.onmouseleave=function(){ S.drag=false; };
+  cv.ontouchstart=function(e){ if(currentSim!=='g9refract')return; const {mx,my}=posE(e),G=geom(cv.width,cv.height);
+    if(Math.hypot(mx-G.p0.x,my-G.p0.y)<26){ S.drag=true; e.preventDefault(); }
+  };
+  cv.ontouchmove=function(e){ if(!S.drag)return; e.preventDefault(); const {mx,my}=posE(e),G=geom(cv.width,cv.height);
+    const dx=G.cx-mx, dy=my-G.cy; if(dy>8){ let deg=Math.atan2(Math.abs(dx),dy)*180/Math.PI; window._setCritA(Math.max(5,Math.min(80,Math.round(deg)))); }
+  };
+  cv.ontouchend=function(){ S.drag=false; };
+
+  function draw(){
+    if(currentSim!=='g9refract'){cancelAnimationFrame(animFrame);return;}
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
+    S.t+=0.02;
+    c.clearRect(0,0,w,h);
+    const glass=c.createLinearGradient(0,0,0,h*0.5);
+    glass.addColorStop(0,'#BBF7D0'); glass.addColorStop(1,'#4ADE80');
+    c.fillStyle=glass; c.fillRect(0,0,w,h*0.5);
+    c.fillStyle='#E0F2FE'; c.fillRect(0,h*0.5,w,h*0.5);
+    c.strokeStyle='rgba(30,45,61,0.4)'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(0,h*0.5); c.lineTo(w,h*0.5); c.stroke();
+
+    const {cx,cy,L,i,n1,n2,crit,tir,r,p0,pRefr}=geom(w,h);
+
+    c.setLineDash([7,6]); c.strokeStyle='rgba(26,143,168,0.7)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(cx,h*0.08); c.lineTo(cx,h*0.92); c.stroke(); c.setLineDash([]);
+
+    c.strokeStyle='#F59E0B'; c.lineWidth=6; c.lineCap='round';
+    c.beginPath(); c.moveTo(p0.x,p0.y); c.lineTo(cx,cy); c.stroke();
+
+    if(tir){
       const pRef={x:cx+Math.sin(i)*L,y:cy+Math.cos(i)*L};
-      c.strokeStyle='#06B6D4'; c.lineWidth=5; c.beginPath(); c.moveTo(cx,cy); c.lineTo(pRef.x,pRef.y); c.stroke();
-      c.fillStyle='#DC2626'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center'; c.fillText('انعكاس كلي داخلي', w/2, h*0.1);
+      c.strokeStyle='#06B6D4'; c.lineWidth=6;
+      c.beginPath(); c.moveTo(cx,cy); c.lineTo(pRef.x,pRef.y); c.stroke();
+      c.fillStyle='rgba(220,38,38,0.95)'; c.font=`bold ${Math.min(20,Math.round(h*0.032))}px Tajawal`; c.textAlign='center';
+      c.fillText('⚡ انعكاس كلي داخلي (TIR)', w/2, h*0.06);
     }else{
-      const r=Math.asin((n1/n2)*Math.sin(i));
-      const pRefr={x:cx+Math.sin(r)*L,y:cy-Math.cos(r)*L};
-      c.strokeStyle='#0EA5E9'; c.lineWidth=5; c.beginPath(); c.moveTo(cx,cy); c.lineTo(pRefr.x,pRefr.y); c.stroke();
-      c.fillStyle='#16A34A'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center'; c.fillText('انكسار للخارج', w/2, h*0.1);
+      c.strokeStyle='#0EA5E9'; c.lineWidth=6;
+      c.beginPath(); c.moveTo(cx,cy); c.lineTo(pRefr.x,pRefr.y); c.stroke();
+      c.fillStyle='rgba(22,163,74,0.95)'; c.font=`bold ${Math.min(20,Math.round(h*0.032))}px Tajawal`; c.textAlign='center';
+      c.fillText('↗ انكسار إلى الهواء', w/2, h*0.06);
     }
-    c.fillStyle='#1E2D3D'; c.font=`${Math.round(h*0.028)}px Tajawal`;
-    c.fillText(`i = ${simState.a.toFixed(0)}°`, w*0.18, h*0.88);
-    c.fillText(`c = ${(crit*180/Math.PI).toFixed(1)}°`, w*0.82, h*0.88);
+
+    c.fillStyle='#F59E0B'; c.beginPath(); c.arc(p0.x,p0.y,13,0,Math.PI*2); c.fill();
+    c.strokeStyle='white'; c.lineWidth=2; c.stroke();
+    c.fillStyle='white'; c.font='bold 10px Tajawal'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('اسحب',p0.x,p0.y);
+
+    const cdeg=crit*180/Math.PI;
+    c.fillStyle='rgba(15,23,42,0.88)'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('i = '+S.a.toFixed(0)+'°   |   c ≈ '+cdeg.toFixed(1)+'°   |   n₁='+n1.toFixed(2)+'  n₂='+n2.toFixed(2), w/2, h*0.88);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -42263,11 +42615,13 @@ function simG9RefractN1(){
       <div class="ctrl-label">💎 اختر المادة الشفافة</div>
       <div class="ctrl-btns-grid">${btnHtml}</div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>معامل الانكسار n = سرعة الضوء في الفراغ ÷ سرعة الضوء في المادة. كلما كانت المادة أكثف انكسر الضوء أكثر وتباطأت سرعته.</div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      تغيّر المادة يغيّر n وزاوية الانكسار عند i ثابتة. الاستنتاج من الزر أسفل الشاشة.
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9refractN'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9refractN'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     simState.t+=0.018;
     const t=simState.t, m=MATERIALS[simState.mat];
@@ -42347,11 +42701,13 @@ function simG9RefractN2(){
         كل مادة لها معامل انكسار مختلف يعكس كثافتها البصرية وسرعة الضوء بداخلها.
       </div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما كبر معامل الانكسار، زادت كثافة الوسط البصرية، وقلّت سرعة الضوء فيه، وانكسر الضوء أكثر عند الدخول إليه.</div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      قارن أشرطة n وسرعة الضوء v. ثم افتح سؤال الاستنتاج من الأسفل.
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9refractN'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    if(currentSim!=='g9refractN'){cancelAnimationFrame(animFrame);return;}
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     simState.t+=0.018;
     c.clearRect(0,0,w,h);
