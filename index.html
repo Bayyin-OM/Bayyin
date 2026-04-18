@@ -3209,7 +3209,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         <div class="sim-card" onclick="openSim('g6work')">
           <div class="sim-thumb t1">⚽</div>
           <div class="sim-body">
-            <div class="sim-num">٤-٧ · الشغل المبذول</div>
+            <div class="sim-num">٤-٥ · القوى والطاقة</div>
             <div class="sim-name">استقصاء الشغل المبذول</div>
             <div class="sim-desc">هل الكرة تتحرك؟ احسب الشغل المبذول من القوة والمسافة في ملعب كرة القدم</div>
           </div>
@@ -5488,7 +5488,7 @@ const SIM_META = {
   g6friction:  { title: '٤-٤ · الاحتكاك', badge: '🔥 6', tabs: ['الاحتكاك 🔥'] },
   g6frictionInquiry: { title: '٤-٥ · استقصاء الاحتكاك', badge: '🔬 6', tabs: ['العوامل المؤثرة 🔬', 'الاحتكاك الجزيئي 🔬'] },
   g6airresist: { title: '٤-٦ · مقاومة الهواء', badge: '🪂 6', tabs: ['السقوط الحر 🪂', 'القوى المتوازنة ⚡', 'استقصاء المظلة 🔬'] },
-  g6work:      { title: '٤-٧ · الشغل المبذول', badge: '⚽ 6', tabs: ['استقصاء الشغل ⚽', 'احسب الشغل 🧮', 'ماذا تستنتج؟ 💡'] },
+  g6work:      { title: '٤-٥ · الشغل المبذول', badge: '⚽ 6', tabs: ['استقصاء الشغل ⚽', 'احسب الشغل 🧮', 'ماذا تستنتج؟ 💡'] },
   // وحدة الكهرباء — الصف السادس
   g6conductors:     { title: '5-1 · ما المواد الموصِّلة للكهرباء؟', badge: '⚡ 6', tabs: ['مختبر الاختبار 🔬', 'جدول النتائج 📋'] },
   g6waterconductor: { title: '5-2 · هل الماء يوصِّل الكهرباء؟', badge: '⚡ 6', tabs: ['اسحب الملعقة وجرّب! 💧🧂'] },
@@ -6166,7 +6166,7 @@ function openSim(type) {
     g6airresist:  'الهواء يُقاوم السقوط 🪂 — غيّر المساحة وشوف الفرق!',
     g6friction:   'الاحتكاك 🔥 — جرّب أسطح مختلفة وشوف كيف يبطّئ الحركة!',
     g6frictionInquiry: 'ما العوامل التي تُغيّر قوة الاحتكاك؟ 🔬 — استقصِ وتحقّق!',
-    g6work:           'هل بُذل شغل؟ 🔬 — شاهد الكرة واحسب الشغل المبذول في ملعب كرة القدم!',
+    g6work:           'هل بُذل شغل؟ 🔬 — شاهد الكرة واحسب الشغل المبذول في القوى والطاقة!',
   };
   var greet = simGreets[type] || 'استكشف وجرّب! 🔬';
   setTimeout(function(){ buddySay(greet, 6000); }, 800);
@@ -9074,33 +9074,86 @@ function simWaterConductor1() {
       }}
     });
 
-    // ── أسلاك ──
-    var wc=on?'#27AE60':'#999', lw=on?3:2;
-    c.strokeStyle=wc; c.lineWidth=lw;
-    c.beginPath(); c.moveTo(gx-gw*.55,gy-gh*.73); c.lineTo(gx-gw*.55,gy-gh-h*.06); c.lineTo(w*.15,gy-gh-h*.06); c.stroke();
-    c.beginPath(); c.moveTo(gx+gw*.55,gy-gh*.73); c.lineTo(gx+gw*.55,gy-gh-h*.06); c.lineTo(w*.85,gy-gh-h*.06); c.stroke();
-    // تدفق
-    if(on){ for(var fi=0;fi<simState.spoons*2;fi++){
-      var ft=((simState.t*s+fi/simState.spoons*.5))%1;
-      var fx=w*.15+(gx-gw*.55-w*.15)*ft;
-      c.fillStyle='rgba(0,220,255,'+(0.7-ft*.4)+')'; c.beginPath(); c.arc(fx,gy-gh-h*.06,3,0,Math.PI*2); c.fill();
-    }}
+    // ══ الدائرة الكهربائية — بطارية يسار، مصباح فوق وسط، كأس أسفل ══
+    var wc = on ? '#27AE60' : '#90A4AE';
+    var lw = on ? 3.5 : 2.5;
+    var wireY = h * .10;           // مستوى السلك العلوي
+    var batX = w * .12, batY = h * .30;
+    var bulbX = w * .50, bulbY = h * .14;
+    var bulbR = Math.max(14, w * .028);
 
-    // ── بطارية ──
-    c.fillStyle='#2C3E50'; c.beginPath(); c.roundRect(w*.04,gy-gh-h*.1,58,32,6); c.fill();
-    c.fillStyle='#F39C12'; c.fillRect(w*.04+8,gy-gh-h*.1+6,42,20);
-    c.fillStyle='white'; c.font='bold 9px Arial'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('1.5V',w*.04+29,gy-gh-h*.1+16);
+    // ── البطارية (عمودية على اليسار) ──
+    c.fillStyle = '#1C2833';
+    c.beginPath(); c.roundRect(batX-20, batY-32, 40, 64, 7); c.fill();
+    c.fillStyle = '#F39C12';
+    for(var bi2=0; bi2<3; bi2++) c.fillRect(batX-12, batY-24+bi2*18, 24, 12);
+    c.fillStyle = '#E74C3C'; c.fillRect(batX-4, batY-42, 8, 14); // قطب +
+    c.fillStyle = '#888';    c.fillRect(batX-4, batY+32, 8, 10);  // قطب -
+    c.fillStyle = 'white'; c.font = 'bold 9px Arial'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('1.5V', batX, batY+4);
+    c.fillStyle = '#E74C3C'; c.font = 'bold 13px Arial'; c.fillText('+', batX, batY-50);
+    c.fillStyle = '#888'; c.fillText('−', batX, batY+50);
 
-    // ── مصباح ──
-    if(on){ c.shadowBlur=18+Math.sin(simState.t*4)*5; c.shadowColor='rgba(255,220,0,.7)'; }
-    c.fillStyle=on?('rgba(255,230,80,'+(0.55+.15*Math.sin(simState.t*4))+')'):('rgba(200,200,200,.5)');
-    c.beginPath(); c.arc(w*.88,gy-gh-h*.06,18,0,Math.PI*2); c.fill();
-    c.shadowBlur=0;
-    c.strokeStyle=on?'rgba(255,180,0,.6)':'#BBB'; c.lineWidth=1.5;
-    c.beginPath(); c.arc(w*.88,gy-gh-h*.06,18,0,Math.PI*2); c.stroke();
-    c.fillStyle='#555'; c.beginPath(); c.roundRect(w*.88-8,gy-gh-h*.06+14,16,10,3); c.fill();
-    c.font='10px Tajawal'; c.fillStyle=isDarkMode()?'#aaa':'#666'; c.textAlign='center';
-    c.fillText(on?'يضيء':'منطفئ',w*.88,gy-gh-h*.06+30);
+    // ── المصباح (فوق الوسط) ──
+    if(on){ c.shadowBlur = 22 + Math.sin(simState.t*4)*6; c.shadowColor = 'rgba(255,220,0,.85)'; }
+    c.fillStyle = on ? ('rgba(255,235,80,'+(0.65+.15*Math.sin(simState.t*4))+')') : 'rgba(200,200,200,.45)';
+    c.beginPath(); c.arc(bulbX, bulbY, bulbR, 0, Math.PI*2); c.fill();
+    c.shadowBlur = 0;
+    c.strokeStyle = on ? '#F1C40F' : '#AAA'; c.lineWidth = 2;
+    c.beginPath(); c.arc(bulbX, bulbY, bulbR, 0, Math.PI*2); c.stroke();
+    if(on){
+      c.strokeStyle = 'rgba(255,150,0,.85)'; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(bulbX-6,bulbY-3); c.lineTo(bulbX-2,bulbY+4); c.lineTo(bulbX+2,bulbY-4); c.lineTo(bulbX+6,bulbY+3); c.stroke();
+    }
+    c.fillStyle = '#444';
+    c.beginPath(); c.roundRect(bulbX-8, bulbY+bulbR-2, 16, 12, 3); c.fill();
+    c.fillStyle = '#666'; c.fillRect(bulbX-5, bulbY+bulbR+10, 10, 5);
+    c.font = '11px Tajawal'; c.fillStyle = isDarkMode()?'#ccc':'#555';
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillText(on?'💡 يضيء':'منطفئ', bulbX, bulbY+bulbR+17);
+
+    // ── الأسلاك ──
+    // 1) بطارية (+) → فوق → مصباح (يسار المصباح)
+    c.strokeStyle = wc; c.lineWidth = lw; c.lineJoin = 'round'; c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(batX, batY - 42);              // قطب + البطارية
+    c.lineTo(batX, wireY);                  // صعود
+    c.lineTo(bulbX - bulbR, wireY);         // أفقي لليمين
+    c.lineTo(bulbX - bulbR, bulbY);         // نزول للمصباح
+    c.stroke();
+
+    // 2) مصباح (يمين) → أفقي → قطب يمين الكأس
+    c.beginPath();
+    c.moveTo(bulbX + bulbR, bulbY);
+    c.lineTo(bulbX + bulbR, wireY);
+    c.lineTo(gx + gw*.55, wireY);
+    c.lineTo(gx + gw*.55, gy - gh*.73);
+    c.stroke();
+
+    // 3) بطارية (-) → أفقي → قطب يسار الكأس
+    c.beginPath();
+    c.moveTo(batX, batY + 42);
+    c.lineTo(batX, gy - gh*.4);
+    c.lineTo(gx - gw*.55, gy - gh*.4);
+    c.lineTo(gx - gw*.55, gy - gh*.73);
+    c.stroke();
+
+    // ── تدفق الإلكترونات ──
+    if(on && simState.spoons > 0){
+      var dotCount = simState.spoons * 3;
+      // على السلك العلوي (بطارية → مصباح)
+      var topPathLen = (batX - wireY) + (bulbX - bulbR - batX) + (bulbY - wireY);
+      for(var fi=0; fi<dotCount; fi++){
+        var ft = ((simState.t * s * 0.7 + fi/dotCount)) % 1;
+        var fx2, fy2;
+        var seg1 = 0.3, seg2 = 0.7;
+        if(ft < seg1){ fx2 = batX; fy2 = wireY + (1-ft/seg1)*(batY-42-wireY); }
+        else if(ft < seg2){ fx2 = batX + (ft-seg1)/(seg2-seg1)*(bulbX-bulbR-batX); fy2 = wireY; }
+        else { fx2 = bulbX-bulbR; fy2 = wireY + (ft-seg2)/(1-seg2)*(bulbY-wireY); }
+        c.fillStyle = 'rgba(100,230,255,'+(0.8-ft*.3)+')';
+        c.beginPath(); c.arc(fx2, fy2, 4, 0, Math.PI*2); c.fill();
+      }
+    }
 
     // ── الملعقة (قابلة للسحب) — كبيرة وواضحة ──
     if(!localSpoon.dragging){
