@@ -27793,2490 +27793,413 @@ function simSmoking2(){
 // الوحدة ١٠ — التكاثر والتطوّر  (PhET-style محسّن)
 // ══════════════════════════════════════════════════════════
 
+
 function repro_gametes(){
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.repro_gametes) simState.repro_gametes={t:0,spermCount:0,launched:false,spermObjs:[],fertilised:false,fertAnim:0,tab:currentTab};
-  const S=simState.repro_gametes;
-  S.tab=currentTab;
+  const cv = document.getElementById('simCanvas');
 
-  if(currentTab===0){
-    controls(`
-      <div class="ctrl-section">
-        <div class="ctrl-label">🔬 محاكاة الإخصاب</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.75);margin:6px 0;line-height:1.8">
-          اضغط الزر لإطلاق الحيوانات المنوية نحو البويضة
-        </div>
-        <button class="ctrl-btn play" onclick="
-          simState.repro_gametes.launched=true;
-          simState.repro_gametes.fertilised=false;
-          simState.repro_gametes.fertAnim=0;
-          simState.repro_gametes.spermObjs=Array.from({length:25},(_,i)=>({
-            x:0.06+Math.random()*0.05, y:0.25+Math.random()*0.45,
-            phase:Math.random()*Math.PI*2, done:false, speed:0.0018+Math.random()*0.001,
-            wobble:Math.random()*0.3
-          }));
-        ">🏊 أطلق الحيوانات المنوية</button>
-        <button class="ctrl-btn reset" onclick="
-          simState.repro_gametes.launched=false;
-          simState.repro_gametes.fertilised=false;
-          simState.repro_gametes.spermObjs=[];
-          simState.repro_gametes.fertAnim=0;
-        ">↺ إعادة</button>
-      </div>
-      <div class="info-box" style="font-size:13px;line-height:2;margin-top:8px">
-        🥚 البويضة: كبيرة جداً — 23 كروموسوم<br>
-        🏊 الحيوان المنوي: صغير، يسبح نحو البويضة — 23 كروموسوم<br>
-        ✅ عند الإخصاب في قناة البيض: 23+23 = <strong>46 كروموسوم</strong>
-      </div>`);
-  } else {
-    // Tab 2 — Matching Game
-    if(!S.game) S.game={
-      cards:[
-        {trait:'حجمها كبير جداً',type:'بويضة',id:0},
-        {trait:'لها ذيل للحركة',type:'حيوان منوي',id:1},
-        {trait:'تنتج في المبيض',type:'بويضة',id:2},
-        {trait:'تنتج في الخصية',type:'حيوان منوي',id:3},
-        {trait:'تحمل 23 كروموسوم',type:'بويضة',id:4},
-        {trait:'تنتقل في قناة البيض',type:'بويضة',id:5},
-        {trait:'تسبح نحو البويضة',type:'حيوان منوي',id:6},
-        {trait:'حجمها صغير جداً',type:'حيوان منوي',id:7},
-        {trait:'تحمل 23 كروموسوم',type:'حيوان منوي',id:8},
-        {trait:'خلية أنثوية',type:'بويضة',id:9},
-      ],
-      shuffled:[],
-      dragging:null,
-      positions:{},
-      correct:new Set(),
-      wrong:new Set(),
-      initialized:false,
-      flash:null, flashT:0
+  // ─── State ───────────────────────────────────────────────
+  if(!simState.repro_gametes){
+    simState.repro_gametes = {
+      t:0,
+      // Phase: 'anatomy' → 'question' → 'simulation' → 'done'
+      phase:'anatomy',
+      // clickable zones for anatomy labels
+      tubeZone:null, uterusZone:null, ovaryZone:null,
+      // sperm sim
+      spermObjs:[], launched:false, fertilised:false, fertAnim:0,
+      // egg travel after fertilisation
+      eggTravel:0,
+      // wrong-click flash
+      wrongFlash:0, wrongLabel:'',
+      // anatomy animation
+      pulse:0
     };
-    const G=S.game;
+  }
+  const S = simState.repro_gametes;
+  S.tab = currentTab;   // keep tab in sync
 
-    controls(`
-      <div class="ctrl-section">
-        <div class="ctrl-label">🎮 لعبة المطابقة</div>
-        <div style="font-size:13px;color:#555;line-height:1.8">
-          وصّلي كل خاصية بنوع المشيج الصحيح<br>
-          🟢 صح = تثبت | 🔴 خطأ = ترجع
+  // ─── Controls panel (changes by phase) ───────────────────
+  function updateControls(){
+    if(currentTab !== 0){ controls(''); return; }
+    if(S.phase==='anatomy'||S.phase==='question'){
+      controls(`
+        <div class="ctrl-section">
+          <div class="ctrl-label">🔬 الجهاز التناسلي الأنثوي</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:2;margin:6px 0">
+            📍 تعرّف على أجزاء الجهاز التناسلي<br>
+            ثم أجب عن السؤال باللمس أو النقر
+          </div>
+          <button class="ctrl-btn reset" onclick="simState.repro_gametes.phase='anatomy';simState.repro_gametes.wrongFlash=0;">↺ إعادة</button>
         </div>
-        <button class="ctrl-btn reset" onclick="simState.repro_gametes.game=null">↺ إعادة</button>
-      </div>
-      <div class="info-box" style="font-size:13px;line-height:1.9">
-        🥚 <strong>البويضة:</strong> كبيرة، أنثوية، في المبيض<br>
-        🏊 <strong>الحيوان المنوي:</strong> صغير، ذيل، في الخصية<br>
-        كلاهما يحمل <strong>23</strong> كروموسوم
-      </div>`);
-
-    if(!G.initialized){
-      G.shuffled=[...G.cards].sort(()=>Math.random()-.5);
-      G.initialized=true;
+        <div class="info-box" style="font-size:12px;line-height:2.1;margin-top:8px">
+          🔵 <strong>المبيض:</strong> ينتج البويضات<br>
+          🟣 <strong>قناة البيض:</strong> تنقل البويضة للرحم<br>
+          🩷 <strong>الرحم:</strong> مكان نمو الجنين<br>
+          🟡 <strong>البويضة:</strong> تحمل 23 كروموسوم
+        </div>`);
+    } else {
+      controls(`
+        <div class="ctrl-section">
+          <div class="ctrl-label">🏊 محاكاة الإخصاب</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:2;margin:6px 0">
+            الحيوانات المنوية تسبح عبر الرحم<br>نحو البويضة في قناة البيض
+          </div>
+          <button class="ctrl-btn play" onclick="
+            var S=simState.repro_gametes;
+            S.spermObjs=Array.from({length:30},(_,i)=>({
+              x:0.08+Math.random()*0.06, y:0.44+Math.random()*0.14,
+              phase:Math.random()*Math.PI*2, done:false,
+              speed:0.0014+Math.random()*0.001,
+              wobble:0.18+Math.random()*0.25
+            }));
+            S.launched=true; S.fertilised=false; S.fertAnim=0; S.eggTravel=0;
+          ">🏊 أطلق الحيوانات المنوية</button>
+          <button class="ctrl-btn reset" onclick="
+            simState.repro_gametes.phase='anatomy';
+            simState.repro_gametes.launched=false;
+            simState.repro_gametes.fertilised=false;
+            simState.repro_gametes.spermObjs=[];
+            simState.repro_gametes.fertAnim=0;
+            simState.repro_gametes.eggTravel=0;
+          ">↺ إعادة من البداية</button>
+        </div>
+        <div class="info-box" style="font-size:13px;line-height:2;margin-top:8px">
+          🥚 البويضة: 23 كروموسوم<br>
+          🏊 الحيوان المنوي: 23 كروموسوم<br>
+          ✅ بعد الإخصاب: <strong>46 كروموسوم</strong>
+        </div>`);
     }
   }
+  updateControls();
 
+  // ─── Draw helpers ─────────────────────────────────────────
+  function gp(e){
+    const r=cv.getBoundingClientRect(), sc=cv.width/r.width;
+    const s=e.touches?e.touches[0]:e;
+    return {x:(s.clientX-r.left)*sc, y:(s.clientY-r.top)*sc};
+  }
+
+  // Draw one anatomical label with a pointer dot
+  function label(text, x, y, col, align){
+    const c=cv.getContext('2d');
+    c.save();
+    c.font=`bold ${Math.min(13,cv.width*0.028)}px Tajawal`;
+    c.textAlign=align||'center'; c.textBaseline='middle';
+    // shadow for readability
+    c.shadowColor='rgba(0,0,0,0.8)'; c.shadowBlur=6;
+    c.fillStyle=col; c.fillText(text,x,y);
+    c.restore();
+  }
+
+  // ─── Main draw loop ────────────────────────────────────────
   function draw(){
     if(currentSim!=='repro_gametes') return;
-    const w=cv.width,h=cv.height;
+    S.t += 0.04; S.pulse = (S.pulse+0.03)%( Math.PI*2);
+    const c=cv.getContext('2d');
+    const w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h);
-    S.t+=0.04;
 
     if(S.tab===0){
-      // ── TAB 1: Female reproductive system + fertilisation ──
-      const bg=c.createLinearGradient(0,0,0,h);
-      bg.addColorStop(0,'#3D0A50'); bg.addColorStop(1,'#5A1070');
-      c.fillStyle=bg; c.fillRect(0,0,w,h);
+      drawTab0(c,w,h);
+    }
+    animFrame = requestAnimationFrame(draw);
+  }
 
-      // Draw simplified female reproductive system
-      const cxBody=w*.5, cyBody=h*.52;
-      const uW=w*.22, uH=h*.2;
+  // ─── TAB 0 ────────────────────────────────────────────────
+  function drawTab0(c,w,h){
 
-      // Uterus (رحم) — pear shape
-      c.fillStyle='rgba(220,100,160,0.35)';
-      c.strokeStyle='rgba(255,140,190,0.7)'; c.lineWidth=2.5;
+    // Background — warm body tone
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#2A0838'); bg.addColorStop(1,'#4A106A');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // ── Layout constants ──
+    const cx   = w*0.50;          // horizontal center
+    const uCY  = h*0.56;          // uterus center Y
+    const uW   = w*0.20;          // uterus half-width
+    const uH   = h*0.20;          // uterus half-height
+    const tubeY= uCY - uH*0.42;   // where tubes leave uterus
+
+    // ── 1. Uterus ──
+    const uGrad=c.createRadialGradient(cx,uCY,uH*0.1,cx,uCY,uH*1.1);
+    uGrad.addColorStop(0,'rgba(240,100,160,0.45)');
+    uGrad.addColorStop(1,'rgba(180,40,100,0.12)');
+    c.fillStyle=uGrad; c.strokeStyle='rgba(255,140,190,0.85)'; c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cx, uCY-uH*0.58);
+    c.bezierCurveTo(cx+uW*0.65,uCY-uH*0.50, cx+uW*0.72,uCY+uH*0.28, cx,uCY+uH*0.60);
+    c.bezierCurveTo(cx-uW*0.72,uCY+uH*0.28, cx-uW*0.65,uCY-uH*0.50, cx,uCY-uH*0.58);
+    c.fill(); c.stroke();
+    // endometrium texture lines
+    c.strokeStyle='rgba(255,160,200,0.18)'; c.lineWidth=1;
+    for(let i=-2;i<=2;i++){
       c.beginPath();
-      c.moveTo(cxBody,cyBody-uH*.55);
-      c.bezierCurveTo(cxBody+uW*.6,cyBody-uH*.45, cxBody+uW*.65,cyBody+uH*.25, cxBody,cyBody+uH*.55);
-      c.bezierCurveTo(cxBody-uW*.65,cyBody+uH*.25, cxBody-uW*.6,cyBody-uH*.45, cxBody,cyBody-uH*.55);
-      c.fill(); c.stroke();
-
-      // Fallopian tubes (قناتا البيض)
-      const tubeStartY=cyBody-uH*.38;
-      // Right tube (left on screen due to RTL)
-      c.strokeStyle='rgba(255,160,200,0.8)'; c.lineWidth=Math.max(8,w*.018);
-      c.lineCap='round';
-      c.beginPath();
-      c.moveTo(cxBody+uW*.55,tubeStartY);
-      c.bezierCurveTo(cxBody+uW*1.1,tubeStartY-h*.04, cxBody+uW*1.5,tubeStartY-h*.1, cxBody+uW*1.7,tubeStartY-h*.15);
+      c.ellipse(cx,uCY+uH*0.05,uW*(0.3+Math.abs(i)*0.1),uH*(0.15+Math.abs(i)*0.07),0,0,Math.PI*2);
       c.stroke();
-      // Left tube
+    }
+    // Store clickable zone
+    S.uterusZone={x:cx-uW*0.75,y:uCY-uH*0.65,w:uW*1.5,h:uH*1.35};
+    // Uterus label
+    label('الرحم', cx, uCY+uH*0.12, 'rgba(255,180,220,0.9)');
+
+    // ── 2. Fallopian tubes ──
+    // Right tube (anatomical left = screen right in RTL)
+    const rtX1=cx+uW*0.60, rtX2=cx+uW*1.55, rtX3=cx+uW*1.85;
+    const rtY1=tubeY, rtY2=tubeY-h*0.055, rtY3=tubeY-h*0.14;
+    // tube glow when question active
+    const tubeGlow = S.phase==='question' ? 0.55+Math.sin(S.pulse*3)*0.35 : 0.82;
+    c.strokeStyle=`rgba(255,170,210,${tubeGlow})`; c.lineWidth=Math.max(10,w*0.022); c.lineCap='round';
+    c.beginPath(); c.moveTo(rtX1,rtY1);
+    c.bezierCurveTo(rtX2,rtY2, rtX3-w*0.02,rtY3+h*0.01, rtX3,rtY3); c.stroke();
+    // Fimbriae (أهداب)
+    for(let i=0;i<6;i++){
+      const a=(-0.3+i*0.12)*Math.PI;
+      c.strokeStyle=`rgba(255,150,195,${tubeGlow*0.7})`; c.lineWidth=3;
       c.beginPath();
-      c.moveTo(cxBody-uW*.55,tubeStartY);
-      c.bezierCurveTo(cxBody-uW*1.1,tubeStartY-h*.04, cxBody-uW*1.5,tubeStartY-h*.1, cxBody-uW*1.7,tubeStartY-h*.15);
-      c.stroke();
+      c.moveTo(rtX3,rtY3);
+      c.lineTo(rtX3+Math.cos(a)*w*0.025, rtY3+Math.sin(a)*h*0.035); c.stroke();
+    }
 
-      // Ovaries (مبيضان)
-      const ovR=Math.min(w*.055,h*.055,22);
-      [[cxBody+uW*1.82,tubeStartY-h*.17],[cxBody-uW*1.82,tubeStartY-h*.17]].forEach(([ox,oy])=>{
-        const og=c.createRadialGradient(ox,oy,0,ox,oy,ovR);
-        og.addColorStop(0,'#F4A8D8'); og.addColorStop(1,'#C060A0');
-        c.fillStyle=og; c.beginPath(); c.arc(ox,oy,ovR,0,Math.PI*2); c.fill();
-        c.strokeStyle='#FF90C0'; c.lineWidth=2; c.stroke();
-        c.fillStyle='white'; c.font=`bold ${Math.round(ovR*.5)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText('مبيض',ox,oy+ovR+12);
-      });
+    // Left tube
+    const ltX1=cx-uW*0.60, ltX2=cx-uW*1.55, ltX3=cx-uW*1.85;
+    c.strokeStyle=`rgba(255,170,210,0.82)`; c.lineWidth=Math.max(10,w*0.022);
+    c.beginPath(); c.moveTo(ltX1,rtY1);
+    c.bezierCurveTo(ltX2,rtY2, ltX3+w*0.02,rtY3+h*0.01, ltX3,rtY3); c.stroke();
+    for(let i=0;i<6;i++){
+      const a=(Math.PI+0.3-i*0.12)*Math.PI;
+      c.strokeStyle='rgba(255,150,195,0.55)'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(ltX3,rtY3);
+      c.lineTo(ltX3+Math.cos(a)*w*0.025, rtY3+Math.sin(a)*h*0.035); c.stroke();
+    }
 
-      // Labels
-      c.fillStyle='rgba(255,200,230,0.8)'; c.font=`bold ${Math.min(12,w*.026)}px Tajawal`;
-      c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('الرحم',cxBody,cyBody+uH*.1);
-      c.fillText('قناة البيض ← موقع الإخصاب',cxBody,tubeStartY-h*.22);
+    // Store right-tube clickable zone
+    const tubeZX=Math.min(rtX1,rtX3)-20, tubeZY=rtY3-25;
+    S.tubeZone={x:tubeZX, y:tubeZY, w:Math.abs(rtX3-rtX1)+40, h:Math.abs(rtY1-rtY3)+50};
 
-      // Egg position — large, in right fallopian tube (on screen right = anatomical left)
-      const ex=cxBody+uW*1.22, ey=tubeStartY-h*.08;
-      const eR=Math.min(h*.1,h*.12,42); // Much bigger egg
-      const glow=c.createRadialGradient(ex,ey,0,ex,ey,eR*2.2);
-      glow.addColorStop(0,'rgba(255,200,60,0.6)'); glow.addColorStop(0.5,'rgba(255,180,40,0.2)'); glow.addColorStop(1,'transparent');
-      c.fillStyle=glow; c.beginPath(); c.arc(ex,ey,eR*2.2,0,Math.PI*2); c.fill();
-      // Zona pellucida (غشاء شفاف)
-      c.strokeStyle='rgba(255,220,120,0.35)'; c.lineWidth=6;
-      c.beginPath(); c.arc(ex,ey,eR*1.35,0,Math.PI*2); c.stroke();
-      const eg=c.createRadialGradient(ex-eR*.3,ey-eR*.3,eR*.1,ex,ey,eR);
-      eg.addColorStop(0,'#FFE08A'); eg.addColorStop(.5,'#E89030'); eg.addColorStop(1,'#C07020');
-      c.fillStyle=eg; c.beginPath(); c.arc(ex,ey,eR,0,Math.PI*2); c.fill();
-      c.strokeStyle='#FFB848'; c.lineWidth=3; c.stroke();
-      // Nucleus
-      c.fillStyle='rgba(120,50,10,0.65)'; c.beginPath(); c.arc(ex,ey,eR*.38,0,Math.PI*2); c.fill();
-      c.fillStyle='white'; c.font=`bold ${Math.round(eR*.34)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('23🧬',ex,ey);
-      c.fillStyle='#FFE090'; c.font=`bold ${Math.min(13,w*.028)}px Tajawal`;
-      c.fillText('🥚 البويضة',ex,ey+eR+18);
+    // Tube label with arrow
+    const tubeLabelX = cx+uW*1.18, tubeLabelY = tubeY-h*0.20;
+    if(S.phase==='question'){
+      // Pulsing highlight
+      const glow2=c.createRadialGradient(tubeLabelX,tubeLabelY,0,tubeLabelX,tubeLabelY,w*0.12);
+      glow2.addColorStop(0,`rgba(255,220,80,${0.18+Math.sin(S.pulse*3)*0.12})`);
+      glow2.addColorStop(1,'transparent');
+      c.fillStyle=glow2; c.beginPath(); c.arc(tubeLabelX,tubeLabelY,w*0.12,0,Math.PI*2); c.fill();
+    }
+    label('قناة البيض', tubeLabelX, tubeLabelY, S.phase==='question'?'rgba(255,230,80,0.95)':'rgba(255,200,230,0.85)');
 
-      // Sperm — move FROM LEFT side toward egg (left=vagina side, right=egg in tube)
-      if(S.launched){
+    // ── 3. Ovaries ──
+    const ovR = Math.min(w*0.055, h*0.058, 26);
+    const ovPositions=[[rtX3,rtY3+h*0.01],[ltX3,rtY3+h*0.01]];
+    ovPositions.forEach(([ox,oy],oi)=>{
+      const oGr=c.createRadialGradient(ox-ovR*0.3,oy-ovR*0.3,ovR*0.08,ox,oy,ovR);
+      oGr.addColorStop(0,'#F8B8E0'); oGr.addColorStop(0.6,'#D060A8'); oGr.addColorStop(1,'#8A2060');
+      c.fillStyle=oGr; c.beginPath(); c.arc(ox,oy,ovR,0,Math.PI*2); c.fill();
+      c.strokeStyle='rgba(255,140,200,0.8)'; c.lineWidth=2; c.stroke();
+      // follicle texture
+      c.strokeStyle='rgba(255,200,230,0.3)'; c.lineWidth=1;
+      c.beginPath(); c.arc(ox+ovR*0.25,oy-ovR*0.25,ovR*0.28,0,Math.PI*2); c.stroke();
+      label('مبيض', ox, oy+ovR+13, 'rgba(255,190,230,0.88)');
+    });
+    S.ovaryZone={x:rtX3-ovR*1.5,y:rtY3-ovR,w:ovR*3,h:ovR*3};
+
+    // ── 4. Cervix + vagina canal ──
+    c.strokeStyle='rgba(220,100,150,0.55)'; c.lineWidth=Math.max(6,w*0.012); c.lineCap='round';
+    c.beginPath(); c.moveTo(cx,uCY+uH*0.60); c.lineTo(cx,uCY+uH*0.88); c.stroke();
+
+    // ── 5. Egg in right tube ──
+    const eX = cx+uW*1.20, eY = tubeY-h*0.085;
+    const eR = Math.min(h*0.072, w*0.065, 38);
+    // Glow
+    const eGlow=c.createRadialGradient(eX,eY,0,eX,eY,eR*2.4);
+    eGlow.addColorStop(0,'rgba(255,210,50,0.55)'); eGlow.addColorStop(0.5,'rgba(255,180,30,0.18)'); eGlow.addColorStop(1,'transparent');
+    c.fillStyle=eGlow; c.beginPath(); c.arc(eX,eY,eR*2.4,0,Math.PI*2); c.fill();
+    // Zona pellucida
+    c.strokeStyle='rgba(255,220,120,0.32)'; c.lineWidth=7;
+    c.beginPath(); c.arc(eX,eY,eR*1.38,0,Math.PI*2); c.stroke();
+    // Egg body
+    const eGr=c.createRadialGradient(eX-eR*0.28,eY-eR*0.28,eR*0.08,eX,eY,eR);
+    eGr.addColorStop(0,'#FFE590'); eGr.addColorStop(0.55,'#E89030'); eGr.addColorStop(1,'#B86010');
+    c.fillStyle=eGr; c.beginPath(); c.arc(eX,eY,eR,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(255,185,60,0.9)'; c.lineWidth=2.5; c.stroke();
+    // Nucleus
+    c.fillStyle='rgba(110,45,8,0.7)'; c.beginPath(); c.arc(eX,eY,eR*0.38,0,Math.PI*2); c.fill();
+    // Label inside
+    c.fillStyle='white'; c.font=`bold ${Math.round(eR*0.36)}px Tajawal`;
+    c.textAlign='center'; c.textBaseline='middle';
+
+    if(S.phase==='simulation'||S.phase==='done'){
+      // ── Sperm simulation ──
+      if(S.launched && !S.fertilised){
         S.spermObjs.forEach(sp=>{
           if(sp.done) return;
-          // Calculate direction toward egg
           const sx2=sp.x*w, sy2=sp.y*h;
-          const toEggX=ex-sx2, toEggY=ey-sy2;
-          const dist=Math.hypot(toEggX,toEggY);
-          if(dist<eR*1.3 && !S.fertilised){
+          const toX=eX-sx2, toY=eY-sy2;
+          const dist=Math.hypot(toX,toY);
+          if(dist<eR*1.25){
             S.fertilised=true; S.fertAnim=0;
-            try{SoundEngine.chord([440,554,659],0.5,0.2);}catch(e2){}
+            try{SoundEngine.chord([440,554,659],0.5,0.2);}catch(_){}
           }
-          if(dist<eR+6){ sp.done=true; return; }
-          // Move toward egg with wobble (natural swimming)
-          const angle=Math.atan2(toEggY,toEggX);
-          const wobbleAngle=angle+Math.sin(S.t*5+sp.phase)*sp.wobble;
-          sp.x+=Math.cos(wobbleAngle)*sp.speed;
-          sp.y+=Math.sin(wobbleAngle)*sp.speed;
+          if(dist<eR+5){ sp.done=true; return; }
+          const angle=Math.atan2(toY,toX);
+          const wa=angle+Math.sin(S.t*5+sp.phase)*sp.wobble;
+          sp.x+=Math.cos(wa)*sp.speed; sp.y+=Math.sin(wa)*sp.speed;
+          // draw
           const sx3=sp.x*w, sy3=sp.y*h;
-          // Draw sperm head
-          const headAngle=Math.atan2(toEggY,toEggX);
-          c.save(); c.translate(sx3,sy3); c.rotate(headAngle);
-          const hg=c.createRadialGradient(-2,-1,1,0,0,7);
-          hg.addColorStop(0,'#C0FFFF'); hg.addColorStop(1,'#1A8FA8');
-          c.fillStyle=hg; c.beginPath(); c.ellipse(0,0,9,6,0,0,Math.PI*2); c.fill();
-          // Tail (undulating)
-          c.strokeStyle='rgba(80,200,220,0.75)'; c.lineWidth=1.8;
-          c.beginPath(); c.moveTo(-9,0);
+          const ha=Math.atan2(toY,toX);
+          c.save(); c.translate(sx3,sy3); c.rotate(ha);
+          const hGr=c.createRadialGradient(-2,-1,1,0,0,7);
+          hGr.addColorStop(0,'#C8FFFF'); hGr.addColorStop(1,'#1A8FA8');
+          c.fillStyle=hGr; c.beginPath(); c.ellipse(0,0,9,5.5,0,0,Math.PI*2); c.fill();
+          c.strokeStyle='rgba(80,210,230,0.7)'; c.lineWidth=1.8;
+          c.beginPath();
           for(let i=0;i<14;i++){
-            const tx=-9-(i+1)*5.5;
-            const ty=Math.sin(S.t*5+sp.phase+i*.7)*7*(1-i/16);
+            const tx=-9-(i+1)*5.2;
+            const ty=Math.sin(S.t*5+sp.phase+i*0.7)*6.5*(1-i/16);
             i===0?c.moveTo(tx,ty):c.lineTo(tx,ty);
           }
-          c.stroke();
-          c.restore();
+          c.stroke(); c.restore();
         });
       }
 
       if(S.fertilised){
-        S.fertAnim=Math.min(S.fertAnim+1,60);
-        const prog=S.fertAnim/60;
-        const ring=c.createRadialGradient(ex,ey,eR,ex,ey,eR+prog*50);
-        ring.addColorStop(0,'rgba(255,220,80,0.8)'); ring.addColorStop(1,'transparent');
-        c.fillStyle=ring; c.beginPath(); c.arc(ex,ey,eR+prog*50,0,Math.PI*2); c.fill();
-        c.fillStyle='#FFD700'; c.font=`bold ${Math.min(16,w*.036)}px Tajawal`; c.textAlign='center';
-        c.fillText('✅ إخصاب في قناة البيض! 46 كروموسوم',w/2,h*.87);
-        c.fillStyle='rgba(255,215,0,0.8)'; c.font=`${Math.min(13,w*.028)}px Tajawal`;
-        c.fillText('البويضة المخصبة ستنتقل للرحم للانغراس 🌟',w/2,h*.93);
-      } else if(!S.launched){
-        c.fillStyle='rgba(255,200,230,0.6)'; c.font=`${Math.min(12,w*.026)}px Tajawal`; c.textAlign='center';
-        c.fillText('اضغط "أطلق الحيوانات المنوية" لبدء المحاكاة',w/2,h*.9);
-      }
+        S.fertAnim=Math.min(S.fertAnim+1, 120);
+        S.eggTravel=Math.min(S.eggTravel+0.003, 1);
+        const prog=S.fertAnim/120;
 
-    } else {
-      // ── TAB 2: Chromosome Matching Game ──
-      const bg2=c.createLinearGradient(0,0,0,h);
-      bg2.addColorStop(0,'#0A1A30'); bg2.addColorStop(1,'#142850');
-      c.fillStyle=bg2; c.fillRect(0,0,w,h);
-
-      const G=S.game;
-      if(!G||!G.initialized){ animFrame=requestAnimationFrame(draw); return; }
-
-      // Drop zones
-      const zoneW=w*.28, zoneH=h*.78;
-      const zoneY=h*.14;
-      const zone1X=w*.08; // بويضة
-      const zone2X=w*.64; // حيوان منوي
-
-      // Draw drop zones
-      [
-        {x:zone1X,label:'🥚 البويضة',col:'rgba(255,160,50,'},
-        {x:zone2X,label:'🏊 الحيوان المنوي',col:'rgba(26,143,168,'}
-      ].forEach(z=>{
-        c.fillStyle=z.col+'0.12)'; c.strokeStyle=z.col+'0.5)'; c.lineWidth=2.5;
-        c.beginPath(); c.roundRect(z.x,zoneY,zoneW,zoneH,14); c.fill(); c.stroke();
-        c.font=`bold ${Math.min(14,w*.028)}px Tajawal`; c.fillStyle=z.col+'0.95)'; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText(z.label,z.x+zoneW/2,zoneY-16);
-      });
-
-      // Score
-      const correctCount=G.correct.size;
-      c.font=`bold ${Math.min(14,w*.03)}px Tajawal`; c.fillStyle='rgba(255,220,100,0.9)'; c.textAlign='center';
-      c.fillText(`✅ ${correctCount} / ${G.shuffled.length}`,w/2,zoneY-16);
-      if(correctCount===G.shuffled.length){
-        c.font=`bold ${Math.min(20,w*.042)}px Tajawal`; c.fillStyle='#FFD700';
-        c.fillText('🎉 أحسنتِ! اكتملت المطابقة!',w/2,h*.92);
-      }
-
-      // Draw cards (those not yet placed correctly)
-      const cardW=Math.min(zoneW*.88,w*.23), cardH=Math.min(h*.1,48);
-      const startX=w*.36; // center column
-      let centerIdx=0;
-      G.shuffled.forEach((card,idx)=>{
-        if(G.correct.has(card.id)) return; // placed correctly — skip from center
-        const cx2=startX;
-        const cy2=zoneY+12+centerIdx*(cardH+8);
-        centerIdx++;
-
-        // dragging position
-        const pos=G.positions[card.id]||{x:cx2,y:cy2};
-        const isDragging=G.dragging===card.id;
-        const isWrong=G.wrong.has(card.id);
-
-        const bx2=isDragging?pos.x:cx2;
-        const by2=isDragging?pos.y:cy2;
-
-        // Card background
-        const cardCol=isWrong?'rgba(192,57,43,0.25)':'rgba(255,255,255,0.1)';
-        const cardStroke=isWrong?'rgba(231,76,60,0.7)':'rgba(255,255,255,0.2)';
-        c.fillStyle=cardCol; c.strokeStyle=cardStroke; c.lineWidth=2;
-        c.beginPath(); c.roundRect(bx2-cardW/2,by2,cardW,cardH,10); c.fill(); c.stroke();
-
-        c.font=`${Math.min(12,w*.025)}px Tajawal`; c.fillStyle='white'; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText(card.trait,bx2,by2+cardH/2);
-      });
-
-      // Draw correctly placed cards inside zones
-      G.shuffled.forEach((card)=>{
-        if(!G.correct.has(card.id)) return;
-        const inEgg=(card.type==='بويضة');
-        const zx=inEgg?zone1X:zone2X;
-        const idx=[...G.correct].filter(id=>G.shuffled.find(c2=>c2.id===id)?.type===card.type).indexOf(card.id);
-        const cardW2=zoneW*.86, cardH2=Math.min(h*.085,40);
-        const bx2=zx+zoneW/2;
-        const by2=zoneY+10+idx*(cardH2+6);
-        c.fillStyle=inEgg?'rgba(255,160,50,0.22)':'rgba(26,143,168,0.22)';
-        c.strokeStyle=inEgg?'rgba(255,160,50,0.5)':'rgba(26,143,168,0.5)'; c.lineWidth=1.5;
-        c.beginPath(); c.roundRect(bx2-cardW2/2,by2,cardW2,cardH2,8); c.fill(); c.stroke();
-        c.font=`${Math.min(11,w*.023)}px Tajawal`; c.fillStyle='rgba(255,255,255,0.85)'; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText('✅ '+card.trait,bx2,by2+cardH2/2);
-      });
-
-      // Flash feedback
-      if(G.flash){
-        G.flashT++;
-        c.font=`bold ${Math.min(20,w*.04)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-        c.fillStyle=G.flash==='correct'?'#4AE88A':'#FF6060';
-        c.fillText(G.flash==='correct'?'✅ صحيح!':'❌ حاولي مجدداً',w/2,h*.88);
-        if(G.flashT>40){ G.flash=null; G.flashT=0; }
-      }
-    }
-    animFrame=requestAnimationFrame(draw);
-  }
-
-  // Drag events for matching game
-  if(currentTab===1){
-    const G=S.game;
-    if(!G||!G.initialized){ draw(); return; }
-
-    function getCardAtPos(px,py,w,h){
-      const cardW=Math.min(w*.23,100), cardH=Math.min(h*.1,48);
-      const startX=w*.36;
-      let idx=0;
-      for(const card of G.shuffled){
-        if(G.correct.has(card.id)){ continue; }
-        const cx2=startX, cy2=h*.14+12+idx*(cardH+8);
-        if(px>=cx2-cardW/2&&px<=cx2+cardW/2&&py>=cy2&&py<=cy2+cardH) return card;
-        idx++;
-      }
-      return null;
-    }
-    function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
-
-    cv.addEventListener('mousedown',e=>{
-      if(S.tab!==1)return;
-      const p=gp(e),w=cv.width,h=cv.height;
-      const card=getCardAtPos(p.x,p.y,w,h);
-      if(card){G.dragging=card.id;G.positions[card.id]={x:p.x,y:p.y};}
-    });
-    cv.addEventListener('mousemove',e=>{
-      if(S.tab!==1||G.dragging===null)return;
-      const p=gp(e);
-      G.positions[G.dragging]={x:p.x,y:p.y};
-    });
-    cv.addEventListener('mouseup',e=>{
-      if(S.tab!==1||G.dragging===null)return;
-      const p=gp(e),w=cv.width,h=cv.height;
-      const zoneY=h*.14,zoneH=h*.78,zoneW=w*.28;
-      const card=G.shuffled.find(c2=>c2.id===G.dragging);
-      if(card){
-        const inZone1=p.x>=w*.08&&p.x<=w*.08+zoneW&&p.y>=zoneY&&p.y<=zoneY+zoneH;
-        const inZone2=p.x>=w*.64&&p.x<=w*.64+zoneW&&p.y>=zoneY&&p.y<=zoneY+zoneH;
-        if(inZone1||inZone2){
-          const droppedType=inZone1?'بويضة':'حيوان منوي';
-          if(droppedType===card.type){
-            G.correct.add(card.id); G.wrong.delete(card.id);
-            G.flash='correct';
-            try{U9Sound.ping(600,.1,.1);}catch(e2){}
-          } else {
-            G.wrong.add(card.id); G.flash='wrong';
-            try{U9Sound.ping(200,.15,.15);}catch(e2){}
-            setTimeout(()=>{G.wrong.delete(card.id);},1200);
-          }
+        // Fertilisation ring burst
+        if(prog<0.6){
+          const ring=c.createRadialGradient(eX,eY,eR,eX,eY,eR+prog*60);
+          ring.addColorStop(0,'rgba(255,220,80,0.8)'); ring.addColorStop(1,'transparent');
+          c.fillStyle=ring; c.beginPath(); c.arc(eX,eY,eR+prog*60,0,Math.PI*2); c.fill();
         }
-      }
-      G.dragging=null;
-    });
-    cv.addEventListener('touchstart',e=>{if(S.tab!==1)return;e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;const card=getCardAtPos(p.x,p.y,w,h);if(card){G.dragging=card.id;G.positions[card.id]={x:p.x,y:p.y};}},{passive:false});
-    cv.addEventListener('touchmove',e=>{if(S.tab!==1||G.dragging===null)return;e.preventDefault();const p=gp(e);G.positions[G.dragging]={x:p.x,y:p.y};},{passive:false});
-    cv.addEventListener('touchend',e=>{
-      if(S.tab!==1||G.dragging===null)return;
-      const p=gp(e.changedTouches?{touches:e.changedTouches}:e),w=cv.width,h=cv.height;
-      const zoneY=h*.14,zoneH=h*.78,zoneW=w*.28;
-      const card=G.shuffled.find(c2=>c2.id===G.dragging);
-      if(card){
-        const inZone1=p.x>=w*.08&&p.x<=w*.08+zoneW&&p.y>=zoneY&&p.y<=zoneY+zoneH;
-        const inZone2=p.x>=w*.64&&p.x<=w*.64+zoneW&&p.y>=zoneY&&p.y<=zoneY+zoneH;
-        if(inZone1||inZone2){
-          const droppedType=inZone1?'بويضة':'حيوان منوي';
-          if(droppedType===card.type){G.correct.add(card.id);G.wrong.delete(card.id);G.flash='correct';try{U9Sound.ping(600,.1,.1);}catch(e2){}}
-          else{G.wrong.add(card.id);G.flash='wrong';try{U9Sound.ping(200,.15,.15);}catch(e2){}setTimeout(()=>{G.wrong.delete(card.id);},1200);}
-        }
-      }
-      G.dragging=null;
-    });
-  }
 
-  draw();
-}
-
-function repro_fertilisation(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.repro_fertilisation) simState.repro_fertilisation={t:0,stage:0,divCount:0,autoDiv:false};
-  const S=simState.repro_fertilisation;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🧫 مراحل التطور المبكر</div>
-      <button class="ctrl-btn play" id="btnNextStage" onclick="simState.repro_fertilisation.stage=Math.min(5,simState.repro_fertilisation.stage+1)">التالي ▶</button>
-      <button class="ctrl-btn reset" onclick="simState.repro_fertilisation.stage=0">↺ من البداية</button>
-    </div>
-    <div class="info-box" id="stageInfo" style="font-size:13px;line-height:2;margin-top:8px">
-      المرحلة ١ — البويضة المخصّبة
-    </div>
-    <div class="q-box" style="margin-top:8px">
-      <strong>❓ كم عدد الخلايا بعد 3 انقسامات؟</strong>
-      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">2³ = 8 خلايا — كل انقسام يضاعف العدد</div>
-    </div>`);
-
-  const stages=[
-    {name:'البويضة المخصّبة',cells:1,color:'#E8962A',desc:'خلية واحدة تحتوي 46 كروموسوم'},
-    {name:'مرحلة 2 خلايا',cells:2,color:'#27AE60',desc:'الانقسام الأول — خليتان متماثلتان'},
-    {name:'مرحلة 4 خلايا',cells:4,color:'#2980B9',desc:'الانقسام الثاني — أربع خلايا'},
-    {name:'مرحلة 8 خلايا',cells:8,color:'#8E44AD',desc:'الانقسام الثالث — ثماني خلايا'},
-    {name:'الكرة الخلوية (16+)',cells:16,color:'#C0392B',desc:'تتشكّل الكرة الخلوية'},
-    {name:'التعشيش في الرحم',cells:0,color:'#E67E22',desc:'الكرة الخلوية تتعشّش في جدار الرحم'},
-  ];
-
-  function draw(){
-    if(currentSim!=='repro_fertilisation') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    S.t+=0.03;
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#1A0A2E'); bg.addColorStop(1,'#2E0A4E');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    const st=stages[S.stage];
-    const el=document.getElementById('stageInfo');
-    if(el) el.innerHTML=`المرحلة ${S.stage+1}: <strong>${st.name}</strong><br><span style="font-size:12px">${st.desc}</span>`;
-
-    c.fillStyle='#FFD080'; c.font=`bold ${Math.min(16,w*0.036)}px Tajawal`;
-    c.textAlign='center'; c.fillText(st.name,w/2,h*0.1);
-
-    const cx=w/2, cy=h*0.48;
-    const outerR=Math.min(w*0.28,h*0.32);
-
-    if(S.stage<5){
-      // رسم الكرة الخلوية
-      c.strokeStyle=st.color+'66'; c.lineWidth=2;
-      c.beginPath(); c.arc(cx,cy,outerR,0,Math.PI*2); c.stroke();
-
-      const n=st.cells;
-      if(n===1){
-        const gr=c.createRadialGradient(cx-outerR*0.3,cy-outerR*0.3,5,cx,cy,outerR);
-        gr.addColorStop(0,'rgba(255,200,80,0.9)'); gr.addColorStop(0.7,st.color); gr.addColorStop(1,st.color+'88');
-        c.fillStyle=gr; c.beginPath(); c.arc(cx,cy,outerR,0,Math.PI*2); c.fill();
-        c.fillStyle='rgba(100,40,10,0.6)'; c.beginPath(); c.arc(cx,cy,outerR*0.35,0,Math.PI*2); c.fill();
-        c.fillStyle='white'; c.font=`bold ${outerR*0.25}px Tajawal`; c.fillText('46🧬',cx,cy+outerR*0.1);
-      } else {
-        const angleStep=Math.PI*2/n;
-        const cellR=outerR/(n<=4?2.5:3.5);
-        const cellDist=outerR-(cellR+4);
-        for(let i=0;i<n;i++){
-          const ang=angleStep*i+S.t*0.008;
-          const dx=Math.cos(ang)*cellDist*(n>8?0.7:1);
-          const dy=Math.sin(ang)*cellDist*(n>8?0.7:1);
-          const gr2=c.createRadialGradient(cx+dx-cellR*0.3,cy+dy-cellR*0.3,2,cx+dx,cy+dy,cellR);
-          gr2.addColorStop(0,'rgba(255,255,255,0.8)'); gr2.addColorStop(0.4,st.color); gr2.addColorStop(1,st.color+'99');
-          c.fillStyle=gr2; c.beginPath(); c.arc(cx+dx,cy+dy,cellR,0,Math.PI*2); c.fill();
-          c.strokeStyle='rgba(255,255,255,0.3)'; c.lineWidth=1; c.stroke();
-        }
-      }
-    } else {
-      // تعشيش في الرحم
-      const wallY=cy+outerR*0.5;
-      c.fillStyle='rgba(200,100,50,0.3)'; c.fillRect(0,wallY,w,h-wallY);
-      c.fillStyle='#C0392B'; c.font=`${Math.min(12,w*0.026)}px Tajawal`;
-      c.fillText('جدار الرحم',w/2,wallY+20);
-      // الكرة الخلوية
-      const bR=outerR*0.55;
-      for(let i=0;i<12;i++){
-        const ang=i/12*Math.PI*2+S.t*0.005;
-        const dx=Math.cos(ang)*bR*0.7, dy=Math.sin(ang)*bR*0.7;
-        const r2=bR*0.28;
-        c.fillStyle='rgba(232,150,42,0.7)'; c.beginPath(); c.arc(cx+dx,wallY-r2*0.5+dy*0.5,r2,0,Math.PI*2); c.fill();
-      }
-      c.strokeStyle='#E8962A'; c.lineWidth=2; c.beginPath(); c.arc(cx,wallY,bR,0,Math.PI*2); c.stroke();
-      c.fillStyle='#FFD080'; c.font=`bold ${Math.min(14,w*0.032)}px Tajawal`;
-      c.fillText('تعشيش في جدار الرحم ✅',cx,wallY-bR-15);
-    }
-
-    // شريط التقدم
-    const pw=w*0.8, px=(w-pw)/2, barY=h*0.88;
-    c.fillStyle='rgba(255,255,255,0.1)'; c.beginPath(); c.roundRect(px,barY,pw,8,4); c.fill();
-    c.fillStyle=st.color; c.beginPath(); c.roundRect(px,barY,pw*(S.stage+1)/stages.length,8,4); c.fill();
-    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.min(11,w*0.024)}px Tajawal`;
-    c.fillText(`${S.stage+1} / ${stages.length}`,w/2,barY+22);
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function repro_development(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.repro_development) simState.repro_development={t:0,week:4,dragging:false};
-  const S=simState.repro_development;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">📅 أسبوع الحمل: <span id="wkDisp" style="color:#FFD700;font-weight:bold">${S.week}</span></div>
-      <input type="range" min="4" max="40" step="1" value="${S.week}"
-        oninput="simState.repro_development.week=+this.value;document.getElementById('wkDisp').textContent=this.value"
-        style="width:100%;margin:8px 0">
-    </div>
-    <div class="info-box" id="devInfo" style="font-size:13px;line-height:1.9;margin-top:8px">
-      الأسبوع 4: قطعة صغيرة جداً
-    </div>
-    <div class="q-box" style="margin-top:8px">
-      <strong>❓ متى يبدأ القلب بالنبض؟</strong>
-      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">القلب يبدأ نبضه نحو الأسبوع 5-6 من الحمل</div>
-    </div>`);
-
-  const devStages=[
-    {w:4,  size:0.04, desc:'جنين صغير جداً — تبدأ أعضاء رئيسية بالتشكّل', heart:false},
-    {w:8,  size:0.09, desc:'الأعضاء الرئيسية تتشكّل — القلب ينبض', heart:true},
-    {w:12, size:0.15, desc:'الجنين يتحرك — يمكن رؤيته بالأشعة الصوتية', heart:true},
-    {w:20, size:0.26, desc:'يسمع الأصوات ويستجيب للضوء', heart:true},
-    {w:28, size:0.38, desc:'عيناه تفتحان — يتدرب على التنفس', heart:true},
-    {w:36, size:0.52, desc:'شبه مكتمل — يستعد للولادة', heart:true},
-    {w:40, size:0.62, desc:'مكتمل النمو ✅ — جاهز للولادة', heart:true},
-  ];
-
-  function draw(){
-    if(currentSim!=='repro_development') return;
-    const w2=cv.width,h2=cv.height;
-    c.clearRect(0,0,w2,h2);
-    S.t+=0.04;
-
-    // خلفية
-    const bg=c.createLinearGradient(0,0,0,h2);
-    bg.addColorStop(0,'#1A0A2E'); bg.addColorStop(1,'#3A1060');
-    c.fillStyle=bg; c.fillRect(0,0,w2,h2);
-
-    // جد الأقرب للأسبوع الحالي
-    const wk=S.week;
-    const st=devStages.reduce((a,b)=>Math.abs(b.w-wk)<Math.abs(a.w-wk)?b:a);
-    // تحديث المعلومات
-    const el=document.getElementById('devInfo');
-    if(el) el.innerHTML=`الأسبوع <strong style="color:#FFD700">${wk}</strong>: ${st.desc}`;
-
-    c.fillStyle='#FFD080'; c.font=`bold ${Math.min(16,w2*0.036)}px Tajawal`;
-    c.textAlign='center'; c.fillText(`الأسبوع ${wk} من الحمل`,w2/2,h2*0.1);
-
-    // الرحم
-    const rx=w2/2, ry=h2*0.52;
-    const rW=Math.min(w2*0.55,h2*0.55);
-    c.fillStyle='rgba(200,100,80,0.2)'; c.strokeStyle='rgba(200,120,80,0.5)'; c.lineWidth=3;
-    c.beginPath(); c.ellipse(rx,ry,rW/2,rW*0.6,0,0,Math.PI*2); c.fill(); c.stroke();
-
-    // الجنين
-    const fSize=st.size*Math.min(rW*0.85, h2*0.6);
-    const pulse=st.heart?1+Math.sin(S.t*8)*0.04:1;
-    const gr=c.createRadialGradient(rx-fSize*0.15,ry-fSize*0.15,fSize*0.05,rx,ry,fSize*pulse);
-    gr.addColorStop(0,'rgba(255,200,150,0.95)'); gr.addColorStop(0.6,'rgba(230,160,120,0.85)'); gr.addColorStop(1,'rgba(200,120,100,0.4)');
-    c.fillStyle=gr; c.beginPath(); c.arc(rx,ry,fSize*pulse,0,Math.PI*2); c.fill();
-
-    if(wk>=12){
-      // رأس
-      c.fillStyle='rgba(255,200,150,0.8)'; c.beginPath();
-      c.arc(rx+fSize*0.55,ry-fSize*0.3,fSize*0.35,0,Math.PI*2); c.fill();
-    }
-
-    if(st.heart){
-      // نبضة قلب
-      const hpulse=(Math.sin(S.t*8)+1)/2;
-      c.fillStyle=`rgba(255,80,80,${0.5+hpulse*0.5})`;
-      c.font=`${fSize*0.5}px Arial`; c.textAlign='center';
-      c.fillText('❤',rx,ry+fSize*0.25);
-    }
-
-    // شريط المقياس
-    c.fillStyle='rgba(255,255,255,0.15)'; c.beginPath(); c.roundRect(w2*0.1,h2*0.87,w2*0.8,10,5); c.fill();
-    c.fillStyle='#FFD700'; c.beginPath(); c.roundRect(w2*0.1,h2*0.87,w2*0.8*(wk-4)/36,10,5); c.fill();
-    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.min(12,w2*0.027)}px Tajawal`;
-    c.fillText(`الأسبوع ${wk} من 40`,w2/2,h2*0.92);
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function repro_growth(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.repro_growth) simState.repro_growth={t:0,age:0,gender:'male'};
-  const S=simState.repro_growth;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🧒 العمر: <span id="ageDisp" style="color:#FFD700;font-weight:bold">${S.age}</span> سنة</div>
-      <input type="range" min="0" max="18" step="1" value="${S.age}"
-        oninput="simState.repro_growth.age=+this.value;document.getElementById('ageDisp').textContent=this.value"
-        style="width:100%;margin:8px 0">
-    </div>
-    <div class="ctrl-section" style="margin-top:8px">
-      <div class="ctrl-label">الجنس</div>
-      <div style="display:flex;gap:8px">
-        <button class="ctrl-btn" style="${S.gender==='male'?'background:#2980B9;color:white':''}" onclick="simState.repro_growth.gender='male'">👦 ذكر</button>
-        <button class="ctrl-btn" style="${S.gender==='female'?'background:#E91E9C;color:white':''}" onclick="simState.repro_growth.gender='female'">👧 أنثى</button>
-      </div>
-    </div>
-    <div class="info-box" id="growthInfo" style="font-size:13px;line-height:1.9;margin-top:8px">
-      ابدأ بتحريك شريط العمر
-    </div>`);
-
-  const mileStones=[
-    {age:0,  label:'مولود',       heightF:0.28, color:'#F39C12'},
-    {age:2,  label:'طفل صغير',    heightF:0.35, color:'#27AE60'},
-    {age:6,  label:'طفل',         heightF:0.48, color:'#2980B9'},
-    {age:12, label:'مراهق مبكر',  heightF:0.66, color:'#8E44AD'},
-    {age:15, label:'مراهق',       heightF:0.82, color:'#E74C3C'},
-    {age:18, label:'بالغ',        heightF:1.0,  color:'#1A8FA8'},
-  ];
-  const puberty={male:'تبدأ المراهقة (البلوغ) عادةً بين 11-13 سنة: نمو سريع وتغيرات في الصوت',female:'تبدأ المراهقة (البلوغ) عادةً بين 10-12 سنة: نمو الثدي وبدء الدورة الشهرية'};
-
-  function draw(){
-    if(currentSim!=='repro_growth') return;
-    const w2=cv.width,h2=cv.height;
-    c.clearRect(0,0,w2,h2);
-    S.t+=0.03;
-
-    const bg=c.createLinearGradient(0,0,0,h2);
-    bg.addColorStop(0,'#0F2A1E'); bg.addColorStop(1,'#1E4A32');
-    c.fillStyle=bg; c.fillRect(0,0,w2,h2);
-
-    const age=S.age;
-    // حساب الطول
-    const ms=mileStones.reduce((a,b)=>b.age<=age?b:a);
-    const nextMs=mileStones.find(m=>m.age>age)||ms;
-    const frac=ms.age===nextMs.age?1:(age-ms.age)/(nextMs.age-ms.age);
-    const heightF=ms.heightF+(nextMs.heightF-ms.heightF)*frac;
-
-    const el=document.getElementById('growthInfo');
-    if(el){
-      let info=`العمر: <strong style="color:#FFD700">${age}</strong> سنة — ${ms.label}`;
-      if(age>=10&&age<=16) info+=`<br><small style="color:#FFB0B0">⚠️ ${puberty[S.gender]}</small>`;
-      el.innerHTML=info;
-    }
-
-    c.fillStyle='#80FFB0'; c.font=`bold ${Math.min(16,w2*0.036)}px Tajawal`;
-    c.textAlign='center'; c.fillText(`مراحل النمو — العمر ${age} سنة`,w2/2,h2*0.08);
-
-    // رسم الشخصية
-    const maxH=h2*0.62;
-    const personH=maxH*heightF;
-    const baseY=h2*0.82;
-    const cx=w2/2;
-    const col=S.gender==='male'?'#3498DB':'#E91E9C';
-
-    // رأس
-    const headR=personH*0.15;
-    c.fillStyle=col+'CC'; c.beginPath(); c.arc(cx,baseY-personH+headR,headR,0,Math.PI*2); c.fill();
-    c.strokeStyle=col; c.lineWidth=2; c.stroke();
-    // جسم
-    c.strokeStyle=col; c.lineWidth=Math.max(2,personH*0.04);
-    c.beginPath(); c.moveTo(cx,baseY-personH+headR*2); c.lineTo(cx,baseY-personH*0.35); c.stroke();
-    // ذراعان
-    c.beginPath(); c.moveTo(cx-personH*0.18,baseY-personH*0.6); c.lineTo(cx,baseY-personH*0.55); c.lineTo(cx+personH*0.18,baseY-personH*0.6); c.stroke();
-    // قدمان
-    c.beginPath(); c.moveTo(cx,baseY-personH*0.35); c.lineTo(cx-personH*0.12,baseY); c.stroke();
-    c.beginPath(); c.moveTo(cx,baseY-personH*0.35); c.lineTo(cx+personH*0.12,baseY); c.stroke();
-
-    // علامة الطول
-    c.strokeStyle='rgba(255,255,100,0.4)'; c.lineWidth=1; c.setLineDash([4,4]);
-    c.beginPath(); c.moveTo(cx+personH*0.25,baseY-personH); c.lineTo(cx+personH*0.25,baseY); c.stroke();
-    c.setLineDash([]);
-    c.fillStyle='#FFD700'; c.font=`bold ${Math.min(13,w2*0.03)}px Tajawal`;
-    c.textAlign='left';
-    c.fillText(`${Math.round(50+heightF*120)} سم`,cx+personH*0.28,baseY-personH*0.5);
-    c.textAlign='center';
-
-    // مرحلة
-    c.fillStyle=ms.color; c.font=`bold ${Math.min(14,w2*0.032)}px Tajawal`;
-    c.fillText(ms.label,cx,h2*0.9);
-
-    // شريط تقدم العمر
-    c.fillStyle='rgba(255,255,255,0.1)'; c.beginPath(); c.roundRect(w2*0.08,h2*0.94,w2*0.84,8,4); c.fill();
-    c.fillStyle=ms.color; c.beginPath(); c.roundRect(w2*0.08,h2*0.94,w2*0.84*(age/18),8,4); c.fill();
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function repro_lifestyle(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.repro_lifestyle) simState.repro_lifestyle={t:0,choices:{sleep:7,exercise:3,fruits:3,smoking:0,stress:2}};
-  const S=simState.repro_lifestyle;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🌙 ساعات النوم: <span id="ls_sleep" style="color:#FFD700">${S.choices.sleep}</span></div>
-      <input type="range" min="4" max="10" step="1" value="${S.choices.sleep}"
-        oninput="simState.repro_lifestyle.choices.sleep=+this.value;document.getElementById('ls_sleep').textContent=this.value"
-        style="width:100%;margin:4px 0">
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">🏃 أيام الرياضة أسبوعياً: <span id="ls_ex" style="color:#FFD700">${S.choices.exercise}</span></div>
-      <input type="range" min="0" max="7" step="1" value="${S.choices.exercise}"
-        oninput="simState.repro_lifestyle.choices.exercise=+this.value;document.getElementById('ls_ex').textContent=this.value"
-        style="width:100%;margin:4px 0">
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">🍎 حصص الفواكه والخضار يومياً: <span id="ls_fr" style="color:#FFD700">${S.choices.fruits}</span></div>
-      <input type="range" min="0" max="7" step="1" value="${S.choices.fruits}"
-        oninput="simState.repro_lifestyle.choices.fruits=+this.value;document.getElementById('ls_fr').textContent=this.value"
-        style="width:100%;margin:4px 0">
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">🚬 مستوى التدخين: <span id="ls_sm" style="color:#FF6060">${S.choices.smoking}</span></div>
-      <input type="range" min="0" max="5" step="1" value="${S.choices.smoking}"
-        oninput="simState.repro_lifestyle.choices.smoking=+this.value;document.getElementById('ls_sm').textContent=this.value"
-        style="width:100%;margin:4px 0">
-    </div>`);
-
-  function draw(){
-    if(currentSim!=='repro_lifestyle') return;
-    const w2=cv.width,h2=cv.height;
-    c.clearRect(0,0,w2,h2);
-    S.t+=0.03;
-
-    const bg=c.createLinearGradient(0,0,0,h2);
-    bg.addColorStop(0,'#0A1E2A'); bg.addColorStop(1,'#0D2E40');
-    c.fillStyle=bg; c.fillRect(0,0,w2,h2);
-
-    c.fillStyle='#80FFD0'; c.font=`bold ${Math.min(16,w2*0.036)}px Tajawal`;
-    c.textAlign='center'; c.fillText('نمط الحياة وصحة الجسم',w2/2,h2*0.08);
-
-    const ch=S.choices;
-    const healthScore=Math.min(100,Math.max(0,
-      (ch.sleep>=7?20:ch.sleep>=6?12:5)+
-      (ch.exercise>=4?25:ch.exercise>=2?15:5)+
-      (ch.fruits>=5?20:ch.fruits>=3?12:4)+
-      (ch.smoking===0?25:ch.smoking<=2?10:0)+
-      (15)
-    ));
-
-    // عقرب الصحة
-    const meterCX=w2/2, meterCY=h2*0.42;
-    const meterR=Math.min(w2*0.3,h2*0.28);
-    // نصف دائرة
-    c.strokeStyle='rgba(255,255,255,0.1)'; c.lineWidth=meterR*0.28;
-    c.beginPath(); c.arc(meterCX,meterCY,meterR,Math.PI,0); c.stroke();
-    // ألوان الصحة
-    const grad=c.createLinearGradient(meterCX-meterR,meterCY,meterCX+meterR,meterCY);
-    grad.addColorStop(0,'#E74C3C'); grad.addColorStop(0.5,'#F39C12'); grad.addColorStop(1,'#27AE60');
-    c.strokeStyle=grad; c.lineWidth=meterR*0.26;
-    c.beginPath(); c.arc(meterCX,meterCY,meterR,Math.PI,Math.PI+(healthScore/100)*Math.PI); c.stroke();
-    // مؤشر
-    const angle=Math.PI+(healthScore/100)*Math.PI;
-    c.strokeStyle='white'; c.lineWidth=3;
-    c.beginPath(); c.moveTo(meterCX,meterCY);
-    c.lineTo(meterCX+Math.cos(angle)*meterR*0.85,meterCY+Math.sin(angle)*meterR*0.85);
-    c.stroke();
-    c.fillStyle='white'; c.beginPath(); c.arc(meterCX,meterCY,8,0,Math.PI*2); c.fill();
-
-    // درجة الصحة
-    const color=healthScore>70?'#27AE60':healthScore>40?'#F39C12':'#E74C3C';
-    c.fillStyle=color; c.font=`bold ${meterR*0.35}px Tajawal`; c.textAlign='center';
-    c.fillText(Math.round(healthScore),meterCX,meterCY-8);
-    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.min(12,w2*0.027)}px Tajawal`;
-    c.fillText('/ 100',meterCX,meterCY+12);
-
-    // نصائح
-    const tips=[];
-    if(ch.sleep<7) tips.push('💤 زد ساعات النوم إلى 8-9 ساعات');
-    if(ch.exercise<3) tips.push('🏃 مارس الرياضة 3 أيام أسبوعياً على الأقل');
-    if(ch.fruits<3) tips.push('🥦 تناول المزيد من الفواكه والخضار');
-    if(ch.smoking>0) tips.push('🚭 التدخين يضر بالصحة — أقلع عنه!');
-    if(tips.length===0) tips.push('✅ رائع! أنت تتبع نمط حياة صحياً');
-
-    tips.slice(0,3).forEach((tip,i)=>{
-      c.fillStyle=i===0&&ch.smoking>0?'#FF8080':'rgba(255,255,255,0.85)';
-      c.font=`${Math.min(12.5,w2*0.028)}px Tajawal`;
-      c.fillText(tip,w2/2,h2*0.72+i*22);
-    });
-
-    c.fillStyle=color; c.font=`bold ${Math.min(14,w2*0.032)}px Tajawal`;
-    c.fillText(healthScore>70?'✅ نمط حياة صحي!':`⚠️ يحتاج تحسيناً`,w2/2,h2*0.92);
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-// ══════════════════════════════════════════════════════════
-// الوحدة ٨ — الأملاح (PhET-style محسّن)
-// ══════════════════════════════════════════════════════════
-
-function salts_what(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.salts_what) simState.salts_what={t:0,sel:-1,dragging:false,dropX:0,dropY:0,dropped:false,dropAnim:0};
-  const S=simState.salts_what;
-
-  const salts=[
-    {name:'كلوريد الصوديوم',formula:'NaCl',emoji:'🧂',color:'#7F8C8D',shine:'#BDC3C7',use:'حفظ الأغذية وإضفاء النكهة',acid:'HCl',base:'NaOH',ions:['Na⁺','Cl⁻']},
-    {name:'كبريتات النحاس',formula:'CuSO₄',emoji:'🔵',color:'#2980B9',shine:'#5DADE2',use:'مبيد فطري للبذور',acid:'H₂SO₄',base:'Cu(OH)₂',ions:['Cu²⁺','SO₄²⁻']},
-    {name:'نترات الأمونيوم',formula:'NH₄NO₃',emoji:'🌱',color:'#27AE60',shine:'#58D68D',use:'سماد زراعي',acid:'HNO₃',base:'NH₃',ions:['NH₄⁺','NO₃⁻']},
-    {name:'كربونات الكالسيوم',formula:'CaCO₃',emoji:'📝',color:'#95A5A6',shine:'#BFC9CA',use:'طباشير السبورة والحجر الجيري',acid:'H₂CO₃',base:'Ca(OH)₂',ions:['Ca²⁺','CO₃²⁻']},
-    {name:'كبريتات الألومنيوم',formula:'Al₂(SO₄)₃',emoji:'🎨',color:'#8E44AD',shine:'#BB8FCE',use:'تثبيت الأصباغ بالألياف',acid:'H₂SO₄',base:'Al(OH)₃',ions:['Al³⁺','SO₄²⁻']},
-    {name:'كربونات المغنيسيوم',formula:'MgCO₃',emoji:'🤸',color:'#E67E22',shine:'#F0B27A',use:'جفاف اليدين في الرياضة',acid:'H₂CO₃',base:'Mg(OH)₂',ions:['Mg²⁺','CO₃²⁻']},
-  ];
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🧂 اختر الملح لتحليله</div>
-      ${salts.map((s,i)=>`<button class="ctrl-btn" style="margin:2px 0;width:100%;text-align:right;padding:6px 10px;${i===S.sel?'background:'+s.color+';color:white;':'font-size:13px'}" onclick="simState.salts_what.sel=${i};simState.salts_what.dropped=false;simState.salts_what.dropAnim=0">${s.emoji} ${s.name}</button>`).join('')}
-    </div>
-    ${S.sel>=0?`<button class="ctrl-btn play" style="margin-top:6px;width:100%" onclick="simState.salts_what.dropped=true;simState.salts_what.dropAnim=0">💧 أذِب في الماء</button>`:''}
-    <div class="q-box" style="margin-top:8px">
-      <strong>❓ الملح = ؟ + ؟</strong>
-      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الملح = حمض + قاعدة (بعد تفاعل التعادل) — مثل: HCl + NaOH → NaCl + H₂O</div>
-    </div>`);
-
-  function draw(){
-    if(currentSim!=='salts_what') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    S.t+=0.04;
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#E8F4F8'); bg.addColorStop(1,'#D0E8F0');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    if(S.sel<0){
-      c.fillStyle='#1A8FA8'; c.font=`bold ${Math.min(18,w*0.04)}px Tajawal`;
-      c.textAlign='center'; c.fillText('اختر ملحاً من القائمة لتحليله',w/2,h*0.45);
-      c.font=`${Math.min(13,w*0.03)}px Tajawal`; c.fillStyle='#7A9AB0';
-      c.fillText('ستظهر الأيونات والبنية الكيميائية',w/2,h*0.56);
-      animFrame=requestAnimationFrame(draw); return;
-    }
-
-    const s=salts[S.sel];
-    // عنوان
-    c.fillStyle=s.color; c.font=`bold ${Math.min(17,w*0.038)}px Tajawal`;
-    c.textAlign='center'; c.fillText(`${s.emoji} ${s.name}`,w/2,h*0.09);
-    c.fillStyle='#555'; c.font=`bold ${Math.min(14,w*0.032)}px monospace`;
-    c.fillText(s.formula,w/2,h*0.16);
-
-    if(!S.dropped){
-      // بلورات الملح تتحرك
-      for(let i=0;i<12;i++){
-        const ang=(i/12)*Math.PI*2+S.t*0.3;
-        const r=Math.min(w*0.2,h*0.18)+Math.sin(S.t+i)*4;
-        const bx=w/2+Math.cos(ang)*r, by=h*0.48+Math.sin(ang)*r*0.55;
-        const sz=12+Math.sin(S.t*0.5+i)*3;
-        c.fillStyle=s.color+'CC';
-        c.beginPath(); c.roundRect(bx-sz/2,by-sz/2,sz,sz,3); c.fill();
-      }
-      c.fillStyle=s.color; c.font=`${Math.min(40,h*0.12)}px Arial`;
-      c.textAlign='center'; c.fillText(s.emoji,w/2,h*0.56);
-      c.fillStyle='rgba(26,143,168,0.6)'; c.font=`${Math.min(12,w*0.027)}px Tajawal`;
-      c.fillText('اضغط "أذِب في الماء" لرؤية الأيونات',w/2,h*0.73);
-    } else {
-      // ذوبان الملح — أيونات تنفصل
-      if(S.dropAnim<100) S.dropAnim++;
-      const prog=S.dropAnim/100;
-
-      // كأس ماء
-      const bx2=w*0.2, bw2=w*0.6, by2=h*0.22;
-      const waterColor=`rgba(${s.color.match(/\d+/g).map(Number).map((v,i)=>Math.min(255,v+100)).join(',')},${0.15+prog*0.25})`;
-      c.fillStyle=waterColor; c.beginPath(); c.roundRect(bx2,by2,bw2,h*0.6,8); c.fill();
-      c.strokeStyle=s.color+'88'; c.lineWidth=2; c.stroke();
-      c.fillStyle='#3498DB44'; c.fillRect(bx2+2,by2+2,bw2-4,h*0.05); // حافة
-      c.fillStyle='rgba(80,160,210,0.4)'; c.font=`${Math.min(12,w*0.027)}px Tajawal`;
-      c.textAlign='center'; c.fillText('ماء H₂O',w/2,by2+h*0.06);
-
-      // أيونات تتحرك
-      s.ions.forEach((ion,ii)=>{
-        const cnt=5;
-        for(let j=0;j<cnt;j++){
-          const ang=(ii*Math.PI+j/cnt*Math.PI*2)+S.t*(0.4+ii*0.15);
-          const d=(0.15+prog*0.3)*Math.min(w,h)*0.35;
-          const ix=w/2+Math.cos(ang)*d, iy=h*0.52+Math.sin(ang)*d*0.5;
-          const col=ii===0?s.color:'#C0392B';
-          c.fillStyle=col+'CC'; c.beginPath(); c.arc(ix,iy,9,0,Math.PI*2); c.fill();
-          c.fillStyle='white'; c.font=`bold ${Math.min(8,w*0.018)}px monospace`;
-          c.textAlign='center'; c.fillText(ion,ix,iy+3);
-        }
-      });
-
-      if(prog>0.5){
-        c.fillStyle=s.color; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
-        c.fillText(`الاستخدام: ${s.use}`,w/2,h*0.88);
-        c.fillStyle='#27AE60'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
-        c.fillText(`من: ${s.acid} + ${s.base}`,w/2,h*0.94);
-      }
-    }
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function salts_metal(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.salts_metal) simState.salts_metal={t:0,reaction:0,metal:'zinc',acid:'H₂SO₄',bubbles:[],dissolve:0,reacted:false};
-  const S=simState.salts_metal;
-
-  const metals={
-    zinc:     {name:'الخارصين (Zn)',color:'#7F8C8D',shine:'#BDC3C7',salt:'كبريتات الخارصين',saltF:'ZnSO₄',saltColor:'rgba(127,140,141,0.5)',reacts:true,rate:1.2},
-    magnesium:{name:'المغنيسيوم (Mg)',color:'#BDC3C7',shine:'#D5DBDB',salt:'كبريتات المغنيسيوم',saltF:'MgSO₄',saltColor:'rgba(189,195,199,0.4)',reacts:true,rate:2.0},
-    iron:     {name:'الحديد (Fe)',color:'#8B6914',shine:'#B7950B',salt:'كبريتات الحديد',saltF:'FeSO₄',saltColor:'rgba(46,204,113,0.5)',reacts:true,rate:0.8},
-    copper:   {name:'النحاس (Cu)',color:'#E67E22',shine:'#F0B27A',salt:'لا يتفاعل مع الأحماض المخففة',saltF:'—',saltColor:'transparent',reacts:false,rate:0},
-    gold:     {name:'الذهب (Au)',color:'#D4AC0D',shine:'#F7DC6F',salt:'لا يتفاعل',saltF:'—',saltColor:'transparent',reacts:false,rate:0},
-  };
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🔩 اختر الفلز</div>
-      ${Object.entries(metals).map(([k,v])=>`<button class="ctrl-btn" style="margin:2px 0;width:100%;text-align:right;${k===S.metal?'background:'+v.color+';color:white;':''}" onclick="simState.salts_metal.metal='${k}';simState.salts_metal.reaction=0;simState.salts_metal.bubbles=[];simState.salts_metal.dissolve=0;simState.salts_metal.reacted=false">${v.name}</button>`).join('')}
-    </div>
-    <div class="ctrl-section" style="margin-top:8px">
-      <button class="ctrl-btn play" style="width:100%" onclick="simState.salts_metal.reaction=1">➕ أضف الفلز للحمض</button>
-      <button class="ctrl-btn reset" style="width:100%;margin-top:4px" onclick="simState.salts_metal.reaction=0;simState.salts_metal.bubbles=[];simState.salts_metal.dissolve=0;simState.salts_metal.reacted=false">↺ إعادة</button>
-    </div>
-    <div class="info-box" style="font-size:12px;line-height:1.9;margin-top:8px">
-      📐 فلز + حمض → <strong>ملح + هيدروجين H₂</strong><br>
-      <small>(الفلزات غير النشطة لا تتفاعل)</small>
-    </div>`);
-
-  function draw(){
-    if(currentSim!=='salts_metal') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    S.t+=0.05;
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#F8F0E8'); bg.addColorStop(1,'#EDE4D5');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    const m=metals[S.metal];
-
-    // عنوان
-    c.fillStyle='#1A8FA8'; c.font=`bold ${Math.min(15,w*0.034)}px Tajawal`;
-    c.textAlign='center'; c.fillText('نشاط 2-8 · تحضير ملح باستخدام فلز وحمض',w/2,h*0.07);
-
-    // رسم الكأس بشكل أفضل
-    const bx=w*0.25,by=h*0.12,bw=w*0.5,bh=h*0.62;
-    // جوانب الكأس
-    c.strokeStyle='#AAA'; c.lineWidth=2.5;
-    c.beginPath(); c.moveTo(bx-bw*0.04,by); c.lineTo(bx,by+bh); c.stroke();
-    c.beginPath(); c.moveTo(bx+bw+bw*0.04,by); c.lineTo(bx+bw,by+bh); c.stroke();
-    c.beginPath(); c.moveTo(bx,by+bh); c.lineTo(bx+bw,by+bh); c.stroke();
-
-    // سائل الحمض
-    const acidY=by+bh*0.22;
-    const acidGrad=c.createLinearGradient(bx,acidY,bx,by+bh);
-    if(S.reaction>0 && m.reacts && S.dissolve>30){
-      acidGrad.addColorStop(0,m.saltColor.replace('0.5','0.35')); acidGrad.addColorStop(1,m.saltColor.replace('0.5','0.6'));
-    } else {
-      acidGrad.addColorStop(0,'rgba(173,216,230,0.4)'); acidGrad.addColorStop(1,'rgba(144,238,144,0.6)');
-    }
-    c.fillStyle=acidGrad; c.fillRect(bx+1,acidY,bw-2,by+bh-acidY-1);
-    c.fillStyle=S.reaction>0&&m.reacts&&S.dissolve>30?m.color:'#27AE60';
-    c.font=`${Math.min(12,w*0.027)}px Tajawal`; c.textAlign='center';
-    c.fillText(S.reaction>0&&m.reacts&&S.dissolve>30?m.saltF:'H₂SO₄ (حمض مخفف)',bx+bw/2,acidY+h*0.07);
-
-    if(S.reaction>0){
-      if(m.reacts){
-        // الفلز يذوب
-        S.dissolve=Math.min(100,S.dissolve+m.rate*0.4);
-        const remain=1-S.dissolve/100;
-        if(remain>0.05){
-          const mh=h*0.12*remain;
-          const mGrad=c.createLinearGradient(bx+bw*0.3,acidY-mh,bx+bw*0.7,acidY);
-          mGrad.addColorStop(0,m.shine); mGrad.addColorStop(1,m.color);
-          c.fillStyle=mGrad; c.beginPath(); c.roundRect(bx+bw*0.32,acidY-mh,bw*0.36,mh+4,4); c.fill();
-          c.strokeStyle=m.color; c.lineWidth=1.5; c.stroke();
-        }
-        // فقاعات H₂
-        if(Math.random()<0.18*m.rate && S.bubbles.length<35){
-          S.bubbles.push({x:bx+bw*(0.25+Math.random()*0.5),y:by+bh*0.8,r:2+Math.random()*4,vy:-1.2-Math.random()*1.2,phase:Math.random()*6});
-        }
-        S.bubbles=S.bubbles.filter(b=>b.y>by);
-        S.bubbles.forEach(b=>{
-          b.y+=b.vy; b.x+=Math.sin(S.t*2+b.phase)*1.2;
-          c.strokeStyle=`rgba(150,200,255,${0.6+b.r/8})`; c.lineWidth=1.5;
-          c.beginPath(); c.arc(b.x,b.y,b.r,0,Math.PI*2); c.stroke();
-        });
-        // H₂ يتصاعد
-        if(S.dissolve>5){
-          c.fillStyle='rgba(41,128,185,0.8)'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
-          c.fillText('↑ غاز H₂',bx+bw/2,by+h*0.02);
-        }
-        // ناتج
-        if(S.dissolve>50){
-          c.fillStyle=m.color; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
-          c.fillText('الملح الناتج: '+m.salt,bx+bw/2,h*0.85);
-          c.font=`bold ${Math.min(14,w*0.032)}px monospace`; c.fillStyle=m.color;
-          c.fillText(m.saltF,bx+bw/2,h*0.92);
+        // Show 46 inside egg
+        c.fillText('46🧬', eX, eY);
+
+        // Egg label
+        c.fillStyle='#FFE090'; c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('🥚 بويضة مخصّبة', eX, eY+eR+18);
+
+        // Travel arrow toward uterus (after prog>0.5)
+        if(prog>0.4){
+          const travelAlpha=Math.min(1,(prog-0.4)/0.3);
+          c.globalAlpha=travelAlpha;
+          // arrow from egg toward uterus
+          const arX1=eX, arY1=eY+eR+28, arX2=cx+uW*0.6, arY2=tubeY+4;
+          c.strokeStyle='rgba(255,215,0,0.85)'; c.lineWidth=2.5; c.setLineDash([6,5]);
+          c.beginPath(); c.moveTo(arX1,arY1); c.lineTo(arX2,arY2); c.stroke();
+          c.setLineDash([]);
+          c.globalAlpha=1;
+          // message
+          c.fillStyle='#FFD700'; c.font=`bold ${Math.min(14,w*0.030)}px Tajawal`;
+          c.textAlign='center'; c.textBaseline='middle';
+          c.fillText('✅ إخصاب! 23+23 = 46 كروموسوم',w/2,h*0.87);
+          c.fillStyle='rgba(255,220,120,0.85)'; c.font=`${Math.min(12,w*0.026)}px Tajawal`;
+          c.fillText('البويضة المخصّبة تتحرك نحو الرحم للانغراس 🌟',w/2,h*0.93);
         }
       } else {
-        // لا يتفاعل
-        c.fillStyle=m.color;
-        c.beginPath(); c.roundRect(bx+bw*0.3,by+bh*0.55,bw*0.4,h*0.1,4); c.fill();
-        c.fillStyle='#C0392B'; c.font=`bold ${Math.min(14,w*0.032)}px Tajawal`;
-        c.fillText('❌ لا يتفاعل!',bx+bw/2,h*0.85);
-        c.fillStyle='#555'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
-        c.fillText('الفلزات غير النشطة لا تحلّ محل الهيدروجين',bx+bw/2,h*0.92);
-      }
-    } else {
-      // الفلز فوق الكأس
-      const mGrad2=c.createLinearGradient(bx+bw*0.3,by-h*0.14,bx+bw*0.7,by-h*0.04);
-      mGrad2.addColorStop(0,m.shine); mGrad2.addColorStop(1,m.color);
-      c.fillStyle=mGrad2; c.beginPath(); c.roundRect(bx+bw*0.3,by-h*0.15,bw*0.4,h*0.12,4); c.fill();
-      c.strokeStyle=m.color; c.lineWidth=1.5; c.stroke();
-      c.fillStyle='rgba(255,255,255,0.7)'; c.font=`bold ${Math.min(11,w*0.025)}px monospace`;
-      c.textAlign='center'; c.fillText(m.name.match(/\((\w+)\)/)?.[1]||'M',bx+bw*0.5,by-h*0.1);
-    }
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function salts_oxide(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.salts_oxide) simState.salts_oxide={t:0,step:0,heat:0,stirAngle:0};
-  const S=simState.salts_oxide;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🔵 تحضير كبريتات النحاس</div>
-      <button class="ctrl-btn play" style="width:100%" onclick="simState.salts_oxide.step=Math.min(5,simState.salts_oxide.step+1)">التالي ▶</button>
-      <button class="ctrl-btn reset" style="width:100%;margin-top:4px" onclick="simState.salts_oxide.step=0;simState.salts_oxide.heat=0">↺ إعادة</button>
-    </div>
-    <div class="info-box" id="oxideInfo" style="font-size:12px;line-height:1.9;margin-top:8px">
-      أكسيد النحاس + حمض الكبريتيك → كبريتات النحاس + ماء<br>
-      <strong>CuO + H₂SO₄ → CuSO₄ + H₂O</strong>
-    </div>`);
-
-  const steps=[
-    {title:'١. صبّ حمض الكبريتيك',color:'rgba(144,238,144,0.4)',label:'H₂SO₄',desc:'صبّ ~100 mL من الحمض في الكأس',showHeat:false,showStir:false,showCrystal:false},
-    {title:'٢. إضافة أكسيد النحاس الأسود',color:'rgba(30,20,10,0.6)',label:'CuO أسود',desc:'أضف مسحوق CuO الأسود إلى الحمض',showHeat:false,showStir:false,showCrystal:false},
-    {title:'٣. التسخين مع التحريك',color:'rgba(30,20,10,0.5)',label:'تسخين 🔥',desc:'سخّن ببطء مع تحريك مستمر',showHeat:true,showStir:true,showCrystal:false},
-    {title:'٤. اللون يتحوّل للأزرق ✅',color:'rgba(41,128,185,0.55)',label:'CuSO₄ أزرق!',desc:'اللون الأزرق يعني اكتمال التفاعل',showHeat:false,showStir:false,showCrystal:false},
-    {title:'٥. الترشيح',color:'rgba(41,128,185,0.45)',label:'سائل مرشّح',desc:'رشّح لإزالة CuO غير المتفاعل',showHeat:false,showStir:false,showCrystal:false},
-    {title:'٦. التبخير — بلورات CuSO₄ ✅',color:'rgba(41,128,185,0.8)',label:'بلورات!',desc:'بخّر حتى تظهر البلورات الزرقاء الجميلة',showHeat:true,showStir:false,showCrystal:true},
-  ];
-
-  function draw(){
-    if(currentSim!=='salts_oxide') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    S.t+=0.05;
-    if(steps[S.step].showHeat) S.heat=Math.min(100,S.heat+0.8);
-    S.stirAngle+=steps[S.step].showStir?0.08:0;
-
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#EEF2F7'); bg.addColorStop(1,'#E0E8F0');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    const st=steps[S.step];
-    const el=document.getElementById('oxideInfo');
-    if(el) el.innerHTML=`<strong>${st.title}</strong><br>${st.desc}<br><small>CuO + H₂SO₄ → CuSO₄ + H₂O</small>`;
-
-    c.fillStyle='#2980B9'; c.font=`bold ${Math.min(15,w*0.034)}px Tajawal`;
-    c.textAlign='center'; c.fillText(st.title,w/2,h*0.08);
-
-    // كأس مخبرية بشكل حقيقي
-    const bx=w*0.25,by=h*0.12,bw=w*0.5,bh=h*0.55;
-    // جسم الكأس
-    c.strokeStyle='#AAA'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx+bw*0.04,by+bh); c.stroke();
-    c.beginPath(); c.moveTo(bx+bw,by); c.lineTo(bx+bw-bw*0.04,by+bh); c.stroke();
-    c.beginPath(); c.moveTo(bx+bw*0.04,by+bh); c.lineTo(bx+bw-bw*0.04,by+bh); c.stroke();
-    // حافة الكأس
-    c.strokeStyle='#CCC'; c.lineWidth=6;
-    c.beginPath(); c.moveTo(bx-5,by); c.lineTo(bx+bw+5,by); c.stroke();
-    // قياسات جانبية
-    for(let i=1;i<=4;i++){
-      const ly=by+bh-bh*(i/5);
-      c.strokeStyle='rgba(0,0,0,0.1)'; c.lineWidth=1;
-      c.beginPath(); c.moveTo(bx+5,ly); c.lineTo(bx+20,ly); c.stroke();
-    }
-
-    // سائل
-    const liquidY=by+bh*0.15;
-    c.fillStyle=st.color;
-    c.beginPath(); c.moveTo(bx+4,liquidY); c.lineTo(bx+bw-4,liquidY); c.lineTo(bx+bw-bw*0.04,by+bh-1); c.lineTo(bx+bw*0.04,by+bh-1); c.closePath(); c.fill();
-    c.fillStyle='white'; c.font=`bold ${Math.min(13,w*0.028)}px monospace`; c.textAlign='center';
-    c.fillText(st.label,bx+bw/2,liquidY+h*0.1);
-
-    // حرارة
-    if(st.showHeat){
-      for(let i=0;i<6;i++){
-        const hx=bx+bw*(0.15+i*0.14);
-        const amp=6+Math.sin(S.t*3+i)*3;
-        c.strokeStyle=`rgba(231,76,60,${0.5+S.heat/200})`; c.lineWidth=2;
-        c.beginPath(); c.moveTo(hx,by+bh+h*0.06); c.quadraticCurveTo(hx-8,by+bh+h*0.03,hx,by+bh); c.stroke();
-      }
-    }
-
-    // محرك
-    if(st.showStir){
-      const sx=bx+bw/2, sy=liquidY+h*0.12;
-      c.strokeStyle='#888'; c.lineWidth=2;
-      c.beginPath(); c.moveTo(sx,by); c.lineTo(sx,sy-8); c.stroke();
-      c.save(); c.translate(sx,sy); c.rotate(S.stirAngle);
-      c.strokeStyle='#666'; c.lineWidth=3;
-      c.beginPath(); c.moveTo(-bw*0.2,0); c.lineTo(bw*0.2,0); c.stroke();
-      c.restore();
-    }
-
-    // بلورات
-    if(st.showCrystal){
-      for(let i=0;i<8;i++){
-        const cx2=bx+bw*(0.15+i*0.1);
-        const cy2=by+bh-h*0.04-Math.random()*0.01*h;
-        const cs=8+Math.sin(S.t*0.3+i)*2;
-        c.fillStyle='rgba(41,128,185,0.85)';
-        c.save(); c.translate(cx2,cy2); c.rotate(S.t*0.01+i);
-        c.beginPath(); c.rect(-cs/2,-cs/2,cs,cs); c.fill();
-        c.strokeStyle='rgba(100,180,230,0.8)'; c.lineWidth=1; c.stroke();
-        c.restore();
-      }
-    }
-
-    // شريط التقدم
-    c.fillStyle='rgba(0,0,0,0.1)'; c.beginPath(); c.roundRect(w*0.1,h*0.85,w*0.8,8,4); c.fill();
-    c.fillStyle='#2980B9'; c.beginPath(); c.roundRect(w*0.1,h*0.85,w*0.8*(S.step+1)/steps.length,8,4); c.fill();
-    c.fillStyle='#2980B9'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
-    c.fillText(`الخطوة ${S.step+1} من ${steps.length}`,w/2,h*0.93);
-    if(S.step===5) c.fillText('CuO + H₂SO₄ → CuSO₄ + H₂O ✅',w/2,h*0.97);
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function salts_carbonate(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.salts_carbonate) simState.salts_carbonate={t:0,reaction:0,bubbles:[],co2prog:0,limeTest:false,pourAnim:0};
-  const S=simState.salts_carbonate;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🫧 تفاعل كربونات مع حمض</div>
-      <button class="ctrl-btn play" style="width:100%" onclick="simState.salts_carbonate.reaction=1;simState.salts_carbonate.pourAnim=0">➕ أضف كربونات النحاس</button>
-      <button class="ctrl-btn" style="width:100%;margin-top:4px;background:#27AE60;color:white" onclick="simState.salts_carbonate.limeTest=true">🧪 اختبر بماء الجير</button>
-      <button class="ctrl-btn reset" style="width:100%;margin-top:4px" onclick="simState.salts_carbonate.reaction=0;simState.salts_carbonate.bubbles=[];simState.salts_carbonate.co2prog=0;simState.salts_carbonate.limeTest=false;simState.salts_carbonate.pourAnim=0">↺ إعادة</button>
-    </div>
-    <div class="info-box" style="font-size:12px;line-height:1.9;margin-top:8px">
-      كربونات + حمض →<br>
-      <strong>ملح + ماء + CO₂</strong><br>
-      CO₂ يُعكّر ماء الجير ← تأكيد ✅
-    </div>
-    <div class="q-box" style="margin-top:8px">
-      <strong>❓ كيف نُثبت أن الغاز المنطلق هو CO₂؟</strong>
-      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">نمرّره في ماء الجير Ca(OH)₂ — يتعكّر → يُكوّن CaCO₃ الأبيض الغير ذائب</div>
-    </div>`);
-
-  function draw(){
-    if(currentSim!=='salts_carbonate') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    S.t+=0.05;
-    if(S.reaction>0) S.co2prog=Math.min(1,S.co2prog+0.006);
-
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#F0FFF4'); bg.addColorStop(1,'#E0F8E8');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    c.fillStyle='#27AE60'; c.font=`bold ${Math.min(15,w*0.034)}px Tajawal`;
-    c.textAlign='center'; c.fillText('نشاط 3-8 · كربونات الفلزات والأحماض',w/2,h*0.07);
-
-    // كأس التفاعل
-    const bx=w*0.08,bw=w*0.44,by=h*0.12,bh=h*0.55;
-    c.strokeStyle='#AAA'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(bx,by); c.lineTo(bx+bw*0.03,by+bh); c.stroke();
-    c.beginPath(); c.moveTo(bx+bw,by); c.lineTo(bx+bw-bw*0.03,by+bh); c.stroke();
-    c.beginPath(); c.moveTo(bx+bw*0.03,by+bh); c.lineTo(bx+bw-bw*0.03,by+bh); c.stroke();
-    c.strokeStyle='#DDD'; c.lineWidth=5; c.beginPath(); c.moveTo(bx-4,by); c.lineTo(bx+bw+4,by); c.stroke();
-
-    const liqY=by+bh*0.25;
-    const liqColor=S.reaction>0&&S.co2prog>0.3?'rgba(41,128,185,0.45)':'rgba(144,238,144,0.4)';
-    c.fillStyle=liqColor; c.fillRect(bx+2,liqY,bw-4,by+bh-liqY-1);
-    c.fillStyle=S.reaction>0&&S.co2prog>0.3?'#2980B9':'#27AE60';
-    c.font=`${Math.min(11,w*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText(S.reaction>0&&S.co2prog>0.3?'CuCl₂ (أزرق)':'HCl مخفف',bx+bw/2,liqY+h*0.06);
-
-    // فقاعات
-    if(S.reaction>0){
-      if(Math.random()<0.22 && S.bubbles.length<40){
-        S.bubbles.push({x:bx+bw*(0.2+Math.random()*0.6),y:by+bh*0.75,r:2+Math.random()*4.5,vy:-1.3-Math.random()*1.2,phase:Math.random()*6});
-      }
-      S.bubbles=S.bubbles.filter(b=>b.y>by-5);
-      S.bubbles.forEach(b=>{
-        b.y+=b.vy; b.x+=Math.sin(S.t*2.5+b.phase)*1.5;
-        c.strokeStyle=`rgba(100,220,130,${0.5+b.r/12})`; c.lineWidth=1.5;
-        c.beginPath(); c.arc(b.x,b.y,b.r,0,Math.PI*2); c.stroke();
-      });
-      c.fillStyle='rgba(39,174,96,0.8)'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
-      c.fillText('↑ CO₂ فوران!',bx+bw/2,by-h*0.01);
-    }
-
-    // كأس ماء الجير
-    const gx=w*0.57,gw=w*0.38,gy=h*0.24,gh=h*0.38;
-    c.strokeStyle='#AAA'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(gx,gy); c.lineTo(gx+gw*0.03,gy+gh); c.stroke();
-    c.beginPath(); c.moveTo(gx+gw,gy); c.lineTo(gx+gw-gw*0.03,gy+gh); c.stroke();
-    c.beginPath(); c.moveTo(gx+gw*0.03,gy+gh); c.lineTo(gx+gw-gw*0.03,gy+gh); c.stroke();
-    c.strokeStyle='#DDD'; c.lineWidth=5; c.beginPath(); c.moveTo(gx-3,gy); c.lineTo(gx+gw+3,gy); c.stroke();
-
-    const limeAlpha=S.limeTest?0.3+S.co2prog*0.5:0.3;
-    const limeColor=S.limeTest&&S.co2prog>0.4?`rgba(200,200,200,${limeAlpha})`:'rgba(240,248,255,0.5)';
-    c.fillStyle=limeColor; c.fillRect(gx+2,gy+gh*0.2,gw-4,gh*0.8);
-    c.fillStyle=S.limeTest&&S.co2prog>0.4?'#7F8C8D':'#3498DB';
-    c.font=`${Math.min(11,w*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText('ماء الجير Ca(OH)₂',gx+gw/2,gy+gh*0.45);
-    if(S.limeTest&&S.co2prog>0.4){
-      c.fillStyle='#8B7355'; c.font=`bold ${Math.min(12,w*0.027)}px Tajawal`;
-      c.fillText('تعكّر! ✅ CO₂ مؤكّد',gx+gw/2,gy+gh*0.72);
-    }
-    c.fillStyle='#666'; c.font=`${Math.min(11,w*0.024)}px Tajawal`;
-    c.fillText('اختبار CO₂',gx+gw/2,gy-h*0.018);
-
-    // سهم CO₂
-    if(S.reaction>0 && S.co2prog>0.2){
-      c.strokeStyle='rgba(39,174,96,0.6)'; c.lineWidth=2; c.setLineDash([5,4]);
-      c.beginPath(); c.moveTo(bx+bw,by+bh*0.15); c.bezierCurveTo(w*0.52,by,w*0.52,gy+gh*0.1,gx,gy+gh*0.25); c.stroke();
-      c.setLineDash([]);
-      c.fillStyle='rgba(39,174,96,0.8)'; c.font=`${Math.min(10,w*0.023)}px Tajawal`;
-      c.fillText('CO₂ ←',w*0.52,by+h*0.02);
-    }
-
-    // معادلة
-    c.fillStyle='#27AE60'; c.font=`bold ${Math.min(11,w*0.024)}px monospace`;
-    c.fillText('Cu₂CO₃ + 2HCl → 2CuCl + H₂O + CO₂',w/2,h*0.83);
-    c.fillStyle=S.co2prog>0.6?'#1E8449':'#AAA'; c.font=`${Math.min(12,w*0.027)}px Tajawal`;
-    c.fillText(S.co2prog>0.6?'✅ التفاعل اكتمل — ملح + ماء + CO₂':'أضف الكربونات للبدء',w/2,h*0.9);
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-// ══════════════════════════════════════════════════════════
-// الوحدة ٩ — الصوت (PhET-style محسّن)
-// ══════════════════════════════════════════════════════════
-
-const SoundEngine = (function(){
-  let ctx=null;
-  function getCtx(){ if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)(); return ctx; }
-  return {
-    tone(freq=440, dur=0.4, vol=0.25, type='sine'){
-      try{
-        const a=getCtx(); const g=a.createGain(); const o=a.createOscillator();
-        o.type=type; o.frequency.value=freq;
-        g.gain.setValueAtTime(vol,a.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+dur);
-        o.connect(g); g.connect(a.destination);
-        o.start(); o.stop(a.currentTime+dur);
-      }catch(e){}
-    },
-    chord(freqs=[261,329,392], dur=0.6, vol=0.18){ freqs.forEach(f=>this.tone(f,dur,vol)); },
-    drum(dur=0.15, vol=0.3){
-      try{
-        const a=getCtx(); const g=a.createGain(); const buf=a.createBuffer(1,a.sampleRate*dur,a.sampleRate);
-        const d=buf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/d.length*15);
-        const src=a.createBufferSource(); src.buffer=buf;
-        g.gain.setValueAtTime(vol,a.currentTime); g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+dur);
-        src.connect(g); g.connect(a.destination); src.start();
-      }catch(e){}
-    },
-    silence(){}
-  };
-})();
-
-function sound_pitch(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.sound_pitch) simState.sound_pitch={t:0,loudness:0.5,pitch:440,playReal:false};
-  const S=simState.sound_pitch;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🔊 شدة الصوت (السعة): <span id="spLoud" style="color:#FFD700">${S.loudness<0.3?'هادئ 🔈':S.loudness<0.7?'متوسط 🔉':'قوي 🔊'}</span></div>
-      <input type="range" min="0.05" max="1" step="0.05" value="${S.loudness}"
-        oninput="simState.sound_pitch.loudness=+this.value;document.getElementById('spLoud').textContent=+this.value<0.3?'هادئ 🔈':+this.value<0.7?'متوسط 🔉':'قوي 🔊'"
-        style="width:100%;margin:6px 0">
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">🎵 حدة الصوت / التردد: <span id="spPitch" style="color:#FFD700">${S.pitch} Hz</span></div>
-      <input type="range" min="100" max="1000" step="25" value="${S.pitch}"
-        oninput="simState.sound_pitch.pitch=+this.value;document.getElementById('spPitch').textContent=this.value+' Hz'"
-        style="width:100%;margin:6px 0">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.5)"><span>غليظ 🎸</span><span>رفيع 🎻</span></div>
-    </div>
-    <button class="ctrl-btn play" style="width:100%;margin-top:6px" onclick="
-      try{
-        const a=new(AudioContext||webkitAudioContext)();
-        const o=a.createOscillator(); const g=a.createGain();
-        o.frequency.value=simState.sound_pitch.pitch;
-        g.gain.setValueAtTime(simState.sound_pitch.loudness*0.4,a.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+1.2);
-        o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime+1.2);
-      }catch(e){}
-    ">▶ اسمع الصوت الحقيقي 🔊</button>
-    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:2">
-      🔊 الشدة → سعة الموجة (ارتفاعها)<br>
-      🎵 الحدة → تردد الموجة (عدد الموجات/ث)
-    </div>`);
-
-  function draw(){
-    if(currentSim!=='sound_pitch') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    S.t+=0.06;
-
-    // خلفية شاشة أوسيلوسكوب
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#050D05'); bg.addColorStop(1,'#0A1A0A');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-    // شبكة
-    c.strokeStyle='rgba(0,140,0,0.12)'; c.lineWidth=0.5;
-    for(let x=0;x<w;x+=w/10){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
-    for(let y=0;y<h;y+=h/8){ c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); }
-
-    const amp=S.loudness*h*0.3;
-    const freq=S.pitch/300;
-    const midY=h*0.5;
-
-    // خط صفر
-    c.strokeStyle='rgba(0,200,0,0.25)'; c.lineWidth=1;
-    c.beginPath(); c.moveTo(0,midY); c.lineTo(w,midY); c.stroke();
-
-    // الموجة الرئيسية
-    c.strokeStyle='#00FF44'; c.lineWidth=2.5;
-    c.shadowColor='#00FF44'; c.shadowBlur=10;
-    c.beginPath();
-    for(let x=0;x<=w;x+=2){
-      const y=midY+Math.sin((x/w)*freq*Math.PI*8+S.t)*amp;
-      x===0?c.moveTo(x,y):c.lineTo(x,y);
-    }
-    c.stroke(); c.shadowBlur=0;
-
-    // قياس السعة
-    c.strokeStyle='#FF4444'; c.lineWidth=1.5; c.setLineDash([3,3]);
-    c.beginPath(); c.moveTo(w*0.06,midY-amp); c.lineTo(w*0.17,midY-amp); c.stroke();
-    c.beginPath(); c.moveTo(w*0.06,midY+amp); c.lineTo(w*0.17,midY+amp); c.stroke();
-    c.beginPath(); c.moveTo(w*0.09,midY-amp); c.lineTo(w*0.09,midY+amp); c.stroke();
-    c.setLineDash([]);
-    c.fillStyle='#FF6666'; c.font=`${Math.min(11,w*0.024)}px Tajawal`;
-    c.textAlign='right'; c.fillText('سعة',w*0.085,midY-amp*0.5);
-    c.textAlign='center';
-
-    // قياس التردد (فترة واحدة)
-    const waveLen=w/(freq*4);
-    c.strokeStyle='#44AAFF'; c.lineWidth=1.5; c.setLineDash([3,3]);
-    c.beginPath(); c.moveTo(w*0.25,midY+amp+15); c.lineTo(w*0.25+waveLen,midY+amp+15); c.stroke();
-    c.setLineDash([]);
-    c.fillStyle='#44AAFF'; c.font=`${Math.min(10,w*0.022)}px Tajawal`;
-    c.fillText('↔ فترة',w*0.25+waveLen/2,midY+amp+28);
-
-    // معلومات
-    c.fillStyle='#00DD33'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
-    c.fillText(`الشدة: ${S.loudness<0.3?'🔈 هادئ':S.loudness<0.7?'🔉 متوسط':'🔊 قوي'}  |  التردد: ${S.pitch} Hz`,w/2,h*0.08);
-    c.fillStyle='#44FFAA'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
-    c.fillText(`الحدة: ${S.pitch<300?'غليظ 🎸':S.pitch<700?'متوسط 🎹':'رفيع 🎻'}`,w/2,h*0.94);
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function sound_vibration(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.sound_vibration) simState.sound_vibration={t:0,length:0.6,amplitude:0.5,mass:1,plucked:false,pluckT:0};
-  const S=simState.sound_vibration;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">📏 طول المسطرة: <span id="svLen" style="color:#FFD700">${Math.round(S.length*30)} cm</span></div>
-      <input type="range" min="0.2" max="1" step="0.05" value="${S.length}"
-        oninput="simState.sound_vibration.length=+this.value;document.getElementById('svLen').textContent=Math.round(+this.value*30)+'cm'"
-        style="width:100%;margin:6px 0">
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">↕ مقدار الجذب: <span id="svAmp" style="color:#FFD700">${Math.round(S.amplitude*100)}%</span></div>
-      <input type="range" min="0.1" max="1" step="0.05" value="${S.amplitude}"
-        oninput="simState.sound_vibration.amplitude=+this.value;document.getElementById('svAmp').textContent=Math.round(+this.value*100)+'%'"
-        style="width:100%;margin:6px 0">
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">⚖️ الوزن المعلّق: <span id="svMass" style="color:#FFD700">${S.mass}</span> وحدة</div>
-      <input type="range" min="1" max="5" step="1" value="${S.mass}"
-        oninput="simState.sound_vibration.mass=+this.value;document.getElementById('svMass').textContent=+this.value"
-        style="width:100%;margin:6px 0">
-    </div>
-    <button class="ctrl-btn play" style="width:100%;margin-top:6px" onclick="
-      simState.sound_vibration.plucked=true;
-      simState.sound_vibration.pluckT=0;
-      try{
-        const f=1.5/(simState.sound_vibration.length*Math.sqrt(simState.sound_vibration.mass))*180;
-        const a=new(AudioContext||webkitAudioContext)();
-        const o=a.createOscillator(); const g=a.createGain();
-        o.frequency.value=Math.max(80,Math.min(800,f));
-        g.gain.setValueAtTime(0.3*simState.sound_vibration.amplitude,a.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+1.5);
-        o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime+1.5);
-      }catch(e){}
-    ">🎸 اقرع المسطرة</button>
-    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:2">
-      طول أطول → تردد أقل (أبطأ)<br>
-      كتلة أكبر → تردد أقل
-    </div>`);
-
-  function draw(){
-    if(currentSim!=='sound_vibration') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    S.t+=0.05; if(S.plucked) S.pluckT++;
-    // تناقص بعد القرع
-    const decay=S.plucked?Math.max(0,1-S.pluckT/120):1;
-
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,'#1A1205'); bg.addColorStop(1,'#2E2005');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    c.fillStyle='#FFD080'; c.font=`bold ${Math.min(16,w*0.036)}px Tajawal`;
-    c.textAlign='center'; c.fillText('الاهتزازات — السعة والتردد',w/2,h*0.07);
-
-    const freq=1.5/(S.length*Math.sqrt(S.mass));
-    const deflection=S.amplitude*h*0.18*Math.sin(S.t*freq*6)*decay;
-
-    // طاولة
-    c.fillStyle='#8B6914'; c.beginPath(); c.roundRect(w*0.05,h*0.12,w*0.9,h*0.05,4); c.fill();
-
-    // المسطرة (عازف الاهتزاز)
-    const anchorX=w*0.28, anchorY=h*0.17;
-    const rulerLen=S.length*h*0.5;
-    const tipX=anchorX+deflection*0.5, tipY=anchorY+rulerLen;
-
-    // ظل توهج
-    if(Math.abs(deflection)>5){
-      c.shadowColor='rgba(100,150,255,0.4)'; c.shadowBlur=12;
-    }
-    c.strokeStyle='#4A90D9'; c.lineWidth=7;
-    c.beginPath(); c.moveTo(anchorX,anchorY); c.quadraticCurveTo(anchorX+deflection*0.7,anchorY+rulerLen*0.5,tipX,tipY); c.stroke();
-    c.shadowBlur=0;
-    // وزن
-    const mSize=14+S.mass*4;
-    const mGrad=c.createRadialGradient(tipX,tipY+mSize*0.5,2,tipX,tipY+mSize*0.5,mSize);
-    mGrad.addColorStop(0,'#BDC3C7'); mGrad.addColorStop(1,'#7F8C8D');
-    c.fillStyle=mGrad; c.beginPath(); c.roundRect(tipX-mSize/2,tipY,mSize,mSize*S.mass,4); c.fill();
-    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`bold ${mSize*0.55}px Tajawal`; c.textAlign='center';
-    c.fillText(`${S.mass}W`,tipX,tipY+mSize*S.mass*0.6);
-
-    // خط الاتزان
-    c.strokeStyle='rgba(255,100,100,0.3)'; c.lineWidth=1; c.setLineDash([5,4]);
-    c.beginPath(); c.moveTo(anchorX-w*0.07,tipY); c.lineTo(anchorX+w*0.07,tipY); c.stroke();
-    c.setLineDash([]);
-    // سهم السعة
-    c.strokeStyle='rgba(255,80,80,0.6)'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(anchorX-w*0.06,tipY-S.amplitude*h*0.18); c.lineTo(anchorX-w*0.06,tipY+S.amplitude*h*0.18); c.stroke();
-    c.fillStyle='#FF8888'; c.font=`${Math.min(10,w*0.022)}px Tajawal`; c.textAlign='right';
-    c.fillText('سعة',anchorX-w*0.07,tipY);
-    c.textAlign='center';
-
-    // موجة صوتية تنتشر
-    for(let i=0;i<5;i++){
-      const waveX=anchorX+w*0.12+i*w*0.12;
-      const wAlpha=0.4-i*0.07;
-      const wAmp=S.amplitude*h*0.1*decay*(1-i*0.15)*Math.sin(S.t*freq*6-i*0.8);
-      if(wAlpha>0&&waveX<w*0.9){
-        c.strokeStyle=`rgba(100,200,100,${wAlpha})`; c.lineWidth=1.5;
-        c.beginPath();
-        for(let y=h*0.2;y<h*0.8;y+=3){
-          const xOff=Math.sin((y-h*0.5)*0.08)*wAmp*0.5;
-          y===h*0.2?c.moveTo(waveX+xOff,y):c.lineTo(waveX+xOff,y);
+        // Show 23 while waiting
+        c.fillText('23🧬', eX, eY);
+        c.fillStyle='#FFE090'; c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('🥚 البويضة', eX, eY+eR+18);
+        if(!S.launched){
+          c.fillStyle='rgba(255,210,240,0.65)'; c.font=`${Math.min(12,w*0.026)}px Tajawal`;
+          c.textAlign='center';
+          c.fillText('اضغط "أطلق الحيوانات المنوية" لبدء المحاكاة',w/2,h*0.90);
         }
-        c.stroke();
       }
-    }
 
-    // قراءات
-    const Hz=(freq*15).toFixed(1);
-    c.fillStyle='rgba(0,0,0,0.5)'; c.beginPath(); c.roundRect(w*0.55,h*0.32,w*0.4,h*0.3,8); c.fill();
-    c.strokeStyle='rgba(100,180,255,0.3)'; c.lineWidth=1; c.stroke();
-    c.fillStyle='#80C4FF'; c.font=`bold ${Math.min(12,w*0.027)}px Tajawal`;
-    c.fillText('📊 القراءات',w*0.75,h*0.41);
-    c.fillStyle='#FFD700'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
-    c.fillText(`التردد: ${Hz} Hz`,w*0.75,h*0.49);
-    c.fillStyle='#80FF80';
-    c.fillText(`الطول: ${Math.round(S.length*30)} cm`,w*0.75,h*0.54);
-    c.fillStyle='#FFA0A0';
-    c.fillText(`الوزن: ${S.mass} وحدة`,w*0.75,h*0.59);
-
-    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
-    c.fillText(S.length>0.7?'مسطرة طويلة → تردد أقل':S.length<0.35?'مسطرة قصيرة → تردد أعلى':'اضغط "اقرع المسطرة" لسماع الصوت',w/2,h*0.88);
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function sound_travel(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.sound_travel) simState.sound_travel={t:0,vacuum:false,medium:'air',waves:[],particles:[]};
-  const S=simState.sound_travel;
-
-  const mediums={
-    air:  {name:'هواء',speed:1.0,color:'#3498DB',bgTop:'#87CEEB',bgBot:'#B0DCF0',pColor:'#3498DB',speedLabel:'343 م/ث'},
-    water:{name:'ماء', speed:3.5,color:'#1A5276',bgTop:'#1B6CA8',bgBot:'#2E86C1',pColor:'#7FB3D3',speedLabel:'1480 م/ث'},
-    solid:{name:'مادة صلبة',speed:10,color:'#7D6608',bgTop:'#C39A4A',bgBot:'#D4B060',pColor:'#F0C060',speedLabel:'5000 م/ث'},
-  };
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🌊 الوسط الناقل</div>
-      ${Object.entries(mediums).map(([k,v])=>`<button class="ctrl-btn" style="width:100%;margin:2px 0;${S.medium===k?'background:'+v.color+';color:white;':''}" onclick="simState.sound_travel.medium='${k}';simState.sound_travel.waves=[];simState.sound_travel.particles=[]">${k==='air'?'🌬️':k==='water'?'💧':'🪨'} ${v.name} (${v.speedLabel})</button>`).join('')}
-    </div>
-    <div class="ctrl-section" style="margin-top:8px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:white">
-        <input type="checkbox" ${S.vacuum?'checked':''} onchange="simState.sound_travel.vacuum=this.checked;simState.sound_travel.waves=[];simState.sound_travel.particles=[]">
-        <span>🔕 فراغ (لا جزيئات)</span>
-      </label>
-    </div>
-    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:2">
-      الصوت = موجة ضغط في الوسط المادي<br>
-      الجزيئات تهتز وتدفع بعضها<br>
-      في الفراغ: لا جزيئات → لا صوت
-    </div>`);
-
-  // تهيئة الجسيمات
-  function initParticles(){
-    S.particles=[];
-    if(S.vacuum) return;
-    const med=mediums[S.medium];
-    const rows=S.medium==='solid'?6:4;
-    const cols=12;
-    for(let r=0;r<rows;r++) for(let col=0;col<cols;col++)
-      S.particles.push({
-        bx:(col+0.5)/cols,by:0.25+r*(0.5/rows),
-        dx:0,phase:col*0.3+r*0.7,med:S.medium
-      });
-  }
-  if(S.particles.length===0) initParticles();
-
-  function draw(){
-    if(currentSim!=='sound_travel') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    S.t+=0.04;
-
-    if(S.vacuum){
-      c.fillStyle='#080818'; c.fillRect(0,0,w,h);
-      // نجوم
-      for(let i=0;i<40;i++){
-        const sx=(Math.sin(i*137)*0.5+0.5)*w, sy=(Math.cos(i*97)*0.5+0.5)*h;
-        c.fillStyle=`rgba(255,255,255,${0.3+Math.sin(S.t+i)*0.2})`; c.beginPath(); c.arc(sx,sy,1,0,Math.PI*2); c.fill();
-      }
-      c.fillStyle='#FF4444'; c.font=`bold ${Math.min(19,w*0.042)}px Tajawal`; c.textAlign='center';
-      c.fillText('🔕 الصوت لا ينتقل في الفراغ!',w/2,h*0.42);
-      c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.min(13,w*0.03)}px Tajawal`;
-      c.fillText('لا توجد جزيئات لنقل الاهتزاز',w/2,h*0.55);
-      c.fillStyle='rgba(255,255,255,0.3)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
-      c.fillText('الفضاء الخارجي — صمت مطبق ✨',w/2,h*0.68);
-      animFrame=requestAnimationFrame(draw); return;
-    }
-
-    const med=mediums[S.medium];
-    // خلفية
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,med.bgTop); bg.addColorStop(1,med.bgBot);
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    // إضافة موجات دورية
-    if(S.t%0.5<0.04) S.waves.push({x:w*0.12,alpha:1});
-    S.waves=S.waves.filter(wv=>wv.x<w*1.1&&wv.alpha>0.02);
-    S.waves.forEach(wv=>{ wv.x+=med.speed*3.5; wv.alpha*=0.97; });
-
-    // رسم الجسيمات مع الاهتزاز
-    S.particles.forEach(p=>{
-      let wavePush=0;
-      S.waves.forEach(wv=>{
-        const dist=Math.abs(p.bx*w-wv.x);
-        if(dist<w*0.12) wavePush+=Math.sin((p.bx*w-wv.x)*0.04)*wv.alpha*18;
-      });
-      p.dx=wavePush;
-      const px=p.bx*w+p.dx, py=p.by*h;
-      c.fillStyle=S.medium==='solid'?`hsl(${40+p.bx*20},60%,55%)`:med.pColor+'CC';
-      const pr=S.medium==='solid'?5:3.5;
-      c.beginPath(); c.arc(px,py,pr,0,Math.PI*2); c.fill();
-      if(S.medium==='solid'){
-        c.strokeStyle=med.pColor+'40'; c.lineWidth=0.8;
-        if(p.bx<0.9) c.beginPath(), c.moveTo(px,py), c.lineTo(px+w/12,py), c.stroke();
-      }
-    });
-
-    // موجات الضغط كمؤشرات بصرية
-    S.waves.forEach(wv=>{
-      const g=c.createLinearGradient(wv.x-20,0,wv.x+20,0);
-      g.addColorStop(0,'transparent'); g.addColorStop(0.5,med.color+Math.round(wv.alpha*80).toString(16).padStart(2,'0')); g.addColorStop(1,'transparent');
-      c.fillStyle=g; c.fillRect(wv.x-20,h*0.18,40,h*0.64);
-    });
-
-    // مصدر الصوت
-    c.fillStyle=med.color+'CC'; c.font=`${Math.min(32,h*0.1)}px Arial`;
-    c.textAlign='center'; c.fillText('🔊',w*0.1,h*0.55);
-
-    // أذن
-    c.fillText('👂',w*0.9,h*0.55);
-
-    // إشارة الإرسال
-    S.waves.filter(wv=>wv.x>w*0.7).forEach(wv=>{
-      c.fillStyle=`rgba(255,220,50,${wv.alpha*0.8})`; c.font=`${Math.min(20,h*0.07)}px Arial`;
-      c.fillText('🎵',w*0.87,h*0.35);
-    });
-
-    // معلومات
-    c.fillStyle='rgba(0,0,0,0.45)'; c.beginPath(); c.roundRect(w*0.3,h*0.04,w*0.4,h*0.14,8); c.fill();
-    c.fillStyle='white'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
-    c.fillText(`سرعة الصوت في ${med.name}: ${med.speedLabel}`,w/2,h*0.1);
-    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.min(11,w*0.025)}px Tajawal`;
-    c.fillText('أسرع في المواد الصلبة > السوائل > الغازات',w/2,h*0.15);
-
-    animFrame=requestAnimationFrame(draw);
-  }
-  draw();
-}
-
-function sound_oscilloscope(){
-  cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.sound_oscilloscope) simState.sound_oscilloscope={t:0,amp:0.5,freq:2,showLabels:true,freeze:false,frozenT:0};
-  const S=simState.sound_oscilloscope;
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🔊 شدة الصوت (السعة): <span id="soAmp" style="color:#00FF88">${S.amp<0.15?'صمت':S.amp<0.5?'هادئ 🔈':'قوي 🔊'}</span></div>
-      <input type="range" min="0" max="1" step="0.05" value="${S.amp}"
-        oninput="simState.sound_oscilloscope.amp=+this.value;document.getElementById('soAmp').textContent=+this.value<0.05?'صمت':+this.value<0.5?'هادئ 🔈':'قوي 🔊'"
-        style="width:100%;margin:6px 0">
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">🎵 حدة الصوت (التردد): <span id="soFreq" style="color:#44DDFF">${S.freq<2.5?'غليظ 🎸':S.freq<4?'متوسط 🎹':'رفيع 🎻'}</span></div>
-      <input type="range" min="0.8" max="6" step="0.4" value="${S.freq}"
-        oninput="simState.sound_oscilloscope.freq=+this.value;document.getElementById('soFreq').textContent=+this.value<2.5?'غليظ 🎸':+this.value<4?'متوسط 🎹':'رفيع 🎻'"
-        style="width:100%;margin:6px 0">
-    </div>
-    <div style="display:flex;gap:6px;margin-top:6px">
-      <button class="ctrl-btn" style="flex:1" onclick="simState.sound_oscilloscope.freeze=!simState.sound_oscilloscope.freeze;simState.sound_oscilloscope.frozenT=simState.sound_oscilloscope.t;this.textContent=simState.sound_oscilloscope.freeze?'▶ تشغيل':'⏸ تجميد'">⏸ تجميد</button>
-      <button class="ctrl-btn" style="flex:1" onclick="simState.sound_oscilloscope.showLabels=!simState.sound_oscilloscope.showLabels">🏷 مسميات</button>
-    </div>
-    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:2">
-      📊 السعة أكبر = الصوت أقوى<br>
-      📊 الموجات أقرب = التردد أعلى (رفيع)
-    </div>`);
-
-  function draw(){
-    if(currentSim!=='sound_oscilloscope') return;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    if(!S.freeze) S.t+=0.06;
-
-    // شاشة أوسيلوسكوب
-    c.fillStyle='#050F05'; c.fillRect(0,0,w,h);
-    // إطار
-    c.strokeStyle='rgba(0,200,0,0.3)'; c.lineWidth=2;
-    c.beginPath(); c.roundRect(8,8,w-16,h-16,6); c.stroke();
-    // شبكة
-    c.strokeStyle='rgba(0,160,0,0.1)'; c.lineWidth=0.5;
-    for(let x=0;x<w;x+=w/10){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,h); c.stroke(); }
-    for(let y=0;y<h;y+=h/8){ c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); }
-    // محور X
-    c.strokeStyle='rgba(0,220,0,0.2)'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(0,h/2); c.lineTo(w,h/2); c.stroke();
-
-    const amp=S.amp*h*0.36;
-    const midY=h/2;
-
-    if(S.amp<0.05){
-      // صمت
-      c.strokeStyle='#00FF44'; c.lineWidth=2;
-      c.beginPath(); c.moveTo(0,midY); c.lineTo(w,midY); c.stroke();
-      c.fillStyle='rgba(255,80,80,0.7)'; c.font=`bold ${Math.min(16,w*0.036)}px Tajawal`;
-      c.textAlign='center'; c.fillText('🔕 صمت — لا اهتزاز',w/2,h*0.4);
     } else {
-      // موجة جيبية
-      c.strokeStyle='#00FF44'; c.lineWidth=2.5;
-      c.shadowColor='rgba(0,255,68,0.4)'; c.shadowBlur=12;
-      c.beginPath();
-      for(let x=0;x<=w;x+=1.5){
-        const y=midY+Math.sin((x/w)*S.freq*Math.PI*4+S.t)*amp;
-        x===0?c.moveTo(x,y):c.lineTo(x,y);
-      }
-      c.stroke(); c.shadowBlur=0;
+      // anatomy / question phase — just show 23 and label
+      c.fillText('23🧬', eX, eY);
+      c.fillStyle='#FFE090'; c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('🥚 البويضة', eX, eY+eR+18);
+    }
 
-      if(S.showLabels){
-        // سعة
-        c.strokeStyle='rgba(255,60,60,0.7)'; c.lineWidth=1.5; c.setLineDash([3,3]);
-        c.beginPath(); c.moveTo(w*0.05,midY-amp); c.lineTo(w*0.18,midY-amp); c.stroke();
-        c.beginPath(); c.moveTo(w*0.05,midY+amp); c.lineTo(w*0.18,midY+amp); c.stroke();
-        c.beginPath(); c.moveTo(w*0.09,midY-amp); c.lineTo(w*0.09,midY+amp); c.stroke();
-        c.setLineDash([]);
-        c.fillStyle='#FF7777'; c.font=`${Math.min(11,w*0.024)}px Tajawal`;
-        c.textAlign='right'; c.fillText('سعة',w*0.08,midY-amp*0.45);
+    // ── 6. QUESTION overlay ──
+    if(S.phase==='question'){
+      // dark overlay at bottom
+      c.fillStyle='rgba(10,5,25,0.72)';
+      c.beginPath(); c.roundRect(w*0.06, h*0.76, w*0.88, h*0.18, 14); c.fill();
+      c.strokeStyle='rgba(255,210,60,0.6)'; c.lineWidth=2;
+      c.beginPath(); c.roundRect(w*0.06, h*0.76, w*0.88, h*0.18, 14); c.stroke();
 
-        // فترة
-        const period=w/(S.freq*2);
-        c.strokeStyle='rgba(68,170,255,0.7)'; c.lineWidth=1.5; c.setLineDash([3,3]);
-        c.beginPath(); c.moveTo(w*0.3,midY+amp+12); c.lineTo(w*0.3+period,midY+amp+12); c.stroke();
-        c.setLineDash([]);
-        c.fillStyle='#44AAFF'; c.font=`${Math.min(10,w*0.022)}px Tajawal`;
-        c.textAlign='center'; c.fillText('← فترة واحدة →',w*0.3+period/2,midY+amp+26);
-        c.textAlign='center';
+      c.font=`bold ${Math.min(15,w*0.032)}px Tajawal`;
+      c.fillStyle='rgba(255,230,80,0.97)';
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('❓ أين تحدث عملية الإخصاب؟', w/2, h*0.812);
+      c.font=`${Math.min(12,w*0.026)}px Tajawal`;
+      c.fillStyle='rgba(200,230,255,0.85)';
+      c.fillText('اضغط على المنطقة الصحيحة في الرسم', w/2, h*0.856);
+      c.fillStyle='rgba(255,150,150,0.9)';
+      c.fillText('💡 الإجابة: قناة البيض', w/2, h*0.898);
+
+      // Wrong-click flash
+      if(S.wrongFlash>0){
+        S.wrongFlash--;
+        c.font=`bold ${Math.min(14,w*0.030)}px Tajawal`;
+        c.fillStyle='rgba(255,80,80,0.95)';
+        c.fillText(`❌ هذا هو ${S.wrongLabel} — حاول مجدداً`, w/2, h*0.935);
       }
     }
 
-    // معلومات
-    c.fillStyle='#00EE44'; c.font=`bold ${Math.min(13,w*0.03)}px Tajawal`;
-    c.textAlign='center'; c.fillText(`الشدة: ${S.amp<0.05?'🔕 صمت':S.amp<0.35?'🔈 هادئ':S.amp<0.7?'🔉 متوسط':'🔊 قوي'}  |  الحدة: ${S.freq<2.5?'🎸 غليظ':S.freq<4?'🎹 متوسط':'🎻 رفيع'}`,w/2,h*0.07);
-    c.fillStyle='rgba(0,200,100,0.7)'; c.font=`${Math.min(10,w*0.023)}px Tajawal`;
-    c.fillText(S.freeze?'⏸ متجمّد':'التردد: '+S.freq.toFixed(1)+' × | السعة: '+Math.round(S.amp*100)+'%',w/2,h*0.95);
+    // ── 7. ANATOMY phase — hover hint ──
+    if(S.phase==='anatomy'){
+      // bottom hint bar
+      c.fillStyle='rgba(10,5,25,0.65)';
+      c.beginPath(); c.roundRect(w*0.06,h*0.86,w*0.88,h*0.10,12); c.fill();
+      c.font=`${Math.min(13,w*0.028)}px Tajawal`;
+      c.fillStyle='rgba(200,220,255,0.88)'; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('تعرّف على الأجزاء 👆 ثم ستظهر لك سؤال', w/2, h*0.91);
+      // auto-advance after 3 seconds of looking (t > 75 frames)
+      if(S.t > 75){
+        S.phase='question';
+        updateControls();
+      }
+    }
 
-    animFrame=requestAnimationFrame(draw);
+    // ── 8. Title ──
+    c.font=`bold ${Math.min(16,w*0.034)}px Tajawal`;
+    c.fillStyle='rgba(240,200,255,0.92)';
+    c.textAlign='center'; c.textBaseline='top';
+    c.fillText('الجهاز التناسلي الأنثوي 🔬', w/2, h*0.018);
   }
+
+  // ─── Click / Touch handler ─────────────────────────────────
+  function handleClick(e){
+    if(currentSim!=='repro_gametes'||S.tab!==0) return;
+    if(S.phase!=='question') return;
+    const p=gp(e), w=cv.width, h=cv.height;
+
+    function inZone(z){ return z && p.x>=z.x && p.x<=z.x+z.w && p.y>=z.y && p.y<=z.y+z.h; }
+
+    if(inZone(S.tubeZone)){
+      // ✅ Correct!
+      S.phase='simulation';
+      S.launched=false; S.fertilised=false; S.fertAnim=0; S.eggTravel=0;
+      S.spermObjs=[];
+      updateControls();
+      try{SoundEngine.chord([523,659,784],0.4,0.15);}catch(_){}
+    } else if(inZone(S.uterusZone)){
+      S.wrongFlash=90; S.wrongLabel='الرحم';
+      try{U9Sound&&U9Sound.ping(180,.15,.15);}catch(_){}
+    } else if(inZone(S.ovaryZone)){
+      S.wrongFlash=90; S.wrongLabel='المبيض';
+      try{U9Sound&&U9Sound.ping(180,.15,.15);}catch(_){}
+    }
+  }
+
+  cv.addEventListener('click',    handleClick);
+  cv.addEventListener('touchend', e=>{ e.preventDefault(); handleClick(e.changedTouches?{clientX:e.changedTouches[0].clientX,clientY:e.changedTouches[0].clientY,touches:e.changedTouches}:e); }, {passive:false});
+
   draw();
 }
 
 
-
-// أسئلة الوحدة 7 (ماذا نستنتج؟)
-// ══════════════════════════════════════════════════════════
-// إضافة الأسئلة للـ SIM_QUESTIONS
-Object.assign(SIM_QUESTIONS, {
-  circsystem:{
-    q:'ما الوظيفة الرئيسية للجهاز الدوري في الإنسان؟',
-    opts:['هضم الطعام','نقل الأكسجين والمواد الغذائية لجميع خلايا الجسم','تنظيم الحرارة فقط','إنتاج الهرمونات'],
-    ans:1,
-    fb:'✅ الجهاز الدوري يضخ الدم لتوصيل O₂ والجلوكوز لكل خلية، وإزالة CO₂ والفضلات. القلب + الدم + الأوعية الدموية هم أبطال هذه المهمة!'
-  },
-  heart8:{
-    q:'كم عدد حجرات القلب في الإنسان؟',
-    opts:['حجرتان فقط','ثلاث حجرات','أربع حجرات','ست حجرات'],
-    ans:2,
-    fb:'✅ للقلب 4 حجرات: أذين أيمن + بطين أيمن (الجانب الأيمن = دم غير مؤكسج) + أذين أيسر + بطين أيسر (الجانب الأيسر = دم مؤكسج).'
-  },
-  blood8:{
-    q:'أي مكوّن من مكوّنات الدم يحمل الأكسجين؟',
-    opts:['البلازما','خلايا الدم البيضاء','الصفائح الدموية','خلايا الدم الحمراء'],
-    ans:3,
-    fb:'✅ خلايا الدم الحمراء تحتوي على الهيموجلوبين — الصبغة الحمراء التي ترتبط بالأكسجين في الرئتين وتحمله لكل أنسجة الجسم!'
-  },
-  vessels8:{
-    q:'ما الفرق الرئيسي بين الشرايين والأوردة؟',
-    opts:['الشرايين أرق جداراً','الشرايين تحمل الدم من القلب — الأوردة تحمله إلى القلب','الأوردة تحمل الدم المؤكسج دائماً','لا فرق بينهما'],
-    ans:1,
-    fb:'✅ الشرايين تحمل الدم من القلب (بضغط عالٍ → جدران سميكة مرنة). الأوردة تحمله إلى القلب (بضغط أقل → جدران أرق + صمامات تمنع الرجوع).'
-  },
-  lungs8:{
-    q:'ما وظيفة الحجاب الحاجز في عملية التنفس؟',
-    opts:['ينتج الأكسجين','يصفّي الهواء من الجراثيم','يتحرك لأعلى وأسفل مسبباً الشهيق والزفير','يتحكم في صوت الكلام'],
-    ans:2,
-    fb:'✅ عند الشهيق: الحجاب الحاجز ينخفض → الضغط في الرئتين يقل → الهواء يدخل. عند الزفير: الحجاب يرتفع → الضغط يزيد → الهواء يخرج!'
-  },
-  gasex8:{
-    q:'لماذا تُعدّ الحويصلات الهوائية صغيرة جداً أمراً مفيداً؟',
-    opts:['لتوفير المساحة فقط','لتقليل الهواء الداخل','لزيادة مساحة السطح الكلية مما يسرّع تبادل الغازات','لأنها أسهل في التصنيع'],
-    ans:2,
-    fb:'✅ 300 مليون حويصلة صغيرة = مساحة سطح إجمالية 70 م² (كملعب تنس!). كلما صغرت الحويصلة، زادت نسبة المساحة/الحجم → انتشار O₂ وCO₂ أسرع!'
-  },
-  respiration8:{
-    q:'ما ناتجا التنفس الهوائي داخل الخلايا؟',
-    opts:['الأكسجين والجلوكوز','ثاني أكسيد الكربون والماء والطاقة','الأكسجين والطاقة فقط','الجلوكوز والماء'],
-    ans:1,
-    fb:'✅ جلوكوز + أكسجين → ثاني أكسيد الكربون + ماء + طاقة. الطاقة تُستخدم لكل وظائف الجسم، والـ CO₂ والماء يُطرحان عبر الرئتين!'
-  },
-  fitness8:{
-    q:'لماذا يرتفع معدل النبض أثناء التمرين؟',
-    opts:['لأن القلب يتعب','لضخ المزيد من O₂ والجلوكوز للعضلات النشطة','لتبريد الجسم','لأسباب مجهولة'],
-    ans:1,
-    fb:'✅ العضلات النشطة تحتاج O₂ وجلوكوز أكثر للتنفس الخلوي. القلب يضخ أسرع → المزيد من الدم → المزيد من O₂ والطاقة. لهذا نلهث ونتعرق!'
-  },
-  smoking8:{
-    q:'أي مكوّن من دخان السجائر يمنع خلايا الدم الحمراء من حمل الأكسجين؟',
-    opts:['النيكوتين','القطران','أول أكسيد الكربون','الجسيمات الدقيقة'],
-    ans:2,
-    fb:'✅ أول أكسيد الكربون CO يرتبط بالهيموجلوبين أقوى 200× من O₂! فيحتل مكانه ويمنع حمل الأكسجين → المدخّن يعاني من نقص أكسجين مزمن.'
-  },
-  // ── أسئلة الوحدة 8 (الأملاح) ──
-  salts_what:{
-    q:'كيف تتكوّن الأملاح من الأحماض؟',
-    opts:['بإضافة الماء للحمض','باستبدال الهيدروجين في الحمض بفلز أو أيون فلزي','بتسخين الحمض','بتبريد الحمض'],
-    ans:1,
-    fb:'✅ الملح يتكوّن عندما يحلّ الفلز محل الهيدروجين في الحمض. مثال: HCl + Zn → ZnCl₂ + H₂ — كلوريد الخارصين هو الملح!'
-  },
-  salts_metal:{
-    q:'ما الغاز المنطلق عند تفاعل فلز نشط مع حمض مخفف؟',
-    opts:['الأكسجين','ثاني أكسيد الكربون','الهيدروجين','النيتروجين'],
-    ans:2,
-    fb:'✅ عند تفاعل الفلز مع الحمض: فلز + حمض → ملح + هيدروجين↑. يمكن التحقق منه بالشعلة المشتعلة — ينطفئ مع صوت "فرقعة" مميزة!'
-  },
-  salts_oxide:{
-    q:'لماذا نستخدم أكسيد الفلز بدلاً من الفلز مباشرة لتحضير بعض الأملاح؟',
-    opts:['لأنه أرخص','لأن الفلزات غير النشطة كالنحاس لا تتفاعل مع الأحماض مباشرة','لأن الأكسيد يُعطي لوناً أجمل','لأن الأكسيد أسرع في الذوبان'],
-    ans:1,
-    fb:'✅ النحاس والذهب والفضة فلزات غير نشطة — لا تتفاعل مع الأحماض المخففة. الحل: نستخدم أكسيدها (مثل CuO) الذي يتفاعل بسهولة مع الحمض!'
-  },
-  salts_carbonate:{
-    q:'ما المنتجات الثلاثة لتفاعل الكربونات مع الحمض؟',
-    opts:['ملح وماء فقط','ملح وأكسجين وماء','ملح وماء وثاني أكسيد الكربون','حمض وفلز وهيدروجين'],
-    ans:2,
-    fb:'✅ كربونات + حمض → ملح + ماء + CO₂↑. الفوران الذي تراه هو ثاني أكسيد الكربون! يمكن التحقق منه بتمريره في ماء الجير — يُعكّره!'
-  },
-  // ── أسئلة الوحدة 9 (الصوت) ──
-  sound_pitch:{
-    q:'ما الفرق بين شدة الصوت وحدة الصوت؟',
-    opts:['هما نفس الشيء','الشدة تعني قوة الصوت (عالٍ/هادئ) — الحدة تعني رفاعته (رفيع/غليظ)','الحدة تعني قوة الصوت — الشدة تعني رفاعته','لا يوجد فرق علمي بينهما'],
-    ans:1,
-    fb:'✅ الشدة (Loudness) تُحدَّد بسعة الاهتزاز — صوت قوي = اهتزاز أكبر. الحدة (Pitch) تُحدَّد بالتردد — صوت رفيع = تردد أعلى (Hz أكثر)!'
-  },
-  sound_vibration:{
-    q:'ما تأثير تقصير طول المسطرة المهتزة على تردد اهتزازها؟',
-    opts:['يقل التردد','يزيد التردد','لا يتأثر التردد','يصبح التردد صفراً'],
-    ans:1,
-    fb:'✅ المسطرة القصيرة تهتز أسرع → تردد أعلى! والعكس: المسطرة الطويلة تهتز أبطأ → تردد أقل. هذا المبدأ يُستخدم في ضبط الآلات الموسيقية!'
-  },
-  sound_travel:{
-    q:'لماذا لا يستطيع الصوت الانتقال في الفراغ؟',
-    opts:['لأن الصوت أبطأ من الضوء','لأنه يحتاج وسطاً مادياً من جزيئات لنقل الاهتزاز','لأن الفراغ بارد جداً','لأن الصوت موجة ضوئية'],
-    ans:1,
-    fb:'✅ الصوت موجة ميكانيكية — تحتاج جزيئات تدفع بعضها بعضاً لنقل الاهتزاز. في الفراغ لا توجد جزيئات → لا صوت! لهذا لا نسمع انفجارات النجوم!'
-  },
-  sound_oscilloscope:{
-    q:'على شاشة جهاز رسم الذبذبات — ماذا يعني ارتفاع الموجة أكثر؟',
-    opts:['الصوت أكثر حدة (رفيع أكثر)','الصوت أعلى شدة (أقوى)','الصوت أبطأ انتقالاً','الصوت أكثر تردداً'],
-    ans:1,
-    fb:'✅ ارتفاع الموجة = السعة الأكبر = شدة أعلى = صوت أقوى! أما الحدة (رفيع/غليظ) فتُحدَّد بعدد الموجات في نفس الفضاء — كلما ازدادت كلما كان الصوت أرفع!'
-  },
-  // ── أسئلة الوحدة 10 (التكاثر والتطوّر) ──
-  repro_gametes:{
-    q:'لماذا يحتوي كلٌّ من البويضة والحيوان المنوي على 23 كروموسوماً فقط؟',
-    opts:['لأنها خلايا صغيرة','حتى تكون البويضة المخصبة 23+23=46 كروموسوم وهو العدد الطبيعي لخلايا الجسم','لأن 23 رقم مقدّس','لتوفير الطاقة'],
-    ans:1,
-    fb:'✅ لو كان كل مشيج يحمل 46 كروموسوماً، لأصبح في البويضة المخصبة 92 — وهذا يُسبّب مشاكل وراثية. الطبيعة ذكية: 23+23=46 ✅ دائماً!'
-  },
-  repro_fertilisation:{
-    q:'أين يحدث الإخصاب عادةً في جسم الأنثى؟',
-    opts:['في الرحم','في المبيض','في قناة البيض','في المهبل'],
-    ans:2,
-    fb:'✅ الإخصاب يحدث في قناة البيض! البويضة تخرج من المبيض وتدخل قناة البيض حيث تلتقي بالحيوانات المنوية. ثم تنتقل البويضة المخصبة إلى الرحم للانغراس.'
-  },
-  repro_development:{
-    q:'ما وظيفة المشيمة للجنين؟',
-    opts:['حمايته من الصدمات','إنتاج السائل الأمنيوني','نقل الغذاء والأكسجين من دم الأم للجنين','تنظيم درجة حرارة الجنين فقط'],
-    ans:2,
-    fb:'✅ المشيمة = نظام دعم الحياة للجنين! تنقل O₂ والجلوكوز والمواد الغذائية من دم الأم، وتُزيل CO₂ والفضلات من دم الجنين. الحبل السرّي يربط الجنين بها.'
-  },
-  repro_growth:{
-    q:'كيف يحدث النمو في جسم الإنسان؟',
-    opts:['بزيادة حجم الخلايا فقط','بانقسام الخلايا ونموها — خلية واحدة تصبح ملايين','بدخول خلايا جديدة من الطعام','بالتنفس فقط'],
-    ans:1,
-    fb:'✅ بدأت بخلية واحدة (البويضة المخصبة) ثم انقسمت: 1→2→4→8→16... حتى أصبح جسمك من تريليونات الخلايا! النمو = انقسام متواصل + نمو الخلايا.'
-  },
-  repro_lifestyle:{
-    q:'كيف يؤثر التدخين خلال الحمل على الجنين؟',
-    opts:['لا يؤثر لأن المشيمة تحمي الجنين','يجعله أذكى','النيكوتين يدخل دم الجنين ويُبطئ نموه ويقلل وزنه عند الولادة','يؤثر فقط بعد الولادة'],
-    ans:2,
-    fb:'✅ النيكوتين يعبر المشيمة ويصل لدم الجنين — يُبطئ النمو ويُقلل وزن المولود ويزيد خطر أمراض مستقبلية كالسكري. الأمهات اللواتي دخّنّ قبل الحمل تواجهن مشاكل أيضاً!'
-  }
-});
-
-// ══════════════════════════════════════════════════════════
-// أسئلة الوحدة (الصف التاسع — الأحماض والقواعد)
-// ══════════════════════════════════════════════════════════
-Object.assign(SIM_QUESTIONS, {
-  g9acidprop: {
-    q: 'أيّ من الخصائص التالية تميّز الأحماض عن القواعد؟',
-    opts: [
-      'طعمها مُرّ وملمسها زلق',
-      'طعمها حامض وتُحوّل ورقة تبّاع الشمس للأحمر',
-      'لا تتفاعل مع المعادن',
-      'رقمها الهيدروجيني دائماً أعلى من 7'
-    ],
-    ans: 1,
-    fb: '✅ الأحماض طعمها حامض ومُؤكِّلة وتُحوّل ورقة تبّاع الشمس للأحمر ورقمها pH < 7. أما القواعد فطعمها مُرّ وملمسها زلق وتُحوّل الورقة للأزرق ورقمها pH > 7.'
-  },
-  g9indicator: {
-    q: 'ما لون ورقة تبّاع الشمس عند غمسها في محلول قلوي؟',
-    opts: [
-      'أحمر',
-      'أصفر',
-      'أزرق',
-      'لا يتغيّر اللون'
-    ],
-    ans: 2,
-    fb: '✅ في المحاليل القلوية تتحوّل ورقة تبّاع الشمس للأزرق، وفي الحمضية للأحمر، وتبقى بنفسجية في المتعادلة. الكاشف العام يُعطي ألواناً مختلفة لكل قيمة pH!'
-  },
-  g9phscale: {
-    q: 'محلول رقمه الهيدروجيني pH = 3 — كيف تُصنِّفه؟',
-    opts: [
-      'قلوي قوي',
-      'متعادل',
-      'حمضي متوسط القوة',
-      'قلوي ضعيف'
-    ],
-    ans: 2,
-    fb: '✅ مقياس pH يتراوح من 0 إلى 14. pH أقل من 7 = حمضي، pH = 7 = متعادل، pH أكبر من 7 = قلوي. pH = 3 حمضي متوسط (مثل الخل)، بينما pH = 1 حمضي قوي جداً!'
-  },
-  g9ions: {
-    q: 'أيّ الأيونات يكون تركيزه أعلى في المحلول الحمضي؟',
-    opts: [
-      'أيونات OH⁻',
-      'أيونات H⁺',
-      'أيونات Na⁺',
-      'التركيز متساوٍ دائماً'
-    ],
-    ans: 1,
-    fb: '✅ في المحلول الحمضي: تركيز H⁺ > تركيز OH⁻. في القلوي: تركيز OH⁻ > تركيز H⁺. في المتعادل: H⁺ = OH⁻. هذا هو مبدأ برونستد-لوري للأحماض والقواعد!'
-  },
-  g9oxides: {
-    q: 'ما الذي يُنتَج عند إذابة أكسيد لافلزي (حمضي) في الماء؟',
-    opts: [
-      'قاعدة/هيدروكسيد',
-      'ملح فقط',
-      'حمض',
-      'غاز الهيدروجين'
-    ],
-    ans: 2,
-    fb: '✅ أكسيد اللافلز + ماء → حمض. مثال: SO₃ + H₂O → H₂SO₄ (حمض الكبريتيك). أما أكسيد الفلز + ماء → قاعدة. والأكاسيد المتذبذبة (كـ Al₂O₃) تتفاعل مع الاثنين!'
-  }
-});
-// ── الوحدة السابعة ──
-Object.assign(SIM_QUESTIONS, {
-  g9wordeq: {
-    q: 'في المعادلة اللفظية: "ماغنيسيوم + أكسجين ← أكسيد الماغنيسيوم" — ما المواد المتفاعلة؟',
-    opts: ['أكسيد الماغنيسيوم فقط','الماغنيسيوم والأكسجين','الأكسجين فقط','أكسيد الماغنيسيوم والأكسجين'],
-    ans: 1,
-    fb: '✅ المواد المتفاعلة هي التي تبدأ بها: الماغنيسيوم + الأكسجين. أما الناتج فهو أكسيد الماغنيسيوم.'
-  },
-  g9balance: {
-    q: 'لموازنة المعادلة: H₂ + O₂ → H₂O — ما المعاملات الصحيحة؟',
-    opts: ['H₂ + O₂ → H₂O','2H₂ + O₂ → 2H₂O','H₂ + 2O₂ → 2H₂O','2H₂ + 2O₂ → 2H₂O'],
-    ans: 1,
-    fb: '✅ 2H₂ + O₂ → 2H₂O صحيحة. على اليسار: 4H+2O. على اليمين: 4H+2O ✓. لا تغيّر الصيَغ، غيّر المعاملات فقط!'
-  },
-  g9statesym: {
-    q: 'ما رمز الحالة الصحيح للمادة المذابة في الماء (محلول مائي)؟',
-    opts: ['(s)','(l)','(g)','(aq)'],
-    ans: 3,
-    fb: '✅ (aq) من aqueous تعني مذاب في الماء. أما (s)=صلب، (l)=سائل، (g)=غاز.'
-  },
-  g9saltacid: {
-    q: 'ما الملح الناتج عن تفاعل NaOH مع H₂SO₄؟',
-    opts: ['NaCl','Na₂SO₄','NaNO₃','هيدروكسيد الصوديوم'],
-    ans: 1,
-    fb: '✅ NaOH + H₂SO₄ → Na₂SO₄ + H₂O. الملح كبريتات الصوديوم لأن الحمض هو حمض الكبريتيك!'
-  },
-  g9saltmetal: {
-    q: 'ماذا يُنتَج عند تفاعل الزنك مع حمض الهيدروكلوريك؟',
-    opts: ['كلوريد الزنك + أكسجين','أكسيد الزنك + ماء','كلوريد الزنك + هيدروجين','هيدروكسيد الزنك + كلور'],
-    ans: 2,
-    fb: '✅ Zn + 2HCl → ZnCl₂ + H₂↑. الفلز+الحمض → ملح+هيدروجين. الهيدروجين يُصدر فرقعة عند الإشعال!'
-  },
-  g9saltmake: {
-    q: 'لماذا نُضيف فائضاً من الفلز أو الأكسيد في الطريقة أ لتحضير الملح الذائب؟',
-    opts: ['لزيادة درجة الحرارة','للتأكد من استهلاك الحمض بالكامل','لتسريع التبخير','لتلوين المحلول'],
-    ans: 1,
-    fb: '✅ نُضيف فائضاً لضمان استهلاك كل الحمض. ثم نُرشّح الفائض ونُبخّر للحصول على بلورات الملح النقي!'
-  },
-  g9salttitra: {
-    q: 'ما المقصود بنقطة النهاية في تجربة المعايرة؟',
-    opts: ['عند غليان المحلول','عند تساوي الكميتين','عند تغير لون الكاشف','عند نفاد الحمض'],
-    ans: 2,
-    fb: '✅ نقطة النهاية هي تغيّر لون الكاشف دلالةً على اكتمال التعادل. عندها نوقف الإضافة ونقيس الحجم!'
-  },
-  // ── الوحدة التاسعة: التحليل الكيميائي ──
-  g9watergas: {
-    q: 'ما الكاشف الكيميائي المستخدَم للتحقق من وجود الماء؟',
-    opts: ['ورقة تبّاع الشمس الحمراء','كبريتات النحاس (II) اللامائية','ماء الجير','حمض الهيدروكلوريك'],
-    ans: 1,
-    fb: '✅ كبريتات النحاس (II) اللامائية تتحوّل من الأبيض إلى الأزرق عند إضافة الماء: CuSO₄(أبيض) + 5H₂O → CuSO₄·5H₂O(أزرق). كلوريد الكوبالت اللامائي يتحوّل من الأزرق إلى الوردي أيضاً!'
-  },
-  g9flametest: {
-    q: 'ما لون لهب البنسن الناتج عن وجود أيونات الصوديوم Na⁺؟',
-    opts: ['أحمر قرمزي','أصفر مستمر','أرجواني','أخضر-أزرق'],
-    ans: 1,
-    fb: '✅ Na⁺ يُعطي لوناً أصفر برتقالياً مستمراً وقوياً جداً. Li⁺ أحمر قرمزي، K⁺ أرجواني، Cu²⁺ أخضر-أزرق. الأصفر القوي للصوديوم قد يُخفي ألوان الأيونات الأخرى!'
-  },
-  g9cationppt: {
-    q: 'ما الراسب الناتج عند إضافة NaOH إلى محلول يحتوي على Fe³⁺؟',
-    opts: ['راسب أزرق فاتح','راسب أخضر فاتح','راسب بني-محمر','لا يوجد راسب'],
-    ans: 2,
-    fb: '✅ Fe³⁺ + 3OH⁻ → Fe(OH)₃↓ (بني-محمر). أما Fe²⁺ فيُعطي راسباً أخضر فاتحاً، وCu²⁺ راسباً أزرق فاتحاً. لون الراسب هو المفتاح لتمييز الكاتيونات!'
-  },
-  g9aniontest: {
-    q: 'ما الاختبار الكيميائي المستخدَم للكشف عن أيونات الكبريتات SO₄²⁻؟',
-    opts: ['إضافة نترات الفضة AgNO₃','إضافة كلوريد الباريوم BaCl₂ + HCl','إضافة حمض HCl فقط','اختبار اللهب'],
-    ans: 1,
-    fb: '✅ كلوريد الباريوم يُعطي راسباً أبيض مع SO₄²⁻: Ba²⁺ + SO₄²⁻ → BaSO₄↓ (أبيض). يُضاف HCl أولاً لإزالة CO₃²⁻. الراسب الأبيض لا يذوب في HCl وهذا هو دليل التأكيد!'
-  },
-  g9chemlab: {
-    q: 'في التحليل النوعي، ما الخطوة الأولى لتحديد هوية مركّب مجهول؟',
-    opts: ['اختبار الترسيب مباشرةً','تحديد نوع الكاتيون ثم الأنيون','إضافة الأحماض فوراً','قياس درجة الغليان'],
-    ans: 1,
-    fb: '✅ التحليل النوعي يبدأ بتحديد الكاتيون (باستخدام اختبار اللهب والترسيب) ثم الأنيون (بنترات الفضة وكلوريد الباريوم والأحماض). هذا الترتيب المنهجي يضمن نتائج دقيقة!'
-  },
-  // ── الوحدة العاشرة: الأرض والغلاف الجوّي ──
-  g9aircomp: {
-    q: 'ما النسبة المئوية التقريبية للنيتروجين في الهواء الجاف؟',
-    opts: ['21%','50%','78%','99%'],
-    ans: 2,
-    fb: '✅ الهواء يتكوّن تقريباً من 78% نيتروجين (N₂) + 21% أكسجين (O₂) + 0.9% أرغون + 0.04% ثاني أكسيد الكربون + غازات نادرة أخرى. النيتروجين هو المكوّن الرئيسي!'
-  },
-  g9combustion: {
-    q: 'ما الناتج الرئيسي لاحتراق الميثان CH₄ احتراقاً غير كامل (مع نقص الأكسجين)؟',
-    opts: ['ثاني أكسيد الكربون CO₂','أكسيد الكربون CO','ثاني أكسيد الكبريت SO₂','النيتروجين N₂'],
-    ans: 1,
-    fb: '✅ الاحتراق غير الكامل (نقص O₂) ينتج أكسيد الكربون CO السام: 2CH₄ + 3O₂ → 2CO + 4H₂O. أما الاحتراق الكامل (O₂ وفير) فينتج CO₂ + H₂O. CO خطير لأنه يرتبط بالهيموغلوبين!'
-  },
-  g9acidrain: {
-    q: 'أيٌّ من الغازات التالية يُساهم بشكل رئيسي في تكوُّن المطر الحمضي؟',
-    opts: ['النيتروجين N₂ والأكسجين O₂','ثاني أكسيد الكبريت SO₂ وأكاسيد النيتروجين NOₓ','الأرغون والهيليوم','ثاني أكسيد الكربون وبخار الماء فقط'],
-    ans: 1,
-    fb: '✅ SO₂ + H₂O → H₂SO₃ (حمض الكبريتوز) | NO₂ + H₂O → HNO₃ (حمض النيتريك). هذه الأحماض تخفّض pH المطر إلى ما دون 5.6 مما يُسبّب المطر الحمضي الضار!'
-  },
-  g9greenhouse: {
-    q: 'أيٌّ من الغازات التالية أكثر فاعلية كغاز دفيئة بـ 20 مرة مقارنةً بثاني أكسيد الكربون؟',
-    opts: ['النيتروجين N₂','الأرغون Ar','الميثان CH₄','الأكسجين O₂'],
-    ans: 2,
-    fb: '✅ الميثان CH₄ فاعليته كغاز دفيئة تُقارب 20 مرة أكثر من CO₂! يصدر من مناجم الفحم والمواشي والمكبّات. وغازات الدفيئة الرئيسية هي: CO₂ وCH₄ وبخار الماء وأكاسيد النيتروجين.'
-  },
-  g9limestone: {
-    q: 'ما الناتجان الرئيسيان للتفكك الحراري لكربونات الكالسيوم CaCO₃؟',
-    opts: ['CaO + CO₂','Ca + CO₃','CaCl₂ + H₂O','Ca(OH)₂ + CO'],
-    ans: 0,
-    fb: '✅ CaCO₃(s) → CaO(s) + CO₂(g) — التفكك الحراري عند درجات حرارة مرتفعة جداً. CaO (الجير الحيّ) يتفاعل مع الماء: CaO + H₂O → Ca(OH)₂ (الجير المطفأ) القلوي الذي يُعادل التربة الحمضية!'
-  }
-});
-
-// ── الصف التاسع — فيزياء الوحدة 11: مصادر الطاقة (سؤال لكل تبويب) ──
-Object.assign(SIM_QUESTIONS, {
-  g9energymix_0: {
-    q: 'ما الذي يميّز مصادر الطاقة المتجددة عن غير المتجددة؟',
-    opts: [
-      'تتجدد بسرعة في الطبيعة مقارنةً باستهلاكنا لها',
-      'لا تُنتج أي طاقة على الإطلاق',
-      'تعتمد فقط على الفحم والنفط',
-      'لا يمكن استخدامها في توليد الكهرباء'
-    ],
-    ans: 0,
-    fb: '✅ المصادر المتجددة (شمس، رياح، ماء…) تُعاد تكوينها أو تتدفق باستمرار. أما الأحفورية والنووي فيعتمدان على وقود مخزّن يستهلك أسرع مما يتكوّن.'
-  },
-  g9energymix_1: {
-    q: 'ماذا يحدث غالباً عند زيادة حصة الوقود الأحفوري في مزيج الطاقة؟',
-    opts: [
-      'تقل الانبعاثات ويختفي الحاجة للشبكة',
-      'ترتفع الانبعاثات الحرارية غالباً مع بقاء تحديات أخرى للتشغيل',
-      'تختفي طاقة الرياح تماماً',
-      'تصبح جميع المصادر متجددة تلقائياً'
-    ],
-    ans: 1,
-    fb: '✅ الوقود الأحفوري يحرق كربوناً مخزّناً فيزداد CO₂. المزيج المتوازن يقلّل الانبعاثات ويُثبّت التزويد لكنه يحتاج تخطيطاً وتخزيناً وربط شبكة.'
-  },
-  g9solar_0: {
-    q: 'متى يكون سقوط أشعة الشمس على اللوح الشمسي أكثر فعالية تقريباً؟',
-    opts: [
-      'عندما تكون الأشعة شبه عمودية على سطح اللوح',
-      'عندما تكون الأشعة شبه مموازية للوح',
-      'عند إطفاء الشمس في المحاكاة فقط',
-      'لا تؤثر زاوية السقوط على الإنتاج'
-    ],
-    ans: 0,
-    fb: '✅ كلما اقتربت زاوية السقوط من العمود على السطح زادت المساحة الفعّالة للإشعاع، فيزداد الإنتاج (مع افتراض نفس شدة الإشعاع).'
-  },
-  g9solar_1: {
-    q: 'ماذا تعني كفاءة 30% لجهاز يحوّل الطاقة؟',
-    opts: [
-      '30% من طاقة الإدخال تُستغل كطاقة مفيدة والباقي فاقد غالباً',
-      'الجهاز يعمل 30 ساعة فقط',
-      '30% من الجهاز معطّل دائماً',
-      'طاقة الإدخال تساوي الصفر'
-    ],
-    ans: 0,
-    fb: '✅ الكفاءة = الطاقة المفيدة ÷ طاقة الإدخال. الباقي يضيع غالباً كحرارة أو احتكاك أو صوت — لذلك نحسّن العزل والتصميم.'
-  },
-  g9wind_0: {
-    q: 'كيف تتغير القدرة النسبية لتوربين رياح عند مضاعفة سرعة الرياح (تقريباً في هذا النموذج)؟',
-    opts: [
-      'تبقى كما هي',
-      'تتضاعف مرتين فقط',
-      'تزيد بشكل كبير (تقارب مكعب السرعة)',
-      'تنعدم تماماً'
-    ],
-    ans: 2,
-    fb: '✅ في الواقع القدرة تتناسب تقريباً مع مكعب سرعة الرياح P ∝ v³ — لذلك فرق بسيط في السرعة يغيّر الإنتاج كثيراً.'
-  },
-  g9wind_1: {
-    q: 'ما الذي يزيد إنتاج مزرعة الرياح في هذا الاستقصاء؟',
-    opts: [
-      'زيادة عدد التوربينات و/أو سرعة الرياح',
-      'إطفاء جميع التوربينات',
-      'تقليل سرعة الرياح فقط دون غير ذلك',
-      'عدد التوربينات لا يؤثر أبداً'
-    ],
-    ans: 0,
-    fb: '✅ الإنتاج يجمع مساهمة كل توربين، وكل توربين يستفيد من الريح الأقوى — لذلك العدد والسرعة معاً يحددان المخرجات.'
-  },
-  g9hydro_0: {
-    q: 'في الطاقة الكهرومائية، ماذا يحدث عند زيادة فرق الارتفاع ومعدل تدفق الماء معاً؟',
-    opts: [
-      'تقل القدرة المائية',
-      'تزداد القدرة المنتجة (في النموذج)',
-      'لا يتغيّر شيء',
-      'يتوقف الماء عن الحركة'
-    ],
-    ans: 1,
-    fb: '✅ طاقة الماء ترتبط بارتفاع السقوط وحجم التدفق — كلما زادا زادت الطاقة المتاحة للتوربينات (مع افتراض نفس الكفاءة).'
-  },
-  g9hydro_1: {
-    q: 'في طاقة المدّ والجزر، كيف يتأثر مؤشر الطاقة النسبي عند زيادة مدى المدّ؟',
-    opts: [
-      'ينخفض دائماً',
-      'يزداد لأن حجم الماء المتحرك والفرق في المستوى يكبر',
-      'لا علاقة لمدى المدّ بالطاقة',
-      'يصبح سالباً'
-    ],
-    ans: 1,
-    fb: '✅ مدى أكبر يعني فرق منسوب أعلى وكتلة ماء أوسع تتحرك — فيزداد الإمكان النظري لتوليد الطاقة (مع افتراض موقع مناسب للسدّ البحري).'
-  },
-  g9fossil_0: {
-    q: 'أي مقارنة تصف غالباً الفرق بين الوقود الأحفوري والطاقة النووية لتوليد الكهرباء؟',
-    opts: [
-      'كلاهما بلا انبعاثات كربونية',
-      'الأحفوري انبعاثات CO₂ عالية عادةً؛ النووي انبعاثات تشغيل منخفضة لكن مخاطر وبنية تحتية خاصة',
-      'النووي لا يُنتج طاقة',
-      'لا فرق بينهما بيئياً'
-    ],
-    ans: 1,
-    fb: '✅ الاحتراق الأحفوري يطلق CO₂. المفاعلات لا «تحرق» وقوداً كيميائياً بنفس الطريقة فانبعاثات التشغيل أقل، لكن هناك مخاطر تشغيل، نفايات مشعّة، وتكلفة أمان عالية.'
-  },
-  g9fossil_1: {
-    q: 'ماذا يحدث لمؤشر الانبعاثات عند استبدال جزء من الحصة الأحفورية بمصادر متجددة في المزيج؟',
-    opts: [
-      'يرتفع دائماً',
-      'يقل غالباً',
-      'يصبح صفراً فوراً دائماً',
-      'لا يتأثر أبداً'
-    ],
-    ans: 1,
-    fb: '✅ المتجددة تقلل غالباً حرق الوقود الكربوني في النموذج، فينخفض المؤشر — لكن التحول الحقيقي يحتاج شبكة وتخزين وتنويع مصادر.'
-  },
-  g9efficiency_0: {
-    q: 'لماذا لا تصل كفاءة أي جهاز حقيقي إلى 100% غالباً؟',
-    opts: [
-      'لأن جزءاً من الطاقة يضيع كحرارة واحتكاك وصوت',
-      'لأن القوانين تمنع أي إنتاج مفيد',
-      'لأن الكفاءة لا قيمة لها في الفيزياء',
-      'لأن الطاقة المفيدة دائماً أكبر من المدخلات'
-    ],
-    ans: 0,
-    fb: '✅ الفاقد الحراري والاحتكاك والتشويه في الدوائر والمحركات يجعل المخرجات المفيدة أقل من المدخلات — لذلك نحسّن العزل والتشحيم والتصميم.'
-  },
-  g9efficiency_1: {
-    q: 'ماذا يحدث لكفاءة النظام عند تقليل نسبة الفاقد (في هذا النموذج)؟',
-    opts: [
-      'تنخفض الكفاءة',
-      'ترتفع الكفاءة',
-      'تبقى 50% دائماً',
-      'تصبح الطاقة المفيدة صفراً'
-    ],
-    ans: 1,
-    fb: '✅ هنا الكفاءة = 100% − الفاقد. تقليل الفاقد يعني استغلالاً أفضل لنفس طاقة الإدخال — في الواقع نعالج نوع الفاقد (عزل، احتكاك، ضياع في المحوّلات…).'
-  },
-  // ── الصف التاسع — فيزياء 12–13: انعكاس وانكسار الضوء ──
-  g9refl_0: {
-    q: 'في الانعكاس عن سطح مستوٍ (كالمرآة)، ما العلاقة بين زاوية السقوط i وزاوية الانعكاس r (كلتاهما بالنسبة للعمود المقام)؟',
-    opts: ['i = 2r', 'i = r', 'i + r = 90°', 'لا علاقة بينهما'],
-    ans: 1,
-    fb: '✅ قانون الانعكاس: زاوية السقوط = زاوية الانعكاس، وتُقاس الزاويتان من العمود المقام وليس من سطح المرآة مباشرة.'
-  },
-  g9refl_1: {
-    q: 'ما الغرض الأساسي من رسم مخطط الأشعة عند دراسة المرايا؟',
-    opts: [
-      'زخرفة الرسم فقط',
-      'تتبّع مسار الضوء وتحديد اتجاه الصور والأشعة المنعكسة',
-      'قياس كتلة المرآة',
-      'إثبات أن الضوء لا ينعكس'
-    ],
-    ans: 1,
-    fb: '✅ مخطط الأشعة يُظهر الشعاع الساقط والعمود والشعاع المنعكس — فيساعد على فهم أين تتكوّن الصورة وكيف تتغيّر مع موضع الجسم والمرآة.'
-  },
-  g9refract_0: {
-    q: 'عند مرور ضوء من الهواء إلى وسط أكثر كثافة بصرياً (n أكبر)، ماذا يحدث للشعاع المنكسر بالنسبة للعمود المقام؟',
-    opts: [
-      'يبتعد عن العمود (زاوية انكسار أكبر من زاوية السقوط)',
-      'يقترب من العمود (زاوية انكسار أصغر من زاوية السقوط)',
-      'يمشي بلا انحناء دائماً',
-      'ينعكس كلياً دائماً'
-    ],
-    ans: 1,
-    fb: '✅ حسب قانون سنيل: عند الدخول إلى وسط أكثر كثافة (n₂ > n₁) ينثني الشعاع نحو العمود، أي r < i.'
-  },
-  g9refract_1: {
-    q: 'عند انتقال الضوء من زجاج (n₁ أكبر) إلى هواء (n₂ أصغر)، متى يحدث الانعكاس الكلي الداخلي؟',
-    opts: [
-      'عند أي زاوية سقوط',
-      'عندما تزيد زاوية السقوط عن الزاوية الحرجة',
-      'عندما يكون n₁ = n₂',
-      'فقط عند زاوية سقوط صفر'
-    ],
-    ans: 1,
-    fb: '✅ إذا تجاوزت زاوية السقوط الزاوية الحرجة c حيث sin c = n₂/n₁، لا يوجد حل لقانون سنيل للانكسار في الوسط الثاني — فينعكس كل الضوء داخل الوسط الأكثر كثافة.'
-  },
-  g9refltype_0: {
-    q: 'أين يحدث الانعكاس المنتظم غالباً؟',
-    opts: ['على سطح خشن جداً', 'على سطح أملس جداً مثل مرآة', 'داخل الماء فقط', 'في الفراغ فقط'],
-    ans: 1,
-    fb: '✅ السطح الأملس يحافظ على توازي الأشعة المنعكسة فيتكوّن حزم واضحة وصورة. السطح الخشن يشتّت الاتجاهات (انعكاس متشتت).'
-  },
-  g9refltype_1: {
-    q: 'لماذا تُصمَّم شاشات العرض لتعكس الضوء بشكل متشتت؟',
-    opts: [
-      'لكي يرى الجمهور من زوايا مختلفة دون صورة لامعة ضيقة',
-      'لكي لا يرى أحد الشاشة',
-      'لزيادة انعكاس منتظم فقط',
-      'لأن الشاشة مرآة كاملة'
-    ],
-    ans: 0,
-    fb: '✅ الانعكاس المتشتت يوزّع الضوء في اتجاهات متعددة فيمكن رؤية الصورة من أماكن مختلفة دون وهج مركز (على عكس المرآة اللامعة).'
-  },
-  g9refractN_0: {
-    q: 'ما العلاقة بين معامل الانكسار n وسرعة الضوء v داخل المادة؟',
-    opts: [
-      'كلما زاد n زادت v دائماً',
-      'n = c/v حيث c سرعة الضوء في الفراغ — فكلما زاد n قلّت v',
-      'لا علاقة بين n و v',
-      'n يعني لون المادة فقط'
-    ],
-    ans: 1,
-    fb: '✅ n = c/v تقريباً في المادة. المادة الأكثر كثافة بصرياً تبطئ الضوء أكثر فتكون n أكبر.'
-  },
-  g9refractN_1: {
-    q: 'عند ثبات زاوية السقوط من الهواء، ماذا يحدث لزاوية الانكسار عند الدخول إلى مادة ذات n أكبر؟',
-    opts: ['تزداد', 'تنقص', 'تبقى دائماً 90°', 'تصبح صفراً دائماً'],
-    ans: 1,
-    fb: '✅ من n₁ sin i = n₂ sin r: إذا زاد n₂ ينقص sin r فيقل r — الشعاع ينحني أكثر نحو العمود.'
-  }
-});
-
-
-// ══════════════════════════════════════════════════════════
-// أسئلة «ماذا نستنتج؟» — الصف الخامس (الوحدة الرابعة: الضوء والرؤية)
-// ══════════════════════════════════════════════════════════
-Object.assign(SIM_QUESTIONS, {
-
-  // ١-٤ انتقال الضوء من مصدر — تبويب مختبر الضوء
-  g5lighttravel: {
-    q: 'ما الذي يثبته مختبر الضوء عن طريقة انتقال الضوء من المصدر؟',
-    opts: [
-      'ينتقل الضوء في اتجاه واحد فقط نحو الأجسام القريبة',
-      'ينتقل الضوء من المصدر في جميع الاتجاهات على شكل أشعة مستقيمة',
-      'ينتقل الضوء ببطء ويحتاج وقتاً طويلاً للوصول للجسم',
-      'ينتقل الضوء فقط في الأوساط الشفافة'
-    ],
-    ans: 1,
-    fb: '✅ الضوء ينتقل من مصدره في جميع الاتجاهات على شكل أشعة مستقيمة، فيصطدم بالأجسام من حوله وينعكس عنها ليصل إلى أعيننا فنرى.'
-  },
-
-  // ١-٤ انتقال الضوء من مصدر — تبويب كيف نرى؟
-  g5lighttravel_1: {
-    q: 'ما الترتيب الصحيح لمراحل الرؤية عند رؤية الكرة في ضوء الشمس؟',
-    opts: [
-      'العين ← الكرة ← الشمس',
-      'الشمس ← العين ← الكرة',
-      'الشمس ← الكرة ← العين',
-      'الكرة ← الشمس ← العين'
-    ],
-    ans: 2,
-    fb: '✅ مراحل الرؤية الثلاث: ① الشمس (مصدر الضوء) تُصدر الضوء → ② يصطدم بالكرة وينعكس → ③ الضوء المنعكس يدخل العين فنرى الكرة. بدون مصدر ضوء لا رؤية!'
-  },
-
-  // ٢-٤ المرايا — المرآة المستوية
-  g5mirror: {
-    q: 'ماذا يحدث لزاوية الانعكاس عندما تزيد زاوية السقوط على المرآة؟',
-    opts: [
-      'تقل زاوية الانعكاس دائماً',
-      'تزيد زاوية الانعكاس بنفس المقدار وتظل مساوية لزاوية السقوط',
-      'تبقى زاوية الانعكاس ثابتة مهما تغيرت زاوية السقوط',
-      'لا توجد علاقة بين الزاويتين'
-    ],
-    ans: 1,
-    fb: '✅ قانون الانعكاس: زاوية السقوط = زاوية الانعكاس دائماً. كلما زادت زاوية السقوط زادت زاوية الانعكاس بنفس المقدار. وكلتا الزاويتين تُقاسان من العمود المقام على سطح المرآة.'
-  },
-
-  // ٣-٤ رؤية ما خلفك
-  g5behindyou: {
-    q: 'لماذا تستطيع رؤية الأجسام التي خلفك باستخدام المرآة؟',
-    opts: [
-      'لأن المرآة شفافة تماماً والضوء يمر خلالها',
-      'لأن المرآة تعكس الضوء القادم من الخلف وتوجهه نحو عينيك',
-      'لأن المرآة تُكبّر الأجسام البعيدة',
-      'لأن الضوء ينحني تلقائياً حول الأجسام'
-    ],
-    ans: 1,
-    fb: '✅ المرآة تعكس الضوء القادم من الأجسام التي خلفك وتوجهه نحو عينيك. لهذا تستخدم السيارات مرايا جانبية وخلفية، وتستخدم المتاجر مرايا الزوايا لرؤية كل أجزاء المحل.'
-  },
-
-  // ٤-٤ الأسطح العاكسة — مقارنة الأسطح
-  g5reflection: {
-    q: 'لماذا تعكس المرآة الضوء بشكل أوضح من الورق الخشن؟',
-    opts: [
-      'لأن المرآة أكثر صلابة من الورق',
-      'لأن المرآة سطحها أملس ومنتظم فيعكس الضوء بزاوية ثابتة',
-      'لأن المرآة أثقل من الورق',
-      'لأن الورق يمتص الضوء بشكل أقل'
-    ],
-    ans: 1,
-    fb: '✅ السطح الأملس المنتظم (كالمرآة) يعكس الضوء في اتجاه واحد منتظم (انعكاس منتظم) فيعطي صورة واضحة بنسبة ~٩٥٪. السطح الخشن يشتّت الضوء في اتجاهات عشوائية (انعكاس منتشر) فلا يعطي صورة واضحة.'
-  },
-
-  // ٤-٤ الأسطح العاكسة — قياس الانعكاس
-  g5reflection_1: {
-    q: 'رتّب هذه الأسطح من الأعلى انعكاساً إلى الأقل: قماش، مرآة، ورق خشن، ورق لامع',
-    opts: [
-      'مرآة ← ورق لامع ← قماش ← ورق خشن',
-      'ورق لامع ← مرآة ← ورق خشن ← قماش',
-      'قماش ← مرآة ← ورق لامع ← ورق خشن',
-      'مرآة ← قماش ← ورق لامع ← ورق خشن'
-    ],
-    ans: 0,
-    fb: '✅ الترتيب من الأعلى انعكاساً: المرآة (٩٥٪) ← الورق اللامع (٧٠٪) ← القماش (٣٠٪) ← الورق الخشن (١٠٪). كلما كان السطح أكثر نعومة ولمعاناً، كان الانعكاس أوضح وأكبر.'
-  },
-
-  // لعبة هندسة الضوء
-  g5lightdir: {
-    q: 'إذا وجّهت الليزر عمودياً على المرآة (زاوية سقوط = 0°)، أين يذهب الشعاع المنعكس؟',
-    opts: [
-      'يتشتت في اتجاهات عشوائية',
-      'يرتد مباشرةً نحو مصدره بنفس المسار',
-      'يسير موازياً لسطح المرآة',
-      'يختفي ويُمتص داخل المرآة'
-    ],
-    ans: 1,
-    fb: '✅ عندما يسقط الضوء عمودياً (زاوية سقوط = 0°) يرتد مباشرةً نحو مصدره، لأن زاوية الانعكاس = زاوية السقوط = 0°. هذا هو أساس عمل أجهزة العكس الضوئي (Retroreflectors) في اللوحات الانعكاسية!'
-  },
-
-  // حجم الظل
-  g5shadowsize: {
-    q: 'ماذا يحدث لحجم الظل عندما تقرّب الجسم من مصدر الضوء؟',
-    opts: [
-      'يصغر الظل',
-      'يبقى الظل بنفس الحجم',
-      'يكبر الظل',
-      'يختفي الظل'
-    ],
-    ans: 2,
-    fb: '✅ كلما اقتربت الجسم من مصدر الضوء، كبر ظله على الشاشة. وكلما ابتعد الجسم عن المصدر (أو اقترب من الشاشة) صغر الظل. هذا هو مبدأ عروض خيال الظل!'
-  },
-
-  // الأجسام الشفافة والمعتمة
-  g5transparent: {
-    q: 'ما الفرق بين الجسم الشفاف والجسم المعتم من حيث تعاملهما مع الضوء؟',
-    opts: [
-      'الشفاف يمتص الضوء كله، المعتم يعكسه كله',
-      'الشفاف يسمح للضوء بالعبور خلاله، المعتم لا يسمح بذلك ويكوّن ظلاً',
-      'لا فرق بينهما في التعامل مع الضوء',
-      'الشفاف يكوّن ظلاً أكبر من المعتم'
-    ],
-    ans: 1,
-    fb: '✅ الجسم الشفاف (كالزجاج) يسمح للضوء بالمرور خلاله فلا يكوّن ظلاً واضحاً. الجسم المعتم (كالخشب) يمنع الضوء من العبور فيكوّن ظلاً. والجسم شبه الشفاف (كالورق المشمّع) يمرر الضوء جزئياً.'
-  },
-
-  // عوامل حجم الظل
-  g5shadowfactor: {
-    q: 'ما العامل الذي يؤثر في حجم الظل الناتج عن جسم ما؟',
-    opts: [
-      'لون الجسم فقط',
-      'وزن الجسم وكثافته',
-      'المسافة بين الجسم ومصدر الضوء والشاشة',
-      'درجة حرارة المصدر الضوئي'
-    ],
-    ans: 2,
-    fb: '✅ حجم الظل يتأثر بالمسافة بين الجسم ومصدر الضوء وبينه وبين الشاشة. كلما اقترب الجسم من المصدر أو ابتعد عن الشاشة، كبر الظل. حجم الجسم نفسه يؤثر أيضاً، أما اللون والوزن فلا تأثير لهما.'
-  },
-
-  // الساعة الشمسية
-  g5sundial: {
-    q: 'لماذا يتغير اتجاه الظل وطوله على مدار اليوم في الساعة الشمسية؟',
-    opts: [
-      'لأن العصا تتحرك مع الوقت',
-      'لأن الشمس تتغير موضعها في السماء خلال اليوم نتيجة دوران الأرض',
-      'لأن الأرض تتوقف عن الدوران ليلاً',
-      'لأن الظل يعتمد على درجة الحرارة'
-    ],
-    ans: 1,
-    fb: '✅ تدور الأرض حول نفسها، مما يجعل الشمس تبدو وكأنها تتحرك في السماء من الشرق إلى الغرب. هذا يغيّر زاوية سقوط الضوء ويُغيّر اتجاه الظل وطوله. الساعة الشمسية تستخدم هذا المبدأ لقياس الوقت!'
-  },
-
-  // قوس قزح والألوان
-  g5rainbow: {
-    q: 'ما الذي يُثبته المنشور الزجاجي عن الضوء الأبيض؟',
-    opts: [
-      'الضوء الأبيض لون واحد نقي لا يمكن تقسيمه',
-      'الضوء الأبيض خليط من الألوان السبعة (طيف الضوء المرئي)',
-      'الضوء الأبيض أضعف من الألوان الأخرى',
-      'الألوان توجد فقط في الضوء الملوّن وليس الأبيض'
-    ],
-    ans: 1,
-    fb: '✅ الضوء الأبيض مؤلف من خليط الألوان السبعة: أحمر، برتقالي، أصفر، أخضر، أزرق، نيلي، بنفسجي. المنشور الزجاجي يُفرّق هذه الألوان لأن كلاً منها ينكسر بزاوية مختلفة. قوس القزح يحدث بنفس الطريقة عبر قطرات المطر!'
-  },
-
-  // الأرض والشمس
-  g5earthsun: {
-    q: 'ما سبب تغيّر الفصول الأربعة على الأرض؟',
-    opts: [
-      'يتغير حجم الشمس على مدار السنة',
-      'تدور الأرض حول الشمس مع ميل محورها، فتختلف كمية الضوء الواصلة لكل نصف كرة',
-      'تبتعد الأرض عن الشمس في الشتاء وتقترب في الصيف',
-      'تتوقف الأرض عن الدوران في الفصول الباردة'
-    ],
-    ans: 1,
-    fb: '✅ الأرض تدور حول الشمس في 365 يوماً (سنة) مع ميل محورها 23.5°. هذا الميل يجعل كمية الضوء والحرارة الواصلة لكل نصف كرة تتغير على مدار السنة، مما يسبب الفصول الأربعة.'
-  },
-
-  // الليل والنهار
-  g5rotation: {
-    q: 'ما سبب تعاقب الليل والنهار على الأرض؟',
-    opts: [
-      'تُطفئ الشمس ضوءها ليلاً وتُشعله نهاراً',
-      'يدور القمر حول الأرض فيحجب الشمس ليلاً',
-      'تدور الأرض حول نفسها مرة كل 24 ساعة، فنصفها في الضوء والآخر في الظلام',
-      'تتحرك الأرض بعيداً عن الشمس كل مساء'
-    ],
-    ans: 2,
-    fb: '✅ تدور الأرض حول نفسها (محورها) مرة واحدة كل 24 ساعة. النصف المقابل للشمس يكون نهاراً، والنصف الآخر يكون ليلاً. ودوران الأرض هو ما يجعل الشمس تبدو طالعة من الشرق وغاربة في الغرب.'
-  },
-
-  // النجوم
-  g5stars: {
-    q: 'لماذا نرى النجوم فقط في الليل رغم أنها موجودة دائماً؟',
-    opts: [
-      'لأن النجوم تنام نهاراً ولا تُصدر ضوءاً',
-      'لأن ضوء الشمس القوي نهاراً يجعل السماء مضيئة وتختفي النجوم الخافتة فيها',
-      'لأن الغلاف الجوي يحجب ضوء النجوم نهاراً',
-      'لأن النجوم تتحرك بعيداً عن الأرض نهاراً'
-    ],
-    ans: 1,
-    fb: '✅ النجوم موجودة دائماً وتُصدر ضوءاً باستمرار، لكن ضوء الشمس القوي نهاراً يُضيء السماء ويجعل ضوء النجوم الخافت غير مرئي. في الليل، تختفي الشمس فتظهر النجوم في السماء المظلمة.'
-  },
-
-  // شدة الضوء
-  g5lightintensity: {
-    q: 'ما العلاقة بين المسافة عن مصدر الضوء وشدة الإضاءة عليك؟',
-    opts: [
-      'كلما ابتعدت زادت شدة الضوء',
-      'كلما ابتعدت قلّت شدة الضوء لأن الأشعة تتشتت على مساحة أكبر',
-      'شدة الضوء لا تتغير بالمسافة',
-      'شدة الضوء تتضاعف كلما تضاعفت المسافة'
-    ],
-    ans: 1,
-    fb: '✅ كلما ابتعدت عن مصدر الضوء قلّت شدة الإضاءة. الضوء ينتشر على مساحة أكبر كلما ابتعد، فيصل كمية أقل لكل نقطة. هذا يُفسّر لماذا يبدو الجسم أكثر إضاءةً حين يقترب من المصبح.'
-  }
-
-});
-
-
-window.addEventListener('DOMContentLoaded', function() {
-  _checkSubscription();
-  // إظهار الفوتر في الصفحة الرئيسية عند التحميل
-  setTimeout(_updateFooterVisibility, 100);
-});
-
-
-// ══════════════════════════════════════════════════════════
-// دوال الجزء الثاني — التكاثر (الوحدة 8)
-// ══════════════════════════════════════════════════════════
 
 function repro_gametes2(){
   cancelAnimationFrame(animFrame);
