@@ -3122,8 +3122,8 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         <div class="unit-num-badge">١</div>
         <div>
           <div class="unit-title">القوى والحركة</div>
-          <div class="unit-topics">القوى المتوازنة وغير المتوازنة · أنواع القوى · الكتلة والوزن · مقاومة الهواء · الاحتكاك</div>
-          <div class="unit-pill avail">🧪 ٥ استقصاءات متاحة</div>
+          <div class="unit-topics">القوى المتوازنة وغير المتوازنة · أنواع القوى · الكتلة والوزن · مقاومة الهواء · الاحتكاك · استقصاء الاحتكاك</div>
+          <div class="unit-pill avail">🧪 ٦ استقصاءات متاحة</div>
         </div>
       </div>
 
@@ -3140,7 +3140,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
     <div id="sims-u6f" class="sims-wrap" style="margin-top:28px">
       <div class="sims-header">
         <div class="sims-title">استقصاءات القوى والحركة — الصف السادس</div>
-        <div class="sims-count">٥ استقصاءات</div>
+        <div class="sims-count">٦ استقصاءات</div>
       </div>
       <div class="sims-grid">
 
@@ -3188,8 +3188,18 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           <div class="sim-thumb t5">🔥</div>
           <div class="sim-body">
             <div class="sim-num">درس ٥ · الاحتكاك</div>
-            <div class="sim-name">استقصاء الاحتكاك</div>
-            <div class="sim-desc">اكتشف قوة الاحتكاك وتأثير السطح والوزن</div>
+            <div class="sim-name">قوة الاحتكاك</div>
+            <div class="sim-desc">اكتشف قوة الاحتكاك وكيف تُبطّئ الحركة في حياتنا اليومية</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6frictionInquiry')">
+          <div class="sim-thumb t6">🔬</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٦ · استقصاء الاحتكاك</div>
+            <div class="sim-name">العوامل المؤثرة في الاحتكاك</div>
+            <div class="sim-desc">استقصِ تأثير الوزن والخشونة والمساحة على قوة الاحتكاك — واكتشف الاحتكاك الجزيئي!</div>
           </div>
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
@@ -5462,8 +5472,9 @@ const SIM_META = {
   g6forces1:   { title: 'درس ٢ · أنواع القوى', badge: '6', tabs: ['أنواع القوى 💪'] },
   g6forces2:   { title: 'درس ١ · سهام القوة', badge: '6', tabs: ['سهام القوة 🏹'] },
   g6gravity:   { title: 'درس ٣ · الكتلة والوزن', badge: '6', tabs: ['الكتلة والوزن 🌍'] },
-  g6airresist: { title: 'درس ٤ · مقاومة الهواء', badge: '6', tabs: ['السقوط الحر 🪂', 'القوى المتوازنة ⚡'] },
-  g6friction:  { title: 'درس ٥ · الاحتكاك', badge: '6', tabs: ['قوة الاحتكاك 🔥', 'العوامل المؤثرة 🔬'] },
+  g6airresist: { title: 'درس ٤ · مقاومة الهواء', badge: '6', tabs: ['السقوط الحر 🪂', 'القوى المتوازنة ⚡', 'استقصاء المظلة 🔬'] },
+  g6friction:  { title: 'درس ٥ · الاحتكاك', badge: '6', tabs: ['قوة الاحتكاك 🔥', 'العوامل المؤثرة 🔬', 'الاحتكاك الجزيئي 🔬'] },
+  g6frictionInquiry: { title: 'درس ٦ · استقصاء الاحتكاك', badge: '6', tabs: ['العوامل المؤثرة 🔬', 'الاحتكاك الجزيئي 🔬'] },
   // وحدة الكهرباء — الصف السادس
   g6conductors:     { title: '5-1 · ما المواد الموصِّلة للكهرباء؟', badge: '⚡ 6', tabs: ['مختبر الاختبار 🔬', 'جدول النتائج 📋'] },
   g6waterconductor: { title: '5-2 · هل الماء يوصِّل الكهرباء؟', badge: '⚡ 6', tabs: ['اسحب الملعقة وجرّب! 💧🧂'] },
@@ -5835,6 +5846,12 @@ const SIM_QUESTIONS = {
     ans: 1,
     fb: '✅ الاحتكاك مفيد في كثير من الحالات: يمنعك من الانزلاق أثناء المشي، ويُمكّنك من الكتابة، ويُوقف السيارات عند الكبح.'
   },
+  g6frictionInquiry: {
+    q: 'ما العامل الذي يؤثر على قوة الاحتكاك بين سطحين؟',
+    opts: ['لون الجسم','طبيعة السطح وخشونته','حجم الجسم فقط','سرعة الجسم فقط'],
+    ans: 1,
+    fb: '✅ خشونة السطح هي العامل الرئيسي — السطح الخشن يعطي احتكاكاً أكبر. الوزن يؤثر أيضاً لكن المساحة لا تؤثر تقريباً!'
+  },
   magnets: {
     q: 'ماذا يحدث عند تقريب القطب الشمالي من قطب شمالي آخر؟',
     opts: ['يتجاذبان بقوة','يتنافران ويبتعدان','لا يحدث شيء','يصبحان قطباً واحداً'],
@@ -6126,7 +6143,14 @@ function openSim(type) {
     g9refl:       'جرّب زاوية السقوط وشاهد i = r 🪞 — ثم افتح «ماذا نستنتج»!',
     g9refltype:   'قارن بين انعكاس منتظم ومتشتت — نفس القانون عند كل نقطة!',
     g9refract:    'غيّر n وزاوية السقوط — قانون سنيل بين يديك 🔎',
-    g9refractN:   'كل مادة تبطئ الضوء بشكل مختلف 💎 — لاحظ n و v'
+    g9refractN:   'كل مادة تبطئ الضوء بشكل مختلف 💎 — لاحظ n و v',
+    // ── الصف السادس — القوى والحركة ──
+    g6forces1:    'القوى في كل مكان! 💪 — حدّد الاتجاه والمقدار وشوف التأثير!',
+    g6forces2:    'سهام القوة تُخبرنا باتجاهها ومقدارها 🏹 — أين تتوازن؟',
+    g6gravity:    'الكتلة ثابتة لكن الوزن يتغيّر! 🌍 — جرّب على القمر والمريخ!',
+    g6airresist:  'الهواء يُقاوم السقوط 🪂 — غيّر المساحة وشوف الفرق!',
+    g6friction:   'الاحتكاك يبطّئ لكنه يحمي! 🔥 — جرّب أسطح مختلفة!',
+    g6frictionInquiry: 'ما العوامل التي تُغيّر قوة الاحتكاك؟ 🔬 — استقصِ وتحقّق!'
   };
   var greet = simGreets[type] || 'استكشف وجرّب! 🔬';
   setTimeout(function(){ buddySay(greet, 6000); }, 800);
@@ -6289,8 +6313,9 @@ function startSim(type, tab) {
     g6forces1:   [simForces1],
     g6forces2:   [simForces2],
     g6gravity:   [simGravity1],
-    g6airresist: [simAirResist1, simAirResist2],
-    g6friction:  [simFriction1, simFriction2],
+    g6airresist: [simAirResist1, simAirResist2, simAirResist3],
+    g6friction:  [simFriction1, simFriction2, simFriction3],
+    g6frictionInquiry: [simFriction2, simFriction3],
     // وحدة الكهرباء — الصف السادس
     g6conductors:     [simConductors1, simConductors2],
     g6waterconductor: [simWaterConductor1, simWaterConductor2],
@@ -17036,7 +17061,8 @@ function simFriction1(){
 // 9-4 Tab 2 - عوامل الاحتكاك — تفاعل مباشر على الـ canvas
 // ══════════════════════════════════════════════════════════════
 function simFriction2(){
-  if((currentSim!=='friction'&&currentSim!=='g6friction')||currentTab!==1)return;
+  const _fr2ExpectedTab = (currentSim==='g6frictionInquiry') ? 0 : 1;
+  if((currentSim!=='friction'&&currentSim!=='g6friction'&&currentSim!=='g6frictionInquiry')||currentTab!==_fr2ExpectedTab)return;
   cancelAnimationFrame(animFrame);
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
@@ -17173,7 +17199,7 @@ ${S.factor==='rough'?`
   cv.addEventListener('touchend',onUp);
 
   function draw(){
-    if((currentSim!=='friction'&&currentSim!=='g6friction')||currentTab!==1){
+    if((currentSim!=='friction'&&currentSim!=='g6friction'&&currentSim!=='g6frictionInquiry')||currentTab!==_fr2ExpectedTab){
       cv.removeEventListener('mousedown',onDown);cv.removeEventListener('mousemove',onMove);cv.removeEventListener('mouseup',onUp);
       cv.removeEventListener('touchstart',onDown);cv.removeEventListener('touchmove',onMove);cv.removeEventListener('touchend',onUp);
       return;
@@ -17332,7 +17358,8 @@ ${S.factor==='rough'?`
 // 9-4 Tab 3 - الاحتكاك الجزيئي (PhET Friction style)
 // ══════════════════════════════════════════════════════════════
 function simFriction3(){
-  if((currentSim!=='friction'&&currentSim!=='g6friction')||currentTab!==2)return;
+  const _fr3ExpectedTab = (currentSim==='g6frictionInquiry') ? 1 : 2;
+  if((currentSim!=='friction'&&currentSim!=='g6friction'&&currentSim!=='g6frictionInquiry')||currentTab!==_fr3ExpectedTab)return;
   cancelAnimationFrame(animFrame);
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
@@ -17611,7 +17638,7 @@ function simFriction3(){
 
   // ── الرسم الرئيسي ──
   function draw(){
-    if((currentSim!=='friction'&&currentSim!=='g6friction')||currentTab!==2)return;
+    if((currentSim!=='friction'&&currentSim!=='g6friction'&&currentSim!=='g6frictionInquiry')||currentTab!==_fr3ExpectedTab)return;
     S.t++;
     const w=W(), h=H();
     c.clearRect(0,0,w,h);
