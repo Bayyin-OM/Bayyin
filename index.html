@@ -9123,216 +9123,257 @@ function simWaterConductor2() { simWaterConductor1(); }
 // ─────────────────────────────────────────────────────
 function simBodyConductor1() {
   cancelAnimationFrame(animFrame);
-  simState = { t:0, scene:'intro', shocked:false, shockAnim:0, touched:false,
-    bodyType:'wet', showCircuit:false };
+  simState = { t:0, shocked:false, shockAnim:0, bodyType:'wet', wireType:'bare', switchOn:false };
 
   var bodyTypes = [
-    { id:'wet',   label:'يد مبللة بالماء', water:70, salt:true,  conducts:true,  R:'~1 kΩ',  risk:'خطر شديد 🔴' },
-    { id:'dry',   label:'يد جافة',          water:15, salt:true,  conducts:true,  R:'~50 kΩ', risk:'خطر كبير 🟠' },
-    { id:'shoe',  label:'حذاء مطاطي 🥿',    water:0,  salt:false, conducts:false, R:'> 1 MΩ', risk:'آمن نسبياً 🟢' },
+    { id:'wet', label:'يد مبللة بالماء', conducts:true, R:'~1 kΩ',  risk:'خطر شديد 🔴' },
+    { id:'dry', label:'يد جافة',         conducts:true, R:'~50 kΩ', risk:'خطر كبير 🟠' },
+  ];
+  var wireTypes = [
+    { id:'bare',      label:'سلك مكشوف (تالف)', safe:false, col:'#E74C3C' },
+    { id:'insulated', label:'سلك معزول (سليم)',  safe:true,  col:'#27AE60' },
   ];
 
   elCtrl(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🧪 اختر الحالة</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button id="bt0" onclick="simState.bodyType='wet';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(231,76,60,.5);background:rgba(231,76,60,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#C0392B">💧 يد مبللة بالماء</button>
-        <button id="bt1" onclick="simState.bodyType='dry';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(212,144,26,.5);background:rgba(212,144,26,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#D4901A">🖐️ يد جافة</button>
-        <button id="bt2" onclick="simState.bodyType='shoe';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(39,174,96,.5);background:rgba(39,174,96,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#27AE60">🥿 حذاء مطاطي</button>
+      <div class="ctrl-label">🔌 تشغيل / إيقاف</div>
+      <div style="display:flex;gap:8px">
+        <button id="swOn"  onclick="simState.switchOn=true;simState.shocked=false;simState.shockAnim=0;"  style="flex:1;padding:10px;border-radius:10px;border:2px solid rgba(231,76,60,.5);background:rgba(231,76,60,.08);font-family:Tajawal;font-size:15px;font-weight:800;cursor:pointer;color:#C0392B">⚡ ON</button>
+        <button id="swOff" onclick="simState.switchOn=false;simState.shocked=false;simState.shockAnim=0;" style="flex:1;padding:10px;border-radius:10px;border:2px solid rgba(39,174,96,.5);background:rgba(39,174,96,.08);font-family:Tajawal;font-size:15px;font-weight:800;cursor:pointer;color:#27AE60">🔒 OFF</button>
       </div>
     </div>
     <div class="ctrl-section">
-      <div class="ctrl-label">⚡ اضغط للمس السلك!</div>
-      <button id="touchBtn" onclick="window._doTouch()" style="width:100%;padding:12px;border-radius:12px;background:rgba(192,57,43,.12);border:2.5px solid rgba(192,57,43,.5);color:#C0392B;font-family:Tajawal;font-size:16px;font-weight:800;cursor:pointer">⚠️ المس السلك المكشوف</button>
+      <div class="ctrl-label">🧪 نوع الجلد</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button id="bt0" onclick="simState.bodyType='wet';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(231,76,60,.5);background:rgba(231,76,60,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#C0392B">💧 يد مبللة</button>
+        <button id="bt1" onclick="simState.bodyType='dry';simState.shocked=false;simState.shockAnim=0;"  style="padding:9px;border-radius:10px;border:2px solid rgba(212,144,26,.5);background:rgba(212,144,26,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#D4901A">🖐️ يد جافة</button>
+      </div>
     </div>
-    <div class="info-box" style="font-size:13px;margin-top:6px">
-      🫀 جسم الإنسان يحتوي على ~60% ماء وأملاح معدنية — مما يجعله موصِّلاً جيداً للكهرباء!<br>
-      ⚡ التيار اللازم لإحداث صعقة قاتلة: 100 mA فقط!
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔗 نوع السلك</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button id="wt0" onclick="simState.wireType='bare';simState.shocked=false;simState.shockAnim=0;"      style="padding:9px;border-radius:10px;border:2px solid rgba(231,76,60,.5);background:rgba(231,76,60,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#C0392B">⚠️ سلك مكشوف (تالف)</button>
+        <button id="wt1" onclick="simState.wireType='insulated';simState.shocked=false;simState.shockAnim=0;" style="padding:9px;border-radius:10px;border:2px solid rgba(39,174,96,.5);background:rgba(39,174,96,.08);font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;color:#27AE60">✅ سلك معزول (سليم)</button>
+      </div>
     </div>
-    <div class="q-box" style="font-size:13px;margin-top:6px">
-      <strong>❓ لماذا تكون الصعقة أشد خطورةً باليد المبللة؟</strong>
+    <div class="ctrl-section">
+      <button id="touchBtn" onclick="window._doTouch()" style="width:100%;padding:12px;border-radius:12px;background:rgba(192,57,43,.12);border:2.5px solid rgba(192,57,43,.5);color:#C0392B;font-family:Tajawal;font-size:16px;font-weight:800;cursor:pointer">⚠️ المس السلك</button>
+    </div>
+    <div class="info-box" style="font-size:13px">
+      🫀 جسم الإنسان ~60% ماء وأملاح — موصِّل جيد للكهرباء!<br>⚡ 100 mA تكفي لصعقة قاتلة!
+    </div>
+    <div class="q-box" style="font-size:13px">
+      <strong>❓ لماذا تكون الصعقة أشد باليد المبللة؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">الماء على الجلد يخفّض مقاومة الجسم بشكل كبير، مما يسمح بمرور تيار أكبر خلال الجسم وهو أكثر خطورة على القلب والجهاز العصبي.</div>
+      <div class="q-ans-panel">الماء يخفّض مقاومة الجسم، فيمر تيار أكبر — أشد خطراً على القلب والجهاز العصبي.</div>
     </div>`);
 
-  var bTypes = bodyTypes;
   window._doTouch = function() {
-    var bt = bTypes.find(function(b){ return b.id === simState.bodyType; });
-    if(bt && bt.conducts) {
-      simState.shocked = true; simState.shockAnim = 0;
-      try{ U9Sound.ping(80,.3,.4); }catch(e){}
+    if(!simState.switchOn){ try{U9Sound.ping(600,.1,.05);}catch(e){} return; }
+    var wt = wireTypes.find(function(w){ return w.id===simState.wireType; });
+    var bt = bodyTypes.find(function(b){ return b.id===simState.bodyType; });
+    if(wt && !wt.safe && bt && bt.conducts){
+      simState.shocked=true; simState.shockAnim=0;
+      try{U9Sound.ping(80,.3,.4);}catch(e){}
     } else {
-      simState.shocked = false;
-      try{ U9Sound.ping(600,.1,.1); }catch(e){}
+      simState.shocked=false;
+      try{U9Sound.ping(600,.1,.1);}catch(e){}
     }
   };
 
-  var cv = document.getElementById('simCanvas');
   function draw() {
-    var c = elCtx(), w = elW(), h = elH();
+    var c=elCtx(), w=elW(), h=elH();
     c.clearRect(0,0,w,h);
-    simState.t += 0.04;
-    if(simState.shocked && simState.shockAnim < 1) simState.shockAnim = Math.min(1, simState.shockAnim + 0.05);
+    simState.t+=0.04;
+    if(simState.shocked && simState.shockAnim<1) simState.shockAnim=Math.min(1,simState.shockAnim+0.05);
 
-    var bt = bTypes.find(function(b){ return b.id === simState.bodyType; }) || bTypes[0];
-    var shocked = simState.shocked && bt.conducts;
+    var bt = bodyTypes.find(function(b){return b.id===simState.bodyType;})||bodyTypes[0];
+    var wt = wireTypes.find(function(ww){return ww.id===simState.wireType;})||wireTypes[0];
+    var isOn = simState.switchOn;
+    var shocked = simState.shocked && bt.conducts && isOn && !wt.safe;
     var sa = simState.shockAnim;
 
-    // Background
-    var bgCol = shocked ? 'rgba(255,'+(200-sa*150|0)+','+(200-sa*150|0)+',.3)' : (isDarkMode()?'#141C28':'#EEF4FF');
-    c.fillStyle = bgCol; c.fillRect(0,0,w,h);
+    // خلفية
+    var bgCol = shocked?'rgba(255,'+(200-sa*150|0)+','+(200-sa*150|0)+',.3)':(isDarkMode()?'#141C28':'#EEF4FF');
+    c.fillStyle=bgCol; c.fillRect(0,0,w,h);
 
-    // === الجدار / المنفذ الكهربائي ===
-    var wallX = w*0.12, wallY = h*0.1, wallW = 36, wallH = h*0.55;
-    c.fillStyle = isDarkMode()?'#2C3A4E':'#D0D8E8';
-    c.beginPath(); c.roundRect(wallX-10, wallY, wallW+20, wallH, 8); c.fill();
-    // فتحات المنفذ
-    c.fillStyle = '#222';
-    c.beginPath(); c.roundRect(wallX+2, wallY+wallH*0.3, 10, 22, 3); c.fill();
-    c.beginPath(); c.roundRect(wallX+wallW-12, wallY+wallH*0.3, 10, 22, 3); c.fill();
-    c.font='bold 10px Tajawal'; c.fillStyle='#E74C3C'; c.textAlign='center';
-    c.fillText('220V', wallX+wallW/2, wallY+wallH*0.22);
+    // === المقبس في الجدار ===
+    var wallX=w*0.05, wallY=h*0.18, wallW=36, wallH=h*0.42;
+    c.fillStyle=isDarkMode()?'#2C3A4E':'#C8D0E0';
+    c.beginPath(); c.roundRect(wallX-8,wallY-8,wallW+16,wallH+16,10); c.fill();
+    c.fillStyle=isDarkMode()?'#3A4A5E':'#D8E0F0';
+    c.beginPath(); c.roundRect(wallX,wallY,wallW,wallH,6); c.fill();
+    c.fillStyle=isDarkMode()?'#1E2A38':'#B0B8CC';
+    c.beginPath(); c.roundRect(wallX+4,wallY+wallH*0.25,wallW-8,wallH*0.55,5); c.fill();
+    // فتحتا المقبس
+    c.fillStyle='#111';
+    c.beginPath(); c.roundRect(wallX+7, wallY+wallH*0.32, 8,16,3); c.fill();
+    c.beginPath(); c.roundRect(wallX+21,wallY+wallH*0.32, 8,16,3); c.fill();
+    c.beginPath(); c.arc(wallX+wallW/2, wallY+wallH*0.62, 5,0,Math.PI*2); c.fill();
+    c.fillStyle='#E74C3C'; c.font='bold 9px Arial'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('220V', wallX+wallW/2, wallY+wallH+4);
+    c.fillStyle=isDarkMode()?'#8AA8C0':'#666'; c.font='9px Tajawal'; c.textAlign='center';
+    c.fillText('مقبس', wallX+wallW/2, wallY+wallH+15);
 
-    // السلك المكشوف يخرج من المنفذ
-    var wireY = wallY + wallH*0.41 + 11;
-    var wireEndX = w*0.38;
-    // السلك الأحمر
-    c.strokeStyle = shocked?('rgba(255,'+(100-sa*100|0)+',0,'+(0.8+sa*.2)+')'):' #E74C3C';
-    c.lineWidth = 4;
-    c.beginPath(); c.moveTo(wallX+wallW, wireY); c.lineTo(wireEndX, wireY); c.stroke();
-    // نهاية السلك المكشوف
-    c.fillStyle = '#E74C3C';
-    c.beginPath(); c.arc(wireEndX, wireY, 7, 0, Math.PI*2); c.fill();
-    // ⚡ إشارة خطر تومض
-    if(Math.sin(simState.t*6) > 0 && !shocked) {
-      c.font='22px serif'; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('⚡', wireEndX+18, wireY);
+    // === القابس والسلك ===
+    var wireY = wallY+wallH*0.4;
+    var plugX = wallX+wallW+8;
+    var plugW=26, plugH=18;
+    var plugY = wireY-plugH/2;
+    var wireStartX = plugX+plugW;
+    var wireEndX = w*0.42;
+
+    // دبابيس القابس داخل المقبس
+    c.fillStyle='#999';
+    c.fillRect(wallX+wallW, wireY-5, plugX-(wallX+wallW)+4, 4);
+    c.fillRect(wallX+wallW, wireY+1, plugX-(wallX+wallW)+4, 4);
+
+    // جسم القابس
+    c.fillStyle=isDarkMode()?'#2C3A50':'#CDD5E5';
+    c.beginPath(); c.roundRect(plugX,plugY,plugW,plugH,5); c.fill();
+    c.strokeStyle=isDarkMode()?'#4A6080':'#9AA8C0'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(plugX,plugY,plugW,plugH,5); c.stroke();
+    c.fillStyle=isDarkMode()?'#6A88A8':'#888'; c.font='bold 6px Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('PLUG', plugX+plugW/2, plugY+plugH/2);
+    c.fillStyle=isDarkMode()?'#8AA8C0':'#666'; c.font='9px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('قابس', plugX+plugW/2, plugY+plugH+3);
+
+    // السلك
+    if(wt.id==='insulated'){
+      c.strokeStyle='#27AE60'; c.lineWidth=9; c.lineCap='round';
+      c.beginPath(); c.moveTo(wireStartX,wireY); c.lineTo(wireEndX,wireY); c.stroke();
+      c.strokeStyle='#888'; c.lineWidth=5; c.lineCap='round';
+      c.beginPath(); c.moveTo(wireStartX,wireY); c.lineTo(wireEndX,wireY); c.stroke();
+      c.strokeStyle='rgba(255,255,255,.25)'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(wireStartX,wireY-2); c.lineTo(wireEndX-10,wireY-2); c.stroke();
+    } else {
+      c.strokeStyle=(isOn&&shocked)?('rgba(255,'+(80-sa*80|0)+',0,.9)'):'#B87333';
+      c.lineWidth=5; c.lineCap='round';
+      c.beginPath(); c.moveTo(wireStartX,wireY); c.lineTo(wireEndX,wireY); c.stroke();
+      if(isOn && Math.sin(simState.t*6)>0 && !shocked){
+        c.font='18px serif'; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('⚡', wireEndX+16, wireY-2);
+      }
     }
+    // نهاية السلك
+    c.fillStyle=wt.id==='insulated'?'#27AE60':'#E74C3C';
+    c.beginPath(); c.arc(wireEndX,wireY,6,0,Math.PI*2); c.fill();
 
-    // === شخصية الإنسان ===
-    var px = w*0.6, py = h*0.12;
-    var shakeX = shocked ? Math.sin(simState.t*30)*8*sa : 0;
+    // === مفتاح ON/OFF ===
+    var swX=w*0.55, swY=h*0.07;
+    var swW=52, swH=24;
+    c.fillStyle=isDarkMode()?'#1C2A3A':'#DDE4F0';
+    c.beginPath(); c.roundRect(swX-swW/2,swY-swH/2,swW,swH,swH/2); c.fill();
+    var sliderX=isOn?swX+swW/2-swH/2-2:swX-swW/2+swH/2+2;
+    c.fillStyle=isOn?'#27AE60':'#E74C3C';
+    c.beginPath(); c.arc(sliderX,swY,swH/2-3,0,Math.PI*2); c.fill();
+    c.fillStyle='white'; c.font='bold 9px Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(isOn?'ON':'OFF', swX+(isOn?-12:12), swY);
+    c.fillStyle=isDarkMode()?'#aaa':'#555'; c.font='10px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('مفتاح التيار', swX, swY+swH/2+4);
 
-    // جسم الشخص - بسيط ومعبّر
-    c.save(); c.translate(shakeX, 0);
+    // === الشخص ===
+    var px=w*0.68, py=h*0.1;
+    var shakeX=shocked?Math.sin(simState.t*30)*8*sa:0;
+    c.save(); c.translate(shakeX,0);
 
-    // الرأس
-    c.fillStyle = '#FDBCB4'; c.strokeStyle = '#D4876A'; c.lineWidth=2;
-    c.beginPath(); c.arc(px, py+20, 22, 0, Math.PI*2); c.fill(); c.stroke();
-    // العيون
-    if(shocked && sa > 0.3) {
-      // عيون مذعورة X_X
+    // رأس
+    c.fillStyle='#FDBCB4'; c.strokeStyle='#D4876A'; c.lineWidth=2;
+    c.beginPath(); c.arc(px,py+20,22,0,Math.PI*2); c.fill(); c.stroke();
+    if(shocked&&sa>0.3){
       c.strokeStyle='#C0392B'; c.lineWidth=2.5;
       [-8,8].forEach(function(ex){
         c.beginPath(); c.moveTo(px+ex-5,py+14); c.lineTo(px+ex+5,py+24); c.stroke();
         c.beginPath(); c.moveTo(px+ex+5,py+14); c.lineTo(px+ex-5,py+24); c.stroke();
       });
+      c.strokeStyle='#C0392B'; c.lineWidth=2.5;
+      c.beginPath(); c.arc(px,py+28,9,0,Math.PI); c.stroke();
     } else {
       c.fillStyle='#333';
       c.beginPath(); c.arc(px-8,py+18,4,0,Math.PI*2); c.fill();
       c.beginPath(); c.arc(px+8,py+18,4,0,Math.PI*2); c.fill();
-    }
-    // الفم
-    if(shocked && sa > 0.3) {
-      c.strokeStyle='#C0392B'; c.lineWidth=2.5;
-      c.beginPath(); c.arc(px, py+28, 9, 0, Math.PI); c.stroke(); // فم مفتوح
-    } else {
       c.strokeStyle='#D4876A'; c.lineWidth=2;
-      c.beginPath(); c.arc(px, py+28, 7, 0, Math.PI); c.stroke();
+      c.beginPath(); c.arc(px,py+28,7,0,Math.PI); c.stroke();
     }
 
-    // الجسم
-    var bodyColor = shocked?('rgba(255,'+(200-sa*120|0)+','+(50+sa*20|0)+',.9)'):'#4A90D9';
-    c.fillStyle = bodyColor;
-    c.beginPath(); c.roundRect(px-20, py+42, 40, 70, 8); c.fill();
+    // جسم
+    var bodyColor=shocked?('rgba(255,'+(200-sa*120|0)+','+(50+sa*20|0)+',.9)'):'#4A90D9';
+    c.fillStyle=bodyColor;
+    c.beginPath(); c.roundRect(px-20,py+42,40,70,8); c.fill();
     c.strokeStyle='rgba(0,0,0,.15)'; c.lineWidth=1.5;
-    c.beginPath(); c.roundRect(px-20, py+42, 40, 70, 8); c.stroke();
+    c.beginPath(); c.roundRect(px-20,py+42,40,70,8); c.stroke();
 
-    // الذراع اليسار (يلمس السلك)
-    var armEndX = wireEndX + 5;
-    var armEndY = wireY;
-    c.strokeStyle = '#FDBCB4'; c.lineWidth=12; c.lineCap='round';
-    c.beginPath(); c.moveTo(px-18, py+60); c.quadraticCurveTo(px-50, py+80, armEndX, armEndY); c.stroke();
-    c.strokeStyle='rgba(0,0,0,.1)'; c.lineWidth=1;
-    c.beginPath(); c.moveTo(px-18, py+60); c.quadraticCurveTo(px-50, py+80, armEndX, armEndY); c.stroke();
-    // اليد
-    c.fillStyle='#FDBCB4'; c.beginPath(); c.arc(armEndX, armEndY, 11, 0, Math.PI*2); c.fill();
-
-    // الذراع الأيمن
+    // ذراع يلمس السلك
+    var armEndX=wireEndX+5, armEndY=wireY;
     c.strokeStyle='#FDBCB4'; c.lineWidth=12; c.lineCap='round';
-    c.beginPath(); c.moveTo(px+18, py+60); c.lineTo(px+38, py+100); c.stroke();
+    c.beginPath(); c.moveTo(px-18,py+60); c.quadraticCurveTo(px-55,py+75,armEndX,armEndY); c.stroke();
+    c.fillStyle='#FDBCB4'; c.beginPath(); c.arc(armEndX,armEndY,11,0,Math.PI*2); c.fill();
 
-    // الساقان
-    [-12, 12].forEach(function(lx2,li){
+    // ذراع أيمن
+    c.strokeStyle='#FDBCB4'; c.lineWidth=12; c.lineCap='round';
+    c.beginPath(); c.moveTo(px+18,py+60); c.lineTo(px+38,py+100); c.stroke();
+
+    // ساقان
+    [-12,12].forEach(function(lx2,li){
       c.strokeStyle='#2C5E8A'; c.lineWidth=14; c.lineCap='round';
-      c.beginPath(); c.moveTo(px+lx2, py+112); c.lineTo(px+lx2+(li===0?-6:6), py+155); c.stroke();
-      // الحذاء
-      if(bt.id==='shoe'){
-        c.strokeStyle='#2C2C2C'; c.lineWidth=16; c.lineCap='round';
-        c.beginPath(); c.moveTo(px+lx2+(li===0?-6:6), py+148); c.lineTo(px+lx2+(li===0?-20:20), py+158); c.stroke();
-      } else {
-        c.fillStyle='#8B6E4E';
-        c.beginPath(); c.ellipse(px+lx2+(li===0?-10:10), py+158, 16, 8, 0, 0, Math.PI*2); c.fill();
-      }
+      c.beginPath(); c.moveTo(px+lx2,py+112); c.lineTo(px+lx2+(li===0?-6:6),py+155); c.stroke();
+      c.fillStyle='#8B6E4E';
+      c.beginPath(); c.ellipse(px+lx2+(li===0?-10:10),py+158,16,8,0,0,Math.PI*2); c.fill();
     });
 
-    // مسار التيار عبر الجسم (إذا توصيل)
-    if(shocked && bt.conducts){
-      var numArrows = Math.floor(sa*8);
-      for(var ai=0; ai<numArrows; ai++){
-        var at = ((simState.t*2 + ai/8))%1;
-        // من اليد → الجسم → الأرض
-        var pathPoints = [
-          {x:armEndX, y:armEndY},
-          {x:px-18,   y:py+60},
-          {x:px,      y:py+90},
-          {x:px,      y:py+130},
-          {x:px,      y:py+160},
-        ];
-        var seg = Math.floor(at*(pathPoints.length-1));
-        var segT = (at*(pathPoints.length-1)) - seg;
-        if(seg < pathPoints.length-1){
-          var ax2 = pathPoints[seg].x + (pathPoints[seg+1].x - pathPoints[seg].x)*segT;
-          var ay2 = pathPoints[seg].y + (pathPoints[seg+1].y - pathPoints[seg].y)*segT;
+    // مسار التيار
+    if(shocked&&bt.conducts){
+      for(var ai=0;ai<Math.floor(sa*8);ai++){
+        var at=((simState.t*2+ai/8))%1;
+        var pp=[{x:armEndX,y:armEndY},{x:px-18,y:py+60},{x:px,y:py+90},{x:px,y:py+130},{x:px,y:py+160}];
+        var seg=Math.floor(at*(pp.length-1)), segT=(at*(pp.length-1))-seg;
+        if(seg<pp.length-1){
+          var ax2=pp[seg].x+(pp[seg+1].x-pp[seg].x)*segT;
+          var ay2=pp[seg].y+(pp[seg+1].y-pp[seg].y)*segT;
           c.fillStyle='rgba(255,220,0,'+(0.9-at*.4)+')';
-          c.beginPath(); c.arc(ax2, ay2, 5+Math.random()*3, 0, Math.PI*2); c.fill();
+          c.beginPath(); c.arc(ax2,ay2,5+Math.random()*3,0,Math.PI*2); c.fill();
         }
       }
-      // وميض حول الجسم
-      if(sa > 0.5){
-        var flashAlpha = Math.max(0, Math.sin(simState.t*20)*0.4);
-        c.fillStyle='rgba(255,255,0,'+flashAlpha+')';
-        c.beginPath(); c.ellipse(px, py+85, 45, 80, 0, 0, Math.PI*2); c.fill();
+      if(sa>0.5){
+        c.fillStyle='rgba(255,255,0,'+Math.max(0,Math.sin(simState.t*20)*0.4)+')';
+        c.beginPath(); c.ellipse(px,py+85,45,80,0,0,Math.PI*2); c.fill();
       }
+    }
+
+    // رسالة OFF
+    if(!isOn){
+      c.fillStyle='rgba(39,174,96,.15)'; c.strokeStyle='rgba(39,174,96,.4)'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*.15,h*.4,w*.52,28,8); c.fill(); c.stroke();
+      c.fillStyle='#27AE60'; c.font='bold 12px Tajawal'; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('🔒 OFF — لا يمر تيار', w*.41,h*.4+14);
     }
 
     c.restore();
 
-    // === معلومات في الأسفل ===
-    var infoY = h*0.78;
-    c.fillStyle = isDarkMode()?'rgba(20,28,40,.88)':'rgba(255,255,255,.88)';
-    c.beginPath(); c.roundRect(w*.03, infoY, w*.94, h*.19, 12); c.fill();
-    c.strokeStyle = shocked?'rgba(192,57,43,.4)':'rgba(26,143,168,.25)'; c.lineWidth=1.5;
-    c.beginPath(); c.roundRect(w*.03, infoY, w*.94, h*.19, 12); c.stroke();
+    // === شريط معلومات سفلي ===
+    var infoY=h*0.79;
+    c.fillStyle=isDarkMode()?'rgba(20,28,40,.88)':'rgba(255,255,255,.88)';
+    c.beginPath(); c.roundRect(w*.03,infoY,w*.94,h*.18,12); c.fill();
+    c.strokeStyle=shocked?'rgba(192,57,43,.4)':'rgba(26,143,168,.25)'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(w*.03,infoY,w*.94,h*.18,12); c.stroke();
 
-    c.font = 'bold 14px Tajawal'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillStyle = shocked ? '#C0392B' : (bt.conducts?'#D4901A':'#27AE60');
-    var statusMsg = shocked ? '⚡ صعقة كهربائية! التيار يمر عبر الجسم!' :
-                   (!bt.conducts ? '✅ الحذاء المطاطي يعزلك عن الأرض!' :
-                   '⚠️ ' + bt.label + ' — ' + bt.risk);
-    c.fillText(statusMsg, w/2, infoY + h*.05);
+    var statusMsg, statusCol;
+    if(!isOn){       statusMsg='🔒 OFF — لا يمر تيار، لا خطر'; statusCol='#27AE60'; }
+    else if(wt.safe){statusMsg='✅ السلك المعزول آمن — العازل يحمي من المس'; statusCol='#27AE60'; }
+    else if(shocked){ statusMsg='⚡ صعقة كهربائية! التيار يمر عبر الجسم!'; statusCol='#C0392B'; }
+    else {           statusMsg='⚠️ '+bt.label+' — '+bt.risk; statusCol='#D4901A'; }
 
-    c.font='13px Tajawal'; c.fillStyle=isDarkMode()?'#8AA8C0':'#555';
-    c.fillText('مقاومة الجسم: ' + bt.R + '  |  ' + bt.risk, w/2, infoY + h*.11);
+    c.font='bold 13px Tajawal'; c.fillStyle=statusCol; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(statusMsg, w/2, infoY+h*.045);
+    c.font='12px Tajawal'; c.fillStyle=isDarkMode()?'#8AA8C0':'#555'; c.textAlign='center';
+    c.fillText('السلك: '+wt.label+'  |  مقاومة الجسم: '+bt.R+'  |  '+bt.risk, w/2, infoY+h*.1);
+    c.font='11px Tajawal'; c.fillStyle=isDarkMode()?'#6A8898':'#888'; c.textAlign='center';
+    c.fillText(wt.safe?'العزل يمنع التيار — دائماً استخدم أسلاكاً سليمة':'السلك التالف خطر — لا تلمسه أبداً!', w/2, infoY+h*.15);
 
-    c.font='12px Tajawal'; c.fillStyle=isDarkMode()?'#6A8898':'#888';
-    c.fillText(bt.conducts?'جسم الإنسان يحتوي على ~60% ماء وأملاح → موصِّل للكهرباء!':'المطاط عازل — لا يمرر التيار', w/2, infoY + h*.165);
-
-    animFrame = requestAnimationFrame(draw);
+    animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
-
 // ─────────────────────────────────────────────────────
 // 5-3 TAB 1: أميتر تفاعلي — اضغط على المعدن وشوف التيار
 // ─────────────────────────────────────────────────────
@@ -10507,16 +10548,59 @@ function simWireLength1() {
       c.fillStyle='rgba(0,200,255,'+(0.8-et*.4)+')'; c.beginPath(); c.arc(wx+maxW*ratio*et,wy,3.5,0,Math.PI*2); c.fill();
     }
 
-    // ── حلقة الدائرة (بطارية + أميتر) ──
-    c.strokeStyle=I>.4?'#27AE60':'#E67E22'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(wx,wy); c.lineTo(wx,h*.2); c.lineTo(w*.38,h*.2); c.stroke();
-    c.beginPath(); c.moveTo(wireEnd,wy); c.lineTo(wireEnd,h*.2); c.lineTo(w*.62,h*.2); c.stroke();
-    c.fillStyle='#2C3E50'; c.beginPath(); c.roundRect(w*.27,h*.1,56,28,5); c.fill();
-    c.fillStyle='#F39C12'; c.fillRect(w*.27+8,h*.1+5,40,18);
-    c.fillStyle='white'; c.font='bold 9px Arial'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('1.5V',w*.27+28,h*.1+14);
-    c.fillStyle=isDarkMode()?'#1E2A38':'white'; c.strokeStyle='rgba(0,0,0,.2)'; c.lineWidth=1.5;
-    c.beginPath(); c.arc(w*.72,h*.19,14,0,Math.PI*2); c.fill(); c.stroke();
-    c.fillStyle='#E74C3C'; c.font='bold 11px Arial'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('A',w*.72,h*.19);
+    // ── الدائرة الكاملة (بطارية + أميتر + أسلاك توصيل) ──
+    var circWireCol = I>.4?'#27AE60':'#E67E22';
+    var topY = h*.18;
+    var batCx = w*.5, batCy = topY;
+    var amCx = wx, amCy = topY;
+
+    // السلك العلوي الأيسر: من الأميتر للبطارية
+    c.strokeStyle=circWireCol; c.lineWidth=3;
+    c.beginPath(); c.moveTo(amCx, amCy); c.lineTo(batCx - 30, batCy); c.stroke();
+    // السلك العلوي الأيمن: من البطارية لنهاية السلك التجريبي
+    c.beginPath(); c.moveTo(batCx + 30, batCy); c.lineTo(wireEnd, topY); c.stroke();
+    // السلك الرأسي الأيسر: من الأميتر لبداية السلك التجريبي
+    c.beginPath(); c.moveTo(amCx, amCy + 14); c.lineTo(wx, wy); c.stroke();
+    // السلك الرأسي الأيمن: من نهاية السلك التجريبي للدائرة العلوية
+    c.beginPath(); c.moveTo(wireEnd, wy); c.lineTo(wireEnd, topY); c.stroke();
+
+    // ── البطارية ──
+    var bw=52, bh=26;
+    c.fillStyle='#2C3E50'; c.beginPath(); c.roundRect(batCx-bw/2, batCy-bh/2-2, bw, bh+4, 6); c.fill();
+    c.fillStyle='#E74C3C'; c.fillRect(batCx-bw/2+3, batCy-bh/2, 8, bh);
+    c.fillStyle='#27AE60'; c.fillRect(batCx+bw/2-11, batCy-bh/2, 8, bh);
+    c.fillStyle='#F39C12'; c.fillRect(batCx-bw/2+14, batCy-bh/2+2, bw-28, bh-4);
+    c.fillStyle='white'; c.font='bold 9px Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('1.5V', batCx, batCy);
+    c.fillStyle='white'; c.font='bold 8px Arial';
+    c.fillText('\u2212', batCx-bw/2+7, batCy); c.fillText('+', batCx+bw/2-7, batCy);
+    c.fillStyle=isDarkMode()?'#aaa':'#555'; c.font='10px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('\u0628\u0637\u0627\u0631\u064a\u0629', batCx, batCy+bh/2+5);
+
+    // ── الأميتر (دائرة مع إبرة) ──
+    var amR=18;
+    c.fillStyle=isDarkMode()?'#1C2B3A':'#F0F4F8';
+    c.strokeStyle='#1A8FA8'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(amCx, amCy, amR, 0, Math.PI*2); c.fill(); c.stroke();
+    c.strokeStyle='rgba(26,143,168,.3)'; c.lineWidth=1;
+    c.beginPath(); c.arc(amCx, amCy, amR+4, 0, Math.PI*2); c.stroke();
+    c.fillStyle='#E74C3C'; c.font='bold 11px Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('A', amCx, amCy-4);
+    var needleAngle = -Math.PI*0.7 + (I/1.5)*Math.PI*1.4;
+    c.strokeStyle='#E74C3C'; c.lineWidth=2; c.lineCap='round';
+    c.beginPath(); c.moveTo(amCx, amCy+2);
+    c.lineTo(amCx + Math.cos(needleAngle)*14, amCy + Math.sin(needleAngle)*14); c.stroke();
+    c.strokeStyle=isDarkMode()?'#4A6580':'#999'; c.lineWidth=1;
+    for(var ti=0;ti<=6;ti++){
+      var ta=-Math.PI*0.7+(ti/6)*Math.PI*1.4;
+      c.beginPath();
+      c.moveTo(amCx+Math.cos(ta)*12, amCy+Math.sin(ta)*12);
+      c.lineTo(amCx+Math.cos(ta)*(amR-2), amCy+Math.sin(ta)*(amR-2)); c.stroke();
+    }
+    c.fillStyle='#1A8FA8'; c.font='bold 11px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(I.toFixed(3)+' A', amCx, amCy+amR+6);
+    c.fillStyle=isDarkMode()?'#aaa':'#555'; c.font='10px Tajawal';
+    c.fillText('\u0623\u0645\u064a\u062a\u0631', amCx, amCy+amR+18);
 
     // ── خلاصة ──
     c.fillStyle=isDarkMode()?'rgba(20,28,40,.85)':'rgba(255,255,255,.85)';
