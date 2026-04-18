@@ -31281,16 +31281,13 @@ function simG5ShadowInquiry() {
     c.fillText(shapes[S.sqShape].label, ox, oy);
 
     // ── الظل الأسود على الحائط ──
-    // نحسب نقطتي الإسقاط (أعلى وأسفل الجسم) على الحائط
     const wallX = w * 0.85;
-    const objTop    = oy - fontSize * 0.55;
-    const objBottom = oy + fontSize * 0.20;
-    const objLeft   = ox - fontSize * 0.40;
-    const objRight  = ox + fontSize * 0.40;
+    const objTop    = oy - fontSize * 0.52;
+    const objBottom = oy + fontSize * 0.18;
+    const objLeft   = ox - fontSize * 0.38;
+    const objRight  = ox + fontSize * 0.38;
 
-    // إسقاط من مصدر الضوء عبر حواف الجسم إلى الحائط
     function projectToWall(px, py) {
-      // معادلة الخط من lx,ly إلى px,py ← ممتد حتى wallX
       const t = (wallX - lx) / (px - lx);
       return { x: wallX, y: ly + (py - ly) * t };
     }
@@ -31298,22 +31295,25 @@ function simG5ShadowInquiry() {
     const topProj    = projectToWall(objLeft,  objTop);
     const bottomProj = projectToWall(objRight, objBottom);
 
-    // ارتفاع وعرض ظل الإيموجي على الحائط
     const shadowH = Math.abs(bottomProj.y - topProj.y);
-    const shadowW = shadowH * 0.55;
+    const shadowW = shadowH * 0.65;
     const shadowCY = (topProj.y + bottomProj.y) / 2;
 
-    // رسم الظل الأسود مع blur
+    // ظل أسود حقيقي — مستطيل/شكل بيضاوي أسود بدون إيموجي
+    // نرسم أولاً بيضاوي داكن كجسم الظل
     c.save();
-    c.translate(wallX + shadowW * 0.08, shadowCY);
-    c.scale(shadowW / fontSize, shadowH / fontSize);
-    c.globalAlpha = 0.88;
-    c.filter = 'blur(3px)';
-    c.fillStyle = 'rgba(0,0,0,1)';
-    // نرسم الإيموجي كظل أسود (نفس الشكل، مع fillStyle أسود فوق التدرج)
-    c.font = `${fontSize}px serif`; c.textAlign = 'center';
-    c.fillText(shapes[S.sqShape].label, 0, fontSize * 0.40);
-    c.filter = 'none';
+    c.globalAlpha = 0.92;
+    // شكل الظل: مستطيل مستدير الحواف + blur خفيف
+    const shX = wallX + 3;
+    const shY = shadowCY - shadowH * 0.5;
+    // blur عبر shadow
+    c.shadowColor = 'rgba(0,0,0,0.6)';
+    c.shadowBlur = 8;
+    c.fillStyle = '#000000';
+    c.beginPath();
+    c.roundRect(shX, shY, shadowW * 0.7, shadowH, 10);
+    c.fill();
+    c.shadowBlur = 0;
     c.globalAlpha = 1;
     c.restore();
 
@@ -31462,24 +31462,23 @@ function simG5TransparentTest() {
     c.fillText('مصدر الضوء', lx, ly + w*0.055);
 
     // ── شعاع الضوء الرئيسي (من المصدر إلى المادة) ──
-    const matX = w * 0.42, matW = w*0.10, matTop = h*0.22, matBot = h*0.72;
-    const beamH = w * 0.055; // عرض الشعاع
+    const matX = w * 0.44, matW = w*0.14, matTop = h*0.18, matBot = h*0.74;
+    const beamH = w * 0.048; // عرض الشعاع
 
     // شعاع قبل المادة
-    const beamGrad1 = c.createLinearGradient(lx + w*0.05, 0, matX, 0);
-    beamGrad1.addColorStop(0, 'rgba(255,240,80,0.65)');
-    beamGrad1.addColorStop(1, 'rgba(255,230,60,0.55)');
+    const beamGrad1 = c.createLinearGradient(lx + w*0.05, 0, matX - matW/2, 0);
+    beamGrad1.addColorStop(0, 'rgba(255,240,80,0.7)');
+    beamGrad1.addColorStop(1, 'rgba(255,230,60,0.6)');
     c.fillStyle = beamGrad1;
-    c.fillRect(lx + w*0.035, ly - beamH/2, matX - lx - w*0.035, beamH);
+    c.fillRect(lx + w*0.035, ly - beamH/2, matX - matW/2 - lx - w*0.035, beamH);
 
     // شعاع بعد المادة (بحسب النفاذية)
     if (trans > 0) {
-      const beamGrad2 = c.createLinearGradient(matX + matW, 0, w*0.92, 0);
-      beamGrad2.addColorStop(0, `rgba(255,230,60,${trans * 0.75})`);
-      beamGrad2.addColorStop(1, `rgba(255,200,30,${trans * 0.2})`);
+      const beamGrad2 = c.createLinearGradient(matX + matW/2, 0, w*0.87, 0);
+      beamGrad2.addColorStop(0, `rgba(255,230,60,${trans * 0.8})`);
+      beamGrad2.addColorStop(1, `rgba(255,200,30,${trans * 0.25})`);
       c.fillStyle = beamGrad2;
-      c.fillRect(matX + matW, ly - beamH/2 * trans - (1-trans)*beamH*0.1,
-                 w*0.90 - matX - matW, beamH * (0.3 + trans * 0.7));
+      c.fillRect(matX + matW/2, ly - beamH/2, w*0.87 - matX - matW/2, beamH * (0.3 + trans * 0.7));
     }
 
     // ── الجسم / المادة في الوسط ──
@@ -31497,8 +31496,8 @@ function simG5TransparentTest() {
 
       // جسم المادة
       c.fillStyle = mat.color;
-      c.beginPath(); c.roundRect(matX - matW/2, matTop, matW, matBot - matTop, 8); c.fill();
-      c.strokeStyle = 'rgba(0,0,0,0.2)'; c.lineWidth = 1.5; c.stroke();
+      c.beginPath(); c.roundRect(matX - matW/2, matTop, matW, matBot - matTop, 10); c.fill();
+      c.strokeStyle = 'rgba(0,0,0,0.25)'; c.lineWidth = 2; c.stroke();
 
       // أيقونة المادة
       c.font = `${Math.max(22,w*0.045)}px serif`; c.textAlign = 'center';
@@ -31511,10 +31510,11 @@ function simG5TransparentTest() {
 
       // شارة النوع
       const col = typeColors[mat.type] || '#aaa';
-      c.fillStyle = col + 'CC';
-      c.beginPath(); c.roundRect(matX - w*0.07, matTop - h*0.065, w*0.14, h*0.055, 6); c.fill();
-      c.fillStyle = 'white'; c.font = `bold ${Math.max(8,w*0.016)}px Tajawal`; c.textAlign = 'center';
-      c.fillText(mat.type, matX, matTop - h*0.025);
+      // شارة النوع داخل الجسم (أعلاه)
+      c.fillStyle = col + 'DD';
+      c.beginPath(); c.roundRect(matX - w*0.065, matTop + h*0.02, w*0.13, h*0.05, 5); c.fill();
+      c.fillStyle = 'white'; c.font = `bold ${Math.max(8,w*0.017)}px Tajawal`; c.textAlign = 'center';
+      c.fillText(mat.type, matX, matTop + h*0.055);
 
     } else {
       // لا مادة مختارة — رسالة "اختر مادة"
@@ -31676,74 +31676,94 @@ function simG5Silhouette() {
     const w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h);
 
-    // خلفية المسرح
-    c.fillStyle='#ffd580'; c.fillRect(0,0,w,h);
+    // ── خلفية: نصفان — جانب ضوء (فاتح) وجانب شاشة (داكن قليلاً) ──
+    const wallX = w*0.82;
+    const bgGrad = c.createLinearGradient(0,0,w,0);
+    bgGrad.addColorStop(0,'#FFF8E8');
+    bgGrad.addColorStop(0.75,'#FFE8B0');
+    bgGrad.addColorStop(0.82,'#E8D8A0');
+    bgGrad.addColorStop(1,'#D8C890');
+    c.fillStyle=bgGrad; c.fillRect(0,0,w,h);
 
-    // مصدر الضوء (يمين)
-    const lx=w*0.09, ly=h*0.40;
-    const lg=c.createRadialGradient(lx,ly,0,lx,ly,w*0.30);
-    lg.addColorStop(0,'rgba(255,255,180,0.98)'); lg.addColorStop(0.5,'rgba(255,230,80,0.4)'); lg.addColorStop(1,'rgba(255,200,0,0)');
-    c.fillStyle=lg; c.beginPath(); c.arc(lx,ly,w*0.30,0,Math.PI*2); c.fill();
+    // أرضية
+    c.fillStyle='rgba(0,0,0,0.07)'; c.fillRect(0,h*0.75,w,h*0.25);
+    c.strokeStyle='rgba(0,0,0,0.1)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(0,h*0.75); c.lineTo(w,h*0.75); c.stroke();
+
+    // ── الشاشة (يسار) ──
+    c.fillStyle='#EDE0C4';
+    c.fillRect(wallX,0,w-wallX,h);
+    c.strokeStyle='rgba(0,0,0,0.25)'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(wallX,0); c.lineTo(wallX,h); c.stroke();
+    c.fillStyle='#7A6030'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشاشة', (wallX+w)/2, h*0.07);
+
+    // ── مصدر الضوء (يمين) ──
+    const lx=w*0.08, ly=h*0.42;
+    // مخروط الضوء
+    c.fillStyle='rgba(255,240,120,0.18)';
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(wallX,h*0.10); c.lineTo(wallX,h*0.74); c.closePath(); c.fill();
+    // الهالة
+    const lg=c.createRadialGradient(lx,ly,0,lx,ly,w*0.18);
+    lg.addColorStop(0,'rgba(255,240,80,0.95)'); lg.addColorStop(0.5,'rgba(255,220,50,0.4)'); lg.addColorStop(1,'rgba(255,200,0,0)');
+    c.fillStyle=lg; c.beginPath(); c.arc(lx,ly,w*0.18,0,Math.PI*2); c.fill();
+    // نقطة المصدر
     c.fillStyle='#FFE000'; c.beginPath(); c.arc(lx,ly,w*0.028,0,Math.PI*2); c.fill();
-    c.fillStyle='#7A5500'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('مصدر الضوء', lx, ly+w*0.05);
+    c.strokeStyle='#FFC000'; c.lineWidth=2; c.stroke();
+    c.fillStyle='#6A4800'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('🔦 مصدر الضوء', lx, ly+w*0.055);
 
-    // الشاشة (يسار)
-    c.fillStyle='#F5ECD8';
-    c.fillRect(w*0.86,0,w*0.14,h);
-    c.strokeStyle='rgba(0,0,0,0.15)'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(w*0.86,0); c.lineTo(w*0.86,h); c.stroke();
-    c.fillStyle='#8A6840'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('الشاشة', w*0.93, h*0.07);
-
-    // الدمية (قابلة للسحب)
-    const px=S.puppetX*w, py=h*0.42;
-    const fontSize=Math.max(44,w*0.09);
-
-    // حساب حجم الظل بناءً على موضع الدمية
-    // كلما اقتربت من المصدر كبر الظل
-    const distRatio = (S.puppetX - 0.10) / (0.80 - 0.10); // 0=قريب، 1=بعيد
-    const shadowScale = 3.5 - distRatio * 2.8; // من 3.5× إلى 0.7×
-    const shadowW = fontSize * shadowScale * 0.55;
-    const shadowH = fontSize * shadowScale * 0.55;
-    const wallX = w*0.87;
+    // ── الدمية ──
+    const px=S.puppetX*w, py=h*0.44;
+    const fontSize=Math.max(52,w*0.095);
+    const distRatio = (S.puppetX - 0.12) / (0.78 - 0.12);
+    const shadowScale = 3.8 - distRatio * 3.0;
+    const shadowH_px = fontSize * shadowScale * 0.60;
+    const shadowW_px = fontSize * shadowScale * 0.45;
     const shadowCY = ly + (py - ly) * ((wallX - lx) / (px - lx));
 
-    // رسم الظل على الشاشة
+    // ── الظل الأسود الحقيقي على الشاشة ──
     c.save();
-    c.translate(wallX + shadowW*0.06, shadowCY);
-    c.scale(shadowW/fontSize, shadowH/fontSize);
-    c.globalAlpha = 0.90;
-    c.filter = 'blur(2px)';
-    c.fillStyle = 'black';
-    c.font = `${fontSize}px serif`; c.textAlign='center';
-    c.fillText(shapes[S.currentShape].icon, 0, fontSize*0.38);
-    c.filter='none'; c.globalAlpha=1;
+    c.shadowColor = 'rgba(0,0,0,0.3)';
+    c.shadowBlur = 12;
+    c.fillStyle = '#1A1008';
+    c.globalAlpha = 0.93;
+    c.beginPath();
+    c.roundRect(wallX + 4, shadowCY - shadowH_px*0.5, shadowW_px * 0.85, shadowH_px, 8);
+    c.fill();
+    c.shadowBlur = 0;
+    c.globalAlpha = 1;
     c.restore();
 
-    // أشعة من المصدر عبر الدمية إلى الشاشة
-    c.strokeStyle='rgba(255,200,50,0.22)'; c.lineWidth=1.2;
-    c.beginPath(); c.moveTo(lx,ly); c.lineTo(px-fontSize*0.35, py-fontSize*0.4); c.lineTo(wallX, shadowCY-shadowH*0.55); c.stroke();
-    c.beginPath(); c.moveTo(lx,ly); c.lineTo(px+fontSize*0.25, py+fontSize*0.15); c.lineTo(wallX, shadowCY+shadowH*0.45); c.stroke();
+    // أشعة الضوء (حدود الظل)
+    c.strokeStyle='rgba(200,150,20,0.30)'; c.lineWidth=1.5; c.setLineDash([5,6]);
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(px, py-fontSize*0.45); c.lineTo(wallX, shadowCY-shadowH_px*0.5); c.stroke();
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(px, py+fontSize*0.18); c.lineTo(wallX, shadowCY+shadowH_px*0.5); c.stroke();
+    c.setLineDash([]);
 
-    // رسم الدمية
+    // الدمية (الإيموجي الملوّن)
     c.font=`${fontSize}px serif`; c.textAlign='center';
     c.fillText(shapes[S.currentShape].icon, px, py);
 
+    // تسمية الدمية
+    c.fillStyle='rgba(60,30,0,0.65)'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText(shapes[S.currentShape].name, px, py+fontSize*0.25+h*0.04);
+
     // مؤشر "اسحب"
     if(!S.puppetDragging){
-      c.fillStyle='rgba(0,0,0,0.45)';
-      c.beginPath(); c.roundRect(px-w*0.08, py+fontSize*0.18, w*0.16, h*0.07, 8); c.fill();
-      c.fillStyle='rgba(255,255,255,0.9)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`; c.textAlign='center';
-      c.fillText('← اسحب →', px, py+fontSize*0.18+h*0.046);
+      c.fillStyle='rgba(60,30,0,0.55)';
+      c.beginPath(); c.roundRect(px-w*0.075, py+fontSize*0.28+h*0.01, w*0.15, h*0.065, 8); c.fill();
+      c.fillStyle='rgba(255,240,180,0.95)'; c.font=`${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('← اسحب →', px, py+fontSize*0.28+h*0.052);
     }
 
-    // قياس حجم الظل
+    // صندوق المعلومات أعلى
     const shadowSizeCm = Math.round(shadowScale * 10);
-    c.fillStyle='rgba(0,0,0,0.55)'; c.strokeStyle='rgba(255,220,80,0.5)'; c.lineWidth=1;
-    c.beginPath(); c.roundRect(w*0.22,h*0.03,w*0.56,h*0.10,7); c.fill(); c.stroke();
-    c.fillStyle='#FFD700'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
-    c.fillText(`حجم الظل: ${shadowSizeCm} وحدة  |  ${distRatio<0.35?'قريب — ظل كبير':distRatio>0.70?'بعيد — ظل صغير':'متوسط'}`, w*0.5, h*0.09);
+    const statusTxt = distRatio<0.30 ? '🔴 قريب جداً — ظل كبير جداً' : distRatio>0.72 ? '🟢 بعيد — ظل صغير' : '🟡 متوسط';
+    c.fillStyle='rgba(60,30,0,0.5)'; c.strokeStyle='rgba(200,150,20,0.5)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(w*0.18,h*0.02,w*0.55,h*0.10,8); c.fill(); c.stroke();
+    c.fillStyle='#FFD060'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText(`حجم الظل: ${shadowSizeCm} وحدة  |  ${statusTxt}`, w*0.455, h*0.085);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -32263,12 +32283,14 @@ function simG5LightIntensity() {
     // خلفية الشريط
     c.fillStyle='rgba(0,0,0,0.4)'; c.beginPath(); c.roundRect(barX,barTop,barW2,barH2,4); c.fill();
     // الجزء المضيء
-    const litH = barH2 * barFill;
+    const litH = Math.max(2, barH2 * barFill);
     const barCol = place ? place.color : '#444';
-    const barGrad2 = c.createLinearGradient(0,barTop+barH2-litH,0,barTop+barH2);
-    barGrad2.addColorStop(0,barCol+'CC'); barGrad2.addColorStop(1,barCol+'66');
-    c.fillStyle=barGrad2;
-    c.beginPath(); c.roundRect(barX,barTop+barH2-litH,barW2,litH,4); c.fill();
+    if (barFill > 0.01) {
+      const barGrad2 = c.createLinearGradient(0,barTop+barH2-litH,0,barTop+barH2);
+      barGrad2.addColorStop(0,barCol+'CC'); barGrad2.addColorStop(1,barCol+'66');
+      c.fillStyle=barGrad2;
+      c.beginPath(); c.roundRect(barX,barTop+barH2-litH,barW2,litH,4); c.fill();
+    }
     // علامات على الشريط
     ['عالية','متوسطة','منخفضة','معدومة'].forEach((lbl,i)=>{
       const ty = barTop+barH2*(i/3.5+0.05);
@@ -44365,4 +44387,4 @@ function simG9Ohm2(){
 }
 </script>
 </body>
-</html>v
+</html>
