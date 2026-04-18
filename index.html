@@ -5509,7 +5509,7 @@ const SIM_META = {
   smoking8:     { title: 'نشاط 9-7 · السجائر والصحة', badge: '🚭 8', tabs: ['مكونات الدخان ☠️', 'الرئة السليمة والمدخّن 🔬'] },
   // ── الصف 8 — المغناطيسيّة والكهرباء ──
   magnets:      { title: 'نشاط 1-11 · المغناطيس وأقطابه', badge: '🧲 8', tabs: ['الجذب والتنافر 🧲', 'المواد المغناطيسية 🔬'] },
-  magfield:     { title: 'نشاط 3-11 · المجال المغناطيسيّ', badge: '🧲 8', tabs: ['خطوط المجال 🔮', 'بوصلة تفاعلية 🧭'] },
+  magfield:     { title: 'نشاط 3-11 · المجال المغناطيسيّ', badge: '🧲 8', tabs: ['خطوط المجال 🔮', 'بوصلة تفاعلية 🧭', 'المجال الأرضي 🌍'] },
   electromagnet:{ title: 'نشاط 4-11 · الكهرومغناطيس', badge: '🧲 8', tabs: ['اصنع مغناطيساً ⚡', 'قوة الكهرومغناطيس 💪'] },
   staticelec:   { title: 'نشاط 6-11 · الكهرباء الساكنة', badge: '⚡ 8', tabs: ['شحن الأجسام ⚡', 'التجاذب والتنافر 🔄'] },
   circuit8:     { title: 'نشاط 9-11 · الدائرة الكهربائية', badge: '⚡ 8', tabs: ['دائرة متسلسلة 🔌', 'دائرة متوازية 🔀'] },
@@ -6375,7 +6375,7 @@ function startSim(type, tab) {
     staticelec:   [simStaticElec1, simStaticElec2],
     circuit8:     [simCircuit8Series, simCircuit8Parallel],
     magcompare:   [simMagCompare1, simMagCompare2],
-    magfield:     [simMagField1, simMagField2],
+    magfield:     [simMagField1, simMagField2, simMagField3],
     emstronger:   [simEmStronger1, simEmStronger2],
     charges:      [simCharges1, simCharges2],
     electrons:    [simElectrons1, simElectrons2],
@@ -22413,9 +22413,8 @@ function simMagField2() {
       <div style="font-size:13px;color:#666;margin-top:8px">اسحب المغناطيس وشاهد البوصلات</div>
     </div>
     <div class="info-box" style="font-size:13px;line-height:1.9">
-      🧭 إبرة البوصلة (الحمراء) تشير<br>
-      دائماً نحو القطب <strong>الجنوبي</strong><br>
-      للمغناطيس
+      🧭 إبرة البوصلة الحمراء تشير دائماً إلى جهة <strong>الشمال</strong>،
+      أي نحو القطب الجغرافي <strong>الشمالي</strong> للأرض
     </div>`);
 
   function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
@@ -22470,8 +22469,214 @@ function simMagField2() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// 11-4 · TAB 1 — اصنع كهرومغناطيساً
+// 11-3 · TAB 3 — المجال المغناطيسي الأرضي
 // ══════════════════════════════════════════════════════════════
+function simMagField3() {
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+
+  if(!simState.mf3) simState.mf3={
+    magnetX:0.78, magnetY:0.48,
+    drag:false, ox:0, oy:0,
+    t:0, attracted:false, snapT:0
+  };
+  const S=simState.mf3;
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🌍 المجال المغناطيسي الأرضي</div>
+      <div style="font-size:13px;color:#555;line-height:1.8">
+        اسحب المغناطيس نحو الأرض<br>
+        لتشاهد تجاذب الأقطاب وخطوط المجال
+      </div>
+      <button class="ctrl-btn reset" onclick="simState.mf3.magnetX=0.78;simState.mf3.magnetY=0.48;simState.mf3.snapT=0;simState.mf3.attracted=false">↺ إعادة</button>
+    </div>
+    <div class="info-box" style="font-size:13px;line-height:1.9">
+      🌍 القطب الشمالي الجغرافي<br>
+      ← يجذب القطب المغناطيسي <strong>الجنوبي</strong><br><br>
+      🌍 القطب الجنوبي الجغرافي<br>
+      ← يجذب القطب المغناطيسي <strong>الشمالي</strong><br><br>
+      <em>الأقطاب المختلفة تتجاذب ❤️</em>
+    </div>`);
+
+  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+
+  cv.addEventListener('mousedown',e=>{
+    const p=gp(e),w=cv.width,h=cv.height;
+    const mx=S.magnetX*w, my=S.magnetY*h;
+    if(Math.hypot(p.x-mx,p.y-my)<60){S.drag=true;S.ox=p.x-mx;S.oy=p.y-my;}
+  });
+  cv.addEventListener('mousemove',e=>{
+    if(!S.drag)return;
+    const p=gp(e),w=cv.width,h=cv.height;
+    S.magnetX=Math.max(.38,Math.min(.96,(p.x-S.ox)/w));
+    S.magnetY=Math.max(.08,Math.min(.85,(p.y-S.oy)/h));
+  });
+  cv.addEventListener('mouseup',()=>S.drag=false);
+  cv.addEventListener('touchstart',e=>{e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;const mx=S.magnetX*w,my=S.magnetY*h;if(Math.hypot(p.x-mx,p.y-my)<60){S.drag=true;S.ox=p.x-mx;S.oy=p.y-my;}},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();if(!S.drag)return;const p=gp(e),w=cv.width,h=cv.height;S.magnetX=Math.max(.38,Math.min(.96,(p.x-S.ox)/w));S.magnetY=Math.max(.08,Math.min(.85,(p.y-S.oy)/h));},{passive:false});
+  cv.addEventListener('touchend',()=>S.drag=false);
+
+  function drawEarth(cx,cy,r){
+    // Globe gradient - ocean blue
+    const eg=c.createRadialGradient(cx-r*.3,cy-r*.3,r*.05,cx,cy,r);
+    eg.addColorStop(0,'#5DADE2'); eg.addColorStop(.6,'#2E86C1'); eg.addColorStop(1,'#1A5276');
+    c.fillStyle=eg; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=1.5; c.beginPath(); c.arc(cx,cy,r,0,Math.PI*2); c.stroke();
+
+    // Land patches (simplified)
+    c.fillStyle='#27AE60';
+    [[cx-r*.15,cy-r*.18,r*.18,r*.25],[cx+r*.08,cy+r*.05,r*.14,r*.2],[cx-r*.28,cy+r*.1,r*.1,r*.15]].forEach(([lx,ly,lw,lh])=>{
+      c.beginPath(); c.ellipse(lx,ly,lw,lh,Math.random()*0.3,0,Math.PI*2); c.fill();
+    });
+
+    // Ice caps
+    c.fillStyle='rgba(255,255,255,0.85)';
+    c.beginPath(); c.ellipse(cx,cy-r,r*.35,r*.12,0,0,Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(cx,cy+r,r*.3,r*.1,0,0,Math.PI*2); c.fill();
+
+    // Pole labels
+    c.font=`bold ${Math.round(r*.18)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillStyle='white';
+    c.fillText('ش.ج',cx,cy-r-r*.22); // Geographic North
+    c.fillText('ج.ج',cx,cy+r+r*.22); // Geographic South
+
+    // Internal magnet axis (Earth is a big magnet with S pole at geographic North)
+    const axR=r*.55;
+    // S pole (مغناطيسي جنوب) at geographic North
+    c.fillStyle='rgba(41,128,185,0.7)'; c.beginPath(); c.ellipse(cx,cy-axR,r*.12,r*.14,0,0,Math.PI*2); c.fill();
+    c.font=`bold ${Math.round(r*.13)}px Tajawal`; c.fillStyle='#fff'; c.fillText('ج',cx,cy-axR);
+    // N pole (مغناطيسي شمال) at geographic South
+    c.fillStyle='rgba(192,57,43,0.7)'; c.beginPath(); c.ellipse(cx,cy+axR,r*.12,r*.14,0,0,Math.PI*2); c.fill();
+    c.fillStyle='#fff'; c.fillText('ش',cx,cy+axR);
+  }
+
+  function drawBarMagnet3(mx,my,mW,mH,flipped){
+    // N on right, S on left (or flipped)
+    const nCol='#C0392B', sCol='#2980B9';
+    const lCol=flipped?nCol:sCol, rCol=flipped?sCol:nCol;
+    const lLbl=flipped?'ش':'ج', rLbl=flipped?'ج':'ش';
+    const grad=c.createLinearGradient(mx-mW/2,0,mx+mW/2,0);
+    grad.addColorStop(0,lCol); grad.addColorStop(.5,'rgba(255,255,255,.15)'); grad.addColorStop(1,rCol);
+    c.fillStyle=grad; c.beginPath(); c.roundRect(mx-mW/2,my-mH/2,mW,mH,6); c.fill();
+    c.strokeStyle='rgba(0,0,0,.3)'; c.lineWidth=2; c.beginPath(); c.roundRect(mx-mW/2,my-mH/2,mW,mH,6); c.stroke();
+    c.font=`bold ${Math.round(mH*.45)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle'; c.fillStyle='white';
+    c.fillText(lLbl,mx-mW*.28,my); c.fillText(rLbl,mx+mW*.28,my);
+  }
+
+  function drawFieldLines3(earthCx,earthCy,earthR){
+    // Draw Earth's magnetic field lines (dipole field)
+    const numLines=14;
+    for(let li=0;li<numLines;li++){
+      const a0=(li/numLines)*Math.PI*2;
+      // Start from geographic south (magnetic N) pole area
+      const startX=earthCx+Math.cos(a0)*earthR*.25;
+      const startY=earthCy+earthR*.7+Math.cos(a0)*earthR*.1;
+      c.beginPath(); c.moveTo(startX,startY);
+      let px=startX,py=startY;
+      for(let s=0;s<200;s++){
+        const dx=px-earthCx, dy=py-earthCy;
+        const d=Math.max(earthR*.3,Math.hypot(dx,dy));
+        // Dipole field: S at geog.North(cy-earthR), N at geog.South(cy+earthR)
+        const dxS=px-earthCx, dyS=py-(earthCy-earthR*.55); // S pole
+        const dxN=px-earthCx, dyN=py-(earthCy+earthR*.55); // N pole
+        const rS=Math.max(12,Math.hypot(dxS,dyS));
+        const rN=Math.max(12,Math.hypot(dxN,dyN));
+        let fx=(-1)*dxS/(rS*rS*rS)*6000 + (1)*dxN/(rN*rN*rN)*6000;
+        let fy=(-1)*dyS/(rS*rS*rS)*6000 + (1)*dyN/(rN*rN*rN)*6000;
+        const fm=Math.hypot(fx,fy)||1;
+        px+=fx/fm*4; py+=fy/fm*4;
+        if(Math.hypot(px-earthCx,py-earthCy)<earthR*.85) break;
+        const w2=cv.width,h2=cv.height;
+        if(px<0||px>w2||py<5||py>h2-5) break;
+        c.lineTo(px,py);
+      }
+      const alpha=0.12+(li%4===0?0.18:0.05);
+      c.strokeStyle=`rgba(26,143,168,${alpha})`; c.lineWidth=1.5; c.stroke();
+    }
+  }
+
+  function draw(){
+    if(currentSim!=='magfield'||currentTab!==2)return;
+    S.t+=.025;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+
+    // Background — space
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0B1020'); bg.addColorStop(1,'#1A1A3A');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    // Stars
+    for(let i=0;i<55;i++){
+      const sx=(i*137.5%w), sy=(i*83.3%h);
+      const sr=.5+Math.sin(S.t+i)*.4;
+      c.fillStyle='rgba(255,255,255,0.6)'; c.beginPath(); c.arc(sx,sy,sr,0,Math.PI*2); c.fill();
+    }
+
+    const earthR=Math.min(w*.16,h*.22,70);
+    const earthCx=w*.27, earthCy=h*.48;
+
+    // Draw field lines behind earth
+    drawFieldLines3(earthCx,earthCy,earthR);
+
+    // Draw Earth
+    drawEarth(earthCx,earthCy,earthR);
+
+    // Magnet
+    const mW=Math.min(w*.22,110), mH=Math.min(h*.085,38);
+    const mx=S.magnetX*w, my=S.magnetY*h;
+
+    // Compute proximity to earth N pole (geographic North = magnetic South = top of earth)
+    const earthNorthX=earthCx, earthNorthY=earthCy-earthR;
+    const earthSouthX=earthCx, earthSouthY=earthCy+earthR;
+    // magnet left pole = J (south of magnet), right pole = SH (north of magnet)
+    const magNorthX=mx+mW*.28, magNorthY=my;
+    const magSouthX=mx-mW*.28, magSouthY=my;
+    const distNtoGeogN=Math.hypot(magNorthX-earthNorthX,magNorthY-earthNorthY);
+    const distStoGeogN=Math.hypot(magSouthX-earthNorthX,magSouthY-earthNorthY);
+    const distNtoGeogS=Math.hypot(magNorthX-earthSouthX,magNorthY-earthSouthY);
+
+    const threshold=w*.28;
+    const closest=Math.min(distNtoGeogN,distStoGeogN,distNtoGeogS);
+    const proximity=Math.max(0,1-closest/threshold);
+
+    // Draw attraction line when close
+    if(proximity>.12){
+      const attract=(distStoGeogN<distNtoGeogN); // S of magnet attracted to geog.N
+      const lineCol=attract?'rgba(39,174,96,':'rgba(231,76,60,';
+      const fromX=attract?magSouthX:magNorthX;
+      const fromY=attract?magSouthY:magNorthY;
+      const toX=attract?earthNorthX:earthSouthX;
+      const toY=attract?earthNorthY:earthSouthY;
+      c.strokeStyle=lineCol+(proximity*.6)+')'; c.lineWidth=proximity*3;
+      c.setLineDash([6,5]); c.beginPath(); c.moveTo(fromX,fromY); c.lineTo(toX,toY); c.stroke(); c.setLineDash([]);
+      if(proximity>.3){
+        c.font=`bold ${12+proximity*6|0}px Tajawal`; c.textAlign='center'; c.textBaseline='middle'; c.fillStyle=attract?'#27AE60':'#E74C3C';
+        c.fillText(attract?'❤️ تجاذب':'💥 تنافر',(fromX+toX)/2,(fromY+toY)/2-18);
+      }
+    }
+
+    drawBarMagnet3(mx,my,mW,mH,false);
+    // Drag hint
+    if(!S.drag && S.t<8){
+      c.font='13px Tajawal'; c.fillStyle='rgba(200,200,255,0.5)'; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('✋ اسحب المغناطيس نحو الأرض',mx,my+mH+22);
+    }
+
+    // Legend
+    c.font='12px Tajawal'; c.fillStyle='rgba(160,180,220,0.7)'; c.textAlign='right'; c.textBaseline='top';
+    c.fillText('🔴 ش = قطب شمالي مغناطيسي',w-12,12);
+    c.fillText('🔵 ج = قطب جنوبي مغناطيسي',w-12,30);
+    c.fillText('ش.ج = جغرافي / ج.ج = جغرافي',w-12,48);
+
+    animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
+  }
+  draw();
+}
+
+
 function simElectromagnet1() {
   cancelAnimationFrame(animFrame);
   const cv=document.getElementById('simCanvas');
@@ -22657,30 +22862,92 @@ function simStaticElec1() {
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
 
-  if(!simState.se1) simState.se1={charge:0,t:0,papers:Array.from({length:8},(_,i)=>({x:.38+i%4*.07,y:.65+Math.floor(i/4)*.07,liftT:0,lifted:false}))};
+  if(!simState.se1) simState.se1={
+    charge:0,t:0,
+    papers:Array.from({length:8},(_,i)=>({x:.38+i%4*.07,y:.65+Math.floor(i/4)*.07,liftT:0,lifted:false})),
+    balloonX:.28, balloonY:.42,
+    drag:false, ox:0, oy:0,
+    rubbing:false, rubCount:0, lastRubY:0
+  };
   const S=simState.se1;
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">🎈 الكهرباء الساكنة</div>
-      <button class="ctrl-btn play" onclick="window._rub()">🎈 احتكِ بالشعر (اضغط مرات)</button>
+      <div style="font-size:13px;color:#555;line-height:1.8">
+        اسحب البالون وحرّكه على شعر الشخص<br>
+        لشحنه بالاحتكاك!
+      </div>
       <div id="seQ" style="text-align:center;font-size:20px;font-weight:800;margin-top:8px;color:#8E44AD">الشحنة: محايد</div>
     </div>
-    <button class="ctrl-btn reset" onclick="simState.se1.charge=0;simState.se1.papers.forEach(p=>{p.lifted=false;p.liftT=0});document.getElementById('seQ').textContent='الشحنة: محايد'">↺ إعادة</button>
+    <button class="ctrl-btn reset" onclick="
+      simState.se1.charge=0;
+      simState.se1.balloonX=.28;simState.se1.balloonY=.42;
+      simState.se1.rubCount=0;
+      simState.se1.papers.forEach(p=>{p.lifted=false;p.liftT=0});
+      document.getElementById('seQ').textContent='الشحنة: محايد'">↺ إعادة</button>
     <div class="info-box" style="font-size:13px;line-height:1.9">
       الاحتكاك ينقل إلكترونات من<br>
       الشعر → البالون<br>
       البالون يصبح <strong>➖ سالب</strong><br>
+      الشعر يصبح <strong style="color:#C0392B">➕ موجب</strong><br>
       ويجذب الأوراق المحايدة
     </div>`);
 
-  window._rub=function(){
-    S.charge=Math.min(5,S.charge+1);
-    const el=document.getElementById('seQ');
-    if(el) el.textContent='الشحنة: '+'➖'.repeat(S.charge);
-    try{U9Sound.ping(280+S.charge*60,.1,.12);}catch(e){}
-    S.papers.forEach((p,i)=>{if(i<S.charge*1.8) p.lifted=true;});
-  };
+  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+
+  cv.addEventListener('mousedown',e=>{
+    const p=gp(e),w=cv.width,h=cv.height;
+    const bx=S.balloonX*w,by=S.balloonY*h;
+    if(Math.hypot(p.x-bx,p.y-by)<50){S.drag=true;S.ox=p.x-bx;S.oy=p.y-by;S.lastRubY=p.y;}
+  });
+  cv.addEventListener('mousemove',e=>{
+    if(!S.drag)return;
+    const p=gp(e),w=cv.width,h=cv.height;
+    const newX=Math.max(.05,Math.min(.85,(p.x-S.ox)/w));
+    const newY=Math.max(.08,Math.min(.78,(p.y-S.oy)/h));
+    // detect rubbing: if balloon is near hair (person head at ~.62,.38)
+    const bx2=newX*w, by2=newY*h;
+    const personHX=w*.62, personHY=h*.38;
+    const nearHair=Math.hypot(bx2-personHX,by2-personHY)<w*.15;
+    if(nearHair){
+      const dy=Math.abs(p.y-S.lastRubY);
+      S.rubCount+=(dy*0.5);
+      if(S.rubCount>35&&S.charge<5){
+        S.charge=Math.min(5,S.charge+1);
+        S.rubCount=0;
+        const el=document.getElementById('seQ');
+        if(el) el.textContent='الشحنة: '+'➖'.repeat(S.charge);
+        try{U9Sound.ping(280+S.charge*60,.1,.12);}catch(e2){}
+        S.papers.forEach((pp,i)=>{if(i<S.charge*1.8) pp.lifted=true;});
+      }
+    }
+    S.lastRubY=p.y;
+    S.balloonX=newX; S.balloonY=newY;
+  });
+  cv.addEventListener('mouseup',()=>S.drag=false);
+  cv.addEventListener('touchstart',e=>{e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;const bx=S.balloonX*w,by=S.balloonY*h;if(Math.hypot(p.x-bx,p.y-by)<50){S.drag=true;S.ox=p.x-bx;S.oy=p.y-by;S.lastRubY=p.y;}},{passive:false});
+  cv.addEventListener('touchmove',e=>{
+    e.preventDefault(); if(!S.drag)return;
+    const p=gp(e),w=cv.width,h=cv.height;
+    const newX=Math.max(.05,Math.min(.85,(p.x-S.ox)/w));
+    const newY=Math.max(.08,Math.min(.78,(p.y-S.oy)/h));
+    const bx2=newX*w,by2=newY*h,personHX=w*.62,personHY=h*.38;
+    const nearHair=Math.hypot(bx2-personHX,by2-personHY)<w*.15;
+    if(nearHair){
+      const dy=Math.abs(p.y-S.lastRubY);
+      S.rubCount+=(dy*0.5);
+      if(S.rubCount>35&&S.charge<5){
+        S.charge=Math.min(5,S.charge+1); S.rubCount=0;
+        const el=document.getElementById('seQ');
+        if(el) el.textContent='الشحنة: '+'➖'.repeat(S.charge);
+        try{U9Sound.ping(280+S.charge*60,.1,.12);}catch(e2){}
+        S.papers.forEach((pp,i)=>{if(i<S.charge*1.8) pp.lifted=true;});
+      }
+    }
+    S.lastRubY=p.y; S.balloonX=newX; S.balloonY=newY;
+  },{passive:false});
+  cv.addEventListener('touchend',()=>S.drag=false);
 
   function draw(){
     if(currentSim!=='staticelec'||currentTab!==0)return;
@@ -22693,39 +22960,68 @@ function simStaticElec1() {
     // table
     c.fillStyle='#C8903A'; c.beginPath(); c.roundRect(w*.28,h*.7,w*.44,h*.05,4); c.fill();
 
-    // balloon
-    const bx=w*.28, by=h*.42, bR=42, bo=Math.sin(S.t*1.8)*4;
+    // balloon position
+    const bx=S.balloonX*w, by=S.balloonY*h;
+    const bR=42, bo=S.drag?0:Math.sin(S.t*1.8)*4;
+
+    // person head at fixed position
+    const personX=w*.62, personY=h*.38;
+
+    // check if near hair for visual highlight
+    const nearHair=Math.hypot(bx-personX,by-personY)<w*.15;
+
+    // rubbing glow
+    if(nearHair&&S.drag){
+      c.strokeStyle='rgba(255,180,0,0.4)'; c.lineWidth=8;
+      c.beginPath(); c.arc(personX,personY-20,30,0,Math.PI*2); c.stroke();
+    }
+
+    // person
+    c.font='52px serif'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('👤',personX,personY);
+
+    // hair with positive charges if charged
+    if(S.charge>2){
+      for(let i=0;i<5;i++){
+        const ha=-Math.PI/2+(i-2)*.28;
+        c.strokeStyle='#7A5C3A'; c.lineWidth=2;
+        c.beginPath(); c.moveTo(personX+Math.cos(ha)*18,personY-26);
+        c.lineTo(personX+Math.cos(ha-.35)*(18+22),personY-26-Math.sin(Math.abs(ha))*22); c.stroke();
+      }
+      // Show positive charges on hair
+      c.font='11px Arial';
+      for(let i=0;i<Math.min(S.charge*2,10);i++){
+        const ha=-Math.PI/2+(i/10-0.5)*.9;
+        const hlen=22+Math.random()*8;
+        const hx=personX+Math.cos(ha-.35)*hlen, hy=personY-26-Math.sin(Math.abs(ha))*hlen;
+        c.fillStyle='#C0392B';
+        c.fillText('➕',hx+(i%2===0?-8:8),hy-6);
+      }
+    }
+
+    // balloon with string
     if(S.charge>0){c.shadowBlur=22;c.shadowColor='rgba(142,68,173,.35)';}
     c.fillStyle=S.charge>0?'#9B59B6':'#BB85D8';
     c.beginPath(); c.ellipse(bx,by+bo,bR*.85,bR,0,0,Math.PI*2); c.fill();
     c.shadowBlur=0;
     c.strokeStyle='#6C3483'; c.lineWidth=1.5; c.beginPath(); c.ellipse(bx,by+bo,bR*.85,bR,0,0,Math.PI*2); c.stroke();
-    // string
-    c.strokeStyle='#777'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(bx,by+bo+bR); c.bezierCurveTo(bx+8,by+bo+bR+25,bx-5,by+bo+bR+50,bx,by+bo+bR+72); c.stroke();
-    // charge symbols
+    // string (only when not dragged up high)
+    if(by+bo+bR < h*.65){
+      c.strokeStyle='#777'; c.lineWidth=1.5;
+      c.beginPath(); c.moveTo(bx,by+bo+bR); c.bezierCurveTo(bx+8,by+bo+bR+25,bx-5,by+bo+bR+50,bx,by+bo+bR+72); c.stroke();
+    }
+
+    // Negative charge symbols on balloon — dark color (was blue/red, now #222)
     if(S.charge>0){
-      c.font='11px Arial'; c.fillStyle='#FF8888';
+      c.font='11px Arial'; c.fillStyle='#1A1A2E';
       for(let i=0;i<Math.min(S.charge*2,10);i++){
         const a=(i/10)*Math.PI*2+S.t*.3;
         c.fillText('➖',bx+Math.cos(a)*bR*.75,by+bo+Math.sin(a)*bR*.88);
       }
     }
+
     c.font='bold 12px Tajawal'; c.fillStyle='white'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText('🎈',bx,by+bo);
-
-    // person head
-    c.font='52px serif'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('👤',w*.62,h*.38);
-    // static hair if charged
-    if(S.charge>2){
-      for(let i=0;i<5;i++){
-        const ha=-Math.PI/2+(i-2)*.28;
-        c.strokeStyle='#7A5C3A'; c.lineWidth=2;
-        c.beginPath(); c.moveTo(w*.62+Math.cos(ha)*18,h*.38-26);
-        c.lineTo(w*.62+Math.cos(ha-.35)*(18+22),h*.38-26-Math.sin(Math.abs(ha))*22); c.stroke();
-      }
-    }
 
     // papers
     S.papers.forEach(p=>{
@@ -22735,11 +23031,13 @@ function simStaticElec1() {
       c.beginPath(); c.roundRect(p.x*w-9,ty-5,18,11,2); c.fill(); c.stroke();
     });
 
-    U9.txt(c,'اضغط زر الاحتكاك عدة مرات ☝️',w/2,h-.08*h,'rgba(120,80,20,.5)',12,true);
+    const hint=S.charge>0?'✨ ممتاز! البالون مشحون سالباً':'✋ اسحب البالون على شعر الشخص';
+    U9.txt(c,hint,w/2,h-.06*h,'rgba(120,80,20,.6)',12,true);
     animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
   }
   draw();
 }
+
 
 // ══════════════════════════════════════════════════════════════
 // 11-6 · TAB 2 — التجاذب والتنافر بين الشحنات
@@ -22749,35 +23047,35 @@ function simStaticElec2() {
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
 
-  if(!simState.se2) simState.se2={q1:'pos',q2:'neg',balls:[{x:.3,y:.45},{x:.7,y:.45}],drag:-1,ox:0,oy:0,t:0};
+  if(!simState.se2) simState.se2={q1:'pos',q2:'neg',balls:[{x:.3,y:.45,vx:0},{x:.7,y:.45,vx:0}],drag:-1,ox:0,oy:0,t:0,animating:false};
   const S=simState.se2;
 
   function rebuild(){
     controls(`
       <div class="ctrl-section">
         <div class="ctrl-label">⚡ الكرة اليمنى</div>
-        <button class="ctrl-btn${S.q1==='pos'?' active':''}" onclick="simState.se2.q1='pos';window._se2rebuild()" style="${S.q1==='pos'?'background:#C0392B;color:#fff':''}">➕ موجبة</button>
-        <button class="ctrl-btn${S.q1==='neg'?' active':''}" onclick="simState.se2.q1='neg';window._se2rebuild()" style="${S.q1==='neg'?'background:#2980B9;color:#fff':''}">➖ سالبة</button>
+        <button class="ctrl-btn${S.q1==='pos'?' active':''}" onclick="simState.se2.q1='pos';simState.se2.animating=true;window._se2rebuild()" style="${S.q1==='pos'?'background:#C0392B;color:#fff':''}">➕ موجبة</button>
+        <button class="ctrl-btn${S.q1==='neg'?' active':''}" onclick="simState.se2.q1='neg';simState.se2.animating=true;window._se2rebuild()" style="${S.q1==='neg'?'background:#2980B9;color:#fff':''}">➖ سالبة</button>
       </div>
       <div class="ctrl-section">
         <div class="ctrl-label">⚡ الكرة اليسرى</div>
-        <button class="ctrl-btn${S.q2==='pos'?' active':''}" onclick="simState.se2.q2='pos';window._se2rebuild()" style="${S.q2==='pos'?'background:#C0392B;color:#fff':''}">➕ موجبة</button>
-        <button class="ctrl-btn${S.q2==='neg'?' active':''}" onclick="simState.se2.q2='neg';window._se2rebuild()" style="${S.q2==='neg'?'background:#2980B9;color:#fff':''}">➖ سالبة</button>
+        <button class="ctrl-btn${S.q2==='pos'?' active':''}" onclick="simState.se2.q2='pos';simState.se2.animating=true;window._se2rebuild()" style="${S.q2==='pos'?'background:#C0392B;color:#fff':''}">➕ موجبة</button>
+        <button class="ctrl-btn${S.q2==='neg'?' active':''}" onclick="simState.se2.q2='neg';simState.se2.animating=true;window._se2rebuild()" style="${S.q2==='neg'?'background:#2980B9;color:#fff':''}">➖ سالبة</button>
       </div>
+      <button class="ctrl-btn reset" onclick="simState.se2.balls[0].x=.3;simState.se2.balls[1].x=.7;simState.se2.balls[0].vx=0;simState.se2.balls[1].vx=0;simState.se2.animating=true">↺ إعادة الوضع</button>
       <div class="info-box" style="font-size:13px;line-height:1.9">
-        ➕ + ➖ = <strong style="color:#27AE60">تجاذب ❤️</strong><br>
-        ➕ + ➕ = <strong style="color:#E74C3C">تنافر 💥</strong><br>
-        ➖ + ➖ = <strong style="color:#E74C3C">تنافر 💥</strong><br>
-        <em style="color:#888">اسحب الكرات للتقريب</em>
+        ➕ + ➖ = <strong style="color:#27AE60">تجاذب ❤️ تقترب</strong><br>
+        ➕ + ➕ = <strong style="color:#E74C3C">تنافر 💥 تتباعد</strong><br>
+        ➖ + ➖ = <strong style="color:#E74C3C">تنافر 💥 تتباعد</strong>
       </div>`);
   }
   window._se2rebuild=rebuild;
   rebuild();
 
   function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
-  function down(e){e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;S.balls.forEach((b,i)=>{if(Math.hypot(p.x-b.x*w,p.y-b.y*h)<34){S.drag=i;S.ox=p.x-b.x*w;S.oy=p.y-b.y*h;}});}
+  function down(e){e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;S.balls.forEach((b,i)=>{if(Math.hypot(p.x-b.x*w,p.y-b.y*h)<34){S.drag=i;S.ox=p.x-b.x*w;S.oy=p.y-b.y*h;b.vx=0;}});}
   function move(e){if(S.drag<0)return;e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;S.balls[S.drag].x=Math.max(.07,Math.min(.93,(p.x-S.ox)/w));S.balls[S.drag].y=Math.max(.12,Math.min(.82,(p.y-S.oy)/h));}
-  function up(){S.drag=-1;}
+  function up(){if(S.drag>=0){S.animating=true;}S.drag=-1;}
   cv.addEventListener('mousedown',down);cv.addEventListener('mousemove',move);cv.addEventListener('mouseup',up);
   cv.addEventListener('touchstart',down,{passive:false});cv.addEventListener('touchmove',move,{passive:false});cv.addEventListener('touchend',up);
 
@@ -22785,6 +23083,35 @@ function simStaticElec2() {
     if(currentSim!=='staticelec'||currentTab!==1)return;
     S.t+=.04;
     const w=cv.width,h=cv.height;
+
+    // Physics update
+    const attract=(S.q1!==S.q2);
+    if(S.drag<0){
+      const b0=S.balls[0], b1=S.balls[1];
+      const dx=(b1.x-b0.x)*w;
+      const dist=Math.abs(dx);
+      const force=Math.min(0.0015, 2200/(dist*dist+100));
+
+      if(attract){
+        // move toward each other
+        if(dist>50){ // min approach distance (touching)
+          b0.vx+=(dx>0?force:-force);
+          b1.vx+=-(dx>0?force:-force);
+        } else {
+          // touching — slight bounce and stop
+          b0.vx*=0.6; b1.vx*=0.6;
+          b0.x=.5-26/w; b1.x=.5+26/w;
+        }
+      } else {
+        // repel — move apart
+        b0.vx-=(dx>0?force:-force);
+        b1.vx+=(dx>0?force:-force);
+      }
+      b0.vx*=0.92; b1.vx*=0.92; // friction
+      b0.x=Math.max(.06,Math.min(.5,b0.x+b0.vx));
+      b1.x=Math.max(.5,Math.min(.94,b1.x+b1.vx));
+    }
+
     c.clearRect(0,0,w,h);
     c.fillStyle='#F0F8FF'; c.fillRect(0,0,w,h);
     U9.grid(c,w,h,'rgba(100,130,200,0.07)',44);
@@ -22792,17 +23119,39 @@ function simStaticElec2() {
     const b0=S.balls[0],b1=S.balls[1];
     const x0=b0.x*w,y0=b0.y*h,x1=b1.x*w,y1=b1.y*h;
     const dist=Math.hypot(x1-x0,y1-y0);
-    const attract=(S.q1!==S.q2);
 
-    if(dist<w*.6){
-      const force=Math.max(0,1-dist/(w*.6));
+    // Connection line
+    if(dist<w*.7){
+      const force=Math.max(0,1-dist/(w*.65));
       const col=attract?'#27AE60':'#E74C3C';
       c.strokeStyle=col+Math.round(force*180).toString(16).padStart(2,'0');
-      c.lineWidth=force*5; c.setLineDash([6,4]);
+      c.lineWidth=force*5+1; c.setLineDash([6,4]);
       c.beginPath(); c.moveTo(x0,y0); c.lineTo(x1,y1); c.stroke(); c.setLineDash([]);
-      if(force>.06){
+
+      // Status label
+      const midX=(x0+x1)/2, midY=(y0+y1)/2;
+      if(attract&&dist<70){
+        // Touching visual effect
+        c.fillStyle='rgba(39,174,96,0.15)'; c.beginPath(); c.arc(midX,midY,40,0,Math.PI*2); c.fill();
+        c.font='bold 16px Tajawal'; c.fillStyle='#27AE60'; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('❤️ تلامس',midX,midY-36);
+      } else if(force>.06){
         c.font=`bold ${12+force*7|0}px Tajawal`; c.fillStyle=col; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText(attract?'❤️ تجاذب':'💥 تنافر',(x0+x1)/2,(y0+y1)/2-26);
+        c.fillText(attract?'❤️ تجاذب':'💥 تنافر',midX,midY-36);
+      }
+
+      // Movement arrows
+      if(attract&&dist>80){
+        const ax=(x1-x0)/dist*18, ay=(y1-y0)/dist*18;
+        c.strokeStyle='#27AE60'; c.lineWidth=2.5; c.fillStyle='#27AE60';
+        // Arrow from b0 toward b1
+        c.beginPath(); c.moveTo(x0+30,y0); c.lineTo(x0+30+ax*1.5,y0+ay*1.5); c.stroke();
+        c.beginPath(); c.moveTo(x1-30,y1); c.lineTo(x1-30-ax*1.5,y1-ay*1.5); c.stroke();
+      } else if(!attract){
+        const repD=Math.min(40,dist*.25);
+        c.strokeStyle='#E74C3C'; c.lineWidth=2.5;
+        c.beginPath(); c.moveTo(x0+25,y0); c.lineTo(x0+25-repD*.6,y0); c.stroke();
+        c.beginPath(); c.moveTo(x1-25,y0); c.lineTo(x1-25+repD*.6,y0); c.stroke();
       }
     }
 
@@ -22819,11 +23168,13 @@ function simStaticElec2() {
       c.font='11px Tajawal'; c.textBaseline='top'; c.fillStyle=col; c.fillText('كرة '+lbl,bx,by+34);
     });
 
-    U9.txt(c,'✋ اسحب الكرات',w/2,h-8,'rgba(80,100,140,.45)',12,true);
+    const hint=attract?'❤️ أقطاب مختلفة → تتجاذب وتلتصق':'💥 أقطاب متشابهة → تتنافر وتتباعد';
+    U9.txt(c,hint,w/2,h-10,'rgba(80,100,140,.5)',12,true);
     animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
   }
   draw();
 }
+
 
 // ══════════════════════════════════════════════════════════════
 // 11-9 · TAB 1 — الدائرة المتسلسلة
@@ -29429,7 +29780,7 @@ Object.assign(SIM_QUESTIONS, {
     fb: '✅ السطح الأملس يحافظ على توازي الأشعة المنعكسة فيتكوّن حزم واضحة وصورة. السطح الخشن يشتّت الاتجاهات (انعكاس متشتت).'
   },
   g9refltype_1: {
-    q: 'لماذا تُصمَّم شاشات العرض لتعكس الضوء بشكل متشتت؟',
+    q: 'لماذا تُصمَّم شاشات العرض لتعكس الضوء بشكل متشتت؟',
     opts: [
       'لكي يرى الجمهور من زوايا مختلفة دون صورة لامعة ضيقة',
       'لكي لا يرى أحد الشاشة',
@@ -46295,7 +46646,7 @@ function simG9Lens1(){
     }
     c.fill(); c.strokeStyle='#3B82F6'; c.stroke();
     c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
-    c.fillText(simState.convex?'عدسة محدبة (مجمِّعة)':'عدسة مقعرة (مفرِّقة)', w/2, h*0.12);
+    c.fillText(simState.convex?'عدسة محدبة (مجمِّعة)':'عدسة مقعرة (مفرِّقة)', w/2, h*0.12);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
