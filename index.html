@@ -32570,33 +32570,33 @@ function simG5MirrorFlat() {
     c.fillText('العين', refEndX, refEndY + Math.max(22,w*0.045));
 
     // ── Angle arcs ──
-    // المرآة رأسية — العمود المقام أفقي
-    // الشعاع الساقط: يأتي من أعلى اليسار، اتجاهه من المرآة = (rad - π) [سالب، فوق يسار]
-    // الشعاع المنعكس: يذهب لأعلى اليمين، اتجاهه = -rad [سالب، فوق يمين]
-    // زاوية السقوط: القوس بين (rad-π) و (-π) — أي من الشعاع الساقط للعمود المقام الأيسر
-    // زاوية الانعكاس: القوس بين (-π/... 0) و (-rad) — أي من العمود المقام الأيمن للشعاع المنعكس
+    // المرآة رأسية (π/2) — العمود المقام أفقي (0 / π)
+    // الشعاع الساقط: اتجاهه من المرآة = (rad - π) [فوق يسار]
+    // الشعاع المنعكس: اتجاهه = -rad [فوق يمين]
+    // زاوية السقوط: القوس بين الشعاع الساقط (rad-π) وسطح المرآة (-π/2) — أي بين الشعاع والمرآة
+    // زاوية الانعكاس: القوس بين سطح المرآة (-π/2) والشعاع المنعكس (-rad)
     const arcR = 64;
     const fontSize = Math.max(11, w*0.022);
     const angleText = `${Math.round(S.angle)}°`;
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // زاوية السقوط (أصفر): قوس من الشعاع الساقط (rad-π) إلى العمود الأيسر (-π) — مع عقارب الساعة
+    // زاوية السقوط (أصفر): قوس بين الشعاع الساقط (rad-π) وسطح المرآة (-π/2) — بين الشعاع والمرآة
     c.strokeStyle='rgba(255,215,0,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, rad - Math.PI, -Math.PI, true); c.stroke();
-    // الرقم في منتصف القوس داخلاً
-    const incMid = rad/2 - Math.PI;  // منتصف بين (rad-π) و (-π)
-    const incLX = mx + arcR * 0.55 * Math.cos(incMid);
-    const incLY = my + arcR * 0.55 * Math.sin(incMid);
+    c.beginPath(); c.arc(mx, my, arcR, rad - Math.PI, -Math.PI/2, true); c.stroke();
+    // الرقم في منتصف القوس
+    const incMid = (rad - Math.PI + (-Math.PI/2)) / 2;  // منتصف بين (rad-π) و (-π/2)
+    const incLX = mx + arcR * 0.60 * Math.cos(incMid);
+    const incLY = my + arcR * 0.60 * Math.sin(incMid);
     c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, incLX, incLY);
 
-    // زاوية الانعكاس (أخضر): قوس من 0 (العمود الأيمن) إلى -rad (الشعاع المنعكس) — مع عقارب الساعة
+    // زاوية الانعكاس (أخضر): قوس بين سطح المرآة (-π/2) والشعاع المنعكس (-rad) — بين المرآة والشعاع المنعكس
     c.strokeStyle='rgba(74,255,157,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, 0, -rad, true); c.stroke();
-    // الرقم في منتصف القوس داخلاً
-    const refMid = -rad / 2;
-    const refLX = mx + arcR * 0.55 * Math.cos(refMid);
-    const refLY = my + arcR * 0.55 * Math.sin(refMid);
+    c.beginPath(); c.arc(mx, my, arcR, -Math.PI/2, -rad, true); c.stroke();
+    // الرقم في منتصف القوس
+    const refMid = (-Math.PI/2 + (-rad)) / 2;
+    const refLX = mx + arcR * 0.60 * Math.cos(refMid);
+    const refLY = my + arcR * 0.60 * Math.sin(refMid);
     c.fillStyle='#4AFF9D'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, refLX, refLY);
     c.textBaseline = 'alphabetic';
