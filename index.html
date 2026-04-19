@@ -42849,57 +42849,62 @@ function simG9WaterGas2(){
     const gas=gases[S.gas||0];
     const prog=S.progress/100;
 
-    // ══ LAYOUT (fixed zones, no overlap) ══
-    // Zone 1: Title          h*0.00 → h*0.10
-    // Zone 2: Splint top     h*0.10 → h*0.18
-    // Zone 3: Flask          h*0.18 → h*0.68
-    // Zone 4: Bench          h*0.68 → h*0.76
-    // Zone 5: Result         h*0.76 → h*1.00
+    /* ── fixed pixel zones ──
+       [0      → TY ]  title
+       [TY     → BY ]  flask + splint scene
+       [BY     → BY+BH]  bench strip
+       [BY+BH  → h  ]  result strip               */
+    const TY=h*0.08, BY=h*0.70, BH=h*0.08;
 
-    const TITLE_Y   = h*0.06;
-    const BENCH_Y   = h*0.68;
-    const RESULT_Y  = h*0.76;
-
-    // ── Background ──
+    // background
     const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,gas.bgCol); bg.addColorStop(1,'#FFFFFF');
+    bg.addColorStop(0,gas.bgCol); bg.addColorStop(1,'#fff');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // ── Lab bench ──
-    const benchG=c.createLinearGradient(0,BENCH_Y,0,h);
-    benchG.addColorStop(0,'#D7CCC8'); benchG.addColorStop(1,'#8D6E63');
-    c.fillStyle=benchG; c.fillRect(0,BENCH_Y,w,h-BENCH_Y);
-    c.strokeStyle='#6D4C41'; c.lineWidth=2.5;
-    c.beginPath(); c.moveTo(0,BENCH_Y); c.lineTo(w,BENCH_Y); c.stroke();
+    // bench strip
+    const bg2=c.createLinearGradient(0,BY,0,BY+BH);
+    bg2.addColorStop(0,'#BCAAA4'); bg2.addColorStop(1,'#795548');
+    c.fillStyle=bg2; c.fillRect(0,BY,w,BH);
+    c.strokeStyle='#4E342E'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(0,BY); c.lineTo(w,BY); c.stroke();
 
-    // ── Flask (Zone 3 center) ──
-    const fcx = w*0.40;
-    const bodyR = Math.min(w*0.13, (BENCH_Y - h*0.18)*0.42);
-    const neckW = bodyR*0.50;
-    const neckH = bodyR*0.85;
-    const bodyCY  = BENCH_Y - bodyR - 2;
-    const neckTopY = bodyCY - bodyR - neckH;
+    // result strip (below bench)
+    c.fillStyle='#F5F5F5'; c.fillRect(0,BY+BH,w,h-BY-BH);
 
-    // gas fill clipped
+    // ── title (zone 1) ──
+    c.font=`bold ${Math.max(13,w*0.021)}px Tajawal`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillStyle=gas.col;
+    c.fillText('اختبار '+gas.name+' بعود الثقاب', w/2, TY/2);
+
+    // ── flask (zone 2, centered) ──
+    const fcx=w*0.50;
+    const avail=BY-TY;                        // available vertical space
+    const bodyR=Math.min(w*0.145, avail*0.38);
+    const neckW=bodyR*0.48, neckH=bodyR*0.80;
+    const bodyCY=BY - bodyR - 2;
+    const neckTopY=bodyCY - bodyR - neckH;
+
+    // gas fill (clipped)
     c.save();
     c.beginPath();
     c.rect(fcx-neckW/2+2, neckTopY, neckW-4, neckH+4);
     c.arc(fcx, bodyCY, bodyR-3, 0, Math.PI*2);
     c.clip();
     const gf=c.createRadialGradient(fcx,bodyCY-bodyR*0.2,0,fcx,bodyCY,bodyR);
-    gf.addColorStop(0,gas.col+'60'); gf.addColorStop(1,gas.col+'20');
+    gf.addColorStop(0,gas.col+'60'); gf.addColorStop(1,gas.col+'18');
     c.fillStyle=gf;
     c.fillRect(fcx-bodyR,neckTopY,bodyR*2,neckH+bodyR*2+8);
     for(let i=0;i<14;i++){
       const px=fcx-bodyR*0.7+((i*59+S.t*0.35)%(bodyR*1.4));
       const py=bodyCY-bodyR*0.7+((i*43+S.t*0.3)%(bodyR*1.4));
       if(Math.hypot(px-fcx,py-bodyCY)<bodyR-5){
-        c.fillStyle=gas.col+'88'; c.beginPath(); c.arc(px,py,2.2,0,Math.PI*2); c.fill();
+        c.fillStyle=gas.col+'77'; c.beginPath(); c.arc(px,py,2,0,Math.PI*2); c.fill();
       }
     }
     c.restore();
 
-    // Flask outline
+    // flask glass
     c.strokeStyle='rgba(100,181,246,0.85)'; c.lineWidth=2.5;
     c.beginPath(); c.moveTo(fcx-neckW/2,neckTopY+neckH); c.lineTo(fcx-neckW/2,neckTopY); c.stroke();
     c.beginPath(); c.moveTo(fcx+neckW/2,neckTopY+neckH); c.lineTo(fcx+neckW/2,neckTopY); c.stroke();
@@ -42908,108 +42913,91 @@ function simG9WaterGas2(){
     c.beginPath(); c.moveTo(fcx+neckW/2,neckTopY+neckH);
     c.bezierCurveTo(fcx+neckW/2,neckTopY+neckH+bodyR*0.5,fcx+bodyR,bodyCY-bodyR*0.3,fcx+bodyR,bodyCY); c.stroke();
     c.beginPath(); c.arc(fcx,bodyCY,bodyR,0,Math.PI); c.stroke();
-    // shine
     c.strokeStyle='rgba(255,255,255,0.5)'; c.lineWidth=1.5;
-    c.beginPath(); c.arc(fcx-bodyR*0.3,bodyCY-bodyR*0.28,bodyR*0.17,Math.PI*0.75,Math.PI*1.55); c.stroke();
+    c.beginPath(); c.arc(fcx-bodyR*0.3,bodyCY-bodyR*0.28,bodyR*0.16,Math.PI*0.75,Math.PI*1.55); c.stroke();
 
-    // gas symbol
-    c.font=`bold ${Math.max(13,bodyR*0.42)}px Tajawal`;
+    // gas label inside body
+    c.font=`bold ${Math.max(12,bodyR*0.4)}px Tajawal`;
     c.textAlign='center'; c.textBaseline='middle';
-    c.fillStyle=gas.col+'AA';
-    c.fillText(gas.icon, fcx, bodyCY+bodyR*0.12);
+    c.fillStyle=gas.col+'99';
+    c.fillText(gas.icon, fcx, bodyCY+bodyR*0.1);
 
-    // flask name on bench
-    c.font=`${Math.max(11,w*0.017)}px Tajawal`;
-    c.textAlign='center'; c.textBaseline='top';
-    c.fillStyle='rgba(255,255,255,0.85)';
-    c.fillText(gas.name, fcx, BENCH_Y+6);
+    // ── splint ──
+    const tipX=fcx+neckW*0.05;
+    const tipStart=TY+4;
+    const tipEnd=neckTopY+neckH*0.5;
+    const tipY=S.testing ? tipStart+(tipEnd-tipStart)*Math.min(prog*1.8,1) : tipStart;
 
-    // ── Splint (Zone 2→3, top-right of canvas into neck) ──
-    const tipX = fcx + neckW*0.05;
-    const tipStart = h*0.12;                       // starts at zone2 top
-    const tipEnd   = neckTopY + neckH*0.5;         // ends inside neck
-    const tipY = S.testing
-      ? tipStart + (tipEnd-tipStart)*Math.min(prog*1.8,1)
-      : tipStart;
-
-    const ang = -0.22;
-    const sLen = h*0.22;
-    const ex = tipX + Math.sin(ang)*sLen;
-    const ey = tipY - Math.cos(ang)*sLen;
+    const ang=-0.20, sLen=h*0.20;
+    const ex=tipX+Math.sin(ang)*sLen, ey=tipY-Math.cos(ang)*sLen;
     const sg=c.createLinearGradient(tipX,tipY,ex,ey);
     sg.addColorStop(0,'#3E2723'); sg.addColorStop(0.5,'#8D6E63'); sg.addColorStop(1,'#BCAAA4');
     c.strokeStyle=sg; c.lineWidth=7; c.lineCap='round';
     c.beginPath(); c.moveTo(tipX,tipY); c.lineTo(ex,ey); c.stroke();
     c.lineCap='butt';
 
-    // O₂ glow
+    // O2 glow
     if(gas.effect==='glow' && prog>0.05){
-      const pulse=11+Math.sin(S.t*0.22)*3.5;
-      const gl=c.createRadialGradient(tipX,tipY,0,tipX,tipY,pulse*2.4);
-      gl.addColorStop(0,'rgba(255,255,180,1)');
-      gl.addColorStop(0.25,'rgba(255,160,0,0.9)');
-      gl.addColorStop(0.65,'rgba(255,60,0,0.4)');
-      gl.addColorStop(1,'rgba(255,0,0,0)');
-      c.fillStyle=gl; c.beginPath(); c.arc(tipX,tipY,pulse*2.4,0,Math.PI*2); c.fill();
+      const pulse=10+Math.sin(S.t*0.22)*3;
+      const gl=c.createRadialGradient(tipX,tipY,0,tipX,tipY,pulse*2.5);
+      gl.addColorStop(0,'rgba(255,255,180,1)'); gl.addColorStop(0.3,'rgba(255,160,0,0.9)');
+      gl.addColorStop(0.7,'rgba(255,60,0,0.35)'); gl.addColorStop(1,'rgba(255,0,0,0)');
+      c.fillStyle=gl; c.beginPath(); c.arc(tipX,tipY,pulse*2.5,0,Math.PI*2); c.fill();
       c.fillStyle='rgba(255,255,220,0.95)';
-      c.beginPath(); c.arc(tipX,tipY,3.5,0,Math.PI*2); c.fill();
-      if(prog>0.45){
-        for(let i=0;i<7;i++){
-          const sa=S.t*0.14+i*0.9, sr=pulse*0.65+i*2.8;
-          c.fillStyle=`rgba(255,${130+i*17},0,${0.75-i*0.09})`;
-          c.beginPath(); c.arc(tipX+Math.cos(sa)*sr,tipY+Math.sin(sa)*sr-sr*0.25,2.2,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(tipX,tipY,3,0,Math.PI*2); c.fill();
+      if(prog>0.4){
+        for(let i=0;i<6;i++){
+          const sa=S.t*0.14+i*1.0, sr=pulse*0.6+i*2.5;
+          c.fillStyle=`rgba(255,${140+i*15},0,${0.7-i*0.1})`;
+          c.beginPath(); c.arc(tipX+Math.cos(sa)*sr,tipY+Math.sin(sa)*sr-sr*0.2,2,0,Math.PI*2); c.fill();
         }
       }
     }
 
-    // H₂ burst
+    // H2 burst
     if(gas.effect==='pop' && tipY>=neckTopY+neckH*0.05 && prog>0.5){
       const burst=Math.min(1,(prog-0.5)*2.6);
       for(let r=0;r<3;r++){
-        const rr=(burst-r*0.13)*bodyR*1.35;
-        if(rr>0){ c.strokeStyle=`rgba(255,200,50,${0.55*(1-burst)})`; c.lineWidth=3;
+        const rr=(burst-r*0.13)*bodyR*1.3;
+        if(rr>0){ c.strokeStyle=`rgba(255,200,50,${0.5*(1-burst)})`; c.lineWidth=3;
           c.beginPath(); c.arc(fcx,bodyCY,rr,0,Math.PI*2); c.stroke(); }
       }
-      const fb=c.createRadialGradient(fcx,bodyCY,0,fcx,bodyCY,burst*bodyR*1.15);
+      const fb=c.createRadialGradient(fcx,bodyCY,0,fcx,bodyCY,burst*bodyR*1.1);
       fb.addColorStop(0,'rgba(255,255,200,0.95)'); fb.addColorStop(0.3,'rgba(255,160,0,0.8)');
       fb.addColorStop(0.7,'rgba(255,50,0,0.4)'); fb.addColorStop(1,'rgba(255,0,0,0)');
-      c.fillStyle=fb; c.beginPath(); c.arc(fcx,bodyCY,burst*bodyR*1.15,0,Math.PI*2); c.fill();
-      for(let i=0;i<14;i++){
-        const fa=i*(Math.PI*2/14)+S.t*0.04;
-        const fr=burst*bodyR*(0.55+Math.sin(S.t*0.15+i)*0.3);
-        c.fillStyle=`rgba(255,${100+i*10},0,${0.9-burst*0.6})`;
+      c.fillStyle=fb; c.beginPath(); c.arc(fcx,bodyCY,burst*bodyR*1.1,0,Math.PI*2); c.fill();
+      for(let i=0;i<12;i++){
+        const fa=i*(Math.PI*2/12)+S.t*0.04;
+        const fr=burst*bodyR*(0.5+Math.sin(S.t*0.15+i)*0.28);
+        c.fillStyle=`rgba(255,${100+i*10},0,${0.85-burst*0.55})`;
         c.beginPath(); c.arc(fcx+Math.cos(fa)*fr,bodyCY+Math.sin(fa)*fr,2.5+i%3,0,Math.PI*2); c.fill();
       }
     }
 
-    // ── Title (Zone 1) ──
-    c.font=`bold ${Math.max(13,w*0.022)}px Tajawal`;
+    // ── bench label (one line, centered) ──
+    c.font=`bold ${Math.max(11,w*0.017)}px Tajawal`;
     c.textAlign='center'; c.textBaseline='middle';
-    c.fillStyle=gas.col;
-    c.fillText(`اختبار ${gas.name} بعود الثقاب`, w/2, TITLE_Y);
+    c.fillStyle='rgba(255,255,255,0.9)';
+    c.fillText(gas.name, fcx, BY+BH/2);
 
-    // ── Reaction label — RIGHT side, Zone 3 ──
+    // ── result strip (zone 4) ──
     if(S.progress>58){
-      const rlx=w*0.78, rly=neckTopY+neckH+bodyR*0.3;
-      // reaction box on right side
-      const rboxW=w*0.22, rboxH=bodyR*1.1;
-      c.fillStyle=gas.col+'22';
-      c.beginPath(); c.roundRect(rlx-rboxW/2, rly-rboxH/2, rboxW, rboxH, 10); c.fill();
-      c.strokeStyle=gas.col+'66'; c.lineWidth=1.5;
-      c.beginPath(); c.roundRect(rlx-rboxW/2, rly-rboxH/2, rboxW, rboxH, 10); c.stroke();
-      c.font=`bold ${Math.max(12,w*0.019)}px Tajawal`;
-      c.textAlign='center'; c.textBaseline='middle'; c.fillStyle=gas.col;
-      c.fillText(gas.result, rlx, rly-rboxH*0.18);
-      c.font=`${Math.max(9,w*0.014)}px Tajawal`; c.fillStyle='#555';
-      c.fillText(gas.resultSub, rlx, rly+rboxH*0.22);
-    }
-
-    // ── Hint (Zone 4 bench) ──
-    if(!S.testing){
+      const ry=BY+BH, rh=h-ry;
+      // reaction outcome
+      c.font=`bold ${Math.max(13,w*0.022)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillStyle=gas.col;
+      c.fillText(gas.result, w/2, ry+rh*0.33);
+      // sub text
+      c.font=`${Math.max(10,w*0.016)}px Tajawal`;
+      c.fillStyle='#555';
+      c.fillText(gas.resultSub, w/2, ry+rh*0.68);
+    } else {
+      // hint
       c.font=`${Math.max(10,w*0.016)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='middle';
-      c.fillStyle='rgba(255,255,255,0.75)';
-      c.fillText('اضغط "ابدأ الاختبار" لإدخال عود الثقاب', w/2, BENCH_Y+h*0.04);
+      c.fillStyle='#999';
+      c.fillText('اضغط "ابدأ الاختبار" لإدخال عود الثقاب', w/2, BY+BH+( h-BY-BH)*0.5);
     }
     animFrame=requestAnimationFrame(draw);
   }
@@ -43142,142 +43130,143 @@ function simG9WaterGas3(){
     const gas=gases[S.gas||0];
     const prog=S.progress/100;
 
-    // ══ LAYOUT ZONES ══
-    // Title    : 0       → h*0.09
-    // Flask    : h*0.09  → h*0.65  (left 45%)
-    // Indicator: h*0.09  → h*0.72  (right 50%)
-    // Bench    : h*0.72  → h*0.80
-    // Result   : h*0.80  → h*1.00
+    /* zones:
+       title  : 0      → TY
+       scene  : TY     → BY      (flask left 40%, indicator right 55%)
+       bench  : BY     → BY+BH
+       result : BY+BH  → h                                              */
+    const TY=h*0.08, BY=h*0.68, BH=h*0.08;
 
-    const BENCH_Y  = h*0.72;
-    const RESULT_Y = h*0.80;
-
-    // Background
+    // background
     const bg=c.createLinearGradient(0,0,0,h);
     bg.addColorStop(0,gas.bgCol); bg.addColorStop(1,'#fff');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // Bench
-    const benchG=c.createLinearGradient(0,BENCH_Y,0,h);
-    benchG.addColorStop(0,'#D7CCC8'); benchG.addColorStop(1,'#8D6E63');
-    c.fillStyle=benchG; c.fillRect(0,BENCH_Y,w,h-BENCH_Y);
-    c.strokeStyle='#6D4C41'; c.lineWidth=2.5;
-    c.beginPath(); c.moveTo(0,BENCH_Y); c.lineTo(w,BENCH_Y); c.stroke();
+    // bench
+    const bg2=c.createLinearGradient(0,BY,0,BY+BH);
+    bg2.addColorStop(0,'#BCAAA4'); bg2.addColorStop(1,'#795548');
+    c.fillStyle=bg2; c.fillRect(0,BY,w,BH);
+    c.strokeStyle='#4E342E'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(0,BY); c.lineTo(w,BY); c.stroke();
 
-    // Title
-    c.font=`bold ${Math.max(14,w*0.023)}px Tajawal`;
+    // result bg
+    c.fillStyle='#F5F5F5'; c.fillRect(0,BY+BH,w,h-BY-BH);
+
+    // title
+    c.font=`bold ${Math.max(13,w*0.021)}px Tajawal`;
     c.textAlign='center'; c.textBaseline='middle';
     c.fillStyle=gas.col;
-    c.fillText(gas.name, w/2, h*0.055);
+    c.fillText(gas.name, w/2, TY/2);
 
-    // ── Source Flask (left side, zone 2) ──
-    const flaskCX=w*0.26, flaskFW=w*0.30, flaskTY=h*0.11;
-    const fl=_drawSourceFlask(c,flaskCX,flaskTY,flaskFW,gas.col,S.t);
-    // label on bench
-    c.font=`${Math.max(10,w*0.016)}px Tajawal`;
-    c.textAlign='center'; c.textBaseline='top';
-    c.fillStyle='rgba(255,255,255,0.85)';
-    c.fillText(gas.name, flaskCX, BENCH_Y+5);
+    // subtitle (smell)
+    c.font=`${Math.max(9,w*0.015)}px Tajawal`;
+    c.fillStyle='#777';
+    c.fillText('الرائحة: '+gas.smell, w/2, TY*0.78);
 
-    // Gas flow particles (flask → indicator)
+    // ── source flask (left 38% of width) ──
+    const sceneH=BY-TY;
+    const fW=w*0.35, fTY=TY+sceneH*0.04;
+    const fCX=w*0.20;
+    const fl=_drawSourceFlask(c,fCX,fTY,fW,gas.col,S.t);
+
+    // gas name on bench
+    c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.fillStyle='rgba(255,255,255,0.88)';
+    c.fillText(gas.name, fCX, BY+BH/2);
+
+    // gas flow particles
     if(S.testing){
-      const startX=flaskCX+fl.neckW*0.5+4, startY=fl.neckTopY+fl.neckH*0.3;
-      const endX = S.gas===1 ? w*0.65 : w*0.68;
-      const endY = h*0.32;
-      for(let i=0;i<10;i++){
-        const age=((S.t*0.016+i*0.1)%1)*Math.min(prog*2.2,1);
-        const gx=startX+(endX-startX)*age;
-        const gy=startY+(endY-startY)*age+Math.sin(age*6+i)*8;
-        const al=Math.round((1-age*0.7)*130).toString(16).padStart(2,'0');
+      const sx=fCX+fl.neckW*0.5+4, sy=fl.neckTopY+fl.neckH*0.3;
+      const ex2=w*0.50, ey2=TY+sceneH*0.25;
+      for(let i=0;i<9;i++){
+        const age=((S.t*0.016+i*0.11)%1)*Math.min(prog*2,1);
+        const gx=sx+(ex2-sx)*age, gy=sy+(ey2-sy)*age+Math.sin(age*5+i)*7;
+        const al=Math.round((1-age*0.65)*120).toString(16).padStart(2,'0');
         c.fillStyle=gas.col+al;
-        c.beginPath(); c.arc(gx,gy,2.5,0,Math.PI*2); c.fill();
+        c.beginPath(); c.arc(gx,gy,2.2,0,Math.PI*2); c.fill();
       }
     }
 
-    // ── Right side indicator ──
+    // ── indicator (right side, 50%→95% width) ──
+    const iCX=w*0.73, iTY=TY+sceneH*0.06, iH=sceneH*0.86;
+
     if(S.gas===1){
-      // CO₂: lime water beaker — sized to fit zone
-      const bcx=w*0.68, bby=h*0.10, bbw=w*0.28, bbh=BENCH_Y-h*0.10-h*0.04;
-      _drawBeakerCO2(c,bcx,bby,bbw,bbh,prog*0.85);
-      c.font=`${Math.max(10,w*0.016)}px Tajawal`;
+      // CO2: lime water beaker
+      const bW=w*0.34;
+      _drawBeakerCO2(c,iCX,iTY,bW,iH,prog*0.85);
+      c.font=`${Math.max(9,w*0.015)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='bottom';
       c.fillStyle=gas.col;
-      c.fillText('ماء الجير Ca(OH)₂', bcx, bby-4);
-      c.fillStyle='rgba(255,255,255,0.85)'; c.textBaseline='top';
-      c.fillText('ماء الجير', bcx, BENCH_Y+5);
-      if(prog>0.5){
-        c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
-        c.textAlign='center'; c.textBaseline='middle';
-        c.fillStyle=gas.col;
-        c.fillText('⚪ يعكّر — راسب CaCO₃', bcx, bby+bbh+h*0.025);
-      }
+      c.fillText('ماء الجير Ca(OH)₂', iCX, iTY-2);
+      c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
+      c.textBaseline='middle';
+      c.fillStyle='rgba(255,255,255,0.88)';
+      c.fillText('ماء الجير', iCX, BY+BH/2);
     } else {
-      // NH₃ or Cl₂: litmus paper — right side, fits zone
-      const pcx=w*0.70, ppy=h*0.11;
-      const ppw=w*0.22, pph=BENCH_Y-ppy-h*0.04;
+      // NH3 / Cl2: litmus strip
+      const pW=w*0.24, pH=iH;
+      let r,g2,b2,topLabel,stateLabel,stateCol;
 
       if(S.gas===0){
-        // NH₃: RED → BLUE
-        const t1=prog;
-        const mr=Math.round(192+(26-192)*t1);
-        const mg=Math.round(57+(143-57)*t1);
-        const mb=Math.round(43+(168-43)*t1);
-        _drawLitmusPaper(c,pcx,ppy,ppw,pph,mr,mg,mb,'','#C0392B');
-        // label above paper
-        c.font=`${Math.max(10,w*0.016)}px Tajawal`;
-        c.textAlign='center'; c.textBaseline='bottom'; c.fillStyle='#C0392B';
-        c.fillText('ورقة تبّاع الشمس الحمراء', pcx, ppy-4);
-        // state label below paper
-        const sl=prog<0.15?'🔴 حمراء':prog<0.7?'🔄 تتحوّل...':'🔵 زرقاء';
-        c.font=`bold ${Math.max(11,w*0.018)}px Tajawal`;
-        c.textAlign='center'; c.textBaseline='top'; c.fillStyle='#27AE60';
-        c.fillText(sl, pcx, ppy+pph+8);
-        c.fillStyle='rgba(255,255,255,0.85)'; c.font=`${Math.max(10,w*0.016)}px Tajawal`;
-        c.textBaseline='top'; c.fillText('ورقة تبّاع الشمس', pcx, BENCH_Y+5);
+        // NH3: red→blue
+        r=Math.round(192+(26-192)*prog);
+        g2=Math.round(57+(143-57)*prog);
+        b2=Math.round(43+(168-43)*prog);
+        topLabel='ورقة تبّاع الشمس الحمراء';
+        stateLabel=prog<0.15?'🔴 حمراء':prog<0.7?'🔄 تتحوّل...':'🔵 زرقاء';
+        stateCol='#27AE60';
       } else {
-        // Cl₂: BLUE → RED → WHITE
-        let mr2,mg2,mb2,sl2;
+        // Cl2: blue→red→white
         if(prog<0.45){
           const t2=prog/0.45;
-          mr2=Math.round(32+(192-32)*t2); mg2=Math.round(119+(57-119)*t2); mb2=Math.round(180+(43-180)*t2);
-          sl2=prog<0.1?'🔵 زرقاء':prog<0.35?'🔄 تتحمّر...':'🔴 حمراء';
+          r=Math.round(32+(192-32)*t2); g2=Math.round(119+(57-119)*t2); b2=Math.round(180+(43-180)*t2);
+          stateLabel=prog<0.1?'🔵 زرقاء':prog<0.35?'🔄 تتحمّر...':'🔴 حمراء';
         } else {
           const t2=(prog-0.45)/0.55;
-          mr2=Math.round(192+(248-192)*t2); mg2=Math.round(57+(248-57)*t2); mb2=Math.round(43+(248-43)*t2);
-          sl2=t2<0.4?'🔄 تتبيّض...':'⬜ بيضاء (مُبيَّضة)';
+          r=Math.round(192+(248-192)*t2); g2=Math.round(57+(248-57)*t2); b2=Math.round(43+(248-43)*t2);
+          stateLabel=t2<0.4?'🔄 تتبيّض...':'⬜ بيضاء';
         }
-        _drawLitmusPaper(c,pcx,ppy,ppw,pph,mr2,mg2,mb2,'','#7B8D2A');
-        c.font=`${Math.max(10,w*0.016)}px Tajawal`;
-        c.textAlign='center'; c.textBaseline='bottom'; c.fillStyle='#7B8D2A';
-        c.fillText('ورقة تبّاع الشمس الزرقاء الرطبة', pcx, ppy-4);
-        c.font=`bold ${Math.max(11,w*0.018)}px Tajawal`;
-        c.textAlign='center'; c.textBaseline='top'; c.fillStyle='#7B8D2A';
-        c.fillText(sl2, pcx, ppy+pph+8);
-        c.fillStyle='rgba(255,255,255,0.85)'; c.font=`${Math.max(10,w*0.016)}px Tajawal`;
-        c.textBaseline='top'; c.fillText('ورقة تبّاع الشمس', pcx, BENCH_Y+5);
+        topLabel='ورقة تبّاع الشمس الزرقاء';
+        stateCol='#7B8D2A';
       }
-    }
 
-    // ── Result panel (Zone 5) ──
-    if(S.progress>58){
-      const rh=h*0.14;
-      c.fillStyle=gas.col+'28';
-      c.beginPath(); c.roundRect(w*0.04,RESULT_Y+h*0.02,w*0.92,rh,12); c.fill();
-      c.strokeStyle=gas.col+'55'; c.lineWidth=1.5;
-      c.beginPath(); c.roundRect(w*0.04,RESULT_Y+h*0.02,w*0.92,rh,12); c.stroke();
-      c.font=`bold ${Math.max(12,w*0.020)}px Tajawal`;
-      c.textAlign='center'; c.textBaseline='middle'; c.fillStyle=gas.col;
-      c.fillText('✅ '+gas.result, w/2, RESULT_Y+h*0.02+rh*0.34);
-      c.font=`${Math.max(10,w*0.015)}px Tajawal`; c.fillStyle='#555';
-      c.fillText(gas.eq, w/2, RESULT_Y+h*0.02+rh*0.74);
-    }
+      // paper label above strip
+      c.font=`${Math.max(9,w*0.014)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='bottom';
+      c.fillStyle=stateCol;
+      c.fillText(topLabel, iCX, iTY-2);
 
-    // Hint before test
-    if(!S.testing){
-      c.font=`${Math.max(10,w*0.016)}px Tajawal`;
+      // draw strip
+      _drawLitmusPaper(c, iCX, iTY, pW, pH, r, g2, b2, '', stateCol);
+
+      // state label — INSIDE the strip bottom area (not below it)
+      c.font=`bold ${Math.max(11,w*0.018)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='middle';
-      c.fillStyle='rgba(255,255,255,0.75)';
-      c.fillText('اضغط "أجرِ الاختبار" لتشغيل الغاز', w/2, BENCH_Y+h*0.04);
+      c.fillStyle='rgba(255,255,255,0.92)';
+      c.fillText(stateLabel, iCX, iTY+pH-20);
+
+      // bench label
+      c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
+      c.fillStyle='rgba(255,255,255,0.88)';
+      c.fillText('ورقة تبّاع الشمس', iCX, BY+BH/2);
+    }
+
+    // ── result strip ──
+    if(S.progress>58){
+      const ry=BY+BH, rh=h-ry;
+      c.font=`bold ${Math.max(12,w*0.020)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillStyle=gas.col;
+      c.fillText('✅ '+gas.result, w/2, ry+rh*0.32);
+      c.font=`${Math.max(10,w*0.015)}px Tajawal`;
+      c.fillStyle='#555';
+      c.fillText(gas.eq, w/2, ry+rh*0.68);
+    } else {
+      c.font=`${Math.max(10,w*0.015)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillStyle='#999';
+      c.fillText('اضغط "أجرِ الاختبار" لتشغيل الغاز', w/2, BY+BH+(h-BY-BH)*0.5);
     }
     animFrame=requestAnimationFrame(draw);
   }
