@@ -32570,37 +32570,38 @@ function simG5MirrorFlat() {
     c.fillText('العين', refEndX, refEndY + Math.max(22,w*0.045));
 
     // ── Angle arcs ──
-    // المرآة رأسية على المحور العمودي — سطحها يتجه نحو -π/2 (فوق) و +π/2 (أسفل)
-    // الشعاع الساقط يأتي من أعلى اليسار → اتجاهه انطلاقاً من نقطة الاصطدام = -(π - rad)
-    // أي الزاوية = π - rad من اليمين، وهي في الربع الثالث (فوق يسار)
-    // زاوية السقوط = الزاوية بين الشعاع الساقط وسطح المرآة = (π/2 - rad)
-    // نرسم القوس الأصفر من اتجاه الشعاع الساقط إلى اتجاه سطح المرآة (فوق)
-    // اتجاه الشعاع الساقط من نقطة الاصطدام = π - rad (فوق يسار، ربع ثاني)
-    // اتجاه سطح المرآة (فوق) = -π/2 = 3π/2
-    // نرسم بعكس عقارب الساعة (false) من (π-rad) إلى (-π/2)
+    // المرآة رأسية، canvas Y ينمو للأسفل
+    // الشعاع الساقط: يأتي من أعلى اليسار → اتجاهه من المرآة للمصدر = -(π - rad) = rad - π
+    //   (قيمة سالبة كبيرة، تقع في الربع الثاني/الثالث العلوي الأيسر)
+    // الشعاع المنعكس: يذهب لأعلى اليمين → اتجاهه = -rad
+    //   (قيمة سالبة صغيرة، تقع في الربع الرابع العلوي الأيمن)
+    // المرآة للأعلى = -π/2
+    //
+    // القوس الأصفر: يسار المرآة، بين (rad-π) و (-π/2) — عكس عقارب الساعة (false) ينتج القوس الصغير فوق يسار
+    // القوس الأخضر: يمين المرآة، بين (-π/2) و (-rad) — مع عقارب الساعة (true) ينتج القوس الصغير فوق يمين
+
     const arcR = 64;
     const fontSize = Math.max(11, w*0.022);
     const angleText = `${Math.round(S.angle)}°`;
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // زاوية السقوط (أصفر): بين الشعاع الساقط (π-rad) وسطح المرآة (-π/2) — عكس عقارب الساعة
-    // الشعاع الساقط من المصدر نحو المرآة، اتجاهه المعاكس (من المرآة) = π - rad
-    const incidentDir = Math.PI - rad;  // اتجاه الشعاع الساقط من نقطة الاصطدام
-    const mirrorUp = -Math.PI / 2;      // اتجاه سطح المرآة للأعلى
+    const mirrorUp    = -Math.PI / 2;          // سطح المرآة للأعلى = -90°
+    const incidentDir = rad - Math.PI;          // شعاع ساقط من المرآة نحو المصدر (فوق يسار)
+    const reflectDir  = -rad;                   // شعاع منعكس نحو العين (فوق يمين)
+
+    // زاوية السقوط (أصفر): من incidentDir إلى mirrorUp — عكس عقارب الساعة → قوس صغير فوق يسار
     c.strokeStyle='rgba(255,215,0,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, mirrorUp, incidentDir, false); c.stroke();
-    const incMid = (mirrorUp + incidentDir) / 2;
+    c.beginPath(); c.arc(mx, my, arcR, incidentDir, mirrorUp, false); c.stroke();
+    const incMid = (incidentDir + mirrorUp) / 2;
     const incLX = mx + arcR * 0.62 * Math.cos(incMid);
     const incLY = my + arcR * 0.62 * Math.sin(incMid);
     c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, incLX, incLY);
 
-    // زاوية الانعكاس (أخضر): بين سطح المرآة (-π/2) والشعاع المنعكس (-rad) — عكس عقارب الساعة
-    // الشعاع المنعكس يذهب لأعلى اليمين، اتجاهه = -rad
-    const reflectedDir = -rad;
+    // زاوية الانعكاس (أخضر): من mirrorUp إلى reflectDir — مع عقارب الساعة → قوس صغير فوق يمين
     c.strokeStyle='rgba(74,255,157,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, reflectedDir, mirrorUp, false); c.stroke();
-    const refMid = (reflectedDir + mirrorUp) / 2;
+    c.beginPath(); c.arc(mx, my, arcR, mirrorUp, reflectDir, true); c.stroke();
+    const refMid = (mirrorUp + reflectDir) / 2;
     const refLX = mx + arcR * 0.62 * Math.cos(refMid);
     const refLY = my + arcR * 0.62 * Math.sin(refMid);
     c.fillStyle='#4AFF9D'; c.textAlign='center'; c.textBaseline='middle';
