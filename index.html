@@ -3134,7 +3134,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         <div>
           <div class="unit-title">المواد الموصِّلة والعازلة للكهرباء</div>
           <div class="unit-topics">الموصلات والعوازل · الماء والكهرباء · المعادن · الدوائر الكهربائية · الجهد والمقاومة</div>
-          <div class="unit-pill avail">⚡ ٦ استقصاءات متاحة</div>
+          <div class="unit-pill avail">⚡ ٧ استقصاءات متاحة</div>
         </div>
       </div>
     </div>
@@ -3223,7 +3223,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
     <div id="sims-u6e" class="sims-wrap" style="margin-top:28px">
       <div class="sims-header">
         <div class="sims-title">استقصاءات الوحدة ٢ — المواد الموصِّلة والعازلة للكهرباء</div>
-        <div class="sims-count">٦ استقصاءات</div>
+        <div class="sims-count">٧ استقصاءات</div>
       </div>
       <div class="sims-grid">
 
@@ -3293,6 +3293,16 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
             <div class="sim-num">5-8 · طول وسُمك السلك</div>
             <div class="sim-name">السلك والمقاومة الكهربائية</div>
             <div class="sim-desc">كيف يؤثر طول السلك وسُمكه في شدة التيار؟</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6battery')">
+          <div class="sim-thumb t5">🔋</div>
+          <div class="sim-body">
+            <div class="sim-num">5-9 · كيف اخترع العلماء البطاريات؟</div>
+            <div class="sim-name">رحلة زمنية: من بغداد إلى فولتا 🕰️</div>
+            <div class="sim-desc">سافر عبر الزمن واكتشف قصة اختراع البطارية مع جلفاني وفولتا</div>
           </div>
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
@@ -5497,6 +5507,7 @@ const SIM_META = {
   g6circuit:        { title: '5-5 · مختبر الدوائر الكهربائية', badge: '⚡ 6', tabs: ['ابنِ دائرتك 🔌', 'رموز الدائرة 📐'] },
   g6circuitchange:  { title: '5-6 · تغيير مكونات الدائرة', badge: '⚡ 6', tabs: ['إضافة مصابيح 💡', 'إضافة خلايا 🔋'] },
   g6wirelength:     { title: '5-8 · طول وسُمك السلك', badge: '⚡ 6', tabs: ['طول السلك 📏', 'سُمك السلك 🔗'] },
+  g6battery:        { title: '5-9 · كيف اخترع العلماء البطاريات؟', badge: '🔋 6', tabs: ['بطارية بغداد 🏺', 'اكتشاف جلفاني 🐸', 'عمود فولتا 🔋'] },
   // ── الصف 8 — الجهاز الدوري وتبادل الغازات ──
   circsystem:   { title: 'نشاط 1-7 · الجهاز الدوري للإنسان', badge: '❤️ 8', tabs: ['رحلة الدم 🩸', 'الدم المؤكسج وغير المؤكسج 🔄'] },
   heart8:       { title: 'نشاط 2-7 · القلب', badge: '❤️ 8', tabs: ['حجرات القلب 🫀', 'الانقباض والانبساط ⚡'] },
@@ -5754,6 +5765,12 @@ const SIM_QUESTIONS = {
     opts: ['السلك الرفيع القصير','السلك الطويل الرفيع','السلك السميك القصير','السلك السميك الطويل'],
     ans: 1,
     fb: '✅ المقاومة تتناسب طردياً مع الطول وعكسياً مع مساحة المقطع. السلك الطويل الرفيع له أكبر مقاومة لأن كلا العاملين (الطول الكبير والسُمك الصغير) يزيدان المقاومة.'
+  },
+  g6battery: {
+    q: 'ما الذي أثبته اكتشاف فولتا عن تيار جلفاني؟',
+    opts: ['أن التيار يأتي من أعصاب الضفدع فقط','أن التيار ينتج من تلامس معدنين مختلفين مع سائل موصِّل','أن الضفدع يولّد الكهرباء من جسمه','أن الماء وحده يكفي لتوليد الكهرباء'],
+    ans: 1,
+    fb: '✅ أثبت فولتا أن التيار الكهربائي ينتج من التفاعل الكيميائي بين معدنين مختلفين (نحاس وخارصين) مع سائل موصِّل — وليس من أعصاب الضفدع كما اعتقد جلفاني.'
   },
   // ── وحدة 7 ──
   adaptation: {
@@ -6095,6 +6112,7 @@ function openSim(type) {
     g6circuit:'ابنِ دائرتك الأولى 🔌 — بطارية + سلك + مصباح = نور!',
     g6circuitchange:'كيف يؤثر عدد المصابيح على السطوع؟ 💡 جرّب وشوف!',
     g6wirelength:'السلك الطويل = مقاومة أكبر = تيار أقل 📏 — جرّب واقيس!',
+    g6battery:'رحلة عبر الزمن 🕰️ — من بطارية بغداد القديمة إلى اختراع فولتا!',
     magnets:'القطبان المتشابهان يتنافران والمختلفان يتجاذبان 🧲 — جرّب!',
     magfield:'برادة الحديد تكشف خطوط المجال المغناطيسي 🔮 — شوف النمط!',
     electromagnet:'كلما زادت اللفّات زادت القوة ⚡ — جرّب وقِس!',
@@ -6344,6 +6362,7 @@ function startSim(type, tab) {
     g6circuit:        [simCircuitBuilder1, simCircuitBuilder2],
     g6circuitchange:  [simCircuitChange1, simCircuitChange2],
     g6wirelength:     [simWireLength1, simWireLength2],
+    g6battery:        [simBattery1, simBattery2, simBattery3],
     // ── الصف 8 — الجهاز الدوري وتبادل الغازات ──
     circsystem:   [simCircSystem1, simCircSystem2],
     heart8:       [simHeart1, simHeart2],
@@ -6546,9 +6565,9 @@ function simAcidBase1() {
     animFrame = requestAnimationFrame(draw);
   }
   canvas.onclick = function(e) {
-    const r = canvas.getBoundingClientRect();
-    const mx = (e.clientX - r.left) * canvas.width / r.width;
-    const my = (e.clientY - r.top) * canvas.height / r.height;
+    const r = canvas.getBoundingClientRect(); const _et=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;
+    const mx = (_et.clientX - r.left) * canvas.width / r.width;
+    const my = (_et.clientY - r.top) * canvas.height / r.height;
     acids.forEach(a => {
       const ax = a.x * canvas.width, ay = a.y * canvas.height;
       if(Math.hypot(mx-ax, my-ay) < 48) {
@@ -6565,9 +6584,9 @@ function simAcidBase1() {
     });
   };
   canvas.onmousemove = function(e) {
-    const r = canvas.getBoundingClientRect();
-    const mx = (e.clientX - r.left) * canvas.width / r.width;
-    const my = (e.clientY - r.top) * canvas.height / r.height;
+    const r = canvas.getBoundingClientRect(); const _et=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;
+    const mx = (_et.clientX - r.left) * canvas.width / r.width;
+    const my = (_et.clientY - r.top) * canvas.height / r.height;
     simState.hover = null;
     acids.forEach(a => { if(Math.hypot(mx - a.x*canvas.width, my - a.y*canvas.height) < 48) simState.hover = a.id; });
     canvas.style.cursor = simState.hover ? 'pointer' : 'default';
@@ -6636,7 +6655,7 @@ function simAcidBase2() {
   }
   canvas.onclick = function(e) {
     const r = canvas.getBoundingClientRect();
-    const mx = (e.clientX-r.left)*canvas.width/r.width, my = (e.clientY-r.top)*canvas.height/r.height;
+    const mx = ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*canvas.width/r.width, my = ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top)*canvas.height/r.height;
     bases.forEach(b => {
       if(Math.hypot(mx-b.x*canvas.width, my-b.y*canvas.height) < 46) {
         simState.selected = b.id; U9Sound.ping();
@@ -7455,7 +7474,7 @@ function simIndicator2() {
       canvas._ind2Click = function(e){
         if(simState.step!==3 || simState.anim) return;
         const rect=canvas.getBoundingClientRect();
-        const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+        const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)*(canvas.width/rect.width);
         const my=(e.clientY-rect.top)*(canvas.height/rect.height);
         const cw=canvas.width, ch=canvas.height;
         const i = simState.testIdx < 0 ? 0 : simState.testIdx;
@@ -7777,7 +7796,7 @@ function simPhScale2() {
     animFrame = requestAnimationFrame(draw);
   }
   canvas.onclick = function(e){
-    const r=canvas.getBoundingClientRect(), mx=(e.clientX-r.left)*canvas.width/r.width, my=(e.clientY-r.top)*canvas.height/r.height;
+    const r=canvas.getBoundingClientRect(), mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*canvas.width/r.width, my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top)*canvas.height/r.height;
     const w=canvas.width, h=canvas.height, cols=3;
     liquids.forEach((liq, idx) => {
       const col=idx%cols, row=Math.floor(idx/cols);
@@ -8387,7 +8406,7 @@ function simAcidInquiry1() {
     animFrame=requestAnimationFrame(draw);
   }
   canvas.onclick=function(e){
-    const r=canvas.getBoundingClientRect(), mx=(e.clientX-r.left)*canvas.width/r.width, my=(e.clientY-r.top)*canvas.height/r.height;
+    const r=canvas.getBoundingClientRect(), mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*canvas.width/r.width, my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top)*canvas.height/r.height;
     const w=canvas.width, h=canvas.height;
     powders.forEach((p,i)=>{
       const px2=w*(0.2+i*0.3), py2=h*0.65;
@@ -8560,7 +8579,7 @@ function simConductors1() {
   }
 
   var cv=document.getElementById('simCanvas');
-  function gp(e){var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
 
   // تخطيط الدائرة
   function L(){ var w=elW(),h=elH(),cx=w*.5,cy=h*.34,rx=w*.3,ry=h*.23;
@@ -8781,7 +8800,7 @@ function simConductors2() {
     </div>`);
 
   var cv=document.getElementById('simCanvas');
-  function gp(e){var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
 
   function L(){
     var w=elW(),h=elH();
@@ -8987,7 +9006,7 @@ function simWaterConductor1() {
   };
 
   var cv=document.getElementById('simCanvas');
-  function gp(e){var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
 
   // موضع الملعقة (ترسم على الكانفاس)
   function L(){ var w=elW(),h=elH(); return{w,h,
@@ -9716,7 +9735,7 @@ function simCircuitBuilder1() {
   }
 
   var cv=document.getElementById('simCanvas');
-  function gp(e){ var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e; return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc}; }
+  function gp(e){ var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e; return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc}; }
 
   // ── التخطيط: مستطيل كبير، slots على 3 أضلاع ──
   function L(){
@@ -10091,14 +10110,14 @@ function simCircuitBuilder2() {
 
   function getPos(e,canvas){
     var r=canvas.getBoundingClientRect(),sc2=canvas.width/r.width;
-    var s=e.touches?e.touches[0]:e;
+    var s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;
     return {x:(s.clientX-r.left)*sc2, y:(s.clientY-r.top)*sc2};
   }
 
   function startPalDrag(e,symId){
     e.preventDefault();
     var cv2=document.getElementById('simCanvas'); if(!cv2) return;
-    var s=e.touches?e.touches[0]:e;
+    var s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;
     var r=cv2.getBoundingClientRect(),sc2=cv2.width/r.width;
     ghostDrag={type:symId, x:(s.clientX-r.left)*sc2, y:(s.clientY-r.top)*sc2};
   }
@@ -10570,7 +10589,7 @@ function simWireLength1() {
   };
 
   var cv=document.getElementById('simCanvas');
-  function gp(e){var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){var r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
   function L(){var w=elW(),h=elH(); return{w,h,wx:w*.1,wex:w*.9,wy:h*.48,maxW:w*.8};}
 
   cv.addEventListener('mousedown',function(e){ var p=gp(e), l=L(), ex=l.wx+l.maxW*(simState.len/50); if(Math.abs(p.x-ex)<20&&Math.abs(p.y-l.wy)<20) simState.dragging=true; });
@@ -10776,6 +10795,639 @@ function simWireLength2() {
     c.fillText(ww.th>=3?'السلك السميك: مقاومة أقل → تيار أكبر ↑':'السلك الرفيع: مقاومة أكبر → تيار أقل ↓',w/2,h*.82);
 
     animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// 🔋 5-9: كيف اخترع العلماء البطاريات؟
+// TAB 1 — بطارية بغداد (Baghdad Battery)
+// ══════════════════════════════════════════════════════════
+function simBattery1() {
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, vinegar: 0, poured: false, voltage: 0, sparks: [] };
+
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🏺 بطارية بغداد — عام ١٩٣٦م</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-top:6px">
+        عثر العمّال على جرّة فخّار في مقبرة قديمة قرب بغداد. بداخلها قضيب حديد محاط بأنبوب نحاس. عمرها أكثر من <strong>٢٠٠٠ سنة!</strong>
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">⚗️ جرّب بنفسك</div>
+      <button class="ctrl-btn" id="btnPour" style="width:100%;background:rgba(26,143,168,0.15);border-color:rgba(26,143,168,0.4);color:#1A8FA8;font-size:14px;padding:10px">
+        🫙 اسكب الخل داخل الجرّة
+      </button>
+      <button class="ctrl-btn" id="btnReset" style="width:100%;margin-top:6px;font-size:13px">🔄 أعِد التجربة</button>
+    </div>
+    <div class="info-box" style="font-size:13px" id="bagInfo">
+      💡 الشعب الساساني ربما استخدم هذه الجرّة لطلاء المعادن بالذهب بالكهرباء!
+    </div>
+    <div class="q-box" style="font-size:13px">
+      <strong>❓</strong> ما المادتان المعدنيتان في الجرّة؟ ولماذا يحتاج الخل؟
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 الإجابة</button>
+      <div class="q-ans-panel">المادتان هما <strong>الحديد</strong> (القضيب) و<strong>النحاس</strong> (الأنبوب). الخل هو السائل الموصِّل الذي يسمح بمرور التيار بين المعدنين — تماماً كمبدأ البطارية الحديثة!</div>
+    </div>
+  `);
+
+  document.getElementById('btnPour').addEventListener('click', () => {
+    if (!simState.poured) {
+      simState.poured = true;
+      simState.fillLevel = 0;
+      document.getElementById('bagInfo').innerHTML = '⚡ انظر! ظهر جهد كهربائي بين المعدنين — مثل البطارية تماماً!';
+      document.getElementById('btnPour').disabled = true;
+      document.getElementById('btnPour').style.opacity = '0.5';
+    }
+  });
+  document.getElementById('btnReset').addEventListener('click', () => {
+    simState.poured = false;
+    simState.fillLevel = 0;
+    simState.voltage = 0;
+    simState.sparks = [];
+    document.getElementById('bagInfo').innerHTML = '💡 الشعب الساساني ربما استخدم هذه الجرّة لطلاء المعادن بالذهب بالكهرباء!';
+    document.getElementById('btnPour').disabled = false;
+    document.getElementById('btnPour').style.opacity = '1';
+  });
+
+  function draw() {
+    if (currentSim !== 'g6battery' || currentTab !== 0) return;
+    var c = elCtx(), w = elW(), h = elH();
+    c.clearRect(0, 0, w, h);
+    simState.t += 0.04;
+    var t = simState.t;
+    var dark = isDarkMode();
+
+    // ── خلفية — مشهد بغداد الليلية ──
+    var sky = c.createLinearGradient(0, 0, 0, h * 0.55);
+    sky.addColorStop(0, dark ? '#0A0A1A' : '#1A0A2E');
+    sky.addColorStop(1, dark ? '#1A0820' : '#3D1A5A');
+    c.fillStyle = sky; c.fillRect(0, 0, w, h * 0.55);
+
+    // نجوم
+    if (!simState.stars) simState.stars = Array.from({length: 40}, () => ({x: Math.random()*w, y: Math.random()*h*0.5, r: Math.random()*1.2+0.3}));
+    simState.stars.forEach(function(s) {
+      c.beginPath(); c.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      c.fillStyle = 'rgba(255,255,200,' + (0.4 + Math.sin(t + s.x) * 0.3) + ')'; c.fill();
+    });
+
+    // قمر
+    c.save(); c.shadowBlur = 18; c.shadowColor = '#FFFACD';
+    c.fillStyle = '#FFF8DC'; c.beginPath(); c.arc(w * 0.85, h * 0.08, 16, 0, Math.PI * 2); c.fill(); c.restore();
+
+    // أرض صحراوية
+    var grd = c.createLinearGradient(0, h * 0.55, 0, h);
+    grd.addColorStop(0, '#8B6914'); grd.addColorStop(1, '#5C440D');
+    c.fillStyle = grd; c.fillRect(0, h * 0.55, w, h * 0.45);
+
+    // ── الجرّة الفخّارية ──
+    var jx = w * 0.5, jy = h * 0.58, jw = w * 0.18, jh = h * 0.32;
+    c.save();
+    // جسم الجرّة
+    c.fillStyle = '#B5651D';
+    c.beginPath();
+    c.moveTo(jx - jw * 0.5, jy);
+    c.bezierCurveTo(jx - jw * 0.65, jy + jh * 0.3, jx - jw * 0.7, jy + jh * 0.7, jx - jw * 0.4, jy + jh);
+    c.lineTo(jx + jw * 0.4, jy + jh);
+    c.bezierCurveTo(jx + jw * 0.7, jy + jh * 0.7, jx + jw * 0.65, jy + jh * 0.3, jx + jw * 0.5, jy);
+    c.closePath(); c.fill();
+    // ظل الجرّة
+    c.fillStyle = 'rgba(0,0,0,0.2)';
+    c.beginPath();
+    c.moveTo(jx + jw * 0.1, jy);
+    c.bezierCurveTo(jx + jw * 0.5, jy + jh * 0.3, jx + jw * 0.55, jy + jh * 0.7, jx + jw * 0.4, jy + jh);
+    c.lineTo(jx + jw * 0.35, jy + jh);
+    c.bezierCurveTo(jx + jw * 0.5, jy + jh * 0.7, jx + jw * 0.45, jy + jh * 0.3, jx + jw * 0.05, jy);
+    c.closePath(); c.fill();
+    // فوهة الجرّة
+    c.fillStyle = '#8B4513';
+    c.beginPath(); c.ellipse(jx, jy, jw * 0.5, jh * 0.06, 0, 0, Math.PI * 2); c.fill();
+    c.restore();
+
+    // ── سائل الخل (يملأ تدريجياً) ──
+    if (simState.poured) {
+      if (simState.fillLevel === undefined) simState.fillLevel = 0;
+      if (simState.fillLevel < 1) simState.fillLevel = Math.min(1, simState.fillLevel + 0.012);
+      var fl = simState.fillLevel;
+      var liquidTop = jy + jh * 0.15 + (1 - fl) * jh * 0.6;
+      var liquidH = jh * 0.6 * fl;
+      c.save();
+      c.beginPath();
+      c.moveTo(jx - jw * 0.55, jy);
+      c.bezierCurveTo(jx - jw * 0.65, jy + jh * 0.3, jx - jw * 0.7, jy + jh * 0.7, jx - jw * 0.4, jy + jh);
+      c.lineTo(jx + jw * 0.4, jy + jh);
+      c.bezierCurveTo(jx + jw * 0.7, jy + jh * 0.7, jx + jw * 0.65, jy + jh * 0.3, jx + jw * 0.55, jy);
+      c.closePath(); c.clip();
+      var liq = c.createLinearGradient(0, liquidTop, 0, liquidTop + liquidH);
+      liq.addColorStop(0, 'rgba(210,180,80,0.7)');
+      liq.addColorStop(1, 'rgba(180,140,40,0.85)');
+      c.fillStyle = liq;
+      c.fillRect(jx - jw, liquidTop, jw * 2, liquidH + 10);
+
+      // فقاعات
+      if (!simState.bubbles) simState.bubbles = [];
+      if (Math.random() < 0.08 && fl > 0.3) simState.bubbles.push({x: jx + (Math.random()-0.5)*jw*0.5, y: liquidTop + liquidH * 0.9, vy: Math.random()*0.8+0.3, r: Math.random()*2.5+1});
+      simState.bubbles = simState.bubbles.filter(function(b) { b.y -= b.vy; return b.y > liquidTop; });
+      simState.bubbles.forEach(function(b) {
+        c.beginPath(); c.arc(b.x, b.y, b.r, 0, Math.PI*2);
+        c.strokeStyle = 'rgba(255,255,200,0.6)'; c.lineWidth = 1; c.stroke();
+      });
+      c.restore();
+
+      simState.voltage = Math.min(1.8, simState.voltage + 0.015);
+    }
+
+    // ── القضيب (حديد) — داخل الجرّة ──
+    var rodX = jx - jw * 0.1;
+    c.fillStyle = '#8B8B8B';
+    c.fillRect(rodX - 3, jy - h * 0.06, 6, jh * 0.7);
+    c.fillStyle = dark ? '#aaa' : '#555';
+    c.font = '11px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+    c.fillText('حديد', rodX, jy - h * 0.07);
+
+    // ── الأنبوب (نحاس) ──
+    var tubeX = jx + jw * 0.12;
+    c.strokeStyle = '#B8860B'; c.lineWidth = 6;
+    c.beginPath(); c.moveTo(tubeX, jy - h * 0.05); c.lineTo(tubeX, jy + jh * 0.65); c.stroke();
+    c.fillStyle = dark ? '#aaa' : '#555';
+    c.font = '11px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+    c.fillText('نحاس', tubeX, jy - h * 0.06);
+
+    // ── عرض الجهد ──
+    var vPanel = { x: w * 0.04, y: h * 0.04, w: w * 0.35, h: h * 0.15 };
+    c.fillStyle = dark ? 'rgba(20,28,40,0.9)' : 'rgba(255,255,255,0.92)';
+    c.beginPath(); c.roundRect(vPanel.x, vPanel.y, vPanel.w, vPanel.h, 10); c.fill();
+    c.strokeStyle = '#D4901A'; c.lineWidth = 1.5;
+    c.beginPath(); c.roundRect(vPanel.x, vPanel.y, vPanel.w, vPanel.h, 10); c.stroke();
+    c.fillStyle = dark ? '#D4901A' : '#A0700A';
+    c.font = 'bold 11px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillText('⚡ الجهد الكهربائي', vPanel.x + vPanel.w / 2, vPanel.y + 8);
+    var vShow = (simState.voltage || 0).toFixed(2);
+    c.font = 'bold ' + Math.round(h * 0.055) + 'px Tajawal';
+    c.fillStyle = simState.voltage > 0.5 ? '#27AE60' : (dark ? '#aaa' : '#999');
+    c.textBaseline = 'middle';
+    c.fillText(vShow + ' V', vPanel.x + vPanel.w / 2, vPanel.y + vPanel.h * 0.68);
+
+    // ── نقاط متوهّجة عند بلوغ الجهد ──
+    if (simState.voltage > 1.2) {
+      if (Math.random() < 0.12) {
+        simState.sparks.push({x: rodX + (Math.random()-0.5)*20, y: jy - h*0.05 - Math.random()*10, life: 1});
+      }
+      simState.sparks = simState.sparks.filter(function(s) { s.life -= 0.06; return s.life > 0; });
+      simState.sparks.forEach(function(s) {
+        c.save(); c.globalAlpha = s.life;
+        c.fillStyle = '#FFD700'; c.shadowBlur = 8; c.shadowColor = '#FFD700';
+        c.beginPath(); c.arc(s.x, s.y, 2.5, 0, Math.PI*2); c.fill();
+        c.restore();
+      });
+    }
+
+    // ── لافتة الزمن ──
+    c.fillStyle = dark ? 'rgba(212,144,26,0.18)' : 'rgba(212,144,26,0.12)';
+    c.beginPath(); c.roundRect(w*0.05, h*0.88, w*0.9, h*0.1, 8); c.fill();
+    c.fillStyle = dark ? '#D4A040' : '#7A5010';
+    c.font = 'bold 13px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('🕰️  بغداد  —  قبل أكثر من ٢٠٠٠ سنة  (الحضارة الساسانية)', w/2, h*0.93);
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// 🐸 TAB 2 — اكتشاف جلفاني (Galvani)
+// ══════════════════════════════════════════════════════════
+function simBattery2() {
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, hookOn: false, shockAnim: 0, twitchCount: 0, mode: 'idle' };
+
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🐸 اكتشاف جلفاني — ١٧٨٠م</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-top:6px">
+        لويجي جلفاني طبيب إيطالي علّق رجل ضفدع بمشابك نحاس على سلك حديد، فلاحظ ارتعاش العضلات! اعتقد أن السبب هو «كهرباء الحيوان».
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔬 أجرِ التجربة</div>
+      <button class="ctrl-btn" id="btnHook" style="width:100%;background:rgba(39,174,96,0.15);border-color:rgba(39,174,96,0.4);color:#27AE60;font-size:14px;padding:10px">
+        🪝 علّق رجل الضفدع على السلك
+      </button>
+      <button class="ctrl-btn" id="btnTouch" style="width:100%;margin-top:6px;background:rgba(192,57,43,0.12);border-color:rgba(192,57,43,0.3);color:#C0392B;font-size:14px;padding:10px" disabled>
+        ⚡ لمس المشبك الحديدي
+      </button>
+      <button class="ctrl-btn" id="btnResetG" style="width:100%;margin-top:6px;font-size:13px">🔄 أعِد التجربة</button>
+    </div>
+    <div class="info-box" id="galvInfo" style="font-size:13px">
+      🧪 كان جلفاني على صواب في أن ارتعاش العضلات سببه التيار الكهربائي — لكنه أخطأ في مصدره!
+    </div>
+    <div class="q-box" style="font-size:13px">
+      <strong>❓</strong> ماذا لاحظ جلفاني؟ وما استنتاجه الخاطئ؟
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 الإجابة</button>
+      <div class="q-ans-panel">لاحظ <strong>ارتعاش عضلات الضفدع</strong> عند تلامس معدنين مختلفين مع الساق. اعتقد أن التيار يأتي من أعصاب الضفدع («كهرباء الحيوان»)، لكن الحقيقة أن المعدنين المختلفين هما المصدر الحقيقي للتيار.</div>
+    </div>
+  `);
+
+  document.getElementById('btnHook').addEventListener('click', function() {
+    simState.hookOn = true;
+    simState.mode = 'hooked';
+    this.disabled = true; this.style.opacity = '0.5';
+    document.getElementById('btnTouch').disabled = false;
+    document.getElementById('galvInfo').innerHTML = '👀 الضفدع معلّق الآن — لاحظ ماذا يحدث عند لمس المشبك!';
+  });
+
+  document.getElementById('btnTouch').addEventListener('click', function() {
+    simState.mode = 'twitch';
+    simState.shockAnim = 1;
+    simState.twitchCount = (simState.twitchCount || 0) + 1;
+    try { U9Sound.ping(); } catch(e) {}
+    document.getElementById('galvInfo').innerHTML = '⚡ ارتعشت العضلات! جلفاني: «هذه كهرباء الحيوان!» — لكن هل هو محقّ؟';
+  });
+
+  document.getElementById('btnResetG').addEventListener('click', function() {
+    simState = { t: 0, hookOn: false, shockAnim: 0, twitchCount: 0, mode: 'idle' };
+    document.getElementById('btnHook').disabled = false; document.getElementById('btnHook').style.opacity = '1';
+    document.getElementById('btnTouch').disabled = true;
+    document.getElementById('galvInfo').innerHTML = '🧪 كان جلفاني على صواب في أن ارتعاش العضلات سببه التيار الكهربائي — لكنه أخطأ في مصدره!';
+  });
+
+  function draw() {
+    if (currentSim !== 'g6battery' || currentTab !== 1) return;
+    var c = elCtx(), w = elW(), h = elH();
+    c.clearRect(0, 0, w, h); simState.t += 0.04;
+    var t = simState.t, dark = isDarkMode();
+
+    // خلفية مختبر
+    var bg = c.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, dark ? '#0E1520' : '#F0EAD8');
+    bg.addColorStop(1, dark ? '#1A2030' : '#DDD0B0');
+    c.fillStyle = bg; c.fillRect(0, 0, w, h);
+
+    // جدار المختبر — رفوف
+    c.fillStyle = dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)';
+    c.fillRect(0, 0, w, h * 0.06);
+    c.fillStyle = dark ? '#3A2510' : '#8B6914';
+    c.fillRect(0, h * 0.06, w, 5);
+
+    // زجاجات مختبر
+    [[0.08, '#27AE60', '0.6'], [0.15, '#1A8FA8', '0.5'], [0.22, '#E74C3C', '0.7']].forEach(function(b) {
+      var bx = w*b[0], by = h*0.02, bw = w*0.035, bh = h*0.09;
+      c.fillStyle = b[1]+'33'; c.fillRect(bx, by, bw, bh);
+      c.strokeStyle = b[1]; c.lineWidth=1.5; c.strokeRect(bx, by, bw, bh);
+      c.fillStyle = b[1]+'55'; c.fillRect(bx, by+bh*(1-parseFloat(b[2])), bw, bh*parseFloat(b[2]));
+    });
+
+    // منضدة
+    c.fillStyle = dark ? '#2A1A0A' : '#A0784A';
+    c.fillRect(0, h * 0.72, w, h * 0.06);
+    c.fillStyle = dark ? '#1A0E04' : '#7A5830';
+    c.fillRect(0, h * 0.78, w, h * 0.22);
+
+    // ── السلك الأفقي ──
+    var wireY = h * 0.22, wireX1 = w * 0.12, wireX2 = w * 0.88;
+    c.strokeStyle = dark ? '#9A9A9A' : '#707070';
+    c.lineWidth = 3; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(wireX1, wireY); c.lineTo(wireX2, wireY); c.stroke();
+    // تثبيت السلك
+    [wireX1, wireX2].forEach(function(wx) {
+      c.fillStyle = dark ? '#555' : '#888';
+      c.beginPath(); c.arc(wx, wireY, 6, 0, Math.PI*2); c.fill();
+    });
+    c.fillStyle = dark ? '#ccc' : '#444';
+    c.font = '11px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+    c.fillText('سلك حديدي', w/2, wireY - 6);
+
+    if (simState.hookOn) {
+      // ── المشبك النحاسي ──
+      var hookX = w * 0.5, hookY = wireY;
+      var twitch = simState.mode === 'twitch' ? Math.sin(t * 25) * 8 * simState.shockAnim : 0;
+      if (simState.shockAnim > 0) simState.shockAnim = Math.max(0, simState.shockAnim - 0.025);
+
+      c.strokeStyle = '#D4901A'; c.lineWidth = 3;
+      c.beginPath();
+      c.moveTo(hookX, hookY);
+      c.lineTo(hookX + twitch * 0.2, hookY + h * 0.05);
+      c.bezierCurveTo(hookX + twitch*0.3, hookY + h*0.08, hookX + twitch*0.5, hookY + h*0.08, hookX + twitch*0.5, hookY + h*0.12);
+      c.stroke();
+
+      // رجل الضفدع (مبسّطة)
+      var frogY = hookY + h * 0.12 + Math.abs(twitch) * 0.5;
+      var frogX = hookX + twitch;
+
+      // جذع
+      c.fillStyle = '#4A7A30';
+      c.beginPath(); c.ellipse(frogX, frogY + h*0.04, w*0.04, h*0.06, 0, 0, Math.PI*2); c.fill();
+
+      // ساق يمين وشمال
+      [[-1, 1], [1, -0.5]].forEach(function(leg, li) {
+        var lTwitch = simState.shockAnim > 0 ? leg[0] * Math.sin(t*20) * 15 : 0;
+        c.strokeStyle = '#3A6020'; c.lineWidth = 4; c.lineCap = 'round';
+        c.beginPath();
+        c.moveTo(frogX, frogY + h*0.08);
+        c.lineTo(frogX + leg[0]*w*0.05 + lTwitch, frogY + h*0.14);
+        c.lineTo(frogX + leg[0]*w*0.09 + lTwitch*leg[1], frogY + h*0.18);
+        c.stroke();
+        // قدم
+        c.fillStyle = '#2A5010'; c.beginPath();
+        c.ellipse(frogX + leg[0]*w*0.09 + lTwitch*leg[1], frogY+h*0.19, w*0.02, h*0.01, 0.3*leg[0], 0, Math.PI*2); c.fill();
+      });
+
+      // عيون
+      [-1, 1].forEach(function(side) {
+        c.fillStyle = '#FFD700';
+        c.beginPath(); c.arc(frogX + side*w*0.025, frogY, h*0.015, 0, Math.PI*2); c.fill();
+        c.fillStyle = '#1A0A00';
+        c.beginPath(); c.arc(frogX + side*w*0.025, frogY, h*0.007, 0, Math.PI*2); c.fill();
+      });
+
+      // تأثير الصعقة
+      if (simState.shockAnim > 0.3) {
+        c.save(); c.globalAlpha = simState.shockAnim * 0.9;
+        for (var i = 0; i < 6; i++) {
+          var angle = (i / 6) * Math.PI * 2 + t;
+          var dist = h * 0.06 * simState.shockAnim;
+          c.strokeStyle = '#FFD700'; c.lineWidth = 2;
+          c.beginPath();
+          c.moveTo(frogX + Math.cos(angle)*dist*0.3, frogY + h*0.04 + Math.sin(angle)*dist*0.3);
+          c.lineTo(frogX + Math.cos(angle)*dist, frogY + h*0.04 + Math.sin(angle)*dist);
+          c.stroke();
+        }
+        c.restore();
+      }
+
+      // تسمية المشبك
+      c.fillStyle = '#D4901A';
+      c.font = '11px Tajawal'; c.textAlign = 'right'; c.textBaseline = 'middle';
+      c.fillText('مشبك نحاسي 🪝', hookX - 8, hookY + h * 0.05);
+    } else {
+      // رسم الطبيب
+      var docX = w * 0.35, docY = h * 0.45;
+      c.fillStyle = dark ? '#D8E4F0' : '#E8D8C0';
+      c.beginPath(); c.arc(docX, docY - h*0.08, h*0.07, 0, Math.PI*2); c.fill();
+      c.fillStyle = dark ? '#AAA' : '#555';
+      c.font = 'bold 13px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+      c.fillText('د. جلفاني', docX, docY - h*0.17);
+      c.fillStyle = dark ? '#1E2A38' : '#E8F0FF';
+      c.beginPath(); c.ellipse(docX, docY + h*0.04, w*0.06, h*0.12, 0, 0, Math.PI*2); c.fill();
+      c.fillStyle = dark ? '#aaa' : '#666';
+      c.font = '12px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText('اضغط «علّق رجل الضفدع» للبدء ▶', w/2, h*0.45);
+    }
+
+    // ── لافتة الزمن ──
+    c.fillStyle = dark ? 'rgba(39,174,96,0.15)' : 'rgba(39,174,96,0.1)';
+    c.beginPath(); c.roundRect(w*0.05, h*0.88, w*0.9, h*0.1, 8); c.fill();
+    c.fillStyle = dark ? '#4DC88A' : '#1A6E3A';
+    c.font = 'bold 13px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('🕰️  إيطاليا  —  عام ١٧٨٠م  —  لويجي جلفاني', w/2, h*0.93);
+
+    // عدد الارتعاشات
+    if (simState.twitchCount > 0) {
+      c.fillStyle = dark ? 'rgba(20,28,40,0.85)' : 'rgba(255,255,255,0.88)';
+      c.beginPath(); c.roundRect(w*0.65, h*0.26, w*0.3, h*0.1, 8); c.fill();
+      c.fillStyle = '#C0392B';
+      c.font = 'bold 12px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('⚡ ارتعش ' + simState.twitchCount + ' مرّات!', w*0.8, h*0.31);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// 🔋 TAB 3 — عمود فولتا (Volta's Pile)
+// ══════════════════════════════════════════════════════════
+function simBattery3() {
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, discs: 0, voltage: 0, currentFlow: 0, mode: 'idle', shockFlash: 0 };
+  var MAX_DISCS = 8;
+
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔋 عمود فولتا — ١٨٠٠م</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-top:6px">
+        أليساندرو فولتا كرّر تجارب جلفاني بمواد مختلفة واكتشف أن المعدنين (النحاس + الخارصين) مع الورق المبلول بالماء المالح هما مصدر التيار — وليس الضفدع!
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">📦 ابنِ عمود فولتا</div>
+      <button class="ctrl-btn" id="btnAddDisc" style="width:100%;background:rgba(212,144,26,0.15);border-color:rgba(212,144,26,0.4);color:#D4901A;font-size:14px;padding:10px">
+        ➕ أضف قرص (نحاس + ورق + خارصين)
+      </button>
+      <div style="margin:8px 0;text-align:center;font-size:13px;color:var(--text-secondary)">
+        عدد الأقراص: <strong id="discCount">0</strong> / 8
+      </div>
+      <button class="ctrl-btn" id="btnShock" style="width:100%;margin-top:2px;background:rgba(192,57,43,0.12);border-color:rgba(192,57,43,0.3);color:#C0392B;font-size:14px;padding:10px" disabled>
+        ⚡ اختبر الصدمة الكهربائية
+      </button>
+      <button class="ctrl-btn" id="btnResetV" style="width:100%;margin-top:6px;font-size:13px">🔄 ابدأ من جديد</button>
+    </div>
+    <div class="info-box" id="voltaInfo" style="font-size:13px">
+      💡 كلما زادت الأقراص زاد الجهد! أضف ٣ أقراص على الأقل لترى التيار.
+    </div>
+    <div class="q-box" style="font-size:13px">
+      <strong>❓</strong> كيف وظّف فولتا التفكير الإبداعي لتطوير أفكار جلفاني؟
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 الإجابة</button>
+      <div class="q-ans-panel">كرّر فولتا تجارب جلفاني بمواد مختلفة وقاس الجهد. استنتج أن التيار ينتج من التفاعل الكيميائي بين معدنين مختلفين مع سائل موصِّل، فبنى عموداً من أقراص متناوبة يُعدّ أولَ بطارية في التاريخ!</div>
+    </div>
+  `);
+
+  var localState = simState;
+
+  function updateButtons() {
+    var dc = document.getElementById('discCount');
+    if (dc) dc.textContent = localState.discs;
+    var shockBtn = document.getElementById('btnShock');
+    if (shockBtn) shockBtn.disabled = localState.discs < 3;
+    var addBtn = document.getElementById('btnAddDisc');
+    if (addBtn) { addBtn.disabled = localState.discs >= MAX_DISCS; addBtn.style.opacity = localState.discs >= MAX_DISCS ? '0.5' : '1'; }
+  }
+
+  document.getElementById('btnAddDisc').addEventListener('click', function() {
+    if (localState.discs < MAX_DISCS) {
+      localState.discs++;
+      localState.voltage = localState.discs * 0.9;
+      updateButtons();
+      var vI = document.getElementById('voltaInfo');
+      if (vI) {
+        if (localState.discs < 3) vI.innerHTML = '💡 أضف المزيد من الأقراص — كلما زادت زاد الجهد!';
+        else if (localState.discs < 6) vI.innerHTML = '⚡ ممتاز! الجهد الآن ' + localState.voltage.toFixed(1) + ' فولت — جرّب الصدمة!';
+        else vI.innerHTML = '🔥 عمود فولتا الكامل! جهد ' + localState.voltage.toFixed(1) + ' فولت — فولتا أرسل نبضة كافت للإحساس بها!';
+      }
+    }
+  });
+
+  document.getElementById('btnShock').addEventListener('click', function() {
+    localState.shockFlash = 1.2;
+    localState.mode = 'shock';
+    try { U9Sound.ping(); } catch(e) {}
+    var vI = document.getElementById('voltaInfo');
+    if (vI) vI.innerHTML = '🤯 فولتا لمس طرفَي العمود وشعر بصدمة كهربائية! أثبت أن الصدمة تزداد بزيادة الأقراص!';
+    setTimeout(function() { localState.mode = 'flowing'; }, 500);
+  });
+
+  document.getElementById('btnResetV').addEventListener('click', function() {
+    localState.discs = 0; localState.voltage = 0; localState.mode = 'idle'; localState.shockFlash = 0;
+    updateButtons();
+    var vI = document.getElementById('voltaInfo');
+    if (vI) vI.innerHTML = '💡 كلما زادت الأقراص زاد الجهد! أضف ٣ أقراص على الأقل لترى التيار.';
+    var shockBtn = document.getElementById('btnShock');
+    if (shockBtn) shockBtn.disabled = true;
+  });
+
+  function draw() {
+    if (currentSim !== 'g6battery' || currentTab !== 2) return;
+    var c = elCtx(), w = elW(), h = elH();
+    c.clearRect(0, 0, w, h); simState.t += 0.04;
+    var t = simState.t, dark = isDarkMode();
+    var discs = localState.discs;
+
+    // خلفية مختبر أوروبي كلاسيكي
+    var bg = c.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, dark ? '#0A1018' : '#EAE0D0');
+    bg.addColorStop(1, dark ? '#161E28' : '#CEC4A8');
+    c.fillStyle = bg; c.fillRect(0, 0, w, h);
+
+    // نافذة
+    c.fillStyle = dark ? 'rgba(100,150,200,0.12)' : 'rgba(135,206,235,0.35)';
+    c.fillRect(w*0.1, h*0.04, w*0.25, h*0.18);
+    c.strokeStyle = dark ? '#555' : '#8B6914'; c.lineWidth = 2;
+    c.strokeRect(w*0.1, h*0.04, w*0.25, h*0.18);
+    c.beginPath(); c.moveTo(w*0.225, h*0.04); c.lineTo(w*0.225, h*0.22); c.stroke();
+    c.beginPath(); c.moveTo(w*0.1, h*0.13); c.lineTo(w*0.35, h*0.13); c.stroke();
+
+    // منضدة
+    c.fillStyle = dark ? '#2A1A08' : '#9A7040';
+    c.fillRect(0, h*0.72, w, h*0.06);
+    c.fillStyle = dark ? '#1A0E04' : '#7A5028';
+    c.fillRect(0, h*0.78, w, h*0.22);
+
+    // ── العمود ──
+    var pileX = w * 0.55, pileBase = h * 0.72;
+    var discH = Math.min(h * 0.048, (h * 0.5) / Math.max(MAX_DISCS, 1));
+    var discW = w * 0.22;
+
+    // قاعدة
+    c.fillStyle = dark ? '#3A2A10' : '#6B4A18';
+    c.beginPath(); c.ellipse(pileX, pileBase, discW*0.55, discH*0.3, 0, 0, Math.PI*2); c.fill();
+
+    // الأقراص من أسفل لأعلى
+    for (var i = 0; i < discs; i++) {
+      var dy = pileBase - (i + 0.5) * discH * 1.05;
+      var isNew = i === discs - 1;
+      var alpha = isNew ? Math.min(1, (simState.t % 0.5) * 4) : 1;
+      c.globalAlpha = alpha;
+
+      // طبقة الخارصين (رمادي مزرق)
+      var zGrd = c.createLinearGradient(pileX - discW*0.5, dy, pileX + discW*0.5, dy);
+      zGrd.addColorStop(0, '#7A8A95'); zGrd.addColorStop(0.5, '#9AAAB5'); zGrd.addColorStop(1, '#6A7A85');
+      c.fillStyle = zGrd;
+      c.beginPath(); c.ellipse(pileX, dy + discH*0.1, discW*0.5, discH*0.22, 0, 0, Math.PI*2); c.fill();
+
+      // طبقة الورق المبلول (بيج)
+      c.fillStyle = 'rgba(220,200,150,0.8)';
+      c.beginPath(); c.ellipse(pileX, dy, discW*0.48, discH*0.18, 0, 0, Math.PI*2); c.fill();
+
+      // طبقة النحاس (ذهبي)
+      var cuGrd = c.createLinearGradient(pileX - discW*0.5, dy-discH*0.12, pileX + discW*0.5, dy-discH*0.12);
+      cuGrd.addColorStop(0, '#B8760A'); cuGrd.addColorStop(0.5, '#E0A020'); cuGrd.addColorStop(1, '#A06010');
+      c.fillStyle = cuGrd;
+      c.beginPath(); c.ellipse(pileX, dy - discH*0.12, discW*0.5, discH*0.22, 0, 0, Math.PI*2); c.fill();
+
+      c.globalAlpha = 1;
+    }
+
+    // أسطوانة جانبية (عصا الدعم)
+    if (discs > 0) {
+      c.strokeStyle = dark ? '#5A4020' : '#8B6914'; c.lineWidth = 3;
+      c.beginPath();
+      c.moveTo(pileX - discW*0.5 - 5, pileBase);
+      c.lineTo(pileX - discW*0.5 - 5, pileBase - discs * discH * 1.05);
+      c.stroke();
+      c.beginPath();
+      c.moveTo(pileX + discW*0.5 + 5, pileBase);
+      c.lineTo(pileX + discW*0.5 + 5, pileBase - discs * discH * 1.05);
+      c.stroke();
+    }
+
+    // تسميات الأقراص (أول مرة)
+    if (discs > 0) {
+      var labelY = pileBase - discH * 0.5;
+      var cx2 = pileX + discW * 0.55;
+      [['-', 'خارصين', '#9AAAB5'], ['~', 'ورق مبلول', '#C8A060'], ['+', 'نحاس', '#E0A020']].forEach(function(lbl, li) {
+        var ly = labelY - li * discH * 0.38;
+        c.fillStyle = lbl[2]; c.font = '10px Tajawal'; c.textAlign = 'right'; c.textBaseline = 'middle';
+        c.fillText(lbl[1], cx2 + w*0.18, ly);
+        c.strokeStyle = lbl[2]; c.lineWidth = 1; c.setLineDash([3,3]);
+        c.beginPath(); c.moveTo(cx2, ly); c.lineTo(cx2 + w*0.06, ly); c.stroke();
+        c.setLineDash([]);
+      });
+    }
+
+    // ── لوحة الجهد ──
+    var vp = { x: w*0.04, y: h*0.28, w: w*0.36, h: h*0.18 };
+    c.fillStyle = dark ? 'rgba(20,28,40,0.92)' : 'rgba(255,255,255,0.92)';
+    c.beginPath(); c.roundRect(vp.x, vp.y, vp.w, vp.h, 10); c.fill();
+    c.strokeStyle = '#D4901A'; c.lineWidth = 1.5;
+    c.beginPath(); c.roundRect(vp.x, vp.y, vp.w, vp.h, 10); c.stroke();
+    c.fillStyle = dark ? '#D4A040' : '#8B6010';
+    c.font = 'bold 11px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillText('⚡ الجهد الكهربائي', vp.x + vp.w/2, vp.y + 6);
+    var vShow = localState.voltage.toFixed(1);
+    c.font = 'bold ' + Math.round(h*0.065) + 'px Tajawal';
+    c.fillStyle = localState.voltage > 1 ? '#27AE60' : (dark ? '#aaa' : '#999');
+    c.textBaseline = 'middle';
+    c.fillText(vShow + ' V', vp.x + vp.w/2, vp.y + vp.h*0.65);
+
+    // شريط التيار
+    if (localState.mode === 'flowing' || localState.mode === 'shock') {
+      var ne = Math.round(Math.min(localState.discs * 2, 16));
+      var cx1 = pileX, cy1 = pileBase - discs * discH * 1.05;
+      var cx3 = pileX, cy3 = pileBase;
+      // سلك علوي
+      c.strokeStyle = '#E74C3C'; c.lineWidth = 2; c.setLineDash([]);
+      c.beginPath(); c.moveTo(cx1, cy1); c.lineTo(cx1, cy1 - h*0.06); c.lineTo(vp.x + vp.w*0.8, cy1 - h*0.06); c.stroke();
+      // سلك سفلي
+      c.strokeStyle = '#1A8FA8'; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(cx3, cy3); c.lineTo(cx3, cy3 + h*0.04); c.lineTo(vp.x + vp.w*0.8, cy3 + h*0.04); c.stroke();
+      // إلكترونات
+      for (var ei = 0; ei < ne; ei++) {
+        var ef = ((t * 0.8 + ei / ne)) % 1;
+        var ex, ey;
+        if (ef < 0.3) { ex = cx1 + (vp.x + vp.w*0.8 - cx1)*(ef/0.3); ey = cy1 - h*0.06; }
+        else if (ef < 0.7) { ex = vp.x + vp.w*0.8; ey = cy1 - h*0.06 + (cy3 + h*0.04 - (cy1 - h*0.06))*((ef-0.3)/0.4); }
+        else { ex = vp.x + vp.w*0.8 - (vp.x + vp.w*0.8 - cx3)*((ef-0.7)/0.3); ey = cy3 + h*0.04; }
+        c.fillStyle = 'rgba(0,210,255,0.85)'; c.beginPath(); c.arc(ex, ey, 3, 0, Math.PI*2); c.fill();
+      }
+    }
+
+    // تأثير الصدمة
+    if (localState.shockFlash > 0) {
+      c.save(); c.globalAlpha = localState.shockFlash * 0.35;
+      c.fillStyle = '#FFFFFF'; c.fillRect(0, 0, w, h);
+      c.restore();
+      localState.shockFlash = Math.max(0, localState.shockFlash - 0.05);
+    }
+
+    // ── لافتة الزمن ──
+    c.fillStyle = dark ? 'rgba(107,78,154,0.18)' : 'rgba(107,78,154,0.1)';
+    c.beginPath(); c.roundRect(w*0.05, h*0.88, w*0.9, h*0.1, 8); c.fill();
+    c.fillStyle = dark ? '#B899E0' : '#5A3A8A';
+    c.font = 'bold 13px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('🕰️  إيطاليا  —  عام ١٨٠٠م  —  أليساندرو فولتا', w/2, h*0.93);
+
+    // اسم الوحدة (فولت)
+    if (localState.discs >= MAX_DISCS) {
+      c.fillStyle = dark ? 'rgba(20,28,40,0.9)' : 'rgba(255,255,255,0.92)';
+      c.beginPath(); c.roundRect(w*0.05, h*0.54, w*0.38, h*0.09, 8); c.fill();
+      c.fillStyle = '#6B4E9A'; c.font = 'bold 12px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('🏅 وحدة الجهد = «فولت» V', w*0.24, h*0.585);
+      c.fillStyle = dark ? '#aaa' : '#666'; c.font = '10px Tajawal';
+      c.fillText('تكريماً لأليساندرو فولتا', w*0.24, h*0.615);
+    }
+
+    animFrame = requestAnimationFrame(draw);
   }
   draw();
 }
@@ -11806,7 +12458,7 @@ function simFoodWeb() {
   canvas.onclick = (e) => {
     if (!simState.nodes) return;
     const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const mx = ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX - rect.left) * (canvas.width / rect.width);
     const my = (e.clientY - rect.top) * (canvas.height / rect.height);
     const hit = simState.nodes.find(n => {
       const nx = W()*n.x, ny = H()*n.y;
@@ -13273,7 +13925,7 @@ function simMetals() {
 
   const cv = document.getElementById('simCanvas');
   cv.onclick = (e) => {
-    const r=cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+    const r=cv.getBoundingClientRect(), mx=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left, my=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top;
     const w=cv.width, cols=Math.min(6,Math.floor(w/82));
     const bW=Math.min(76,(w-40)/cols), bH=bW*1.25, sx=(w-cols*(bW+10))/2;
     METALS.forEach((_,i)=>{
@@ -13604,7 +14256,7 @@ function simNonMetals() {
 
   const cv = document.getElementById('simCanvas');
   cv.onclick = (e) => {
-    const r=cv.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const r=cv.getBoundingClientRect(); const mx=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left, my=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top;
     const w=cv.width, cols=Math.min(4, Math.floor(w/105));
     const bW=Math.min(96,(w-36)/cols), bH=bW*1.18, startX=(w-cols*(bW+10))/2;
     NM_DATA.forEach((_,i)=>{
@@ -14028,7 +14680,7 @@ function simMaterials() {
 
   const cv=document.getElementById('simCanvas');
   cv.onclick=(e)=>{
-    const r=cv.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const r=cv.getBoundingClientRect(); const mx=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left, my=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top;
     const w=cv.width, cols=Math.min(4,Math.floor(w/185));
     const gap4=18;
     const bW=Math.min(Math.floor((w-36-gap4*(cols-1))/cols),200), bH=bW*1.3, sx=(w-(cols*(bW+gap4)-gap4))/2;
@@ -14478,7 +15130,7 @@ const U9 = {
     if(e.touches){
       return{x:(e.touches[0].clientX-r.left)*scaleX,y:(e.touches[0].clientY-r.top)*scaleY};
     }
-    return{x:(e.clientX-r.left)*scaleX,y:(e.clientY-r.top)*scaleY};
+    return{x:((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*scaleX,y:((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top)*scaleY};
   }
 };
 
@@ -19109,7 +19761,7 @@ function simVariation2() {
   const canvas=document.getElementById('simCanvas');
   canvas.onclick=function(e){
     const rect=canvas.getBoundingClientRect();
-    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const mx=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left, my=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-rect.top;
     const w=canvas.width,h=canvas.height;
     simState.students.forEach(s=>{
       if(Math.hypot(mx-s.x*w, my-s.y*h)<22){
@@ -22405,7 +23057,7 @@ window.answerQ = function(i) {
     if(!ticking){ requestAnimationFrame(update); ticking=true; }
   }
   function onMouse(e){
-    var cx=(e.clientX/window.innerWidth-0.5)*2;
+    var cx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX/window.innerWidth-0.5)*2;
     var cy=(e.clientY/window.innerHeight-0.5)*2;
     applyMouse(cx,cy);
   }
@@ -22506,7 +23158,7 @@ function simMagnets1() {
       <div class="ctrl-label">💡 اسحب مغناطيساً لتقريبه</div>
     </div>`);
 
-  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
   function down(e){e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;
     S.mags.forEach((m,i)=>{if(Math.hypot(p.x-m.x*w,p.y-m.y*h)<60){S.drag=i;S.ox=p.x-m.x*w;S.oy=p.y-m.y*h;m.vx=0;m.vy=0;}});}
   function move(e){if(S.drag<0)return;e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;
@@ -22641,7 +23293,7 @@ function simMagnets2() {
     el.innerHTML=html||'<span style="color:#aaa">لم يُختبر شيء بعد</span>';
   }
 
-  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
   function getPos(i,w,h){const cols=4,iw=Math.min(w*.22,84),ih=iw*.85,gap=7,total=cols*(iw+gap)-gap,sx=(w-total)/2+iw/2,row=Math.floor(i/cols),col=i%cols;return{x:sx+col*(iw+gap),y:h*.57+row*(ih+gap)+ih/2,iw,ih};}
 
   cv.addEventListener('mousedown',e=>{const p=gp(e),w=cv.width,h=cv.height;ITEMS.forEach((it,i)=>{if(S.tested[it.id]!==undefined)return;const pos=getPos(i,w,h);if(Math.abs(p.x-pos.x)<pos.iw/2&&Math.abs(p.y-pos.y)<pos.ih/2){S.dragId=it.id;S.ox=p.x-pos.x;S.oy=p.y-pos.y;}});});
@@ -22887,7 +23539,7 @@ function simMagField2() {
       أي نحو القطب الجغرافي <strong>الشمالي</strong> للأرض
     </div>`);
 
-  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
   cv.addEventListener('mousedown',e=>{const p=gp(e),w=cv.width,h=cv.height;if(Math.hypot(p.x-S.magX*w,p.y-S.magY*h)<55){S.drag=true;S.ox=p.x-S.magX*w;S.oy=p.y-S.magY*h;}});
   cv.addEventListener('mousemove',e=>{if(!S.drag)return;const p=gp(e),w=cv.width,h=cv.height;S.magX=Math.max(.08,Math.min(.92,(p.x-S.ox)/w));S.magY=Math.max(.12,Math.min(.8,(p.y-S.oy)/h));});
   cv.addEventListener('mouseup',()=>S.drag=false);
@@ -22971,7 +23623,7 @@ function simMagField3() {
       &nbsp;&nbsp;← يجذب قطب الم. <strong>الجنوبي</strong> ❤️
     </div>`);
 
-  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
   cv.addEventListener('mousedown',e=>{const p=gp(e),w=cv.width,h=cv.height;const mx=S.magnetX*w,my=S.magnetY*h;if(Math.hypot(p.x-mx,p.y-my)<65){S.drag=true;S.ox=p.x-mx;S.oy=p.y-my;}});
   cv.addEventListener('mousemove',e=>{if(!S.drag)return;const p=gp(e),w=cv.width,h=cv.height;S.magnetX=Math.max(.62,Math.min(.97,(p.x-S.ox)/w));S.magnetY=Math.max(.05,Math.min(.9,(p.y-S.oy)/h));});
   cv.addEventListener('mouseup',()=>S.drag=false);
@@ -23710,7 +24362,7 @@ function simStaticElec2() {
   window._se2rebuild=rebuild;
   rebuild();
 
-  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
   function down(e){e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;S.balls.forEach((b,i)=>{if(Math.hypot(p.x-b.x*w,p.y-b.y*h)<34){S.drag=i;S.ox=p.x-b.x*w;S.oy=p.y-b.y*h;b.vx=0;}});}
   function move(e){if(S.drag<0)return;e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;S.balls[S.drag].x=Math.max(.07,Math.min(.93,(p.x-S.ox)/w));S.balls[S.drag].y=Math.max(.12,Math.min(.82,(p.y-S.oy)/h));}
   function up(){if(S.drag>=0){S.animating=true;}S.drag=-1;}
@@ -24103,7 +24755,7 @@ function simMagCompare2() {
 
   function gp(e){
     const r=cv.getBoundingClientRect(), sc=cv.width/r.width;
-    const s=e.touches?e.touches[0]:e;
+    const s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;
     return {x:(s.clientX-r.left)*sc, y:(s.clientY-r.top)*sc};
   }
 
@@ -25356,7 +26008,7 @@ function simParallel12b() {
   }
 
   function onMouse(e) {
-    var cx = (e.clientX / window.innerWidth  - 0.5) * 2;
+    var cx = ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX / window.innerWidth  - 0.5) * 2;
     var cy = (e.clientY / window.innerHeight - 0.5) * 2;
     applyMouse(cx, cy);
   }
@@ -26499,7 +27151,7 @@ function simHeart1(){
   // Click detection على الحجرات
   cv.onclick=function(e){
     const rect=cv.getBoundingClientRect();
-    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)*(cv.width/rect.width);
     const my=(e.clientY-rect.top)*(cv.height/rect.height);
     const cx=cv.width/2, cy=cv.height*0.50;
     const sz=Math.min(cv.width,cv.height)*0.38;
@@ -26727,7 +27379,7 @@ function simBlood1(){
 
   cv.onclick=function(e){
     const rect=cv.getBoundingClientRect();
-    const mx=(e.clientX-rect.left)*(cv.width/rect.width)/cv.width;
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)*(cv.width/rect.width)/cv.width;
     const my=(e.clientY-rect.top)*(cv.height/rect.height)/cv.height;
     S.cells.forEach(cell=>{
       if(Math.abs(cell.x-mx)<0.04&&Math.abs(cell.y-my)<0.05) S.zoom=cell.type;
@@ -31031,7 +31683,7 @@ function repro_gametes2(){
     const cv=document.getElementById('simCanvas');
     if(!cv)return{x:0,y:0};
     const r=cv.getBoundingClientRect(),sc=cv.width/r.width;
-    const s=e.touches?e.touches[0]:(e.changedTouches?e.changedTouches[0]:e);
+    const s=e.touches?e.touches[0]:(e.changedTouches&&e.changedTouches[0]||e);
     return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};
   }
 
@@ -32184,7 +32836,7 @@ function simG5LightTravel() {
     S.showRays = true;
     cv.onmousedown = function(e) {
       const rect = cv.getBoundingClientRect();
-      const mx = (e.clientX - rect.left) / cv.offsetWidth;
+      const mx = ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX - rect.left) / cv.offsetWidth;
       const my = (e.clientY - rect.top) / cv.offsetHeight;
       const dx = mx - S.srcX, dy = my - S.srcY;
       if (Math.sqrt(dx*dx+dy*dy) < 0.06) S.dragging = true;
@@ -32201,7 +32853,7 @@ function simG5LightTravel() {
     cv.onmousemove = function(e) {
       if (!S.dragging) return;
       const rect = cv.getBoundingClientRect();
-      S.srcX = Math.max(0.05, Math.min(0.45, (e.clientX - rect.left) / cv.offsetWidth));
+      S.srcX = Math.max(0.05, Math.min(0.45, ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX - rect.left) / cv.offsetWidth));
       S.srcY = Math.max(0.1, Math.min(0.9, (e.clientY - rect.top) / cv.offsetHeight));
     };
     cv.ontouchmove = function(e) {
@@ -33912,7 +34564,7 @@ function simG5ReflectionMeasure() {
     cv.style.cursor = 'pointer';
     cv.onclick = function(e) {
       const rect = cv.getBoundingClientRect();
-      const mx = (e.clientX-rect.left)/rect.width*cv.width;
+      const mx = ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width*cv.width;
       const my = (e.clientY-rect.top)/rect.height*cv.height;
       const idx = getBar(mx, my);
       S.selected = (S.selected===idx) ? -1 : idx;
@@ -34002,7 +34654,7 @@ function simG5LightDirection() {
     cv.onmousedown = function(e) {
       const rect = cv.getBoundingClientRect();
       const my = (e.clientY - rect.top) / cv.offsetHeight;
-      const mx2 = (e.clientX - rect.left) / cv.offsetWidth;
+      const mx2 = ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX - rect.left) / cv.offsetWidth;
       if (mx2 < 0.25 && Math.abs(my - S.laserY) < 0.1) S.draggingLaser = true;
     };
     cv.onmousemove = function(e) {
@@ -34783,7 +35435,7 @@ function simG5TransparentTest() {
   // النقر على الكانفاس
   cv.onclick = function(e) {
     const rect = cv.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) / rect.width * cv.width;
+    const mx = ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX - rect.left) / rect.width * cv.width;
     // منطقة المادة في وسط الكانفاس
     const matX = cv.width * 0.42, matW = cv.width * 0.16;
     if (mx >= matX - matW && mx <= matX + matW) {
@@ -35050,13 +35702,13 @@ function simG5Silhouette() {
 
   cv.onmousedown = function(e){
     const rect=cv.getBoundingClientRect();
-    const mx=(e.clientX-rect.left)/rect.width;
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width;
     if(Math.abs(mx - S.puppetX) < 0.12) S.puppetDragging=true;
   };
   cv.onmousemove = function(e){
     if(!S.puppetDragging) return;
     const rect=cv.getBoundingClientRect();
-    S.puppetX = Math.max(0.2, Math.min(0.80, (e.clientX-rect.left)/rect.width));
+    S.puppetX = Math.max(0.2, Math.min(0.80, ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width));
   };
   cv.ontouchstart = function(e){e.preventDefault();
     const rect=cv.getBoundingClientRect();
@@ -35359,13 +36011,13 @@ function simG5ShadowFactor() {
 
   cv.onmousedown = function(e){
     const rect=cv.getBoundingClientRect();
-    const mx=(e.clientX-rect.left)/rect.width;
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width;
     if(Math.abs(mx - S.sfPuppetX) < 0.12) S.sfPuppetDragging=true;
   };
   cv.onmousemove = function(e){
     if(!S.sfPuppetDragging) return;
     const rect=cv.getBoundingClientRect();
-    S.sfPuppetX = Math.max(0.2, Math.min(0.78, (e.clientX-rect.left)/rect.width));
+    S.sfPuppetX = Math.max(0.2, Math.min(0.78, ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width));
   };
   cv.ontouchstart = function(e){ e.preventDefault();
     const rect=cv.getBoundingClientRect();
@@ -36847,7 +37499,7 @@ function simG5StarMap() {
     S.stars=stars;
     cv.onmousemove=function(e){
       const rect=cv.getBoundingClientRect();
-      const mx=(e.clientX-rect.left)/cv.offsetWidth, my=(e.clientY-rect.top)/cv.offsetHeight;
+      const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/cv.offsetWidth, my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-rect.top)/cv.offsetHeight;
       S.hovered=-1;
       stars.forEach((st,i)=>{ if(Math.hypot(mx-st.x,my-st.y)<0.05) S.hovered=i; });
     };
@@ -37059,7 +37711,7 @@ function simG9AcidProp1() {
 
   cv.onclick = function(e){
     const r=cv.getBoundingClientRect();
-    const mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*(cv.width/r.width), my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top)*(cv.height/r.height);
     solutions.forEach(sol=>{
       if(Math.hypot(mx-sol.x*cv.width, my-sol.y*cv.height)<40){
         S.selected = S.selected===sol.id ? null : sol.id;
@@ -37079,7 +37731,7 @@ function simG9AcidProp1() {
   };
   cv.onmousemove = function(e){
     const r=cv.getBoundingClientRect();
-    const mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*(cv.width/r.width), my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top)*(cv.height/r.height);
     S.hover=null;
     solutions.forEach(sol=>{ if(Math.hypot(mx-sol.x*cv.width, my-sol.y*cv.height)<44) S.hover=sol.id; });
     cv.style.cursor=S.hover?'pointer':'default';
@@ -37937,7 +38589,7 @@ function simG9PhScale1() {
   const cv=document.getElementById('simCanvas');
 
   cv.onmousemove=function(e){
-    const r=cv.getBoundingClientRect(), mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+    const r=cv.getBoundingClientRect(), mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*(cv.width/r.width), my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top)*(cv.height/r.height);
     let found=-1;
     items.forEach((it,i)=>{
       const bx=cv.width*0.08+(it.ph/14)*cv.width*0.84, by=cv.height*0.14+i*(cv.height*0.74/items.length);
@@ -37949,7 +38601,7 @@ function simG9PhScale1() {
     }
   };
   cv.onclick=function(e){
-    const r=cv.getBoundingClientRect(), mx=(e.clientX-r.left)*(cv.width/r.width), my=(e.clientY-r.top)*(cv.height/r.height);
+    const r=cv.getBoundingClientRect(), mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*(cv.width/r.width), my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top)*(cv.height/r.height);
     items.forEach((it,i)=>{
       const bx=cv.width*0.08+(it.ph/14)*cv.width*0.84, by=cv.height*0.14+i*(cv.height*0.74/items.length);
       if(Math.hypot(mx-bx,my-by)<18){ S.sel=S.sel===i?-1:i; try{U9Sound.ping();}catch(e){} }
@@ -38402,7 +39054,7 @@ function simG9Ions2() {
     </div>`);
 
   const cv=document.getElementById('simCanvas');
-  cv.onmousemove=function(e){ const r=cv.getBoundingClientRect(); S.mouseX=(e.clientX-r.left)*cv.width/r.width; };
+  cv.onmousemove=function(e){ const r=cv.getBoundingClientRect(); S.mouseX=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left)*cv.width/r.width; };
   cv.onmouseleave=function(){ S.mouseX=-1; };
 
   function draw(){
@@ -39042,7 +39694,7 @@ function simG9WordEq2(){
   cv2.onclick=function(e){
     if(S.answered)return;
     const q=quiz[Math.floor(S.t/600)%quiz.length];
-    const rect=cv2.getBoundingClientRect(), mx=(e.clientX-rect.left)*(cv2.width/rect.width), my=(e.clientY-rect.top)*(cv2.height/rect.height);
+    const rect=cv2.getBoundingClientRect(), mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)*(cv2.width/rect.width), my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-rect.top)*(cv2.height/rect.height);
     const w=cv2.width,h=cv2.height;
     const optW=Math.min(w*0.42,190), optH=Math.min(h*0.10,44), gx=Math.min(w*0.03,16), gy=Math.min(h*0.03,12);
     q.opts.forEach((opt,i)=>{
@@ -40974,7 +41626,7 @@ function simG9SaltTitra3(){
 
   document.getElementById('simCanvas').onclick=function(e){
     if(S.answered) return;
-    const rect=this.getBoundingClientRect(), mx=(e.clientX-rect.left)*(this.width/rect.width), my=(e.clientY-rect.top)*(this.height/rect.height);
+    const rect=this.getBoundingClientRect(), mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)*(this.width/rect.width), my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-rect.top)*(this.height/rect.height);
     const w=this.width, h=this.height;
     const optW=Math.min(w*0.43,190), optH=Math.min(h*0.10,44), gx=Math.min(w*0.04,16), gy=Math.min(h*0.03,12);
     methods.forEach((m,i)=>{
@@ -41312,7 +41964,7 @@ function simG9FlameTest1(){
 
   cv.onclick=function(e){
     const rect=this.getBoundingClientRect();
-    const mx=(e.clientX-rect.left)*(this.width/rect.width);
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)*(this.width/rect.width);
     const my=(e.clientY-rect.top)*(this.height/rect.height);
     const w=this.width, h=this.height;
     ions.forEach((ion,i)=>{
@@ -45234,7 +45886,7 @@ function simG9Solar1(){
   cv.onclick=function(e){
     if(currentSim!=='g9solar') return;
     const r=cv.getBoundingClientRect();
-    const mx=e.clientX-r.left, my=e.clientY-r.top;
+    const mx=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-r.left, my=(e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-r.top;
     const w=cv.width, h=cv.height;
     const px=w*0.58, py=h*0.62;
     const dx=mx-px, dy=my-py;
@@ -48249,7 +48901,7 @@ function simG9Ohm2(){
       clientX = e.touches[0].clientX;
       clientY = e.touches[0].clientY;
     } else {
-      clientX = e.clientX;
+      clientX = (e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX;
       clientY = e.clientY;
     }
     return {
