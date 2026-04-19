@@ -5464,7 +5464,7 @@ const SIM_META = {
   g5lightintensity:{ title: '٦-٥ · قياس شدة الضوء', badge: '☀️ 5', tabs: ['مقياس الإضاءة 📊'] },
   g5rainbow:        { title: '٧-٥ · قوس المطر والمنشور', badge: '🌈 5', tabs: ['تجربة المنشور 🔬', 'قطرة المطر 💧'] },
   // ── الصف الخامس — الوحدة ٦: حركات الأرض ──
-  g5earthsun:    { title: '١-٦ · الشمس والأرض والقمر', badge: '🌍 5', tabs: ['النظام الشمسي 🌞', 'مسارات الكواكب 🔄'] },
+  g5earthsun:    { title: '١-٦ · الشمس والأرض والقمر', badge: '🌍 5', tabs: ['النظام الشمسي', 'مسارات الكواكب'] },
   g5rotation:    { title: '٣-٦ · دوران الأرض', badge: '🔄 5', tabs: ['الليل والنهار 🌓', 'الفصول الأربعة 🍂'] },
   g5stars:       { title: '٧-٦ · استكشاف النجوم', badge: '⭐ 5', tabs: ['خريطة السماء 🗺️', 'أسماء النجوم ✨'] },
   adaptation: { title: 'نشاط 1-7 · التكيُّف', badge: '7-1', tabs: ['الثعلب الرملي 🦊', 'الجمل 🐪', 'نبات الصبّار 🌵'] },
@@ -36504,7 +36504,7 @@ function simG5EarthSun() {
     c.fillStyle=sunG; c.beginPath(); c.arc(cx2,cy2,w*0.09,0,Math.PI*2); c.fill();
     c.fillStyle='#FFE000'; c.beginPath(); c.arc(cx2,cy2,w*0.05,0,Math.PI*2); c.fill();
     c.fillStyle='rgba(255,255,200,0.9)'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
-    c.fillText('الشمس ☀️', cx2, cy2+w*0.075);
+    c.fillText('الشمس', cx2, cy2+w*0.075);
     // Earth orbit
     const earthR=w*0.3;
     c.strokeStyle='rgba(255,255,255,0.12)'; c.lineWidth=1; c.setLineDash([3,3]);
@@ -36521,7 +36521,7 @@ function simG5EarthSun() {
     c.fillStyle='#27AE60';
     c.beginPath(); c.arc(ex+w*0.008,ey-w*0.005,w*0.018,0,Math.PI*2); c.fill();
     c.fillStyle='rgba(255,255,255,0.9)'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText('الأرض 🌍', ex, ey+w*0.05);
+    c.fillText('الأرض', ex, ey+w*0.05);
     // Moon orbit around Earth
     const moonR=w*0.065;
     c.strokeStyle='rgba(255,255,255,0.08)'; c.lineWidth=1; c.setLineDash([2,2]);
@@ -36530,7 +36530,7 @@ function simG5EarthSun() {
     const mx2=ex+moonR*Math.cos(moonAngle), my2=ey+moonR*0.8*Math.sin(moonAngle);
     c.fillStyle='#C8C8C8'; c.beginPath(); c.arc(mx2,my2,w*0.012,0,Math.PI*2); c.fill();
     c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`; c.textAlign='center';
-    c.fillText('🌕', mx2, my2+4);
+    c.fillText('القمر', mx2, my2+w*0.025);
     // Info
     const dayCount=Math.floor((S.t/(Math.PI*2))*365)%365;
     c.fillStyle='rgba(0,0,0,0.55)'; c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1;
@@ -36576,44 +36576,41 @@ function simG5OrbitalPaths() {
     // Title
     c.fillStyle='rgba(255,255,255,0.9)'; c.font=`bold ${Math.max(12,w*0.026)}px Tajawal`; c.textAlign='center';
     c.fillText('مقارنة مدارات الكواكب', w/2, h*0.08);
-    // Solar system overview: Sun + multiple planets
-    const cx2=w*0.15, cy2=h*0.55;
-    // Sun
-    const sg=c.createRadialGradient(cx2,cy2,0,cx2,cy2,30);
-    sg.addColorStop(0,'#FFF200'); sg.addColorStop(1,'rgba(255,200,0,0)');
-    c.fillStyle=sg; c.beginPath(); c.arc(cx2,cy2,30,0,Math.PI*2); c.fill();
+    // Solar system overview: Sun centered
+    const cx2=w*0.5, cy2=h*0.54;
+    const sunR=Math.max(18,w*0.038);
+    const sg=c.createRadialGradient(cx2,cy2,0,cx2,cy2,sunR*2);
+    sg.addColorStop(0,'#FFF7C0'); sg.addColorStop(0.4,'#FFD700'); sg.addColorStop(1,'rgba(255,150,0,0)');
+    c.fillStyle=sg; c.beginPath(); c.arc(cx2,cy2,sunR*2,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE000'; c.beginPath(); c.arc(cx2,cy2,sunR,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,200,0.9)'; c.font=`bold ${Math.max(10,w*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشمس', cx2, cy2+sunR+16);
     const planets=[
-      {name:'عطارد',r:w*0.08,speed:4.15,size:4,color:'#A0A0A0',period:'88 يوم'},
-      {name:'الزهرة',r:w*0.14,speed:1.62,size:7,color:'#E8C080',period:'225 يوم'},
-      {name:'الأرض',r:w*0.21,speed:1,size:8,color:'#4488FF',period:'365 يوم'},
-      {name:'المريخ',r:w*0.29,speed:0.53,size:5,color:'#CC4400',period:'687 يوم'},
+      {name:'عطارد',rx:w*0.11,ry:h*0.09, speed:4.15,size:5, color:'#A0A0A0',period:'88 يوم'},
+      {name:'الزهرة',rx:w*0.18,ry:h*0.15, speed:1.62,size:8, color:'#E8C080',period:'225 يوم'},
+      {name:'الأرض', rx:w*0.26,ry:h*0.21, speed:1,   size:9, color:'#4488FF',period:'365 يوم'},
+      {name:'المريخ',rx:w*0.35,ry:h*0.27, speed:0.53,size:7, color:'#CC4400',period:'687 يوم'},
     ];
     planets.forEach(p=>{
-      c.strokeStyle='rgba(255,255,255,0.1)'; c.lineWidth=1; c.setLineDash([2,4]);
-      c.beginPath(); c.arc(cx2,cy2,p.r,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+      // Draw elliptical orbit path
+      c.strokeStyle='rgba(255,255,255,0.15)'; c.lineWidth=1; c.setLineDash([3,4]);
+      c.beginPath(); c.ellipse(cx2,cy2,p.rx,p.ry,0,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+      // Planet position on ellipse
       const angle=S.t*p.speed;
-      const px2=cx2+p.r*Math.cos(angle), py=cy2+p.r*Math.sin(angle)*0.4;
+      const px2=cx2+p.rx*Math.cos(angle);
+      const py=cy2+p.ry*Math.sin(angle);
+      // Planet glow
+      const pg=c.createRadialGradient(px2,py,0,px2,py,p.size*2.5);
+      pg.addColorStop(0,p.color+'99'); pg.addColorStop(1,'rgba(0,0,0,0)');
+      c.fillStyle=pg; c.beginPath(); c.arc(px2,py,p.size*2.5,0,Math.PI*2); c.fill();
+      // Planet
       c.fillStyle=p.color;
       c.beginPath(); c.arc(px2,py,p.size,0,Math.PI*2); c.fill();
-      c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
-      c.fillText(p.name, px2, py+p.size+12);
-    });
-    // Table of facts
-    const tX=w*0.48, tY=h*0.2;
-    c.fillStyle='rgba(26,143,168,0.2)'; c.strokeStyle='rgba(26,143,168,0.4)'; c.lineWidth=1;
-    c.beginPath(); c.roundRect(tX, tY, w*0.49, h*0.6, 8); c.fill(); c.stroke();
-    c.fillStyle='#4DC4E0'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`; c.textAlign='center';
-    c.fillText('حقائق عن الأرض والشمس', tX+w*0.245, tY+24);
-    const facts=[
-      'الأرض تدور حول الشمس في 365 يوماً',
-      'الأرض تدور حول نفسها في 24 ساعة',
-      'الشمس أكبر من الأرض بـ 109 مرة',
-      'المسافة بين الأرض والشمس: 150 مليون كم',
-      'القمر يدور حول الأرض في 29 يوماً',
-    ];
-    facts.forEach((f,i)=>{
-      c.fillStyle='rgba(255,255,255,0.85)'; c.font=`${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='right';
-      c.fillText(`• ${f}`, tX+w*0.465, tY+55+i*32);
+      // Label
+      c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+      c.fillText(p.name, px2, py+p.size+14);
+      c.fillStyle='rgba(255,255,255,0.45)'; c.font=`${Math.max(8,w*0.015)}px Tajawal`;
+      c.fillText(p.period, px2, py+p.size+26);
     });
     animFrame=requestAnimationFrame(draw);
   }
