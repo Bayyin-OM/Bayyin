@@ -22908,270 +22908,300 @@ function simElectromagnet2() {
 // ══════════════════════════════════════════════════════════════
 function simStaticElec1() {
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
+  const cv = document.getElementById('simCanvas');
+  const c  = cv.getContext('2d');
 
-  if(!simState.se1) simState.se1={
-    charge:0,t:0,
-    papers:Array.from({length:8},(_,i)=>({x:.38+i%4*.07,y:.65+Math.floor(i/4)*.07,liftT:0,lifted:false})),
-    balloonX:.28, balloonY:.42,
-    drag:false, ox:0, oy:0,
-    rubbing:false, rubCount:0, lastRubY:0,
-    testObj:null, testAnim:0
+  if (!simState.se1) simState.se1 = {
+    charge: 0, t: 0,
+    balloonX: .26, balloonY: .42,
+    drag: false, ox: 0, oy: 0,
+    rubCount: 0, lastRubY: 0,
+    // test object state
+    testObj: null,
+    // each object: { id, emoji, name, attracted, x, y, velX, velY, angle, angVel, state:'idle'|'flying'|'stuck' }
+    objects: [
+      { id:'thread',  emoji:'🧵', name:'خيط',      attracted:true,  x:.78, y:.40, velX:0, velY:0, angle:0, angVel:0, state:'idle' },
+      { id:'paper',   emoji:'📄', name:'ورق',      attracted:true,  x:.84, y:.48, velX:0, velY:0, angle:0, angVel:0, state:'idle' },
+      { id:'plastic', emoji:'🧴', name:'بلاستيك',  attracted:true,  x:.78, y:.56, velX:0, velY:0, angle:0, angVel:0, state:'idle' },
+      { id:'gold',    emoji:'🥇', name:'ذهب',      attracted:false, x:.84, y:.64, velX:0, velY:0, angle:0, angVel:0, state:'idle' },
+      { id:'copper',  emoji:'🔌', name:'نحاس',     attracted:false, x:.78, y:.72, velX:0, velY:0, angle:0, angVel:0, state:'idle' },
+      { id:'silver',  emoji:'🥈', name:'فضة',      attracted:false, x:.84, y:.79, velX:0, velY:0, angle:0, angVel:0, state:'idle' },
+    ],
+    // original positions for reset
+    resultMsg: '', resultCol: ''
   };
-  const S=simState.se1;
+  const S = simState.se1;
+  // Save original positions
+  if (!S._origPos) S._origPos = S.objects.map(o => ({ x: o.x, y: o.y }));
 
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">🎈 الكهرباء الساكنة</div>
-      <div style="font-size:13px;color:#555;line-height:1.8">
-        اسحب البالون وحرّكه على شعر الشخص<br>
-        لشحنه بالاحتكاك!
+  function buildControls() {
+    controls(`
+      <div class="ctrl-section">
+        <div class="ctrl-label">🎈 الكهرباء الساكنة</div>
+        <div style="font-size:13px;color:#555;line-height:1.8">
+          اسحب البالون وحرّكه على شعر الشخص<br>لشحنه بالاحتكاك!
+        </div>
+        <div id="seCharge" style="text-align:center;font-size:18px;font-weight:800;margin-top:6px;color:#8E44AD">
+          الشحنة: ـ ـ ـ ـ ـ
+        </div>
       </div>
-      <div id="seQ" style="text-align:center;font-size:20px;font-weight:800;margin-top:8px;color:#8E44AD">الشحنة: محايد</div>
-    </div>
-    <div class="ctrl-section" id="se1TestPanel" style="display:none">
-      <div class="ctrl-label">🧪 اختبر قوة الجذب</div>
-      <div style="font-size:12px;color:#555;margin-bottom:6px">اسحب البالون المشحون نحو الأجسام:</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='paper'">📄 ورق</button>
-        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='thread'">🧵 خيط</button>
-        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='plastic'">🧴 بلاستيك</button>
-        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='gold'">🥇 ذهب</button>
-        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='copper'">🔌 نحاس</button>
-        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='silver'">🥈 فضة</button>
+      <div class="ctrl-section" id="se1TestPanel" style="${S.charge>=3?'':'display:none'}">
+        <div class="ctrl-label">🧪 اختبر قوة الجذب</div>
+        <div style="font-size:12px;color:#555;margin-bottom:6px">اسحب البالون نحو الأجسام على اليمين</div>
+        <div id="se1Result" style="margin-top:6px;font-size:13px;font-weight:700;text-align:center;min-height:24px;line-height:1.6">${S.resultMsg?`<span style="color:${S.resultCol}">${S.resultMsg}</span>`:''}</div>
       </div>
-      <div id="se1Result" style="margin-top:8px;font-size:13px;font-weight:700;text-align:center;min-height:20px"></div>
-    </div>
-    <button class="ctrl-btn reset" onclick="
-      simState.se1.charge=0;
-      simState.se1.balloonX=.28;simState.se1.balloonY=.42;
-      simState.se1.rubCount=0;simState.se1.testObj=null;simState.se1.testAnim=0;
-      simState.se1.papers.forEach(p=>{p.lifted=false;p.liftT=0});
-      document.getElementById('seQ').textContent='الشحنة: محايد';
-      var tp=document.getElementById('se1TestPanel');if(tp)tp.style.display='none';
-      var rs=document.getElementById('se1Result');if(rs)rs.textContent='';
+      <button class="ctrl-btn reset" onclick="
+        var S=simState.se1;
+        S.charge=0; S.rubCount=0; S.testObj=null; S.resultMsg=''; S.resultCol='';
+        S.balloonX=.26; S.balloonY=.42;
+        S.objects.forEach(function(o,i){
+          o.x=S._origPos[i].x; o.y=S._origPos[i].y;
+          o.velX=0; o.velY=0; o.angle=0; o.angVel=0; o.state='idle';
+        });
+        var el=document.getElementById('seCharge'); if(el) el.textContent='الشحنة: ـ ـ ـ ـ ـ';
+        var tp=document.getElementById('se1TestPanel'); if(tp) tp.style.display='none';
+        var rs=document.getElementById('se1Result'); if(rs) rs.textContent='';
       ">↺ إعادة</button>
-    <div class="info-box" style="font-size:13px;line-height:1.9">
-      الاحتكاك ينقل إلكترونات من<br>
-      الشعر → البالون<br>
-      البالون يصبح <strong>➖ سالب</strong><br>
-      الشعر يصبح <strong style="color:#C0392B">➕ موجب</strong><br>
-      🟢 يجذب: الورق، الخيط، البلاستيك<br>
-      🔴 لا يجذب: الفلزات (ذهب، نحاس، فضة)
-    </div>`);
+      <div class="info-box" style="font-size:13px;line-height:2;margin-top:6px">
+        الاحتكاك ينقل إلكترونات من<br>
+        الشعر → البالون<br>
+        البالون يصبح <strong>➖ سالب</strong><br>
+        الشعر يصبح <strong style="color:#C0392B">➕ موجب</strong><br>
+        🟢 يُجذب: الورق، الخيط، البلاستيك<br>
+        🔴 لا يُجذب: الفلزات (ذهب، نحاس، فضة)
+      </div>
+    `);
+  }
+  buildControls();
 
-  function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+  function gp(e) {
+    const r = cv.getBoundingClientRect(), sc = cv.width / r.width;
+    const s = (e.changedTouches && e.changedTouches[0]) || (e.touches && e.touches[0]) || e;
+    return { x: (s.clientX - r.left) * sc, y: (s.clientY - r.top) * sc };
+  }
 
-  cv.addEventListener('mousedown',e=>{
-    const p=gp(e),w=cv.width,h=cv.height;
-    const bx=S.balloonX*w,by=S.balloonY*h;
-    if(Math.hypot(p.x-bx,p.y-by)<50){S.drag=true;S.ox=p.x-bx;S.oy=p.y-by;S.lastRubY=p.y;}
-  });
-  cv.addEventListener('mousemove',e=>{
-    if(!S.drag)return;
-    const p=gp(e),w=cv.width,h=cv.height;
-    const newX=Math.max(.05,Math.min(.85,(p.x-S.ox)/w));
-    const newY=Math.max(.08,Math.min(.78,(p.y-S.oy)/h));
-    // detect rubbing: if balloon is near hair (person head at ~.62,.38)
-    const bx2=newX*w, by2=newY*h;
-    const personHX=w*.62, personHY=h*.38;
-    const nearHair=Math.hypot(bx2-personHX,by2-personHY)<w*.15;
-    if(nearHair){
-      const dy=Math.abs(p.y-S.lastRubY);
-      S.rubCount+=(dy*0.5);
-      if(S.rubCount>35&&S.charge<5){
-        S.charge=Math.min(5,S.charge+1);
-        S.rubCount=0;
-        const el=document.getElementById('seQ');
-        if(el) el.textContent='الشحنة: '+'➖'.repeat(S.charge);
-        try{U9Sound.ping(280+S.charge*60,.1,.12);}catch(e2){}
-        S.papers.forEach((pp,i)=>{if(i<S.charge*1.8) pp.lifted=true;});
-        if(S.charge>=3){var tp=document.getElementById('se1TestPanel');if(tp)tp.style.display='block';}
+  function handleDown(e) {
+    const p = gp(e), w = cv.width, h = cv.height;
+    const bx = S.balloonX * w, by = S.balloonY * h;
+    if (Math.hypot(p.x - bx, p.y - by) < 56) {
+      S.drag = true; S.ox = p.x - bx; S.oy = p.y - by; S.lastRubY = p.y;
+    }
+  }
+  function handleMove(e) {
+    if (!S.drag) return;
+    const p = gp(e), w = cv.width, h = cv.height;
+    const newX = Math.max(.04, Math.min(.80, (p.x - S.ox) / w));
+    const newY = Math.max(.06, Math.min(.78, (p.y - S.oy) / h));
+    // Rubbing on hair
+    const personX = w * .65, personY = h * .38;
+    const nearHair = Math.hypot(newX * w - personX, newY * h - personY) < w * .16;
+    if (nearHair) {
+      S.rubCount += Math.abs(p.y - S.lastRubY) * 0.55;
+      if (S.rubCount > 30 && S.charge < 5) {
+        S.charge = Math.min(5, S.charge + 1);
+        S.rubCount = 0;
+        const el = document.getElementById('seCharge');
+        if (el) el.textContent = 'الشحنة: ' + '➖'.repeat(S.charge);
+        try { U9Sound.ping(280 + S.charge * 60, .1, .12); } catch (_) {}
+        if (S.charge >= 3) { const tp = document.getElementById('se1TestPanel'); if (tp) tp.style.display = 'block'; }
       }
     }
-    S.lastRubY=p.y;
-    S.balloonX=newX; S.balloonY=newY;
-  });
-  cv.addEventListener('mouseup',()=>S.drag=false);
-  cv.addEventListener('touchstart',e=>{e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;const bx=S.balloonX*w,by=S.balloonY*h;if(Math.hypot(p.x-bx,p.y-by)<50){S.drag=true;S.ox=p.x-bx;S.oy=p.y-by;S.lastRubY=p.y;}},{passive:false});
-  cv.addEventListener('touchmove',e=>{
-    e.preventDefault(); if(!S.drag)return;
-    const p=gp(e),w=cv.width,h=cv.height;
-    const newX=Math.max(.05,Math.min(.85,(p.x-S.ox)/w));
-    const newY=Math.max(.08,Math.min(.78,(p.y-S.oy)/h));
-    const bx2=newX*w,by2=newY*h,personHX=w*.62,personHY=h*.38;
-    const nearHair=Math.hypot(bx2-personHX,by2-personHY)<w*.15;
-    if(nearHair){
-      const dy=Math.abs(p.y-S.lastRubY);
-      S.rubCount+=(dy*0.5);
-      if(S.rubCount>35&&S.charge<5){
-        S.charge=Math.min(5,S.charge+1); S.rubCount=0;
-        const el=document.getElementById('seQ');
-        if(el) el.textContent='الشحنة: '+'➖'.repeat(S.charge);
-        try{U9Sound.ping(280+S.charge*60,.1,.12);}catch(e2){}
-        S.papers.forEach((pp,i)=>{if(i<S.charge*1.8) pp.lifted=true;});
-        if(S.charge>=3){var tp=document.getElementById('se1TestPanel');if(tp)tp.style.display='block';}
+    S.lastRubY = p.y; S.balloonX = newX; S.balloonY = newY;
+  }
+  function handleUp() { S.drag = false; }
+
+  cv.addEventListener('mousedown',  handleDown);
+  cv.addEventListener('mousemove',  handleMove);
+  cv.addEventListener('mouseup',    handleUp);
+  cv.addEventListener('touchstart', e => { e.preventDefault(); handleDown(e); }, { passive: false });
+  cv.addEventListener('touchmove',  e => { e.preventDefault(); handleMove(e); }, { passive: false });
+  cv.addEventListener('touchend',   e => { e.preventDefault(); handleUp(); },   { passive: false });
+
+  function draw() {
+    if (currentSim !== 'staticelec' || currentTab !== 0) return;
+    S.t += .04;
+    const w = cv.width, h = cv.height;
+    c.clearRect(0, 0, w, h);
+    c.fillStyle = '#FFF8ED'; c.fillRect(0, 0, w, h);
+    U9.grid(c, w, h, 'rgba(200,160,50,0.07)', 45);
+
+    const bx = S.balloonX * w, by = S.balloonY * h;
+    const bR = Math.max(38, Math.min(52, w * 0.075));
+    const bo = S.drag ? 0 : Math.sin(S.t * 1.8) * 3;
+
+    // ── Person ──
+    const personX = w * .65, personY = h * .40;
+    const nearHair = Math.hypot(bx - personX, by - personY) < w * .17;
+    if (nearHair && S.drag) {
+      c.save();
+      const g = c.createRadialGradient(personX, personY - 30, 10, personX, personY - 30, 65);
+      g.addColorStop(0, 'rgba(255,200,0,0.45)'); g.addColorStop(1, 'rgba(255,200,0,0)');
+      c.fillStyle = g; c.beginPath(); c.arc(personX, personY - 30, 65, 0, Math.PI * 2); c.fill();
+      c.restore();
+    }
+    c.font = Math.max(70, w * .13) + 'px serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('👤', personX, personY);
+
+    // Hair strands
+    for (let i = 0; i < 7; i++) {
+      const ha = -Math.PI / 2 + (i - 3) * .30;
+      const splay = S.charge > 0 ? 28 + i * 5 : 14;
+      const lift = S.charge > 0 ? -12 - i * 3 : 0;
+      c.strokeStyle = '#6A4C2A'; c.lineWidth = 2.5;
+      c.beginPath();
+      c.moveTo(personX + Math.cos(ha) * 24, personY - 36);
+      c.lineTo(personX + Math.cos(ha - .25) * (24 + splay), personY - 36 + lift - Math.sin(Math.abs(ha) + .2) * splay);
+      c.stroke();
+    }
+    if (S.charge > 0) {
+      const cnt = Math.min(S.charge * 2, 10);
+      c.font = `bold ${14 + S.charge}px Arial`;
+      for (let i = 0; i < cnt; i++) {
+        const ha = -Math.PI / 2 + (i / cnt - .5) * 1.9;
+        const hl = 38 + (i % 3) * 11;
+        c.fillStyle = '#C0392B'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText('➕', personX + Math.cos(ha - .22) * hl, personY - 38 - Math.sin(Math.abs(ha) + .1) * hl * .9);
       }
-    }
-    S.lastRubY=p.y; S.balloonX=newX; S.balloonY=newY;
-  },{passive:false});
-  cv.addEventListener('touchend',()=>S.drag=false);
-
-  function draw(){
-    if(currentSim!=='staticelec'||currentTab!==0)return;
-    S.t+=.04;
-    const w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h);
-    c.fillStyle='#FFF8ED'; c.fillRect(0,0,w,h);
-    U9.grid(c,w,h,'rgba(200,160,50,0.07)',45);
-
-    // table
-    c.fillStyle='#C8903A'; c.beginPath(); c.roundRect(w*.28,h*.7,w*.44,h*.05,4); c.fill();
-
-    // balloon position
-    const bx=S.balloonX*w, by=S.balloonY*h;
-    const bR=42, bo=S.drag?0:Math.sin(S.t*1.8)*4;
-
-    // person head at fixed position — BIGGER
-    const personX=w*.64, personY=h*.4;
-
-    // check if near hair for visual highlight
-    const nearHair=Math.hypot(bx-personX,by-personY)<w*.17;
-
-    // rubbing glow
-    if(nearHair&&S.drag){
-      c.strokeStyle='rgba(255,180,0,0.55)'; c.lineWidth=12;
-      c.beginPath(); c.arc(personX,personY-32,52,0,Math.PI*2); c.stroke();
+      c.font = 'bold 14px Tajawal'; c.fillStyle = '#C0392B'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText('شحنات موجبة ➕', personX, personY + 52);
     }
 
-    // person — bigger emoji
-    c.font='90px serif'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('👤',personX,personY);
-
-    // hair strands (always visible)
-    const hairCount=6;
-    for(let i=0;i<hairCount;i++){
-      const ha=-Math.PI/2+(i-2.5)*.32;
-      const splay=S.charge>0?30+i*4:18;
-      c.strokeStyle='#6A4C2A'; c.lineWidth=3;
-      c.beginPath(); c.moveTo(personX+Math.cos(ha)*26,personY-38);
-      c.lineTo(personX+Math.cos(ha-.28)*(26+splay),personY-38-Math.sin(Math.abs(ha)+.2)*splay); c.stroke();
+    // ── Balloon ──
+    if (S.charge > 0) { c.shadowBlur = 28; c.shadowColor = 'rgba(142,68,173,.4)'; }
+    c.fillStyle = S.charge > 0 ? '#9B59B6' : '#BB85D8';
+    c.beginPath(); c.ellipse(bx, by + bo, bR * .85, bR, 0, 0, Math.PI * 2); c.fill();
+    c.shadowBlur = 0;
+    c.strokeStyle = '#6C3483'; c.lineWidth = 1.8;
+    c.beginPath(); c.ellipse(bx, by + bo, bR * .85, bR, 0, 0, Math.PI * 2); c.stroke();
+    if (by + bo + bR < h * .68) {
+      c.strokeStyle = '#888'; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(bx, by + bo + bR);
+      c.bezierCurveTo(bx + 8, by + bo + bR + 22, bx - 5, by + bo + bR + 48, bx, by + bo + bR + 68); c.stroke();
     }
-
-    // Positive charges on hair (large, clearly visible)
-    if(S.charge>0){
-      const posCount=Math.min(S.charge*2,10);
-      const chargeSize=16+S.charge*2;
-      c.font=`bold ${chargeSize}px Arial`;
-      for(let i=0;i<posCount;i++){
-        const ha=-Math.PI/2+(i/posCount-0.5)*1.8;
-        const hlen=36+i%3*10;
-        const hx=personX+Math.cos(ha-.22)*hlen;
-        const hy=personY-38-Math.sin(Math.abs(ha)+.1)*(hlen*.9);
-        c.fillStyle='#C0392B'; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText('➕',hx,hy);
+    if (S.charge > 0) {
+      c.font = `bold ${13 + S.charge * 2}px Arial`; c.fillStyle = '#1A0A30';
+      for (let i = 0; i < Math.min(S.charge * 2, 10); i++) {
+        const a = (i / 10) * Math.PI * 2 + S.t * .35;
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText('➖', bx + Math.cos(a) * bR * .68, by + bo + Math.sin(a) * bR * .82);
       }
-      // Label with background
-      c.font='bold 15px Tajawal'; c.fillStyle='#C0392B'; c.textAlign='center';
-      c.fillText('شحنات موجبة ➕',personX,personY+58);
-    } else {
-      c.font='bold 13px Tajawal'; c.fillStyle='rgba(100,80,60,0.5)'; c.textAlign='center';
-      c.fillText('شعر محايد',personX,personY+58);
+      c.font = 'bold 14px Tajawal'; c.fillStyle = '#6C3483'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText('شحنات سالبة ➖', bx, by + bo + bR + 14);
     }
+    c.font = `${Math.round(bR * .6)}px serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('🎈', bx, by + bo);
 
-    // balloon with string
-    if(S.charge>0){c.shadowBlur=22;c.shadowColor='rgba(142,68,173,.35)';}
-    c.fillStyle=S.charge>0?'#9B59B6':'#BB85D8';
-    c.beginPath(); c.ellipse(bx,by+bo,bR*.85,bR,0,0,Math.PI*2); c.fill();
-    c.shadowBlur=0;
-    c.strokeStyle='#6C3483'; c.lineWidth=1.5; c.beginPath(); c.ellipse(bx,by+bo,bR*.85,bR,0,0,Math.PI*2); c.stroke();
-    // string (only when not dragged up high)
-    if(by+bo+bR < h*.65){
-      c.strokeStyle='#777'; c.lineWidth=1.5;
-      c.beginPath(); c.moveTo(bx,by+bo+bR); c.bezierCurveTo(bx+8,by+bo+bR+25,bx-5,by+bo+bR+50,bx,by+bo+bR+72); c.stroke();
-    }
+    // ── Objects on right ──
+    const charged = S.charge >= 3;
+    S.objects.forEach(obj => {
+      const ox = obj.x * w, oy = obj.y * h;
+      const dist = Math.hypot(bx - ox, by + bo - oy);
+      const pullZone = w * .32;
 
-    // Negative charge symbols on balloon — large, dark/black
-    if(S.charge>0){
-      const negSize=15+S.charge*2;
-      c.font=`bold ${negSize}px Arial`; c.fillStyle='#1A0A30';
-      for(let i=0;i<Math.min(S.charge*2,10);i++){
-        const a=(i/10)*Math.PI*2+S.t*.3;
-        c.fillText('➖',bx+Math.cos(a)*bR*.7,by+bo+Math.sin(a)*bR*.82);
+      if (charged && obj.attracted && obj.state !== 'stuck') {
+        if (dist < pullZone) {
+          // Physics pull
+          const force = Math.pow(1 - dist / pullZone, 2) * (S.charge / 5) * 7.5;
+          const dx = bx - ox, dy = (by + bo) - oy;
+          const len = Math.hypot(dx, dy) || 1;
+          obj.velX += (dx / len) * force;
+          obj.velY += (dy / len) * force;
+          obj.angVel += (Math.random() - .5) * .04;
+        }
+        // Damping
+        obj.velX *= .82; obj.velY *= .82; obj.angVel *= .88;
+        obj.x += obj.velX / w; obj.y += obj.velY / h;
+        obj.angle += obj.angVel;
+        // Stuck on balloon
+        if (dist < bR * 1.4) {
+          obj.state = 'stuck';
+          obj.x = (bx + (ox - bx) * .35) / w;
+          obj.y = (by + bo + (oy - by - bo) * .35) / h;
+          // Show result
+          S.resultMsg = `✅ ${obj.name} يُجذب! (غير موصل — تتحرك شحناته)`;
+          S.resultCol = '#27AE60';
+          const rs = document.getElementById('se1Result');
+          if (rs) rs.innerHTML = `<span style="color:#27AE60">${S.resultMsg}</span>`;
+          try { U9Sound.ping(520, .15, .18); } catch (_) {}
+        }
+      } else if (charged && !obj.attracted && obj.state === 'idle') {
+        // Metals: slight repulsion / no movement
+        if (dist < pullZone * .6) {
+          S.resultMsg = `❌ ${obj.name} لا يُجذب (فلز موصل — شحناته تتعادل)`;
+          S.resultCol = '#C0392B';
+          const rs = document.getElementById('se1Result');
+          if (rs) rs.innerHTML = `<span style="color:#C0392B">${S.resultMsg}</span>`;
+        }
       }
-      // Label
-      c.font='bold 15px Tajawal'; c.fillStyle='#6C3483'; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('شحنات سالبة ➖',bx,by+bo+bR+18);
-    }
 
-    c.font=`bold ${bR*.28}px Tajawal`; c.fillStyle='white'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('🎈',bx,by+bo);
+      // Draw object
+      const drawX = obj.x * w, drawY = obj.y * h;
+      c.save(); c.translate(drawX, drawY); c.rotate(obj.angle);
+      // Glow if being pulled
+      if (charged && obj.attracted && obj.state !== 'stuck' && dist < pullZone) {
+        const prox = 1 - dist / pullZone;
+        c.shadowBlur = 18 * prox; c.shadowColor = 'rgba(142,68,173,' + (.5 * prox) + ')';
+        // Draw pull arrow
+        if (prox > .2) {
+          c.restore();
+          // Arrow from object toward balloon
+          const adx = bx - drawX, ady = by + bo - drawY;
+          const alen = Math.hypot(adx, ady) || 1;
+          const arLen = Math.min(prox * 55, 45);
+          const arX1 = drawX, arY1 = drawY;
+          const arX2 = drawX + (adx / alen) * arLen;
+          const arY2 = drawY + (ady / alen) * arLen;
+          c.save(); c.strokeStyle = 'rgba(39,174,96,0.85)'; c.lineWidth = 2.5; c.lineCap = 'round';
+          // Arrow shaft
+          c.beginPath(); c.moveTo(arX1, arY1); c.lineTo(arX2, arY2); c.stroke();
+          // Arrowhead
+          const ha2 = Math.atan2(ady, adx);
+          c.beginPath(); c.moveTo(arX2, arY2);
+          c.lineTo(arX2 - Math.cos(ha2 - .45) * 12, arY2 - Math.sin(ha2 - .45) * 12);
+          c.lineTo(arX2 - Math.cos(ha2 + .45) * 12, arY2 - Math.sin(ha2 + .45) * 12);
+          c.closePath(); c.fillStyle = 'rgba(39,174,96,0.85)'; c.fill();
+          c.restore();
+          c.save(); c.translate(drawX, drawY); c.rotate(obj.angle);
+        }
+      }
+      c.font = Math.max(26, w * .048) + 'px serif';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(obj.emoji, 0, 0);
+      c.shadowBlur = 0;
+      c.restore();
 
-    // papers
-    S.papers.forEach(p=>{
-      if(p.lifted) p.liftT=Math.min(1,(p.liftT||0)+.025);
-      const ty=p.lifted?(h*.52+(by+bo-h*.52)*p.liftT):(h*p.y);
-      c.fillStyle='#FFF9C4'; c.strokeStyle='#E8C030'; c.lineWidth=1;
-      c.beginPath(); c.roundRect(p.x*w-9,ty-5,18,11,2); c.fill(); c.stroke();
+      // Label below
+      c.font = `bold ${Math.min(11, w * .023)}px Tajawal`;
+      c.fillStyle = (!obj.attracted) ? 'rgba(192,57,43,0.7)' : 'rgba(60,120,60,0.7)';
+      c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText(obj.name, drawX, drawY + Math.max(20, w * .036));
     });
 
-    const hint=S.charge>0?'✨ ممتاز! البالون مشحون سالباً':'✋ اسحب البالون على شعر الشخص';
-    U9.txt(c,hint,w/2,h-.06*h,'rgba(120,80,20,.6)',12,true);
-
-    // ── Test object panel (shown on canvas right side) ──
-    if(S.charge>=3 && S.testObj){
-      S.testAnim=Math.min(S.testAnim+1,60);
-      const prog=S.testAnim/60;
-
-      // attractable: paper, thread, plastic | not: gold, copper, silver
-      const attracted = ['paper','thread','plastic'].includes(S.testObj);
-      const objEmoji = {paper:'📄',thread:'🧵',plastic:'🧴',gold:'🥇',copper:'🔌',silver:'🥈'}[S.testObj];
-      const objName  = {paper:'الورق',thread:'الخيط',plastic:'البلاستيك',gold:'الذهب',copper:'النحاس',silver:'الفضة'}[S.testObj];
-
-      // Object placed at right side of canvas
-      const objX = w*0.78, objY = h*0.45;
-      c.font='42px serif'; c.textAlign='center'; c.textBaseline='middle';
-
-      if(attracted){
-        // Object leans toward balloon — animate with tilt
-        const tilt = prog * 0.45;
-        const driftX = -prog * 28;
-        c.save(); c.translate(objX+driftX, objY); c.rotate(-tilt);
-        c.fillText(objEmoji, 0, 0); c.restore();
-        // Thread/string connecting to balloon hint
-        if(S.testObj==='thread'){
-          const tx=bx+bR*.85, ty=by+bo;
-          c.strokeStyle='rgba(150,100,50,0.4)'; c.lineWidth=1.5; c.setLineDash([3,3]);
-          c.beginPath(); c.moveTo(tx,ty); c.lineTo(objX+driftX,objY-20); c.stroke(); c.setLineDash([]);
+    // ── Force field lines when charged and objects nearby ──
+    if (charged) {
+      S.objects.forEach(obj => {
+        if (!obj.attracted || obj.state === 'stuck') return;
+        const ox2 = obj.x * w, oy2 = obj.y * h;
+        const dist2 = Math.hypot(bx - ox2, by + bo - oy2);
+        if (dist2 < w * .38) {
+          const prox2 = Math.max(0, 1 - dist2 / (w * .38));
+          c.strokeStyle = `rgba(142,68,173,${.12 + prox2 * .22})`;
+          c.lineWidth = 1.2; c.setLineDash([4, 6]);
+          c.beginPath(); c.moveTo(bx, by + bo); c.lineTo(ox2, oy2); c.stroke();
+          c.setLineDash([]);
         }
-        // Arrow toward balloon
-        c.strokeStyle='rgba(39,174,96,0.75)'; c.lineWidth=2.5;
-        const arLen = prog * 30;
-        c.beginPath(); c.moveTo(objX+driftX-20,objY); c.lineTo(objX+driftX-20-arLen,objY); c.stroke();
-        // Result label
-        const el=document.getElementById('se1Result');
-        if(el) el.innerHTML=`<span style="color:#27AE60">✅ ${objName} يُجذب! (غير موصل — تتحرك شحناته)</span>`;
-      } else {
-        // Metal — stays put
-        c.fillText(objEmoji, objX, objY);
-        // X mark
-        const el=document.getElementById('se1Result');
-        if(el) el.innerHTML=`<span style="color:#C0392B">❌ ${objName} لا يُجذب! (فلز موصل — شحناته تتحرك بحرية وتعادل الأثر)</span>`;
-      }
-
-      // Label
-      c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`; c.fillStyle=attracted?'#27AE60':'#C0392B';
-      c.textAlign='center'; c.textBaseline='top';
-      c.fillText(objName, objX, objY+30);
-
-      // Background label panel
-      c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`;
-      c.fillStyle='rgba(100,60,20,0.5)'; c.textAlign='right';
-      c.fillText('← قرّب البالون', objX-10, objY-48);
+      });
     }
 
-    animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
+    // ── Hint ──
+    const hint = S.charge === 0 ? '✋ اسحب البالون على شعر الشخص لشحنه' :
+                 S.charge < 3  ? `⚡ استمر في الاحتكاك... (${S.charge}/5)` :
+                 '🎈 البالون مشحون! اسحبه نحو الأجسام على اليمين';
+    c.font = `bold ${Math.min(13, w * .027)}px Tajawal`;
+    c.fillStyle = 'rgba(120,80,20,.65)'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+    c.fillText(hint, w / 2, h * .97);
+
+    animFrame = requestAnimationFrame(() => { try { draw(); } catch (e) {} });
   }
   draw();
 }
