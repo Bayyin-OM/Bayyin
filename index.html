@@ -3275,7 +3275,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
     <div id="sims-u5earth" class="sims-wrap" style="margin-top:28px">
       <div class="sims-header">
         <div class="sims-title">استقصاءات الوحدة ٦ — حركات الأرض</div>
-        <div class="sims-count">٤ استقصاءات</div>
+        <div class="sims-count">٥ استقصاءات</div>
       </div>
       <div class="sims-grid">
 
@@ -3285,6 +3285,16 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
             <div class="sim-num">درس ١-٦ · الشمس والأرض والقمر</div>
             <div class="sim-name">النظام الشمسي المصغّر</div>
             <div class="sim-desc">شاهد حركة الأرض حول الشمس والقمر حول الأرض بالتزامن</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5sunseeming')">
+          <div class="sim-thumb t3">☀️</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٢-٦ · هل تتحرك الشمس؟</div>
+            <div class="sim-name">المنظور والحركة الظاهرية</div>
+            <div class="sim-desc">حرّك شخصيتك واكتشف لماذا تبدو الشمس وكأنها تتحرك في السماء</div>
           </div>
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
@@ -5835,6 +5845,7 @@ const SIM_META = {
   g5rainbow:        { title: '٧-٥ · قوس المطر والمنشور', badge: '🌈 5', tabs: ['تجربة المنشور 🔬', 'قطرة المطر 💧'] },
   // ── الصف الخامس — الوحدة ٦: حركات الأرض ──
   g5earthsun:    { title: '١-٦ · الشمس والأرض والقمر', badge: '🌍 5', tabs: ['النظام الشمسي', 'مسارات الكواكب'] },
+  g5sunseeming:  { title: '٢-٦ · هل تتحرك الشمس؟', badge: '☀️ 5', tabs: ['استكشف المنظور 🕹️'] },
   g5rotation:    { title: '٣-٦ · دوران الأرض', badge: '🔄 5', tabs: ['الليل والنهار 🌓', 'الفصول الأربعة 🍂'] },
   g5earthorbit:  { title: '٦-٥ · دوران الأرض حول الشمس', badge: '🌍 5', tabs: ['الفصول الأربعة 🍂'] },
   g5stars:       { title: '٧-٦ · استكشاف النجوم', badge: '⭐ 5', tabs: ['خريطة السماء 🗺️', 'أسماء النجوم ✨'] },
@@ -6434,6 +6445,7 @@ function openSim(type) {
     g5lightintensity:'الضوء يضعف بالمسافة ☀️ — قِس وارسم العلاقة في جدولك!',
     g5rainbow:'الضوء الأبيض مليء بالألوان 🌈 — المنشور يكشفها!',
     g5earthsun:'الأرض تدور حول الشمس في 365 يوماً 🌍 — شاهد المسارات!',
+    g5sunseeming:'الشمس ثابتة... أم أنت الذي تتحرك؟ ☀️ — حرّك شخصيتك واكتشف!',
     g5rotation:'دوران الأرض حول نفسها يصنع الليل والنهار 🌓 — شاهد العرض!',
     g5earthorbit:'ميل محور الأرض هو سبب الفصول الأربعة 🍂 — شاهد كيف!',
     g5stars:'النجوم في السماء موجودة دائماً لكننا نراها ليلاً فقط! ⭐ — اكتشف أسماءها!',
@@ -6692,6 +6704,7 @@ function startSim(type, tab) {
     g5lightintensity: [simG5LightIntensity],
     g5rainbow:        [simG5Rainbow, simG5RainDrop],
     g5earthsun:       [simG5EarthSun, simG5OrbitalPaths],
+    g5sunseeming:     [simG5SunSeeming],
     g5rotation:       [simG5DayNight, simG5Seasons],
     g5earthorbit:     [simG5Seasons],
     g5stars:          [simG5StarMap, simG5StarNames],
@@ -32124,6 +32137,18 @@ Object.assign(SIM_QUESTIONS, {
     fb: '✅ الأرض تدور حول الشمس في 365 يوماً (سنة) مع ميل محورها 23.5°. هذا الميل يجعل كمية الضوء والحرارة الواصلة لكل نصف كرة تتغير على مدار السنة، مما يسبب الفصول الأربعة.'
   },
 
+  g5sunseeming: {
+    q: 'ماذا تستنتج من هذا الاستقصاء؟',
+    opts: [
+      'الشمس تتحرك وتلاحق الطالب في السماء',
+      'الشمس ثابتة لكن موقعها يبدو مختلفاً عندما يتغير موقع المراقب',
+      'الشمس تدور حول الطالب مرة كل يوم',
+      'عين الطالب هي التي تتحرك وليس الشمس'
+    ],
+    ans: 1,
+    fb: '✅ الشمس ثابتة في مكانها (بالنسبة لمراقب على الأرض خلال وقت قصير). عندما تتحرك أنت، تتغير زاوية رؤيتك للشمس فتبدو في موضع مختلف. هذا يُسمى الحركة الظاهرية — وهو نفس المبدأ الذي يُفسّر لماذا تبدو الشمس وكأنها تتحرك عبر السماء خلال اليوم بسبب دوران الأرض.'
+  },
+
   // الليل والنهار
   g5rotation: {
     q: 'ما سبب تعاقب الليل والنهار على الأرض؟',
@@ -37985,6 +38010,309 @@ function simG5RainDrop() {
   draw();
 }
 
+
+function simG5SunSeeming() {
+  cancelAnimationFrame(animFrame);
+
+  // ── Player position (world coords, sun fixed at 0,0) ──
+  let px = 0, py = 0;          // player world position
+  const SUN_X = 0, SUN_Y = -1800; // sun fixed in world (high up)
+  const keys = {};
+  const SPEED = 5;
+
+  // Remove old key listeners then attach new ones
+  if (window._g5ssKeyDown) document.removeEventListener('keydown', window._g5ssKeyDown);
+  if (window._g5ssKeyUp)   document.removeEventListener('keyup',   window._g5ssKeyUp);
+
+  window._g5ssKeyDown = e => { keys[e.key] = true; e.preventDefault && ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key) && e.preventDefault(); };
+  window._g5ssKeyUp   = e => { keys[e.key] = false; };
+  document.addEventListener('keydown', window._g5ssKeyDown);
+  document.addEventListener('keyup',   window._g5ssKeyUp);
+
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">☀️ هل تتحرك الشمس؟</div>
+      <div class="ctrl-desc" style="font-size:12px;color:#555;margin-bottom:8px">
+        حرّك الشخصية وراقب الشمس — هل هي التي تتحرك أم أنت؟
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">🕹️ تحكّم بالشخصية</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;max-width:150px;margin:0 auto 8px">
+        <div></div>
+        <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
+          onpointerdown="keys['ArrowUp']=true" onpointerup="keys['ArrowUp']=false" onpointerleave="keys['ArrowUp']=false">▲</button>
+        <div></div>
+        <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
+          onpointerdown="keys['ArrowLeft']=true" onpointerup="keys['ArrowLeft']=false" onpointerleave="keys['ArrowLeft']=false">◀</button>
+        <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
+          onpointerdown="keys['ArrowDown']=true" onpointerup="keys['ArrowDown']=false" onpointerleave="keys['ArrowDown']=false">▼</button>
+        <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
+          onpointerdown="keys['ArrowRight']=true" onpointerup="keys['ArrowRight']=false" onpointerleave="keys['ArrowRight']=false">▶</button>
+      </div>
+      <button class="ctrl-btn reset" style="width:100%;margin-top:4px" onclick="window._g5ssReset && window._g5ssReset()">↺ إعادة للمركز</button>
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ هل الشمس تتحرك أم أنت؟</strong>
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+      <div class="q-ans-panel">أنت الذي تتحرك! الشمس ثابتة في مكانها، لكن تغيّر موقعك يُغيّر زاوية رؤيتك لها، فتبدو وكأنها انتقلت في السماء.</div>
+    </div>`);
+
+  window._g5ssReset = () => { px = 0; py = 0; };
+
+  const cv = document.getElementById('simCanvas');
+  let t = 0, moved = false, totalDist = 0;
+
+  function draw() {
+    if (currentSim !== 'g5sunseeming') {
+      document.removeEventListener('keydown', window._g5ssKeyDown);
+      document.removeEventListener('keyup',   window._g5ssKeyUp);
+      cancelAnimationFrame(animFrame);
+      return;
+    }
+
+    // ── Input ──
+    const prevPX = px, prevPY = py;
+    if (keys['ArrowLeft']  || keys['a'] || keys['A']) px -= SPEED;
+    if (keys['ArrowRight'] || keys['d'] || keys['D']) px += SPEED;
+    if (keys['ArrowUp']    || keys['w'] || keys['W']) py -= SPEED * 0.5;
+    if (keys['ArrowDown']  || keys['s'] || keys['S']) py += SPEED * 0.5;
+    // Clamp vertical movement (stay on ground level roughly)
+    py = Math.max(-120, Math.min(120, py));
+
+    const didMove = px !== prevPX || py !== prevPY;
+    if (didMove) { moved = true; totalDist += Math.abs(px - prevPX) + Math.abs(py - prevPY); }
+
+    t++;
+
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height;
+    c.clearRect(0, 0, w, h);
+
+    // ── Camera: follow player ──
+    // Screen centre = player world pos mapped to canvas centre
+    const camX = w / 2 - px;
+    const camY = h * 0.62 - py; // ground horizon at 62% of canvas height
+
+    // ── Sky gradient ──
+    const sky = c.createLinearGradient(0, 0, 0, h * 0.65);
+    sky.addColorStop(0, '#1565C0');
+    sky.addColorStop(0.5, '#42A5F5');
+    sky.addColorStop(1, '#90CAF9');
+    c.fillStyle = sky;
+    c.fillRect(0, 0, w, h);
+
+    // ── Ground ──
+    const grd = c.createLinearGradient(0, h * 0.62, 0, h);
+    grd.addColorStop(0, '#66BB6A');
+    grd.addColorStop(0.3, '#43A047');
+    grd.addColorStop(1, '#2E7D32');
+    c.fillStyle = grd;
+    c.fillRect(0, h * 0.62, w, h * 0.38);
+
+    // Ground line
+    c.strokeStyle = '#2E7D32'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(0, h * 0.62); c.lineTo(w, h * 0.62); c.stroke();
+
+    // ── Ground tiles / grid (shows movement) ──
+    c.strokeStyle = 'rgba(0,0,0,0.08)'; c.lineWidth = 1;
+    const tileSize = 80;
+    const offX = (camX % tileSize + tileSize) % tileSize;
+    const offY = (camY % tileSize + tileSize) % tileSize;
+    for (let gx = offX - tileSize; gx < w + tileSize; gx += tileSize) {
+      c.beginPath(); c.moveTo(gx, h * 0.62); c.lineTo(gx, h); c.stroke();
+    }
+
+    // ── Background trees (parallax, slower than player) ──
+    const treePositions = [-600, -300, 0, 300, 600, 900, -900, 150, -150, 450, -450, 750, -750];
+    for (const tx of treePositions) {
+      const sx = camX + tx * 0.4; // parallax factor
+      const sy = h * 0.62;
+      if (sx > -60 && sx < w + 60) {
+        // trunk
+        c.fillStyle = '#5D4037';
+        c.fillRect(sx - 6, sy - 55, 12, 55);
+        // canopy
+        c.fillStyle = '#2E7D32';
+        c.beginPath(); c.arc(sx, sy - 65, 28, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#388E3C';
+        c.beginPath(); c.arc(sx + 8, sy - 70, 20, 0, Math.PI * 2); c.fill();
+      }
+    }
+
+    // ── SUN (fixed in world, convert to screen) ──
+    const sunSX = camX + SUN_X;
+    const sunSY = camY + SUN_Y;
+
+    // Sun glow layers
+    const sunPulse = 1 + Math.sin(t * 0.04) * 0.015;
+    const glowR = 70 * sunPulse;
+    const sunGlow = c.createRadialGradient(sunSX, sunSY, 0, sunSX, sunSY, glowR * 2.5);
+    sunGlow.addColorStop(0, 'rgba(255,255,200,0.9)');
+    sunGlow.addColorStop(0.25, 'rgba(255,220,50,0.6)');
+    sunGlow.addColorStop(0.6, 'rgba(255,180,0,0.25)');
+    sunGlow.addColorStop(1, 'rgba(255,150,0,0)');
+    c.fillStyle = sunGlow;
+    c.beginPath(); c.arc(sunSX, sunSY, glowR * 2.5, 0, Math.PI * 2); c.fill();
+
+    // Sun disc
+    c.fillStyle = '#FFF176';
+    c.beginPath(); c.arc(sunSX, sunSY, glowR * 0.55, 0, Math.PI * 2); c.fill();
+    c.fillStyle = '#FFD600';
+    c.beginPath(); c.arc(sunSX, sunSY, glowR * 0.45, 0, Math.PI * 2); c.fill();
+
+    // Sun rays
+    c.strokeStyle = 'rgba(255,220,50,0.55)'; c.lineWidth = 2.5;
+    for (let ri = 0; ri < 12; ri++) {
+      const ra = ri * (Math.PI * 2 / 12) + t * 0.008;
+      const r1 = glowR * 0.58, r2 = glowR * 0.82;
+      c.beginPath();
+      c.moveTo(sunSX + Math.cos(ra) * r1, sunSY + Math.sin(ra) * r1);
+      c.lineTo(sunSX + Math.cos(ra) * r2, sunSY + Math.sin(ra) * r2);
+      c.stroke();
+    }
+
+    // ── Line of sight: player → sun ──
+    const playerSX = w / 2; // player always at screen centre
+    const playerSY = h * 0.62 - 45;
+
+    // Shadow on ground (direction away from sun)
+    const shadowAngle = Math.atan2(playerSY - sunSY, playerSX - sunSX);
+    const shadowLen = 55 + Math.abs(Math.sin(shadowAngle)) * 20;
+    c.strokeStyle = 'rgba(0,0,0,0.28)'; c.lineWidth = 8; c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(playerSX, h * 0.62);
+    c.lineTo(playerSX + Math.cos(shadowAngle) * shadowLen, h * 0.62 + 5);
+    c.stroke();
+    c.lineCap = 'butt';
+
+    // Angle line (player → sun), dashed
+    c.save();
+    c.setLineDash([6, 5]);
+    c.strokeStyle = 'rgba(255,220,50,0.6)'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(playerSX, playerSY); c.lineTo(sunSX, sunSY); c.stroke();
+    c.setLineDash([]);
+    c.restore();
+
+    // Angle arc near player
+    const angleToSun = Math.atan2(sunSY - playerSY, sunSX - playerSX);
+    const horizAngle = Math.atan2(0, 1); // 0
+    c.strokeStyle = 'rgba(255,220,0,0.85)'; c.lineWidth = 2;
+    c.beginPath();
+    c.arc(playerSX, playerSY, 30, Math.min(angleToSun, horizAngle), Math.max(angleToSun, horizAngle));
+    c.stroke();
+
+    // ── Player (basketball player) ──
+    const bx = playerSX, by = h * 0.62;
+    const walkCycle = moved ? Math.sin(t * 0.22) : 0;
+
+    // Shadow
+    c.fillStyle = 'rgba(0,0,0,0.18)';
+    c.beginPath(); c.ellipse(bx, by + 2, 18, 6, 0, 0, Math.PI * 2); c.fill();
+
+    // Legs
+    c.strokeStyle = '#1565C0'; c.lineWidth = 7; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(bx, by - 20);
+    c.lineTo(bx - 8 + walkCycle * 8, by); c.stroke();
+    c.beginPath(); c.moveTo(bx, by - 20);
+    c.lineTo(bx + 8 - walkCycle * 8, by); c.stroke();
+    c.lineCap = 'butt';
+
+    // Body (jersey)
+    c.fillStyle = '#E53935';
+    c.beginPath(); c.roundRect(bx - 11, by - 52, 22, 32, 4); c.fill();
+    // Jersey stripe
+    c.fillStyle = '#FFFFFF';
+    c.beginPath(); c.roundRect(bx - 5, by - 50, 10, 28, 2); c.fill();
+
+    // Arms
+    c.strokeStyle = '#FFCC80'; c.lineWidth = 6; c.lineCap = 'round';
+    // Ball-holding arm (right, slightly raised)
+    c.beginPath(); c.moveTo(bx + 9, by - 44);
+    c.lineTo(bx + 22, by - 52 + walkCycle * 3); c.stroke();
+    // Left arm swinging
+    c.beginPath(); c.moveTo(bx - 9, by - 44);
+    c.lineTo(bx - 18, by - 38 - walkCycle * 5); c.stroke();
+    c.lineCap = 'butt';
+
+    // Basketball
+    const ballX = bx + 22, ballY = by - 52 + walkCycle * 3;
+    c.fillStyle = '#E65100';
+    c.beginPath(); c.arc(ballX, ballY, 10, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = '#BF360C'; c.lineWidth = 1.5;
+    c.beginPath(); c.arc(ballX, ballY, 10, 0, Math.PI * 2); c.stroke();
+    c.strokeStyle = '#BF360C'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(ballX - 10, ballY); c.lineTo(ballX + 10, ballY); c.stroke();
+    c.beginPath(); c.moveTo(ballX, ballY - 10); c.lineTo(ballX, ballY + 10); c.stroke();
+    c.beginPath(); c.arc(ballX, ballY, 10, -Math.PI * 0.5, Math.PI * 0.5); c.stroke();
+
+    // Head
+    c.fillStyle = '#FFCC80';
+    c.beginPath(); c.arc(bx, by - 62, 12, 0, Math.PI * 2); c.fill();
+    // Hair
+    c.fillStyle = '#4E342E';
+    c.beginPath(); c.arc(bx, by - 68, 10, Math.PI, 0); c.fill();
+    // Eyes
+    c.fillStyle = '#333';
+    c.beginPath(); c.arc(bx - 4, by - 62, 1.8, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(bx + 4, by - 62, 1.8, 0, Math.PI * 2); c.fill();
+
+    // ── Info box (dynamic message) ──
+    let msg, msgCol;
+    if (!moved) {
+      msg = '⬅️ حرّك الشخصية وراقب الشمس!';
+      msgCol = '#1565C0';
+    } else if (totalDist < 300) {
+      msg = '🤔 ماذا تلاحظ؟ هل الشمس تحركت؟';
+      msgCol = '#E65100';
+    } else if (totalDist < 800) {
+      msg = '👀 الشمس تبدو في موضع مختلف... لكن هل تحركت فعلاً؟';
+      msgCol = '#6A1B9A';
+    } else {
+      msg = '💡 أنت الذي تتحرك! الشمس ثابتة دائماً في مكانها.';
+      msgCol = '#1B5E20';
+    }
+
+    // Message background
+    const msgW = Math.min(w * 0.82, 520);
+    const msgX = (w - msgW) / 2;
+    const msgY = h * 0.04;
+    c.fillStyle = 'rgba(255,255,255,0.92)';
+    c.strokeStyle = msgCol; c.lineWidth = 2;
+    c.beginPath(); c.roundRect(msgX, msgY, msgW, 36, 10); c.fill(); c.stroke();
+    c.font = `bold ${Math.max(12, w * 0.018)}px Tajawal`;
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillStyle = msgCol;
+    c.fillText(msg, w / 2, msgY + 18);
+
+    // ── Position HUD ──
+    // Sun position indicator at top-right of sky
+    const sunAngleDeg = Math.round(Math.atan2(sunSX - playerSX, -(sunSY - playerSY)) * 180 / Math.PI);
+    c.font = `${Math.max(11, w * 0.015)}px Tajawal`;
+    c.textAlign = 'left'; c.textBaseline = 'top';
+    c.fillStyle = 'rgba(255,255,255,0.9)';
+    c.fillText(`زاوية الشمس: ${sunAngleDeg}°`, 12, h * 0.66);
+    c.fillStyle = 'rgba(0,0,0,0.5)';
+    c.fillText(`موقعك: (${Math.round(px)}, ${Math.round(-py)})`, 12, h * 0.66 + 18);
+
+    // ── Conclusion banner (after enough movement) ──
+    if (totalDist > 1500) {
+      const banY = h * 0.70;
+      const banH = 62;
+      c.fillStyle = 'rgba(27,94,32,0.93)';
+      c.beginPath(); c.roundRect(w * 0.05, banY, w * 0.90, banH, 12); c.fill();
+      c.font = `bold ${Math.max(13, w * 0.019)}px Tajawal`;
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillStyle = '#FFFFFF';
+      c.fillText('🌟 الاستنتاج: الشمس ثابتة — أنت الذي تتحرك!', w / 2, banY + 20);
+      c.font = `${Math.max(11, w * 0.014)}px Tajawal`;
+      c.fillStyle = '#C8E6C9';
+      c.fillText('تغيّر موقعك يُغيّر زاوية رؤيتك للشمس فتبدو وكأنها تتحرك', w / 2, banY + 44);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
 
 function simG5EarthSun() {
   document.getElementById('simControlsPanel').innerHTML=`
