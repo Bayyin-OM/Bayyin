@@ -5287,7 +5287,6 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
     submitBtn.disabled = true;
     submitBtn.textContent = 'جارٍ الإرسال...';
 
-    // Build payload
     var payload = {
       rating: _rating,
       suggestion: suggestion || null,
@@ -5295,46 +5294,22 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
       page: window.location.pathname || '/'
     };
 
-    // Send to Supabase
-    var supabaseUrl = window._supabaseUrl || (window.supabase && window.supabase.supabaseUrl);
-    var supabaseKey = window._supabaseKey || (window.supabase && window.supabase.supabaseKey);
-
-    // Try using the global supabase client if already initialised
-    var client = (typeof supabase !== 'undefined' && supabase && supabase.from) ? supabase
-                 : (window._sbClient || null);
-
-    if (client && client.from) {
-      client.from('feedback').insert([payload]).then(function(res) {
-        if (res.error) {
-          console.warn('Bayyin feedback — Supabase error:', res.error.message);
-        }
-        _showThankyou();
-      }).catch(function(err) {
-        console.warn('Bayyin feedback — network error:', err);
-        _showThankyou(); // still show thankyou — don't leave user hanging
-      });
-    } else {
-      // Fallback: raw REST insert (uses window.SUPABASE_URL / SUPABASE_ANON_KEY set elsewhere)
-      var url = (window.SUPABASE_URL || '') + '/rest/v1/feedback';
-      var key  = window.SUPABASE_ANON_KEY || '';
-      if (url.length > 20 && key.length > 10) {
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': key,
-            'Authorization': 'Bearer ' + key,
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify(payload)
-        }).catch(function(e){ console.warn('Bayyin feedback fetch error:', e); })
-          .finally(_showThankyou);
-      } else {
-        // No Supabase configured — just show thankyou (dev mode)
-        console.log('Bayyin feedback (dev — no Supabase):', payload);
-        _showThankyou();
-      }
-    }
+    // استخدم _SUPA_URL و _SUPA_KEY الموجودَين في الملف مباشرة
+    fetch(_SUPA_URL + '/rest/v1/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': _SUPA_KEY,
+        'Authorization': 'Bearer ' + _SUPA_KEY,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      if (!res.ok) return res.text().then(function(t){ throw new Error(t); });
+    })
+    .catch(function(e){ console.warn('Bayyin feedback error:', e); })
+    .finally(_showThankyou);
   };
 
   function _showThankyou() {
