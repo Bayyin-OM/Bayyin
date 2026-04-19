@@ -27793,385 +27793,500 @@ function simSmoking2(){
 // الوحدة ١٠ — التكاثر والتطوّر  (PhET-style محسّن)
 // ══════════════════════════════════════════════════════════
 
+
 function repro_gametes(){
   cancelAnimationFrame(animFrame);
-  const cv=document.getElementById('simCanvas');
-  const c=cv.getContext('2d');
-  if(!simState.repro_gametes) simState.repro_gametes={t:0,spermCount:0,launched:false,spermObjs:[],fertilised:false,fertAnim:0,tab:currentTab};
-  const S=simState.repro_gametes;
-  S.tab=currentTab;
+  const cv = document.getElementById('simCanvas');
 
-  if(currentTab===0){
-    controls(`
-      <div class="ctrl-section">
-        <div class="ctrl-label">🔬 محاكاة الإخصاب</div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.75);margin:6px 0;line-height:1.8">
-          اضغط الزر لإطلاق الحيوانات المنوية نحو البويضة
-        </div>
-        <button class="ctrl-btn play" onclick="
-          simState.repro_gametes.launched=true;
-          simState.repro_gametes.fertilised=false;
-          simState.repro_gametes.fertAnim=0;
-          simState.repro_gametes.spermObjs=Array.from({length:25},(_,i)=>({
-            x:0.06+Math.random()*0.05, y:0.25+Math.random()*0.45,
-            phase:Math.random()*Math.PI*2, done:false, speed:0.0018+Math.random()*0.001,
-            wobble:Math.random()*0.3
-          }));
-        ">🏊 أطلق الحيوانات المنوية</button>
-        <button class="ctrl-btn reset" onclick="
-          simState.repro_gametes.launched=false;
-          simState.repro_gametes.fertilised=false;
-          simState.repro_gametes.spermObjs=[];
-          simState.repro_gametes.fertAnim=0;
-        ">↺ إعادة</button>
-      </div>
-      <div class="info-box" style="font-size:13px;line-height:2;margin-top:8px">
-        🥚 البويضة: كبيرة جداً — 23 كروموسوم<br>
-        🏊 الحيوان المنوي: صغير، يسبح نحو البويضة — 23 كروموسوم<br>
-        ✅ عند الإخصاب في قناة البيض: 23+23 = <strong>46 كروموسوم</strong>
-      </div>`);
-  } else {
-    // Tab 2 — Matching Game
-    if(!S.game) S.game={
-      cards:[
-        {trait:'حجمها كبير جداً',type:'بويضة',id:0},
-        {trait:'لها ذيل للحركة',type:'حيوان منوي',id:1},
-        {trait:'تنتج في المبيض',type:'بويضة',id:2},
-        {trait:'تنتج في الخصية',type:'حيوان منوي',id:3},
-        {trait:'تحمل 23 كروموسوم',type:'بويضة',id:4},
-        {trait:'تنتقل في قناة البيض',type:'بويضة',id:5},
-        {trait:'تسبح نحو البويضة',type:'حيوان منوي',id:6},
-        {trait:'حجمها صغير جداً',type:'حيوان منوي',id:7},
-        {trait:'تحمل 23 كروموسوم',type:'حيوان منوي',id:8},
-        {trait:'خلية أنثوية',type:'بويضة',id:9},
-      ],
-      shuffled:[],
-      dragging:null,
-      positions:{},
-      correct:new Set(),
-      wrong:new Set(),
-      initialized:false,
-      flash:null, flashT:0
+  // ── State ──────────────────────────────────────────────────
+  if(!simState.repro_gametes){
+    simState.repro_gametes={
+      t:0, pulse:0,
+      // Phases: 'anatomy' → 'question' → 'correct_flash' → 'simulation' → 'done'
+      phase:'anatomy', anatomyT:0,
+      wrongFlash:0, wrongLabel:'',
+      correctFlash:0,
+      // sperm sim
+      spermObjs:[], launched:false, fertilised:false, fertAnim:0, eggTravel:0,
+      // clickable zones (set each frame)
+      tubeZone:null, uterusZone:null, ovaryZone:null
     };
-    const G=S.game;
+  }
+  const S = simState.repro_gametes;
+  S.tab = currentTab;
 
-    controls(`
-      <div class="ctrl-section">
-        <div class="ctrl-label">🎮 لعبة المطابقة</div>
-        <div style="font-size:13px;color:#555;line-height:1.8">
-          وصّلي كل خاصية بنوع المشيج الصحيح<br>
-          🟢 صح = تثبت | 🔴 خطأ = ترجع
+  // ── Controls ────────────────────────────────────────────────
+  function updateControls(){
+    if(currentTab!==0){ controls(''); return; }
+    if(S.phase==='anatomy'||S.phase==='question'||S.phase==='correct_flash'){
+      controls(`
+        <div class="ctrl-section">
+          <div class="ctrl-label">🔬 الجهاز التناسلي الأنثوي</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:2.1;margin:6px 0">
+            ${S.phase==='anatomy'?'تأمّل الرسم التشريحي<br>وتعرّف على أجزائه':'❓ <strong style="color:#FFE050">أين تحدث عملية الإخصاب؟</strong><br>انقر على المنطقة الصحيحة'}
+          </div>
+          <button class="ctrl-btn reset" onclick="simState.repro_gametes={t:0,pulse:0,phase:'anatomy',anatomyT:0,wrongFlash:0,wrongLabel:'',correctFlash:0,spermObjs:[],launched:false,fertilised:false,fertAnim:0,eggTravel:0,tubeZone:null,uterusZone:null,ovaryZone:null}">↺ إعادة</button>
         </div>
-        <button class="ctrl-btn reset" onclick="simState.repro_gametes.game=null">↺ إعادة</button>
-      </div>
-      <div class="info-box" style="font-size:13px;line-height:1.9">
-        🥚 <strong>البويضة:</strong> كبيرة، أنثوية، في المبيض<br>
-        🏊 <strong>الحيوان المنوي:</strong> صغير، ذيل، في الخصية<br>
-        كلاهما يحمل <strong>23</strong> كروموسوم
-      </div>`);
-
-    if(!G.initialized){
-      G.shuffled=[...G.cards].sort(()=>Math.random()-.5);
-      G.initialized=true;
+        <div class="info-box" style="font-size:12.5px;line-height:2.2;margin-top:8px">
+          🟣 <strong>المبيضان:</strong> ينتجان البويضات<br>
+          🌸 <strong>قناة البيض:</strong> تنقل البويضة — موقع الإخصاب<br>
+          🩷 <strong>الرحم:</strong> يستقبل البويضة المخصّبة<br>
+          🟡 <strong>البويضة:</strong> 23 كروموسوم
+        </div>`);
+    } else {
+      controls(`
+        <div class="ctrl-section">
+          <div class="ctrl-label">🏊 محاكاة الإخصاب</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:2;margin:6px 0">
+            الحيوانات المنوية تسبح عبر الرحم<br>نحو البويضة في قناة البيض 🎯
+          </div>
+          <button class="ctrl-btn play" onclick="
+            var S=simState.repro_gametes;
+            S.spermObjs=Array.from({length:35},(_,i)=>({
+              x:0.06+Math.random()*0.07, y:0.46+Math.random()*0.12,
+              phase:Math.random()*Math.PI*2, done:false,
+              speed:0.0013+Math.random()*0.0009,
+              wobble:0.16+Math.random()*0.22
+            }));
+            S.launched=true; S.fertilised=false; S.fertAnim=0; S.eggTravel=0;
+          ">🏊 أطلق الحيوانات المنوية</button>
+          <button class="ctrl-btn reset" onclick="
+            simState.repro_gametes={t:0,pulse:0,phase:'anatomy',anatomyT:0,wrongFlash:0,wrongLabel:'',correctFlash:0,spermObjs:[],launched:false,fertilised:false,fertAnim:0,eggTravel:0,tubeZone:null,uterusZone:null,ovaryZone:null};
+          ">↺ إعادة من البداية</button>
+        </div>
+        <div class="info-box" style="font-size:13px;line-height:2.1;margin-top:8px">
+          🥚 البويضة: <strong>23</strong> كروموسوم<br>
+          🏊 الحيوان المنوي: <strong>23</strong> كروموسوم<br>
+          ✅ بعد الإخصاب: <strong style="color:#FFD700">46 كروموسوم</strong>
+        </div>`);
     }
   }
+  updateControls();
 
+  // ── Helpers ─────────────────────────────────────────────────
+  function gp(e){
+    const r=cv.getBoundingClientRect(), sc=cv.width/r.width;
+    const s=(e.changedTouches&&e.changedTouches[0])||(e.touches&&e.touches[0])||e;
+    return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};
+  }
+
+  // Draw a rounded label badge
+  function badge(c,text,x,y,col,bgAlpha){
+    const fs=Math.min(12,cv.width*0.026);
+    c.font=`bold ${fs}px Tajawal`;
+    const tw=c.measureText(text).width;
+    const pw=tw+16, ph=fs+10;
+    c.fillStyle=col.replace(')',`,${bgAlpha||0.22})`).replace('rgb(','rgba(').replace(/,[\d.]+\)$/,`,${bgAlpha||0.22})`);
+    // simple semi-transparent bg
+    c.save();
+    c.fillStyle=`rgba(10,5,30,0.58)`;
+    c.beginPath(); c.roundRect(x-pw/2,y-ph/2,pw,ph,6); c.fill();
+    c.strokeStyle=col; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(x-pw/2,y-ph/2,pw,ph,6); c.stroke();
+    c.fillStyle=col; c.textAlign='center'; c.textBaseline='middle';
+    c.shadowColor='rgba(0,0,0,0.9)'; c.shadowBlur=4;
+    c.fillText(text,x,y);
+    c.restore();
+  }
+
+  // Dotted leader line
+  function leader(c,x1,y1,x2,y2,col){
+    c.save(); c.strokeStyle=col; c.lineWidth=1.5; c.setLineDash([4,4]);
+    c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+    c.setLineDash([]); c.restore();
+  }
+
+  // ── Main draw ────────────────────────────────────────────────
   function draw(){
     if(currentSim!=='repro_gametes') return;
-    const w=cv.width,h=cv.height;
+    S.t+=0.04; S.pulse=(S.pulse+0.035)%(Math.PI*2);
+    if(S.phase==='anatomy') S.anatomyT++;
+    const c=cv.getContext('2d');
+    const w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h);
-    S.t+=0.04;
-
-    if(S.tab===0){
-      // ── TAB 1: Female reproductive system + fertilisation ──
-      const bg=c.createLinearGradient(0,0,0,h);
-      bg.addColorStop(0,'#3D0A50'); bg.addColorStop(1,'#5A1070');
-      c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-      // Draw simplified female reproductive system
-      const cxBody=w*.5, cyBody=h*.52;
-      const uW=w*.22, uH=h*.2;
-
-      // Uterus (رحم) — pear shape
-      c.fillStyle='rgba(220,100,160,0.35)';
-      c.strokeStyle='rgba(255,140,190,0.7)'; c.lineWidth=2.5;
-      c.beginPath();
-      c.moveTo(cxBody,cyBody-uH*.55);
-      c.bezierCurveTo(cxBody+uW*.6,cyBody-uH*.45, cxBody+uW*.65,cyBody+uH*.25, cxBody,cyBody+uH*.55);
-      c.bezierCurveTo(cxBody-uW*.65,cyBody+uH*.25, cxBody-uW*.6,cyBody-uH*.45, cxBody,cyBody-uH*.55);
-      c.fill(); c.stroke();
-
-      // Fallopian tubes (قناتا البيض)
-      const tubeStartY=cyBody-uH*.38;
-      // Right tube (left on screen due to RTL)
-      c.strokeStyle='rgba(255,160,200,0.8)'; c.lineWidth=Math.max(8,w*.018);
-      c.lineCap='round';
-      c.beginPath();
-      c.moveTo(cxBody+uW*.55,tubeStartY);
-      c.bezierCurveTo(cxBody+uW*1.1,tubeStartY-h*.04, cxBody+uW*1.5,tubeStartY-h*.1, cxBody+uW*1.7,tubeStartY-h*.15);
-      c.stroke();
-      // Left tube
-      c.beginPath();
-      c.moveTo(cxBody-uW*.55,tubeStartY);
-      c.bezierCurveTo(cxBody-uW*1.1,tubeStartY-h*.04, cxBody-uW*1.5,tubeStartY-h*.1, cxBody-uW*1.7,tubeStartY-h*.15);
-      c.stroke();
-
-      // Ovaries (مبيضان)
-      const ovR=Math.min(w*.055,h*.055,22);
-      [[cxBody+uW*1.82,tubeStartY-h*.17],[cxBody-uW*1.82,tubeStartY-h*.17]].forEach(([ox,oy])=>{
-        const og=c.createRadialGradient(ox,oy,0,ox,oy,ovR);
-        og.addColorStop(0,'#F4A8D8'); og.addColorStop(1,'#C060A0');
-        c.fillStyle=og; c.beginPath(); c.arc(ox,oy,ovR,0,Math.PI*2); c.fill();
-        c.strokeStyle='#FF90C0'; c.lineWidth=2; c.stroke();
-        c.fillStyle='white'; c.font=`bold ${Math.round(ovR*.5)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText('مبيض',ox,oy+ovR+12);
-      });
-
-      // Labels
-      c.fillStyle='rgba(255,200,230,0.8)'; c.font=`bold ${Math.min(12,w*.026)}px Tajawal`;
-      c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('الرحم',cxBody,cyBody+uH*.1);
-      c.fillText('قناة البيض ← موقع الإخصاب',cxBody,tubeStartY-h*.22);
-
-      // Egg position — large, in right fallopian tube (on screen right = anatomical left)
-      const ex=cxBody+uW*1.22, ey=tubeStartY-h*.08;
-      const eR=Math.min(h*.1,h*.12,42); // Much bigger egg
-      const glow=c.createRadialGradient(ex,ey,0,ex,ey,eR*2.2);
-      glow.addColorStop(0,'rgba(255,200,60,0.6)'); glow.addColorStop(0.5,'rgba(255,180,40,0.2)'); glow.addColorStop(1,'transparent');
-      c.fillStyle=glow; c.beginPath(); c.arc(ex,ey,eR*2.2,0,Math.PI*2); c.fill();
-      // Zona pellucida (غشاء شفاف)
-      c.strokeStyle='rgba(255,220,120,0.35)'; c.lineWidth=6;
-      c.beginPath(); c.arc(ex,ey,eR*1.35,0,Math.PI*2); c.stroke();
-      const eg=c.createRadialGradient(ex-eR*.3,ey-eR*.3,eR*.1,ex,ey,eR);
-      eg.addColorStop(0,'#FFE08A'); eg.addColorStop(.5,'#E89030'); eg.addColorStop(1,'#C07020');
-      c.fillStyle=eg; c.beginPath(); c.arc(ex,ey,eR,0,Math.PI*2); c.fill();
-      c.strokeStyle='#FFB848'; c.lineWidth=3; c.stroke();
-      // Nucleus
-      c.fillStyle='rgba(120,50,10,0.65)'; c.beginPath(); c.arc(ex,ey,eR*.38,0,Math.PI*2); c.fill();
-      c.fillStyle='white'; c.font=`bold ${Math.round(eR*.34)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText('23🧬',ex,ey);
-      c.fillStyle='#FFE090'; c.font=`bold ${Math.min(13,w*.028)}px Tajawal`;
-      c.fillText('🥚 البويضة',ex,ey+eR+18);
-
-      // Sperm — move FROM LEFT side toward egg (left=vagina side, right=egg in tube)
-      if(S.launched){
-        S.spermObjs.forEach(sp=>{
-          if(sp.done) return;
-          // Calculate direction toward egg
-          const sx2=sp.x*w, sy2=sp.y*h;
-          const toEggX=ex-sx2, toEggY=ey-sy2;
-          const dist=Math.hypot(toEggX,toEggY);
-          if(dist<eR*1.3 && !S.fertilised){
-            S.fertilised=true; S.fertAnim=0;
-            try{SoundEngine.chord([440,554,659],0.5,0.2);}catch(e2){}
-          }
-          if(dist<eR+6){ sp.done=true; return; }
-          // Move toward egg with wobble (natural swimming)
-          const angle=Math.atan2(toEggY,toEggX);
-          const wobbleAngle=angle+Math.sin(S.t*5+sp.phase)*sp.wobble;
-          sp.x+=Math.cos(wobbleAngle)*sp.speed;
-          sp.y+=Math.sin(wobbleAngle)*sp.speed;
-          const sx3=sp.x*w, sy3=sp.y*h;
-          // Draw sperm head
-          const headAngle=Math.atan2(toEggY,toEggX);
-          c.save(); c.translate(sx3,sy3); c.rotate(headAngle);
-          const hg=c.createRadialGradient(-2,-1,1,0,0,7);
-          hg.addColorStop(0,'#C0FFFF'); hg.addColorStop(1,'#1A8FA8');
-          c.fillStyle=hg; c.beginPath(); c.ellipse(0,0,9,6,0,0,Math.PI*2); c.fill();
-          // Tail (undulating)
-          c.strokeStyle='rgba(80,200,220,0.75)'; c.lineWidth=1.8;
-          c.beginPath(); c.moveTo(-9,0);
-          for(let i=0;i<14;i++){
-            const tx=-9-(i+1)*5.5;
-            const ty=Math.sin(S.t*5+sp.phase+i*.7)*7*(1-i/16);
-            i===0?c.moveTo(tx,ty):c.lineTo(tx,ty);
-          }
-          c.stroke();
-          c.restore();
-        });
-      }
-
-      if(S.fertilised){
-        S.fertAnim=Math.min(S.fertAnim+1,60);
-        const prog=S.fertAnim/60;
-        const ring=c.createRadialGradient(ex,ey,eR,ex,ey,eR+prog*50);
-        ring.addColorStop(0,'rgba(255,220,80,0.8)'); ring.addColorStop(1,'transparent');
-        c.fillStyle=ring; c.beginPath(); c.arc(ex,ey,eR+prog*50,0,Math.PI*2); c.fill();
-        c.fillStyle='#FFD700'; c.font=`bold ${Math.min(16,w*.036)}px Tajawal`; c.textAlign='center';
-        c.fillText('✅ إخصاب في قناة البيض! 46 كروموسوم',w/2,h*.87);
-        c.fillStyle='rgba(255,215,0,0.8)'; c.font=`${Math.min(13,w*.028)}px Tajawal`;
-        c.fillText('البويضة المخصبة ستنتقل للرحم للانغراس 🌟',w/2,h*.93);
-      } else if(!S.launched){
-        c.fillStyle='rgba(255,200,230,0.6)'; c.font=`${Math.min(12,w*.026)}px Tajawal`; c.textAlign='center';
-        c.fillText('اضغط "أطلق الحيوانات المنوية" لبدء المحاكاة',w/2,h*.9);
-      }
-
-    } else {
-      // ── TAB 2: Chromosome Matching Game ──
-      const bg2=c.createLinearGradient(0,0,0,h);
-      bg2.addColorStop(0,'#0A1A30'); bg2.addColorStop(1,'#142850');
-      c.fillStyle=bg2; c.fillRect(0,0,w,h);
-
-      const G=S.game;
-      if(!G||!G.initialized){ animFrame=requestAnimationFrame(draw); return; }
-
-      // Drop zones
-      const zoneW=w*.28, zoneH=h*.78;
-      const zoneY=h*.14;
-      const zone1X=w*.08; // بويضة
-      const zone2X=w*.64; // حيوان منوي
-
-      // Draw drop zones
-      [
-        {x:zone1X,label:'🥚 البويضة',col:'rgba(255,160,50,'},
-        {x:zone2X,label:'🏊 الحيوان المنوي',col:'rgba(26,143,168,'}
-      ].forEach(z=>{
-        c.fillStyle=z.col+'0.12)'; c.strokeStyle=z.col+'0.5)'; c.lineWidth=2.5;
-        c.beginPath(); c.roundRect(z.x,zoneY,zoneW,zoneH,14); c.fill(); c.stroke();
-        c.font=`bold ${Math.min(14,w*.028)}px Tajawal`; c.fillStyle=z.col+'0.95)'; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText(z.label,z.x+zoneW/2,zoneY-16);
-      });
-
-      // Score
-      const correctCount=G.correct.size;
-      c.font=`bold ${Math.min(14,w*.03)}px Tajawal`; c.fillStyle='rgba(255,220,100,0.9)'; c.textAlign='center';
-      c.fillText(`✅ ${correctCount} / ${G.shuffled.length}`,w/2,zoneY-16);
-      if(correctCount===G.shuffled.length){
-        c.font=`bold ${Math.min(20,w*.042)}px Tajawal`; c.fillStyle='#FFD700';
-        c.fillText('🎉 أحسنتِ! اكتملت المطابقة!',w/2,h*.92);
-      }
-
-      // Draw cards (those not yet placed correctly)
-      const cardW=Math.min(zoneW*.88,w*.23), cardH=Math.min(h*.1,48);
-      const startX=w*.36; // center column
-      let centerIdx=0;
-      G.shuffled.forEach((card,idx)=>{
-        if(G.correct.has(card.id)) return; // placed correctly — skip from center
-        const cx2=startX;
-        const cy2=zoneY+12+centerIdx*(cardH+8);
-        centerIdx++;
-
-        // dragging position
-        const pos=G.positions[card.id]||{x:cx2,y:cy2};
-        const isDragging=G.dragging===card.id;
-        const isWrong=G.wrong.has(card.id);
-
-        const bx2=isDragging?pos.x:cx2;
-        const by2=isDragging?pos.y:cy2;
-
-        // Card background
-        const cardCol=isWrong?'rgba(192,57,43,0.25)':'rgba(255,255,255,0.1)';
-        const cardStroke=isWrong?'rgba(231,76,60,0.7)':'rgba(255,255,255,0.2)';
-        c.fillStyle=cardCol; c.strokeStyle=cardStroke; c.lineWidth=2;
-        c.beginPath(); c.roundRect(bx2-cardW/2,by2,cardW,cardH,10); c.fill(); c.stroke();
-
-        c.font=`${Math.min(12,w*.025)}px Tajawal`; c.fillStyle='white'; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText(card.trait,bx2,by2+cardH/2);
-      });
-
-      // Draw correctly placed cards inside zones
-      G.shuffled.forEach((card)=>{
-        if(!G.correct.has(card.id)) return;
-        const inEgg=(card.type==='بويضة');
-        const zx=inEgg?zone1X:zone2X;
-        const idx=[...G.correct].filter(id=>G.shuffled.find(c2=>c2.id===id)?.type===card.type).indexOf(card.id);
-        const cardW2=zoneW*.86, cardH2=Math.min(h*.085,40);
-        const bx2=zx+zoneW/2;
-        const by2=zoneY+10+idx*(cardH2+6);
-        c.fillStyle=inEgg?'rgba(255,160,50,0.22)':'rgba(26,143,168,0.22)';
-        c.strokeStyle=inEgg?'rgba(255,160,50,0.5)':'rgba(26,143,168,0.5)'; c.lineWidth=1.5;
-        c.beginPath(); c.roundRect(bx2-cardW2/2,by2,cardW2,cardH2,8); c.fill(); c.stroke();
-        c.font=`${Math.min(11,w*.023)}px Tajawal`; c.fillStyle='rgba(255,255,255,0.85)'; c.textAlign='center'; c.textBaseline='middle';
-        c.fillText('✅ '+card.trait,bx2,by2+cardH2/2);
-      });
-
-      // Flash feedback
-      if(G.flash){
-        G.flashT++;
-        c.font=`bold ${Math.min(20,w*.04)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-        c.fillStyle=G.flash==='correct'?'#4AE88A':'#FF6060';
-        c.fillText(G.flash==='correct'?'✅ صحيح!':'❌ حاولي مجدداً',w/2,h*.88);
-        if(G.flashT>40){ G.flash=null; G.flashT=0; }
-      }
-    }
+    if(S.tab===0) drawTab0(c,w,h);
     animFrame=requestAnimationFrame(draw);
   }
 
-  // Drag events for matching game
-  if(currentTab===1){
-    const G=S.game;
-    if(!G||!G.initialized){ draw(); return; }
+  // ── TAB 0 ────────────────────────────────────────────────────
+  function drawTab0(c,w,h){
+    // ── Background: dark medical blue ──
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#0D1B2A'); bg.addColorStop(1,'#1A2E45');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    function getCardAtPos(px,py,w,h){
-      const cardW=Math.min(w*.23,100), cardH=Math.min(h*.1,48);
-      const startX=w*.36;
-      let idx=0;
-      for(const card of G.shuffled){
-        if(G.correct.has(card.id)){ continue; }
-        const cx2=startX, cy2=h*.14+12+idx*(cardH+8);
-        if(px>=cx2-cardW/2&&px<=cx2+cardW/2&&py>=cy2&&py<=cy2+cardH) return card;
-        idx++;
-      }
-      return null;
+    // ── Layout ──
+    const cx   = w*0.50;
+    const uCY  = h*0.575;
+    const uW   = w*0.185;
+    const uH   = h*0.205;
+    const tubeY= uCY - uH*0.40;
+
+    // ── Organ colours ──
+    const COL_TUBE  = 'rgba(220,120,180,';
+    const COL_UTER  = 'rgba(230,90,140,';
+    const COL_OVARY = 'rgba(200,80,160,';
+    const COL_EGG   = 'rgba(255,200,50,';
+    const COL_CERV  = 'rgba(200,80,120,';
+
+    // ── PHASE: ANATOMY — show detailed realism ──
+    const isAnatomy = (S.phase==='anatomy'||S.phase==='question'||S.phase==='correct_flash');
+
+    // ─── 1. UTERUS (detailed) ───
+    // Outer myometrium
+    c.save();
+    const uGo=c.createRadialGradient(cx,uCY-uH*0.1,uH*0.05,cx,uCY,uH*1.15);
+    uGo.addColorStop(0,COL_UTER+'0.55)'); uGo.addColorStop(0.7,COL_UTER+'0.22)'); uGo.addColorStop(1,COL_UTER+'0.04)');
+    c.fillStyle=uGo; c.strokeStyle=COL_UTER+'0.90)'; c.lineWidth=3.2;
+    c.beginPath();
+    c.moveTo(cx,uCY-uH*0.62);
+    c.bezierCurveTo(cx+uW*0.72,uCY-uH*0.52, cx+uW*0.78,uCY+uH*0.22, cx,uCY+uH*0.62);
+    c.bezierCurveTo(cx-uW*0.78,uCY+uH*0.22, cx-uW*0.72,uCY-uH*0.52, cx,uCY-uH*0.62);
+    c.fill(); c.stroke();
+
+    // Inner cavity highlight
+    const uGi=c.createLinearGradient(cx-uW*0.3,uCY-uH*0.3,cx+uW*0.3,uCY+uH*0.3);
+    uGi.addColorStop(0,'rgba(255,170,200,0.18)'); uGi.addColorStop(1,'transparent');
+    c.fillStyle=uGi;
+    c.beginPath();
+    c.moveTo(cx,uCY-uH*0.38);
+    c.bezierCurveTo(cx+uW*0.42,uCY-uH*0.32, cx+uW*0.46,uCY+uH*0.15, cx,uCY+uH*0.42);
+    c.bezierCurveTo(cx-uW*0.46,uCY+uH*0.15, cx-uW*0.42,uCY-uH*0.32, cx,uCY-uH*0.38);
+    c.fill();
+
+    // Endometrium texture lines
+    c.strokeStyle='rgba(255,140,180,0.14)'; c.lineWidth=1;
+    for(let i=1;i<=3;i++){
+      c.beginPath();
+      c.ellipse(cx,uCY,uW*(0.25+i*0.1),uH*(0.12+i*0.08),0,0,Math.PI*2);
+      c.stroke();
     }
-    function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
+    c.restore();
 
-    cv.addEventListener('mousedown',e=>{
-      if(S.tab!==1)return;
-      const p=gp(e),w=cv.width,h=cv.height;
-      const card=getCardAtPos(p.x,p.y,w,h);
-      if(card){G.dragging=card.id;G.positions[card.id]={x:p.x,y:p.y};}
-    });
-    cv.addEventListener('mousemove',e=>{
-      if(S.tab!==1||G.dragging===null)return;
-      const p=gp(e);
-      G.positions[G.dragging]={x:p.x,y:p.y};
-    });
-    cv.addEventListener('mouseup',e=>{
-      if(S.tab!==1||G.dragging===null)return;
-      const p=gp(e),w=cv.width,h=cv.height;
-      const zoneY=h*.14,zoneH=h*.78,zoneW=w*.28;
-      const card=G.shuffled.find(c2=>c2.id===G.dragging);
-      if(card){
-        const inZone1=p.x>=w*.08&&p.x<=w*.08+zoneW&&p.y>=zoneY&&p.y<=zoneY+zoneH;
-        const inZone2=p.x>=w*.64&&p.x<=w*.64+zoneW&&p.y>=zoneY&&p.y<=zoneY+zoneH;
-        if(inZone1||inZone2){
-          const droppedType=inZone1?'بويضة':'حيوان منوي';
-          if(droppedType===card.type){
-            G.correct.add(card.id); G.wrong.delete(card.id);
-            G.flash='correct';
-            try{U9Sound.ping(600,.1,.1);}catch(e2){}
-          } else {
-            G.wrong.add(card.id); G.flash='wrong';
-            try{U9Sound.ping(200,.15,.15);}catch(e2){}
-            setTimeout(()=>{G.wrong.delete(card.id);},1200);
-          }
-        }
+    S.uterusZone={x:cx-uW*0.82,y:uCY-uH*0.70,w:uW*1.64,h:uH*1.40};
+    if(isAnatomy) badge(c,'🩷 الرحم',cx,uCY+uH*0.12,'rgba(255,160,200,1)');
+
+    // ─── 2. CERVIX + VAGINAL CANAL ───
+    const cervW=uW*0.28;
+    c.fillStyle=COL_CERV+'0.38)'; c.strokeStyle=COL_CERV+'0.70)'; c.lineWidth=2;
+    c.beginPath();
+    c.moveTo(cx-cervW,uCY+uH*0.62);
+    c.bezierCurveTo(cx-cervW*0.8,uCY+uH*0.78, cx-cervW*0.6,uCY+uH*0.90, cx-cervW*0.4,uCY+uH*0.98);
+    c.bezierCurveTo(cx,uCY+uH*1.02, cx,uCY+uH*1.02, cx+cervW*0.4,uCY+uH*0.98);
+    c.bezierCurveTo(cx+cervW*0.6,uCY+uH*0.90, cx+cervW*0.8,uCY+uH*0.78, cx+cervW,uCY+uH*0.62);
+    c.closePath(); c.fill(); c.stroke();
+    if(isAnatomy) badge(c,'عنق الرحم',cx,uCY+uH*0.82,'rgba(220,130,160,1)');
+
+    // ─── 3. FALLOPIAN TUBES (detailed) ───
+    // Tube thickness varies along length — wider near uterus, narrow in isthmus, wider at ampulla
+    const rtX1=cx+uW*0.62, rtX2=cx+uW*1.48, rtX3=cx+uW*1.92;
+    const rtY1=tubeY, rtY2=tubeY-h*0.048, rtY3=tubeY-h*0.135;
+    const ltX1=cx-uW*0.62, ltX2=cx-uW*1.48, ltX3=cx-uW*1.92;
+    const tubeGlow = (S.phase==='question') ? 0.70+Math.sin(S.pulse*3)*0.28 : 0.90;
+    const tubeStrokeW = Math.max(11,w*0.023);
+
+    // Left tube (less prominent — no egg here)
+    c.strokeStyle=`rgba(210,110,165,0.52)`; c.lineWidth=tubeStrokeW*0.85; c.lineCap='round';
+    c.beginPath(); c.moveTo(ltX1,rtY1);
+    c.bezierCurveTo(ltX2,rtY2, ltX3+w*0.018,rtY3+h*0.008, ltX3,rtY3); c.stroke();
+    // Left fimbriae
+    for(let i=0;i<5;i++){
+      const a=(Math.PI+0.4-i*0.18)*Math.PI;
+      c.strokeStyle='rgba(200,100,155,0.40)'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(ltX3,rtY3);
+      c.lineTo(ltX3+Math.cos(a)*w*0.022, rtY3+Math.sin(a)*h*0.030); c.stroke();
+    }
+    if(isAnatomy) badge(c,'قناة البيض',ltX3-w*0.035,rtY3-h*0.04,'rgba(220,150,200,1)');
+
+    // Right tube — highlighted (this is where egg + fertilisation happen)
+    // Tube shadow/glow when question active
+    if(S.phase==='question'||S.phase==='correct_flash'){
+      c.save();
+      c.shadowColor=`rgba(255,220,80,${0.35+Math.sin(S.pulse*3)*0.2})`;
+      c.shadowBlur=18;
+      c.strokeStyle=`rgba(255,220,80,${tubeGlow*0.55})`; c.lineWidth=tubeStrokeW*2.2; c.lineCap='round';
+      c.beginPath(); c.moveTo(rtX1,rtY1);
+      c.bezierCurveTo(rtX2,rtY2, rtX3-w*0.018,rtY3+h*0.008, rtX3,rtY3); c.stroke();
+      c.restore();
+    }
+    c.strokeStyle=`rgba(235,130,185,${tubeGlow})`; c.lineWidth=tubeStrokeW; c.lineCap='round';
+    c.beginPath(); c.moveTo(rtX1,rtY1);
+    c.bezierCurveTo(rtX2,rtY2, rtX3-w*0.018,rtY3+h*0.008, rtX3,rtY3); c.stroke();
+
+    // Tube lumen (inner line)
+    c.strokeStyle=`rgba(255,180,220,0.22)`; c.lineWidth=tubeStrokeW*0.28;
+    c.beginPath(); c.moveTo(rtX1,rtY1);
+    c.bezierCurveTo(rtX2,rtY2, rtX3-w*0.018,rtY3+h*0.008, rtX3,rtY3); c.stroke();
+
+    // Right fimbriae
+    for(let i=0;i<7;i++){
+      const a=(-0.5+i*0.17)*Math.PI;
+      const al = (S.phase==='question'||S.phase==='correct_flash') ? tubeGlow*0.9 : 0.7;
+      c.strokeStyle=`rgba(240,160,205,${al})`; c.lineWidth=2.8;
+      c.beginPath(); c.moveTo(rtX3,rtY3);
+      c.lineTo(rtX3+Math.cos(a)*w*0.026, rtY3+Math.sin(a)*h*0.034); c.stroke();
+    }
+
+    // Store tube clickable zone
+    S.tubeZone={x:Math.min(rtX1,rtX3)-24, y:rtY3-28, w:Math.abs(rtX3-rtX1)+48, h:Math.abs(rtY1-rtY3)+52};
+
+    // Tube label (right tube)
+    const tlx=cx+uW*1.08, tly=tubeY-h*0.185;
+    if(isAnatomy){
+      leader(c,rtX2,rtY2,tlx,tly,`rgba(235,180,215,0.6)`);
+      const tlCol = (S.phase==='question') ? 'rgba(255,230,80,1)' : 'rgba(235,180,215,1)';
+      badge(c,'🌸 قناة البيض ← موقع الإخصاب',tlx,tly,tlCol);
+    }
+
+    // ─── 4. OVARIES (realistic) ───
+    const ovR=Math.min(w*0.052,h*0.056,27);
+    const ovPos=[[rtX3,rtY3+h*0.005],[ltX3,rtY3+h*0.005]];
+    ovPos.forEach(([ox,oy],oi)=>{
+      // Ligament
+      c.strokeStyle='rgba(200,100,150,0.40)'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(oi===0?rtX3:ltX3, rtY3); c.lineTo(ox,oy); c.stroke();
+      // Ovary body
+      c.save();
+      const oGr=c.createRadialGradient(ox-ovR*0.3,oy-ovR*0.3,ovR*0.06,ox,oy,ovR);
+      oGr.addColorStop(0,'#FFCCE8'); oGr.addColorStop(0.5,'#D060A8'); oGr.addColorStop(1,'#8A1860');
+      c.fillStyle=oGr;
+      // Slightly elliptical
+      c.beginPath(); c.ellipse(ox,oy,ovR,ovR*0.76,oi===0?-0.2:0.2,0,Math.PI*2); c.fill();
+      c.strokeStyle='rgba(255,140,200,0.85)'; c.lineWidth=2; c.stroke();
+      // Follicle texture
+      c.strokeStyle='rgba(255,200,235,0.28)'; c.lineWidth=1;
+      c.beginPath(); c.arc(ox+ovR*0.22,oy-ovR*0.22,ovR*0.30,0,Math.PI*2); c.stroke();
+      c.beginPath(); c.arc(ox-ovR*0.20,oy+ovR*0.18,ovR*0.18,0,Math.PI*2); c.stroke();
+      c.restore();
+      if(isAnatomy){
+        leader(c,ox,oy-ovR,ox,oy-ovR-h*0.042,'rgba(200,120,180,0.55)');
+        badge(c,'🟣 مبيض',ox,oy-ovR-h*0.055,'rgba(200,140,220,1)');
       }
-      G.dragging=null;
     });
-    cv.addEventListener('touchstart',e=>{if(S.tab!==1)return;e.preventDefault();const p=gp(e),w=cv.width,h=cv.height;const card=getCardAtPos(p.x,p.y,w,h);if(card){G.dragging=card.id;G.positions[card.id]={x:p.x,y:p.y};}},{passive:false});
-    cv.addEventListener('touchmove',e=>{if(S.tab!==1||G.dragging===null)return;e.preventDefault();const p=gp(e);G.positions[G.dragging]={x:p.x,y:p.y};},{passive:false});
-    cv.addEventListener('touchend',e=>{
-      if(S.tab!==1||G.dragging===null)return;
-      const p=gp(e.changedTouches?{touches:e.changedTouches}:e),w=cv.width,h=cv.height;
-      const zoneY=h*.14,zoneH=h*.78,zoneW=w*.28;
-      const card=G.shuffled.find(c2=>c2.id===G.dragging);
-      if(card){
-        const inZone1=p.x>=w*.08&&p.x<=w*.08+zoneW&&p.y>=zoneY&&p.y<=zoneY+zoneH;
-        const inZone2=p.x>=w*.64&&p.x<=w*.64+zoneW&&p.y>=zoneY&&p.y<=zoneY+zoneH;
-        if(inZone1||inZone2){
-          const droppedType=inZone1?'بويضة':'حيوان منوي';
-          if(droppedType===card.type){G.correct.add(card.id);G.wrong.delete(card.id);G.flash='correct';try{U9Sound.ping(600,.1,.1);}catch(e2){}}
-          else{G.wrong.add(card.id);G.flash='wrong';try{U9Sound.ping(200,.15,.15);}catch(e2){}setTimeout(()=>{G.wrong.delete(card.id);},1200);}
+    S.ovaryZone={x:rtX3-ovR*1.6,y:rtY3-ovR,w:ovR*3.2,h:ovR*2.8};
+
+    // ─── 5. EGG in right tube ───
+    // In simulation phase, egg can travel toward uterus
+    let eX = cx+uW*1.18, eY = tubeY-h*0.082;
+    if((S.phase==='simulation'||S.phase==='done') && S.fertilised && S.eggTravel>0){
+      // Travel along bezier from tube toward uterus opening
+      const t=Math.min(S.eggTravel,0.85);
+      // Interpolate from egg position toward rtX1,rtY1
+      eX = eX*(1-t) + (rtX1+cx*0.5)*t;
+      eY = eY*(1-t) + (tubeY+h*0.04)*t;
+    }
+    const eR=Math.min(h*0.075,w*0.065,40);
+
+    // Glow
+    const eGlow=c.createRadialGradient(eX,eY,0,eX,eY,eR*2.5);
+    eGlow.addColorStop(0,COL_EGG+'0.58)'); eGlow.addColorStop(0.45,COL_EGG+'0.20)'); eGlow.addColorStop(1,'transparent');
+    c.fillStyle=eGlow; c.beginPath(); c.arc(eX,eY,eR*2.5,0,Math.PI*2); c.fill();
+
+    // Zona pellucida
+    c.strokeStyle='rgba(255,225,120,0.30)'; c.lineWidth=8;
+    c.beginPath(); c.arc(eX,eY,eR*1.42,0,Math.PI*2); c.stroke();
+
+    // Egg body
+    const eGr=c.createRadialGradient(eX-eR*0.28,eY-eR*0.28,eR*0.06,eX,eY,eR);
+    eGr.addColorStop(0,'#FFF0A0'); eGr.addColorStop(0.5,'#E89230'); eGr.addColorStop(1,'#B85E10');
+    c.fillStyle=eGr; c.beginPath(); c.arc(eX,eY,eR,0,Math.PI*2); c.fill();
+    c.strokeStyle='rgba(255,190,65,0.95)'; c.lineWidth=2.8; c.stroke();
+
+    // Nucleus
+    c.fillStyle='rgba(100,40,6,0.72)'; c.beginPath(); c.arc(eX,eY,eR*0.40,0,Math.PI*2); c.fill();
+
+    // Chromosome count inside egg
+    const isFert = S.fertilised && (S.phase==='simulation'||S.phase==='done');
+    c.fillStyle='white'; c.font=`bold ${Math.round(eR*0.36)}px Tajawal`;
+    c.textAlign='center'; c.textBaseline='middle';
+    c.shadowColor='rgba(0,0,0,0.6)'; c.shadowBlur=3;
+    c.fillText(isFert?'46🧬':'23🧬', eX, eY);
+    c.shadowBlur=0;
+
+    // Egg outer label
+    if(!isFert){
+      badge(c,'🥚 البويضة (23 كروموسوم)',eX,eY+eR+22,'rgba(255,210,80,1)');
+    }
+
+    // ─── 6. SPERM SIMULATION ───
+    if((S.phase==='simulation'||S.phase==='done') && S.launched){
+      S.spermObjs.forEach(sp=>{
+        if(sp.done) return;
+        const sx2=sp.x*w, sy2=sp.y*h;
+        const toX=eX-sx2, toY=eY-sy2;
+        const dist=Math.hypot(toX,toY);
+        if(dist<eR*1.28 && !S.fertilised){
+          S.fertilised=true; S.fertAnim=0;
+          try{SoundEngine.chord([440,554,659],0.5,0.2);}catch(_){}
         }
+        if(dist<eR+4){ sp.done=true; return; }
+        const angle=Math.atan2(toY,toX);
+        const wa=angle+Math.sin(S.t*5.5+sp.phase)*sp.wobble;
+        sp.x+=Math.cos(wa)*sp.speed; sp.y+=Math.sin(wa)*sp.speed;
+        // Draw sperm
+        const sx3=sp.x*w, sy3=sp.y*h;
+        const ha=Math.atan2(eY-sy3,eX-sx3);
+        c.save(); c.translate(sx3,sy3); c.rotate(ha);
+        // Head
+        const hGr=c.createRadialGradient(-2,-1,1,0,0,8);
+        hGr.addColorStop(0,'#D0FFFF'); hGr.addColorStop(1,'#1A8FA8');
+        c.fillStyle=hGr; c.beginPath(); c.ellipse(0,0,9,5.5,0,0,Math.PI*2); c.fill();
+        // Tail
+        c.strokeStyle='rgba(80,215,235,0.72)'; c.lineWidth=1.9;
+        c.beginPath();
+        for(let i=0;i<15;i++){
+          const tx=-9-(i+1)*5.0;
+          const ty=Math.sin(S.t*5.5+sp.phase+i*0.75)*6.5*(1-i/17);
+          i===0?c.moveTo(tx,ty):c.lineTo(tx,ty);
+        }
+        c.stroke(); c.restore();
+      });
+    }
+
+    // ─── 7. FERTILISATION EFFECT ───
+    if(isFert){
+      S.fertAnim=Math.min(S.fertAnim+1,140);
+      S.eggTravel=Math.min(S.eggTravel+0.0022,1);
+      const prog=S.fertAnim/140;
+
+      // Burst ring
+      if(prog<0.55){
+        const ring=c.createRadialGradient(eX,eY,eR,eX,eY,eR+prog*70);
+        ring.addColorStop(0,'rgba(255,220,80,0.82)'); ring.addColorStop(1,'transparent');
+        c.fillStyle=ring; c.beginPath(); c.arc(eX,eY,eR+prog*70,0,Math.PI*2); c.fill();
       }
-      G.dragging=null;
-    });
+
+      // Fertilised egg badge
+      badge(c,'🥚 بويضة مخصّبة — 46 كروموسوم',eX,eY+eR+22,'rgba(255,215,60,1)');
+
+      // Travel arrow after a moment
+      if(prog>0.38){
+        const al=Math.min(1,(prog-0.38)/0.28);
+        c.globalAlpha=al;
+        c.strokeStyle='rgba(255,215,0,0.80)'; c.lineWidth=2.5; c.setLineDash([7,5]);
+        c.beginPath(); c.moveTo(eX,eY+eR+36); c.lineTo(cx+uW*0.55,tubeY+8); c.stroke();
+        c.setLineDash([]); c.globalAlpha=1;
+      }
+
+      if(prog>0.42){
+        const al=Math.min(1,(prog-0.42)/0.25);
+        c.globalAlpha=al;
+        c.fillStyle='#FFD700'; c.font=`bold ${Math.min(15,w*0.031)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='middle';
+        c.shadowColor='rgba(0,0,0,0.8)'; c.shadowBlur=5;
+        c.fillText('✅ إخصاب! 23 + 23 = 46 كروموسوم',w/2,h*0.875);
+        c.fillStyle='rgba(255,220,120,0.90)'; c.font=`${Math.min(12,w*0.026)}px Tajawal`;
+        c.fillText('البويضة المخصّبة تتحرك نحو الرحم للانغراس 🌟',w/2,h*0.925);
+        c.shadowBlur=0; c.globalAlpha=1;
+      }
+
+    } else if(S.phase==='simulation' && !S.launched){
+      c.fillStyle='rgba(200,230,255,0.65)'; c.font=`${Math.min(12,w*0.026)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('اضغط "أطلق الحيوانات المنوية" لبدء المحاكاة 👈',w/2,h*0.90);
+    }
+
+    // ─── 8. QUESTION PHASE OVERLAY ───
+    if(S.phase==='question'){
+      const qBY=h*0.77, qBH=h*0.17;
+      c.fillStyle='rgba(6,4,18,0.80)';
+      c.beginPath(); c.roundRect(w*0.05,qBY,w*0.90,qBH,16); c.fill();
+      c.strokeStyle=`rgba(255,215,60,${0.55+Math.sin(S.pulse*2)*0.2})`; c.lineWidth=2;
+      c.beginPath(); c.roundRect(w*0.05,qBY,w*0.90,qBH,16); c.stroke();
+
+      c.font=`bold ${Math.min(15,w*0.033)}px Tajawal`;
+      c.fillStyle='rgba(255,235,80,0.98)'; c.textAlign='center'; c.textBaseline='middle';
+      c.shadowColor='rgba(0,0,0,0.7)'; c.shadowBlur=4;
+      c.fillText('❓ أين تحدث عملية الإخصاب؟',w/2,qBY+qBH*0.30);
+      c.shadowBlur=0;
+      c.font=`${Math.min(12,w*0.026)}px Tajawal`;
+      c.fillStyle='rgba(180,220,255,0.88)';
+      c.fillText('انقر على المنطقة الصحيحة في الرسم 👆',w/2,qBY+qBH*0.62);
+
+      if(S.wrongFlash>0){
+        S.wrongFlash--;
+        c.font=`bold ${Math.min(13,w*0.028)}px Tajawal`;
+        c.fillStyle='rgba(255,90,90,0.96)';
+        c.fillText(`❌ هذا هو ${S.wrongLabel} — حاول مجدداً`,w/2,qBY+qBH*0.88);
+      }
+    }
+
+    // ─── 9. CORRECT FLASH ───
+    if(S.phase==='correct_flash'){
+      S.correctFlash++;
+      const al=Math.max(0,1-S.correctFlash/55);
+      c.fillStyle=`rgba(80,255,150,${al*0.18})`;
+      c.fillRect(0,0,w,h);
+      c.font=`bold ${Math.min(20,w*0.042)}px Tajawal`;
+      c.fillStyle=`rgba(80,255,150,${al*0.96+0.04})`;
+      c.textAlign='center'; c.textBaseline='middle';
+      c.shadowColor='rgba(0,0,0,0.7)'; c.shadowBlur=6;
+      c.fillText('✅ صحيح! الإخصاب يحدث في قناة البيض 🌸',w/2,h*0.5);
+      c.shadowBlur=0;
+      if(S.correctFlash>55){
+        S.phase='simulation';
+        S.launched=false; S.fertilised=false; S.fertAnim=0; S.eggTravel=0; S.spermObjs=[];
+        updateControls();
+      }
+    }
+
+    // ─── 10. ANATOMY PHASE hint ───
+    if(S.phase==='anatomy'){
+      const hBY=h*0.88, hBH=h*0.09;
+      c.fillStyle='rgba(6,4,18,0.68)';
+      c.beginPath(); c.roundRect(w*0.06,hBY,w*0.88,hBH,12); c.fill();
+      c.font=`${Math.min(12.5,w*0.027)}px Tajawal`;
+      c.fillStyle='rgba(180,215,255,0.90)'; c.textAlign='center'; c.textBaseline='middle';
+      c.shadowColor='rgba(0,0,0,0.7)'; c.shadowBlur=3;
+      c.fillText('تأمّل الرسم التشريحي — بعد لحظة سيظهر سؤال 👆',w/2,hBY+hBH*0.5);
+      c.shadowBlur=0;
+      if(S.anatomyT > 90){ // ~3.5 seconds
+        S.phase='question';
+        updateControls();
+      }
+    }
+
+    // ─── 11. Title ───
+    c.font=`bold ${Math.min(15,w*0.033)}px Tajawal`;
+    c.fillStyle='rgba(200,230,255,0.88)';
+    c.textAlign='center'; c.textBaseline='top';
+    c.shadowColor='rgba(0,0,0,0.7)'; c.shadowBlur=4;
+    c.fillText('🔬 الجهاز التناسلي الأنثوي',w/2,h*0.016);
+    c.shadowBlur=0;
   }
+
+  // ── Click / Touch handler ────────────────────────────────────
+  function handleClick(e){
+    if(currentSim!=='repro_gametes'||S.tab!==0) return;
+    if(S.phase!=='question') return;
+    const p=gp(e), w=cv.width, h=cv.height;
+    function inZ(z){ return z&&p.x>=z.x&&p.x<=z.x+z.w&&p.y>=z.y&&p.y<=z.y+z.h; }
+
+    if(inZ(S.tubeZone)){
+      S.phase='correct_flash'; S.correctFlash=0;
+      updateControls();
+      try{SoundEngine.chord([523,659,784],0.4,0.15);}catch(_){}
+    } else if(inZ(S.uterusZone)){
+      S.wrongFlash=95; S.wrongLabel='الرحم (مكان نمو الجنين، لا الإخصاب)';
+      try{U9Sound&&U9Sound.ping(180,.15,.15);}catch(_){}
+    } else if(inZ(S.ovaryZone)){
+      S.wrongFlash=95; S.wrongLabel='المبيض (ينتج البويضة، لا الإخصاب)';
+      try{U9Sound&&U9Sound.ping(180,.15,.15);}catch(_){}
+    }
+  }
+
+  cv.addEventListener('click', handleClick);
+  cv.addEventListener('touchend', e=>{
+    e.preventDefault();
+    const t=e.changedTouches&&e.changedTouches[0];
+    if(t) handleClick({clientX:t.clientX,clientY:t.clientY});
+  }, {passive:false});
 
   draw();
 }
+
+
+
 
 function repro_fertilisation(){
   cancelAnimationFrame(animFrame);
