@@ -38017,7 +38017,8 @@ function simG5SunSeeming() {
   // ── Player position (world coords, sun fixed at 0,0) ──
   let px = 0, py = 0;          // player world position
   const SUN_X = 0, SUN_Y = -1800; // sun fixed in world (high up)
-  const keys = {};
+  window._g5ssKeys = {};
+  const keys = window._g5ssKeys;
   const SPEED = 5;
 
   // Remove old key listeners then attach new ones
@@ -38041,14 +38042,14 @@ function simG5SunSeeming() {
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;max-width:150px;margin:0 auto 8px">
         <div></div>
         <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
-          onpointerdown="keys['ArrowUp']=true" onpointerup="keys['ArrowUp']=false" onpointerleave="keys['ArrowUp']=false">▲</button>
+          onpointerdown="window._g5ssKeys&&(window._g5ssKeys['ArrowUp']=true)" onpointerup="window._g5ssKeys&&(window._g5ssKeys['ArrowUp']=false)" onpointerleave="window._g5ssKeys&&(window._g5ssKeys['ArrowUp']=false)">▲</button>
         <div></div>
         <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
-          onpointerdown="keys['ArrowLeft']=true" onpointerup="keys['ArrowLeft']=false" onpointerleave="keys['ArrowLeft']=false">◀</button>
+          onpointerdown="window._g5ssKeys&&(window._g5ssKeys['ArrowLeft']=true)" onpointerup="window._g5ssKeys&&(window._g5ssKeys['ArrowLeft']=false)" onpointerleave="window._g5ssKeys&&(window._g5ssKeys['ArrowLeft']=false)">◀</button>
         <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
-          onpointerdown="keys['ArrowDown']=true" onpointerup="keys['ArrowDown']=false" onpointerleave="keys['ArrowDown']=false">▼</button>
+          onpointerdown="window._g5ssKeys&&(window._g5ssKeys['ArrowDown']=true)" onpointerup="window._g5ssKeys&&(window._g5ssKeys['ArrowDown']=false)" onpointerleave="window._g5ssKeys&&(window._g5ssKeys['ArrowDown']=false)">▼</button>
         <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
-          onpointerdown="keys['ArrowRight']=true" onpointerup="keys['ArrowRight']=false" onpointerleave="keys['ArrowRight']=false">▶</button>
+          onpointerdown="window._g5ssKeys&&(window._g5ssKeys['ArrowRight']=true)" onpointerup="window._g5ssKeys&&(window._g5ssKeys['ArrowRight']=false)" onpointerleave="window._g5ssKeys&&(window._g5ssKeys['ArrowRight']=false)">▶</button>
       </div>
       <button class="ctrl-btn reset" style="width:100%;margin-top:4px" onclick="window._g5ssReset && window._g5ssReset()">↺ إعادة للمركز</button>
     </div>
