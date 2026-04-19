@@ -24604,7 +24604,7 @@ function simStaticElec1() {
     const N = OBJECTS.length;
     const slotW = w / N;
     const objY  = h * .82;   // vertical center of objects row
-    const emojiSz = Math.max(28, Math.min(38, w * 0.055));
+    const emojiSz = Math.max(36, Math.min(52, w * 0.075));
 
     // Shelf line
     c.strokeStyle = 'rgba(180,140,60,0.3)'; c.lineWidth = 1.5; c.setLineDash([6,5]);
@@ -24620,28 +24620,30 @@ function simStaticElec1() {
       const pullZone = w * .22;
       const result   = S.results[obj.id];
 
-      // Determine if balloon is testing this object
+      // Determine if balloon is near this object
       const testing = charged && !result && dist < pullZone;
       if (testing) S.activeObj = obj.id;
 
-      // Pull effect offset
+      // Only NON-METALS (attracted:true) physically move toward balloon
       let drawX = cx, drawY = cy;
       if (testing && obj.attracted) {
-        const pull = Math.pow(1 - dist / pullZone, 2) * 22;
+        const pull = Math.pow(1 - dist / pullZone, 2) * 18;
         const dx = bx - cx, dy = (by + bo) - cy;
         const len = Math.hypot(dx, dy) || 1;
         drawX = cx + (dx / len) * pull;
         drawY = cy + (dy / len) * pull;
       }
+      // Metals stay fixed — no movement
 
-      // Detect contact → record result
-      if (charged && !result && dist < bR * 1.6) {
+      // Detect contact → record result (top of slot = objY - emojiSz)
+      const topDist = Math.hypot(bx - cx, (by + bo) - (objY - emojiSz));
+      if (charged && !result && topDist < bR * 1.4) {
         S.results[obj.id] = obj.attracted ? 'attracted' : 'repelled';
         try { U9Sound.ping(obj.attracted ? 520 : 200, .15, .18); } catch (_) {}
         buildControls();
       }
 
-      // Draw pull arrow
+      // Draw attraction arrow — only for non-metals
       if (testing && obj.attracted && dist < pullZone * .85) {
         const prox = 1 - dist / pullZone;
         const adx = bx - cx, ady = (by + bo) - cy;
@@ -24667,7 +24669,7 @@ function simStaticElec1() {
       if (testing && !result)     bgColor = 'rgba(142,68,173,0.10)';
       c.fillStyle = bgColor;
       c.beginPath();
-      c.roundRect(cx - slotW/2 + slotPad, objY - emojiSz - 10, slotW - slotPad*2, emojiSz*2 + 28, 10);
+      c.roundRect(cx - slotW/2 + slotPad, objY - emojiSz - 14, slotW - slotPad*2, emojiSz*2 + 36, 10);
       c.fill();
 
       // Glow when testing
@@ -24677,23 +24679,31 @@ function simStaticElec1() {
       }
 
       // Emoji
-      c.font = emojiSz + 'px serif';
+      // Draw emoji larger and with white circle background for visibility
+      const eSize = emojiSz + 6;
+      c.save();
+      c.beginPath();
+      c.arc(drawX, drawY, eSize * 0.72, 0, Math.PI * 2);
+      c.fillStyle = 'rgba(255,255,255,0.82)';
+      c.fill();
+      c.restore();
+      c.font = eSize + 'px serif';
       c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillText(obj.emoji, drawX, drawY);
       c.shadowBlur = 0;
 
       // Name label
-      c.font = `bold ${Math.min(12, w * .022)}px Tajawal`;
-      c.fillStyle = result === 'attracted' ? '#27AE60' : result === 'repelled' ? '#C0392B' : 'rgba(80,60,20,0.7)';
+      c.font = `bold ${Math.min(13, w * .024)}px Tajawal`;
+      c.fillStyle = result === 'attracted' ? '#27AE60' : result === 'repelled' ? '#C0392B' : 'rgba(80,55,15,0.85)';
       c.textAlign = 'center'; c.textBaseline = 'top';
-      c.fillText(obj.name, cx, objY + emojiSz/2 + 4);
+      c.fillText(obj.name, cx, objY + emojiSz/2 + 10);
 
       // Result badge
       if (result) {
         c.font = `bold ${Math.min(11, w * .020)}px Tajawal`;
         c.fillStyle = result === 'attracted' ? '#27AE60' : '#C0392B';
         c.textAlign = 'center'; c.textBaseline = 'top';
-        c.fillText(result === 'attracted' ? '✅ يُجذب' : '❌ لا يُجذب', cx, objY + emojiSz/2 + 20);
+        c.fillText(result === 'attracted' ? '✅ يُجذب' : '❌ لا يُجذب', cx, objY + emojiSz/2 + 28);
       }
 
       // Dashed line from balloon to object when testing
