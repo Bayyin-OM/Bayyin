@@ -10850,13 +10850,16 @@ function simCircuitChange2() {
   function getTableRows(n){
     var rows='<tr style="background:rgba(26,143,168,.12)"><th style="padding:5px 4px;font-size:12px">الخلايا</th><th style="padding:5px 4px;font-size:12px">الجهد</th><th style="padding:5px 4px;font-size:12px">التيار</th><th style="padding:5px 4px;font-size:12px">السطوع</th></tr>';
     for(var i=1;i<=Math.max(n,3);i++){
-      var V2=i*1.5,I2=V2/3.6,br2=Math.min(1,I2/.42);
+      var V2=i*1.5, I2=V2/3.6;
+      // نفس صيغة السطوع المستخدمة في الرسم
+      var br2 = 0.10 + (i-1)/5 * 0.90;
+      if(br2>1) br2=1;
       var isActive=(i===n);
       rows+='<tr style="background:'+(isActive?'rgba(26,143,168,.12)':(i%2===0?'rgba(0,0,0,.03)':''))+'">'+
         '<td style="padding:4px;text-align:center;font-weight:'+(isActive?'800':'400')+';color:'+(isActive?'#1A8FA8':'inherit')+'">'+i+(isActive?' ◀':'')+'</td>'+
         '<td style="text-align:center;font-size:12px;font-weight:'+(isActive?'800':'400')+'">'+V2.toFixed(1)+'V</td>'+
         '<td style="text-align:center;font-size:12px;font-weight:'+(isActive?'800':'400')+';color:'+(isActive?'#1A8FA8':'inherit')+'">'+I2.toFixed(2)+'A</td>'+
-        '<td style="text-align:center;font-size:12px;font-weight:'+(isActive?'800':'400')+'">'+Math.round(br2*100)+'%</td>'+
+        '<td style="text-align:center;font-size:12px;font-weight:'+(isActive?'800':'400')+';color:'+(isActive?'#E67E22':'inherit')+'">'+Math.round(br2*100)+'%</td>'+
       '</tr>';
     }
     return rows;
@@ -36040,110 +36043,104 @@ function simG5TransparentTest() {
 
   // دالة رسم المصباح اليدوي الواقعي — يشير للجهة اليسرى (اتجاه الشعاع)
   function drawTorch(cx, cy, w, on) {
-    const sz = w * 0.07;
+    const sz = Math.min(w * 0.06, 52);
     c.save();
     c.translate(cx, cy);
 
-    // ── مقبض المصباح (يمين — المستخدم يمسكه) ──
-    const handleGrad = c.createLinearGradient(-sz*0.22, 0, sz*0.22, 0);
-    handleGrad.addColorStop(0, '#2a2a2a');
-    handleGrad.addColorStop(0.4, '#555');
-    handleGrad.addColorStop(1, '#1a1a1a');
-    c.fillStyle = handleGrad;
-    c.beginPath();
-    c.roundRect(sz*0.18, -sz*0.22, sz*1.0, sz*0.44, sz*0.18);
-    c.fill();
+    // الشعاع ينطلق لليمين (نحو المادة)
+    // المقبض في الأسفل، الرأس في الأعلى، الفوهة تشير لليمين
 
-    // حزوز المقبض (grip)
-    c.strokeStyle = 'rgba(0,0,0,0.4)';
-    c.lineWidth = sz*0.04;
-    for (let i = 0; i < 4; i++) {
-      const gx = sz*(0.38 + i*0.18);
-      c.beginPath(); c.moveTo(gx, -sz*0.18); c.lineTo(gx, sz*0.18); c.stroke();
-    }
+    // ── جسم المصباح (أسطوانة رأسية) ──
+    const bodyW = sz * 0.55;
+    const bodyH = sz * 1.6;
+    const bodyX = -bodyW / 2;
+    const bodyY = -bodyH * 0.35;
 
-    // ── جسم المصباح الأسطواني ──
-    const bodyGrad = c.createLinearGradient(-sz*0.28, 0, sz*0.28, 0);
-    bodyGrad.addColorStop(0, on ? '#4a4a4a' : '#333');
-    bodyGrad.addColorStop(0.35, on ? '#888' : '#666');
-    bodyGrad.addColorStop(0.65, on ? '#999' : '#777');
-    bodyGrad.addColorStop(1, '#2a2a2a');
+    const bodyGrad = c.createLinearGradient(bodyX, 0, bodyX + bodyW, 0);
+    bodyGrad.addColorStop(0,   '#2a2a2a');
+    bodyGrad.addColorStop(0.3, on ? '#777' : '#555');
+    bodyGrad.addColorStop(0.7, on ? '#999' : '#666');
+    bodyGrad.addColorStop(1,   '#1a1a1a');
     c.fillStyle = bodyGrad;
     c.beginPath();
-    c.roundRect(-sz*0.15, -sz*0.28, sz*0.38, sz*0.56, sz*0.1);
+    c.roundRect(bodyX, bodyY, bodyW, bodyH, sz * 0.12);
     c.fill();
 
-    // ── رأس المصباح (الجزء الأمامي — أوسع وله شكل منحوت) ──
-    const headGrad = c.createLinearGradient(-sz*0.35, 0, sz*0.35, 0);
-    headGrad.addColorStop(0, on ? '#666' : '#444');
-    headGrad.addColorStop(0.3, on ? '#aaa' : '#777');
-    headGrad.addColorStop(0.7, on ? '#888' : '#555');
-    headGrad.addColorStop(1, '#222');
-    c.fillStyle = headGrad;
-    // شكل مخروطي للرأس
-    c.beginPath();
-    c.moveTo(-sz*0.14, -sz*0.28);  // يمين عند الجسم
-    c.lineTo(-sz*0.50, -sz*0.40);  // يسار عند الرأس
-    c.lineTo(-sz*0.50,  sz*0.40);
-    c.lineTo(-sz*0.14,  sz*0.28);
-    c.closePath();
-    c.fill();
+    // حزوز المقبض
     c.strokeStyle = 'rgba(0,0,0,0.35)';
-    c.lineWidth = sz*0.03;
+    c.lineWidth = sz * 0.04;
+    for (let i = 0; i < 5; i++) {
+      const gy = bodyY + bodyH * 0.55 + i * sz * 0.14;
+      c.beginPath();
+      c.moveTo(bodyX + sz*0.06, gy);
+      c.lineTo(bodyX + bodyW - sz*0.06, gy);
+      c.stroke();
+    }
+
+    // ── رأس المصباح (أوسع، في الأعلى) ──
+    const headH = sz * 0.55;
+    const headW = sz * 0.78;
+    const headY = bodyY - headH + sz * 0.08;
+
+    const headGrad = c.createLinearGradient(-headW/2, 0, headW/2, 0);
+    headGrad.addColorStop(0,   '#222');
+    headGrad.addColorStop(0.4, on ? '#999' : '#666');
+    headGrad.addColorStop(0.6, on ? '#bbb' : '#777');
+    headGrad.addColorStop(1,   '#333');
+    c.fillStyle = headGrad;
+    c.beginPath();
+    c.roundRect(-headW/2, headY, headW, headH, sz * 0.10);
+    c.fill();
+
+    // حافة معدنية لامعة حول الرأس
+    c.strokeStyle = on ? 'rgba(200,200,200,0.6)' : 'rgba(120,120,120,0.4)';
+    c.lineWidth = sz * 0.045;
+    c.beginPath();
+    c.roundRect(-headW/2, headY, headW, headH, sz * 0.10);
     c.stroke();
 
-    // ── حافة معدنية للرأس ──
-    const rimGrad = c.createLinearGradient(0, -sz*0.42, 0, sz*0.42);
-    rimGrad.addColorStop(0, '#888');
-    rimGrad.addColorStop(0.5, '#ccc');
-    rimGrad.addColorStop(1, '#555');
-    c.fillStyle = rimGrad;
-    c.beginPath();
-    c.moveTo(-sz*0.50, -sz*0.42);
-    c.lineTo(-sz*0.58, -sz*0.42);
-    c.lineTo(-sz*0.58,  sz*0.42);
-    c.lineTo(-sz*0.50,  sz*0.42);
-    c.closePath();
-    c.fill();
+    // ── العدسة (دائرة في وسط الرأس) ──
+    const lensCY = headY + headH / 2;
+    const lensR  = sz * 0.24;
 
-    // ── العدسة (المضيء) ──
     if (on) {
-      // توهج خارجي قوي
-      const outerGlow = c.createRadialGradient(-sz*0.58, 0, 0, -sz*0.58, 0, sz*0.55);
-      outerGlow.addColorStop(0, 'rgba(255,248,180,0.9)');
-      outerGlow.addColorStop(0.4, 'rgba(255,220,60,0.4)');
-      outerGlow.addColorStop(1, 'rgba(255,180,0,0)');
-      c.fillStyle = outerGlow;
-      c.beginPath(); c.arc(-sz*0.58, 0, sz*0.55, 0, Math.PI*2); c.fill();
+      // هالة خارجية
+      const glow = c.createRadialGradient(0, lensCY, 0, 0, lensCY, lensR * 3.5);
+      glow.addColorStop(0, 'rgba(255,250,180,0.85)');
+      glow.addColorStop(0.4, 'rgba(255,220,60,0.35)');
+      glow.addColorStop(1, 'rgba(255,160,0,0)');
+      c.fillStyle = glow;
+      c.beginPath(); c.arc(0, lensCY, lensR * 3.5, 0, Math.PI*2); c.fill();
     }
-    // دائرة العدسة
-    c.fillStyle = on ? '#FFE940' : '#333';
-    c.beginPath(); c.ellipse(-sz*0.58, 0, sz*0.30, sz*0.30, 0, 0, Math.PI*2); c.fill();
+
+    // جسم العدسة
+    c.fillStyle = on ? '#FFE940' : '#2a2a2a';
+    c.beginPath(); c.arc(0, lensCY, lensR, 0, Math.PI*2); c.fill();
+
     if (on) {
-      // تأثير الانعكاس داخل العدسة
-      const lensGrad = c.createRadialGradient(-sz*0.65, -sz*0.10, 0, -sz*0.58, 0, sz*0.30);
-      lensGrad.addColorStop(0, 'rgba(255,255,220,0.95)');
-      lensGrad.addColorStop(0.5, 'rgba(255,240,100,0.7)');
-      lensGrad.addColorStop(1, 'rgba(255,160,0,0.4)');
-      c.fillStyle = lensGrad;
-      c.beginPath(); c.ellipse(-sz*0.58, 0, sz*0.30, sz*0.30, 0, 0, Math.PI*2); c.fill();
+      // تدرج داخل العدسة
+      const lGrad = c.createRadialGradient(-lensR*0.3, lensCY - lensR*0.3, 0, 0, lensCY, lensR);
+      lGrad.addColorStop(0, 'rgba(255,255,220,1)');
+      lGrad.addColorStop(0.6, 'rgba(255,235,80,0.8)');
+      lGrad.addColorStop(1, 'rgba(255,160,0,0.5)');
+      c.fillStyle = lGrad;
+      c.beginPath(); c.arc(0, lensCY, lensR, 0, Math.PI*2); c.fill();
       // نقطة لمعان
-      c.fillStyle = 'rgba(255,255,255,0.8)';
-      c.beginPath(); c.ellipse(-sz*0.67, -sz*0.10, sz*0.07, sz*0.05, -0.5, 0, Math.PI*2); c.fill();
+      c.fillStyle = 'rgba(255,255,255,0.85)';
+      c.beginPath(); c.ellipse(-lensR*0.3, lensCY - lensR*0.35, lensR*0.18, lensR*0.12, -0.4, 0, Math.PI*2); c.fill();
     }
 
-    // ── زر التشغيل (على الجسم) ──
-    c.fillStyle = on ? '#E74C3C' : '#666';
-    c.beginPath(); c.arc(sz*0.05, -sz*0.32, sz*0.10, 0, Math.PI*2); c.fill();
-    c.strokeStyle = on ? '#C0392B' : '#444';
-    c.lineWidth = sz*0.03; c.stroke();
+    // حلقة معدنية حول العدسة
+    c.strokeStyle = on ? 'rgba(180,180,180,0.7)' : 'rgba(80,80,80,0.6)';
+    c.lineWidth = sz * 0.04;
+    c.beginPath(); c.arc(0, lensCY, lensR + sz*0.03, 0, Math.PI*2); c.stroke();
+
+    // ── زر التشغيل على الجسم ──
+    const btnY = bodyY + bodyH * 0.30;
+    c.fillStyle = on ? '#E74C3C' : '#555';
+    c.beginPath(); c.arc(0, btnY, sz * 0.10, 0, Math.PI*2); c.fill();
     if (on) {
-      // وهج الزر
-      const btnGlow = c.createRadialGradient(sz*0.05, -sz*0.32, 0, sz*0.05, -sz*0.32, sz*0.12);
-      btnGlow.addColorStop(0, 'rgba(231,76,60,0.6)');
-      btnGlow.addColorStop(1, 'rgba(231,76,60,0)');
-      c.fillStyle = btnGlow;
-      c.beginPath(); c.arc(sz*0.05, -sz*0.32, sz*0.12, 0, Math.PI*2); c.fill();
+      c.strokeStyle = '#C0392B'; c.lineWidth = sz * 0.03; c.stroke();
     }
 
     c.restore();
@@ -36243,7 +36240,7 @@ function simG5TransparentTest() {
 
     if (lightOn) {
       // توهج المصباح
-      const lg = c.createRadialGradient(lx - w*0.05, ly, 0, lx, ly, w*0.28);
+      const lg = c.createRadialGradient(lx, ly - Math.min(w*0.06,52)*0.55, 0, lx, ly, w*0.26);
       lg.addColorStop(0, 'rgba(255,240,80,0.95)');
       lg.addColorStop(0.25, 'rgba(255,220,40,0.6)');
       lg.addColorStop(1, 'rgba(255,180,0,0)');
