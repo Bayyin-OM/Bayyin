@@ -42849,64 +42849,176 @@ function simG9WaterGas2(){
     const gas=gases[S.gas||0];
     const prog=S.progress/100;
 
-    // Background
+    // ── Background ──
     const bg=c.createLinearGradient(0,0,0,h);
     bg.addColorStop(0,gas.bgCol); bg.addColorStop(1,'#FFFFFF');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // Title
-    _lbl(c,`اختبار ${gas.name} بعود الثقاب`,w/2,h*0.07,gas.col,Math.max(13,w*0.024));
-
-    // Lab bench surface
-    const benchY=h*0.82;
+    // ── Lab bench ──
+    const benchY=h*0.78;
     const benchG=c.createLinearGradient(0,benchY,0,h);
-    benchG.addColorStop(0,'#BCAAA4'); benchG.addColorStop(1,'#8D6E63');
-    c.fillStyle=benchG; c.beginPath(); c.roundRect(w*0.04,benchY,w*0.92,h*0.12,4); c.fill();
-    c.strokeStyle='#795548'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(w*0.04,benchY); c.lineTo(w*0.96,benchY); c.stroke();
+    benchG.addColorStop(0,'#D7CCC8'); benchG.addColorStop(1,'#8D6E63');
+    c.fillStyle=benchG; c.fillRect(0,benchY,w,h-benchY);
+    c.strokeStyle='#795548'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(0,benchY); c.lineTo(w,benchY); c.stroke();
 
-    // Flask position — centered
-    const fcx=w*0.50;
-    const fw=w*0.44, fh=h*0.58;
-    const fby=h*0.22; // flask top (neck opening)
-    const fl=_drawFlask(c,fcx,fby,fw,fh,gas.col,S.t);
+    // ── Flask — left-center, smaller and properly round ──
+    const fcx=w*0.38;
+    const bodyR=Math.min(w*0.18, h*0.22);   // radius of round body
+    const neckW=bodyR*0.55;
+    const neckH=bodyR*1.0;
+    const bodyCY=benchY - bodyR*1.05;        // body center Y (sits on bench)
+    const neckTopY=bodyCY - bodyR - neckH;   // top of neck (open end)
 
-    // Gas label inside/below flask
-    c.font=`bold ${Math.max(14,w*0.028)}px Tajawal`;
+    // gas fill (clipped inside flask)
+    c.save();
+    c.beginPath();
+    c.rect(fcx-neckW*0.5+3, neckTopY, neckW-6, neckH+4);
+    c.arc(fcx, bodyCY, bodyR-4, 0, Math.PI*2);
+    c.clip();
+    const gfill=c.createRadialGradient(fcx, bodyCY-bodyR*0.2, 0, fcx, bodyCY, bodyR);
+    gfill.addColorStop(0, gas.col+'66');
+    gfill.addColorStop(1, gas.col+'22');
+    c.fillStyle=gfill;
+    c.fillRect(fcx-bodyR, neckTopY, bodyR*2, neckH+bodyR*2+10);
+    // floating particles
+    for(let i=0;i<16;i++){
+      const px=fcx-bodyR*0.72+((i*61+S.t*0.35)%(bodyR*1.44));
+      const py=bodyCY-bodyR*0.72+((i*47+S.t*0.3)%(bodyR*1.44));
+      if(Math.hypot(px-fcx,py-bodyCY)<bodyR-6){
+        c.fillStyle=gas.col+'99'; c.beginPath(); c.arc(px,py,2.5,0,Math.PI*2); c.fill();
+      }
+    }
+    c.restore();
+
+    // Flask glass outline
+    c.strokeStyle='rgba(100,181,246,0.9)'; c.lineWidth=2.8;
+    // neck left & right
+    c.beginPath(); c.moveTo(fcx-neckW*0.5,neckTopY+neckH); c.lineTo(fcx-neckW*0.5,neckTopY); c.stroke();
+    c.beginPath(); c.moveTo(fcx+neckW*0.5,neckTopY+neckH); c.lineTo(fcx+neckW*0.5,neckTopY); c.stroke();
+    // shoulder curves
+    c.beginPath(); c.moveTo(fcx-neckW*0.5,neckTopY+neckH);
+    c.bezierCurveTo(fcx-neckW*0.5,neckTopY+neckH+bodyR*0.55, fcx-bodyR,bodyCY-bodyR*0.35, fcx-bodyR,bodyCY); c.stroke();
+    c.beginPath(); c.moveTo(fcx+neckW*0.5,neckTopY+neckH);
+    c.bezierCurveTo(fcx+neckW*0.5,neckTopY+neckH+bodyR*0.55, fcx+bodyR,bodyCY-bodyR*0.35, fcx+bodyR,bodyCY); c.stroke();
+    // round bottom
+    c.beginPath(); c.arc(fcx,bodyCY,bodyR,0,Math.PI); c.stroke();
+    // glass shine
+    c.strokeStyle='rgba(255,255,255,0.55)'; c.lineWidth=1.8;
+    c.beginPath(); c.arc(fcx-bodyR*0.32,bodyCY-bodyR*0.28,bodyR*0.18,Math.PI*0.75,Math.PI*1.55); c.stroke();
+
+    // gas symbol inside body
+    c.font=`bold ${Math.max(15,bodyR*0.45)}px Tajawal`;
     c.textAlign='center'; c.textBaseline='middle';
-    c.fillStyle=gas.col+'CC';
-    c.fillText(gas.icon, fcx, fl.bodyCY+fl.bodyR*0.35);
-    _lbl(c,gas.name, fcx, benchY+h*0.06, gas.col, Math.max(11,w*0.020));
+    c.fillStyle=gas.col+'BB';
+    c.fillText(gas.icon, fcx, bodyCY+bodyR*0.15);
 
-    // Splint — enters from top-right into neck
-    const neckOpenX=fcx+fl.neckW*0.1; // slightly off-center
-    const splintRestY=fby-h*0.08; // resting position above flask
-    // travel: goes from above screen down into neck
-    const splintStartY=fby-h*0.35;
-    const splintEndY=fby+fl.neckH*0.6; // inside neck
-    const splintTipY = S.testing
-      ? splintStartY + (splintEndY-splintStartY)*Math.min(prog*1.8,1)
-      : splintStartY;
+    // flask label below bench
+    _lbl(c,gas.name, fcx, benchY+h*0.055, gas.col, Math.max(11,w*0.019));
 
-    const isInsideFlask = splintTipY >= fby+fl.neckH*0.1;
-    const isGlowing = gas.effect==='glow' && prog>0.05;
-    const isFlame  = gas.effect==='pop'  && isInsideFlask && prog>0.5;
+    // ── Splint — comes from top-right, enters neck ──
+    // tip travels from just above the neck opening down into the neck
+    const splintTipX = fcx + neckW*0.08; // slightly inside neck center
+    const splintTopY  = neckTopY - h*0.18;   // resting above, still inside canvas
+    const splintInY   = neckTopY + neckH*0.55; // inside neck
+    const splintTipY  = S.testing
+      ? splintTopY + (splintInY - splintTopY)*Math.min(prog*1.7, 1)
+      : splintTopY;
 
-    _drawSplint(c,neckOpenX,splintTipY,isGlowing,isFlame,prog,gas.col,S.t);
+    // wood stick — goes upward-right from tip
+    const stickLen = h*0.25;
+    const stickAngle = -0.25; // tilt right
+    const stickEndX = splintTipX + Math.sin(stickAngle)*stickLen;
+    const stickEndY = splintTipY - Math.cos(stickAngle)*stickLen;
+    const sg=c.createLinearGradient(splintTipX,splintTipY,stickEndX,stickEndY);
+    sg.addColorStop(0,'#4E342E'); sg.addColorStop(0.5,'#8D6E63'); sg.addColorStop(1,'#BCAAA4');
+    c.strokeStyle=sg; c.lineWidth=7; c.lineCap='round';
+    c.beginPath(); c.moveTo(splintTipX,splintTipY); c.lineTo(stickEndX,stickEndY); c.stroke();
+    c.lineCap='butt';
 
-    // Instruction before test
-    if(!S.testing){
-      const iy=h*0.10;
-      c.fillStyle='rgba(0,0,0,0.07)'; c.beginPath(); c.roundRect(w*0.1,iy,w*0.8,h*0.08,8); c.fill();
-      _lbl(c,'اضغط "ابدأ الاختبار" لإدخال عود الثقاب',w/2,iy+h*0.04,'#555',Math.max(10,w*0.018));
+    // ── O₂: glowing ember tip ──
+    if(gas.effect==='glow' && prog>0.05){
+      const pulse=12+Math.sin(S.t*0.2)*4;
+      // outer glow
+      const gl=c.createRadialGradient(splintTipX,splintTipY,0,splintTipX,splintTipY,pulse*2.2);
+      gl.addColorStop(0,'rgba(255,255,180,1)');
+      gl.addColorStop(0.25,'rgba(255,160,0,0.85)');
+      gl.addColorStop(0.6,'rgba(255,60,0,0.4)');
+      gl.addColorStop(1,'rgba(255,0,0,0)');
+      c.fillStyle=gl; c.beginPath(); c.arc(splintTipX,splintTipY,pulse*2.2,0,Math.PI*2); c.fill();
+      // bright core
+      c.fillStyle='rgba(255,255,220,0.95)';
+      c.beginPath(); c.arc(splintTipX,splintTipY,4,0,Math.PI*2); c.fill();
+      // flying sparks
+      if(prog > 0.4){
+        for(let i=0;i<7;i++){
+          const sa=S.t*0.13+i*0.9;
+          const sr=pulse*0.6+i*3;
+          c.fillStyle=`rgba(255,${130+i*18},0,${0.8-i*0.1})`;
+          c.beginPath(); c.arc(splintTipX+Math.cos(sa)*sr, splintTipY+Math.sin(sa)*sr-sr*0.3, 2.5,0,Math.PI*2); c.fill();
+        }
+      }
+      // "يشتعل!" label when fully inside
+      if(prog>0.55){
+        c.font=`bold ${Math.max(13,w*0.022)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='bottom';
+        c.fillStyle=gas.col;
+        c.fillText('🔥 يشتعل العود!', fcx, neckTopY-8);
+      }
     }
 
-    // Result panel
-    if(S.progress>55){
-      const ry=h*0.87, rh=h*0.10;
-      c.fillStyle=gas.col+'22'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
+    // ── H₂: explosion burst ──
+    if(gas.effect==='pop' && splintTipY >= neckTopY+neckH*0.1 && prog>0.5){
+      const burst=Math.min(1,(prog-0.5)*2.5);
+      // shockwave rings
+      for(let r=0;r<3;r++){
+        const rr=(burst-r*0.12)*bodyR*1.4;
+        if(rr>0){
+          c.strokeStyle=`rgba(255,200,50,${0.5*(1-burst)*1.5})`;
+          c.lineWidth=3;
+          c.beginPath(); c.arc(fcx,bodyCY,rr,0,Math.PI*2); c.stroke();
+        }
+      }
+      // central fireball
+      const fb=c.createRadialGradient(fcx,bodyCY,0,fcx,bodyCY,burst*bodyR*1.1);
+      fb.addColorStop(0,'rgba(255,255,200,0.95)');
+      fb.addColorStop(0.3,'rgba(255,160,0,0.8)');
+      fb.addColorStop(0.7,'rgba(255,50,0,0.4)');
+      fb.addColorStop(1,'rgba(255,0,0,0)');
+      c.fillStyle=fb; c.beginPath(); c.arc(fcx,bodyCY,burst*bodyR*1.1,0,Math.PI*2); c.fill();
+      // debris sparks
+      for(let i=0;i<14;i++){
+        const fa=i*(Math.PI*2/14)+S.t*0.04;
+        const fr=burst*bodyR*(0.6+Math.sin(S.t*0.15+i)*0.3);
+        c.fillStyle=`rgba(255,${100+i*10},0,${0.9-burst*0.6})`;
+        c.beginPath(); c.arc(fcx+Math.cos(fa)*fr, bodyCY+Math.sin(fa)*fr, 3+i%3,0,Math.PI*2); c.fill();
+      }
+      // 💥 label
+      if(burst>0.3){
+        c.font=`bold ${Math.max(16,w*0.03)}px Tajawal`;
+        c.textAlign='center'; c.textBaseline='bottom';
+        c.fillStyle='#E74C3C';
+        c.fillText('💥 فرقعة حادة!', fcx, neckTopY-8);
+      }
+    }
+
+    // ── Title ──
+    _lbl(c,`اختبار ${gas.name} بعود الثقاب`,w/2,h*0.055,gas.col,Math.max(14,w*0.024));
+
+    // ── Hint before test ──
+    if(!S.testing){
+      c.fillStyle='rgba(0,0,0,0.06)'; c.beginPath(); c.roundRect(w*0.08,h*0.86,w*0.84,h*0.07,8); c.fill();
+      _lbl(c,'اضغط "ابدأ الاختبار" لإدخال عود الثقاب',w/2,h*0.895,'#666',Math.max(10,w*0.017));
+    }
+
+    // ── Result panel ──
+    if(S.progress>60){
+      const ry=h*0.855, rh=h*0.10;
+      c.fillStyle=gas.col+'20'; c.beginPath(); c.roundRect(w*0.05,ry,w*0.90,rh,10); c.fill();
+      c.strokeStyle=gas.col+'55'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.05,ry,w*0.90,rh,10); c.stroke();
       _lbl(c,gas.result,w/2,ry+rh*0.38,gas.col,Math.max(12,w*0.022));
-      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillStyle='#666'; c.font=`${Math.max(9,w*0.015)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
       c.fillText(gas.resultSub,w/2,ry+rh*0.82);
     }
 
@@ -42939,7 +43051,7 @@ function simG9WaterGas3(){
     <div class="q-box" style="margin-top:8px">
       <strong>❓ كيف نُميِّز الأمونيا عن الكلور؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">كلاهما برائحة نفاذة لكن: الأمونيا تُحوِّل ورقة تبّاع الشمس الحمراء إلى الأزرق (قلوية). الكلور يُبيِّض ورقة تبّاع الشمس الرطبة. CO₂ بلا رائحة ويُعكِّر ماء الجير فقط.</div>
+      <div class="q-ans-panel">كلاهما برائحة نفاذة لكن: الأمونيا تُحوِّل ورقة تبّاع الشمس الحمراء إلى الأزرق (قلوية). الكلور يُحوِّل ورقة تبّاع الشمس الزرقاء إلى الأحمر ثم يُبيِّضها تماماً (تأثير التبييض). CO₂ بلا رائحة ويُعكِّر ماء الجير فقط.</div>
     </div>`);
   const cv=document.getElementById('simCanvas');
 
@@ -43122,8 +43234,8 @@ function simG9WaterGas3(){
           mb2=Math.round(43+(248-43)*t2);
           stateLabel2=t2<0.4?'🔄 تتبيّض...':'⬜ بيضاء (مُبيَّضة)';
         }
-        _drawLitmusPaper(c,pcx,ppy,ppw,pph,mr2,mg2,mb2,'ورقة تبّاع الشمس الرطبة','#8D6E63');
-        _lbl(c,stateLabel2,pcx,ppy+pph+h*0.05,'#8D6E63',Math.max(10,w*0.018));
+        _drawLitmusPaper(c,pcx,ppy,ppw,pph,mr2,mg2,mb2,'ورقة تبّاع الشمس الزرقاء الرطبة','#7B8D2A');
+        _lbl(c,stateLabel2,pcx,ppy+pph+h*0.05,'#7B8D2A',Math.max(10,w*0.018));
       }
       _lbl(c,'ورقة تبّاع الشمس',pcx,benchY+h*0.05,'#555',Math.max(10,w*0.018));
     }
