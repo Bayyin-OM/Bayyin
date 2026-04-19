@@ -30809,8 +30809,8 @@ Object.assign(SIM_QUESTIONS, {
   g5reflection_1: {
     q: 'رتّب هذه الأسطح من الأعلى انعكاساً إلى الأقل: قماش، مرآة، ورق خشن، ورق لامع',
     opts: [
-     'ورق لامع ← مرآة ← ورق خشن ← قماش',
       'مرآة ← ورق لامع ← قماش ← ورق خشن',
+      'ورق لامع ← مرآة ← ورق خشن ← قماش',
       'قماش ← مرآة ← ورق لامع ← ورق خشن',
       'مرآة ← قماش ← ورق لامع ← ورق خشن'
     ],
@@ -30833,15 +30833,15 @@ Object.assign(SIM_QUESTIONS, {
 
   // حجم الظل
   g5shadowsize: {
-    q: 'ماذا يحدث لحجم الظل عندما تقرّب الجسم من مصدر الضوء؟',
+    q: 'ماذا نستنتج من قدرتنا على مشاهدة الضوء في الأنبوب المستقيم وعدم قدرتنا في الأنبوب المعوج؟',
     opts: [
-      'يصغر الظل',
-      'يبقى الظل بنفس الحجم',
-      'يكبر الظل',
-      'يختفي الظل'
+      'الضوء ينتقل في خطوط مستقيمة فقط ولا يستطيع الانعطاف',
+      'الأنبوب المعوج أطول من المستقيم فيخمد الضوء',
+      'الضوء يحتاج هواءً نظيفاً لكي يمر',
+      'الأنبوب المعوج يمتص الضوء'
     ],
-    ans: 2,
-    fb: '✅ كلما اقتربت الجسم من مصدر الضوء، كبر ظله على الشاشة. وكلما ابتعد الجسم عن المصدر (أو اقترب من الشاشة) صغر الظل. هذا هو مبدأ عروض خيال الظل!'
+    ans: 0,
+    fb: '✅ الضوء ينتقل في خطوط مستقيمة — في الأنبوب المستقيم يمر الضوء مباشرةً من طرف لطرف فنراه، أما الأنبوب المعوج فيحجب المسار المستقيم فلا يصل الضوء إلى عيننا.'
   },
 
   // الأجسام الشفافة والمعتمة
@@ -34317,8 +34317,8 @@ function simG5ShadowLab() {
     beamGrad.addColorStop(0.95,'rgba(255,220,50,0.9)'); beamGrad.addColorStop(1,'rgba(255,220,50,0)');
     c.fillStyle=beamGrad; c.fillRect(pipeStartX+6, beamCY-2, pipeEndX-pipeStartX-12, 4);
 
-    // فوتون متحرك
-    const px = pipeEndX - (pipeEndX-pipeStartX)*S.photonT; // من المصدر (يمين) نحو العين (يسار)
+    // فوتون متحرك — من المصدر (يمين) نحو العين (يسار)
+    const px = pipeEndX - (pipeEndX-pipeStartX)*S.photonT;
     const pGlow = c.createRadialGradient(px,beamCY,0,px,beamCY,16);
     pGlow.addColorStop(0,'rgba(255,255,180,1)'); pGlow.addColorStop(1,'rgba(255,200,0,0)');
     c.fillStyle=pGlow; c.beginPath(); c.arc(px,beamCY,16,0,Math.PI*2); c.fill();
@@ -34402,7 +34402,8 @@ function simG5ShadowLab() {
     c.fillStyle='rgba(255,220,50,0.4)'; c.fillRect(s1sx+4, beam1Y-2, seg1Len-8, 4);
 
     if (S.photonT < 0.5) {
-      const px = s1sx + seg1Len*(S.photonT*2); // من المصدر (يمين) إلى الداخل
+      // الفوتون يتحرك من المصدر (يمين) نحو الكوع (يسار) → من s1ex نحو s1sx
+      const px = s1ex - seg1Len*(S.photonT*2);
       const pg=c.createRadialGradient(px,beam1Y,0,px,beam1Y,14);
       pg.addColorStop(0,'rgba(255,255,150,1)'); pg.addColorStop(1,'rgba(255,200,0,0)');
       c.fillStyle=pg; c.beginPath(); c.arc(px,beam1Y,14,0,Math.PI*2); c.fill();
@@ -34600,10 +34601,72 @@ function simG5ShadowInquiry() {
     c.filter = 'none';
     c.restore();
 
-    // أشعة الضوء (من المصدر إلى حواف الجسم إلى الحائط)
-    c.strokeStyle = 'rgba(255,200,50,0.28)'; c.lineWidth = 1.2;
+    // أشعة الضوء الحدية (من المصدر → حواف الجسم → الحائط)
+    c.strokeStyle = 'rgba(255,200,50,0.50)'; c.lineWidth = 1.5;
     c.beginPath(); c.moveTo(lx, ly); c.lineTo(objLeft, objTop); c.lineTo(wallX, topProj.y); c.stroke();
     c.beginPath(); c.moveTo(lx, ly); c.lineTo(objRight, objBottom); c.lineTo(wallX, bottomProj.y); c.stroke();
+
+    // ── فوتونات متحركة لتوضيح انتقال الضوء ──
+    // نرسم عدة فوتونات في خطوط مستقيمة تنطلق من المصدر
+    // بعضها يصطدم بالجسم (يتوقف) والباقي يكمل للحائط
+    if (!S.sqPhotonT) S.sqPhotonT = 0;
+    S.sqPhotonT = (S.sqPhotonT + 0.012) % 1;
+    const pt = S.sqPhotonT;
+
+    // مسارات الفوتونات: [startY نسبي، هل يصطدم؟]
+    const photonPaths = [
+      { fy: 0.15, blocked: false },  // فوق الجسم → يكمل للحائط
+      { fy: 0.35, blocked: true  },  // يصطدم بالجسم
+      { fy: 0.50, blocked: true  },  // يصطدم بالجسم
+      { fy: 0.65, blocked: true  },  // يصطدم بالجسم
+      { fy: 0.80, blocked: false },  // تحت الجسم → يكمل للحائط
+    ];
+
+    photonPaths.forEach((pp, idx) => {
+      const pSrcY = ly + (h * pp.fy - ly) * 0; // كلها تبدأ من المصدر
+      const targetY = h * pp.fy;
+
+      // اتجاه الشعاع من المصدر نحو الهدف
+      const dirX = targetY > ly ? (ox - lx) : (wallX - lx);
+      // نقطة على الشعاع بنسبة pt
+      let fX, fY, blocked = pp.blocked;
+
+      if (!blocked) {
+        // مسار مباشر من المصدر إلى الحائط
+        const tgt2X = wallX, tgt2Y = targetY;
+        fX = lx + (tgt2X - lx) * pt;
+        fY = ly  + (tgt2Y - ly) * pt;
+      } else {
+        // مسار من المصدر نحو مركز الجسم، يتوقف عنده
+        const stopX = ox, stopY = oy;
+        if (pt < 0.5) {
+          fX = lx + (stopX - lx) * (pt * 2);
+          fY = ly  + (stopY - ly) * (pt * 2);
+        } else {
+          // وهج الاصطدام
+          fX = stopX; fY = stopY;
+        }
+      }
+
+      // رسم الفوتون
+      const alpha = blocked && pt >= 0.5 ? (1 - (pt - 0.5) * 2) : 0.9;
+      const gph = c.createRadialGradient(fX, fY, 0, fX, fY, 7);
+      if (blocked && pt >= 0.5) {
+        // وهج احمر عند الاصطدام
+        gph.addColorStop(0, `rgba(255,100,50,${alpha})`);
+        gph.addColorStop(1, 'rgba(255,50,0,0)');
+      } else {
+        gph.addColorStop(0, `rgba(255,240,120,${alpha})`);
+        gph.addColorStop(1, 'rgba(255,200,0,0)');
+      }
+      c.fillStyle = gph;
+      c.beginPath(); c.arc(fX, fY, 7, 0, Math.PI * 2); c.fill();
+    });
+
+    // نص توضيحي
+    c.fillStyle = 'rgba(80,40,0,0.72)';
+    c.font = `bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('الضوء يسير في خطوط مستقيمة — الجسم المعتم يمنعه فيتكوّن الظل', w*0.5, h*0.91);
 
     // تسمية الشكل
     c.fillStyle = 'rgba(80,40,0,0.7)';
@@ -35160,9 +35223,9 @@ function simG5ShadowFactor() {
 <div class="ctrl-section">
   <div class="ctrl-label">📏 اختر المتغيّر</div>
   <div class="ctrl-btns-grid">
-    <button id="sf-v1" class="ctrl-btn action" onclick="window._sfVar('objDist')">مسافة الجسم عن المصدر</button>
-    <button id="sf-v2" class="ctrl-btn" onclick="window._sfVar('wallDist')">مسافة الجسم عن الشاشة</button>
-    <button id="sf-v3" class="ctrl-btn" onclick="window._sfVar('objSize')">حجم الجسم</button>
+    <button id="sf-v1" class="ctrl-btn action" onclick="window._sfVar('objDist')">🔦 غيّر مسافة مصدر الضوء</button>
+    <button id="sf-v2" class="ctrl-btn" onclick="window._sfVar('wallDist')">🖥 غيّر مسافة الشاشة</button>
+    <button id="sf-v3" class="ctrl-btn" onclick="window._sfVar('objSize')">📦 غيّر حجم الجسم</button>
   </div>
 </div>
 <div id="sf-slider-wrap" class="ctrl-section" style="margin-top:4px">
@@ -35183,9 +35246,9 @@ function simG5ShadowFactor() {
 </div>`;
 
   const varCfg = {
-    objDist:  { label:'مسافة الجسم عن المصدر', min:20, max:120, unit:'سم', key:'sf2ObjDist' },
-    wallDist: { label:'مسافة الجسم عن الشاشة', min:10, max:80,  unit:'سم', key:'sf2WallDist' },
-    objSize:  { label:'حجم الجسم',             min:2,  max:14,  unit:'سم', key:'sf2ObjSize' },
+    objDist:  { label:'مسافة مصدر الضوء عن الجسم (الجسم والشاشة ثابتان)', min:20, max:120, unit:'سم', key:'sf2ObjDist' },
+    wallDist: { label:'مسافة الشاشة عن الجسم (الجسم ومصدر الضوء ثابتان)', min:10, max:80,  unit:'سم', key:'sf2WallDist' },
+    objSize:  { label:'حجم الجسم (مصدر الضوء والشاشة ثابتان)',             min:2,  max:14,  unit:'سم', key:'sf2ObjSize' },
   };
 
   function updateSlider() {
@@ -35779,17 +35842,30 @@ function simG5Sundial() {
     const shadowDir = -sunSide;
     const shadowEndX = stickX + shadowDir*shadowPx;
 
-    // رسم الظل بوضوح
+    // رسم الظل بوضوح — ظل واضح وعريض على الأرض
+    const shadowWidth = Math.max(8, stickH*0.16);
+    // طبقة ضبابية للواقعية
+    const shBlur=c.createLinearGradient(stickX,0,shadowEndX,0);
+    shBlur.addColorStop(0,'rgba(0,0,0,0.18)');
+    shBlur.addColorStop(1,'rgba(0,0,0,0.0)');
+    c.fillStyle=shBlur;
+    c.beginPath();
+    c.moveTo(stickX-shadowWidth*1.5, stickBaseY);
+    c.lineTo(stickX+shadowWidth*1.5, stickBaseY);
+    c.lineTo(shadowEndX+shadowDir*shadowWidth*3, stickBaseY+5);
+    c.lineTo(shadowEndX-shadowDir*shadowWidth*1.5, stickBaseY+5);
+    c.closePath(); c.fill();
+    // الظل الأساسي الغامق
     const shGrad=c.createLinearGradient(stickX,0,shadowEndX,0);
-    shGrad.addColorStop(0,'rgba(0,0,0,0.80)');
-    shGrad.addColorStop(1,'rgba(0,0,0,0.05)');
+    shGrad.addColorStop(0,'rgba(0,0,0,0.88)');
+    shGrad.addColorStop(0.7,'rgba(0,0,0,0.55)');
+    shGrad.addColorStop(1,'rgba(0,0,0,0.08)');
     c.fillStyle=shGrad;
     c.beginPath();
-    const shadowWidth = Math.max(4, stickH*0.12);
     c.moveTo(stickX-shadowWidth/2, stickBaseY);
     c.lineTo(stickX+shadowWidth/2, stickBaseY);
-    c.lineTo(shadowEndX+shadowDir*shadowWidth*1.5, stickBaseY+2);
-    c.lineTo(shadowEndX-shadowDir*shadowWidth*0.5, stickBaseY+2);
+    c.lineTo(shadowEndX+shadowDir*shadowWidth*2.0, stickBaseY+3);
+    c.lineTo(shadowEndX-shadowDir*shadowWidth*0.8, stickBaseY+3);
     c.closePath(); c.fill();
 
     // خط قياس الظل
@@ -36003,12 +36079,20 @@ function simG5LightIntensity() {
 function simG5Rainbow() {
   // ── تجربة المنشور: الضوء الأبيض → ألوان قوس المطر ──
   const S = simState;
-  if (!S.rb1Init) { S.rb1Init=true; S.rb1Anim=0; S.rb1BeamY=0.5; S.rb1Dragging=false; }
+  if (!S.rb1Init) { S.rb1Init=true; S.rb1Anim=0; S.rb1BeamY=0.5; S.rb1Dragging=false; S.rb1AngleX=0; }
 
   document.getElementById('simControlsPanel').innerHTML = `
 <div class="ctrl-section">
   <div class="ctrl-label">🔬 تجربة المنشور</div>
-  <div class="ctrl-desc">اسحب شعاع الضوء الأبيض ليمر عبر المنشور وشاهد كيف ينقسم إلى ألوان الطيف</div>
+  <div class="ctrl-desc">اسحب شعاع الضوء <b>للأعلى والأسفل</b> لتغيير موضعه، أو استخدم الشريط لتغيير <b>زاوية السقوط</b></div>
+</div>
+<div class="ctrl-section">
+  <div class="ctrl-label">📐 زاوية السقوط: <span id="rb-angle-val">0°</span></div>
+  <input id="rb-angle-slider" type="range" min="-35" max="35" value="0" step="1"
+    oninput="window._rbAngle(+this.value)" style="width:100%">
+  <div style="display:flex;justify-content:space-between;font-family:Tajawal;font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px">
+    <span>↑ أعلى</span><span>مباشر</span><span>↓ أسفل</span>
+  </div>
 </div>
 <div class="ctrl-section">
   <div class="ctrl-label">🌈 ألوان الطيف بالترتيب</div>
@@ -36030,6 +36114,15 @@ function simG5Rainbow() {
 
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
+
+  window._rbAngle = function(deg) {
+    S.rb1AngleX = deg;
+    const el = document.getElementById('rb-angle-val');
+    if (el) el.textContent = deg + '°';
+    const sl = document.getElementById('rb-angle-slider');
+    if (sl) sl.value = deg;
+  };
+  setTimeout(() => window._rbAngle(S.rb1AngleX || 0), 50);
 
   cv.onmousedown = function(e){
     const rect=cv.getBoundingClientRect();
@@ -36094,28 +36187,42 @@ function simG5Rainbow() {
     c.fillStyle='rgba(180,220,255,0.55)'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
     c.fillText('المنشور', prismX, prismBot+h*0.045);
 
-    // نقطة دخول الشعاع في المنشور
+    // زاوية السقوط من الشريط
+    const incAngle = (S.rb1AngleX || 0) * Math.PI / 180;
+    // نقطة دخول الشعاع في المنشور — تُحسب بناءً على الزاوية
     const entryX = prismX - w*0.042;
     const entryY = prismMid + (beamY - prismMid)*0.5;
 
-    // ── الشعاع الأبيض الداخل ──
-    const whiteGrad=c.createLinearGradient(0,0,entryX,0);
-    whiteGrad.addColorStop(0,'rgba(255,255,255,0)');
-    whiteGrad.addColorStop(0.4,'rgba(255,255,255,0.7)');
-    whiteGrad.addColorStop(1,'rgba(255,255,255,0.9)');
-    c.fillStyle=whiteGrad;
-    c.fillRect(w*0.04, beamY-4, entryX-w*0.04, 8);
-    // نقطة وهج عند المصدر
-    const srcGlow=c.createRadialGradient(w*0.06,beamY,0,w*0.06,beamY,w*0.06);
-    srcGlow.addColorStop(0,'rgba(255,255,255,0.9)'); srcGlow.addColorStop(1,'rgba(255,255,255,0)');
-    c.fillStyle=srcGlow; c.beginPath(); c.arc(w*0.06,beamY,w*0.06,0,Math.PI*2); c.fill();
-    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('← اسحب', w*0.06, beamY+h*0.055);
-    c.fillText('ضوء أبيض', w*0.06, beamY-h*0.04);
+    // مصدر الضوء (يسار) — يتحرك بناءً على الزاوية
+    const srcX = w*0.06;
+    const srcY = entryY - Math.tan(incAngle) * (entryX - srcX);
 
-    // نقطة خروج الألوان من المنشور
+    // ── الشعاع الأبيض الداخل (مائل حسب الزاوية) ──
+    const whiteGrad=c.createLinearGradient(srcX, srcY, entryX, entryY);
+    whiteGrad.addColorStop(0,'rgba(255,255,255,0)');
+    whiteGrad.addColorStop(0.3,'rgba(255,255,255,0.7)');
+    whiteGrad.addColorStop(1,'rgba(255,255,255,0.95)');
+    c.strokeStyle='rgba(255,255,255,0.9)'; c.lineWidth=6;
+    c.beginPath(); c.moveTo(srcX, srcY); c.lineTo(entryX, entryY); c.stroke();
+    // نقطة وهج عند المصدر
+    const srcGlow=c.createRadialGradient(srcX,srcY,0,srcX,srcY,w*0.07);
+    srcGlow.addColorStop(0,'rgba(255,255,255,0.95)'); srcGlow.addColorStop(1,'rgba(255,255,255,0)');
+    c.fillStyle=srcGlow; c.beginPath(); c.arc(srcX,srcY,w*0.07,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,255,0.85)'; c.font=`bold ${Math.max(8,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('اسحب ↕', srcX, srcY+h*0.062);
+    c.fillText('ضوء أبيض', srcX, srcY-h*0.048);
+    // إظهار زاوية السقوط
+    if (Math.abs(S.rb1AngleX||0) > 2) {
+      c.strokeStyle='rgba(200,200,255,0.5)'; c.lineWidth=1; c.setLineDash([4,4]);
+      c.beginPath(); c.moveTo(entryX, entryY-h*0.12); c.lineTo(entryX, entryY+h*0.08); c.stroke();
+      c.setLineDash([]);
+      c.fillStyle='rgba(200,220,255,0.8)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`; c.textAlign='center';
+      c.fillText(`${Math.abs(S.rb1AngleX||0)}°`, entryX-w*0.04, entryY-h*0.06);
+    }
+
+    // نقطة خروج الألوان من المنشور — تتأثر بزاوية الدخول
     const exitX = prismX + w*0.032;
-    const exitY = entryY + (beamY-prismMid)*0.08;
+    const exitY = entryY + (beamY-prismMid)*0.08 + Math.tan(incAngle)*w*0.06;
 
     // ── الشعاع داخل المنشور (أبيض) ──
     c.strokeStyle='rgba(255,255,255,0.4)'; c.lineWidth=3; c.setLineDash([3,4]);
