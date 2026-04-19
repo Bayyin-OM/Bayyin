@@ -19451,8 +19451,8 @@ function simVariation1() {
   canvas.onmousedown = canvas.ontouchstart = function(e) {
     e.preventDefault();
     const rect=canvas.getBoundingClientRect();
-    const mx=(e.touches?e.touches[0].clientX:e.clientX)-rect.left;
-    const my=(e.touches?e.touches[0].clientY:e.clientY)-rect.top;
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX)-rect.left;
+    const my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY)-rect.top;
     const w=canvas.width, h=canvas.height;
 
     if(simState.mode==='measure') {
@@ -19486,7 +19486,7 @@ function simVariation1() {
     e.preventDefault();
     if(simState.mode!=='draw' || simState.draggingBar===null) return;
     const rect=canvas.getBoundingClientRect();
-    const my=(e.touches?e.touches[0].clientY:e.clientY)-rect.top;
+    const my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY)-rect.top;
     const h=canvas.height;
     const maxCount=8, chartT=h*0.1, chartB=h*0.88, chartH=chartB-chartT;
     const dy=simState.dragStartY-my;
@@ -20235,8 +20235,8 @@ function simPlantClass2() {
   canvas.onmousedown=canvas.ontouchstart=function(e){
     e.preventDefault();
     const rect=canvas.getBoundingClientRect();
-    const mx=(e.touches?e.touches[0].clientX:e.clientX)-rect.left;
-    const my=(e.touches?e.touches[0].clientY:e.clientY)-rect.top;
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX)-rect.left;
+    const my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY)-rect.top;
     const w=canvas.width,h=canvas.height;
     for(let i=simState.cards.length-1;i>=0;i--){
       const cd=simState.cards[i];
@@ -20252,8 +20252,8 @@ function simPlantClass2() {
     e.preventDefault();
     if(simState.dragging===null) return;
     const rect=canvas.getBoundingClientRect();
-    simState.dragX=(e.touches?e.touches[0].clientX:e.clientX)-rect.left;
-    simState.dragY=(e.touches?e.touches[0].clientY:e.clientY)-rect.top;
+    simState.dragX=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX)-rect.left;
+    simState.dragY=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY)-rect.top;
   };
   canvas.onmouseup=canvas.ontouchend=function(e){
     if(simState.dragging===null) return;
@@ -22965,7 +22965,7 @@ function restoreBuddy() {
 /* ── Buddy Draggable ── */
 (function() {
   var wrap, isDragging=false, hasMoved=false, startX, startY, origLeft, origTop;
-  function getXY(e){ return e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY}; }
+  function getXY(e){ const _s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e; return{x:_s.clientX,y:_s.clientY}; }
   function onDown(e) {
     wrap=document.getElementById('buddy-wrap'); if(!wrap) return;
     isDragging=true; hasMoved=false;
@@ -31683,7 +31683,7 @@ function repro_gametes2(){
     const cv=document.getElementById('simCanvas');
     if(!cv)return{x:0,y:0};
     const r=cv.getBoundingClientRect(),sc=cv.width/r.width;
-    const s=e.touches?e.touches[0]:(e.changedTouches&&e.changedTouches[0]||e);
+    const s=e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;
     return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};
   }
 
@@ -33409,7 +33409,7 @@ function simG5BehindYou() {
 
     function getPointer(e) {
       const rect = cv.getBoundingClientRect();
-      const src = e.touches ? e.touches[0] : e;
+      const src = e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e;
       return {
         fx: (src.clientX - rect.left) / rect.width,
         fy: (src.clientY - rect.top)  / rect.height
