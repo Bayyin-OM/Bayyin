@@ -21798,44 +21798,47 @@ function simStaticElec3(){
 
   if(!simState.se3) simState.se3={
     t:0,
-    // Phase: 'intro' → 'charge1' → 'charge2' → 'test'
-    phase:'intro',
-    rod1Charged:false,  // hanging rod
-    rod2Charged:false,  // approaching rod
-    // rod2 type: 'same' (plastic) or 'diff' (glass)
+    phase:'intro',          // 'intro' → 'charging' → 'charge1' → 'charge2' → 'test'
+    rod1Charged:false,
+    rod2Charged:false,
     rod2Type:'same',
-    // rod2 position (draggable)
     rod2X:0.82, rod2Y:0.46,
     drag:false, ox:0, oy:0,
-    // deflection angle of hanging rod (radians)
     deflect:0,
-    // charge level 0-3
     charge1:0, charge2:0,
-    rubAnim:0, rubbing:false,
-    // cloth rubbing animation
-    clothX:0, clothMoving:false, clothDir:1,
-    showResult:false, resultMsg:'', resultCol:''
+    // cloth drag state
+    clothX:0.64, clothY:0.42,   // cloth position (fraction of canvas)
+    clothDrag:false, clothOx:0, clothOy:0,
+    rubCount:0,                  // how many rub strokes completed
+    rubSparks:[],                // spark particles
+    rubAnim:0,                   // for wobble animation
+    showResult:false
   };
   const S=simState.se3;
   let w=cv.width, h=cv.height;
 
+  /* ── Controls panel ── */
   function updateControls(){
+    const chargeBar = S.charge1>0
+      ? `<div style="margin:6px 0;background:#eee;border-radius:6px;height:8px;overflow:hidden">
+           <div style="width:${Math.round(S.charge1/3*100)}%;height:100%;background:linear-gradient(90deg,#8E44AD,#A04DC0);border-radius:6px;transition:width 0.3s"></div>
+         </div>
+         <div style="font-size:11px;color:#8E44AD;text-align:center">${['','شحنة ضعيفة ⚡','شحنة جيدة ⚡⚡','مشحون بالكامل! ⚡⚡⚡'][S.charge1]}</div>`
+      : '';
     controls(`
       <div class="ctrl-section">
         <div class="ctrl-label">📏 التنافر الكهربائي</div>
-        <div style="font-size:12.5px;color:#555;line-height:1.9;margin:4px 0">
-          ${S.phase==='intro'?'اشحن القضيب المعلق أولاً بالقماش':''}
-          ${S.phase==='charge1'?'✅ القضيب المعلق جاهز — اختر نوع القضيب الثاني':''}
-          ${S.phase==='charge2'||S.phase==='test'?'اسحب القضيب الثاني نحو المعلق':''}
+        <div style="font-size:12.5px;color:#555;line-height:1.8;margin:4px 0">
+          ${S.phase==='intro'||S.phase==='charging'?'<b>الخطوة 1:</b> اسحب القماش واحكّه على القضيب لشحنه':''}
+          ${S.phase==='charge1'?'✅ القضيب المعلق جاهز — اختر القضيب الثاني':''}
+          ${S.phase==='charge2'||S.phase==='test'?'<b>الخطوة 2:</b> اسحب القضيب الثاني نحو المعلق':''}
         </div>
+        ${chargeBar}
       </div>
-      ${S.phase==='intro'?`
-      <button class="ctrl-btn play" onclick="simState.se3.phase='charge1';simState.se3.rod1Charged=true;simState.se3.charge1=3;window._se3UpdateControls&&window._se3UpdateControls()">🧻 احتك بالقماش لشحن القضيب</button>
-      `:''}
       ${S.phase==='charge1'?`
       <div class="ctrl-label" style="margin-top:8px">اختر القضيب الثاني:</div>
       <button class="ctrl-btn" onclick="simState.se3.rod2Type='same';simState.se3.phase='charge2';simState.se3.rod2Charged=true;simState.se3.charge2=3;simState.se3.rod2X=0.82;simState.se3.rod2Y=0.46;window._se3UpdateControls&&window._se3UpdateControls()">
-        🟫 نفس البلاستيك (سالب ➖)
+        🟫 بلاستيك (سالب ➖)
       </button>
       <button class="ctrl-btn" style="margin-top:4px" onclick="simState.se3.rod2Type='diff';simState.se3.phase='charge2';simState.se3.rod2Charged=true;simState.se3.charge2=3;simState.se3.rod2X=0.82;simState.se3.rod2Y=0.46;window._se3UpdateControls&&window._se3UpdateControls()">
         🔲 زجاج (موجب ➕)
@@ -21859,48 +21862,105 @@ function simStaticElec3(){
   }
   updateControls();
 
+  /* ── Pointer helpers ── */
   function gp(e){
-    const r=cv.getBoundingClientRect(),sc=cv.width/r.width;
+    const r=cv.getBoundingClientRect(), sc=cv.width/r.width;
     const s=(e.changedTouches&&e.changedTouches[0])||(e.touches&&e.touches[0])||e;
-    return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};
+    return{x:(s.clientX-r.left)*sc, y:(s.clientY-r.top)*sc};
+  }
+  function clothRect(){
+    return{x:S.clothX*w-w*0.09, y:S.clothY*h-h*0.07, ww:w*0.18, hh:h*0.14};
+  }
+  function rodRect(){
+    // hanging rod center (approx, ignoring deflection for hit-test)
+    const rx=w*0.35, ry=h*0.10+h*0.10+h*0.11;
+    return{x:rx-w*0.02, y:ry-h*0.12, ww:w*0.04, hh:h*0.24};
+  }
+  function rectsOverlap(a,b){
+    return a.x<b.x+b.ww && a.x+a.ww>b.x && a.y<b.y+b.hh && a.y+a.hh>b.y;
+  }
+  function addSparks(n){
+    const rr=rodRect();
+    const cx=rr.x+rr.ww/2, cy=rr.y+rr.hh/2;
+    for(let i=0;i<n;i++){
+      const a=Math.random()*Math.PI*2;
+      S.rubSparks.push({x:cx,y:cy,vx:Math.cos(a)*(2+Math.random()*3),vy:Math.sin(a)*(2+Math.random()*3),life:1});
+    }
   }
 
-  // Drag rod2
+  /* ── Pointer events for cloth + rod2 drag ── */
+  let lastClothX=0;
   function onDown(e){
     if(currentSim!=='staticelec'||currentTab!==2)return;
-    if(S.phase!=='charge2'&&S.phase!=='test')return;
-    const p=gp(e),w=cv.width,h=cv.height;
-    const rx=S.rod2X*w, ry=S.rod2Y*h;
-    if(Math.hypot(p.x-rx,p.y-ry)<55){S.drag=true;S.ox=p.x-rx;S.oy=p.y-ry;}
+    const p=gp(e);
+    // cloth drag (intro / charging phase)
+    if(S.phase==='intro'||S.phase==='charging'){
+      const cr=clothRect();
+      if(p.x>cr.x&&p.x<cr.x+cr.ww&&p.y>cr.y&&p.y<cr.y+cr.hh){
+        S.clothDrag=true; S.clothOx=p.x-S.clothX*w; S.clothOy=p.y-S.clothY*h;
+        lastClothX=p.x; S.phase='charging';
+      }
+    }
+    // rod2 drag
+    if(S.phase==='charge2'||S.phase==='test'){
+      const rx=S.rod2X*w, ry=S.rod2Y*h;
+      if(Math.hypot(p.x-rx,p.y-ry)<60){S.drag=true;S.ox=p.x-rx;S.oy=p.y-ry;}
+    }
   }
   function onMove(e){
-    if(!S.drag)return;
-    const p=gp(e),w=cv.width,h=cv.height;
-    S.rod2X=Math.max(0.38,Math.min(0.95,(p.x-S.ox)/w));
-    S.rod2Y=Math.max(0.15,Math.min(0.75,(p.y-S.oy)/h));
-    S.phase='test';
+    if(currentSim!=='staticelec'||currentTab!==2)return;
+    const p=gp(e);
+    // cloth rubbing
+    if(S.clothDrag){
+      const dx=p.x-lastClothX;
+      lastClothX=p.x;
+      S.clothX=Math.max(0.12,Math.min(0.88,(p.x-S.clothOx)/w));
+      S.clothY=Math.max(0.10,Math.min(0.80,(p.y-S.clothOy)/h));
+      // check overlap with rod → count as rub
+      if(rectsOverlap(clothRect(),rodRect())&&Math.abs(dx)>2){
+        S.rubAnim=1;
+        S.charge1=Math.min(3,S.charge1+0.03);
+        if(Math.floor(S.charge1)>S.rubCount){
+          S.rubCount=Math.floor(S.charge1);
+          addSparks(8);
+          updateControls();
+        }
+        if(S.charge1>=3&&S.phase==='charging'){
+          S.phase='charge1'; S.rod1Charged=true; S.charge1=3;
+          S.clothDrag=false;
+          addSparks(18);
+          updateControls();
+        }
+      }
+    }
+    // rod2 drag
+    if(S.drag){
+      S.rod2X=Math.max(0.38,Math.min(0.95,(p.x-S.ox)/w));
+      S.rod2Y=Math.max(0.15,Math.min(0.75,(p.y-S.oy)/h));
+      S.phase='test';
+    }
   }
-  function onUp(){ S.drag=false; }
+  function onUp(){
+    S.clothDrag=false;
+    S.drag=false;
+  }
 
   cv.addEventListener('mousedown',onDown);
   cv.addEventListener('mousemove',onMove);
   cv.addEventListener('mouseup',onUp);
   cv.addEventListener('touchstart',e=>{e.preventDefault();onDown(e);},{passive:false});
   cv.addEventListener('touchmove', e=>{e.preventDefault();onMove(e);},{passive:false});
-  cv.addEventListener('touchend',  e=>{e.preventDefault();onUp();}, {passive:false});
+  cv.addEventListener('touchend',  e=>{e.preventDefault();onUp();},{passive:false});
 
-  // Draw hanging rod (pendulum style)
+  /* ── Draw hanging (pendulum) rod ── */
   function drawHangingRod(cx2,topY,angle,charged,label){
     const rodL=h*0.22, rodW=Math.max(14,w*0.028);
-    // pivot point at top
     const pivX=cx2, pivY=topY;
-    // string
     const strL=h*0.10;
     const strEndX=pivX+Math.sin(angle)*strL;
     const strEndY=pivY+Math.cos(angle)*strL;
     c.strokeStyle='rgba(100,80,60,0.7)'; c.lineWidth=1.8;
     c.beginPath(); c.moveTo(pivX,pivY); c.lineTo(strEndX,strEndY); c.stroke();
-    // rod
     c.save(); c.translate(strEndX,strEndY+rodL/2); c.rotate(angle);
     const grad=c.createLinearGradient(-rodW/2,0,rodW/2,0);
     if(charged){
@@ -21911,19 +21971,17 @@ function simStaticElec3(){
     c.fillStyle=grad;
     c.beginPath(); c.roundRect(-rodW/2,-rodL/2,rodW,rodL,5); c.fill();
     c.strokeStyle=charged?'#5B2C8C':'#6B5B45'; c.lineWidth=1.8; c.stroke();
-    // charge symbols
     if(charged){
       c.font=`bold ${Math.min(14,w*0.028)}px Arial`; c.textAlign='center'; c.fillStyle='white';
       for(let i=0;i<4;i++) c.fillText('➖',0,-rodL*0.3+i*(rodL*0.18));
     }
     c.restore();
-    // label
     c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`; c.fillStyle='rgba(60,40,80,0.9)';
     c.textAlign='center'; c.textBaseline='top';
     c.fillText(label,pivX,pivY-18);
   }
 
-  // Draw approaching rod (horizontal)
+  /* ── Draw approaching rod ── */
   function drawRod2(rx,ry,type,charged){
     const rodL=h*0.22, rodW=Math.max(14,w*0.028);
     c.save(); c.translate(rx,ry); c.rotate(Math.PI/2);
@@ -21936,19 +21994,106 @@ function simStaticElec3(){
     c.fillStyle=grad;
     c.beginPath(); c.roundRect(-rodW/2,-rodL/2,rodW,rodL,5); c.fill();
     c.strokeStyle=type==='same'?'#5B2C8C':'#1A5276'; c.lineWidth=1.8; c.stroke();
-    // charge symbols
     if(charged){
       c.font=`bold ${Math.min(14,w*0.028)}px Arial`; c.textAlign='center'; c.fillStyle='white';
       const sym=type==='same'?'➖':'➕';
       for(let i=0;i<4;i++) c.fillText(sym,0,-rodL*0.3+i*(rodL*0.18));
     }
     c.restore();
-    // label
     const lbl=type==='same'?'بلاستيك ➖':'زجاج ➕';
     c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`;
     c.fillStyle=type==='same'?'#7D3C98':'#2980B9';
     c.textAlign='center'; c.textBaseline='top';
     c.fillText(lbl,rx,ry+h*0.13);
+  }
+
+  /* ── Draw draggable cloth ── */
+  function drawCloth(){
+    if(S.phase!=='intro'&&S.phase!=='charging') return;
+    const cr=clothRect();
+    const wobble=S.rubAnim>0?Math.sin(S.t*25)*S.rubAnim*3:0;
+    S.rubAnim=Math.max(0,S.rubAnim-0.04);
+    c.save();
+    c.translate(cr.x+cr.ww/2, cr.y+cr.hh/2);
+    c.rotate(wobble*0.04);
+    // cloth body
+    const cg=c.createLinearGradient(-cr.ww/2,-cr.hh/2,cr.ww/2,cr.hh/2);
+    cg.addColorStop(0,'#D4A853'); cg.addColorStop(0.5,'#B8902A'); cg.addColorStop(1,'#C8A040');
+    c.fillStyle=cg;
+    c.strokeStyle='#8B6914'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(-cr.ww/2,-cr.hh/2,cr.ww,cr.hh,8); c.fill(); c.stroke();
+    // texture lines
+    c.strokeStyle='rgba(100,70,10,0.18)'; c.lineWidth=1;
+    for(let i=1;i<4;i++){
+      c.beginPath(); c.moveTo(-cr.ww/2,(-cr.hh/2)+(i*cr.hh/4));
+      c.lineTo(cr.ww/2,(-cr.hh/2)+(i*cr.hh/4)); c.stroke();
+    }
+    for(let j=1;j<4;j++){
+      c.beginPath(); c.moveTo((-cr.ww/2)+(j*cr.ww/4),-cr.hh/2);
+      c.lineTo((-cr.ww/2)+(j*cr.ww/4),cr.hh/2); c.stroke();
+    }
+    c.restore();
+    // label
+    c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`; c.fillStyle='#5A3A10';
+    c.textAlign='center'; c.textBaseline='top';
+    c.fillText('قطعة قماش',cr.x+cr.ww/2,cr.y+cr.hh+4);
+    // hint arrow when not overlapping rod
+    if(!rectsOverlap(clothRect(),rodRect())){
+      const rod1CX=w*0.35;
+      const dx=rod1CX-(cr.x+cr.ww/2), dy=h*0.35-(cr.y+cr.hh/2);
+      const len=Math.sqrt(dx*dx+dy*dy);
+      if(len>10){
+        const pulse=0.7+0.3*Math.sin(S.t*4);
+        c.save();
+        c.globalAlpha=pulse;
+        c.strokeStyle='#8E44AD'; c.fillStyle='#8E44AD'; c.lineWidth=2; c.setLineDash([5,4]);
+        c.beginPath();
+        c.moveTo(cr.x+cr.ww/2,cr.y+cr.hh/2);
+        c.lineTo(cr.x+cr.ww/2+dx*0.55, cr.y+cr.hh/2+dy*0.55);
+        c.stroke(); c.setLineDash([]);
+        c.globalAlpha=1;
+        c.restore();
+        c.font=`bold ${Math.min(11,w*0.023)}px Tajawal`; c.fillStyle='rgba(142,68,173,0.85)';
+        c.textAlign='center';
+        c.fillText('اسحب نحو القضيب واحكّه',cr.x+cr.ww/2,cr.y-14);
+      }
+    } else {
+      // rubbing indicator
+      c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`; c.fillStyle='#C0392B';
+      c.textAlign='center';
+      const pulse=0.6+0.4*Math.sin(S.t*8);
+      c.globalAlpha=pulse;
+      c.fillText('↔ حرّك القماش جيئةً وذهاباً!',cr.x+cr.ww/2,cr.y-14);
+      c.globalAlpha=1;
+    }
+  }
+
+  /* ── Draw spark particles ── */
+  function drawSparks(){
+    S.rubSparks=S.rubSparks.filter(sp=>{
+      sp.x+=sp.vx; sp.y+=sp.vy; sp.vy+=0.12; sp.life-=0.035;
+      if(sp.life<=0) return false;
+      c.save(); c.globalAlpha=sp.life;
+      c.fillStyle=`hsl(${50+Math.random()*30},100%,60%)`;
+      c.beginPath(); c.arc(sp.x,sp.y,2+sp.life*2,0,Math.PI*2); c.fill();
+      c.restore();
+      return true;
+    });
+  }
+
+  /* ── Charge indicator on rod ── */
+  function drawChargeGlow(){
+    if(S.charge1<=0) return;
+    const rod1CX=w*0.35, rod1TopY=h*0.10;
+    const strL=h*0.10, rodL=h*0.22;
+    const strEndY=rod1TopY+strL;
+    const midY=strEndY+rodL/2;
+    const r=Math.max(14,w*0.028)*0.6;
+    const glow=c.createRadialGradient(rod1CX,midY,0,rod1CX,midY,r+20+S.charge1*15);
+    glow.addColorStop(0,`rgba(160,77,192,${0.15*S.charge1/3})`);
+    glow.addColorStop(1,'rgba(160,77,192,0)');
+    c.fillStyle=glow;
+    c.beginPath(); c.arc(rod1CX,midY,r+20+S.charge1*15,0,Math.PI*2); c.fill();
   }
 
   function draw(){
@@ -21957,7 +22102,7 @@ function simStaticElec3(){
     w=cv.width; h=cv.height;
     c.clearRect(0,0,w,h);
 
-    // Background — lab style
+    // Background
     c.fillStyle='#F5F0E8'; c.fillRect(0,0,w,h);
     U9.grid(c,w,h,'rgba(180,160,120,0.08)',40);
 
@@ -21970,49 +22115,53 @@ function simStaticElec3(){
     c.textAlign='center'; c.textBaseline='top';
     c.fillText('ملاحظة التنافر الكهربائي 📏',w/2,h*0.015);
 
-    // ── Compute hanging rod deflection ──
+    // Charge glow behind rod
+    drawChargeGlow();
+
+    // ── Compute deflection ──
     let targetDeflect=0;
-    if(S.phase==='test' && S.rod1Charged && S.rod2Charged){
+    if(S.phase==='test'&&S.rod1Charged&&S.rod2Charged){
       const rod1X=w*0.35, rod1TopY=h*0.10;
-      // distance from rod2 to hanging rod center
       const hangMidX=rod1X, hangMidY=rod1TopY+h*0.22;
-      const dist=Math.hypot(S.rod2X*w-hangMidX, S.rod2Y*h-hangMidY);
+      const dist=Math.hypot(S.rod2X*w-hangMidX,S.rod2Y*h-hangMidY);
       const maxDist=w*0.30;
       const prox=Math.max(0,1-dist/maxDist);
       if(S.rod2Type==='same'){
-        // repulsion — deflect away from rod2
         const dir=S.rod2X>0.35?1:-1;
         targetDeflect=dir*prox*0.55;
       } else {
-        // attraction — deflect toward rod2
         const dir=S.rod2X>0.35?1:-1;
         targetDeflect=dir*prox*0.45;
       }
     }
     S.deflect+=(targetDeflect-S.deflect)*0.07;
 
-    // ── Draw hanging rod ──
+    // ── Hanging rod ──
     const rod1CX=w*0.35, rod1TopY=h*0.10;
-    drawHangingRod(rod1CX, rod1TopY, S.deflect, S.rod1Charged,
+    drawHangingRod(rod1CX,rod1TopY,S.deflect,S.rod1Charged,
       S.rod1Charged?'قضيب بلاستيك مشحون ➖':'قضيب بلاستيك (محايد)');
 
-    // ── Intro phase: draw cloth rubbing ──
-    if(S.phase==='intro'){
-      // cloth
-      c.fillStyle='rgba(180,140,80,0.85)'; c.strokeStyle='#8B6914'; c.lineWidth=1.5;
-      c.beginPath(); c.roundRect(w*0.55,h*0.35,w*0.18,h*0.12,6); c.fill(); c.stroke();
-      c.font=`${Math.min(13,w*0.028)}px Tajawal`; c.fillStyle='#5A3A10'; c.textAlign='center';
-      c.fillText('قطعة قماش',w*0.64,h*0.50);
-      // Arrow hint
-      c.font=`bold ${Math.min(12,w*0.026)}px Tajawal`; c.fillStyle='rgba(142,68,173,0.75)';
-      c.fillText('← احتك بالقضيب',w*0.64,h*0.57);
+    // ── Cloth (draggable) ──
+    drawCloth();
+    drawSparks();
+
+    // ── Charge progress bar on canvas ──
+    if((S.phase==='intro'||S.phase==='charging')&&S.charge1>0){
+      const bw=w*0.30, bx=(w-bw)/2, by=h*0.88, bh=12;
+      c.fillStyle='rgba(200,180,150,0.5)'; c.beginPath(); c.roundRect(bx,by,bw,bh,6); c.fill();
+      const pg=c.createLinearGradient(bx,0,bx+bw,0);
+      pg.addColorStop(0,'#8E44AD'); pg.addColorStop(1,'#E056FF');
+      c.fillStyle=pg;
+      c.beginPath(); c.roundRect(bx,by,bw*(S.charge1/3),bh,6); c.fill();
+      c.font=`bold ${Math.min(12,w*0.026)}px Tajawal`; c.fillStyle='#8E44AD';
+      c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText('مستوى الشحن',w/2,by-2);
     }
 
-    // ── Draw rod2 (when charged/chosen) ──
+    // ── Rod2 (draggable) ──
     if(S.phase==='charge2'||S.phase==='test'){
-      drawRod2(S.rod2X*w, S.rod2Y*h, S.rod2Type, S.rod2Charged);
+      drawRod2(S.rod2X*w,S.rod2Y*h,S.rod2Type,S.rod2Charged);
 
-      // ── Force arrows & result ──
       const rod1X=w*0.35, rod1TopY2=h*0.10;
       const hangMidX=rod1X+Math.sin(S.deflect)*h*0.21;
       const hangMidY=rod1TopY2+h*0.21;
@@ -22025,7 +22174,6 @@ function simStaticElec3(){
         const col=same?'rgba(192,57,43,':'rgba(39,174,96,';
         const label=same?'💥 تنافر!':'❤️ تجاذب!';
 
-        // Force arc between rods
         c.strokeStyle=col+(0.4+prox*0.45)+')'; c.lineWidth=2+prox*3;
         c.setLineDash([5,5]);
         c.beginPath();
@@ -22033,13 +22181,11 @@ function simStaticElec3(){
         c.quadraticCurveTo((hangMidX+S.rod2X*w)/2,hangMidY-h*0.08,S.rod2X*w,S.rod2Y*h);
         c.stroke(); c.setLineDash([]);
 
-        // Label on arc
         c.font=`bold ${Math.min(16,w*0.034)}px Tajawal`;
         c.fillStyle=col+'0.95)';
         c.textAlign='center'; c.textBaseline='middle';
         c.fillText(label,(hangMidX+S.rod2X*w)/2,hangMidY-h*0.10);
 
-        // Big result box
         if(prox>0.45){
           const bw=w*0.7, bx2=(w-bw)/2, by2=h*0.82;
           c.fillStyle=same?'rgba(192,57,43,0.10)':'rgba(39,174,96,0.10)';
@@ -22053,11 +22199,10 @@ function simStaticElec3(){
       }
     }
 
-    // ── Hint ──
-    const hint=S.phase==='intro'?'اضغط "احتك بالقماش" لشحن القضيب':
-               S.phase==='charge1'?'اختر نوع القضيب الثاني من القائمة':
-               S.phase==='charge2'?'اسحب القضيب نحو القضيب المعلق 👈':
-               S.deflect===0?'قرّب القضيب أكثر نحو القضيب المعلق':'';
+    // ── Hint text ──
+    const hint=S.phase==='charge1'?'اختر نوع القضيب الثاني من القائمة على اليسار':
+               S.phase==='charge2'?'اسحب القضيب الثاني نحو القضيب المعلق 👈':
+               (S.phase==='test'&&S.deflect===0)?'قرّب القضيب أكثر نحو القضيب المعلق':'';
     if(hint){
       c.font=`${Math.min(12,w*0.026)}px Tajawal`; c.fillStyle='rgba(100,70,30,0.6)';
       c.textAlign='center'; c.textBaseline='bottom';
