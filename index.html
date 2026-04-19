@@ -5949,7 +5949,8 @@ function getActiveQuestion(){
   return SIM_QUESTIONS[k] || SIM_QUESTIONS[currentSim] || null;
 }
 
-function loadQuestion(simType){
+function loadQuestion(simType, tabOverride){
+  if(tabOverride !== undefined) currentTab = tabOverride;
   const q = getActiveQuestion();
   const bar = document.getElementById('qToggleBar');
   const drawer = document.getElementById('qDrawer');
@@ -6240,7 +6241,8 @@ function switchSimTab(i) {
   }
   resizeCanvas();
   startSim(currentSim, i);
-  setTimeout(function(){ if(currentSim) loadQuestion(currentSim); }, 400);
+  const _tabForQ = i;
+  setTimeout(function(){ if(currentSim) loadQuestion(currentSim, _tabForQ); }, 400);
 }
 
 function resizeCanvas() {
@@ -32568,32 +32570,35 @@ function simG5MirrorFlat() {
     c.fillText('العين', refEndX, refEndY + Math.max(22,w*0.045));
 
     // ── Angle arcs ──
-    // المرآة رأسية → العمود المقام أفقي (زاوية 0)
-    // الشعاع الساقط يأتي من الزاوية (π - rad) نسبةً للمحور الأفقي
-    // زاوية السقوط = من الشعاع الساقط إلى العمود المقام (يسار المرآة)
-    // زاوية الانعكاس = من العمود المقام إلى الشعاع المنعكس (يمين المرآة)
+    // المرآة رأسية → العمود المقام أفقي
+    // الشعاع الساقط: يأتي من أعلى اليسار بزاوية rad تحت الأفق → اتجاهه (π - rad) من المحور الأفقي
+    // زاوية السقوط: تُقاس بين الشعاع الساقط والعمود المقام → داخل الزاوية العلوية اليسرى
+    // الشعاع الساقط يأتي من الاتجاه (π - rad) أي أنه يصل للمرآة من اتجاه -(π - rad) = rad - π
+    // في canvas: Y يزيد للأسفل، الشعاع الساقط يصل للمرآة من الاتجاه (π + rad) في نظام canvas
     const arcR = 72;
     const fontSize = Math.max(11, w*0.022);
     const angleText = `${Math.round(S.angle)}°`;
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // زاوية السقوط: قوس من الشعاع الساقط (π-rad) إلى العمود المقام (π) — الجانب العلوي الأيسر
+    // زاوية السقوط: القوس بين اتجاه الشعاع الساقط الوارد (π + rad) والعمود المقام اليساري (π)
+    // القوس يكون في الزاوية الداخلية العلوية اليسرى
     c.strokeStyle='rgba(255,215,0,0.8)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, Math.PI - rad, Math.PI); c.stroke();
-    // رقم داخل القوس
-    const incMid = Math.PI - rad/2;
-    const incLX = mx + arcR * 0.62 * Math.cos(incMid);
-    const incLY = my + arcR * 0.62 * Math.sin(incMid);
+    c.beginPath(); c.arc(mx, my, arcR, -(Math.PI - rad), -Math.PI, true); c.stroke();
+    // الرقم في منتصف القوس داخلاً
+    const incMid = -(Math.PI - rad/2);
+    const incLX = mx + arcR * 0.60 * Math.cos(incMid);
+    const incLY = my + arcR * 0.60 * Math.sin(incMid);
     c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, incLX, incLY);
 
-    // زاوية الانعكاس: قوس من العمود المقام (0) إلى الشعاع المنعكس (-rad) — الجانب العلوي الأيمن
+    // زاوية الانعكاس: القوس بين العمود المقام اليميني (0) والشعاع المنعكس (-rad)
+    // القوس في الزاوية الداخلية العلوية اليمنى
     c.strokeStyle='rgba(74,255,157,0.8)'; c.lineWidth=2.5;
     c.beginPath(); c.arc(mx, my, arcR, -rad, 0); c.stroke();
-    // رقم داخل القوس
+    // الرقم في منتصف القوس داخلاً
     const refMid = -rad/2;
-    const refLX = mx + arcR * 0.62 * Math.cos(refMid);
-    const refLY = my + arcR * 0.62 * Math.sin(refMid);
+    const refLX = mx + arcR * 0.60 * Math.cos(refMid);
+    const refLY = my + arcR * 0.60 * Math.sin(refMid);
     c.fillStyle='#4AFF9D'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, refLX, refLY);
     c.textBaseline = 'alphabetic';
