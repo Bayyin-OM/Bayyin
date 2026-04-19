@@ -32570,33 +32570,30 @@ function simG5MirrorFlat() {
     c.fillText('العين', refEndX, refEndY + Math.max(22,w*0.045));
 
     // ── Angle arcs ──
-    // المرآة رأسية → العمود المقام أفقي
-    // الشعاع الساقط: يأتي من أعلى اليسار بزاوية rad تحت الأفق → اتجاهه (π - rad) من المحور الأفقي
-    // زاوية السقوط: تُقاس بين الشعاع الساقط والعمود المقام → داخل الزاوية العلوية اليسرى
-    // الشعاع الساقط يأتي من الاتجاه (π - rad) أي أنه يصل للمرآة من اتجاه -(π - rad) = rad - π
-    // في canvas: Y يزيد للأسفل، الشعاع الساقط يصل للمرآة من الاتجاه (π + rad) في نظام canvas
+    // المرآة رأسية (عمودية) — الزاوية تُقاس بين الشعاع وسطح المرآة
+    // سطح المرآة اتجاهه: أعلى = -π/2، أسفل = π/2
+    // الشعاع الساقط يصل للمرآة من اتجاه (π - rad) → الزاوية بينه وبين المرآة = (π/2 - rad)
+    // القوس الأصفر: بين سطح المرآة العلوي (-π/2) والشعاع الساقط (π - rad) — جهة اليسار
+    // القوس الأخضر: بين سطح المرآة العلوي (-π/2) والشعاع المنعكس (-rad) — جهة اليمين
     const arcR = 72;
     const fontSize = Math.max(11, w*0.022);
     const angleText = `${Math.round(S.angle)}°`;
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // زاوية السقوط: القوس بين اتجاه الشعاع الساقط الوارد (π + rad) والعمود المقام اليساري (π)
-    // القوس يكون في الزاوية الداخلية العلوية اليسرى
+    // زاوية السقوط: بين المرآة (أعلى = -π/2) والشعاع الساقط (-(π - rad) = rad - π)
+    // الشعاع الساقط يصل من الاتجاه rad - π (فوق يسار المرآة)
     c.strokeStyle='rgba(255,215,0,0.8)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, -(Math.PI - rad), -Math.PI, true); c.stroke();
-    // الرقم في منتصف القوس داخلاً
-    const incMid = -(Math.PI - rad/2);
+    c.beginPath(); c.arc(mx, my, arcR, rad - Math.PI, -Math.PI/2); c.stroke();
+    const incMid = (rad - Math.PI - Math.PI/2) / 2;
     const incLX = mx + arcR * 0.60 * Math.cos(incMid);
     const incLY = my + arcR * 0.60 * Math.sin(incMid);
     c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, incLX, incLY);
 
-    // زاوية الانعكاس: القوس بين العمود المقام اليميني (0) والشعاع المنعكس (-rad)
-    // القوس في الزاوية الداخلية العلوية اليمنى
+    // زاوية الانعكاس: بين المرآة (أعلى = -π/2) والشعاع المنعكس (-rad)
     c.strokeStyle='rgba(74,255,157,0.8)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, -rad, 0); c.stroke();
-    // الرقم في منتصف القوس داخلاً
-    const refMid = -rad/2;
+    c.beginPath(); c.arc(mx, my, arcR, -Math.PI/2, -rad, true); c.stroke();
+    const refMid = (-Math.PI/2 + (-rad)) / 2;
     const refLX = mx + arcR * 0.60 * Math.cos(refMid);
     const refLY = my + arcR * 0.60 * Math.sin(refMid);
     c.fillStyle='#4AFF9D'; c.textAlign='center'; c.textBaseline='middle';
