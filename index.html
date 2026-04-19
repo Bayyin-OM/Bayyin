@@ -2297,7 +2297,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         <button class="btn-launch" onclick="openApp()">🔬 ابدأ الاستكشاف</button>
       </div>
       <div class="hero-cards">
-        <div class="hero-feat"><div class="num">+٢٠</div><div class="lbl">استقصاء تفاعلي</div></div>
+        <div class="hero-feat"><div class="num">+١٠٠</div><div class="lbl">استقصاء تفاعلي</div></div>
         <div class="hero-feat"><div class="num">١٠٠٪</div><div class="lbl">بالعربية</div></div>
         <div class="hero-feat"><div class="num">🇴🇲</div><div class="lbl">بيئة عُمانية</div></div>
       </div>
@@ -21802,16 +21802,15 @@ function simStaticElec3(){
     rod1Charged:false,
     rod2Charged:false,
     rod2Type:'same',
-    rod2X:0.82, rod2Y:0.46,
+    rod2X:0.84, rod2Y:0.44,
     drag:false, ox:0, oy:0,
     deflect:0,
     charge1:0, charge2:0,
-    // cloth drag state
-    clothX:0.64, clothY:0.42,   // cloth position (fraction of canvas)
+    clothX:0.72, clothY:0.42,
     clothDrag:false, clothOx:0, clothOy:0,
-    rubCount:0,                  // how many rub strokes completed
-    rubSparks:[],                // spark particles
-    rubAnim:0,                   // for wobble animation
+    rubCount:0,
+    rubSparks:[],
+    rubAnim:0,
     showResult:false
   };
   const S=simState.se3;
@@ -21869,12 +21868,14 @@ function simStaticElec3(){
     return{x:(s.clientX-r.left)*sc, y:(s.clientY-r.top)*sc};
   }
   function clothRect(){
-    return{x:S.clothX*w-w*0.09, y:S.clothY*h-h*0.07, ww:w*0.18, hh:h*0.14};
+    // cloth is slightly larger now
+    return{x:S.clothX*w - w*0.10, y:S.clothY*h - h*0.08, ww:w*0.20, hh:h*0.16};
   }
   function rodRect(){
-    // hanging rod center (approx, ignoring deflection for hit-test)
-    const rx=w*0.35, ry=h*0.10+h*0.10+h*0.11;
-    return{x:rx-w*0.02, y:ry-h*0.12, ww:w*0.04, hh:h*0.24};
+    // match new ROD1_CX=0.42, STRING_L=h*0.12, ROD_L=h*0.28
+    const rx = w*0.42;
+    const ry = h*0.07 + h*0.12 + h*0.14;   // topY + stringL + rodL/2
+    return{x:rx - w*0.016, y:ry - h*0.14, ww:w*0.032, hh:h*0.28};
   }
   function rectsOverlap(a,b){
     return a.x<b.x+b.ww && a.x+a.ww>b.x && a.y<b.y+b.hh && a.y+a.hh>b.y;
@@ -21952,60 +21953,6 @@ function simStaticElec3(){
   cv.addEventListener('touchmove', e=>{e.preventDefault();onMove(e);},{passive:false});
   cv.addEventListener('touchend',  e=>{e.preventDefault();onUp();},{passive:false});
 
-  /* ── Draw hanging (pendulum) rod ── */
-  function drawHangingRod(cx2,topY,angle,charged,label){
-    const rodL=h*0.22, rodW=Math.max(14,w*0.028);
-    const pivX=cx2, pivY=topY;
-    const strL=h*0.10;
-    const strEndX=pivX+Math.sin(angle)*strL;
-    const strEndY=pivY+Math.cos(angle)*strL;
-    c.strokeStyle='rgba(100,80,60,0.7)'; c.lineWidth=1.8;
-    c.beginPath(); c.moveTo(pivX,pivY); c.lineTo(strEndX,strEndY); c.stroke();
-    c.save(); c.translate(strEndX,strEndY+rodL/2); c.rotate(angle);
-    const grad=c.createLinearGradient(-rodW/2,0,rodW/2,0);
-    if(charged){
-      grad.addColorStop(0,'#7D3C98'); grad.addColorStop(0.5,'#A04DC0'); grad.addColorStop(1,'#7D3C98');
-    } else {
-      grad.addColorStop(0,'#8B7355'); grad.addColorStop(0.5,'#A08060'); grad.addColorStop(1,'#8B7355');
-    }
-    c.fillStyle=grad;
-    c.beginPath(); c.roundRect(-rodW/2,-rodL/2,rodW,rodL,5); c.fill();
-    c.strokeStyle=charged?'#5B2C8C':'#6B5B45'; c.lineWidth=1.8; c.stroke();
-    if(charged){
-      c.font=`bold ${Math.min(14,w*0.028)}px Arial`; c.textAlign='center'; c.fillStyle='white';
-      for(let i=0;i<4;i++) c.fillText('➖',0,-rodL*0.3+i*(rodL*0.18));
-    }
-    c.restore();
-    c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`; c.fillStyle='rgba(60,40,80,0.9)';
-    c.textAlign='center'; c.textBaseline='top';
-    c.fillText(label,pivX,pivY-18);
-  }
-
-  /* ── Draw approaching rod ── */
-  function drawRod2(rx,ry,type,charged){
-    const rodL=h*0.22, rodW=Math.max(14,w*0.028);
-    c.save(); c.translate(rx,ry); c.rotate(Math.PI/2);
-    const grad=c.createLinearGradient(-rodW/2,0,rodW/2,0);
-    if(type==='same'){
-      grad.addColorStop(0,'#7D3C98'); grad.addColorStop(0.5,'#A04DC0'); grad.addColorStop(1,'#7D3C98');
-    } else {
-      grad.addColorStop(0,'#1A5276'); grad.addColorStop(0.5,'#2980B9'); grad.addColorStop(1,'#1A5276');
-    }
-    c.fillStyle=grad;
-    c.beginPath(); c.roundRect(-rodW/2,-rodL/2,rodW,rodL,5); c.fill();
-    c.strokeStyle=type==='same'?'#5B2C8C':'#1A5276'; c.lineWidth=1.8; c.stroke();
-    if(charged){
-      c.font=`bold ${Math.min(14,w*0.028)}px Arial`; c.textAlign='center'; c.fillStyle='white';
-      const sym=type==='same'?'➖':'➕';
-      for(let i=0;i<4;i++) c.fillText(sym,0,-rodL*0.3+i*(rodL*0.18));
-    }
-    c.restore();
-    const lbl=type==='same'?'بلاستيك ➖':'زجاج ➕';
-    c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`;
-    c.fillStyle=type==='same'?'#7D3C98':'#2980B9';
-    c.textAlign='center'; c.textBaseline='top';
-    c.fillText(lbl,rx,ry+h*0.13);
-  }
 
   /* ── Draw draggable cloth ── */
   function drawCloth(){
@@ -22039,9 +21986,11 @@ function simStaticElec3(){
     c.fillText('قطعة قماش',cr.x+cr.ww/2,cr.y+cr.hh+4);
     // hint arrow when not overlapping rod
     if(!rectsOverlap(clothRect(),rodRect())){
-      const rod1CX=w*0.35;
-      const dx=rod1CX-(cr.x+cr.ww/2), dy=h*0.35-(cr.y+cr.hh/2);
-      const len=Math.sqrt(dx*dx+dy*dy);
+      const rod1CX = w*0.42;
+      const rod1MY = h*0.07 + h*0.12 + h*0.14;
+      const dx = rod1CX - (cr.x+cr.ww/2);
+      const dy = rod1MY - (cr.y+cr.hh/2);
+      const len = Math.sqrt(dx*dx+dy*dy);
       if(len>10){
         const pulse=0.7+0.3*Math.sin(S.t*4);
         c.save();
@@ -22084,16 +22033,14 @@ function simStaticElec3(){
   /* ── Charge indicator on rod ── */
   function drawChargeGlow(){
     if(S.charge1<=0) return;
-    const rod1CX=w*0.35, rod1TopY=h*0.10;
-    const strL=h*0.10, rodL=h*0.22;
-    const strEndY=rod1TopY+strL;
-    const midY=strEndY+rodL/2;
-    const r=Math.max(14,w*0.028)*0.6;
-    const glow=c.createRadialGradient(rod1CX,midY,0,rod1CX,midY,r+20+S.charge1*15);
-    glow.addColorStop(0,`rgba(160,77,192,${0.15*S.charge1/3})`);
+    const rod1CX=w*0.42;
+    const midY=h*0.07+h*0.12+h*0.14;
+    const glowR=40+S.charge1*20;
+    const glow=c.createRadialGradient(rod1CX,midY,0,rod1CX,midY,glowR);
+    glow.addColorStop(0,`rgba(160,77,192,${0.18*S.charge1/3})`);
     glow.addColorStop(1,'rgba(160,77,192,0)');
     c.fillStyle=glow;
-    c.beginPath(); c.arc(rod1CX,midY,r+20+S.charge1*15,0,Math.PI*2); c.fill();
+    c.beginPath(); c.arc(rod1CX,midY,glowR,0,Math.PI*2); c.fill();
   }
 
   function draw(){
@@ -22106,9 +22053,14 @@ function simStaticElec3(){
     c.fillStyle='#F5F0E8'; c.fillRect(0,0,w,h);
     U9.grid(c,w,h,'rgba(180,160,120,0.08)',40);
 
-    // Ceiling beam
-    c.fillStyle='#8B6914'; c.beginPath(); c.roundRect(w*0.22,h*0.06,w*0.26,h*0.04,4); c.fill();
-    c.fillStyle='#A07820'; c.beginPath(); c.roundRect(w*0.22,h*0.06,w*0.26,h*0.015,3); c.fill();
+    // Ceiling beam — centered over hanging rod (ROD1_CX = w*0.42)
+    c.fillStyle='#7A5C1E'; c.beginPath(); c.roundRect(w*0.28,h*0.04,w*0.28,h*0.04,5); c.fill();
+    c.fillStyle='#9A7428'; c.beginPath(); c.roundRect(w*0.28,h*0.04,w*0.28,h*0.016,4); c.fill();
+    // wood grain lines
+    c.strokeStyle='rgba(80,50,10,0.15)'; c.lineWidth=1;
+    for(let gi=0;gi<3;gi++){
+      c.beginPath(); c.moveTo(w*0.28,h*0.048+gi*4); c.lineTo(w*0.56,h*0.048+gi*4); c.stroke();
+    }
 
     // Title
     c.font=`bold ${Math.min(15,w*0.032)}px Tajawal`; c.fillStyle='rgba(60,40,80,0.92)';
@@ -22118,95 +22070,186 @@ function simStaticElec3(){
     // Charge glow behind rod
     drawChargeGlow();
 
-    // ── Compute deflection ──
-    let targetDeflect=0;
-    if(S.phase==='test'&&S.rod1Charged&&S.rod2Charged){
-      const rod1X=w*0.35, rod1TopY=h*0.10;
-      const hangMidX=rod1X, hangMidY=rod1TopY+h*0.22;
-      const dist=Math.hypot(S.rod2X*w-hangMidX,S.rod2Y*h-hangMidY);
-      const maxDist=w*0.30;
-      const prox=Math.max(0,1-dist/maxDist);
-      if(S.rod2Type==='same'){
-        const dir=S.rod2X>0.35?1:-1;
-        targetDeflect=dir*prox*0.55;
+    // ═══ LAYOUT CONSTANTS ═══
+    // القضيب المعلق في المنتصف تماماً، مساحة أوسع للكل
+    const ROD1_CX   = w * 0.42;   // مركز القضيب المعلق أفقياً
+    const ROD1_TOPY = h * 0.07;   // نقطة التعليق
+    const STRING_L  = h * 0.12;
+    const ROD_L     = h * 0.28;
+    const ROD_W     = Math.max(18, w * 0.032);
+
+    // ── Compute deflection (BUG FIX) ──
+    // تنافر → يبتعد عن rod2 (عكس اتجاه rod2)
+    // تجاذب → يقترب من rod2 (نفس اتجاه rod2)
+    let targetDeflect = 0;
+    if(S.phase==='test' && S.rod1Charged && S.rod2Charged){
+      const hangMidX = ROD1_CX;
+      const hangMidY = ROD1_TOPY + STRING_L + ROD_L * 0.5;
+      const dist = Math.hypot(S.rod2X*w - hangMidX, S.rod2Y*h - hangMidY);
+      const maxDist = w * 0.38;
+      const prox = Math.max(0, 1 - dist/maxDist);
+      // dir: +1 = rod2 is to the RIGHT of hanging rod → repulsion deflects LEFT (negative), attraction deflects RIGHT (positive)
+      const dir = (S.rod2X*w > ROD1_CX) ? 1 : -1;
+      if(S.rod2Type === 'same'){
+        // تنافر: يبتعد عن rod2 → عكس dir
+        targetDeflect = -dir * prox * 0.60;
       } else {
-        const dir=S.rod2X>0.35?1:-1;
-        targetDeflect=dir*prox*0.45;
+        // تجاذب: يقترب من rod2 → نفس dir
+        targetDeflect = dir * prox * 0.50;
       }
     }
-    S.deflect+=(targetDeflect-S.deflect)*0.07;
+    S.deflect += (targetDeflect - S.deflect) * 0.08;
 
     // ── Hanging rod ──
-    const rod1CX=w*0.35, rod1TopY=h*0.10;
-    drawHangingRod(rod1CX,rod1TopY,S.deflect,S.rod1Charged,
-      S.rod1Charged?'قضيب بلاستيك مشحون ➖':'قضيب بلاستيك (محايد)');
+    // (rewritten inline to use new layout constants)
+    {
+      const pivX = ROD1_CX, pivY = ROD1_TOPY;
+      const strEndX = pivX + Math.sin(S.deflect) * STRING_L;
+      const strEndY = pivY + Math.cos(S.deflect) * STRING_L;
+      // ceiling hook dot
+      c.fillStyle='#6B5030'; c.beginPath(); c.arc(pivX, pivY, 5, 0, Math.PI*2); c.fill();
+      // string
+      c.strokeStyle='rgba(80,60,40,0.75)'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(pivX,pivY); c.lineTo(strEndX,strEndY); c.stroke();
+      // rod body
+      c.save(); c.translate(strEndX, strEndY + ROD_L/2); c.rotate(S.deflect);
+      const rg = c.createLinearGradient(-ROD_W/2,0,ROD_W/2,0);
+      if(S.rod1Charged){
+        rg.addColorStop(0,'#6C3483'); rg.addColorStop(0.5,'#9B59B6'); rg.addColorStop(1,'#6C3483');
+      } else {
+        rg.addColorStop(0,'#7D6448'); rg.addColorStop(0.5,'#A08060'); rg.addColorStop(1,'#7D6448');
+      }
+      c.fillStyle=rg;
+      c.beginPath(); c.roundRect(-ROD_W/2,-ROD_L/2,ROD_W,ROD_L,6); c.fill();
+      c.strokeStyle=S.rod1Charged?'#4A235A':'#5D4A30'; c.lineWidth=2; c.stroke();
+      if(S.rod1Charged){
+        c.font=`bold ${Math.min(15,w*0.030)}px Arial`; c.textAlign='center'; c.fillStyle='rgba(255,255,255,0.9)';
+        for(let i=0;i<5;i++) c.fillText('➖',0,-ROD_L*0.38+i*(ROD_L*0.19));
+      }
+      c.restore();
+      // label above ceiling
+      c.font=`bold ${Math.min(13,w*0.026)}px Tajawal`;
+      c.fillStyle = S.rod1Charged ? '#6C3483' : '#5D4A30';
+      c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText(S.rod1Charged ? 'قضيب بلاستيك ➖ مشحون' : 'قضيب بلاستيك (محايد)', pivX, pivY - 8);
+    }
 
     // ── Cloth (draggable) ──
     drawCloth();
     drawSparks();
 
     // ── Charge progress bar on canvas ──
-    if((S.phase==='intro'||S.phase==='charging')&&S.charge1>0){
-      const bw=w*0.30, bx=(w-bw)/2, by=h*0.88, bh=12;
-      c.fillStyle='rgba(200,180,150,0.5)'; c.beginPath(); c.roundRect(bx,by,bw,bh,6); c.fill();
+    if((S.phase==='intro'||S.phase==='charging') && S.charge1>0){
+      const bw=w*0.34, bx=(w-bw)/2, by=h*0.90, bh=14;
+      // track
+      c.fillStyle='rgba(180,160,130,0.35)'; c.beginPath(); c.roundRect(bx,by,bw,bh,7); c.fill();
+      // fill
       const pg=c.createLinearGradient(bx,0,bx+bw,0);
-      pg.addColorStop(0,'#8E44AD'); pg.addColorStop(1,'#E056FF');
+      pg.addColorStop(0,'#7D3C98'); pg.addColorStop(1,'#D07AFF');
       c.fillStyle=pg;
-      c.beginPath(); c.roundRect(bx,by,bw*(S.charge1/3),bh,6); c.fill();
-      c.font=`bold ${Math.min(12,w*0.026)}px Tajawal`; c.fillStyle='#8E44AD';
+      c.beginPath(); c.roundRect(bx,by,bw*(S.charge1/3),bh,7); c.fill();
+      // label
+      c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`; c.fillStyle='#7D3C98';
       c.textAlign='center'; c.textBaseline='bottom';
-      c.fillText('مستوى الشحن',w/2,by-2);
+      c.fillText(`⚡ مستوى الشحن ${['','▮▯▯','▮▮▯','▮▮▮'][Math.floor(S.charge1)]||''}`, w/2, by-4);
     }
 
     // ── Rod2 (draggable) ──
     if(S.phase==='charge2'||S.phase==='test'){
-      drawRod2(S.rod2X*w,S.rod2Y*h,S.rod2Type,S.rod2Charged);
+      // draw rod2 using new layout proportions
+      {
+        const rx=S.rod2X*w, ry=S.rod2Y*h;
+        const type=S.rod2Type;
+        c.save(); c.translate(rx,ry); c.rotate(Math.PI/2);
+        const rg2=c.createLinearGradient(-ROD_W/2,0,ROD_W/2,0);
+        if(type==='same'){
+          rg2.addColorStop(0,'#6C3483'); rg2.addColorStop(0.5,'#9B59B6'); rg2.addColorStop(1,'#6C3483');
+        } else {
+          rg2.addColorStop(0,'#154360'); rg2.addColorStop(0.5,'#2E86C1'); rg2.addColorStop(1,'#154360');
+        }
+        c.fillStyle=rg2;
+        c.beginPath(); c.roundRect(-ROD_W/2,-ROD_L/2,ROD_W,ROD_L,6); c.fill();
+        c.strokeStyle=type==='same'?'#4A235A':'#1A5276'; c.lineWidth=2; c.stroke();
+        // charge symbols
+        c.font=`bold ${Math.min(15,w*0.030)}px Arial`; c.textAlign='center'; c.fillStyle='rgba(255,255,255,0.9)';
+        const sym=type==='same'?'➖':'➕';
+        for(let i=0;i<5;i++) c.fillText(sym,0,-ROD_L*0.38+i*(ROD_L*0.19));
+        c.restore();
+        // label below
+        const lbl=type==='same'?'بلاستيك ➖':'زجاج ➕';
+        c.font=`bold ${Math.min(13,w*0.026)}px Tajawal`;
+        c.fillStyle=type==='same'?'#6C3483':'#2E86C1';
+        c.textAlign='center'; c.textBaseline='top';
+        c.fillText(lbl, rx, ry+ROD_L*0.55);
+        // drag handle hint (pulse)
+        if(S.phase==='charge2'){
+          const pulse=0.5+0.5*Math.sin(S.t*5);
+          c.save(); c.globalAlpha=pulse;
+          c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`;
+          c.fillStyle='#C0392B'; c.textAlign='center'; c.textBaseline='bottom';
+          c.fillText('← اسحب نحو القضيب المعلق', rx, ry-ROD_L*0.55-4);
+          c.restore();
+        }
+      }
 
-      const rod1X=w*0.35, rod1TopY2=h*0.10;
-      const hangMidX=rod1X+Math.sin(S.deflect)*h*0.21;
-      const hangMidY=rod1TopY2+h*0.21;
-      const dist=Math.hypot(S.rod2X*w-hangMidX,S.rod2Y*h-hangMidY);
-      const maxDist=w*0.32;
-      const prox=Math.max(0,1-dist/maxDist);
+      // ── Force field & result ──
+      const hangMidX2 = ROD1_CX + Math.sin(S.deflect)*(STRING_L + ROD_L*0.5);
+      const hangMidY2 = ROD1_TOPY + Math.cos(S.deflect)*(STRING_L + ROD_L*0.5);
+      const rod2cx = S.rod2X*w, rod2cy = S.rod2Y*h;
+      const dist2 = Math.hypot(rod2cx - hangMidX2, rod2cy - hangMidY2);
+      const maxDist2 = w*0.40;
+      const prox2 = Math.max(0, 1 - dist2/maxDist2);
 
-      if(prox>0.15&&S.phase==='test'){
-        const same=S.rod2Type==='same';
-        const col=same?'rgba(192,57,43,':'rgba(39,174,96,';
-        const label=same?'💥 تنافر!':'❤️ تجاذب!';
+      if(prox2>0.12 && S.phase==='test'){
+        const same = S.rod2Type==='same';
+        const baseCol = same ? '#C0392B' : '#27AE60';
+        const label = same ? '💥 تنافر!' : '❤️ تجاذب!';
 
-        c.strokeStyle=col+(0.4+prox*0.45)+')'; c.lineWidth=2+prox*3;
-        c.setLineDash([5,5]);
+        // dashed force arc
+        c.strokeStyle = same
+          ? `rgba(192,57,43,${0.35+prox2*0.5})`
+          : `rgba(39,174,96,${0.35+prox2*0.5})`;
+        c.lineWidth = 2.5 + prox2*3.5;
+        c.setLineDash([6,5]);
         c.beginPath();
-        c.moveTo(hangMidX,hangMidY);
-        c.quadraticCurveTo((hangMidX+S.rod2X*w)/2,hangMidY-h*0.08,S.rod2X*w,S.rod2Y*h);
+        c.moveTo(hangMidX2, hangMidY2);
+        const mcx = (hangMidX2+rod2cx)/2;
+        const mcy = Math.min(hangMidY2, rod2cy) - h*0.10;
+        c.quadraticCurveTo(mcx, mcy, rod2cx, rod2cy);
         c.stroke(); c.setLineDash([]);
 
-        c.font=`bold ${Math.min(16,w*0.034)}px Tajawal`;
-        c.fillStyle=col+'0.95)';
+        // force label on arc midpoint
+        c.font=`bold ${Math.min(18,w*0.038)}px Tajawal`;
+        c.fillStyle=baseCol;
         c.textAlign='center'; c.textBaseline='middle';
-        c.fillText(label,(hangMidX+S.rod2X*w)/2,hangMidY-h*0.10);
+        c.fillText(label, mcx, mcy - 12);
 
-        if(prox>0.45){
-          const bw=w*0.7, bx2=(w-bw)/2, by2=h*0.82;
-          c.fillStyle=same?'rgba(192,57,43,0.10)':'rgba(39,174,96,0.10)';
-          c.strokeStyle=same?'rgba(192,57,43,0.5)':'rgba(39,174,96,0.5)'; c.lineWidth=2;
-          c.beginPath(); c.roundRect(bx2,by2,bw,h*0.12,10); c.fill(); c.stroke();
-          c.font=`bold ${Math.min(14,w*0.030)}px Tajawal`;
-          c.fillStyle=same?'#922B21':'#1E8449';
+        // big result banner at bottom
+        if(prox2>0.35){
+          const bw2=w*0.72, bx3=(w-bw2)/2, by3=h*0.83;
+          c.fillStyle=same?'rgba(192,57,43,0.09)':'rgba(39,174,96,0.09)';
+          c.strokeStyle=same?'rgba(192,57,43,0.45)':'rgba(39,174,96,0.45)'; c.lineWidth=2;
+          c.beginPath(); c.roundRect(bx3,by3,bw2,h*0.11,12); c.fill(); c.stroke();
+          c.font=`bold ${Math.min(15,w*0.031)}px Tajawal`;
+          c.fillStyle=same?'#922B21':'#1A7A40';
           c.textAlign='center'; c.textBaseline='middle';
-          c.fillText(same?'الشحنات المتشابهة (➖ و ➖) تتنافر 💥':'الشحنات المختلفة (➖ و ➕) تتجاذب ❤️',w/2,by2+h*0.06);
+          c.fillText(
+            same ? 'الشحنات المتشابهة  ➖ + ➖  تتنافر 💥'
+                 : 'الشحنات المختلفة  ➖ + ➕  تتجاذب ❤️',
+            w/2, by3+h*0.055
+          );
         }
       }
     }
 
     // ── Hint text ──
-    const hint=S.phase==='charge1'?'اختر نوع القضيب الثاني من القائمة على اليسار':
-               S.phase==='charge2'?'اسحب القضيب الثاني نحو القضيب المعلق 👈':
-               (S.phase==='test'&&S.deflect===0)?'قرّب القضيب أكثر نحو القضيب المعلق':'';
+    const hint = S.phase==='charge1' ? 'اختر نوع القضيب الثاني من القائمة على اليسار ←' :
+                 S.phase==='charge2' ? 'اسحب القضيب نحو القضيب المعلق 👈' :
+                 (S.phase==='test' && Math.abs(S.deflect)<0.02) ? 'قرّب القضيب أكثر لترى التأثير' : '';
     if(hint){
-      c.font=`${Math.min(12,w*0.026)}px Tajawal`; c.fillStyle='rgba(100,70,30,0.6)';
+      c.font=`${Math.min(13,w*0.027)}px Tajawal`; c.fillStyle='rgba(100,70,30,0.55)';
       c.textAlign='center'; c.textBaseline='bottom';
-      c.fillText(hint,w/2,h*0.97);
+      c.fillText(hint, w/2, h*0.975);
     }
 
     animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){console.error('se3 draw error:',e);}});
@@ -32241,7 +32284,7 @@ function simG5LightTravel() {
     c.fillText('👁️', ex, ey+8);
     // Info box
     // Info box — full width centered
-    const infoText = '💡 الضوء ينتقل من المصدر ← يصطدم بالجسم ← ينعكس ← يصل للعين';
+    const infoText = '💡 الضوء ينتقل: مصدر الضوء ← الجسم ← ينعكس ← العين';
     const infoFontSz = Math.max(10, Math.min(w*0.021, 13));
     c.font = `bold ${infoFontSz}px Tajawal`;
     const infoTW = c.measureText(infoText).width + 28;
@@ -32424,7 +32467,6 @@ function simG5MirrorFlat() {
 </div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
-  const w = cv.width, h = cv.height;
   const S = simState;
   if (!S.mirrorInit) {
     S.mirrorInit = true;
@@ -32432,7 +32474,6 @@ function simG5MirrorFlat() {
     S.showNormal = true;
     cv.onmousemove = function(e) {
       const rect = cv.getBoundingClientRect();
-      const mx = (e.clientX - rect.left) / cv.offsetWidth;
       const my = (e.clientY - rect.top) / cv.offsetHeight;
       S.angle = Math.max(10, Math.min(80, (1 - my) * 90));
     };
@@ -32446,100 +32487,138 @@ function simG5MirrorFlat() {
   }
   function draw() {
     if (currentSim !== 'g5mirror') return;
+    const w = cv.width, h = cv.height;
     c.fillStyle = '#1a1a2e'; c.fillRect(0,0,w,h);
+
     const mx = w * 0.55, my = h * 0.5;
-    const mLen = h * 0.28;
+    const mLen = h * 0.30;
+
     // Mirror
     c.strokeStyle = '#C0C0FF'; c.lineWidth = 4;
     c.beginPath(); c.moveTo(mx, my - mLen); c.lineTo(mx, my + mLen); c.stroke();
-    // Mirror shine effect
     const mirGrad = c.createLinearGradient(mx-10, 0, mx+6, 0);
     mirGrad.addColorStop(0,'rgba(200,200,255,0.3)'); mirGrad.addColorStop(1,'rgba(200,200,255,0)');
     c.fillStyle = mirGrad; c.fillRect(mx-10, my-mLen, 16, mLen*2);
-    c.fillStyle='#aac'; c.font=`${Math.max(10,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText('مرآة مستوية', mx, Math.min(my + mLen + 22, h*0.80));
-    // Normal line with laser source icon
-    if (S.showNormal) {
-      // Normal dashed line
-      c.strokeStyle='rgba(255,255,255,0.35)'; c.lineWidth=1.5; c.setLineDash([5,5]);
-      c.beginPath(); c.moveTo(mx-w*0.28, my); c.lineTo(mx+w*0.25, my); c.stroke();
-      c.setLineDash([]);
-      // Laser/flashlight icon on the left end of normal line
-      const laserX = mx - w*0.28;
-      const laserY = my;
-      // Draw a small laser/torch shape
-      c.fillStyle = '#FFD700';
-      c.beginPath();
-      c.roundRect(laserX - w*0.045, laserY - h*0.022, w*0.045, h*0.044, 4);
-      c.fill();
-      c.fillStyle = '#FFA500';
-      c.beginPath();
-      c.moveTo(laserX, laserY - h*0.018);
-      c.lineTo(laserX + w*0.018, laserY);
-      c.lineTo(laserX, laserY + h*0.018);
-      c.fill();
-      // Glow effect
-      const laserGlow = c.createRadialGradient(laserX, laserY, 0, laserX, laserY, w*0.04);
-      laserGlow.addColorStop(0,'rgba(255,220,80,0.4)'); laserGlow.addColorStop(1,'rgba(255,220,80,0)');
-      c.fillStyle=laserGlow; c.beginPath(); c.arc(laserX, laserY, w*0.04, 0, Math.PI*2); c.fill();
-      c.fillStyle='rgba(255,220,80,0.9)'; c.font=`bold ${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
-      c.fillText('🔦', laserX - w*0.02, laserY - h*0.035);
-      c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='right';
-      c.fillText('العمود المقام', mx - w*0.01, my - 10);
+    // Hatch marks
+    c.strokeStyle='rgba(180,180,255,0.2)'; c.lineWidth=1;
+    for(let hy=my-mLen; hy<my+mLen; hy+=14){
+      c.beginPath(); c.moveTo(mx,hy); c.lineTo(mx+10,hy+10); c.stroke();
     }
-    // Incident ray
+    c.fillStyle='#aac'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center';
+    c.fillText('مرآة مستوية', mx+30, Math.min(my + mLen + 22, h*0.92));
+
+    // Normal (dashed horizontal)
+    c.strokeStyle='rgba(255,255,255,0.28)'; c.lineWidth=1.5; c.setLineDash([5,5]);
+    c.beginPath(); c.moveTo(mx - w*0.34, my); c.lineTo(mx + w*0.28, my); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle='rgba(255,255,255,0.45)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='right';
+    c.fillText('العمود المقام', mx - w*0.01, my - 8);
+
     const rad = S.angle * Math.PI / 180;
-    const rayLen = w * 0.3;
-    const ix = mx - rayLen * Math.cos(rad), iy = my - rayLen * Math.sin(rad);
+    const rayLen = w * 0.32;
+
+    // ── Light source icon at start of incident ray ──
+    const srcX = mx - rayLen * Math.cos(rad);
+    const srcY = my - rayLen * Math.sin(rad);
+    // glow
+    const srcGlow = c.createRadialGradient(srcX, srcY, 0, srcX, srcY, w*0.06);
+    srcGlow.addColorStop(0,'rgba(255,230,80,0.55)'); srcGlow.addColorStop(1,'rgba(255,230,80,0)');
+    c.fillStyle=srcGlow; c.beginPath(); c.arc(srcX,srcY,w*0.06,0,Math.PI*2); c.fill();
+    // bulb circle
+    c.fillStyle='#FFE040'; c.beginPath(); c.arc(srcX, srcY, Math.max(8,w*0.018), 0, Math.PI*2); c.fill();
+    c.strokeStyle='#CC9900'; c.lineWidth=1.5; c.stroke();
+    // label above
+    c.fillStyle='#FFE880'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('💡 مصدر الضوء', srcX, srcY - Math.max(14,w*0.032));
+
+    // Incident ray (source → mirror)
     c.strokeStyle = '#FFD700'; c.lineWidth = 2.5;
-    c.beginPath(); c.moveTo(ix, iy); c.lineTo(mx, my); c.stroke();
-    // Arrow on incident ray
-    c.save(); c.translate(mx, my); c.rotate(Math.PI - rad);
-    c.fillStyle='#FFD700'; c.beginPath(); c.moveTo(-8,0); c.lineTo(-14,4); c.lineTo(-14,-4); c.fill(); c.restore();
-    // Reflected ray
-    c.strokeStyle = '#FF6B9D'; c.lineWidth = 2.5;
-    c.beginPath(); c.moveTo(mx, my); c.lineTo(mx + rayLen * Math.cos(rad), iy); c.stroke();
-    c.save(); c.translate(mx + rayLen * Math.cos(rad), iy); c.rotate(-rad);
-    c.fillStyle='#FF6B9D'; c.beginPath(); c.moveTo(8,0); c.lineTo(0,4); c.lineTo(0,-4); c.fill(); c.restore();
-    // Angle arcs
-    c.strokeStyle='rgba(255,215,0,0.5)'; c.lineWidth=1.5;
-    c.beginPath(); c.arc(mx, my, 40, Math.PI - rad, Math.PI); c.stroke();
-    c.strokeStyle='rgba(255,107,157,0.5)';
-    c.beginPath(); c.arc(mx, my, 40, -Math.PI, -rad); c.stroke();
-    // Angle values: placed between normal and each ray
+    c.beginPath(); c.moveTo(srcX, srcY); c.lineTo(mx, my); c.stroke();
+    // Arrow on incident ray (near mirror)
+    const arrowFrac = 0.75;
+    const arrowX = srcX + (mx-srcX)*arrowFrac, arrowY = srcY + (my-srcY)*arrowFrac;
+    c.save(); c.translate(arrowX, arrowY); c.rotate(Math.PI - rad);
+    c.fillStyle='#FFD700'; c.beginPath(); c.moveTo(8,0); c.lineTo(-5,4); c.lineTo(-5,-4); c.fill(); c.restore();
+
+    // Reflected ray (mirror → away)
+    const refEndX = mx + rayLen * Math.cos(rad);
+    const refEndY = my - rayLen * Math.sin(rad);
+    c.strokeStyle = '#4AFF9D'; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(mx, my); c.lineTo(refEndX, refEndY); c.stroke();
+    // Arrow on reflected ray
+    const arrowX2 = mx + (refEndX-mx)*0.6, arrowY2 = my + (refEndY-my)*0.6;
+    c.save(); c.translate(arrowX2, arrowY2); c.rotate(-rad);
+    c.fillStyle='#4AFF9D'; c.beginPath(); c.moveTo(8,0); c.lineTo(-5,4); c.lineTo(-5,-4); c.fill(); c.restore();
+
+    // Eye at end of reflected ray
+    c.font=`${Math.max(16,w*0.035)}px serif`; c.textAlign='center';
+    c.fillText('👁️', refEndX, refEndY + 8);
+    c.fillStyle='rgba(100,255,180,0.7)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`;
+    c.fillText('العين', refEndX, refEndY + Math.max(22,w*0.045));
+
+    // ── Angle arcs ──
+    const arcR = 52;
+    // Incident arc (between normal left ← and incident ray)
+    c.strokeStyle='rgba(255,215,0,0.7)'; c.lineWidth=2;
+    c.beginPath(); c.arc(mx, my, arcR, Math.PI - rad, Math.PI); c.stroke();
+    // Reflected arc (between normal right → and reflected ray)
+    c.strokeStyle='rgba(74,255,157,0.7)'; c.lineWidth=2;
+    c.beginPath(); c.arc(mx, my, arcR, -Math.PI, -rad); c.stroke();
+
+    // Angle value labels — INSIDE the arcs
     const angleText = `${Math.round(S.angle)}°`;
-    // Incident angle label - between normal (horizontal left) and incident ray
-    const incLabelAngle = Math.PI - rad/2; // midpoint angle between normal (π) and incident ray (π-rad)
-    const incLabelR = 68;
-    const incLX = mx + incLabelR * Math.cos(incLabelAngle);
-    const incLY = my + incLabelR * Math.sin(incLabelAngle);
-    c.fillStyle='#FFD700'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`; c.textAlign='center';
+    const fontSize = Math.max(12, w*0.025);
+    c.font = `bold ${fontSize}px Tajawal`;
+
+    // Incident angle label — midpoint of arc, slightly outside
+    const incMidAngle = Math.PI - rad/2;
+    const incLR = arcR + 18;
+    const incLX = mx + incLR * Math.cos(incMidAngle);
+    const incLY = my + incLR * Math.sin(incMidAngle);
+    // background pill
+    const incTW = c.measureText(angleText).width;
+    c.fillStyle='rgba(0,0,20,0.75)';
+    c.beginPath(); c.roundRect(incLX - incTW/2 - 5, incLY - fontSize*0.7, incTW+10, fontSize+4, 5); c.fill();
+    c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, incLX, incLY);
-    // Reflected angle label - between normal and reflected ray
-    const refLabelAngle = -rad/2; // midpoint between normal (0) and reflected ray (-rad)
-    const refLX = mx + incLabelR * Math.cos(refLabelAngle);
-    const refLY = my + incLabelR * Math.sin(refLabelAngle);
-    c.fillStyle='#FF6B9D'; c.font=`bold ${Math.max(11,w*0.023)}px Tajawal`; c.textAlign='center';
+
+    // Reflected angle label
+    const refMidAngle = -rad/2;
+    const refLX = mx + incLR * Math.cos(refMidAngle);
+    const refLY = my + incLR * Math.sin(refMidAngle);
+    const refTW = c.measureText(angleText).width;
+    c.fillStyle='rgba(0,0,20,0.75)';
+    c.beginPath(); c.roundRect(refLX - refTW/2 - 5, refLY - fontSize*0.7, refTW+10, fontSize+4, 5); c.fill();
+    c.fillStyle='#4AFF9D'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, refLX, refLY);
-    // Ray labels near endpoints
-    c.fillStyle='#FFD700'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('شعاع ساقط', ix, Math.max(22, iy - 14));
-    c.fillStyle='#FF6B9D';
-    c.fillText('شعاع منعكس', mx + rayLen * Math.cos(rad), Math.max(22, iy - 14));
-    // Law label — with background box to prevent overlap
-    const lawText = 'قانون الانعكاس: زاوية السقوط = زاوية الانعكاس';
-    const lawFontSz = Math.max(13, Math.min(w*0.026, 20));
+    c.textBaseline = 'alphabetic';
+
+    // Ray labels — avoid overlap by positioning carefully
+    const incLabelX = srcX + (mx-srcX)*0.45;
+    const incLabelY = srcY + (my-srcY)*0.45 - 14;
+    c.fillStyle='#FFD700'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('شعاع ساقط', incLabelX, Math.max(18, incLabelY));
+
+    const refLabelX = mx + (refEndX-mx)*0.45;
+    const refLabelY = my + (refEndY-my)*0.45 - 14;
+    c.fillStyle='#4AFF9D';
+    c.fillText('شعاع منعكس', refLabelX, Math.max(18, refLabelY));
+
+    // Bottom law — with solid background so it never overlaps
+    const lawText = 'قانون الانعكاس: زاوية السقوط = زاوية الانعكاس ✅';
+    const lawFontSz = Math.max(11, Math.min(w*0.022, 17));
     c.font = `bold ${lawFontSz}px Tajawal`;
-    const lawW = c.measureText(lawText).width + 32;
+    const lawW = c.measureText(lawText).width + 28;
     const lawX = (w - lawW) / 2;
-    const lawY = h * 0.91;
-    c.fillStyle = 'rgba(10,10,30,0.82)';
-    c.beginPath(); c.roundRect(lawX, lawY - lawFontSz - 4, lawW, lawFontSz + 16, 8); c.fill();
+    const lawY = h * 0.93;
+    c.fillStyle = 'rgba(10,10,30,0.88)';
+    c.beginPath(); c.roundRect(lawX, lawY - lawFontSz - 4, Math.min(lawW, w*0.96), lawFontSz + 16, 8); c.fill();
     c.fillStyle = 'rgba(255,255,255,0.92)'; c.textAlign = 'center';
     c.fillText(lawText, w/2, lawY);
-    const instrText = 'حرّك الماوس/إصبعك للأعلى والأسفل لتغيير الزاوية';
-    c.fillStyle='rgba(200,200,255,0.7)'; c.font=`${Math.max(10,w*0.019)}px Tajawal`;
-    c.fillText(instrText, w/2, h * 0.97);
+
+    const instrText = 'حرّك الماوس أو إصبعك للأعلى والأسفل لتغيير الزاوية';
+    c.fillStyle='rgba(160,160,220,0.65)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`;
+    c.fillText(instrText, w/2, h * 0.975);
     animFrame = requestAnimationFrame(draw);
   }
   draw();
@@ -32631,7 +32710,8 @@ function simG5BehindYou() {
 <div class="ctrl-section">
   <div class="ctrl-label">🔍 رؤية ما خلفك</div>
   <div class="ctrl-desc">
-    حرّك الماوس/إصبعك أفقياً على الكانفاس لتغيير زاوية المرآة وشاهد كيف يتغيّر مسار الضوء
+    <b>اسحب المرآة</b> لتحريكها يميناً/يساراً/أعلى/أسفل<br>
+    <b>اسحب طرف المرآة</b> لتغيير ميلها
   </div>
 </div>
 <div class="ctrl-section">
@@ -32650,121 +32730,202 @@ function simG5BehindYou() {
 </div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
-  const w = cv.width, h = cv.height;
   const S = simState;
+
   if (!S.bInit) {
     S.bInit = true; S.t = 0;
-    S.mirrorAngle = 45;
-    cv.onmousemove = function(e) {
+    // Mirror: center position + tilt angle
+    S.mCX = 0.80; S.mCY = 0.50;   // center (0..1)
+    S.mTilt = 45;                   // degrees (20..70)
+    S.mHalf = 0.22;                 // half-length in canvas height fraction
+
+    S.dragMode = null; // 'body' | 'tip'
+
+    function getPointer(e) {
       const rect = cv.getBoundingClientRect();
-      S.mirrorAngle = Math.max(20, Math.min(70, (e.clientX - rect.left) / cv.offsetWidth * 90));
-    };
-    cv.ontouchmove = function(e) {
-      e.preventDefault();
-      const rect = cv.getBoundingClientRect();
-      S.mirrorAngle = Math.max(20, Math.min(70, (e.touches[0].clientX - rect.left) / cv.offsetWidth * 90));
-    };
-  }
-  function draw() {
-    if (currentSim !== 'g5behindyou') return;
-    S.t += 0.02;
-    c.fillStyle = '#111'; c.fillRect(0,0,w,h);
-
-    // Mirror angle in radians — tilt around its center
-    const mAngleRad = (S.mirrorAngle - 45) * Math.PI / 180; // -25° to +25° tilt
-    const mxp = w * 0.82;
-    const mcy = h * 0.5;
-    const mHalf = h * 0.25;
-    const mTopX = mxp + Math.sin(mAngleRad) * mHalf;
-    const mTopY = mcy - Math.cos(mAngleRad) * mHalf;
-    const mBotX = mxp - Math.sin(mAngleRad) * mHalf;
-    const mBotY = mcy + Math.cos(mAngleRad) * mHalf;
-
-    // Object behind (left)
-    const ox = w * 0.15, oy = h * 0.5;
-    c.font = `${Math.max(24,w*0.05)}px serif`; c.textAlign='center';
-    c.fillText('🎁', ox, oy);
-    c.fillStyle='rgba(255,180,180,0.9)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('جسم خلفك!', ox, oy + 28);
-
-    // Person (viewer) — middle
-    const px = w * 0.5, py = h * 0.55;
-    c.font = `${Math.max(28,w*0.06)}px serif`; c.textAlign='center';
-    c.fillText('🧑', px, py);
-    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('المشاهد', px, py + 30);
-
-    // Mirror surface
-    c.strokeStyle = '#C0C0FF'; c.lineWidth = 5;
-    c.beginPath(); c.moveTo(mTopX, mTopY); c.lineTo(mBotX, mBotY); c.stroke();
-    // Mirror sheen
-    c.strokeStyle = 'rgba(180,180,255,0.25)'; c.lineWidth = 12;
-    c.beginPath(); c.moveTo(mTopX, mTopY); c.lineTo(mBotX, mBotY); c.stroke();
-    c.fillStyle='#aaf'; c.font=`${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText('مرآة', mxp, h * 0.85);
-
-    // Mirror normal direction (perpendicular to mirror surface)
-    const normalAngle = mAngleRad; // angle of normal from vertical
-
-    // Ray from object to mirror (hits at mirror center)
-    const toMirrorAngle = Math.atan2(mcy - oy, mxp - (ox + 20));
-    c.strokeStyle='#FFD700'; c.lineWidth=2.5; c.setLineDash([7,4]);
-    c.beginPath(); c.moveTo(ox + 20, oy); c.lineTo(mxp, mcy); c.stroke();
-    c.setLineDash([]);
-    // Arrow on incoming ray
-    drawArrow(c, ox+20, oy, mxp, mcy, '#FFD700');
-
-    // Reflection: compute reflected ray using mirror normal
-    // Mirror normal vector (pointing left, perpendicular to mirror)
-    const nx = -Math.cos(mAngleRad), ny = -Math.sin(mAngleRad);
-    // Incoming direction
-    const idx2 = mxp - (ox+20), idy = mcy - oy;
-    const iLen = Math.sqrt(idx2*idx2+idy*idy);
-    const inX = idx2/iLen, inY = idy/iLen;
-    // Reflect: r = i - 2(i·n)n
-    const dot = inX*nx + inY*ny;
-    const refX = inX - 2*dot*nx;
-    const refY = inY - 2*dot*ny;
-    // Reflected ray endpoint (toward viewer area)
-    const refLen = w * 0.45;
-    const refEndX = mxp + refX * refLen;
-    const refEndY = mcy + refY * refLen;
-
-    c.strokeStyle='#FF9900'; c.lineWidth=2.5; c.setLineDash([7,4]);
-    c.beginPath(); c.moveTo(mxp, mcy); c.lineTo(refEndX, refEndY); c.stroke();
-    c.setLineDash([]);
-    drawArrow(c, mxp, mcy, refEndX, refEndY, '#FF9900');
-
-    // Normal dashed line on mirror
-    c.strokeStyle='rgba(255,255,255,0.25)'; c.lineWidth=1; c.setLineDash([4,4]);
-    c.beginPath(); c.moveTo(mxp - nx*40, mcy - ny*40); c.lineTo(mxp + nx*60, mcy + ny*60); c.stroke();
-    c.setLineDash([]);
-
-    // Angle label
-    const angleDeg = Math.round(Math.abs(S.mirrorAngle - 45));
-    c.fillStyle='rgba(255,220,100,0.9)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText(`زاوية المرآة: ${S.mirrorAngle.toFixed(0)}°`, w/2, h*0.1);
-    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
-    c.fillText('حرّك الماوس/إصبعك أفقياً لتغيير الزاوية', w/2, h*0.17);
-
-    // Bottom info
-    c.fillStyle='rgba(255,255,255,0.75)'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText('المرايا تسمح لنا برؤية ما خلفنا وخلف الزوايا!', w/2, h*0.91);
-    c.fillStyle='rgba(180,180,255,0.55)'; c.font=`${Math.max(10,w*0.02)}px Tajawal`;
-    c.fillText('مثال: مرايا السيارة، مرايا المتاجر، مرايا الحلاق', w/2, h*0.96);
-
-    animFrame = requestAnimationFrame(draw);
+      const src = e.touches ? e.touches[0] : e;
+      return {
+        fx: (src.clientX - rect.left) / rect.width,
+        fy: (src.clientY - rect.top)  / rect.height
+      };
+    }
+    function onDown(e) {
+      const p = getPointer(e);
+      const w2 = cv.width, h2 = cv.height;
+      const mTiltRad = (S.mTilt - 45) * Math.PI / 180;
+      const mHh = S.mHalf * h2;
+      const tipX = S.mCX * w2 + Math.sin(mTiltRad) * mHh;
+      const tipY = S.mCY * h2 - Math.cos(mTiltRad) * mHh;
+      const px = p.fx * w2, py = p.fy * h2;
+      // Check if near tip
+      if (Math.hypot(px - tipX, py - tipY) < 25) { S.dragMode = 'tip'; return; }
+      // Check if near center
+      if (Math.hypot(px - S.mCX*w2, py - S.mCY*h2) < mHh * 0.6) { S.dragMode = 'body'; S._dox = px - S.mCX*w2; S._doy = py - S.mCY*h2; }
+    }
+    function onMove(e) {
+      if (!S.dragMode) return;
+      const p = getPointer(e);
+      const w2 = cv.width, h2 = cv.height;
+      if (S.dragMode === 'body') {
+        S.mCX = Math.max(0.42, Math.min(0.95, (p.fx*w2 - S._dox) / w2));
+        S.mCY = Math.max(0.18, Math.min(0.82, (p.fy*h2 - S._doy) / h2));
+      } else if (S.dragMode === 'tip') {
+        const dx = p.fx - S.mCX, dy = p.fy - S.mCY;
+        // angle from center to tip: tip is at top
+        const ang = Math.atan2(dx, -dy) * 180/Math.PI; // degrees from vertical
+        S.mTilt = Math.max(20, Math.min(70, 45 + ang));
+      }
+    }
+    function onUp() { S.dragMode = null; }
+    cv.addEventListener('mousedown', onDown);
+    cv.addEventListener('mousemove', onMove);
+    cv.addEventListener('mouseup', onUp);
+    cv.addEventListener('touchstart', e=>{e.preventDefault();onDown(e);},{passive:false});
+    cv.addEventListener('touchmove',  e=>{e.preventDefault();onMove(e);},{passive:false});
+    cv.addEventListener('touchend',   e=>{e.preventDefault();onUp();},{passive:false});
   }
 
   function drawArrow(ctx, x1, y1, x2, y2, color) {
     const ang = Math.atan2(y2-y1, x2-x1);
-    const mx = x1 + (x2-x1)*0.6, my = y1 + (y2-y1)*0.6;
+    const mx2 = x1+(x2-x1)*0.55, my2 = y1+(y2-y1)*0.55;
     ctx.fillStyle = color;
-    ctx.save(); ctx.translate(mx, my); ctx.rotate(ang);
-    ctx.beginPath(); ctx.moveTo(8,0); ctx.lineTo(-5,4); ctx.lineTo(-5,-4); ctx.fill();
+    ctx.save(); ctx.translate(mx2, my2); ctx.rotate(ang);
+    ctx.beginPath(); ctx.moveTo(9,0); ctx.lineTo(-5,4); ctx.lineTo(-5,-4); ctx.fill();
     ctx.restore();
   }
 
+  function draw() {
+    if (currentSim !== 'g5behindyou') return;
+    const w = cv.width, h = cv.height;
+    S.t += 0.02;
+    c.fillStyle = '#111'; c.fillRect(0,0,w,h);
+
+    // Background grid
+    c.strokeStyle='rgba(255,255,255,0.04)'; c.lineWidth=1;
+    for(let gx=0;gx<w;gx+=40){c.beginPath();c.moveTo(gx,0);c.lineTo(gx,h);c.stroke();}
+    for(let gy=0;gy<h;gy+=40){c.beginPath();c.moveTo(0,gy);c.lineTo(w,gy);c.stroke();}
+
+    // Mirror geometry
+    const mTiltRad = (S.mTilt - 45) * Math.PI / 180;
+    const mHh = S.mHalf * h;
+    const mcx = S.mCX * w, mcy = S.mCY * h;
+    const mTopX = mcx + Math.sin(mTiltRad)*mHh,  mTopY = mcy - Math.cos(mTiltRad)*mHh;
+    const mBotX = mcx - Math.sin(mTiltRad)*mHh,  mBotY = mcy + Math.cos(mTiltRad)*mHh;
+
+    // Light source (lamp) - fixed top-left area
+    const lampX = w*0.08, lampY = h*0.20;
+    const lampGlow = c.createRadialGradient(lampX,lampY,0,lampX,lampY,w*0.07);
+    lampGlow.addColorStop(0,'rgba(255,230,80,0.7)'); lampGlow.addColorStop(1,'rgba(255,230,80,0)');
+    c.fillStyle=lampGlow; c.beginPath(); c.arc(lampX,lampY,w*0.07,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE040'; c.beginPath(); c.arc(lampX,lampY,Math.max(7,w*0.016),0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE880'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('💡 مصدر الضوء', lampX, lampY - Math.max(13,w*0.030));
+
+    // Object (gift box) - left side
+    const ox = w*0.18, oy = h*0.52;
+    c.font=`${Math.max(28,w*0.055)}px serif`; c.textAlign='center';
+    c.fillText('🎁', ox, oy+10);
+    c.fillStyle='rgba(255,200,200,0.85)'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText('الجسم', ox, oy+Math.max(28,w*0.056));
+
+    // Person (viewer) - left-center
+    const px2 = w*0.38, py2 = h*0.55;
+    c.font=`${Math.max(28,w*0.058)}px serif`; c.textAlign='center';
+    c.fillText('🧑', px2, py2);
+    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`;
+    c.fillText('المشاهد 👁️', px2, py2+Math.max(28,w*0.056));
+
+    // ── Mirror normal vector (perpendicular to mirror surface) ──
+    const mirrorDX = mTopX - mBotX, mirrorDY = mTopY - mBotY;
+    const mirrorLen = Math.sqrt(mirrorDX*mirrorDX + mirrorDY*mirrorDY);
+    // Normal pointing left (away from right side)
+    const nx = -mirrorDY/mirrorLen, ny = mirrorDX/mirrorLen;
+    const nxLeft = nx < 0 ? nx : -nx; // ensure pointing generally left
+    const nyLeft = nx < 0 ? ny : -ny;
+
+    // ── RAY 1: lamp → object ──
+    c.strokeStyle='rgba(255,220,60,0.55)'; c.lineWidth=1.5; c.setLineDash([5,4]);
+    c.beginPath(); c.moveTo(lampX, lampY); c.lineTo(ox, oy-10); c.stroke(); c.setLineDash([]);
+
+    // ── RAY 2: object → mirror (hits center) ──
+    const toMirAngle = Math.atan2(mcy - oy, mcx - ox);
+    c.strokeStyle='#FFD700'; c.lineWidth=2.5; c.setLineDash([7,4]);
+    c.beginPath(); c.moveTo(ox, oy); c.lineTo(mcx, mcy); c.stroke(); c.setLineDash([]);
+    drawArrow(c, ox, oy, mcx, mcy, '#FFD700');
+
+    // ── RAY 3: reflected → viewer ──
+    const idx2 = mcx - ox, idy = mcy - oy;
+    const iLen = Math.sqrt(idx2*idx2+idy*idy);
+    const inX = idx2/iLen, inY = idy/iLen;
+    const dot = inX*nxLeft + inY*nyLeft;
+    const refX = inX - 2*dot*nxLeft;
+    const refY = inY - 2*dot*nyLeft;
+    const refLen = Math.max(w,h)*0.8;
+    const refEndX = mcx + refX*refLen, refEndY = mcy + refY*refLen;
+    // clip to canvas
+    const tMax = Math.min(
+      refX !== 0 ? (refX>0?(w-mcx)/refX:(-mcx)/refX) : Infinity,
+      refY !== 0 ? (refY>0?(h-mcy)/refY:(-mcy)/refY) : Infinity
+    );
+    const rfx = mcx + refX*Math.min(refLen,tMax*0.9);
+    const rfy = mcy + refY*Math.min(refLen,tMax*0.9);
+    c.strokeStyle='#FF9900'; c.lineWidth=2.5; c.setLineDash([7,4]);
+    c.beginPath(); c.moveTo(mcx, mcy); c.lineTo(rfx, rfy); c.stroke(); c.setLineDash([]);
+    drawArrow(c, mcx, mcy, rfx, rfy, '#FF9900');
+
+    // Eye label at reflected end near viewer
+    c.font=`${Math.max(18,w*0.038)}px serif`; c.textAlign='center';
+    c.fillText('👁️', rfx, rfy+8);
+
+    // Animated photon on object→mirror ray
+    const pT = (Date.now() % 1000) / 1000;
+    const ppx = ox + (mcx-ox)*pT, ppy = oy + (mcy-oy)*pT;
+    const pg = c.createRadialGradient(ppx,ppy,0,ppx,ppy,8);
+    pg.addColorStop(0,'rgba(255,230,80,1)'); pg.addColorStop(1,'rgba(255,230,80,0)');
+    c.fillStyle=pg; c.beginPath(); c.arc(ppx,ppy,8,0,Math.PI*2); c.fill();
+    // Animated photon on mirror→eye ray
+    const pT2 = (pT + 0.5) % 1;
+    const ppx2 = mcx + (rfx-mcx)*pT2, ppy2 = mcy + (rfy-mcy)*pT2;
+    const pg2 = c.createRadialGradient(ppx2,ppy2,0,ppx2,ppy2,8);
+    pg2.addColorStop(0,'rgba(255,180,60,1)'); pg2.addColorStop(1,'rgba(255,180,60,0)');
+    c.fillStyle=pg2; c.beginPath(); c.arc(ppx2,ppy2,8,0,Math.PI*2); c.fill();
+
+    // ── Mirror surface ──
+    // Sheen
+    c.strokeStyle='rgba(180,180,255,0.22)'; c.lineWidth=14;
+    c.beginPath(); c.moveTo(mTopX,mTopY); c.lineTo(mBotX,mBotY); c.stroke();
+    // Main line
+    c.strokeStyle='#C0C0FF'; c.lineWidth=5;
+    c.beginPath(); c.moveTo(mTopX,mTopY); c.lineTo(mBotX,mBotY); c.stroke();
+    // Tip handle (draggable indicator)
+    c.fillStyle='rgba(200,200,255,0.8)'; c.beginPath(); c.arc(mTopX,mTopY,7,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(100,100,200,0.9)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`; c.textAlign='center';
+    c.fillText('↕ اسحب للإمالة', mTopX, mTopY - 12);
+    // Mirror body drag hint
+    c.fillStyle='rgba(180,180,255,0.6)'; c.font=`bold ${Math.max(8,w*0.017)}px Tajawal`; c.textAlign='center';
+    c.fillText('مرآة', mcx+22, mcy);
+    c.font=`${Math.max(7,w*0.014)}px Tajawal`;
+    c.fillText('(اسحب لتحريك)', mcx+22, mcy+14);
+
+    // Normal dashed
+    c.strokeStyle='rgba(255,255,255,0.2)'; c.lineWidth=1; c.setLineDash([4,4]);
+    c.beginPath(); c.moveTo(mcx - nxLeft*45, mcy - nyLeft*45); c.lineTo(mcx + nxLeft*60, mcy + nyLeft*60); c.stroke();
+    c.setLineDash([]);
+
+    // ── Light path label sequence ──
+    const seqY = h*0.93;
+    const seqFontSz = Math.max(10, Math.min(w*0.020, 15));
+    const seqText = '💡 مصدر الضوء  →  الجسم  →  المرآة  →  العين  👁️';
+    c.font=`bold ${seqFontSz}px Tajawal`;
+    const seqW = c.measureText(seqText).width + 28;
+    const seqX = (w - seqW) / 2;
+    c.fillStyle='rgba(0,0,0,0.65)';
+    c.beginPath(); c.roundRect(seqX, seqY-seqFontSz-4, Math.min(seqW,w*0.96), seqFontSz+18, 8); c.fill();
+    c.fillStyle='rgba(255,220,100,0.95)'; c.textAlign='center';
+    c.fillText(seqText, w/2, seqY);
+
+    animFrame = requestAnimationFrame(draw);
+  }
   draw();
 }
 
@@ -33627,51 +33788,65 @@ function simG5ReflectionCompare() {
         c.restore();
       }
 
-      // Animated light rays (incident + reflected)
+      // Animated light rays (incident + reflected) — fixed start + clearer cloth lines
       const rayPhase = S.t * 0.7 + i * 0.8;
       const incAngle = 0.6 + Math.sin(rayPhase) * 0.2;
       const rayLen = h * 0.12;
-      // Incident ray (coming from above-left)
-      const rayEndX = surfCX + Math.cos(Math.PI + incAngle) * rayLen * 0.4;
+      // Incident ray from above-left
       const rayStartX = surfCX + Math.cos(Math.PI + incAngle) * rayLen;
       const rayStartY = surfY - Math.sin(incAngle) * rayLen;
       c.save();
-      c.strokeStyle = 'rgba(255,220,60,0.8)'; c.lineWidth = 2;
+      c.strokeStyle = 'rgba(255,220,60,0.85)'; c.lineWidth = 2.5;
       c.setLineDash([6,3]);
       c.beginPath(); c.moveTo(rayStartX, rayStartY); c.lineTo(surfCX, surfY); c.stroke();
+      c.setLineDash([]);
+      // Arrow on incident ray
+      const arrowFrac = 0.6;
+      const arx = rayStartX + (surfCX-rayStartX)*arrowFrac, ary = rayStartY + (surfY-rayStartY)*arrowFrac;
+      const arAng = Math.atan2(surfY-rayStartY, surfCX-rayStartX);
+      c.fillStyle='rgba(255,220,60,0.85)';
+      c.save(); c.translate(arx,ary); c.rotate(arAng);
+      c.beginPath(); c.moveTo(6,0); c.lineTo(-4,3); c.lineTo(-4,-3); c.fill(); c.restore();
 
-      // Reflected rays
-      const numRays = Math.max(1, Math.round(1 + surf.roughness * 5));
+      // Reflected rays — more visible for rough surfaces (cloth especially)
+      const numRays = surf.roughness < 0.1 ? 1 : Math.max(3, Math.round(1 + surf.roughness * 6));
       for (let r = 0; r < numRays; r++) {
-        const spread = (r/(numRays-1||1) - 0.5) * surf.roughness * 1.4;
+        const spread = numRays > 1 ? (r/(numRays-1) - 0.5) * surf.roughness * 1.6 : 0;
         const reflAng = incAngle + spread;
-        const alpha = (surf.reflectivity / numRays) * 2.5;
-        c.strokeStyle = `rgba(255,200,80,${Math.min(0.85, alpha)})`;
-        c.lineWidth = Math.max(0.5, 1.8 * surf.reflectivity);
+        // Make cloth and rough paper rays much more visible
+        const baseAlpha = surf.roughness > 0.5
+          ? Math.min(0.9, 0.5 + (0.4/numRays))  // cloth/rough: each ray more visible
+          : Math.min(0.9, (surf.reflectivity / Math.max(1,numRays)) * 3);
+        c.strokeStyle = `rgba(255,200,80,${baseAlpha})`;
+        c.lineWidth = surf.roughness > 0.5 ? Math.max(1.5, 2.5 * surf.reflectivity) : Math.max(0.8, 2 * surf.reflectivity);
         c.beginPath();
         c.moveTo(surfCX, surfY);
-        c.lineTo(surfCX + Math.cos(reflAng) * rayLen * 0.7, surfY - Math.sin(reflAng) * rayLen * 0.7);
+        c.lineTo(surfCX + Math.cos(reflAng) * rayLen * 0.75, surfY - Math.sin(reflAng) * rayLen * 0.75);
         c.stroke();
       }
-      c.setLineDash([]);
       c.restore();
 
-      // Clarity label + reflectivity %
+      // Labels below reflected image — spaced so they never overlap
+      const labelBaseY = surfY + surfH + h*0.01 + duckSrcH + h*0.015;
+      const lineH = Math.max(16, h*0.038);
+
+      // Clarity label
       const clarityColors = ['#4DF','#FD7','#FA8','#F55'];
       const clarityLabels = ['صورة واضحة جداً ✅','صورة واضحة 🟡','صورة ضبابية 🟠','لا صورة ❌'];
       const clarityIdx = surf.roughness < 0.1 ? 0 : surf.roughness < 0.3 ? 1 : surf.roughness < 0.7 ? 2 : 3;
+      const lFontSz = Math.max(8, Math.min(w*0.016, 13));
       c.fillStyle = clarityColors[clarityIdx];
-      c.font = `bold ${Math.max(8,w*0.016)}px Tajawal`;
+      c.font = `bold ${lFontSz}px Tajawal`;
       c.textAlign = 'center';
-      c.fillText(clarityLabels[clarityIdx], surfCX, reflY + reflH + h*0.025);
-      c.fillStyle = `rgba(255,210,100,0.9)`;
-      c.font = `${Math.max(8,w*0.015)}px Tajawal`;
-      c.fillText(`${Math.round(surf.reflectivity*100)}٪ انعكاس`, surfCX, reflY + reflH + h*0.048);
+      c.fillText(clarityLabels[clarityIdx], surfCX, labelBaseY);
 
-      // Type label
-      c.fillStyle = 'rgba(200,200,200,0.7)';
+      c.fillStyle = `rgba(255,210,100,0.9)`;
+      c.font = `${Math.max(7,w*0.014)}px Tajawal`;
+      c.fillText(`${Math.round(surf.reflectivity*100)}٪ انعكاس`, surfCX, labelBaseY + lineH);
+
+      c.fillStyle = 'rgba(200,200,200,0.65)';
       c.font = `${Math.max(7,w*0.013)}px Tajawal`;
-      c.fillText(surf.label, surfCX, reflY + reflH + h*0.068);
+      c.fillText(surf.label, surfCX, labelBaseY + lineH*2);
 
       // Divider
       if (i < surfaces.length-1) {
@@ -33696,7 +33871,7 @@ function simG5ReflectionMeasure() {
   <strong>❓ استنتاج:</strong><br>
   ما العلاقة بين ملمس السطح ودرجة انعكاس الضوء؟
   <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-  <div class="q-ans-panel">كلما كان السطح أكثر نعومة ولمعاناً، زادت درجة انعكاس الضوء بشكل منتظم. السطوح الخشنة تشتّت الضوء.</div>
+  <div class="q-ans-panel">✅ كلما كان السطح أكثر نعومةً ولمعاناً، زادت درجة انعكاس الضوء وكانت الصورة أوضح (انعكاس منتظم). السطوح الخشنة تشتّت الضوء في اتجاهات مختلفة (انعكاس منتشر) فتختفي الصورة.</div>
 </div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
@@ -33944,33 +34119,62 @@ function simG5LightDirection() {
     c.fillStyle='rgba(255,255,255,0.5)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
     c.fillText('العمود المقام', hitX + w*0.1, mirrorY - h*0.28);
 
-    // === ANGLE ARCS ===
-    const arcR = 45;
-    // Incidence angle arc (between normal-up and incident ray)
-    const normalUpAngle = -Math.PI/2; // pointing up
-    const incRayAngle = Math.atan2(incUy, incUx); // direction of incident
-    // Arc from normalUp to incident ray direction (from hit point, going up side)
-    c.strokeStyle='rgba(255,80,80,0.7)'; c.lineWidth=2;
-    // The angle of incidence is between the incoming ray and the normal
-    const incFromNormal = Math.atan2(-incUx, incUy); // angle from vertical
+    // === ANGLE ARCS — measured from NORMAL (vertical) ===
+    const arcR = 50;
+
+    // Incidence angle: between upward normal and incoming ray (above mirror)
+    // incUy is negative (going down), so incFromNormal is angle from vertical
+    const incFromNormalAbs = Math.abs(Math.atan2(incUx, -incUy)); // angle from vertical (normal)
+
+    // Incident arc: from normal (straight up, angle = -π/2) to incoming ray
+    c.strokeStyle='rgba(255,80,80,0.85)'; c.lineWidth=2.5;
     c.beginPath();
-    c.arc(hitX, mirrorY, arcR, -Math.PI/2 - Math.abs(incFromNormal), -Math.PI/2, false);
+    // The incoming ray hits from upper-left: its angle from horizontal is arctan(-incUy/incUx)
+    // We want the arc on the UPPER side between normal and incident ray
+    const incRayScreenAng = Math.atan2(-incUy, -incUx); // angle of reverse ray (pointing from mirror to source)
+    c.arc(hitX, mirrorY, arcR, -Math.PI/2, incRayScreenAng < -Math.PI/2 ? incRayScreenAng : -Math.PI + incFromNormalAbs, true);
     c.stroke();
 
-    // Reflection angle arc (between normal-up and reflected ray)
-    c.strokeStyle='rgba(255,160,40,0.7)'; c.lineWidth=2;
-    const refFromNormal = Math.atan2(refUx, -refUy);
+    // Reflected arc: from normal (straight up) to reflected ray
+    c.strokeStyle='rgba(80,200,80,0.85)'; c.lineWidth=2.5;
+    const refRayScreenAng = Math.atan2(-refUy, refUx); // angle pointing upward from mirror
     c.beginPath();
-    c.arc(hitX, mirrorY, arcR, -Math.PI/2, -Math.PI/2 + Math.abs(refFromNormal), false);
+    c.arc(hitX, mirrorY, arcR, -Math.PI/2, refRayScreenAng > -Math.PI/2 ? -Math.PI/2 + incFromNormalAbs : -Math.PI/2, false);
     c.stroke();
 
-    // Angle values between normal and each ray
-    const incLabelAng = -Math.PI/2 - Math.abs(incFromNormal)/2;
-    c.fillStyle='#FF6060'; c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center';
-    c.fillText(`${incAngle}°`, hitX + (arcR+16)*Math.cos(incLabelAng), mirrorY + (arcR+16)*Math.sin(incLabelAng));
-    const refLabelAng = -Math.PI/2 + Math.abs(refFromNormal)/2;
-    c.fillStyle='#FFB020'; c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`;
-    c.fillText(`${refAngle}°`, hitX + (arcR+16)*Math.cos(refLabelAng), mirrorY + (arcR+16)*Math.sin(refLabelAng));
+    // Angle value — measured from normal correctly
+    const incAngleDeg = Math.round(incFromNormalAbs * 180 / Math.PI);
+
+    // Labels inside arcs with background boxes to prevent overlap
+    const lFontSz = Math.max(12, w*0.024);
+    c.font = `bold ${lFontSz}px Tajawal`;
+
+    // Incident label — left of normal
+    const incLX = hitX - (arcR+22);
+    const incLY = mirrorY - 14;
+    const incTxt = `${incAngleDeg}°`;
+    const incTW = c.measureText(incTxt).width;
+    c.fillStyle='rgba(0,0,0,0.75)';
+    c.beginPath(); c.roundRect(incLX-incTW/2-5, incLY-lFontSz*0.8, incTW+10, lFontSz+4, 5); c.fill();
+    c.fillStyle='#FF6060'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(incTxt, incLX, incLY - lFontSz*0.3);
+
+    // Reflected label — right of normal
+    const refLX = hitX + (arcR+22);
+    const refLY = mirrorY - 14;
+    const refTW = c.measureText(incTxt).width;
+    c.fillStyle='rgba(0,0,0,0.75)';
+    c.beginPath(); c.roundRect(refLX-refTW/2-5, refLY-lFontSz*0.8, refTW+10, lFontSz+4, 5); c.fill();
+    c.fillStyle='#50DD50'; c.textAlign='center';
+    c.fillText(incTxt, refLX, refLY - lFontSz*0.3);
+    c.textBaseline='alphabetic';
+
+    // Small labels for the angle types — below the arcs
+    c.font=`${Math.max(8,w*0.016)}px Tajawal`;
+    c.fillStyle='rgba(255,100,100,0.8)'; c.textAlign='center';
+    c.fillText('زاوية سقوط', incLX, mirrorY + 18);
+    c.fillStyle='rgba(80,220,80,0.8)';
+    c.fillText('زاوية انعكاس', refLX, mirrorY + 18);
 
     // Hit flash at mirror
     const flashAlpha = Math.sin(S.t*8)*0.3+0.4;
@@ -33978,17 +34182,26 @@ function simG5LightDirection() {
     hitGlow.addColorStop(0,`rgba(255,220,80,${flashAlpha})`); hitGlow.addColorStop(1,'rgba(255,220,80,0)');
     c.fillStyle=hitGlow; c.beginPath(); c.arc(hitX,mirrorY,20,0,Math.PI*2); c.fill();
 
-    // === RESULT BOX ===
-    const equal = incAngle === refAngle;
-    c.fillStyle='rgba(0,0,0,0.55)'; c.strokeStyle=equal?'rgba(39,174,96,0.6)':'rgba(200,50,50,0.5)'; c.lineWidth=1.5;
-    c.beginPath(); c.roundRect(w*0.55, h*0.08, w*0.4, h*0.12, 8); c.fill(); c.stroke();
-    c.fillStyle=equal?'#4ADE80':'#FF8080'; c.font=`bold ${Math.max(11,w*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText(`زاوية السقوط = ${incAngle}°`, w*0.75, h*0.135);
-    c.fillText(`زاوية الانعكاس = ${refAngle}°`, w*0.75, h*0.165);
+    // === RESULT BOX — top-right, clear of laser ===
+    const boxFontSz = Math.max(11, w*0.022);
+    c.font = `bold ${boxFontSz}px Tajawal`;
+    const line1 = `زاوية السقوط = ${incAngleDeg}°`;
+    const line2 = `زاوية الانعكاس = ${incAngleDeg}°`;
+    const boxW = Math.max(c.measureText(line1).width, c.measureText(line2).width) + 28;
+    const boxX = w - boxW - w*0.03;
+    const boxY = h*0.06;
+    const boxH = boxFontSz*2 + 26;
+    c.fillStyle='rgba(0,0,0,0.6)';
+    c.strokeStyle='rgba(39,174,96,0.7)'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(boxX, boxY, boxW, boxH, 8); c.fill(); c.stroke();
+    c.fillStyle='#4ADE80'; c.textAlign='center';
+    c.fillText(line1, boxX+boxW/2, boxY+boxFontSz+6);
+    c.fillText(line2, boxX+boxW/2, boxY+boxFontSz*2+14);
 
-    // Instruction
-    c.fillStyle='rgba(255,255,255,0.7)'; c.font=`bold ${Math.max(10,w*0.021)}px Tajawal`; c.textAlign='center';
-    c.fillText('← اسحب الليزر للأعلى والأسفل وشاهد النتيجة!', w*0.45, h*0.95);
+    // Instruction — bottom, one clean line
+    const instrFontSz = Math.max(10, w*0.019);
+    c.fillStyle='rgba(255,255,255,0.6)'; c.font=`bold ${instrFontSz}px Tajawal`; c.textAlign='center';
+    c.fillText('← اسحب الليزر للأعلى والأسفل وشاهد النتيجة!', w*0.42, h*0.96);
 
     animFrame = requestAnimationFrame(draw);
   }
