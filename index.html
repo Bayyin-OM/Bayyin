@@ -21817,6 +21817,7 @@ function simStaticElec3(){
     showResult:false, resultMsg:'', resultCol:''
   };
   const S=simState.se3;
+  let w=cv.width, h=cv.height;
 
   function updateControls(){
     controls(`
@@ -21953,7 +21954,7 @@ function simStaticElec3(){
   function draw(){
     if(currentSim!=='staticelec'||currentTab!==2)return;
     S.t+=0.04;
-    const w=cv.width,h=cv.height;
+    w=cv.width; h=cv.height;
     c.clearRect(0,0,w,h);
 
     // Background — lab style
