@@ -24636,11 +24636,21 @@ function simStaticElec1() {
         drawY = eCY + (dy / len) * pull;
       }
 
-      // Record result when balloon touches slot
-      if (charged && !result && dist < bR + emojiSz * 0.6) {
-        S.results[obj.id] = obj.attracted ? 'attracted' : 'repelled';
-        try { U9Sound.ping(obj.attracted ? 520 : 220, .15, .18); } catch(e){}
-        buildControls();
+      // Record result when balloon is close enough
+      // Non-metals: record as 'attracted' when they reach the balloon
+      // Metals: record as 'repelled' only when user deliberately brings balloon very close (intentional tap)
+      if (charged && !result) {
+        if (obj.attracted && dist < bR + emojiSz * 0.55) {
+          // Non-metal touches balloon → attracted
+          S.results[obj.id] = 'attracted';
+          try { U9Sound.ping(520, .15, .18); } catch(e){}
+          buildControls();
+        } else if (!obj.attracted && dist < emojiSz * 0.7) {
+          // Balloon deliberately placed ON metal → repelled (requires very close approach)
+          S.results[obj.id] = 'repelled';
+          try { U9Sound.ping(220, .15, .18); } catch(e){}
+          buildControls();
+        }
       }
 
       // ── Slot card background ──
