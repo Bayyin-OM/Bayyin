@@ -30780,6 +30780,17 @@ Object.assign(SIM_QUESTIONS, {
   },
 
   // ٤-٤ الأسطح العاكسة — مقارنة الأسطح
+  g5reflection_0: {
+    q: 'لماذا تعكس المرآة الضوء بشكل أوضح من الورق الخشن؟',
+    opts: [
+      'لأن المرآة أكثر صلابة من الورق',
+      'لأن المرآة سطحها أملس ومنتظم فيعكس الضوء بزاوية ثابتة',
+      'لأن المرآة أثقل من الورق',
+      'لأن الورق يمتص الضوء بشكل أقل'
+    ],
+    ans: 1,
+    fb: '✅ السطح الأملس المنتظم (كالمرآة) يعكس الضوء في اتجاه واحد منتظم (انعكاس منتظم) فيعطي صورة واضحة بنسبة ~٩٥٪. السطح الخشن يشتّت الضوء في اتجاهات عشوائية (انعكاس منتشر) فلا يعطي صورة واضحة.'
+  },
   g5reflection: {
     q: 'لماذا تعكس المرآة الضوء بشكل أوضح من الورق الخشن؟',
     opts: [
@@ -32557,31 +32568,32 @@ function simG5MirrorFlat() {
     c.fillText('العين', refEndX, refEndY + Math.max(22,w*0.045));
 
     // ── Angle arcs ──
-    const arcR = 68;
-    // Incident arc (between normal left ← and incident ray)
-    c.strokeStyle='rgba(255,215,0,0.7)'; c.lineWidth=2;
-    c.beginPath(); c.arc(mx, my, arcR, Math.PI - rad, Math.PI); c.stroke();
-    // Reflected arc (between normal right → and reflected ray)
-    c.strokeStyle='rgba(74,255,157,0.7)'; c.lineWidth=2;
-    c.beginPath(); c.arc(mx, my, arcR, -Math.PI, -rad); c.stroke();
-
-    // Angle value labels — INSIDE the arcs
-    const angleText = `${Math.round(S.angle)}°`;
+    // المرآة رأسية → العمود المقام أفقي (زاوية 0)
+    // الشعاع الساقط يأتي من الزاوية (π - rad) نسبةً للمحور الأفقي
+    // زاوية السقوط = من الشعاع الساقط إلى العمود المقام (يسار المرآة)
+    // زاوية الانعكاس = من العمود المقام إلى الشعاع المنعكس (يمين المرآة)
+    const arcR = 72;
     const fontSize = Math.max(11, w*0.022);
+    const angleText = `${Math.round(S.angle)}°`;
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // Incident angle label — midpoint of arc, INSIDE (at ~60% of arcR)
-    const incMidAngle = Math.PI - rad/2;
-    const incLR = arcR * 0.58;
-    const incLX = mx + incLR * Math.cos(incMidAngle);
-    const incLY = my + incLR * Math.sin(incMidAngle);
+    // زاوية السقوط: قوس من الشعاع الساقط (π-rad) إلى العمود المقام (π) — الجانب العلوي الأيسر
+    c.strokeStyle='rgba(255,215,0,0.8)'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(mx, my, arcR, Math.PI - rad, Math.PI); c.stroke();
+    // رقم داخل القوس
+    const incMid = Math.PI - rad/2;
+    const incLX = mx + arcR * 0.62 * Math.cos(incMid);
+    const incLY = my + arcR * 0.62 * Math.sin(incMid);
     c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, incLX, incLY);
 
-    // Reflected angle label — INSIDE (at ~60% of arcR)
-    const refMidAngle = -rad/2;
-    const refLX = mx + incLR * Math.cos(refMidAngle);
-    const refLY = my + incLR * Math.sin(refMidAngle);
+    // زاوية الانعكاس: قوس من العمود المقام (0) إلى الشعاع المنعكس (-rad) — الجانب العلوي الأيمن
+    c.strokeStyle='rgba(74,255,157,0.8)'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(mx, my, arcR, -rad, 0); c.stroke();
+    // رقم داخل القوس
+    const refMid = -rad/2;
+    const refLX = mx + arcR * 0.62 * Math.cos(refMid);
+    const refLY = my + arcR * 0.62 * Math.sin(refMid);
     c.fillStyle='#4AFF9D'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, refLX, refLY);
     c.textBaseline = 'alphabetic';
