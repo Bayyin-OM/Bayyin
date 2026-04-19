@@ -32557,7 +32557,7 @@ function simG5MirrorFlat() {
     c.fillText('العين', refEndX, refEndY + Math.max(22,w*0.045));
 
     // ── Angle arcs ──
-    const arcR = 52;
+    const arcR = 68;
     // Incident arc (between normal left ← and incident ray)
     c.strokeStyle='rgba(255,215,0,0.7)'; c.lineWidth=2;
     c.beginPath(); c.arc(mx, my, arcR, Math.PI - rad, Math.PI); c.stroke();
@@ -32567,28 +32567,21 @@ function simG5MirrorFlat() {
 
     // Angle value labels — INSIDE the arcs
     const angleText = `${Math.round(S.angle)}°`;
-    const fontSize = Math.max(12, w*0.025);
+    const fontSize = Math.max(11, w*0.022);
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // Incident angle label — midpoint of arc, slightly outside
+    // Incident angle label — midpoint of arc, INSIDE (at ~60% of arcR)
     const incMidAngle = Math.PI - rad/2;
-    const incLR = arcR + 18;
+    const incLR = arcR * 0.58;
     const incLX = mx + incLR * Math.cos(incMidAngle);
     const incLY = my + incLR * Math.sin(incMidAngle);
-    // background pill
-    const incTW = c.measureText(angleText).width;
-    c.fillStyle='rgba(0,0,20,0.75)';
-    c.beginPath(); c.roundRect(incLX - incTW/2 - 5, incLY - fontSize*0.7, incTW+10, fontSize+4, 5); c.fill();
     c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, incLX, incLY);
 
-    // Reflected angle label
+    // Reflected angle label — INSIDE (at ~60% of arcR)
     const refMidAngle = -rad/2;
     const refLX = mx + incLR * Math.cos(refMidAngle);
     const refLY = my + incLR * Math.sin(refMidAngle);
-    const refTW = c.measureText(angleText).width;
-    c.fillStyle='rgba(0,0,20,0.75)';
-    c.beginPath(); c.roundRect(refLX - refTW/2 - 5, refLY - fontSize*0.7, refTW+10, fontSize+4, 5); c.fill();
     c.fillStyle='#4AFF9D'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, refLX, refLY);
     c.textBaseline = 'alphabetic';
@@ -33880,9 +33873,9 @@ function simG5ReflectionMeasure() {
   const data = [
     {name:'مرآة',val:95,color:'#C0C0FF'},
     {name:'ألمنيوم',val:75,color:'#C0C080'},
-    {name:'ورق لامع',val:55,color:'#FFFF80'},
-    {name:'قماش',val:20,color:'#D2A060'},
-    {name:'ورق خشن',val:8,color:'#C0A080'},
+    {name:'ورق لامع',val:70,color:'#FFFF80'},
+    {name:'قماش',val:30,color:'#D2A060'},
+    {name:'ورق خشن',val:10,color:'#C0A080'},
   ];
   if (!S.rmInit) {
     S.rmInit=true; S.selected=-1;
