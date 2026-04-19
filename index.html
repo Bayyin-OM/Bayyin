@@ -31673,7 +31673,7 @@ function repro_gametes2(){
     const midX=z1x+zW+pad;
     const midW=z2x-midX-pad;
     const cW=Math.round(midW*0.92);
-    const cH=Math.min(Math.round(h*0.082),44);
+    const cH=Math.min(Math.round(h*0.096),52);
     const cX=midX+Math.round((midW-cW)/2);
     return {zW,zH,zY,z1x,z2x,midX,midW,cW,cH,cX};
   }
@@ -31844,7 +31844,7 @@ function repro_gametes2(){
       ctx.lineWidth=isDrag?2.8:1.8;
       ctx.beginPath();ctx.roundRect(bx,by,l.cW,l.cH,10);ctx.fill();ctx.stroke();
       if(isDrag)ctx.restore();
-      ctx.font=`${Math.min(12,w*0.026)}px Tajawal`;ctx.fillStyle='white';
+      ctx.font=`bold ${Math.min(15,w*0.034)}px Tajawal`;ctx.fillStyle='white';
       ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.fillText(card.trait,bx+l.cW/2,by+l.cH/2);
     });
