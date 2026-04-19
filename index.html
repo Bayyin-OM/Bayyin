@@ -35933,7 +35933,7 @@ function simG5TransparentTest() {
 
   // دالة رسم روبوت مبسّط (بدل الإيموجي)
   function drawRobot(cx, cy, w) {
-    const s = w * 0.055;
+    const s = w * 0.032;
     c.save();
     // رأس
     c.fillStyle = '#4DC4E0';
@@ -36062,11 +36062,11 @@ function simG5TransparentTest() {
     }
 
     // ── الروبوت في الوسط (بين المصدر والمادة) ──
-    const robotX = w * 0.31, robotY = h * 0.56;
+    const robotX = w * 0.28, robotY = h * 0.52;
     drawRobot(robotX, robotY, w);
-    c.fillStyle = 'rgba(0,0,0,0.5)';
-    c.font = `bold ${Math.max(8,w*0.015)}px Tajawal`; c.textAlign = 'center';
-    c.fillText('الروبوت', robotX, robotY + w*0.075);
+    c.fillStyle = 'rgba(0,0,0,0.45)';
+    c.font = `bold ${Math.max(7,w*0.013)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('الروبوت', robotX, robotY + w*0.048);
 
     // ── المادة في الوسط (w=0.50) ──
     const shadowAlpha = (mat && lightOn) ? 1 - trans : 0;
@@ -36122,29 +36122,28 @@ function simG5TransparentTest() {
 
     // ── ظل الروبوت على الحائط ──
     if (lightOn && mat) {
+      const wallLeft = w * 0.88;
       const wallCX = w * 0.94;
       const wallCY = ly;
-      const shadowSize = w * 0.09;
+      // حجم الظل أصغر ليبقى داخل الحائط (عرض الحائط = w*0.12)
+      const shadowSize = Math.min(w * 0.055, w * 0.058);
 
       if (shadowAlpha > 0.05) {
-        // ظل داكن — المواد المعتمة
         const [tr, tg, tb] = mat.tint;
-        // ظل ملوّن للمواد الشفافة، أسود للمعتمة
         const shColor = trans > 0.1
           ? `rgba(${tr},${tg},${tb},${Math.min(0.9, shadowAlpha * 0.85)})`
           : `rgba(0,0,0,${Math.min(0.92, shadowAlpha * 0.92)})`;
 
-        // رسم ظل الروبوت على الحائط
         const ofc = document.createElement('canvas');
-        ofc.width = Math.ceil(shadowSize * 3 + 10);
-        ofc.height = Math.ceil(shadowSize * 4 + 10);
+        const ofcW = Math.ceil(shadowSize * 3.2);
+        const ofcH = Math.ceil(shadowSize * 5.5);
+        ofc.width = ofcW; ofc.height = ofcH;
         const oc = ofc.getContext('2d');
-        // رسم الروبوت في الأوف-سكرين
         oc.save();
-        oc.translate(ofc.width/2, ofc.height * 0.58);
-        // رأس
+        oc.translate(ofcW/2, ofcH * 0.55);
         const s = shadowSize * 0.7;
         oc.fillStyle = '#000';
+        // رأس
         oc.beginPath(); oc.roundRect(-s*0.7, -s*2.0, s*1.4, s*1.2, s*0.2); oc.fill();
         // جسم
         oc.beginPath(); oc.roundRect(-s*0.8, -s*0.8, s*1.6, s*1.4, s*0.15); oc.fill();
@@ -36159,31 +36158,31 @@ function simG5TransparentTest() {
         oc.strokeStyle = '#000'; oc.lineWidth = s*0.12; oc.stroke();
         oc.beginPath(); oc.arc(0, -s*2.6, s*0.12, 0, Math.PI*2); oc.fill();
         oc.restore();
-        // تلوين الظل
         oc.globalCompositeOperation = 'source-in';
         oc.fillStyle = shColor;
-        oc.fillRect(0, 0, ofc.width, ofc.height);
+        oc.fillRect(0, 0, ofcW, ofcH);
 
+        // رسم الظل داخل حدود الحائط فقط
         c.save();
-        const blurAmt = trans > 0.3 ? Math.round(trans*4+1) : 1;
+        c.beginPath(); c.rect(wallLeft, 0, w - wallLeft, h); c.clip();
+        const blurAmt = trans > 0.3 ? Math.round(trans*3+1) : 1;
         c.filter = `blur(${blurAmt}px)`;
-        c.drawImage(ofc, wallCX - ofc.width/2, wallCY - ofc.height*0.55, ofc.width, ofc.height);
+        // نضع مركز الظل عند wallCX
+        c.drawImage(ofc, wallCX - ofcW/2, wallCY - ofcH*0.52, ofcW, ofcH);
         c.filter = 'none';
         c.restore();
       } else if (trans > 0.05) {
-        // بقعة ضوء للمواد الشفافة جداً
         const [tr, tg, tb] = mat.tint;
-        const wlGrad = c.createRadialGradient(wallCX, wallCY, 0, wallCX, wallCY, w*0.07);
+        const wlGrad = c.createRadialGradient(wallCX, wallCY, 0, wallCX, wallCY, w*0.05);
         wlGrad.addColorStop(0, `rgba(${tr},${tg},${tb},${trans * 0.9})`);
         wlGrad.addColorStop(1, `rgba(${tr},${tg},${tb},0)`);
-        c.fillStyle = wlGrad; c.beginPath(); c.arc(wallCX, wallCY, w*0.07, 0, Math.PI*2); c.fill();
+        c.fillStyle = wlGrad; c.beginPath(); c.arc(wallCX, wallCY, w*0.05, 0, Math.PI*2); c.fill();
       }
     } else if (lightOn && !mat) {
-      // بقعة ضوء بدون مادة
-      const wlGrad = c.createRadialGradient(w*0.94, ly, 0, w*0.94, ly, w*0.08);
+      const wlGrad = c.createRadialGradient(w*0.94, ly, 0, w*0.94, ly, w*0.06);
       wlGrad.addColorStop(0, 'rgba(255,240,100,0.9)');
       wlGrad.addColorStop(1, 'rgba(255,220,50,0)');
-      c.fillStyle = wlGrad; c.beginPath(); c.arc(w*0.94, ly, w*0.08, 0, Math.PI*2); c.fill();
+      c.fillStyle = wlGrad; c.beginPath(); c.arc(w*0.94, ly, w*0.06, 0, Math.PI*2); c.fill();
     }
 
     // ── تعليمة إذا لا مادة ──
@@ -36574,22 +36573,44 @@ function simG5ShadowFactor() {
   cv.onmousedown = function(e){
     const rect=cv.getBoundingClientRect();
     const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width;
-    if(Math.abs(mx - S.sfPuppetX) < 0.12) S.sfPuppetDragging=true;
+    const my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-rect.top)/rect.height;
+    // تحقق بالنسبة المئوية من موضع الدمية الحالي
+    const cw=cv.width, ch=cv.height;
+    const lx2=cw*0.08; const wallX2=cw*0.82;
+    const puppetX2 = lx2 + (S.sf2ObjDist / 120) * (wallX2 - lx2 - cw*0.06) + cw*0.04;
+    if(Math.abs(mx*cw - puppetX2) < cw*0.12) S.sfPuppetDragging=true;
   };
   cv.onmousemove = function(e){
     if(!S.sfPuppetDragging) return;
     const rect=cv.getBoundingClientRect();
-    S.sfPuppetX = Math.max(0.2, Math.min(0.78, ((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width));
+    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width;
+    // تحويل موضع الفأرة إلى قيمة sf2ObjDist
+    const cw=cv.width; const lx2=cw*0.08; const wallX2=cw*0.82;
+    const rawX = mx*cw - lx2 - cw*0.04;
+    const range = wallX2 - lx2 - cw*0.06;
+    S.sf2ObjDist = Math.round(Math.max(20, Math.min(120, (rawX/range)*120)));
+    // تحديث السلايدر إذا كان المتغير النشط هو objDist
+    if(S.sf2Variable==='objDist'){
+      const sl=document.getElementById('sf-slider'); if(sl){sl.value=S.sf2ObjDist; sl.dispatchEvent(new Event('input'));}
+    }
   };
   cv.ontouchstart = function(e){ e.preventDefault();
     const rect=cv.getBoundingClientRect();
-    S.sfPuppetX=Math.max(0.2,Math.min(0.78,(e.touches[0].clientX-rect.left)/rect.width));
-    S.sfPuppetDragging=true;
+    const cw=cv.width, lx2=cw*0.08, wallX2=cw*0.82;
+    const puppetX2 = lx2 + (S.sf2ObjDist/120)*(wallX2-lx2-cw*0.06)+cw*0.04;
+    const mx=(e.touches[0].clientX-rect.left);
+    if(Math.abs(mx-puppetX2)<cw*0.14){ S.sfPuppetDragging=true; }
   };
   cv.ontouchmove = function(e){ e.preventDefault();
     if(!S.sfPuppetDragging) return;
     const rect=cv.getBoundingClientRect();
-    S.sfPuppetX=Math.max(0.2,Math.min(0.78,(e.touches[0].clientX-rect.left)/rect.width));
+    const cw=cv.width; const lx2=cw*0.08; const wallX2=cw*0.82;
+    const rawX=(e.touches[0].clientX-rect.left)-lx2-cw*0.04;
+    const range=wallX2-lx2-cw*0.06;
+    S.sf2ObjDist=Math.round(Math.max(20,Math.min(120,(rawX/range)*120)));
+    if(S.sf2Variable==='objDist'){
+      const sl=document.getElementById('sf-slider'); if(sl){sl.value=S.sf2ObjDist; sl.dispatchEvent(new Event('input'));}
+    }
   };
   cv.onmouseup = cv.ontouchend = function(){ S.sfPuppetDragging=false; };
 
@@ -36697,7 +36718,10 @@ function simG5ShadowFactor() {
     oc.globalCompositeOperation = 'source-in';
     oc.fillStyle = 'rgba(0,0,0,0.90)';
     oc.fillRect(0,0,ofc.width,ofc.height);
-    c.save(); c.filter = 'blur(1.5px)';
+    c.save();
+    // clip داخل الشاشة فقط
+    c.beginPath(); c.rect(wallX, 0, w - wallX, h); c.clip();
+    c.filter = 'blur(1.5px)';
     c.drawImage(ofc, wallX+3, shadowCY - ofc.height*0.5, ofc.width, ofc.height);
     c.filter = 'none'; c.restore();
 
