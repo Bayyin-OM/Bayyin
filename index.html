@@ -42879,10 +42879,11 @@ function simG9WaterGas2(){
 
     // ── flask (zone 2, centered) ──
     const fcx=w*0.50;
-    const avail=BY-TY;                        // available vertical space
-    const bodyR=Math.min(w*0.145, avail*0.38);
+    const avail=BY-TY;
+    // Hard-clamp so flask always fits inside scene zone
+    const bodyR=Math.min(w*0.110, avail*0.30, 120);
     const neckW=bodyR*0.48, neckH=bodyR*0.80;
-    const bodyCY=BY - bodyR - 2;
+    const bodyCY=BY - bodyR - 8;
     const neckTopY=bodyCY - bodyR - neckH;
 
     // gas fill (clipped)
@@ -43033,14 +43034,16 @@ function simG9WaterGas3(){
   const cv=document.getElementById('simCanvas');
 
   // ── draw Erlenmeyer flask (source) ──
+  // fw = desired flask width; the function anchors the bottom to bodyCY passed from caller
   function _drawSourceFlask(c,cx,by,fw,gasCol,t){
     const neckW=fw*0.26, neckH=fw*0.38, bodyR=fw*0.42;
+    // bodyCY: centre of round bottom — computed from 'by' downward
     const bodyCY=by+neckH+bodyR*0.85;
-    // gas fill
+    // Clip everything so gas fill stays inside flask outline
     c.save();
     c.beginPath();
     c.rect(cx-neckW*0.5+3,by,neckW-6,neckH+4);
-    c.arc(cx,bodyCY,bodyR-5,0,Math.PI*2);
+    c.arc(cx,bodyCY,bodyR-4,0,Math.PI*2);
     c.clip();
     const gf=c.createRadialGradient(cx,bodyCY,0,cx,bodyCY,bodyR);
     gf.addColorStop(0,gasCol+'66'); gf.addColorStop(1,gasCol+'22');
@@ -43163,11 +43166,18 @@ function simG9WaterGas3(){
     c.fillStyle='#777';
     c.fillText('الرائحة: '+gas.smell, w/2, TY*0.78);
 
-    // ── source flask (left 38% of width) ──
+    // ── source flask (left side, anchored to bench) ──
     const sceneH=BY-TY;
-    const fW=w*0.35, fTY=TY+sceneH*0.04;
-    const fCX=w*0.20;
-    const fl=_drawSourceFlask(c,fCX,fTY,fW,gas.col,S.t);
+    // Clamp flask width so body fits within scene height
+    const fW=Math.min(w*0.26, sceneH*0.55, 190);
+    const fCX=w*0.22;
+    // Compute dimensions to anchor bottom of flask to bench
+    const _fBodyR=fW*0.42, _fNeckH=fW*0.38;
+    // fTY = neck top = BY - bodyR*0.85 - neckH - bodyR - 8 (gap)
+    const fTY=BY - _fBodyR - _fBodyR*0.85 - _fNeckH - 8;
+    // Safety: never above TY+10
+    const fTYsafe=Math.max(TY+10, fTY);
+    const fl=_drawSourceFlask(c,fCX,fTYsafe,fW,gas.col,S.t);
 
     // gas name on bench
     c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
