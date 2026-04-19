@@ -32598,9 +32598,9 @@ function simG5MirrorFlat() {
     c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
     c.fillText(angleText, incLX, incLY);
 
-    // زاوية الانعكاس (أخضر): من mirrorUp إلى reflectDir — مع عقارب الساعة → قوس صغير فوق يمين
+    // زاوية الانعكاس (أخضر): من mirrorUp إلى reflectDir — عكس عقارب الساعة → قوس صغير فوق يمين
     c.strokeStyle='rgba(74,255,157,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, mirrorUp, reflectDir, true); c.stroke();
+    c.beginPath(); c.arc(mx, my, arcR, mirrorUp, reflectDir, false); c.stroke();
     const refMid = (mirrorUp + reflectDir) / 2;
     const refLX = mx + arcR * 0.62 * Math.cos(refMid);
     const refLY = my + arcR * 0.62 * Math.sin(refMid);
