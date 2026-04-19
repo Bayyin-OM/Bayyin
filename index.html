@@ -38014,52 +38014,51 @@ function simG5RainDrop() {
 function simG5SunSeeming() {
   cancelAnimationFrame(animFrame);
 
-  // ── Player position (world coords, sun fixed at 0,0) ──
-  let px = 0, py = 0;          // player world position
-  const SUN_X = 0, SUN_Y = -1800; // sun fixed in world (high up)
+  // ── State ──
+  let px = 0;           // player horizontal world position (only left/right)
+  const SPEED = 4;
+
+  // Sun is fixed at world X=0, sits visually near top-centre of sky
+  // We'll place it at screen fraction and shift it based on px
+
   window._g5ssKeys = {};
   const keys = window._g5ssKeys;
-  const SPEED = 5;
 
-  // Remove old key listeners then attach new ones
   if (window._g5ssKeyDown) document.removeEventListener('keydown', window._g5ssKeyDown);
   if (window._g5ssKeyUp)   document.removeEventListener('keyup',   window._g5ssKeyUp);
-
-  window._g5ssKeyDown = e => { keys[e.key] = true; e.preventDefault && ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key) && e.preventDefault(); };
-  window._g5ssKeyUp   = e => { keys[e.key] = false; };
+  window._g5ssKeyDown = e => {
+    keys[e.key] = true;
+    if (['ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
+  };
+  window._g5ssKeyUp = e => { keys[e.key] = false; };
   document.addEventListener('keydown', window._g5ssKeyDown);
   document.addEventListener('keyup',   window._g5ssKeyUp);
 
   controls(`
     <div class="ctrl-section">
       <div class="ctrl-label">☀️ هل تتحرك الشمس؟</div>
-      <div class="ctrl-desc" style="font-size:12px;color:#555;margin-bottom:8px">
-        حرّك الشخصية وراقب الشمس — هل هي التي تتحرك أم أنت؟
+      <div class="ctrl-desc" style="font-size:12px;color:#555;line-height:1.5">
+        حرّك الشخصية يميناً ويساراً<br>وراقب الشمس — هل هي التي تتحرك؟
       </div>
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">🕹️ تحكّم بالشخصية</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;max-width:150px;margin:0 auto 8px">
-        <div></div>
-        <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
-          onpointerdown="window._g5ssKeys&&(window._g5ssKeys['ArrowUp']=true)" onpointerup="window._g5ssKeys&&(window._g5ssKeys['ArrowUp']=false)" onpointerleave="window._g5ssKeys&&(window._g5ssKeys['ArrowUp']=false)">▲</button>
-        <div></div>
-        <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
-          onpointerdown="window._g5ssKeys&&(window._g5ssKeys['ArrowLeft']=true)" onpointerup="window._g5ssKeys&&(window._g5ssKeys['ArrowLeft']=false)" onpointerleave="window._g5ssKeys&&(window._g5ssKeys['ArrowLeft']=false)">◀</button>
-        <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
-          onpointerdown="window._g5ssKeys&&(window._g5ssKeys['ArrowDown']=true)" onpointerup="window._g5ssKeys&&(window._g5ssKeys['ArrowDown']=false)" onpointerleave="window._g5ssKeys&&(window._g5ssKeys['ArrowDown']=false)">▼</button>
-        <button class="ctrl-btn" style="padding:10px;font-size:18px;touch-action:none"
-          onpointerdown="window._g5ssKeys&&(window._g5ssKeys['ArrowRight']=true)" onpointerup="window._g5ssKeys&&(window._g5ssKeys['ArrowRight']=false)" onpointerleave="window._g5ssKeys&&(window._g5ssKeys['ArrowRight']=false)">▶</button>
+      <div style="display:flex;gap:8px;justify-content:center;margin:6px 0">
+        <button class="ctrl-btn" style="padding:12px 20px;font-size:20px;touch-action:none;min-width:56px"
+          onpointerdown="window._g5ssKeys['ArrowLeft']=true" onpointerup="window._g5ssKeys['ArrowLeft']=false" onpointerleave="window._g5ssKeys['ArrowLeft']=false">◀</button>
+        <button class="ctrl-btn" style="padding:12px 20px;font-size:20px;touch-action:none;min-width:56px"
+          onpointerdown="window._g5ssKeys['ArrowRight']=true" onpointerup="window._g5ssKeys['ArrowRight']=false" onpointerleave="window._g5ssKeys['ArrowRight']=false">▶</button>
       </div>
-      <button class="ctrl-btn reset" style="width:100%;margin-top:4px" onclick="window._g5ssReset && window._g5ssReset()">↺ إعادة للمركز</button>
+      <div style="font-size:11px;color:#888;text-align:center;margin-bottom:4px">أو استخدم ← → في الكيبورد</div>
+      <button class="ctrl-btn reset" style="width:100%;margin-top:4px" onclick="window._g5ssReset&&window._g5ssReset()">↺ إعادة للمركز</button>
     </div>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ هل الشمس تتحرك أم أنت؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">أنت الذي تتحرك! الشمس ثابتة في مكانها، لكن تغيّر موقعك يُغيّر زاوية رؤيتك لها، فتبدو وكأنها انتقلت في السماء.</div>
+      <div class="q-ans-panel">أنت الذي تتحرك! الشمس ثابتة، لكن تغيّر موقعك يُغيّر زاوية رؤيتك لها فتبدو وكأنها انتقلت.</div>
     </div>`);
 
-  window._g5ssReset = () => { px = 0; py = 0; };
+  window._g5ssReset = () => { px = 0; totalDist = 0; moved = false; };
 
   const cv = document.getElementById('simCanvas');
   let t = 0, moved = false, totalDist = 0;
@@ -38073,241 +38072,259 @@ function simG5SunSeeming() {
     }
 
     // ── Input ──
-    const prevPX = px, prevPY = py;
+    const prevPX = px;
     if (keys['ArrowLeft']  || keys['a'] || keys['A']) px -= SPEED;
     if (keys['ArrowRight'] || keys['d'] || keys['D']) px += SPEED;
-    if (keys['ArrowUp']    || keys['w'] || keys['W']) py -= SPEED * 0.5;
-    if (keys['ArrowDown']  || keys['s'] || keys['S']) py += SPEED * 0.5;
-    // Clamp vertical movement (stay on ground level roughly)
-    py = Math.max(-120, Math.min(120, py));
 
-    const didMove = px !== prevPX || py !== prevPY;
-    if (didMove) { moved = true; totalDist += Math.abs(px - prevPX) + Math.abs(py - prevPY); }
-
+    if (px !== prevPX) { moved = true; totalDist += Math.abs(px - prevPX); }
     t++;
 
     const c = cv.getContext('2d'), w = cv.width, h = cv.height;
     c.clearRect(0, 0, w, h);
 
-    // ── Camera: follow player ──
-    // Screen centre = player world pos mapped to canvas centre
-    const camX = w / 2 - px;
-    const camY = h * 0.62 - py; // ground horizon at 62% of canvas height
+    // ── Layout zones ──
+    const horizonY = h * 0.60;   // ground horizon
+    const sunBaseX = w * 0.72;   // sun fixed screen X anchor (right side of sky)
+    const sunBaseY = h * 0.14;   // sun fixed screen Y
 
-    // ── Sky gradient ──
-    const sky = c.createLinearGradient(0, 0, 0, h * 0.65);
-    sky.addColorStop(0, '#1565C0');
-    sky.addColorStop(0.5, '#42A5F5');
-    sky.addColorStop(1, '#90CAF9');
-    c.fillStyle = sky;
-    c.fillRect(0, 0, w, h);
+    // Sun shifts LEFT as player moves RIGHT (parallax = sun appears to move opposite)
+    const sunSX = sunBaseX - px * 0.28;
+    const sunSY = sunBaseY;
+
+    // ── Sky: colour shifts slightly based on sun horizontal position ──
+    const skyHue = Math.max(0, Math.min(1, (sunSX / w)));
+    const sky = c.createLinearGradient(0, 0, 0, horizonY);
+    sky.addColorStop(0,   `hsl(${210 + skyHue*15},75%,${28+skyHue*10}%)`);
+    sky.addColorStop(0.6, `hsl(${205 + skyHue*10},80%,${52+skyHue*8}%)`);
+    sky.addColorStop(1,   '#90CAF9');
+    c.fillStyle = sky; c.fillRect(0, 0, w, horizonY + 2);
+
+    // ── Sunlight overlay on ground (directional) ──
+    const sunNormX = (sunSX - w/2) / w;  // -0.5 .. +0.5
+    const lightX   = w/2 + sunNormX * w * 0.7;
+    const groundLight = c.createRadialGradient(lightX, horizonY, 0, lightX, horizonY, w * 0.8);
+    groundLight.addColorStop(0,   'rgba(255,240,150,0.38)');
+    groundLight.addColorStop(0.4, 'rgba(255,220,80,0.14)');
+    groundLight.addColorStop(1,   'rgba(0,0,0,0)');
 
     // ── Ground ──
-    const grd = c.createLinearGradient(0, h * 0.62, 0, h);
-    grd.addColorStop(0, '#66BB6A');
-    grd.addColorStop(0.3, '#43A047');
-    grd.addColorStop(1, '#2E7D32');
-    c.fillStyle = grd;
-    c.fillRect(0, h * 0.62, w, h * 0.38);
+    const grd = c.createLinearGradient(0, horizonY, 0, h);
+    grd.addColorStop(0,   '#66BB6A');
+    grd.addColorStop(0.25,'#43A047');
+    grd.addColorStop(1,   '#1B5E20');
+    c.fillStyle = grd; c.fillRect(0, horizonY, w, h - horizonY);
+    // directional light on ground
+    c.fillStyle = groundLight; c.fillRect(0, horizonY, w, h - horizonY);
 
-    // Ground line
-    c.strokeStyle = '#2E7D32'; c.lineWidth = 2;
-    c.beginPath(); c.moveTo(0, h * 0.62); c.lineTo(w, h * 0.62); c.stroke();
+    // Ground horizon line
+    c.strokeStyle = '#388E3C'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(0, horizonY); c.lineTo(w, horizonY); c.stroke();
 
-    // ── Ground tiles / grid (shows movement) ──
-    c.strokeStyle = 'rgba(0,0,0,0.08)'; c.lineWidth = 1;
-    const tileSize = 80;
-    const offX = (camX % tileSize + tileSize) % tileSize;
-    const offY = (camY % tileSize + tileSize) % tileSize;
-    for (let gx = offX - tileSize; gx < w + tileSize; gx += tileSize) {
-      c.beginPath(); c.moveTo(gx, h * 0.62); c.lineTo(gx, h); c.stroke();
+    // ── Ground grid lines (show player movement) ──
+    const tileW = 90;
+    const offX  = ((-px * 1.0) % tileW + tileW) % tileW;
+    c.strokeStyle = 'rgba(0,0,0,0.07)'; c.lineWidth = 1;
+    for (let gx = offX - tileW; gx < w + tileW; gx += tileW) {
+      c.beginPath(); c.moveTo(gx, horizonY); c.lineTo(gx, h); c.stroke();
     }
 
-    // ── Background trees (parallax, slower than player) ──
-    const treePositions = [-600, -300, 0, 300, 600, 900, -900, 150, -150, 450, -450, 750, -750];
-    for (const tx of treePositions) {
-      const sx = camX + tx * 0.4; // parallax factor
-      const sy = h * 0.62;
-      if (sx > -60 && sx < w + 60) {
-        // trunk
-        c.fillStyle = '#5D4037';
-        c.fillRect(sx - 6, sy - 55, 12, 55);
-        // canopy
-        c.fillStyle = '#2E7D32';
-        c.beginPath(); c.arc(sx, sy - 65, 28, 0, Math.PI * 2); c.fill();
-        c.fillStyle = '#388E3C';
-        c.beginPath(); c.arc(sx + 8, sy - 70, 20, 0, Math.PI * 2); c.fill();
-      }
+    // ── Background trees (parallax) ──
+    const treePosWorld = [-700,-400,-150,0,200,450,700,-550,350,-280,550,-420,280];
+    for (const tx of treePosWorld) {
+      const sx = w/2 + (tx - px) * 0.35;
+      if (sx < -70 || sx > w + 70) continue;
+      const sy = horizonY;
+      // Shadow based on sun direction
+      const sdx = (sx - sunSX) * 0.18;
+      c.fillStyle = 'rgba(0,0,0,0.14)';
+      c.beginPath();
+      c.ellipse(sx + sdx * 2, sy + 3, 16 + Math.abs(sdx)*0.4, 5, 0, 0, Math.PI*2);
+      c.fill();
+      // trunk
+      c.fillStyle = '#4E342E';
+      c.fillRect(sx - 5, sy - 58, 10, 58);
+      // canopy layers
+      c.fillStyle = '#2E7D32';
+      c.beginPath(); c.arc(sx, sy - 68, 26, 0, Math.PI*2); c.fill();
+      c.fillStyle = '#388E3C';
+      c.beginPath(); c.arc(sx + 7, sy - 74, 19, 0, Math.PI*2); c.fill();
+      // light highlight on canopy (sun side)
+      const hlSide = sunSX > sx ? 1 : -1;
+      c.fillStyle = 'rgba(144,238,144,0.32)';
+      c.beginPath(); c.arc(sx + hlSide*10, sy - 76, 12, 0, Math.PI*2); c.fill();
     }
 
-    // ── SUN (fixed in world, convert to screen) ──
-    const sunSX = camX + SUN_X;
-    const sunSY = camY + SUN_Y;
+    // ─────────────── SUN ───────────────
+    const pulse    = 1 + Math.sin(t * 0.05) * 0.02;
+    const sunR     = Math.min(w, h) * 0.092 * pulse;  // big & clear
+    const glowMaxR = sunR * 3.8;
 
-    // Sun glow layers
-    const sunPulse = 1 + Math.sin(t * 0.04) * 0.015;
-    const glowR = 70 * sunPulse;
-    const sunGlow = c.createRadialGradient(sunSX, sunSY, 0, sunSX, sunSY, glowR * 2.5);
-    sunGlow.addColorStop(0, 'rgba(255,255,200,0.9)');
-    sunGlow.addColorStop(0.25, 'rgba(255,220,50,0.6)');
-    sunGlow.addColorStop(0.6, 'rgba(255,180,0,0.25)');
-    sunGlow.addColorStop(1, 'rgba(255,150,0,0)');
-    c.fillStyle = sunGlow;
-    c.beginPath(); c.arc(sunSX, sunSY, glowR * 2.5, 0, Math.PI * 2); c.fill();
+    // Outer soft halo
+    const halo = c.createRadialGradient(sunSX, sunSY, sunR * 0.5, sunSX, sunSY, glowMaxR);
+    halo.addColorStop(0,   'rgba(255,230,80,0.55)');
+    halo.addColorStop(0.3, 'rgba(255,190,30,0.28)');
+    halo.addColorStop(0.7, 'rgba(255,140,0,0.10)');
+    halo.addColorStop(1,   'rgba(255,100,0,0)');
+    c.fillStyle = halo;
+    c.beginPath(); c.arc(sunSX, sunSY, glowMaxR, 0, Math.PI*2); c.fill();
+
+    // Inner bright glow
+    const innerGlow = c.createRadialGradient(sunSX, sunSY, 0, sunSX, sunSY, sunR * 1.6);
+    innerGlow.addColorStop(0,   'rgba(255,255,220,1)');
+    innerGlow.addColorStop(0.4, 'rgba(255,240,100,0.9)');
+    innerGlow.addColorStop(1,   'rgba(255,200,0,0)');
+    c.fillStyle = innerGlow;
+    c.beginPath(); c.arc(sunSX, sunSY, sunR * 1.6, 0, Math.PI*2); c.fill();
 
     // Sun disc
-    c.fillStyle = '#FFF176';
-    c.beginPath(); c.arc(sunSX, sunSY, glowR * 0.55, 0, Math.PI * 2); c.fill();
-    c.fillStyle = '#FFD600';
-    c.beginPath(); c.arc(sunSX, sunSY, glowR * 0.45, 0, Math.PI * 2); c.fill();
+    const disc = c.createRadialGradient(sunSX - sunR*0.2, sunSY - sunR*0.2, 0, sunSX, sunSY, sunR);
+    disc.addColorStop(0,   '#FFFDE7');
+    disc.addColorStop(0.5, '#FFD600');
+    disc.addColorStop(1,   '#FF8F00');
+    c.fillStyle = disc;
+    c.beginPath(); c.arc(sunSX, sunSY, sunR, 0, Math.PI*2); c.fill();
 
     // Sun rays
-    c.strokeStyle = 'rgba(255,220,50,0.55)'; c.lineWidth = 2.5;
-    for (let ri = 0; ri < 12; ri++) {
-      const ra = ri * (Math.PI * 2 / 12) + t * 0.008;
-      const r1 = glowR * 0.58, r2 = glowR * 0.82;
+    const numRays = 14;
+    for (let ri = 0; ri < numRays; ri++) {
+      const ra   = ri * (Math.PI*2/numRays) + t * 0.010;
+      const r1   = sunR * 1.15;
+      const r2   = sunR * (1.55 + (ri%2)*0.28);
+      const alpha= 0.55 + Math.sin(t*0.06 + ri)*0.15;
+      c.strokeStyle = `rgba(255,220,40,${alpha})`;
+      c.lineWidth   = 2.5 + (ri%3)*0.5;
+      c.lineCap     = 'round';
       c.beginPath();
-      c.moveTo(sunSX + Math.cos(ra) * r1, sunSY + Math.sin(ra) * r1);
-      c.lineTo(sunSX + Math.cos(ra) * r2, sunSY + Math.sin(ra) * r2);
+      c.moveTo(sunSX + Math.cos(ra)*r1, sunSY + Math.sin(ra)*r1);
+      c.lineTo(sunSX + Math.cos(ra)*r2, sunSY + Math.sin(ra)*r2);
       c.stroke();
     }
-
-    // ── Line of sight: player → sun ──
-    const playerSX = w / 2; // player always at screen centre
-    const playerSY = h * 0.62 - 45;
-
-    // Shadow on ground (direction away from sun)
-    const shadowAngle = Math.atan2(playerSY - sunSY, playerSX - sunSX);
-    const shadowLen = 55 + Math.abs(Math.sin(shadowAngle)) * 20;
-    c.strokeStyle = 'rgba(0,0,0,0.28)'; c.lineWidth = 8; c.lineCap = 'round';
-    c.beginPath();
-    c.moveTo(playerSX, h * 0.62);
-    c.lineTo(playerSX + Math.cos(shadowAngle) * shadowLen, h * 0.62 + 5);
-    c.stroke();
     c.lineCap = 'butt';
 
-    // Angle line (player → sun), dashed
-    c.save();
-    c.setLineDash([6, 5]);
-    c.strokeStyle = 'rgba(255,220,50,0.6)'; c.lineWidth = 2;
-    c.beginPath(); c.moveTo(playerSX, playerSY); c.lineTo(sunSX, sunSY); c.stroke();
-    c.setLineDash([]);
-    c.restore();
+    // Sun label
+    c.font = `bold ${Math.max(11,w*0.014)}px Tajawal`;
+    c.textAlign = 'center'; c.textBaseline = 'bottom';
+    c.fillStyle = 'rgba(255,255,255,0.95)';
+    c.fillText('☀️ الشمس ثابتة', sunSX, sunSY - sunR - 6);
 
-    // Angle arc near player
-    const angleToSun = Math.atan2(sunSY - playerSY, sunSX - playerSX);
-    const horizAngle = Math.atan2(0, 1); // 0
-    c.strokeStyle = 'rgba(255,220,0,0.85)'; c.lineWidth = 2;
+    // ── Player ──
+    const playerSX = w / 2;
+    const playerSY = horizonY;
+    const walkCycle = moved ? Math.sin(t * 0.22) * (keys['ArrowLeft']||keys['ArrowRight']||keys['a']||keys['d'] ? 1 : 0.3) : 0;
+
+    // Player ground shadow (angled toward sun)
+    const sdAngle = Math.atan2(0, playerSX - sunSX); // horizontal only
+    const sdLen   = 50 + Math.abs(sunNormX) * 30;
+    c.fillStyle = 'rgba(0,0,0,0.20)';
     c.beginPath();
-    c.arc(playerSX, playerSY, 30, Math.min(angleToSun, horizAngle), Math.max(angleToSun, horizAngle));
-    c.stroke();
-
-    // ── Player (basketball player) ──
-    const bx = playerSX, by = h * 0.62;
-    const walkCycle = moved ? Math.sin(t * 0.22) : 0;
-
-    // Shadow
-    c.fillStyle = 'rgba(0,0,0,0.18)';
-    c.beginPath(); c.ellipse(bx, by + 2, 18, 6, 0, 0, Math.PI * 2); c.fill();
+    c.ellipse(playerSX + Math.cos(sdAngle + Math.PI)*sdLen*0.6, playerSY + 4,
+              sdLen, 5, 0, 0, Math.PI*2);
+    c.fill();
 
     // Legs
     c.strokeStyle = '#1565C0'; c.lineWidth = 7; c.lineCap = 'round';
-    c.beginPath(); c.moveTo(bx, by - 20);
-    c.lineTo(bx - 8 + walkCycle * 8, by); c.stroke();
-    c.beginPath(); c.moveTo(bx, by - 20);
-    c.lineTo(bx + 8 - walkCycle * 8, by); c.stroke();
+    c.beginPath(); c.moveTo(playerSX, playerSY - 20);
+    c.lineTo(playerSX - 8 + walkCycle*8, playerSY); c.stroke();
+    c.beginPath(); c.moveTo(playerSX, playerSY - 20);
+    c.lineTo(playerSX + 8 - walkCycle*8, playerSY); c.stroke();
     c.lineCap = 'butt';
 
-    // Body (jersey)
+    // Body
     c.fillStyle = '#E53935';
-    c.beginPath(); c.roundRect(bx - 11, by - 52, 22, 32, 4); c.fill();
-    // Jersey stripe
+    c.beginPath(); c.roundRect(playerSX-11, playerSY-52, 22, 32, 4); c.fill();
     c.fillStyle = '#FFFFFF';
-    c.beginPath(); c.roundRect(bx - 5, by - 50, 10, 28, 2); c.fill();
+    c.beginPath(); c.roundRect(playerSX-5, playerSY-50, 10, 28, 2); c.fill();
 
     // Arms
     c.strokeStyle = '#FFCC80'; c.lineWidth = 6; c.lineCap = 'round';
-    // Ball-holding arm (right, slightly raised)
-    c.beginPath(); c.moveTo(bx + 9, by - 44);
-    c.lineTo(bx + 22, by - 52 + walkCycle * 3); c.stroke();
-    // Left arm swinging
-    c.beginPath(); c.moveTo(bx - 9, by - 44);
-    c.lineTo(bx - 18, by - 38 - walkCycle * 5); c.stroke();
+    c.beginPath(); c.moveTo(playerSX+9, playerSY-44);
+    c.lineTo(playerSX+22, playerSY-52+walkCycle*3); c.stroke();
+    c.beginPath(); c.moveTo(playerSX-9, playerSY-44);
+    c.lineTo(playerSX-18, playerSY-38-walkCycle*5); c.stroke();
     c.lineCap = 'butt';
 
     // Basketball
-    const ballX = bx + 22, ballY = by - 52 + walkCycle * 3;
+    const bx2 = playerSX+22, by2 = playerSY-52+walkCycle*3;
     c.fillStyle = '#E65100';
-    c.beginPath(); c.arc(ballX, ballY, 10, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(bx2, by2, 10, 0, Math.PI*2); c.fill();
     c.strokeStyle = '#BF360C'; c.lineWidth = 1.5;
-    c.beginPath(); c.arc(ballX, ballY, 10, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.arc(bx2, by2, 10, 0, Math.PI*2); c.stroke();
     c.strokeStyle = '#BF360C'; c.lineWidth = 1;
-    c.beginPath(); c.moveTo(ballX - 10, ballY); c.lineTo(ballX + 10, ballY); c.stroke();
-    c.beginPath(); c.moveTo(ballX, ballY - 10); c.lineTo(ballX, ballY + 10); c.stroke();
-    c.beginPath(); c.arc(ballX, ballY, 10, -Math.PI * 0.5, Math.PI * 0.5); c.stroke();
+    c.beginPath(); c.moveTo(bx2-10, by2); c.lineTo(bx2+10, by2); c.stroke();
+    c.beginPath(); c.moveTo(bx2, by2-10); c.lineTo(bx2, by2+10); c.stroke();
+    c.beginPath(); c.arc(bx2, by2, 10, -Math.PI*0.5, Math.PI*0.5); c.stroke();
 
     // Head
     c.fillStyle = '#FFCC80';
-    c.beginPath(); c.arc(bx, by - 62, 12, 0, Math.PI * 2); c.fill();
-    // Hair
+    c.beginPath(); c.arc(playerSX, playerSY-63, 12, 0, Math.PI*2); c.fill();
     c.fillStyle = '#4E342E';
-    c.beginPath(); c.arc(bx, by - 68, 10, Math.PI, 0); c.fill();
-    // Eyes
+    c.beginPath(); c.arc(playerSX, playerSY-69, 10, Math.PI, 0); c.fill();
     c.fillStyle = '#333';
-    c.beginPath(); c.arc(bx - 4, by - 62, 1.8, 0, Math.PI * 2); c.fill();
-    c.beginPath(); c.arc(bx + 4, by - 62, 1.8, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(playerSX-4, playerSY-63, 1.8, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc(playerSX+4, playerSY-63, 1.8, 0, Math.PI*2); c.fill();
 
-    // ── Info box (dynamic message) ──
+    // ── Dashed line: player → sun ──
+    c.save();
+    c.setLineDash([7,5]);
+    c.strokeStyle = 'rgba(255,220,40,0.75)'; c.lineWidth = 2;
+    c.beginPath();
+    c.moveTo(playerSX, playerSY - 65);
+    c.lineTo(sunSX, sunSY + sunR);
+    c.stroke();
+    c.setLineDash([]);
+    c.restore();
+
+    // ── Angle indicator label (sun angle from player) ──
+    const sunAngleDeg = Math.round(Math.atan2(-(sunSY - playerSY), sunSX - playerSX) * 180 / Math.PI);
+    const angleStr    = `زاوية الشمس: ${sunAngleDeg}°`;
+    c.font = `bold ${Math.max(12,w*0.016)}px Tajawal`;
+    const aw = c.measureText(angleStr).width + 20;
+    c.fillStyle = 'rgba(0,0,0,0.45)';
+    c.beginPath(); c.roundRect(playerSX - aw/2, playerSY - 92, aw, 22, 6); c.fill();
+    c.fillStyle = '#FFD600';
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(angleStr, playerSX, playerSY - 81);
+
+    // ── Top message bar ──
     let msg, msgCol;
     if (!moved) {
-      msg = '⬅️ حرّك الشخصية وراقب الشمس!';
+      msg = '← حرّك الشخصية يميناً ويساراً وراقب الشمس →';
       msgCol = '#1565C0';
-    } else if (totalDist < 300) {
+    } else if (totalDist < 250) {
       msg = '🤔 ماذا تلاحظ؟ هل الشمس تحركت؟';
       msgCol = '#E65100';
-    } else if (totalDist < 800) {
-      msg = '👀 الشمس تبدو في موضع مختلف... لكن هل تحركت فعلاً؟';
+    } else if (totalDist < 700) {
+      msg = '👀 الشمس تبدو في موضع مختلف — لكن هل تحركت فعلاً؟';
       msgCol = '#6A1B9A';
     } else {
-      msg = '💡 أنت الذي تتحرك! الشمس ثابتة دائماً في مكانها.';
+      msg = '💡 أنت الذي تتحرك! الشمس ثابتة تماماً في مكانها.';
       msgCol = '#1B5E20';
     }
 
-    // Message background
-    const msgW = Math.min(w * 0.82, 520);
+    const msgW = Math.min(w * 0.88, 560);
     const msgX = (w - msgW) / 2;
-    const msgY = h * 0.04;
-    c.fillStyle = 'rgba(255,255,255,0.92)';
+    const msgY = 10;
+    c.fillStyle = 'rgba(255,255,255,0.94)';
     c.strokeStyle = msgCol; c.lineWidth = 2;
-    c.beginPath(); c.roundRect(msgX, msgY, msgW, 36, 10); c.fill(); c.stroke();
-    c.font = `bold ${Math.max(12, w * 0.018)}px Tajawal`;
+    c.beginPath(); c.roundRect(msgX, msgY, msgW, 34, 10); c.fill(); c.stroke();
+    c.font = `bold ${Math.max(12,w*0.017)}px Tajawal`;
     c.textAlign = 'center'; c.textBaseline = 'middle';
     c.fillStyle = msgCol;
-    c.fillText(msg, w / 2, msgY + 18);
+    c.fillText(msg, w/2, msgY + 17);
 
-    // ── Position HUD ──
-    // Sun position indicator at top-right of sky
-    const sunAngleDeg = Math.round(Math.atan2(sunSX - playerSX, -(sunSY - playerSY)) * 180 / Math.PI);
-    c.font = `${Math.max(11, w * 0.015)}px Tajawal`;
-    c.textAlign = 'left'; c.textBaseline = 'top';
-    c.fillStyle = 'rgba(255,255,255,0.9)';
-    c.fillText(`زاوية الشمس: ${sunAngleDeg}°`, 12, h * 0.66);
-    c.fillStyle = 'rgba(0,0,0,0.5)';
-    c.fillText(`موقعك: (${Math.round(px)}, ${Math.round(-py)})`, 12, h * 0.66 + 18);
-
-    // ── Conclusion banner (after enough movement) ──
-    if (totalDist > 1500) {
-      const banY = h * 0.70;
-      const banH = 62;
+    // ── Conclusion banner ──
+    if (totalDist > 1400) {
+      const banH = 56;
+      const banY = h - banH - 8;
       c.fillStyle = 'rgba(27,94,32,0.93)';
-      c.beginPath(); c.roundRect(w * 0.05, banY, w * 0.90, banH, 12); c.fill();
-      c.font = `bold ${Math.max(13, w * 0.019)}px Tajawal`;
+      c.beginPath(); c.roundRect(w*0.04, banY, w*0.92, banH, 12); c.fill();
+      c.font = `bold ${Math.max(13,w*0.018)}px Tajawal`;
       c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillStyle = '#FFFFFF';
-      c.fillText('🌟 الاستنتاج: الشمس ثابتة — أنت الذي تتحرك!', w / 2, banY + 20);
-      c.font = `${Math.max(11, w * 0.014)}px Tajawal`;
+      c.fillText('🌟 الاستنتاج: الشمس ثابتة — أنت الذي تتحرك!', w/2, banY + 18);
+      c.font = `${Math.max(11,w*0.014)}px Tajawal`;
       c.fillStyle = '#C8E6C9';
-      c.fillText('تغيّر موقعك يُغيّر زاوية رؤيتك للشمس فتبدو وكأنها تتحرك', w / 2, banY + 44);
+      c.fillText('تغيّر موقعك يُغيّر زاوية رؤيتك للشمس فتبدو وكأنها تتحرك', w/2, banY + 40);
     }
 
     animFrame = requestAnimationFrame(draw);
