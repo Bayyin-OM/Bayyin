@@ -3275,7 +3275,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
     <div id="sims-u5earth" class="sims-wrap" style="margin-top:28px">
       <div class="sims-header">
         <div class="sims-title">استقصاءات الوحدة ٦ — حركات الأرض</div>
-        <div class="sims-count">٣ استقصاءات</div>
+        <div class="sims-count">٤ استقصاءات</div>
       </div>
       <div class="sims-grid">
 
@@ -3295,6 +3295,16 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
             <div class="sim-num">درس ٣-٦ · دوران الأرض حول محورها</div>
             <div class="sim-name">الليل والنهار والفصول</div>
             <div class="sim-desc">استكشف كيف يُسبّب دوران الأرض الليل والنهار وكيف يُسبّب مدارها الفصول</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5earthorbit')">
+          <div class="sim-thumb t2">🌍</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٦-٥ · دوران الأرض حول الشمس</div>
+            <div class="sim-name">الفصول الأربعة</div>
+            <div class="sim-desc">شاهد كيف يُسبّب ميل محور الأرض تغيّر الفصول خلال دورانها حول الشمس</div>
           </div>
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
@@ -5826,6 +5836,7 @@ const SIM_META = {
   // ── الصف الخامس — الوحدة ٦: حركات الأرض ──
   g5earthsun:    { title: '١-٦ · الشمس والأرض والقمر', badge: '🌍 5', tabs: ['النظام الشمسي', 'مسارات الكواكب'] },
   g5rotation:    { title: '٣-٦ · دوران الأرض', badge: '🔄 5', tabs: ['الليل والنهار 🌓', 'الفصول الأربعة 🍂'] },
+  g5earthorbit:  { title: '٦-٥ · دوران الأرض حول الشمس', badge: '🌍 5', tabs: ['الفصول الأربعة 🍂'] },
   g5stars:       { title: '٧-٦ · استكشاف النجوم', badge: '⭐ 5', tabs: ['خريطة السماء 🗺️', 'أسماء النجوم ✨'] },
   adaptation: { title: 'نشاط 1-7 · التكيُّف', badge: '7-1', tabs: ['الثعلب الرملي 🦊', 'الجمل 🐪', 'نبات الصبّار 🌵'] },
   foodchain:  { title: 'نشاط 2-7 · السلاسل الغذائية', badge: '7-2', tabs: ['ارسم السلسلة 🔗', 'انتقال الطاقة ⚡'] },
@@ -6424,6 +6435,7 @@ function openSim(type) {
     g5rainbow:'الضوء الأبيض مليء بالألوان 🌈 — المنشور يكشفها!',
     g5earthsun:'الأرض تدور حول الشمس في 365 يوماً 🌍 — شاهد المسارات!',
     g5rotation:'دوران الأرض حول نفسها يصنع الليل والنهار 🌓 — شاهد العرض!',
+    g5earthorbit:'ميل محور الأرض هو سبب الفصول الأربعة 🍂 — شاهد كيف!'
     g5stars:'النجوم في السماء موجودة دائماً لكننا نراها ليلاً فقط! ⭐ — اكتشف أسماءها!',
     adaptation:'جاهز؟ 🦊 غيّر الإعدادات وشوف كيف تتأقلم الحيوانات!',
     foodchain:'تذكّر: الطاقة تنتقل من المنتج للمستهلك. ابدأ بالنبات! 🌿',
@@ -6681,6 +6693,7 @@ function startSim(type, tab) {
     g5rainbow:        [simG5Rainbow, simG5RainDrop],
     g5earthsun:       [simG5EarthSun, simG5OrbitalPaths],
     g5rotation:       [simG5DayNight, simG5Seasons],
+    g5earthorbit:     [simG5Seasons],
     g5stars:          [simG5StarMap, simG5StarNames],
     adaptation:   [simAdaptDesert, simAdaptOcean, simAdaptForest],
     foodchain:    [simFoodChainBuild, simFoodChainEnergy],
@@ -38166,7 +38179,7 @@ function simG5DayNight() {
     cv.onclick=function(){S.paused=!S.paused;};
   }
   function draw(){
-    if(currentSim!=='g5rotation') return;
+    if(currentSim!=='g5rotation' && currentSim!=='g5earthorbit') return;
     if(!S.paused) S.t+=0.015;
     c.fillStyle='#000820'; c.fillRect(0,0,w,h);
     // Stars on night side
@@ -38298,7 +38311,7 @@ function simG5Seasons() {
   const S=simState;
   if(!S.seasInit){S.seasInit=true;S.t=0;S.paused=false;cv.onclick=function(){S.paused=!S.paused;};}
   function draw(){
-    if(currentSim!=='g5rotation') return;
+    if(currentSim!=='g5rotation' && currentSim!=='g5earthorbit') return;
     if(!S.paused) S.t+=0.01;
     c.fillStyle='#000511'; c.fillRect(0,0,w,h);
     for(let i=0;i<60;i++){
