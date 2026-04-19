@@ -24603,116 +24603,113 @@ function simStaticElec1() {
     // ── Objects Row at bottom ──
     const N = OBJECTS.length;
     const slotW = w / N;
-    const objY  = h * .82;   // vertical center of objects row
-    const emojiSz = Math.max(36, Math.min(52, w * 0.075));
+    const shelfY = h * 0.72;          // top of shelf
+    const shelfH = h * 0.22;          // shelf height
+    const eCY    = shelfY + shelfH * 0.42;   // emoji center Y
+    const emojiSz = Math.max(40, Math.min(56, w * 0.082));
 
-    // Shelf line
-    c.strokeStyle = 'rgba(180,140,60,0.3)'; c.lineWidth = 1.5; c.setLineDash([6,5]);
-    c.beginPath(); c.moveTo(0, objY - emojiSz - 14); c.lineTo(w, objY - emojiSz - 14); c.stroke();
-    c.setLineDash([]);
+    // Shelf background strip
+    c.fillStyle = 'rgba(200,160,60,0.07)';
+    c.fillRect(0, shelfY, w, shelfH);
+    c.strokeStyle = 'rgba(200,160,60,0.25)'; c.lineWidth = 1.5;
+    c.beginPath(); c.moveTo(0, shelfY); c.lineTo(w, shelfY); c.stroke();
 
     S.activeObj = null;
 
-    OBJECTS.forEach((obj, i) => {
-      const cx = slotW * i + slotW / 2;
-      const cy = objY;
-      const dist = Math.hypot(bx - cx, (by + bo) - cy);
-      const pullZone = w * .22;
+    OBJECTS.forEach(function(obj, i) {
+      const cx   = slotW * i + slotW * 0.5;
+      const dist = Math.hypot(bx - cx, (by + bo) - eCY);
+      const pullZone = w * 0.20;
       const result   = S.results[obj.id];
 
-      // Determine if balloon is near this object
-      const testing = charged && !result && dist < pullZone;
-      if (testing) S.activeObj = obj.id;
+      // Is balloon near this slot?
+      const near = charged && !result && dist < pullZone;
+      if (near) S.activeObj = obj.id;
 
-      // Only NON-METALS (attracted:true) physically move toward balloon
-      let drawX = cx, drawY = cy;
-      if (testing && obj.attracted) {
-        const pull = Math.pow(1 - dist / pullZone, 2) * 18;
-        const dx = bx - cx, dy = (by + bo) - cy;
+      // NON-METALS drift toward balloon; metals stay put
+      var drawX = cx, drawY = eCY;
+      if (near && obj.attracted) {
+        const pull = Math.pow(1 - dist / pullZone, 2) * 16;
+        const dx = bx - cx, dy = (by + bo) - eCY;
         const len = Math.hypot(dx, dy) || 1;
         drawX = cx + (dx / len) * pull;
-        drawY = cy + (dy / len) * pull;
+        drawY = eCY + (dy / len) * pull;
       }
-      // Metals stay fixed — no movement
 
-      // Detect contact → record result (top of slot = objY - emojiSz)
-      const topDist = Math.hypot(bx - cx, (by + bo) - (objY - emojiSz));
-      if (charged && !result && topDist < bR * 1.4) {
+      // Record result when balloon touches slot
+      if (charged && !result && dist < bR + emojiSz * 0.6) {
         S.results[obj.id] = obj.attracted ? 'attracted' : 'repelled';
-        try { U9Sound.ping(obj.attracted ? 520 : 200, .15, .18); } catch (_) {}
+        try { U9Sound.ping(obj.attracted ? 520 : 220, .15, .18); } catch(e){}
         buildControls();
       }
 
-      // Draw attraction arrow — only for non-metals
-      if (testing && obj.attracted && dist < pullZone * .85) {
-        const prox = 1 - dist / pullZone;
-        const adx = bx - cx, ady = (by + bo) - cy;
-        const alen = Math.hypot(adx, ady) || 1;
-        const arLen = Math.min(prox * 44, 34);
-        const ax2 = cx + (adx / alen) * arLen, ay2 = cy + (ady / alen) * arLen;
+      // ── Slot card background ──
+      var slotPad = 5;
+      var rx = cx - slotW / 2 + slotPad;
+      var ry = shelfY + 4;
+      var rw = slotW - slotPad * 2;
+      var rh = shelfH - 8;
+      var bgCol = 'rgba(255,255,255,0.55)';
+      if (result === 'attracted') bgCol = 'rgba(39,174,96,0.18)';
+      else if (result === 'repelled') bgCol = 'rgba(192,57,43,0.14)';
+      else if (near) bgCol = 'rgba(142,68,173,0.13)';
+      c.fillStyle = bgCol;
+      c.strokeStyle = result === 'attracted' ? 'rgba(39,174,96,0.5)'
+                    : result === 'repelled'  ? 'rgba(192,57,43,0.4)'
+                    : near ? 'rgba(142,68,173,0.4)' : 'rgba(200,160,60,0.2)';
+      c.lineWidth = 1.5;
+      c.beginPath(); c.roundRect(rx, ry, rw, rh, 10); c.fill(); c.stroke();
+
+      // ── Attraction arrow (non-metals only) ──
+      if (near && obj.attracted && dist < pullZone * 0.9) {
+        var prox = 1 - dist / pullZone;
+        var adx = bx - cx, ady = (by + bo) - eCY;
+        var alen = Math.hypot(adx, ady) || 1;
+        var arLen = Math.min(prox * 40, 32);
+        var ax2 = cx + (adx / alen) * arLen;
+        var ay2 = eCY + (ady / alen) * arLen;
         c.save();
-        c.strokeStyle = `rgba(39,174,96,${0.5 + prox * 0.45})`; c.lineWidth = 2.2; c.lineCap = 'round';
-        c.beginPath(); c.moveTo(cx, cy); c.lineTo(ax2, ay2); c.stroke();
-        const ha2 = Math.atan2(ady, adx);
+        c.strokeStyle = 'rgba(39,174,96,0.85)'; c.lineWidth = 2.2; c.lineCap = 'round';
+        c.beginPath(); c.moveTo(cx, eCY); c.lineTo(ax2, ay2); c.stroke();
+        var ha2 = Math.atan2(ady, adx);
         c.beginPath(); c.moveTo(ax2, ay2);
-        c.lineTo(ax2 - Math.cos(ha2 - .45) * 10, ay2 - Math.sin(ha2 - .45) * 10);
-        c.lineTo(ax2 - Math.cos(ha2 + .45) * 10, ay2 - Math.sin(ha2 + .45) * 10);
-        c.closePath(); c.fillStyle = `rgba(39,174,96,${0.6 + prox * 0.35})`; c.fill();
+        c.lineTo(ax2 - Math.cos(ha2 - 0.45) * 9, ay2 - Math.sin(ha2 - 0.45) * 9);
+        c.lineTo(ax2 - Math.cos(ha2 + 0.45) * 9, ay2 - Math.sin(ha2 + 0.45) * 9);
+        c.closePath(); c.fillStyle = 'rgba(39,174,96,0.85)'; c.fill();
         c.restore();
       }
 
-      // Slot background
-      const slotPad = 6;
-      let bgColor = 'rgba(0,0,0,0.04)';
-      if (result === 'attracted') bgColor = 'rgba(39,174,96,0.13)';
-      if (result === 'repelled')  bgColor = 'rgba(192,57,43,0.10)';
-      if (testing && !result)     bgColor = 'rgba(142,68,173,0.10)';
-      c.fillStyle = bgColor;
-      c.beginPath();
-      c.roundRect(cx - slotW/2 + slotPad, objY - emojiSz - 14, slotW - slotPad*2, emojiSz*2 + 36, 10);
-      c.fill();
-
-      // Glow when testing
-      if (testing && obj.attracted) {
-        const prox2 = 1 - dist / pullZone;
-        c.shadowBlur = 16 * prox2; c.shadowColor = 'rgba(142,68,173,0.5)';
-      }
-
-      // Emoji
-      // Draw emoji larger and with white circle background for visibility
-      const eSize = emojiSz + 6;
+      // ── White circle behind emoji ──
       c.save();
       c.beginPath();
-      c.arc(drawX, drawY, eSize * 0.72, 0, Math.PI * 2);
-      c.fillStyle = 'rgba(255,255,255,0.82)';
+      c.arc(drawX, drawY, emojiSz * 0.68, 0, Math.PI * 2);
+      c.fillStyle = 'rgba(255,255,255,0.92)';
+      c.shadowBlur = (near && obj.attracted) ? 14 : 0;
+      c.shadowColor = 'rgba(142,68,173,0.5)';
       c.fill();
       c.restore();
-      c.font = eSize + 'px serif';
+
+      // ── Emoji ──
+      c.font = emojiSz + 'px serif';
       c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillText(obj.emoji, drawX, drawY);
-      c.shadowBlur = 0;
 
-      // Name label
-      c.font = `bold ${Math.min(13, w * .024)}px Tajawal`;
-      c.fillStyle = result === 'attracted' ? '#27AE60' : result === 'repelled' ? '#C0392B' : 'rgba(80,55,15,0.85)';
-      c.textAlign = 'center'; c.textBaseline = 'top';
-      c.fillText(obj.name, cx, objY + emojiSz/2 + 10);
+      // ── Name ──
+      var nameY = shelfY + shelfH * 0.72;
+      c.font = 'bold ' + Math.max(11, Math.min(14, w * 0.023)) + 'px Tajawal';
+      c.fillStyle = result === 'attracted' ? '#27AE60'
+                  : result === 'repelled'  ? '#C0392B'
+                  : 'rgba(80,55,15,0.9)';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(obj.name, cx, nameY);
 
-      // Result badge
+      // ── Result badge ──
       if (result) {
-        c.font = `bold ${Math.min(11, w * .020)}px Tajawal`;
+        var badgeY = shelfY + shelfH * 0.90;
+        c.font = 'bold ' + Math.max(10, Math.min(12, w * 0.020)) + 'px Tajawal';
         c.fillStyle = result === 'attracted' ? '#27AE60' : '#C0392B';
-        c.textAlign = 'center'; c.textBaseline = 'top';
-        c.fillText(result === 'attracted' ? '✅ يُجذب' : '❌ لا يُجذب', cx, objY + emojiSz/2 + 28);
-      }
-
-      // Dashed line from balloon to object when testing
-      if (testing && charged) {
-        const prox3 = 1 - dist / pullZone;
-        c.strokeStyle = `rgba(142,68,173,${.1 + prox3 * .25})`;
-        c.lineWidth = 1.2; c.setLineDash([4, 6]);
-        c.beginPath(); c.moveTo(bx, by + bo); c.lineTo(cx, cy - emojiSz); c.stroke();
-        c.setLineDash([]);
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillText(result === 'attracted' ? '✅ يُجذب' : '❌ لا يُجذب', cx, badgeY);
       }
     });
 
