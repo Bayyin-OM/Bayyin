@@ -5511,7 +5511,7 @@ const SIM_META = {
   magnets:      { title: 'نشاط 1-11 · المغناطيس وأقطابه', badge: '🧲 8', tabs: ['الجذب والتنافر 🧲', 'المواد المغناطيسية 🔬'] },
   magfield:     { title: 'نشاط 3-11 · المجال المغناطيسيّ', badge: '🧲 8', tabs: ['خطوط المجال 🔮', 'بوصلة تفاعلية 🧭', 'المجال الأرضي 🌍'] },
   electromagnet:{ title: 'نشاط 4-11 · الكهرومغناطيس', badge: '🧲 8', tabs: ['اصنع مغناطيساً ⚡', 'قوة الكهرومغناطيس 💪'] },
-  staticelec:   { title: 'نشاط 6-11 · الكهرباء الساكنة', badge: '⚡ 8', tabs: ['شحن الأجسام ⚡', 'التجاذب والتنافر 🔄'] },
+  staticelec:   { title: 'نشاط 6-11 · الكهرباء الساكنة', badge: '⚡ 8', tabs: ['شحن الأجسام ⚡', 'التجاذب والتنافر 🔄', 'التنافر الكهربائي 📏'] },
   circuit8:     { title: 'نشاط 9-11 · الدائرة الكهربائية', badge: '⚡ 8', tabs: ['دائرة متسلسلة 🔌', 'دائرة متوازية 🔀'] },
   magcompare:   { title: 'نشاط 2-11 · مقارنة أنواع المغناطيس', badge: '🧲 8', tabs: ['قياس القوة 📏', 'اختبار المواد 🔬'] },
   emstronger:   { title: 'نشاط 5-11 · تحسين الكهرومغناطيس', badge: '🧲 8', tabs: ['أثر اللفّات 🔁', 'أثر التيار ⚡'] },
@@ -6372,7 +6372,7 @@ function startSim(type, tab) {
     // ── الصف 8 — المغناطيسيّة والكهرباء ──
     magnets:      [simMagnets1, simMagnets2],
     electromagnet:[simElectromagnet1, simElectromagnet2],
-    staticelec:   [simStaticElec1, simStaticElec2],
+    staticelec:   [simStaticElec1, simStaticElec2, simStaticElec3],
     circuit8:     [simCircuit8Series, simCircuit8Parallel],
     magcompare:   [simMagCompare1, simMagCompare2],
     magfield:     [simMagField1, simMagField2, simMagField3],
@@ -22916,7 +22916,8 @@ function simStaticElec1() {
     papers:Array.from({length:8},(_,i)=>({x:.38+i%4*.07,y:.65+Math.floor(i/4)*.07,liftT:0,lifted:false})),
     balloonX:.28, balloonY:.42,
     drag:false, ox:0, oy:0,
-    rubbing:false, rubCount:0, lastRubY:0
+    rubbing:false, rubCount:0, lastRubY:0,
+    testObj:null, testAnim:0
   };
   const S=simState.se1;
 
@@ -22929,18 +22930,35 @@ function simStaticElec1() {
       </div>
       <div id="seQ" style="text-align:center;font-size:20px;font-weight:800;margin-top:8px;color:#8E44AD">الشحنة: محايد</div>
     </div>
+    <div class="ctrl-section" id="se1TestPanel" style="display:none">
+      <div class="ctrl-label">🧪 اختبر قوة الجذب</div>
+      <div style="font-size:12px;color:#555;margin-bottom:6px">اسحب البالون المشحون نحو الأجسام:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='paper'">📄 ورق</button>
+        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='thread'">🧵 خيط</button>
+        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='plastic'">🧴 بلاستيك</button>
+        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='gold'">🥇 ذهب</button>
+        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='copper'">🔌 نحاس</button>
+        <button class="ctrl-btn" style="font-size:12px;padding:5px 4px" onclick="simState.se1.testObj='silver'">🥈 فضة</button>
+      </div>
+      <div id="se1Result" style="margin-top:8px;font-size:13px;font-weight:700;text-align:center;min-height:20px"></div>
+    </div>
     <button class="ctrl-btn reset" onclick="
       simState.se1.charge=0;
       simState.se1.balloonX=.28;simState.se1.balloonY=.42;
-      simState.se1.rubCount=0;
+      simState.se1.rubCount=0;simState.se1.testObj=null;simState.se1.testAnim=0;
       simState.se1.papers.forEach(p=>{p.lifted=false;p.liftT=0});
-      document.getElementById('seQ').textContent='الشحنة: محايد'">↺ إعادة</button>
+      document.getElementById('seQ').textContent='الشحنة: محايد';
+      var tp=document.getElementById('se1TestPanel');if(tp)tp.style.display='none';
+      var rs=document.getElementById('se1Result');if(rs)rs.textContent='';
+      ">↺ إعادة</button>
     <div class="info-box" style="font-size:13px;line-height:1.9">
       الاحتكاك ينقل إلكترونات من<br>
       الشعر → البالون<br>
       البالون يصبح <strong>➖ سالب</strong><br>
       الشعر يصبح <strong style="color:#C0392B">➕ موجب</strong><br>
-      ويجذب الأوراق المحايدة
+      🟢 يجذب: الورق، الخيط، البلاستيك<br>
+      🔴 لا يجذب: الفلزات (ذهب، نحاس، فضة)
     </div>`);
 
   function gp(e){const r=cv.getBoundingClientRect(),sc=cv.width/r.width,s=e.touches?e.touches[0]:e;return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};}
@@ -22969,6 +22987,7 @@ function simStaticElec1() {
         if(el) el.textContent='الشحنة: '+'➖'.repeat(S.charge);
         try{U9Sound.ping(280+S.charge*60,.1,.12);}catch(e2){}
         S.papers.forEach((pp,i)=>{if(i<S.charge*1.8) pp.lifted=true;});
+        if(S.charge>=3){var tp=document.getElementById('se1TestPanel');if(tp)tp.style.display='block';}
       }
     }
     S.lastRubY=p.y;
@@ -22992,6 +23011,7 @@ function simStaticElec1() {
         if(el) el.textContent='الشحنة: '+'➖'.repeat(S.charge);
         try{U9Sound.ping(280+S.charge*60,.1,.12);}catch(e2){}
         S.papers.forEach((pp,i)=>{if(i<S.charge*1.8) pp.lifted=true;});
+        if(S.charge>=3){var tp=document.getElementById('se1TestPanel');if(tp)tp.style.display='block';}
       }
     }
     S.lastRubY=p.y; S.balloonX=newX; S.balloonY=newY;
@@ -23098,6 +23118,59 @@ function simStaticElec1() {
 
     const hint=S.charge>0?'✨ ممتاز! البالون مشحون سالباً':'✋ اسحب البالون على شعر الشخص';
     U9.txt(c,hint,w/2,h-.06*h,'rgba(120,80,20,.6)',12,true);
+
+    // ── Test object panel (shown on canvas right side) ──
+    if(S.charge>=3 && S.testObj){
+      S.testAnim=Math.min(S.testAnim+1,60);
+      const prog=S.testAnim/60;
+
+      // attractable: paper, thread, plastic | not: gold, copper, silver
+      const attracted = ['paper','thread','plastic'].includes(S.testObj);
+      const objEmoji = {paper:'📄',thread:'🧵',plastic:'🧴',gold:'🥇',copper:'🔌',silver:'🥈'}[S.testObj];
+      const objName  = {paper:'الورق',thread:'الخيط',plastic:'البلاستيك',gold:'الذهب',copper:'النحاس',silver:'الفضة'}[S.testObj];
+
+      // Object placed at right side of canvas
+      const objX = w*0.78, objY = h*0.45;
+      c.font='42px serif'; c.textAlign='center'; c.textBaseline='middle';
+
+      if(attracted){
+        // Object leans toward balloon — animate with tilt
+        const tilt = prog * 0.45;
+        const driftX = -prog * 28;
+        c.save(); c.translate(objX+driftX, objY); c.rotate(-tilt);
+        c.fillText(objEmoji, 0, 0); c.restore();
+        // Thread/string connecting to balloon hint
+        if(S.testObj==='thread'){
+          const tx=bx+bR*.85, ty=by+bo;
+          c.strokeStyle='rgba(150,100,50,0.4)'; c.lineWidth=1.5; c.setLineDash([3,3]);
+          c.beginPath(); c.moveTo(tx,ty); c.lineTo(objX+driftX,objY-20); c.stroke(); c.setLineDash([]);
+        }
+        // Arrow toward balloon
+        c.strokeStyle='rgba(39,174,96,0.75)'; c.lineWidth=2.5;
+        const arLen = prog * 30;
+        c.beginPath(); c.moveTo(objX+driftX-20,objY); c.lineTo(objX+driftX-20-arLen,objY); c.stroke();
+        // Result label
+        const el=document.getElementById('se1Result');
+        if(el) el.innerHTML=`<span style="color:#27AE60">✅ ${objName} يُجذب! (غير موصل — تتحرك شحناته)</span>`;
+      } else {
+        // Metal — stays put
+        c.fillText(objEmoji, objX, objY);
+        // X mark
+        const el=document.getElementById('se1Result');
+        if(el) el.innerHTML=`<span style="color:#C0392B">❌ ${objName} لا يُجذب! (فلز موصل — شحناته تتحرك بحرية وتعادل الأثر)</span>`;
+      }
+
+      // Label
+      c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`; c.fillStyle=attracted?'#27AE60':'#C0392B';
+      c.textAlign='center'; c.textBaseline='top';
+      c.fillText(objName, objX, objY+30);
+
+      // Background label panel
+      c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`;
+      c.fillStyle='rgba(100,60,20,0.5)'; c.textAlign='right';
+      c.fillText('← قرّب البالون', objX-10, objY-48);
+    }
+
     animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
   }
   draw();
@@ -28068,13 +28141,7 @@ function repro_gametes(){
     // ─── 5. EGG in right tube ───
     // In simulation phase, egg can travel toward uterus
     let eX = cx+uW*1.18, eY = tubeY-h*0.082;
-    if((S.phase==='simulation'||S.phase==='done') && S.fertilised && S.eggTravel>0){
-      // Travel along bezier from tube toward uterus opening
-      const t=Math.min(S.eggTravel,0.85);
-      // Interpolate from egg position toward rtX1,rtY1
-      eX = eX*(1-t) + (rtX1+cx*0.5)*t;
-      eY = eY*(1-t) + (tubeY+h*0.04)*t;
-    }
+    // Egg stays in place after fertilisation (no movement)
     const eR=Math.min(h*0.075,w*0.065,40);
 
     // Glow
@@ -28146,7 +28213,7 @@ function repro_gametes(){
     // ─── 7. FERTILISATION EFFECT ───
     if(isFert){
       S.fertAnim=Math.min(S.fertAnim+1,140);
-      S.eggTravel=Math.min(S.eggTravel+0.0022,1);
+      // eggTravel disabled
       const prog=S.fertAnim/140;
 
       // Burst ring
@@ -28158,15 +28225,6 @@ function repro_gametes(){
 
       // Fertilised egg badge
       badge(c,'🥚 بويضة مخصّبة — 46 كروموسوم',eX,eY+eR+22,'rgba(255,215,60,1)');
-
-      // Travel arrow after a moment
-      if(prog>0.38){
-        const al=Math.min(1,(prog-0.38)/0.28);
-        c.globalAlpha=al;
-        c.strokeStyle='rgba(255,215,0,0.80)'; c.lineWidth=2.5; c.setLineDash([7,5]);
-        c.beginPath(); c.moveTo(eX,eY+eR+36); c.lineTo(cx+uW*0.55,tubeY+8); c.stroke();
-        c.setLineDash([]); c.globalAlpha=1;
-      }
 
       if(prog>0.42){
         const al=Math.min(1,(prog-0.42)/0.25);
@@ -47573,4 +47631,286 @@ function simG9Ohm2(){
   </div>
 </div>
 </body>
-</html>
+</html
+
+// ══════════════════════════════════════════════════════════════
+// 11-6 · TAB 3 — التنافر الكهربائي (قضيبان بلاستيك)
+// محاكاة نشاط الكتاب: قضيب معلق + قضيب يقترب
+// ══════════════════════════════════════════════════════════════
+function simStaticElec3(){
+  cancelAnimationFrame(animFrame);
+  const cv=document.getElementById('simCanvas');
+  const c=cv.getContext('2d');
+
+  if(!simState.se3) simState.se3={
+    t:0,
+    // Phase: 'intro' → 'charge1' → 'charge2' → 'test'
+    phase:'intro',
+    rod1Charged:false,  // hanging rod
+    rod2Charged:false,  // approaching rod
+    // rod2 type: 'same' (plastic) or 'diff' (glass)
+    rod2Type:'same',
+    // rod2 position (draggable)
+    rod2X:0.82, rod2Y:0.46,
+    drag:false, ox:0, oy:0,
+    // deflection angle of hanging rod (radians)
+    deflect:0,
+    // charge level 0-3
+    charge1:0, charge2:0,
+    rubAnim:0, rubbing:false,
+    // cloth rubbing animation
+    clothX:0, clothMoving:false, clothDir:1,
+    showResult:false, resultMsg:'', resultCol:''
+  };
+  const S=simState.se3;
+
+  function updateControls(){
+    controls(`
+      <div class="ctrl-section">
+        <div class="ctrl-label">📏 التنافر الكهربائي</div>
+        <div style="font-size:12.5px;color:#555;line-height:1.9;margin:4px 0">
+          ${S.phase==='intro'?'اشحن القضيب المعلق أولاً بالقماش':''}
+          ${S.phase==='charge1'?'✅ القضيب المعلق جاهز — اختر نوع القضيب الثاني':''}
+          ${S.phase==='charge2'||S.phase==='test'?'اسحب القضيب الثاني نحو المعلق':''}
+        </div>
+      </div>
+      ${S.phase==='intro'?`
+      <button class="ctrl-btn play" onclick="simState.se3.phase='charge1';simState.se3.rod1Charged=true;simState.se3.charge1=3;window._se3UpdateControls&&window._se3UpdateControls()">🧻 احتك بالقماش لشحن القضيب</button>
+      `:''}
+      ${S.phase==='charge1'?`
+      <div class="ctrl-label" style="margin-top:8px">اختر القضيب الثاني:</div>
+      <button class="ctrl-btn" onclick="simState.se3.rod2Type='same';simState.se3.phase='charge2';simState.se3.rod2Charged=true;simState.se3.charge2=3;simState.se3.rod2X=0.82;simState.se3.rod2Y=0.46;window._se3UpdateControls&&window._se3UpdateControls()">
+        🟫 نفس البلاستيك (سالب ➖)
+      </button>
+      <button class="ctrl-btn" style="margin-top:4px" onclick="simState.se3.rod2Type='diff';simState.se3.phase='charge2';simState.se3.rod2Charged=true;simState.se3.charge2=3;simState.se3.rod2X=0.82;simState.se3.rod2Y=0.46;window._se3UpdateControls&&window._se3UpdateControls()">
+        🔲 زجاج (موجب ➕)
+      </button>
+      `:''}
+      ${S.phase==='charge2'||S.phase==='test'?`
+      <div class="info-box" style="font-size:12.5px;line-height:2;margin-top:6px">
+        القضيب المعلق: <strong style="color:#8E44AD">➖ سالب</strong><br>
+        القضيب الثاني: <strong style="color:${S.rod2Type==='same'?'#8E44AD':'#C0392B'}">${S.rod2Type==='same'?'➖ سالب (بلاستيك)':'➕ موجب (زجاج)'}</strong><br>
+        ${S.rod2Type==='same'?'<span style="color:#C0392B">➖ + ➖ = تنافر 💥</span>':'<span style="color:#27AE60">➖ + ➕ = تجاذب ❤️</span>'}
+      </div>
+      `:''}
+      <button class="ctrl-btn reset" style="margin-top:8px" onclick="simState.se3=null;simStaticElec3()">↺ إعادة</button>
+      <div class="q-box" style="margin-top:8px">
+        <strong>❓ ماذا يحدث لو اقتربنا بقضيبين من نفس النوع؟</strong>
+        <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
+        <div class="q-ans-panel">يتنافران — لأن الشحنات المتشابهة تتنافر. القضيب المعلق يبتعد عن القضيب المقترب.</div>
+      </div>
+    `);
+    window._se3UpdateControls=updateControls;
+  }
+  updateControls();
+
+  function gp(e){
+    const r=cv.getBoundingClientRect(),sc=cv.width/r.width;
+    const s=(e.changedTouches&&e.changedTouches[0])||(e.touches&&e.touches[0])||e;
+    return{x:(s.clientX-r.left)*sc,y:(s.clientY-r.top)*sc};
+  }
+
+  // Drag rod2
+  function onDown(e){
+    if(currentSim!=='staticelec'||currentTab!==2)return;
+    if(S.phase!=='charge2'&&S.phase!=='test')return;
+    const p=gp(e),w=cv.width,h=cv.height;
+    const rx=S.rod2X*w, ry=S.rod2Y*h;
+    if(Math.hypot(p.x-rx,p.y-ry)<55){S.drag=true;S.ox=p.x-rx;S.oy=p.y-ry;}
+  }
+  function onMove(e){
+    if(!S.drag)return;
+    const p=gp(e),w=cv.width,h=cv.height;
+    S.rod2X=Math.max(0.38,Math.min(0.95,(p.x-S.ox)/w));
+    S.rod2Y=Math.max(0.15,Math.min(0.75,(p.y-S.oy)/h));
+    S.phase='test';
+  }
+  function onUp(){ S.drag=false; }
+
+  cv.addEventListener('mousedown',onDown);
+  cv.addEventListener('mousemove',onMove);
+  cv.addEventListener('mouseup',onUp);
+  cv.addEventListener('touchstart',e=>{e.preventDefault();onDown(e);},{passive:false});
+  cv.addEventListener('touchmove', e=>{e.preventDefault();onMove(e);},{passive:false});
+  cv.addEventListener('touchend',  e=>{e.preventDefault();onUp();}, {passive:false});
+
+  // Draw hanging rod (pendulum style)
+  function drawHangingRod(cx2,topY,angle,charged,label){
+    const rodL=h*0.22, rodW=Math.max(14,w*0.028);
+    // pivot point at top
+    const pivX=cx2, pivY=topY;
+    // string
+    const strL=h*0.10;
+    const strEndX=pivX+Math.sin(angle)*strL;
+    const strEndY=pivY+Math.cos(angle)*strL;
+    c.strokeStyle='rgba(100,80,60,0.7)'; c.lineWidth=1.8;
+    c.beginPath(); c.moveTo(pivX,pivY); c.lineTo(strEndX,strEndY); c.stroke();
+    // rod
+    c.save(); c.translate(strEndX,strEndY+rodL/2); c.rotate(angle);
+    const grad=c.createLinearGradient(-rodW/2,0,rodW/2,0);
+    if(charged){
+      grad.addColorStop(0,'#7D3C98'); grad.addColorStop(0.5,'#A04DC0'); grad.addColorStop(1,'#7D3C98');
+    } else {
+      grad.addColorStop(0,'#8B7355'); grad.addColorStop(0.5,'#A08060'); grad.addColorStop(1,'#8B7355');
+    }
+    c.fillStyle=grad;
+    c.beginPath(); c.roundRect(-rodW/2,-rodL/2,rodW,rodL,5); c.fill();
+    c.strokeStyle=charged?'#5B2C8C':'#6B5B45'; c.lineWidth=1.8; c.stroke();
+    // charge symbols
+    if(charged){
+      c.font=`bold ${Math.min(14,w*0.028)}px Arial`; c.textAlign='center'; c.fillStyle='white';
+      for(let i=0;i<4;i++) c.fillText('➖',0,-rodL*0.3+i*(rodL*0.18));
+    }
+    c.restore();
+    // label
+    c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`; c.fillStyle='rgba(60,40,80,0.9)';
+    c.textAlign='center'; c.textBaseline='top';
+    c.fillText(label,pivX,pivY-18);
+  }
+
+  // Draw approaching rod (horizontal)
+  function drawRod2(rx,ry,type,charged){
+    const rodL=h*0.22, rodW=Math.max(14,w*0.028);
+    c.save(); c.translate(rx,ry); c.rotate(Math.PI/2);
+    const grad=c.createLinearGradient(-rodW/2,0,rodW/2,0);
+    if(type==='same'){
+      grad.addColorStop(0,'#7D3C98'); grad.addColorStop(0.5,'#A04DC0'); grad.addColorStop(1,'#7D3C98');
+    } else {
+      grad.addColorStop(0,'#1A5276'); grad.addColorStop(0.5,'#2980B9'); grad.addColorStop(1,'#1A5276');
+    }
+    c.fillStyle=grad;
+    c.beginPath(); c.roundRect(-rodW/2,-rodL/2,rodW,rodL,5); c.fill();
+    c.strokeStyle=type==='same'?'#5B2C8C':'#1A5276'; c.lineWidth=1.8; c.stroke();
+    // charge symbols
+    if(charged){
+      c.font=`bold ${Math.min(14,w*0.028)}px Arial`; c.textAlign='center'; c.fillStyle='white';
+      const sym=type==='same'?'➖':'➕';
+      for(let i=0;i<4;i++) c.fillText(sym,0,-rodL*0.3+i*(rodL*0.18));
+    }
+    c.restore();
+    // label
+    const lbl=type==='same'?'بلاستيك ➖':'زجاج ➕';
+    c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`;
+    c.fillStyle=type==='same'?'#7D3C98':'#2980B9';
+    c.textAlign='center'; c.textBaseline='top';
+    c.fillText(lbl,rx,ry+h*0.13);
+  }
+
+  function draw(){
+    if(currentSim!=='staticelec'||currentTab!==2)return;
+    S.t+=0.04;
+    const w=cv.width,h=cv.height;
+    c.clearRect(0,0,w,h);
+
+    // Background — lab style
+    c.fillStyle='#F5F0E8'; c.fillRect(0,0,w,h);
+    U9.grid(c,w,h,'rgba(180,160,120,0.08)',40);
+
+    // Ceiling beam
+    c.fillStyle='#8B6914'; c.beginPath(); c.roundRect(w*0.22,h*0.06,w*0.26,h*0.04,4); c.fill();
+    c.fillStyle='#A07820'; c.beginPath(); c.roundRect(w*0.22,h*0.06,w*0.26,h*0.015,3); c.fill();
+
+    // Title
+    c.font=`bold ${Math.min(15,w*0.032)}px Tajawal`; c.fillStyle='rgba(60,40,80,0.92)';
+    c.textAlign='center'; c.textBaseline='top';
+    c.fillText('ملاحظة التنافر الكهربائي 📏',w/2,h*0.015);
+
+    // ── Compute hanging rod deflection ──
+    let targetDeflect=0;
+    if(S.phase==='test' && S.rod1Charged && S.rod2Charged){
+      const rod1X=w*0.35, rod1TopY=h*0.10;
+      // distance from rod2 to hanging rod center
+      const hangMidX=rod1X, hangMidY=rod1TopY+h*0.22;
+      const dist=Math.hypot(S.rod2X*w-hangMidX, S.rod2Y*h-hangMidY);
+      const maxDist=w*0.30;
+      const prox=Math.max(0,1-dist/maxDist);
+      if(S.rod2Type==='same'){
+        // repulsion — deflect away from rod2
+        const dir=S.rod2X>0.35?1:-1;
+        targetDeflect=dir*prox*0.55;
+      } else {
+        // attraction — deflect toward rod2
+        const dir=S.rod2X>0.35?1:-1;
+        targetDeflect=dir*prox*0.45;
+      }
+    }
+    S.deflect+=(targetDeflect-S.deflect)*0.07;
+
+    // ── Draw hanging rod ──
+    const rod1CX=w*0.35, rod1TopY=h*0.10;
+    drawHangingRod(rod1CX, rod1TopY, S.deflect, S.rod1Charged,
+      S.rod1Charged?'قضيب بلاستيك مشحون ➖':'قضيب بلاستيك (محايد)');
+
+    // ── Intro phase: draw cloth rubbing ──
+    if(S.phase==='intro'){
+      // cloth
+      c.fillStyle='rgba(180,140,80,0.85)'; c.strokeStyle='#8B6914'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.55,h*0.35,w*0.18,h*0.12,6); c.fill(); c.stroke();
+      c.font=`${Math.min(13,w*0.028)}px Tajawal`; c.fillStyle='#5A3A10'; c.textAlign='center';
+      c.fillText('قطعة قماش',w*0.64,h*0.50);
+      // Arrow hint
+      c.font=`bold ${Math.min(12,w*0.026)}px Tajawal`; c.fillStyle='rgba(142,68,173,0.75)';
+      c.fillText('← احتك بالقضيب',w*0.64,h*0.57);
+    }
+
+    // ── Draw rod2 (when charged/chosen) ──
+    if(S.phase==='charge2'||S.phase==='test'){
+      drawRod2(S.rod2X*w, S.rod2Y*h, S.rod2Type, S.rod2Charged);
+
+      // ── Force arrows & result ──
+      const rod1X=w*0.35, rod1TopY2=h*0.10;
+      const hangMidX=rod1X+Math.sin(S.deflect)*h*0.21;
+      const hangMidY=rod1TopY2+h*0.21;
+      const dist=Math.hypot(S.rod2X*w-hangMidX,S.rod2Y*h-hangMidY);
+      const maxDist=w*0.32;
+      const prox=Math.max(0,1-dist/maxDist);
+
+      if(prox>0.15&&S.phase==='test'){
+        const same=S.rod2Type==='same';
+        const col=same?'rgba(192,57,43,':'rgba(39,174,96,';
+        const label=same?'💥 تنافر!':'❤️ تجاذب!';
+
+        // Force arc between rods
+        c.strokeStyle=col+(0.4+prox*0.45)+')'; c.lineWidth=2+prox*3;
+        c.setLineDash([5,5]);
+        c.beginPath();
+        c.moveTo(hangMidX,hangMidY);
+        c.quadraticCurveTo((hangMidX+S.rod2X*w)/2,hangMidY-h*0.08,S.rod2X*w,S.rod2Y*h);
+        c.stroke(); c.setLineDash([]);
+
+        // Label on arc
+        c.font=`bold ${Math.min(16,w*0.034)}px Tajawal`;
+        c.fillStyle=col+'0.95)';
+        c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(label,(hangMidX+S.rod2X*w)/2,hangMidY-h*0.10);
+
+        // Big result box
+        if(prox>0.45){
+          const bw=w*0.7, bx2=(w-bw)/2, by2=h*0.82;
+          c.fillStyle=same?'rgba(192,57,43,0.10)':'rgba(39,174,96,0.10)';
+          c.strokeStyle=same?'rgba(192,57,43,0.5)':'rgba(39,174,96,0.5)'; c.lineWidth=2;
+          c.beginPath(); c.roundRect(bx2,by2,bw,h*0.12,10); c.fill(); c.stroke();
+          c.font=`bold ${Math.min(14,w*0.030)}px Tajawal`;
+          c.fillStyle=same?'#922B21':'#1E8449';
+          c.textAlign='center'; c.textBaseline='middle';
+          c.fillText(same?'الشحنات المتشابهة (➖ و ➖) تتنافر 💥':'الشحنات المختلفة (➖ و ➕) تتجاذب ❤️',w/2,by2+h*0.06);
+        }
+      }
+    }
+
+    // ── Hint ──
+    const hint=S.phase==='intro'?'اضغط "احتك بالقماش" لشحن القضيب':
+               S.phase==='charge1'?'اختر نوع القضيب الثاني من القائمة':
+               S.phase==='charge2'?'اسحب القضيب نحو القضيب المعلق 👈':
+               S.deflect===0?'قرّب القضيب أكثر نحو القضيب المعلق':'';
+    if(hint){
+      c.font=`${Math.min(12,w*0.026)}px Tajawal`; c.fillStyle='rgba(100,70,30,0.6)';
+      c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText(hint,w/2,h*0.97);
+    }
+
+    animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
+  }
+  draw();
+}
+>
