@@ -42855,20 +42855,20 @@ function simG9WaterGas2(){
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
     // ── Lab bench ──
-    const benchY=h*0.78;
+    const benchY=h*0.68;
     const benchG=c.createLinearGradient(0,benchY,0,h);
     benchG.addColorStop(0,'#D7CCC8'); benchG.addColorStop(1,'#8D6E63');
     c.fillStyle=benchG; c.fillRect(0,benchY,w,h-benchY);
     c.strokeStyle='#795548'; c.lineWidth=2;
     c.beginPath(); c.moveTo(0,benchY); c.lineTo(w,benchY); c.stroke();
 
-    // ── Flask — left-center, smaller and properly round ──
-    const fcx=w*0.38;
-    const bodyR=Math.min(w*0.18, h*0.22);   // radius of round body
-    const neckW=bodyR*0.55;
-    const neckH=bodyR*1.0;
-    const bodyCY=benchY - bodyR*1.05;        // body center Y (sits on bench)
-    const neckTopY=bodyCY - bodyR - neckH;   // top of neck (open end)
+    // ── Flask — centered, compact size ──
+    const fcx=w*0.42;
+    const bodyR=Math.min(w*0.14, h*0.16);
+    const neckW=bodyR*0.52;
+    const neckH=bodyR*0.88;
+    const bodyCY=benchY - bodyR*1.02;
+    const neckTopY=bodyCY - bodyR - neckH;
 
     // gas fill (clipped inside flask)
     c.save();
@@ -42913,8 +42913,8 @@ function simG9WaterGas2(){
     c.fillStyle=gas.col+'BB';
     c.fillText(gas.icon, fcx, bodyCY+bodyR*0.15);
 
-    // flask label below bench
-    _lbl(c,gas.name, fcx, benchY+h*0.055, gas.col, Math.max(11,w*0.019));
+    // flask label on bench surface
+    _lbl(c,gas.name, fcx, benchY+h*0.022, gas.col, Math.max(11,w*0.018));
 
     // ── Splint — comes from top-right, enters neck ──
     // tip travels from just above the neck opening down into the neck
@@ -42958,12 +42958,16 @@ function simG9WaterGas2(){
           c.beginPath(); c.arc(splintTipX+Math.cos(sa)*sr, splintTipY+Math.sin(sa)*sr-sr*0.3, 2.5,0,Math.PI*2); c.fill();
         }
       }
-      // "يشتعل!" label when fully inside
+      // "يشتعل!" label above neck opening — clear space
       if(prog>0.55){
-        c.font=`bold ${Math.max(13,w*0.022)}px Tajawal`;
+        const labelY=Math.max(h*0.10, neckTopY-18);
+        c.font=`bold ${Math.max(14,w*0.024)}px Tajawal`;
         c.textAlign='center'; c.textBaseline='bottom';
+        // shadow
+        c.fillStyle='rgba(255,255,255,0.7)';
+        c.fillText('🔥 يشتعل العود!', fcx+1, labelY+1);
         c.fillStyle=gas.col;
-        c.fillText('🔥 يشتعل العود!', fcx, neckTopY-8);
+        c.fillText('🔥 يشتعل العود!', fcx, labelY);
       }
     }
 
@@ -42993,33 +42997,37 @@ function simG9WaterGas2(){
         c.fillStyle=`rgba(255,${100+i*10},0,${0.9-burst*0.6})`;
         c.beginPath(); c.arc(fcx+Math.cos(fa)*fr, bodyCY+Math.sin(fa)*fr, 3+i%3,0,Math.PI*2); c.fill();
       }
-      // 💥 label
+      // 💥 label above neck
       if(burst>0.3){
-        c.font=`bold ${Math.max(16,w*0.03)}px Tajawal`;
+        const labelY2=Math.max(h*0.10, neckTopY-18);
+        c.font=`bold ${Math.max(14,w*0.025)}px Tajawal`;
         c.textAlign='center'; c.textBaseline='bottom';
+        c.fillStyle='rgba(255,255,255,0.7)';
+        c.fillText('💥 فرقعة حادة!', fcx+1, labelY2+1);
         c.fillStyle='#E74C3C';
-        c.fillText('💥 فرقعة حادة!', fcx, neckTopY-8);
+        c.fillText('💥 فرقعة حادة!', fcx, labelY2);
       }
     }
 
     // ── Title ──
     _lbl(c,`اختبار ${gas.name} بعود الثقاب`,w/2,h*0.055,gas.col,Math.max(14,w*0.024));
 
-    // ── Hint before test ──
+    // ── Hint before test — inside bench area ──
     if(!S.testing){
-      c.fillStyle='rgba(0,0,0,0.06)'; c.beginPath(); c.roundRect(w*0.08,h*0.86,w*0.84,h*0.07,8); c.fill();
-      _lbl(c,'اضغط "ابدأ الاختبار" لإدخال عود الثقاب',w/2,h*0.895,'#666',Math.max(10,w*0.017));
+      const hintY=benchY+h*0.028;
+      c.fillStyle='rgba(255,255,255,0.18)'; c.beginPath(); c.roundRect(w*0.08,hintY,w*0.84,h*0.075,8); c.fill();
+      _lbl(c,'اضغط "ابدأ الاختبار" لإدخال عود الثقاب 🔥',w/2,hintY+h*0.038,'#fff',Math.max(11,w*0.018));
     }
 
-    // ── Result panel ──
+    // ── Result panel — below bench, always visible ──
     if(S.progress>60){
-      const ry=h*0.855, rh=h*0.10;
-      c.fillStyle=gas.col+'20'; c.beginPath(); c.roundRect(w*0.05,ry,w*0.90,rh,10); c.fill();
-      c.strokeStyle=gas.col+'55'; c.lineWidth=1.5;
-      c.beginPath(); c.roundRect(w*0.05,ry,w*0.90,rh,10); c.stroke();
-      _lbl(c,gas.result,w/2,ry+rh*0.38,gas.col,Math.max(12,w*0.022));
-      c.fillStyle='#666'; c.font=`${Math.max(9,w*0.015)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
-      c.fillText(gas.resultSub,w/2,ry+rh*0.82);
+      const ry=benchY+h*0.03, rh=h*0.115;
+      c.fillStyle=gas.col+'28'; c.beginPath(); c.roundRect(w*0.05,ry,w*0.90,rh,12); c.fill();
+      c.strokeStyle=gas.col+'66'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.05,ry,w*0.90,rh,12); c.stroke();
+      _lbl(c,gas.result,w/2,ry+rh*0.35,gas.col,Math.max(13,w*0.022));
+      c.fillStyle='#555'; c.font=`${Math.max(10,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText(gas.resultSub,w/2,ry+rh*0.78);
     }
 
     animFrame=requestAnimationFrame(draw);
@@ -43159,12 +43167,12 @@ function simG9WaterGas3(){
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
     // Lab bench
-    const benchY=h*0.80;
+    const benchY=h*0.75;
     const benchG=c.createLinearGradient(0,benchY,0,h);
-    benchG.addColorStop(0,'#BCAAA4'); benchG.addColorStop(1,'#8D6E63');
-    c.fillStyle=benchG; c.beginPath(); c.roundRect(w*0.02,benchY,w*0.96,h*0.14,4); c.fill();
-    c.strokeStyle='#795548'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(w*0.02,benchY); c.lineTo(w*0.98,benchY); c.stroke();
+    benchG.addColorStop(0,'#D7CCC8'); benchG.addColorStop(1,'#8D6E63');
+    c.fillStyle=benchG; c.fillRect(0,benchY,w,h-benchY);
+    c.strokeStyle='#795548'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(0,benchY); c.lineTo(w,benchY); c.stroke();
 
     // Title
     _lbl(c,gas.name,w/2,h*0.06,gas.col,Math.max(14,w*0.026));
@@ -43201,7 +43209,7 @@ function simG9WaterGas3(){
       }
     } else {
       // NH₃ or Cl₂: litmus paper
-      const pcx=w*0.72, ppy=h*0.22, ppw=w*0.16, pph=h*0.44;
+      const pcx=w*0.70, ppy=h*0.18, ppw=w*0.20, pph=h*0.50;
 
       if(S.gas===0){
         // NH₃: RED → BLUE
@@ -43214,7 +43222,7 @@ function simG9WaterGas3(){
         _drawLitmusPaper(c,pcx,ppy,ppw,pph,mr,mg,mb,'ورقة تبّاع الشمس الحمراء','#C0392B');
         // label showing current state
         const stateLabel=prog<0.15?'🔴 حمراء':prog<0.7?'🔄 تتحول...':'🔵 زرقاء';
-        _lbl(c,stateLabel,pcx,ppy+pph+h*0.05,'#27AE60',Math.max(10,w*0.018));
+        _lbl(c,stateLabel,pcx,ppy+pph+h*0.025,'#27AE60',Math.max(11,w*0.019));
 
       } else {
         // Cl₂: BLUE → RED → WHITE (two stages)
@@ -43235,9 +43243,9 @@ function simG9WaterGas3(){
           stateLabel2=t2<0.4?'🔄 تتبيّض...':'⬜ بيضاء (مُبيَّضة)';
         }
         _drawLitmusPaper(c,pcx,ppy,ppw,pph,mr2,mg2,mb2,'ورقة تبّاع الشمس الزرقاء الرطبة','#7B8D2A');
-        _lbl(c,stateLabel2,pcx,ppy+pph+h*0.05,'#7B8D2A',Math.max(10,w*0.018));
+        _lbl(c,stateLabel2,pcx,ppy+pph+h*0.025,'#7B8D2A',Math.max(11,w*0.019));
       }
-      _lbl(c,'ورقة تبّاع الشمس',pcx,benchY+h*0.05,'#555',Math.max(10,w*0.018));
+      _lbl(c,'ورقة تبّاع الشمس',pcx,benchY+h*0.02,'#555',Math.max(10,w*0.018));
     }
 
     // Before test hint
@@ -43246,13 +43254,15 @@ function simG9WaterGas3(){
       _lbl(c,'اضغط "أجرِ الاختبار" لتشغيل الغاز',w/2,h*0.92,'#555',Math.max(10,w*0.017));
     }
 
-    // Result panel
+    // Result panel — below bench
     if(S.progress>58){
-      const ry=h*0.855, rh=h*0.09;
-      c.fillStyle=gas.col+'18'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,10); c.fill();
-      _lbl(c,'✅ '+gas.result,w/2,ry+rh*0.38,gas.col,Math.max(11,w*0.019));
-      c.fillStyle='#555'; c.font=`${Math.max(9,w*0.015)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
-      c.fillText(gas.eq,w/2,ry+rh*0.82);
+      const ry=benchY+h*0.025, rh=h*0.115;
+      c.fillStyle=gas.col+'28'; c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,12); c.fill();
+      c.strokeStyle=gas.col+'55'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(w*0.04,ry,w*0.92,rh,12); c.stroke();
+      _lbl(c,'✅ '+gas.result,w/2,ry+rh*0.35,gas.col,Math.max(12,w*0.020));
+      c.fillStyle='#555'; c.font=`${Math.max(10,w*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText(gas.eq,w/2,ry+rh*0.78);
     }
 
     animFrame=requestAnimationFrame(draw);
