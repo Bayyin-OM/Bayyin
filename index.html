@@ -43188,24 +43188,29 @@ function simG9WaterGas3(){
       }
     }
 
-    // ── indicator (right side, 50%→95% width) ──
-    const iCX=w*0.73, iTY=TY+sceneH*0.06, iH=sceneH*0.86;
+    // ── indicator (right side) ──
+    // Limit indicator height to 55% of scene so it doesn't fill the whole canvas
+    const iCX=w*0.73, iH=Math.min(sceneH*0.52, 220);
+    // Centre the indicator vertically in the scene zone
+    const iTY=TY + (sceneH - iH)*0.38;
 
     if(S.gas===1){
-      // CO2: lime water beaker
-      const bW=w*0.34;
+      // CO2: lime water beaker — proportional width
+      const bW=Math.min(w*0.28, 200);
       _drawBeakerCO2(c,iCX,iTY,bW,iH,prog*0.85);
-      c.font=`${Math.max(9,w*0.015)}px Tajawal`;
+      // label ABOVE beaker — clear background so text doesn't overlap
+      c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='bottom';
       c.fillStyle=gas.col;
-      c.fillText('ماء الجير Ca(OH)₂', iCX, iTY-2);
+      c.fillText('ماء الجير Ca(OH)₂', iCX, iTY-6);
+      // bench label
       c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
       c.textBaseline='middle';
-      c.fillStyle='rgba(255,255,255,0.88)';
+      c.fillStyle='rgba(255,255,255,0.92)';
       c.fillText('ماء الجير', iCX, BY+BH/2);
     } else {
-      // NH3 / Cl2: litmus strip
-      const pW=w*0.24, pH=iH;
+      // NH3 / Cl2: litmus strip — compact width
+      const pW=Math.min(w*0.18, 130), pH=iH;
       let r,g2,b2,topLabel,stateLabel,stateCol;
 
       if(S.gas===0){
@@ -43231,41 +43236,44 @@ function simG9WaterGas3(){
         stateCol='#7B8D2A';
       }
 
-      // paper label above strip
-      c.font=`${Math.max(9,w*0.014)}px Tajawal`;
+      // label ABOVE strip with enough gap
+      c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='bottom';
       c.fillStyle=stateCol;
-      c.fillText(topLabel, iCX, iTY-2);
+      c.fillText(topLabel, iCX, iTY-6);
 
       // draw strip
       _drawLitmusPaper(c, iCX, iTY, pW, pH, r, g2, b2, '', stateCol);
 
-      // state label — INSIDE the strip bottom area (not below it)
-      c.font=`bold ${Math.max(11,w*0.018)}px Tajawal`;
+      // state label centred inside the strip
+      c.font=`bold ${Math.max(12,w*0.019)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='middle';
-      c.fillStyle='rgba(255,255,255,0.92)';
-      c.fillText(stateLabel, iCX, iTY+pH-20);
+      c.fillStyle='rgba(255,255,255,0.95)';
+      c.fillText(stateLabel, iCX, iTY+pH/2);
 
       // bench label
       c.font=`bold ${Math.max(10,w*0.016)}px Tajawal`;
-      c.fillStyle='rgba(255,255,255,0.88)';
+      c.fillStyle='rgba(255,255,255,0.92)';
       c.fillText('ورقة تبّاع الشمس', iCX, BY+BH/2);
     }
 
     // ── result strip ──
     if(S.progress>58){
       const ry=BY+BH, rh=h-ry;
-      c.font=`bold ${Math.max(12,w*0.020)}px Tajawal`;
+      // result background tint
+      c.fillStyle='rgba(255,255,255,0.85)'; c.fillRect(0,ry,w,rh);
+      c.font=`bold ${Math.max(13,w*0.021)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='middle';
       c.fillStyle=gas.col;
-      c.fillText('✅ '+gas.result, w/2, ry+rh*0.32);
-      c.font=`${Math.max(10,w*0.015)}px Tajawal`;
-      c.fillStyle='#555';
+      c.fillText('✅ '+gas.result, w/2, ry+rh*0.30);
+      // equation with dark colour for legibility
+      c.font=`${Math.max(11,w*0.016)}px Tajawal`;
+      c.fillStyle='#333';
       c.fillText(gas.eq, w/2, ry+rh*0.68);
     } else {
-      c.font=`${Math.max(10,w*0.015)}px Tajawal`;
+      c.font=`${Math.max(11,w*0.016)}px Tajawal`;
       c.textAlign='center'; c.textBaseline='middle';
-      c.fillStyle='#999';
+      c.fillStyle='#666';
       c.fillText('اضغط "أجرِ الاختبار" لتشغيل الغاز', w/2, BY+BH+(h-BY-BH)*0.5);
     }
     animFrame=requestAnimationFrame(draw);
