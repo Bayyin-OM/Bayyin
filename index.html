@@ -23053,6 +23053,7 @@ function simStaticElec3(){
         <div style="font-size:12.5px;color:#555;line-height:1.8;margin:4px 0">
           ${S.phase==='intro'||S.phase==='charging'?'<b>الخطوة 1:</b> اسحب القماش واحكّه على القضيب لشحنه':''}
           ${S.phase==='charge1'?'✅ القضيب المعلق جاهز — اختر القضيب الثاني':''}
+          ${S.phase==='rubrod2'?'<b>الخطوة 2:</b> اسحب قطعة الصوف واحكّها على قضيب الزجاج لشحنه موجباً ➕':''}
           ${S.phase==='charge2'||S.phase==='test'?'<b>الخطوة 2:</b> اسحب القضيب الثاني نحو المعلق':''}
         </div>
         ${chargeBar}
@@ -23062,9 +23063,15 @@ function simStaticElec3(){
       <button class="ctrl-btn" onclick="simState.se3.rod2Type='same';simState.se3.phase='charge2';simState.se3.rod2Charged=true;simState.se3.charge2=3;simState.se3.rod2X=0.82;simState.se3.rod2Y=0.46;window._se3UpdateControls&&window._se3UpdateControls()">
         🟫 بلاستيك (سالب ➖)
       </button>
-      <button class="ctrl-btn" style="margin-top:4px" onclick="simState.se3.rod2Type='diff';simState.se3.phase='charge2';simState.se3.rod2Charged=true;simState.se3.charge2=3;simState.se3.rod2X=0.82;simState.se3.rod2Y=0.46;window._se3UpdateControls&&window._se3UpdateControls()">
+      <button class="ctrl-btn" style="margin-top:4px" onclick="simState.se3.rod2Type='diff';simState.se3.phase='rubrod2';simState.se3.rod2Charged=false;simState.se3.charge2=0;simState.se3.rod2X=0.82;simState.se3.rod2Y=0.46;simState.se3.woolX=0.62;simState.se3.woolY=0.46;simState.se3.woolDrag=false;simState.se3.woolRubCount=0;window._se3UpdateControls&&window._se3UpdateControls()">
         🔲 زجاج (موجب ➕)
       </button>
+      `:''}
+      ${S.phase==='rubrod2'?`
+      <div style="margin:6px 0;background:#eee;border-radius:6px;height:8px;overflow:hidden">
+        <div style="width:${Math.round((S.charge2||0)/3*100)}%;height:100%;background:linear-gradient(90deg,#1A5276,#2E86C1);border-radius:6px;transition:width 0.3s"></div>
+      </div>
+      <div style="font-size:11px;color:#2E86C1;text-align:center">${['','شحنة ضعيفة ⚡','شحنة جيدة ⚡⚡','مشحون بالكامل! ⚡⚡⚡'][Math.min(3,Math.floor(S.charge2||0))]}</div>
       `:''}
       ${S.phase==='charge2'||S.phase==='test'?`
       <div class="info-box" style="font-size:12.5px;line-height:2;margin-top:6px">
@@ -23113,7 +23120,7 @@ function simStaticElec3(){
   }
 
   /* ── Pointer events for cloth + rod2 drag ── */
-  let lastClothX=0;
+  let lastClothX=0, lastWoolX=0;
   function onDown(e){
     if(currentSim!=='staticelec'||currentTab!==2)return;
     const p=gp(e);
@@ -23123,6 +23130,13 @@ function simStaticElec3(){
       if(p.x>cr.x&&p.x<cr.x+cr.ww&&p.y>cr.y&&p.y<cr.y+cr.hh){
         S.clothDrag=true; S.clothOx=p.x-S.clothX*w; S.clothOy=p.y-S.clothY*h;
         lastClothX=p.x; S.phase='charging';
+      }
+    }
+    // wool drag for glass rod (rubrod2 phase)
+    if(S.phase==='rubrod2'){
+      const wx=(S.woolX||0.58)*w, wy=(S.woolY||0.46)*h;
+      if(Math.hypot(p.x-wx,p.y-wy)<50){
+        S.woolDrag=true; S.woolOx=p.x-wx; S.woolOy=p.y-wy; lastWoolX=p.x;
       }
     }
     // rod2 drag
@@ -23157,6 +23171,30 @@ function simStaticElec3(){
         }
       }
     }
+    // wool rubbing on glass rod
+    if(S.woolDrag){
+      const dx=p.x-lastWoolX; lastWoolX=p.x;
+      S.woolX=Math.max(0.35,Math.min(0.92,(p.x-(S.woolOx||0))/w));
+      S.woolY=Math.max(0.10,Math.min(0.78,(p.y-(S.woolOy||0))/h));
+      // overlap with rod2?
+      const rx=S.rod2X*w, ry=S.rod2Y*h;
+      const wx=(S.woolX||0.58)*w, wy=(S.woolY||0.46)*h;
+      if(Math.hypot(wx-rx,wy-ry)<w*0.10&&Math.abs(dx)>2){
+        S.charge2=Math.min(3,(S.charge2||0)+0.03);
+        if(Math.floor(S.charge2)>(S.woolRubCount||0)){
+          S.woolRubCount=Math.floor(S.charge2);
+          addSparks(8);
+          updateControls();
+        }
+        if(S.charge2>=3&&S.phase==='rubrod2'){
+          S.phase='charge2'; S.rod2Charged=true; S.charge2=3;
+          S.woolDrag=false;
+          addSparks(18);
+          try{U9Sound.ping(520,.15,.18);}catch(_){}
+          updateControls();
+        }
+      }
+    }
     // rod2 drag
     if(S.drag){
       S.rod2X=Math.max(0.38,Math.min(0.95,(p.x-S.ox)/w));
@@ -23166,6 +23204,7 @@ function simStaticElec3(){
   }
   function onUp(){
     S.clothDrag=false;
+    S.woolDrag=false;
     S.drag=false;
   }
 
@@ -23378,7 +23417,7 @@ function simStaticElec3(){
     }
 
     // ── Rod2 (draggable) ──
-    if(S.phase==='charge2'||S.phase==='test'){
+    if(S.phase==='rubrod2'||S.phase==='charge2'||S.phase==='test'){
       // draw rod2 using new layout proportions
       {
         const rx=S.rod2X*w, ry=S.rod2Y*h;
@@ -23412,6 +23451,63 @@ function simStaticElec3(){
           c.fillStyle='#C0392B'; c.textAlign='center'; c.textBaseline='bottom';
           c.fillText('← اسحب نحو القضيب المعلق', rx, ry-ROD_L*0.55-4);
           c.restore();
+        }
+
+        // ── Wool rubbing for glass rod (rubrod2 phase) ──
+        if(S.phase==='rubrod2'){
+          if(S.woolX===undefined){ S.woolX=0.58; S.woolY=0.46; S.woolDrag=false; S.woolRubCount=0; }
+          const wx=S.woolX*w, wy=S.woolY*h;
+          const woolW=w*0.10, woolH=h*0.09;
+
+          // Draw wool piece
+          c.save();
+          c.fillStyle='#D4AC90';
+          c.beginPath(); c.roundRect(wx-woolW/2, wy-woolH/2, woolW, woolH, 8); c.fill();
+          c.strokeStyle='#A0785A'; c.lineWidth=1.5; c.stroke();
+          // wool texture lines
+          c.strokeStyle='rgba(120,80,40,0.35)'; c.lineWidth=1;
+          for(let wi=1;wi<4;wi++){
+            c.beginPath(); c.moveTo(wx-woolW/2+wi*woolW/4, wy-woolH/2);
+            c.lineTo(wx-woolW/2+wi*woolW/4, wy+woolH/2); c.stroke();
+          }
+          c.font=`bold ${Math.min(11,w*0.022)}px Tajawal`; c.fillStyle='#7A5030';
+          c.textAlign='center'; c.textBaseline='top';
+          c.fillText('صوف 🧶', wx, wy+woolH/2+4);
+
+          // hint arrow toward glass rod
+          const nearRod = Math.hypot(wx-rx, wy-ry) < w*0.18;
+          if(!nearRod){
+            const dx2=rx-wx, dy2=ry-wy, len2=Math.hypot(dx2,dy2)||1;
+            const pulse=0.6+0.4*Math.sin(S.t*4);
+            c.globalAlpha=pulse;
+            c.strokeStyle='#2E86C1'; c.lineWidth=2; c.setLineDash([5,4]);
+            c.beginPath(); c.moveTo(wx,wy); c.lineTo(wx+dx2*0.5,wy+dy2*0.5); c.stroke();
+            c.setLineDash([]); c.globalAlpha=1;
+            c.font=`bold ${Math.min(11,w*0.023)}px Tajawal`; c.fillStyle='rgba(46,134,193,0.9)';
+            c.textAlign='center'; c.textBaseline='bottom';
+            c.fillText('اسحب الصوف واحكّه على الزجاج', wx, wy-woolH/2-4);
+          } else {
+            // rubbing animation
+            const pulse=0.6+0.4*Math.sin(S.t*8);
+            c.globalAlpha=pulse;
+            c.font=`bold ${Math.min(12,w*0.025)}px Tajawal`; c.fillStyle='#C0392B';
+            c.textAlign='center'; c.textBaseline='bottom';
+            c.fillText('↔ حرّك الصوف جيئةً وذهاباً!', wx, wy-woolH/2-4);
+            c.globalAlpha=1;
+          }
+          c.restore();
+
+          // charge progress bar on canvas
+          if((S.charge2||0)>0){
+            const bw=w*0.34, bx2=(w-bw)/2, by2=h*0.90, bh2=14;
+            c.fillStyle='rgba(180,160,130,0.35)'; c.beginPath(); c.roundRect(bx2,by2,bw,bh2,7); c.fill();
+            const pg=c.createLinearGradient(bx2,0,bx2+bw,0);
+            pg.addColorStop(0,'#1A5276'); pg.addColorStop(1,'#5DADE2');
+            c.fillStyle=pg; c.beginPath(); c.roundRect(bx2,by2,bw*((S.charge2||0)/3),bh2,7); c.fill();
+            c.font=`bold ${Math.min(13,w*0.027)}px Tajawal`; c.fillStyle='#1A5276';
+            c.textAlign='center'; c.textBaseline='bottom';
+            c.fillText(`⚡ مستوى الشحن ${['','▮▯▯','▮▮▯','▮▮▮'][Math.min(3,Math.floor(S.charge2||0))]||''}`, w/2, by2-4);
+          }
         }
       }
 
@@ -23467,6 +23563,7 @@ function simStaticElec3(){
 
     // ── Hint text ──
     const hint = S.phase==='charge1' ? 'اختر نوع القضيب الثاني من القائمة على اليسار ←' :
+                 S.phase==='rubrod2' ? 'اسحب قطعة الصوف واحكّها على قضيب الزجاج لشحنه 🧶' :
                  S.phase==='charge2' ? 'اسحب القضيب نحو القضيب المعلق 👈' :
                  (S.phase==='test' && Math.abs(S.deflect)<0.02) ? 'قرّب القضيب أكثر لترى التأثير' : '';
     if(hint){
@@ -24629,8 +24726,22 @@ function simStaticElec1() {
     let resHTML = '';
     OBJECTS.forEach(obj => {
       const r = S.results[obj.id];
-      if (r === 'attracted')  resHTML += `<div style="color:#27AE60">✅ ${obj.name} — يُجذب</div>`;
-      if (r === 'repelled')   resHTML += `<div style="color:#C0392B">❌ ${obj.name} — لا يُجذب</div>`;
+      if (r === 'attracted')  resHTML += `
+        <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:rgba(39,174,96,0.12);border:1px solid rgba(39,174,96,0.35);border-radius:8px;margin-bottom:5px">
+          <span style="font-size:18px">${obj.emoji}</span>
+          <div style="flex:1">
+            <div style="font-weight:800;color:#1E8449;font-size:12px">${obj.name}</div>
+            <div style="color:#27AE60;font-size:11px">✅ يُجذب نحو البالون</div>
+          </div>
+        </div>`;
+      if (r === 'repelled')   resHTML += `
+        <div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:rgba(192,57,43,0.10);border:1px solid rgba(192,57,43,0.30);border-radius:8px;margin-bottom:5px">
+          <span style="font-size:18px">${obj.emoji}</span>
+          <div style="flex:1">
+            <div style="font-weight:800;color:#922B21;font-size:12px">${obj.name}</div>
+            <div style="color:#C0392B;font-size:11px">❌ لا يُجذب (فلز)</div>
+          </div>
+        </div>`;
     });
 
     controls(`
@@ -24797,17 +24908,17 @@ function simStaticElec1() {
     OBJECTS.forEach(function(obj, i) {
       const cx   = slotW * i + slotW * 0.5;
       const dist = Math.hypot(bx - cx, (by + bo) - eCY);
-      const pullZone = w * 0.20;
+      const pullZone = w * 0.28;
       const result   = S.results[obj.id];
 
       // Is balloon near this slot?
       const near = charged && !result && dist < pullZone;
       if (near) S.activeObj = obj.id;
 
-      // NON-METALS drift toward balloon; metals stay put
+      // NON-METALS drift toward balloon strongly; metals stay put
       var drawX = cx, drawY = eCY;
       if (near && obj.attracted) {
-        const pull = Math.pow(1 - dist / pullZone, 2) * 16;
+        const pull = Math.pow(1 - dist / pullZone, 1.5) * 52;
         const dx = bx - cx, dy = (by + bo) - eCY;
         const len = Math.hypot(dx, dy) || 1;
         drawX = cx + (dx / len) * pull;
@@ -24840,29 +24951,40 @@ function simStaticElec1() {
       var bgCol = 'rgba(255,255,255,0.55)';
       if (result === 'attracted') bgCol = 'rgba(39,174,96,0.22)';
       else if (result === 'repelled') bgCol = 'rgba(192,57,43,0.18)';
+      else if (near && obj.attracted) bgCol = 'rgba(39,174,96,0.12)';
       c.fillStyle = bgCol;
       c.strokeStyle = result === 'attracted' ? 'rgba(39,174,96,0.6)'
                     : result === 'repelled'  ? 'rgba(192,57,43,0.5)'
+                    : (near && obj.attracted) ? 'rgba(39,174,96,0.5)'
                     : 'rgba(200,160,60,0.2)';
-      c.lineWidth = result ? 2 : 1.5;
+      c.lineWidth = result ? 2 : (near && obj.attracted) ? 2 : 1.5;
+      // glow on attracted approach
+      if (near && obj.attracted && !result) {
+        c.save();
+        c.shadowBlur = 14;
+        c.shadowColor = 'rgba(39,174,96,0.55)';
+      }
       c.beginPath(); c.roundRect(rx, ry, rw, rh, 10); c.fill(); c.stroke();
+      if (near && obj.attracted && !result) c.restore();
 
       // ── Attraction arrow (non-metals only) ──
-      if (near && obj.attracted && dist < pullZone * 0.9) {
+      if (near && obj.attracted && dist < pullZone * 0.95) {
         var prox = 1 - dist / pullZone;
         var adx = bx - cx, ady = (by + bo) - eCY;
         var alen = Math.hypot(adx, ady) || 1;
-        var arLen = Math.min(prox * 40, 32);
+        var arLen = Math.min(prox * 70, 55);
         var ax2 = cx + (adx / alen) * arLen;
         var ay2 = eCY + (ady / alen) * arLen;
+        var arAlpha = 0.5 + prox * 0.5;
         c.save();
-        c.strokeStyle = 'rgba(39,174,96,0.85)'; c.lineWidth = 2.2; c.lineCap = 'round';
+        c.shadowBlur = 8; c.shadowColor = 'rgba(39,174,96,0.6)';
+        c.strokeStyle = `rgba(39,174,96,${arAlpha})`; c.lineWidth = 3.5; c.lineCap = 'round';
         c.beginPath(); c.moveTo(cx, eCY); c.lineTo(ax2, ay2); c.stroke();
         var ha2 = Math.atan2(ady, adx);
         c.beginPath(); c.moveTo(ax2, ay2);
-        c.lineTo(ax2 - Math.cos(ha2 - 0.45) * 9, ay2 - Math.sin(ha2 - 0.45) * 9);
-        c.lineTo(ax2 - Math.cos(ha2 + 0.45) * 9, ay2 - Math.sin(ha2 + 0.45) * 9);
-        c.closePath(); c.fillStyle = 'rgba(39,174,96,0.85)'; c.fill();
+        c.lineTo(ax2 - Math.cos(ha2 - 0.42) * 14, ay2 - Math.sin(ha2 - 0.42) * 14);
+        c.lineTo(ax2 - Math.cos(ha2 + 0.42) * 14, ay2 - Math.sin(ha2 + 0.42) * 14);
+        c.closePath(); c.fillStyle = `rgba(39,174,96,${arAlpha})`; c.fill();
         c.restore();
       }
 
