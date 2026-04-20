@@ -24838,14 +24838,13 @@ function simStaticElec1() {
       var rw = slotW - slotPad * 2;
       var rh = shelfH - 8;
       var bgCol = 'rgba(255,255,255,0.55)';
-      if (result === 'attracted') bgCol = 'rgba(39,174,96,0.18)';
-      else if (result === 'repelled') bgCol = 'rgba(192,57,43,0.14)';
-      else if (near) bgCol = 'rgba(142,68,173,0.13)';
+      if (result === 'attracted') bgCol = 'rgba(39,174,96,0.22)';
+      else if (result === 'repelled') bgCol = 'rgba(192,57,43,0.18)';
       c.fillStyle = bgCol;
-      c.strokeStyle = result === 'attracted' ? 'rgba(39,174,96,0.5)'
-                    : result === 'repelled'  ? 'rgba(192,57,43,0.4)'
-                    : near ? 'rgba(142,68,173,0.4)' : 'rgba(200,160,60,0.2)';
-      c.lineWidth = 1.5;
+      c.strokeStyle = result === 'attracted' ? 'rgba(39,174,96,0.6)'
+                    : result === 'repelled'  ? 'rgba(192,57,43,0.5)'
+                    : 'rgba(200,160,60,0.2)';
+      c.lineWidth = result ? 2 : 1.5;
       c.beginPath(); c.roundRect(rx, ry, rw, rh, 10); c.fill(); c.stroke();
 
       // ── Attraction arrow (non-metals only) ──
