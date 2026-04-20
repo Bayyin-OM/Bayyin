@@ -1,0 +1,22 @@
+{
+  "name": "bayyin",
+  "version": "1.0.0",
+  "description": "منصة العلوم التفاعلية - Bayyin Interactive Science Platform",
+  "main": "index.html",
+  "scripts": {
+    "dev": "serve .",
+    "build": "echo 'Static HTML project - no build needed'",
+    "test": "echo 'No tests configured'"
+  },
+  "keywords": [
+    "education",
+    "science",
+    "interactive",
+    "arabic"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/analytics": "^1.4.1"
+  }
+}
