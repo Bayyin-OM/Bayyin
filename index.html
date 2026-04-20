@@ -38838,118 +38838,190 @@ function simG5Sunrise() {
   // ── رسم منظر السطح ──
   function drawSurface(c, W, H) {
     const col=skyColors(timeMin), ph=skyPhase(timeMin), elev=sunElev(timeMin);
-    const horizY=H*0.70;
+    const horizY=H*0.68;
+
+    // حساب موضع الشمس بقوس واقعي (شروق من اليمين، غروب من اليسار)
+    const mn2=((timeMin%1440)+1440)%1440;
+    const arcAngle = ((mn2 - 360) / 720) * Math.PI;
+    const arcCenterX = W * 0.5;
+    const arcCenterY = horizY + H * 0.10;
+    const arcRx = W * 0.54;
+    const arcRy = horizY * 0.90;
+    const sX = arcCenterX + Math.cos(Math.PI - arcAngle) * arcRx;
+    const sY = arcCenterY - Math.abs(Math.sin(arcAngle)) * arcRy;
+    const sunVisible = elev > -10 && col.sun;
+    const elevF = Math.min(1, Math.max(0, (elev + 10) / 100));
+    const sR = Math.min(W,H) * (0.055 - elevF * 0.030);
 
     // السماء
     const sky=c.createLinearGradient(0,0,0,horizY);
-    sky.addColorStop(0,col.top); sky.addColorStop(0.5,col.mid); sky.addColorStop(1,col.bot);
+    sky.addColorStop(0,col.top); sky.addColorStop(0.45,col.mid); sky.addColorStop(0.85,col.bot); sky.addColorStop(1,col.bot);
     c.fillStyle=sky; c.fillRect(0,0,W,horizY);
+
+    // توهج الأفق عند الشروق/الغروب
+    if(sunVisible && elev < 25){
+      const hgAlpha=Math.max(0,0.55-elev*0.022);
+      const hg=c.createRadialGradient(sX,horizY,0,sX,horizY,W*0.55);
+      const gc2=(ph==='sunset'||ph==='dusk')?`rgba(255,100,20,${hgAlpha})`:`rgba(255,140,40,${hgAlpha})`;
+      hg.addColorStop(0,gc2); hg.addColorStop(0.5,gc2.replace(hgAlpha.toFixed(2),(hgAlpha*0.35).toFixed(2))); hg.addColorStop(1,'rgba(255,80,0,0)');
+      c.fillStyle=hg; c.fillRect(0,0,W,horizY+H*0.05);
+    }
 
     // نجوم
     if(ph==='night'||ph==='pre-dawn'||ph==='dusk'){
-      const sa=(ph==='night')?.9:(ph==='pre-dawn')?.5:.25;
+      const sa=(ph==='night')?.95:(ph==='pre-dawn')?.55:.22;
       STARS_SR.forEach(s=>{
-        if(s.y>0.62) return;
-        const p=0.5+0.5*Math.sin(Date.now()/1500+s.ph);
+        if(s.y>0.60) return;
+        const p=0.5+0.5*Math.sin(Date.now()/1400+s.ph);
         c.beginPath();c.arc(s.x*W,s.y*horizY,s.r*p*0.9,0,Math.PI*2);
         c.fillStyle=`rgba(255,255,255,${sa*p})`;c.fill();
       });
     }
 
-    // قمر
-    if(ph==='night'||ph==='pre-dawn'||ph==='dusk'){
-      const mX=W*0.76,mY=H*0.14,mR=Math.min(W,H)*0.033;
-      const mg=c.createRadialGradient(mX,mY,mR*0.3,mX,mY,mR*1.6);
-      mg.addColorStop(0,'rgba(220,230,255,.22)');mg.addColorStop(1,'rgba(220,230,255,0)');
-      c.beginPath();c.arc(mX,mY,mR*1.6,0,Math.PI*2);c.fillStyle=mg;c.fill();
-      c.beginPath();c.arc(mX,mY,mR,0,Math.PI*2);
-      const mf=c.createRadialGradient(mX-mR*0.2,mY-mR*0.2,mR*0.1,mX,mY,mR);
-      mf.addColorStop(0,'#FEFEF0');mf.addColorStop(1,'#C8D0E0');c.fillStyle=mf;c.fill();
+    // قمر (هلال واقعي)
+    if(ph==='night'||ph==='pre-dawn'){
+      const mX=W*0.78,mY=H*0.13,mR=Math.min(W,H)*0.038;
+      const mg=c.createRadialGradient(mX,mY,mR*0.6,mX,mY,mR*2.2);
+      mg.addColorStop(0,'rgba(210,225,255,.18)');mg.addColorStop(1,'rgba(210,225,255,0)');
+      c.beginPath();c.arc(mX,mY,mR*2.2,0,Math.PI*2);c.fillStyle=mg;c.fill();
+      const mf=c.createRadialGradient(mX-mR*0.25,mY-mR*0.25,mR*0.05,mX,mY,mR);
+      mf.addColorStop(0,'#FEFEFA');mf.addColorStop(0.5,'#E8EEF8');mf.addColorStop(1,'#B8C8DC');
+      c.beginPath();c.arc(mX,mY,mR,0,Math.PI*2);c.fillStyle=mf;c.fill();
+      c.save();c.globalCompositeOperation='destination-out';
+      c.beginPath();c.arc(mX+mR*0.38,mY-mR*0.08,mR*0.82,0,Math.PI*2);c.fill();
+      c.globalCompositeOperation='source-over';c.restore();
     }
 
     // الشمس
-    if(elev>-8&&col.sun){
-      const sf=Math.min(1,Math.max(0,(elev+8)/98));
-      const mn2=((timeMin%1440)+1440)%1440;
-      const sX=W*(1-(mn2-240)/960);
-      const sY=horizY*(1-sf*0.84);
-      const sR=Math.min(W,H)*(0.036+(1-sf)*0.012);
-      if(col.sun.gl){
-        const sg2=c.createRadialGradient(sX,sY,sR*0.5,sX,sY,sR*3.5);
-        sg2.addColorStop(0,col.sun.gl);sg2.addColorStop(1,'rgba(255,150,0,0)');
-        c.beginPath();c.arc(sX,sY,sR*3.5,0,Math.PI*2);c.fillStyle=sg2;c.fill();
-      }
-      const sf2=c.createRadialGradient(sX-sR*0.2,sY-sR*0.2,sR*0.05,sX,sY,sR);
-      sf2.addColorStop(0,'#FFFEF0');sf2.addColorStop(0.3,col.sun.c);sf2.addColorStop(1,col.sun.c);
-      c.beginPath();c.arc(sX,sY,sR,0,Math.PI*2);c.fillStyle=sf2;c.fill();
-      if(elev<18){
-        const hg=c.createLinearGradient(sX-W*0.35,horizY,sX+W*0.35,horizY);
-        hg.addColorStop(0,'rgba(255,120,0,0)');hg.addColorStop(0.5,`rgba(255,180,50,${0.22*(1-elev/18)})`);hg.addColorStop(1,'rgba(255,120,0,0)');
-        c.fillStyle=hg;c.fillRect(sX-W*0.35,horizY-H*0.12,W*0.7,H*0.14);
-      }
-      if(elev<22){
-        const nr=12;
-        for(let i=0;i<nr;i++){
-          const ra=-Math.PI*0.5+(i/(nr-1)-0.5)*Math.PI*0.55,len=H*0.22,al=0.055*(1-elev/22);
-          const rg2=c.createLinearGradient(sX,sY,sX+Math.cos(ra)*len,sY+Math.sin(ra)*len);
-          rg2.addColorStop(0,`rgba(255,200,80,${al*2.2})`);rg2.addColorStop(1,'rgba(255,200,80,0)');
-          c.beginPath();c.moveTo(sX,sY);c.lineTo(sX+Math.cos(ra)*len,sY+Math.sin(ra)*len);
-          c.strokeStyle=rg2;c.lineWidth=2.5;c.stroke();
+    if(sunVisible){
+      c.save();
+      c.beginPath();c.rect(0,0,W,horizY+sR*0.6);c.clip();
+      // أشعة عند الأفق
+      if(elev<30&&elev>-8){
+        const nRays=16,rayAlpha=Math.max(0,0.055*(1-elev/30));
+        for(let i=0;i<nRays;i++){
+          const ra=(i/nRays)*Math.PI*2,rayLen=H*0.20;
+          const rg2=c.createLinearGradient(sX,sY,sX+Math.cos(ra)*rayLen,sY+Math.sin(ra)*rayLen);
+          rg2.addColorStop(0,`rgba(255,200,80,${rayAlpha*3})`);rg2.addColorStop(1,'rgba(255,160,40,0)');
+          c.beginPath();c.moveTo(sX,sY);c.lineTo(sX+Math.cos(ra)*rayLen,sY+Math.sin(ra)*rayLen);
+          c.strokeStyle=rg2;c.lineWidth=2;c.stroke();
         }
       }
-      if(elev>3){
-        const ar=(-90+elev)*Math.PI/180,ll=H*0.18;
-        c.beginPath();c.moveTo(sX,sY);c.lineTo(sX+Math.cos(ar)*ll,sY+Math.sin(ar)*ll);
-        c.strokeStyle='rgba(255,245,100,.30)';c.lineWidth=1.5;c.setLineDash([4,4]);c.stroke();c.setLineDash([]);
+      // هالة
+      if(col.sun&&col.sun.gl){
+        const glR=sR*(elev<15?5.5:3.5);
+        const sg2=c.createRadialGradient(sX,sY,sR*0.3,sX,sY,glR);
+        const glBase=col.sun.gl;
+        sg2.addColorStop(0,glBase);sg2.addColorStop(0.4,glBase.replace(/[\d.]+\)$/,'0.10)'));sg2.addColorStop(1,'rgba(255,100,0,0)');
+        c.beginPath();c.arc(sX,sY,glR,0,Math.PI*2);c.fillStyle=sg2;c.fill();
+      }
+      // جسم الشمس
+      const sf2=c.createRadialGradient(sX-sR*0.22,sY-sR*0.22,sR*0.04,sX,sY,sR);
+      sf2.addColorStop(0,'#FFFEF8');sf2.addColorStop(0.25,col.sun?col.sun.c:'#FFFACC');sf2.addColorStop(1,col.sun?col.sun.c:'#FFD700');
+      c.beginPath();c.arc(sX,sY,sR,0,Math.PI*2);c.fillStyle=sf2;c.fill();
+      c.restore();
+      // خط زاوية الأشعة نهاراً
+      if(elev>10){
+        const ar=(-90+elev)*Math.PI/180,ll=H*0.15;
+        c.beginPath();c.moveTo(sX,Math.min(sY,horizY-2));c.lineTo(sX+Math.cos(ar)*ll,sY+Math.sin(ar)*ll);
+        c.strokeStyle=`rgba(255,250,130,${Math.min(0.30,elev*0.004)})`;c.lineWidth=1.5;c.setLineDash([4,5]);c.stroke();c.setLineDash([]);
       }
     }
 
-    // سحب
+    // سحب واقعية
     if(ph==='day'||ph==='morning'||ph==='afternoon'){
-      [[0.14,0.14,1],[0.45,0.09,0.8],[0.70,0.17,1.2],[0.88,0.11,0.7]].forEach(([cx2,cy2,sc2])=>{
-        const r2=Math.min(W,H)*0.042*sc2;
-        const cg=c.createRadialGradient(cx2*W,cy2*horizY,r2*0.2,cx2*W,cy2*horizY,r2*1.5);
-        cg.addColorStop(0,'rgba(255,255,255,.85)');cg.addColorStop(1,'rgba(255,255,255,0)');
-        c.beginPath();c.arc(cx2*W,cy2*horizY,r2*1.5,0,Math.PI*2);c.fillStyle=cg;c.fill();
-        c.beginPath();c.arc(cx2*W,cy2*horizY,r2,0,Math.PI*2);c.fillStyle='rgba(255,255,255,.75)';c.fill();
-        c.beginPath();c.arc(cx2*W-0.6*r2,cy2*horizY+0.2*r2,r2*0.75,0,Math.PI*2);c.fill();
-        c.beginPath();c.arc(cx2*W+0.7*r2,cy2*horizY+0.15*r2,r2*0.65,0,Math.PI*2);c.fill();
+      const cop=ph==='morning'?0.82:ph==='afternoon'?0.70:0.78;
+      [[0.12,0.15,1.1,1],[0.38,0.10,0.85,0.9],[0.62,0.18,1.25,0.95],[0.84,0.12,0.9,0.85]].forEach(([cx2,cy2,sc2,op])=>{
+        const bx2=cx2*W,by2=cy2*horizY,cr2=Math.min(W,H)*0.045*sc2;
+        c.save();c.globalAlpha=cop*op;
+        c.fillStyle='rgba(170,195,220,0.25)';
+        c.beginPath();c.ellipse(bx2,by2+cr2*0.5,cr2*1.8,cr2*0.45,0,0,Math.PI*2);c.fill();
+        [[0,0,1],[cr2*0.68,cr2*0.18,0.75],[-cr2*0.62,cr2*0.12,0.72],[cr2*0.28,-cr2*0.2,0.65],[-cr2*0.28,-cr2*0.1,0.60]].forEach(([dx,dy,rs])=>{
+          const cgr=c.createRadialGradient(bx2+dx-cr2*rs*0.15,by2+dy-cr2*rs*0.15,cr2*rs*0.05,bx2+dx,by2+dy,cr2*rs);
+          cgr.addColorStop(0,'rgba(255,255,255,0.98)');cgr.addColorStop(0.6,'rgba(238,244,255,0.90)');cgr.addColorStop(1,'rgba(210,225,245,0.0)');
+          c.beginPath();c.arc(bx2+dx,by2+dy,cr2*rs,0,Math.PI*2);c.fillStyle=cgr;c.fill();
+        });
+        c.restore();
       });
     }
 
-    // أفق
-    c.beginPath();c.moveTo(0,horizY);c.lineTo(W,horizY);c.strokeStyle='rgba(255,255,255,.07)';c.lineWidth=1;c.stroke();
+    // خط الأفق
+    c.beginPath();c.moveTo(0,horizY);c.lineTo(W,horizY);c.strokeStyle='rgba(255,255,255,.06)';c.lineWidth=1;c.stroke();
 
     // أرضية
     const grd=c.createLinearGradient(0,horizY,0,H);
-    const gc=(ph==='day'||ph==='morning'||ph==='afternoon')?['#2D5A1E','#1A3A12','#020805']:(ph==='sunrise')?['#1E3015','#111A0C','#020805']:(ph==='sunset')?['#3A4A18','#1E2A0C','#020805']:['#0C1A10','#050C08','#020805'];
-    grd.addColorStop(0,gc[0]);grd.addColorStop(0.5,gc[1]);grd.addColorStop(1,gc[2]);
+    let gc3;
+    if(ph==='day'||ph==='morning')      gc3=['#3A7A28','#256018','#0D2A08'];
+    else if(ph==='afternoon')           gc3=['#2E6A20','#1A4810','#0A2006'];
+    else if(ph==='sunrise')             gc3=['#2A4A1A','#162A0C','#060E04'];
+    else if(ph==='sunset'||ph==='dusk') gc3=['#3A4A1A','#22300E','#080E04'];
+    else                                gc3=['#0E1C0A','#060E05','#020504'];
+    grd.addColorStop(0,gc3[0]);grd.addColorStop(0.4,gc3[1]);grd.addColorStop(1,gc3[2]);
     c.fillStyle=grd;c.fillRect(0,horizY,W,H-horizY);
-    if((ph==='sunrise'||ph==='sunset'||ph==='dawn')&&elev<20){
-      const gg=c.createRadialGradient(W*0.5,horizY,0,W*0.5,horizY,W*0.5);
-      gg.addColorStop(0,'rgba(255,120,30,.18)');gg.addColorStop(1,'rgba(255,120,30,0)');
-      c.fillStyle=gg;c.fillRect(0,horizY-H*0.06,W,H*0.18);
+
+    // انعكاس ضوء الشمس على الأرض
+    if(sunVisible&&elev<20){
+      const glA=Math.max(0,0.20-elev*0.01);
+      const gg=c.createRadialGradient(sX,horizY,0,sX,horizY,W*0.45);
+      gg.addColorStop(0,`rgba(255,140,30,${glA})`);gg.addColorStop(0.5,`rgba(255,100,10,${(glA*0.3).toFixed(2)})`);gg.addColorStop(1,'rgba(255,60,0,0)');
+      c.fillStyle=gg;c.fillRect(0,horizY-H*0.04,W,H*0.16);
     }
 
-    // أشجار
-    const tcol=(ph==='day'||ph==='morning'||ph==='afternoon')?'#1A3510':(ph==='sunrise'||ph==='sunset')?'#0D1A08':'#06100A';
-    [0.05,0.12,0.20,0.28,0.35,0.65,0.72,0.80,0.88,0.95].forEach(tx=>{
-      const h2=H*0.042*(0.7+0.6*Math.sin(tx*79));
-      c.beginPath();c.moveTo(tx*W,horizY);c.lineTo(tx*W-h2*0.3,horizY-h2);c.lineTo(tx*W+h2*0.3,horizY-h2);c.closePath();
-      c.fillStyle=tcol;c.fill();
+    // أشجار واقعية (مخروط ثلاثي الطبقات)
+    const treePositions=[0.04,0.10,0.17,0.24,0.30,0.64,0.70,0.77,0.84,0.90,0.96];
+    const treeLight=(ph==='day'||ph==='morning')?1:(ph==='afternoon')?0.85:(ph==='sunrise'||ph==='sunset')?0.45:0.15;
+    treePositions.forEach((tx,ti)=>{
+      const seed=tx*137.5+ti*31;
+      const tH=H*(0.09+0.06*((Math.sin(seed)*0.5+0.5)));
+      const tW=tH*0.55;
+      const tX=tx*W,tY=horizY;
+      // جذع
+      const trunkH=tH*0.28,trunkW=Math.max(3,tW*0.12);
+      const trunkCol=treeLight>0.5?'#5C3A1E':treeLight>0.3?'#2A1A0C':'#0E0804';
+      c.fillStyle=trunkCol;c.fillRect(tX-trunkW/2,tY-trunkH,trunkW,trunkH);
+      // 3 طبقات مخروط
+      for(let layer=0;layer<3;layer++){
+        const ly=tY-trunkH-(layer*tH*0.27);
+        const lw=tW*(1-layer*0.22);
+        const lh=tH*(0.45+layer*0.08);
+        const g=c.createLinearGradient(tX-lw/2,ly-lh,tX+lw/2,ly);
+        let treeBase,treeDark;
+        if(ph==='day'||ph==='morning'){treeBase=`rgba(${30+layer*8},${100+layer*12},${20+layer*5},1)`;treeDark='rgba(15,60,10,1)';}
+        else if(ph==='afternoon'){treeBase=`rgba(${25+layer*6},${88+layer*10},${18+layer*4},1)`;treeDark='rgba(12,50,8,1)';}
+        else if(ph==='sunrise'){treeBase=`rgba(${20+layer*4},${55+layer*8},${12+layer*3},0.9)`;treeDark='rgba(8,30,6,1)';}
+        else if(ph==='sunset'||ph==='dusk'){treeBase=`rgba(${35+layer*5},${50+layer*8},${10+layer*3},0.85)`;treeDark='rgba(12,22,4,1)';}
+        else{treeBase=`rgba(${10+layer*3},${20+layer*5},${5+layer*2},0.9)`;treeDark='rgba(4,8,2,1)';}
+        g.addColorStop(0,treeBase);g.addColorStop(1,treeDark);
+        c.fillStyle=g;
+        c.beginPath();c.moveTo(tX,ly-lh);c.lineTo(tX-lw/2,ly);c.lineTo(tX+lw/2,ly);c.closePath();c.fill();
+      }
+      // إضاءة جانبية من الشمس
+      if(sunVisible&&treeLight>0.3){
+        const lightSide=sX<tX?1:-1,lightAlpha=treeLight*0.18;
+        c.save();c.globalAlpha=lightAlpha;
+        c.fillStyle=ph==='day'?'rgba(200,240,150,1)':'rgba(255,180,80,1)';
+        for(let layer=0;layer<3;layer++){
+          const ly=horizY-trunkH-(layer*tH*0.27);
+          const lw=tH*0.55*(1-layer*0.22);
+          c.beginPath();c.moveTo(tX,ly-tH*(0.45+layer*0.08));c.lineTo(tX+lightSide*lw*0.5,ly);c.lineTo(tX,ly);c.closePath();c.fill();
+        }
+        c.restore();
+      }
     });
 
-    // علامة الطالب
-    c.beginPath();c.moveTo(W*0.5-7,horizY-1);c.lineTo(W*0.5+7,horizY-1);c.lineTo(W*0.5,horizY-22);c.closePath();
-    c.fillStyle='rgba(255,230,0,.85)';c.fill();
-    c.font=`bold ${Math.round(Math.min(W,H)*0.027)}px Tajawal`;c.textAlign='center';c.fillStyle='rgba(255,255,255,.82)';c.textBaseline='bottom';
-    c.fillText('📍 أنت هنا',W*0.5,horizY-26);
+    // دبوس الطالب
+    const pinX=W*0.5;
+    c.fillStyle='#E53935';c.beginPath();c.arc(pinX,horizY-28,10,0,Math.PI*2);c.fill();
+    c.fillStyle='#FFFFFF';c.beginPath();c.arc(pinX,horizY-28,4,0,Math.PI*2);c.fill();
+    c.strokeStyle='#C62828';c.lineWidth=2.5;c.beginPath();c.moveTo(pinX,horizY-18);c.lineTo(pinX,horizY-1);c.stroke();
+    c.font=`bold ${Math.round(Math.min(W,H)*0.025)}px Tajawal`;c.textAlign='center';c.fillStyle='rgba(255,255,255,.90)';c.textBaseline='bottom';
+    c.fillText('📍 أنت هنا',pinX,horizY-42);
 
     // ساعة ومرحلة
     const phLabel={'night':'🌙 ليل','pre-dawn':'🌌 ما قبل الفجر','dawn':'🌄 فجر','sunrise':'🌅 شروق','morning':'🌤️ صباح','day':'☀️ نهار','afternoon':'🌤️ بعد الظهر','sunset':'🌇 غروب','dusk':'🌆 شفق'};
     c.font=`bold ${Math.round(Math.min(W,H)*0.033)}px Tajawal`;c.textAlign='left';c.textBaseline='top';
-    c.fillStyle='rgba(255,255,255,.80)';c.fillText(`⏰ ${fmtTime(timeMin)}`,14,14);
-    c.font=`${Math.round(Math.min(W,H)*0.026)}px Tajawal`;c.fillStyle='rgba(255,255,255,.60)';
+    c.fillStyle='rgba(255,255,255,.88)';c.fillText(`⏰ ${fmtTime(timeMin)}`,14,14);
+    c.font=`${Math.round(Math.min(W,H)*0.026)}px Tajawal`;c.fillStyle='rgba(255,255,255,.62)';
     c.fillText(phLabel[ph]||'',14,14+Math.round(Math.min(W,H)*0.040));
   }
 
