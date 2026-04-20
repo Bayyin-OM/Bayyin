@@ -5857,7 +5857,7 @@ const SIM_META = {
   g5earthsun:    { title: '١-٦ · الشمس والأرض والقمر', badge: '🌍 5', tabs: ['النظام الشمسي', 'مسارات الكواكب'] },
   g5sunseeming:  { title: '٢-٦ · هل تتحرك الشمس؟', badge: '☀️ 5', tabs: ['استكشف المنظور 🕹️', 'الليل والنهار 🌍'] },
   g5rotation:    { title: '٣-٦ · دوران الأرض', badge: '🔄 5', tabs: ['الليل والنهار 🌓'] },
-  g5sunrise:     { title: '٤-٦ · الشروق والغروب', badge: '🌅 5', tabs: ['ألوان السماء 🎨', 'ماذا تستنتج؟ 💡'] },
+  g5sunrise:     { title: '٤-٦ · الشروق والغروب', badge: '🌅 5', tabs: ['ألوان السماء 🎨'] },
   g5earthorbit:  { title: '٦-٥ · دوران الأرض حول الشمس', badge: '🌍 5', tabs: ['الفصول الأربعة 🍂'] },
   g5stars:       { title: '٧-٦ · استكشاف النجوم', badge: '⭐ 5', tabs: ['خريطة السماء 🗺️', 'أسماء النجوم ✨'] },
   adaptation: { title: 'نشاط 1-7 · التكيُّف', badge: '7-1', tabs: ['الثعلب الرملي 🦊', 'الجمل 🐪', 'نبات الصبّار 🌵'] },
@@ -6720,7 +6720,7 @@ function startSim(type, tab) {
     g5daynight2:      [simG5DayNight2],
     g5sunseeming:     [simG5SunSeeming, simG5DayNight2],
     g5rotation:       [simG5DayNight],
-    g5sunrise:        [simG5Sunrise, simG5SunriseConclusion],
+    g5sunrise:        [simG5Sunrise],
     g5earthorbit:     [simG5Seasons],
     g5stars:          [simG5StarMap, simG5StarNames],
     adaptation:   [simAdaptDesert, simAdaptOcean, simAdaptForest],
@@ -32189,6 +32189,19 @@ Object.assign(SIM_QUESTIONS, {
     fb: '✅ تدور الأرض حول نفسها (محورها) مرة واحدة كل 24 ساعة. النصف المقابل للشمس يكون نهاراً، والنصف الآخر يكون ليلاً. ودوران الأرض هو ما يجعل الشمس تبدو طالعة من الشرق وغاربة في الغرب.'
   },
 
+  // الشروق والغروب
+  g5sunrise: {
+    q: 'لماذا يكون لون السماء أزرق في النهار وبرتقالياً عند الشروق والغروب؟',
+    opts: [
+      'لأن الشمس تنتج ألواناً مختلفة في أوقات اليوم المختلفة',
+      'لأن أشعة الشمس المنخفضة تقطع مسافة أطول في الغلاف الجوي، فتتشتت الأشعة الزرقاء وتصلنا الحمراء والبرتقالية',
+      'لأن الغلاف الجوي يتغير لونه الحقيقي عند الشروق والغروب',
+      'لأن انعكاس ضوء القمر يُغير ألوان السماء عند الشروق والغروب'
+    ],
+    ans: 1,
+    fb: '✅ عند الشروق والغروب تكون الشمس منخفضة فتمر أشعتها مسافةً أطول داخل الغلاف الجوي. الضوء الأزرق (موجاته قصيرة) يتشتت بعيداً، بينما يصل الأحمر والبرتقالي (موجاتهما أطول) إلى عيوننا. في منتصف النهار تكون الأشعة عمودية والمسافة أقصر، فيصل الأزرق بكثرة ونرى السماء زرقاء.'
+  },
+
   // النجوم
   g5stars: {
     q: 'لماذا نرى النجوم فقط في الليل رغم أنها موجودة دائماً؟',
@@ -38919,118 +38932,6 @@ function simG5Sunrise() {
   }
   lastTs=performance.now();
   animFrame=requestAnimationFrame(draw);
-}
-
-// 💡 ماذا تستنتج؟ — درس الشروق والغروب
-// ══════════════════════════════════════════════════════════
-function simG5SunriseConclusion() {
-  cancelAnimationFrame(animFrame);
-
-  const cv = document.getElementById('simCanvas');
-  const c  = cv.getContext('2d');
-  const W  = cv.width, H = cv.height;
-
-  // رسم خلفية هادئة (فجر ثابت)
-  const sky = c.createLinearGradient(0,0,0,H*0.70);
-  sky.addColorStop(0,'#1A1040'); sky.addColorStop(0.5,'#7A2E1A'); sky.addColorStop(1,'#D45520');
-  c.fillStyle=sky; c.fillRect(0,0,W,H*0.70);
-  const grd=c.createLinearGradient(0,H*0.70,0,H);
-  grd.addColorStop(0,'#2D5A1E');grd.addColorStop(1,'#020805');
-  c.fillStyle=grd; c.fillRect(0,H*0.70,W,H*0.30);
-
-  // أشجار
-  [0.05,0.12,0.20,0.28,0.35,0.65,0.72,0.80,0.88,0.95].forEach(tx=>{
-    const h2=H*0.042*(0.7+0.6*Math.sin(tx*79));
-    c.beginPath();c.moveTo(tx*W,H*0.70);c.lineTo(tx*W-h2*0.3,H*0.70-h2);c.lineTo(tx*W+h2*0.3,H*0.70-h2);c.closePath();
-    c.fillStyle='#0D1A08';c.fill();
-  });
-
-  // شمس منخفضة عند الأفق
-  const sX=W*0.5, sY=H*0.68, sR=Math.min(W,H)*0.055;
-  const sg=c.createRadialGradient(sX,sY,sR*0.3,sX,sY,sR*4);
-  sg.addColorStop(0,'rgba(255,120,0,0.45)');sg.addColorStop(1,'rgba(255,80,0,0)');
-  c.beginPath();c.arc(sX,sY,sR*4,0,Math.PI*2);c.fillStyle=sg;c.fill();
-  const sf=c.createRadialGradient(sX,sY,sR*0.1,sX,sY,sR);
-  sf.addColorStop(0,'#FFFEF0');sf.addColorStop(0.4,'#FF8C00');sf.addColorStop(1,'#FF4500');
-  c.beginPath();c.arc(sX,sY,sR,0,Math.PI*2);c.fillStyle=sf;c.fill();
-
-  controls(`
-    <div class="ctrl-section">
-      <div class="ctrl-label">💡 ماذا تستنتج؟</div>
-      <div style="background:linear-gradient(135deg,rgba(26,143,168,.12),rgba(212,144,26,.10));border:2px solid rgba(26,143,168,.30);border-radius:12px;padding:12px 14px;margin-bottom:10px">
-        <div style="font-size:13px;font-weight:800;color:var(--teal);margin-bottom:7px">🔬 الاستنتاجات العلمية</div>
-        <div style="font-size:12px;line-height:2.1">
-          🌍 <strong>دوران الأرض</strong> حول نفسها كل 24 ساعة هو سبب الشروق والغروب<br>
-          🌅 <strong>الشروق</strong> يحدث من الشرق — <strong>الغروب</strong> من الغرب دائماً<br>
-          🎨 <strong>ألوان الفجر والغسق</strong> تنتج عن زاوية أشعة الشمس المنخفضة على الغلاف الجوي<br>
-          ☀️ عند <strong>الظهر</strong> الأشعة عمودية ← أقوى حرارة وإضاءة
-        </div>
-      </div>
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">❓ سؤال الاستنتاج</div>
-      <div id="src-quiz-box" style="font-size:13px">
-        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;line-height:1.8">
-          لماذا يختلف لون السماء بين منتصف النهار (أزرق) وعند الشروق أو الغروب (برتقالي وأحمر)؟
-        </div>
-        <div id="src-opts" style="display:flex;flex-direction:column;gap:6px"></div>
-        <div id="src-fb" style="display:none;margin-top:8px;padding:9px 12px;border-radius:10px;font-size:12px;line-height:1.8"></div>
-      </div>
-    </div>
-    <div class="ctrl-section">
-      <div class="ctrl-label">🌅 تسلسل اليوم</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:3px;font-size:10px;text-align:center">
-        <div style="flex:1;padding:5px 3px;background:rgba(3,8,26,.6);border-radius:8px">🌙<br>ليل</div>
-        <div style="color:var(--muted)">›</div>
-        <div style="flex:1;padding:5px 3px;background:rgba(45,24,72,.6);border-radius:8px">🌄<br>فجر</div>
-        <div style="color:var(--muted)">›</div>
-        <div style="flex:1;padding:5px 3px;background:rgba(212,85,32,.6);border-radius:8px">🌅<br>شروق</div>
-        <div style="color:var(--muted)">›</div>
-        <div style="flex:1;padding:5px 3px;background:rgba(22,101,170,.6);border-radius:8px">☀️<br>نهار</div>
-        <div style="color:var(--muted)">›</div>
-        <div style="flex:1;padding:5px 3px;background:rgba(255,102,32,.5);border-radius:8px">🌇<br>غروب</div>
-        <div style="color:var(--muted)">›</div>
-        <div style="flex:1;padding:5px 3px;background:rgba(3,8,26,.6);border-radius:8px">🌙<br>ليل</div>
-      </div>
-    </div>`);
-
-  // بناء أزرار الإجابة
-  const opts = [
-    'لأن الشمس تنتج ألواناً مختلفة في أوقات مختلفة من اليوم',
-    'لأن أشعة الشمس المنخفضة تمر مسافة أطول في الغلاف الجوي فتتشتت الأشعة الزرقاء وتصلنا الحمراء والبرتقالية',
-    'لأن الغلاف الجوي يتغير لونه فعلياً عند الشروق والغروب',
-    'لأن القمر يعكس ألوان الشمس عند الشروق والغروب'
-  ];
-  const correct = 1;
-  const fb = '✅ عند الشروق والغروب تكون الشمس منخفضة فتمر أشعتها مسافة أطول داخل الغلاف الجوي. هذا يُشتّت الضوء الأزرق (موجاته قصيرة) ويسمح للأحمر والبرتقالي (موجاتهما أطول) بالوصول إلينا. في منتصف النهار الأشعة عمودية والمسافة أقصر فيصل الأزرق بوفرة.';
-  const container = document.getElementById('src-opts');
-  if(!container) return;
-  opts.forEach((opt,i)=>{
-    const btn = document.createElement('button');
-    btn.className='ctrl-btn';
-    btn.style.cssText='text-align:right;white-space:normal;height:auto;padding:7px 10px;font-size:11px;line-height:1.6';
-    btn.textContent = opt;
-    btn.onclick = ()=>{
-      document.querySelectorAll('#src-opts .ctrl-btn').forEach(b=>{b.disabled=true;b.style.opacity='0.6';});
-      btn.style.opacity='1';
-      const fbEl = document.getElementById('src-fb');
-      if(i===correct){
-        btn.style.background='rgba(39,174,96,.25)';btn.style.borderColor='#27ae60';
-        fbEl.style.background='rgba(39,174,96,.12)';fbEl.style.border='1px solid rgba(39,174,96,.3)';
-      } else {
-        btn.style.background='rgba(231,76,60,.20)';btn.style.borderColor='#e74c3c';
-        fbEl.style.background='rgba(231,76,60,.10)';fbEl.style.border='1px solid rgba(231,76,60,.3)';
-        // إظهار الصحيح
-        document.querySelectorAll('#src-opts .ctrl-btn')[correct].style.background='rgba(39,174,96,.20)';
-        document.querySelectorAll('#src-opts .ctrl-btn')[correct].style.borderColor='#27ae60';
-        document.querySelectorAll('#src-opts .ctrl-btn')[correct].style.opacity='1';
-      }
-      fbEl.style.display='block';
-      fbEl.style.color='var(--text)';
-      fbEl.textContent = fb;
-    };
-    container.appendChild(btn);
-  });
 }
 
 function simG5EarthSun() {
