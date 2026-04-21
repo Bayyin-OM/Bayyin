@@ -33864,7 +33864,7 @@ function simG5MirrorFlat() {
 <div class="ctrl-section">
   <div class="ctrl-label">🪞 المرآة المستوية</div>
   <div class="ctrl-desc">
-    حرّك الماوس/إصبعك <b>للأعلى والأسفل</b> على الكانفاس لتغيير زاوية السقوط وشاهد كيف تتغيّر زاوية الانعكاس
+    حرّك الماوس/إصبعك <b>للأعلى والأسفل</b> على الكانفاس لتغيير زاوية السقوط، أو <b>اسحب 💡 مصدر الضوء</b> لتغيير الزاوية والطول معاً
   </div>
 </div>
 <div class="ctrl-section">
@@ -33886,18 +33886,74 @@ function simG5MirrorFlat() {
     S.mirrorInit = true;
     S.angle = 45;
     S.showNormal = true;
+    S.rayLenFrac = 0.32; // fraction of canvas width
+    S.isDraggingSrc = false;
+
+    function getMirrorPos(cv2) {
+      return { mx: cv2.width * 0.55, my: cv2.height * 0.5 };
+    }
+    function getSrcPos(cv2) {
+      const rad = S.angle * Math.PI / 180;
+      const rayLen = S.rayLenFrac * cv2.width;
+      const { mx, my } = getMirrorPos(cv2);
+      return { x: mx - rayLen * Math.cos(rad), y: my - rayLen * Math.sin(rad) };
+    }
+    function hitTest(cv2, ex, ey) {
+      const src = getSrcPos(cv2);
+      return Math.hypot(ex - src.x, ey - src.y) < Math.max(20, cv2.width * 0.04);
+    }
+    function updateFromPointer(cv2, ex, ey, isDrag) {
+      const { mx, my } = getMirrorPos(cv2);
+      const dx = mx - ex, dy = my - ey;
+      if (isDrag) {
+        // Update both angle AND ray length from pointer position
+        S.angle = Math.max(5, Math.min(85, Math.atan2(dy, dx) * 180 / Math.PI));
+        S.rayLenFrac = Math.max(0.15, Math.min(0.55, Math.hypot(dx, dy) / cv2.width));
+      }
+    }
+
+    cv.onmousedown = function(e) {
+      const rect = cv.getBoundingClientRect();
+      const ex = (e.clientX - rect.left) * (cv.width / rect.width);
+      const ey = (e.clientY - rect.top) * (cv.height / rect.height);
+      if (hitTest(cv, ex, ey)) { S.isDraggingSrc = true; e.preventDefault(); }
+    };
     cv.onmousemove = function(e) {
       const rect = cv.getBoundingClientRect();
-      const my = (e.clientY - rect.top) / cv.offsetHeight;
-      S.angle = Math.max(10, Math.min(80, (1 - my) * 90));
+      const ex = (e.clientX - rect.left) * (cv.width / rect.width);
+      const ey = (e.clientY - rect.top) * (cv.height / rect.height);
+      if (S.isDraggingSrc) {
+        updateFromPointer(cv, ex, ey, true);
+      } else {
+        // Legacy: vertical drag changes angle only
+        const my2 = (e.clientY - rect.top) / cv.offsetHeight;
+        S.angle = Math.max(5, Math.min(85, (1 - my2) * 90));
+      }
+    };
+    cv.onmouseup = function() { S.isDraggingSrc = false; };
+    cv.onmouseleave = function() { S.isDraggingSrc = false; };
+
+    cv.ontouchstart = function(e) {
+      const rect = cv.getBoundingClientRect();
+      const t = e.touches[0];
+      const ex = (t.clientX - rect.left) * (cv.width / rect.width);
+      const ey = (t.clientY - rect.top) * (cv.height / rect.height);
+      if (hitTest(cv, ex, ey)) { S.isDraggingSrc = true; e.preventDefault(); }
     };
     cv.ontouchmove = function(e) {
       e.preventDefault();
       const rect = cv.getBoundingClientRect();
       const t = e.touches[0];
-      const my = (t.clientY - rect.top) / cv.offsetHeight;
-      S.angle = Math.max(10, Math.min(80, (1 - my) * 90));
+      const ex = (t.clientX - rect.left) * (cv.width / rect.width);
+      const ey = (t.clientY - rect.top) * (cv.height / rect.height);
+      if (S.isDraggingSrc) {
+        updateFromPointer(cv, ex, ey, true);
+      } else {
+        const my2 = (t.clientY - rect.top) / cv.offsetHeight;
+        S.angle = Math.max(5, Math.min(85, (1 - my2) * 90));
+      }
     };
+    cv.ontouchend = function() { S.isDraggingSrc = false; };
   }
   function draw() {
     if (currentSim !== 'g5mirror') return;
@@ -33929,7 +33985,7 @@ function simG5MirrorFlat() {
     c.fillText('العمود المقام', mx - w*0.01, my - 8);
 
     const rad = S.angle * Math.PI / 180;
-    const rayLen = w * 0.32;
+    const rayLen = (S.rayLenFrac || 0.32) * w;
 
     // ── Light source icon at start of incident ray ──
     const srcX = mx - rayLen * Math.cos(rad);
@@ -33944,6 +34000,10 @@ function simG5MirrorFlat() {
     // label above
     c.fillStyle='#FFE880'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
     c.fillText('💡 مصدر الضوء', srcX, srcY - Math.max(14,w*0.032));
+    // Drag ring indicator
+    c.strokeStyle='rgba(255,232,128,0.55)'; c.lineWidth=1.5; c.setLineDash([3,3]);
+    c.beginPath(); c.arc(srcX, srcY, Math.max(14,w*0.028), 0, Math.PI*2); c.stroke();
+    c.setLineDash([]);
 
     // Incident ray (source → mirror)
     c.strokeStyle = '#FFD700'; c.lineWidth = 2.5;
@@ -34031,7 +34091,7 @@ function simG5MirrorFlat() {
     c.fillStyle = 'rgba(255,255,255,0.92)'; c.textAlign = 'center';
     c.fillText(lawText, w/2, lawY);
 
-    const instrText = 'حرّك الماوس أو إصبعك للأعلى والأسفل لتغيير الزاوية';
+    const instrText = 'اسحب 💡 مصدر الضوء لتغيير الزاوية والطول — أو حرّك الماوس/إصبعك للأعلى والأسفل';
     c.fillStyle='rgba(160,160,220,0.65)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`;
     c.fillText(instrText, w/2, h * 0.975);
     animFrame = requestAnimationFrame(draw);
@@ -35378,8 +35438,8 @@ function simG5LightDirection() {
 <div class="ctrl-section">
   <div class="ctrl-label">🎯 لعبة هندسة الضوء</div>
   <div class="ctrl-desc">
-    حرّك الليزر 🔴 للأعلى والأسفل — كلما اقتربت من العمود المقام قلّت الزاوية.<br>
-    اسحب <strong>طرف الشعاع</strong> لتمديده أو تقصيره.
+    حرّك الليزر 🔴 <b>بحرية في أي اتجاه</b> — كلما اقتربت من العمود المقام قلّت الزاوية.<br>
+    اسحب <strong>طرف الشعاع ↔</strong> لتغيير نقطة السقوط على المرآة.
   </div>
 </div>
 <div class="ctrl-section">
@@ -35401,23 +35461,24 @@ function simG5LightDirection() {
   if (!S.ldInit) {
     S.ldInit = true;
     S.t = 0;
-    // Laser source position (relative 0..1)
+    // Laser source: free 2D position (relative 0..1)
+    S.laserX = 0.12;
     S.laserY = 0.28;
-    S.laserLen = 0.55; // relative length of incident ray (0.2..0.85)
+    S.laserLen = 0.55; // hit point along mirror (0..1)
     S.draggingLaser = false;
     S.draggingTip = false;
     S.photonT = 0;
+    S._dragOffX = 0; S._dragOffY = 0;
   }
 
   function getGeom() {
     const w = cv.width, h = cv.height;
     const mirrorY = h * 0.68;
-    const mirrorX1 = w * 0.18, mirrorX2 = w * 0.85;
-    // Laser source fixed on left
-    const laserSrcX = w * 0.05;
+    const mirrorX1 = w * 0.10, mirrorX2 = w * 0.92;
+    // Laser source: fully free position
+    const laserSrcX = S.laserX * w;
     const laserSrcY = S.laserY * h;
-    // Hit point: on mirror surface, horizontally determined by ray length
-    // Ray goes from laserSrc toward mirror. hitX is determined by laserLen
+    // Hit point: on mirror, horizontally controlled by laserLen
     const hitX = mirrorX1 + (mirrorX2 - mirrorX1) * S.laserLen;
     const hitY = mirrorY;
     // Incident vector
@@ -35425,12 +35486,11 @@ function simG5LightDirection() {
     const dyInc = hitY - laserSrcY;
     const lenInc = Math.sqrt(dxInc*dxInc + dyInc*dyInc);
     const incUx = dxInc/lenInc, incUy = dyInc/lenInc;
-    // Mirror normal (pointing up)
-    const dot = incUx*0 + incUy*(-1);
-    const refUx = incUx - 2*dot*0;
+    // Mirror normal (pointing up = 0,-1)
+    const dot = incUy * (-1);
+    const refUx = incUx;
     const refUy = incUy - 2*dot*(-1);
-    // Angle from normal (vertical) = angle between incident ray and upward normal
-    // incUy is positive (going down). angle from normal = acos(|incUy|) but easier:
+    // Angle from normal
     const incAngleDeg = Math.round(Math.abs(Math.atan2(Math.abs(incUx), Math.abs(incUy)) * 180 / Math.PI));
     return { w, h, mirrorY, mirrorX1, mirrorX2, laserSrcX, laserSrcY, hitX, hitY, incUx, incUy, refUx, refUy, incAngleDeg, lenInc };
   }
@@ -35447,20 +35507,27 @@ function simG5LightDirection() {
   function tryStartDrag(px, py) {
     const G = getGeom();
     const { w, h } = G;
-    // Check laser body drag (near source)
-    if (Math.hypot(px - G.laserSrcX, py - G.laserSrcY) < w * 0.08) {
-      S.draggingLaser = true; return;
+    // Laser source drag (generous hit area)
+    if (Math.hypot(px - G.laserSrcX, py - G.laserSrcY) < Math.max(30, w * 0.07)) {
+      S.draggingLaser = true;
+      S._dragOffX = px - G.laserSrcX;
+      S._dragOffY = py - G.laserSrcY;
+      return;
     }
-    // Check tip drag (near hitX point on mirror)
-    if (Math.hypot(px - G.hitX, py - G.hitY) < 22) {
+    // Tip drag (hit point on mirror)
+    if (Math.hypot(px - G.hitX, py - G.hitY) < 28) {
       S.draggingTip = true; return;
     }
-    // Also allow dragging along ray
+    // Drag anywhere along the ray beam
     const dx = G.hitX - G.laserSrcX, dy = G.hitY - G.laserSrcY;
     const len2 = dx*dx + dy*dy;
-    const t = Math.max(0,Math.min(1,((px-G.laserSrcX)*dx+(py-G.laserSrcY)*dy)/len2));
-    const cx = G.laserSrcX+t*dx, cy = G.laserSrcY+t*dy;
-    if (Math.hypot(px-cx, py-cy) < 18) { S.draggingLaser = true; }
+    const t = Math.max(0, Math.min(1, ((px - G.laserSrcX)*dx + (py - G.laserSrcY)*dy) / len2));
+    const cx = G.laserSrcX + t*dx, cy = G.laserSrcY + t*dy;
+    if (Math.hypot(px-cx, py-cy) < 20) {
+      S.draggingLaser = true;
+      S._dragOffX = px - G.laserSrcX;
+      S._dragOffY = py - G.laserSrcY;
+    }
   }
 
   function onMove(px, py) {
@@ -35468,13 +35535,15 @@ function simG5LightDirection() {
     const { w, h } = G;
     const mirrorY = h * 0.68;
     if (S.draggingLaser) {
-      // Move laser Y only (keep it on left side)
-      S.laserY = Math.max(0.06, Math.min(0.94, py / h));
+      // Free 2D movement — stay above mirror with margin
+      const newX = (px - S._dragOffX) / w;
+      const newY = (py - S._dragOffY) / h;
+      S.laserX = Math.max(0.03, Math.min(0.88, newX));
+      S.laserY = Math.max(0.04, Math.min(0.62, newY)); // keep above mirror
     }
     if (S.draggingTip) {
-      // Move hit point along mirror (adjust laserLen)
-      const mirrorX1 = w * 0.18, mirrorX2 = w * 0.85;
-      const clampedX = Math.max(mirrorX1 + w*0.04, Math.min(mirrorX2 - w*0.02, px));
+      const mirrorX1 = w * 0.10, mirrorX2 = w * 0.92;
+      const clampedX = Math.max(mirrorX1 + w*0.03, Math.min(mirrorX2 - w*0.02, px));
       S.laserLen = (clampedX - mirrorX1) / (mirrorX2 - mirrorX1);
     }
   }
@@ -35614,15 +35683,24 @@ function simG5LightDirection() {
     c.fillStyle='rgba(80,220,80,0.8)';
     c.fillText('زاوية انعكاس', refLX, mirrorY + 16);
 
-    // === LASER SOURCE (draggable) ===
-    const laserGlow = c.createRadialGradient(laserSrcX, laserSrcY, 0, laserSrcX, laserSrcY, w*0.06);
-    laserGlow.addColorStop(0,'rgba(255,80,80,0.8)'); laserGlow.addColorStop(1,'rgba(255,80,80,0)');
-    c.fillStyle=laserGlow; c.beginPath(); c.arc(laserSrcX, laserSrcY, w*0.06, 0, Math.PI*2); c.fill();
-    c.fillStyle='#FF3030'; c.beginPath(); c.arc(laserSrcX, laserSrcY, w*0.02, 0, Math.PI*2); c.fill();
-    c.fillStyle='rgba(255,120,120,0.95)'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
-    c.fillText('🔴 ليزر', laserSrcX, laserSrcY - w*0.04);
+    // === LASER SOURCE (draggable freely) ===
+    const laserGlow = c.createRadialGradient(laserSrcX, laserSrcY, 0, laserSrcX, laserSrcY, w*0.07);
+    laserGlow.addColorStop(0,'rgba(255,80,80,0.85)'); laserGlow.addColorStop(1,'rgba(255,80,80,0)');
+    c.fillStyle=laserGlow; c.beginPath(); c.arc(laserSrcX, laserSrcY, w*0.07, 0, Math.PI*2); c.fill();
+    c.fillStyle='#FF3030'; c.beginPath(); c.arc(laserSrcX, laserSrcY, Math.max(10,w*0.022), 0, Math.PI*2); c.fill();
+    // Drag ring
+    c.strokeStyle='rgba(255,160,160,0.6)'; c.lineWidth=1.5; c.setLineDash([3,3]);
+    c.beginPath(); c.arc(laserSrcX, laserSrcY, Math.max(18,w*0.04), 0, Math.PI*2); c.stroke();
+    c.setLineDash([]);
+    // Cross arrows indicating free 2D movement
+    const arSz = Math.max(7, w*0.013);
+    c.fillStyle='rgba(255,200,200,0.9)'; c.font=`bold ${arSz*1.4}px Arial`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('✛', laserSrcX, laserSrcY);
+    c.textBaseline='alphabetic';
+    c.fillStyle='rgba(255,120,120,0.95)'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('🔴 ليزر', laserSrcX, laserSrcY - Math.max(20,w*0.05));
     c.fillStyle='rgba(255,200,200,0.7)'; c.font=`${Math.max(8,w*0.015)}px Tajawal`;
-    c.fillText('(اسحب)', laserSrcX, laserSrcY + w*0.04);
+    c.fillText('(اسحب بحرية)', laserSrcX, laserSrcY + Math.max(22,w*0.048));
 
     // === TIP HANDLE at hit point (elastic end) ===
     const tipPulse = Math.sin(S.t*5)*2;
@@ -35658,7 +35736,7 @@ function simG5LightDirection() {
     // Instruction
     const instrFontSz = Math.max(10, w*0.019);
     c.fillStyle='rgba(255,255,255,0.6)'; c.font=`bold ${instrFontSz}px Tajawal`; c.textAlign='center';
-    c.fillText('← اسحب الليزر للأعلى/الأسفل · اسحب طرف الشعاع لتمديده أو تقصيره', w*0.45, h*0.96);
+    c.fillText('اسحب 🔴 الليزر بحرية في أي اتجاه · اسحب طرف الشعاع ↔ لتغيير نقطة السقوط', w*0.48, h*0.96);
 
     animFrame = requestAnimationFrame(draw);
   }
@@ -49972,7 +50050,7 @@ function simG9ReflType2(){
 // ══════════════════════════════════════════════════════════
 function simG9Refl1(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, ang:35, showNormal:true, showWaves:true, drag:false, dragType:'angle', rayLen:0.75};
+  simState={t:0, ang:35, showNormal:true, showWaves:true, drag:false};
   const S=simState;
   function clampAng(v){ return Math.max(5, Math.min(80, Math.round(v))); }
   window._setReflAng=function(v){
@@ -49993,9 +50071,9 @@ function simG9Refl1(){
   };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">قانون الانعكاس — مرآة مستوية</div>
+      <div class="ctrl-label">📐 قانون الانعكاس — مرآة مستوية</div>
       <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.65;margin-top:4px">
-        حرّك شريط الزاوية، أو <strong>اسحب المقبض البرتقالي</strong> لتغيير الزاوية، و<strong>المقبض الأبيض</strong> لتمديد الشعاع أو تقصيره.
+        حرّك شريط الزاوية، أو <strong>اسحب مقبض الشعاع</strong> على الشاشة. الزوايا من العمود المقام. سؤال الاستنتاج من الزر أسفل الشاشة.
       </div>
     </div>
     <div class="ctrl-section">
@@ -50014,59 +50092,50 @@ function simG9Refl1(){
     </div>
     <div class="info-box" style="margin-top:10px;text-align:center;line-height:1.75;font-size:13px">
       <strong>i = r</strong> (بالنسبة للعمود)<br>
-      اسحب البرتقالي للزاوية | الأبيض للطول
+      اسحب الدائرة البرتقالية عند طرف الشعاع الساقط لتدويره.
     </div>
   `);
 
   const cv=document.getElementById('simCanvas');
-  function getMaxL(w,h){ return Math.min(w,h)*0.52; }
   function rayGeom(w,h){
     const midX=w*0.5, midY=h*0.56, mirrorY=midY;
-    const i=(Math.PI/180)*S.ang;
-    const maxL=getMaxL(w,h);
-    const L=maxL*S.rayLen;
+    const i=(Math.PI/180)*S.ang, L=Math.min(w,h)*0.52;
     const incDir={x:Math.sin(i), y:Math.cos(i)};
     const refDir={x:Math.sin(i), y:-Math.cos(i)};
-    const p0={x:midX-incDir.x*L, y:mirrorY-incDir.y*L};
-    const hit={x:midX, y:mirrorY};
-    const p1={x:midX+refDir.x*L, y:mirrorY+refDir.y*L};
-    const lenHandle={x:midX-incDir.x*L*0.5, y:mirrorY-incDir.y*L*0.5};
-    return {midX,midY,mirrorY,i,L,maxL,p0,hit,p1,lenHandle};
+    const p0={x:midX-incDir.x*L,y:mirrorY-incDir.y*L};
+    const hit={x:midX,y:mirrorY};
+    const p1={x:midX+refDir.x*L,y:mirrorY+refDir.y*L};
+    return {midX,midY,mirrorY,i,L,p0,hit,p1};
+  }
+  function distPointSeg(px,py,x1,y1,x2,y2){
+    const dx=x2-x1, dy=y2-y1, t=Math.max(0,Math.min(1,((px-x1)*dx+(py-y1)*dy)/(dx*dx+dy*dy||1)));
+    const qx=x1+t*dx, qy=y1+t*dy;
+    return Math.hypot(px-qx,py-qy);
   }
   function posFromEvt(e){
     const r=cv.getBoundingClientRect();
     const p=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
-    return {mx:p.clientX-r.left, my:p.clientY-r.top};
+    return {mx:p.clientX-r.left,my:p.clientY-r.top};
   }
   function tryStartDrag(mx,my,w,h){
     const G=rayGeom(w,h);
-    const dTip=Math.hypot(mx-G.p0.x, my-G.p0.y);
-    if(dTip<26){ S.drag=true; S.dragType='angle'; return true; }
-    const dLen=Math.hypot(mx-G.lenHandle.x, my-G.lenHandle.y);
-    if(dLen<22){ S.drag=true; S.dragType='len'; return true; }
-    const dx=G.hit.x-G.p0.x, dy=G.hit.y-G.p0.y, lenSq=dx*dx+dy*dy||1;
-    const t=Math.max(0,Math.min(1,((mx-G.p0.x)*dx+(my-G.p0.y)*dy)/lenSq));
-    const qx=G.p0.x+t*dx, qy=G.p0.y+t*dy;
-    if(Math.hypot(mx-qx,my-qy)<18){ S.drag=true; S.dragType='angle'; return true; }
+    const dTip=Math.hypot(mx-G.p0.x,my-G.p0.y);
+    const dSeg=distPointSeg(mx,my,G.p0.x,G.p0.y,G.hit.x,G.hit.y);
+    if(dTip<26||dSeg<18){ S.drag=true; return true; }
     return false;
   }
-  function updateFromPointer(mx,my,w,h){
+  function updateAngFromPointer(mx,my,w,h){
     const G=rayGeom(w,h);
-    if(S.dragType==='angle'){
-      const dx=G.midX-mx, dy=G.mirrorY-my;
-      if(dy<8) return;
-      let deg=Math.atan2(Math.abs(dx),dy)*180/Math.PI;
-      window._setReflAng(deg);
-    } else if(S.dragType==='len'){
-      const dist=Math.hypot(mx-G.midX, my-G.mirrorY);
-      S.rayLen=Math.max(0.25, Math.min(1.0, dist/G.maxL));
-    }
+    const dx=G.midX-mx, dy=G.mirrorY-my;
+    if(dy<8) return;
+    let deg=Math.atan2(Math.abs(dx),dy)*180/Math.PI;
+    window._setReflAng(deg);
   }
   cv.onmousedown=function(e){ if(currentSim!=='g9refl')return; const {mx,my}=posFromEvt(e); tryStartDrag(mx,my,cv.width,cv.height); };
   cv.onmousemove=function(e){
     if(!S.drag||currentSim!=='g9refl') return;
     const {mx,my}=posFromEvt(e);
-    updateFromPointer(mx,my,cv.width,cv.height);
+    updateAngFromPointer(mx,my,cv.width,cv.height);
   };
   cv.onmouseup=cv.onmouseleave=function(){ S.drag=false; };
   cv.ontouchstart=function(e){ if(currentSim!=='g9refl')return; const {mx,my}=posFromEvt(e); if(tryStartDrag(mx,my,cv.width,cv.height)) e.preventDefault(); };
@@ -50074,7 +50143,7 @@ function simG9Refl1(){
     if(!S.drag) return;
     e.preventDefault();
     const {mx,my}=posFromEvt(e);
-    updateFromPointer(mx,my,cv.width,cv.height);
+    updateAngFromPointer(mx,my,cv.width,cv.height);
   };
   cv.ontouchend=function(){ S.drag=false; };
 
@@ -50085,20 +50154,25 @@ function simG9Refl1(){
     const bg=c.createLinearGradient(0,0,w,h);
     bg.addColorStop(0,'#F0F9FF'); bg.addColorStop(1,'#EEF2FF');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-    const {midX,midY,mirrorY,i,L,p0,hit,p1,lenHandle}=rayGeom(w,h);
+
+    const {midX,midY,mirrorY,i,L,p0,hit,p1}=rayGeom(w,h);
+
     c.fillStyle='rgba(30,45,61,0.06)'; c.fillRect(0,0,w,mirrorY);
+
     c.strokeStyle='rgba(30,45,61,0.4)'; c.lineWidth=10; c.lineCap='round';
     c.beginPath(); c.moveTo(w*0.16,mirrorY); c.lineTo(w*0.84,mirrorY); c.stroke();
     c.strokeStyle='rgba(255,255,255,0.65)'; c.lineWidth=2;
     c.beginPath(); c.moveTo(w*0.16,mirrorY-2); c.lineTo(w*0.84,mirrorY-2); c.stroke();
     c.fillStyle='rgba(30,45,61,0.85)'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
     c.fillText('سطح مرآة مستوية', midX, mirrorY-10);
+
     if(S.showNormal){
       c.strokeStyle='rgba(26,143,168,0.75)'; c.lineWidth=3; c.setLineDash([7,6]);
       c.beginPath(); c.moveTo(midX, mirrorY-h*0.34); c.lineTo(midX, mirrorY+h*0.22); c.stroke(); c.setLineDash([]);
       c.fillStyle='#1A8FA8'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textBaseline='top';
       c.fillText('N عمود مقام', midX+6, mirrorY+10);
     }
+
     function drawRayTube(x1,y1,x2,y2,isInc){
       if(!S.showWaves){
         c.strokeStyle=isInc?'#D97706':'#0891B2'; c.lineWidth=5; c.lineCap='round';
@@ -50112,7 +50186,7 @@ function simG9Refl1(){
       c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
       const steps=10, wx=x2-x1, wy=y2-y1;
       for(let k=0;k<=steps;k++){
-        const t2=k/steps, px=x1+wx*t2, py=y1+wy*t2, ph=Math.sin(S.t*3+k*0.7)*4;
+        const t=k/steps, px=x1+wx*t, py=y1+wy*t, ph=Math.sin(S.t*3+k*0.7)*4;
         c.strokeStyle=isInc?'rgba(245,158,11,0.35)':'rgba(6,182,212,0.35)';
         c.lineWidth=2;
         c.beginPath(); c.moveTo(px-ph,py); c.lineTo(px+ph,py); c.stroke();
@@ -50120,6 +50194,7 @@ function simG9Refl1(){
     }
     drawRayTube(p0.x,p0.y,hit.x,hit.y,true);
     drawRayTube(hit.x,hit.y,p1.x,p1.y,false);
+
     function arrow(x1,y1,x2,y2,col){
       const ang=Math.atan2(y2-y1,x2-x1), ah=13;
       c.fillStyle=col;
@@ -50130,30 +50205,28 @@ function simG9Refl1(){
     }
     arrow(p0.x,p0.y,hit.x,hit.y,'#B45309');
     arrow(hit.x,hit.y,p1.x,p1.y,'#0E7490');
+
     c.strokeStyle='rgba(245,158,11,0.85)'; c.lineWidth=2.5;
     const arcR=Math.min(w,h)*0.095;
     c.beginPath(); c.arc(midX,mirrorY,arcR,-Math.PI/2,-Math.PI/2+i,false); c.stroke();
     c.strokeStyle='rgba(6,182,212,0.85)';
     c.beginPath(); c.arc(midX,mirrorY,arcR,-Math.PI/2-i,-Math.PI/2,false); c.stroke();
-    // Orange handle: angle (tip)
+
     c.fillStyle='#F59E0B'; c.beginPath(); c.arc(p0.x,p0.y,14+Math.sin(S.t*4)*2,0,Math.PI*2); c.fill();
     c.strokeStyle='white'; c.lineWidth=2; c.stroke();
-    c.fillStyle='white'; c.font=`bold 10px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('زاوية',p0.x,p0.y);
-    // White handle: length (midpoint of ray)
-    c.fillStyle='rgba(255,255,255,0.92)';
-    c.beginPath(); c.arc(lenHandle.x,lenHandle.y,12,0,Math.PI*2); c.fill();
-    c.strokeStyle='#F59E0B'; c.lineWidth=2.5; c.stroke();
-    c.fillStyle='#B45309'; c.font=`bold 13px Arial`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('↔',lenHandle.x,lenHandle.y);
+    c.fillStyle='white'; c.font=`bold ${11}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('اسحب',p0.x,p0.y);
+
     c.fillStyle='rgba(15,23,42,0.9)'; c.font=`bold ${Math.min(20,Math.round(h*0.032))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
     c.fillText('i = '+Math.round(S.ang)+'°   |   r = '+Math.round(S.ang)+'°', midX, mirrorY+h*0.26);
     c.fillStyle='rgba(51,65,85,0.75)'; c.font=`${Math.round(h*0.022)}px Tajawal`;
     c.fillText('قانون الانعكاس: زاوية السقوط = زاوية الانعكاس (من العمود)', midX, mirrorY+h*0.31);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
+
 function simG9Refl2(){
   cancelAnimationFrame(animFrame);
   simState={t:0, boxX:0.22, boxY:0.32, ang:-28, dragging:false, showExt:true};
