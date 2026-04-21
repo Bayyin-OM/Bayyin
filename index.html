@@ -33883,16 +33883,15 @@ function simG5MirrorFlat() {
 </div>`;
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
+  // إعادة ضبط الحالة دائماً عند فتح المحاكاة لضمان تطبيق التعديلات
+  simState = {
+    mfInit: true,
+    mfSrcRelY: 0.25,
+    mfRayLen: 0.38,
+    mfDragSrc: false,
+    mfDragTip: false
+  };
   const S = simState;
-
-  if (!S.mirrorInit) {
-    S.mirrorInit = true;
-    // مصدر الضوء: موضع نسبي (0..1) للإحداثيين
-    S.mfSrcRelY = 0.25;   // عمودياً — يحدد الزاوية
-    S.mfRayLen  = 0.38;   // طول الشعاع الساقط (نسبي من عرض الكانفاس)
-    S.mfDragSrc = false;
-    S.mfDragTip = false;
-  }
 
   function getMirrorGeom() {
     const w = cv.width, h = cv.height;
