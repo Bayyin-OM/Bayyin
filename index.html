@@ -33862,9 +33862,11 @@ function simG5HowWeSee() {
 function simG5MirrorFlat() {
   document.getElementById('simControlsPanel').innerHTML=`
 <div class="ctrl-section">
-  <div class="ctrl-label">🪞 المرآة المستوية</div>
+  <div class="ctrl-label">🪞 المرآة المستوية — انعكاس المرايا</div>
   <div class="ctrl-desc">
-    حرّك الماوس/إصبعك <b>للأعلى والأسفل</b> على الكانفاس لتغيير زاوية السقوط، أو <b>اسحب 💡 مصدر الضوء</b> لتغيير الزاوية والطول معاً
+    اسحب <b>💡 مصدر الضوء</b> للأعلى/الأسفل لتغيير الزاوية.<br>
+    كلما اقتربت من العمود المقام <b>قلّت الزاوية</b>.<br>
+    اسحب <b>طرف الشعاع ↔</b> لتمديده أو تقصيره.
   </div>
 </div>
 <div class="ctrl-section">
@@ -33882,218 +33884,206 @@ function simG5MirrorFlat() {
   const cv = document.getElementById('simCanvas');
   const c = cv.getContext('2d');
   const S = simState;
+
   if (!S.mirrorInit) {
     S.mirrorInit = true;
-    S.angle = 45;
-    S.showNormal = true;
-    S.rayLenFrac = 0.32; // fraction of canvas width
-    S.isDraggingSrc = false;
-
-    function getMirrorPos(cv2) {
-      return { mx: cv2.width * 0.55, my: cv2.height * 0.5 };
-    }
-    function getSrcPos(cv2) {
-      const rad = S.angle * Math.PI / 180;
-      const rayLen = S.rayLenFrac * cv2.width;
-      const { mx, my } = getMirrorPos(cv2);
-      return { x: mx - rayLen * Math.cos(rad), y: my - rayLen * Math.sin(rad) };
-    }
-    function hitTest(cv2, ex, ey) {
-      const src = getSrcPos(cv2);
-      return Math.hypot(ex - src.x, ey - src.y) < Math.max(20, cv2.width * 0.04);
-    }
-    function updateFromPointer(cv2, ex, ey, isDrag) {
-      const { mx, my } = getMirrorPos(cv2);
-      const dx = mx - ex, dy = my - ey;
-      if (isDrag) {
-        // Update both angle AND ray length from pointer position
-        S.angle = Math.max(5, Math.min(85, Math.atan2(dy, dx) * 180 / Math.PI));
-        S.rayLenFrac = Math.max(0.15, Math.min(0.55, Math.hypot(dx, dy) / cv2.width));
-      }
-    }
-
-    cv.onmousedown = function(e) {
-      const rect = cv.getBoundingClientRect();
-      const ex = (e.clientX - rect.left) * (cv.width / rect.width);
-      const ey = (e.clientY - rect.top) * (cv.height / rect.height);
-      if (hitTest(cv, ex, ey)) { S.isDraggingSrc = true; e.preventDefault(); }
-    };
-    cv.onmousemove = function(e) {
-      const rect = cv.getBoundingClientRect();
-      const ex = (e.clientX - rect.left) * (cv.width / rect.width);
-      const ey = (e.clientY - rect.top) * (cv.height / rect.height);
-      if (S.isDraggingSrc) {
-        updateFromPointer(cv, ex, ey, true);
-      } else {
-        // Legacy: vertical drag changes angle only
-        const my2 = (e.clientY - rect.top) / cv.offsetHeight;
-        S.angle = Math.max(5, Math.min(85, (1 - my2) * 90));
-      }
-    };
-    cv.onmouseup = function() { S.isDraggingSrc = false; };
-    cv.onmouseleave = function() { S.isDraggingSrc = false; };
-
-    cv.ontouchstart = function(e) {
-      const rect = cv.getBoundingClientRect();
-      const t = e.touches[0];
-      const ex = (t.clientX - rect.left) * (cv.width / rect.width);
-      const ey = (t.clientY - rect.top) * (cv.height / rect.height);
-      if (hitTest(cv, ex, ey)) { S.isDraggingSrc = true; e.preventDefault(); }
-    };
-    cv.ontouchmove = function(e) {
-      e.preventDefault();
-      const rect = cv.getBoundingClientRect();
-      const t = e.touches[0];
-      const ex = (t.clientX - rect.left) * (cv.width / rect.width);
-      const ey = (t.clientY - rect.top) * (cv.height / rect.height);
-      if (S.isDraggingSrc) {
-        updateFromPointer(cv, ex, ey, true);
-      } else {
-        const my2 = (t.clientY - rect.top) / cv.offsetHeight;
-        S.angle = Math.max(5, Math.min(85, (1 - my2) * 90));
-      }
-    };
-    cv.ontouchend = function() { S.isDraggingSrc = false; };
+    // مصدر الضوء: موضع نسبي (0..1) للإحداثيين
+    S.mfSrcRelY = 0.25;   // عمودياً — يحدد الزاوية
+    S.mfRayLen  = 0.38;   // طول الشعاع الساقط (نسبي من عرض الكانفاس)
+    S.mfDragSrc = false;
+    S.mfDragTip = false;
   }
+
+  function getMirrorGeom() {
+    const w = cv.width, h = cv.height;
+    const mx = w * 0.55;         // x محور المرآة (رأسي)
+    const mcy = h * 0.50;        // نقطة التقاطع مع العمود المقام
+    const mLen = h * 0.30;
+    // مصدر الضوء
+    const srcY = S.mfSrcRelY * h;
+    // طول الشعاع الحقيقي بالبكسل
+    const rayPx = S.mfRayLen * w;
+    // الشعاع الساقط يبدأ من srcX (يسار المرآة) وينتهي عند نقطة على المرآة
+    // نقطة الاصطدام دائماً على خط المرآة x=mx
+    // srcX ثابت على بعد rayPx يساراً عن المرآة (أفقياً)
+    const srcX = mx - rayPx;
+    // الزاوية بين الشعاع والعمود المقام (الأفقي هنا = المرآة رأسية)
+    const dy = mcy - srcY;   // الفرق الرأسي من المصدر إلى نقطة الاصطدام
+    const dx = rayPx;         // الفرق الأفقي = طول الشعاع
+    const angleDeg = Math.round(Math.abs(Math.atan2(Math.abs(dy), dx) * 180 / Math.PI));
+    const angleRad = Math.abs(Math.atan2(Math.abs(dy), dx));
+    return { w, h, mx, mcy, mLen, srcX, srcY, angleDeg, angleRad, rayPx };
+  }
+
+  function evtPos(e) {
+    const rect = cv.getBoundingClientRect();
+    const src = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+    return {
+      x: (src.clientX - rect.left) * (cv.width / rect.width),
+      y: (src.clientY - rect.top) * (cv.height / rect.height)
+    };
+  }
+
+  function tryStartDrag(px, py) {
+    const G = getMirrorGeom();
+    // اسحب المصدر
+    if (Math.hypot(px - G.srcX, py - G.srcY) < G.w * 0.07) {
+      S.mfDragSrc = true; return;
+    }
+    // اسحب طرف الشعاع (نقطة الاصطدام على المرآة)
+    if (Math.hypot(px - G.mx, py - G.mcy) < 20) {
+      S.mfDragTip = true; return;
+    }
+    // السحب على امتداد الشعاع
+    const dx = G.mx - G.srcX, dy = G.mcy - G.srcY;
+    const len2 = dx*dx + dy*dy;
+    const t = Math.max(0, Math.min(1, ((px-G.srcX)*dx + (py-G.srcY)*dy) / len2));
+    if (Math.hypot(px - (G.srcX+t*dx), py - (G.srcY+t*dy)) < 16) {
+      S.mfDragSrc = true;
+    }
+  }
+
+  function onMove(px, py) {
+    const G = getMirrorGeom();
+    if (S.mfDragSrc) {
+      // تحريك المصدر رأسياً فقط (يغير الزاوية)
+      S.mfSrcRelY = Math.max(0.05, Math.min(0.75, py / G.h));
+    }
+    if (S.mfDragTip) {
+      // تمديد/تقصير الشعاع بتحريك نقطة الاصطدام أفقياً
+      // نقطة الاصطدام ثابتة على x=mx → السحب الأفقي يغير طول الشعاع
+      const newLen = Math.max(0.12, Math.min(0.60, (G.mx - px) / G.w));
+      S.mfRayLen = newLen;
+    }
+  }
+
+  cv.onmousedown  = function(e) { if(currentSim!=='g5mirror') return; tryStartDrag(...Object.values(evtPos(e))); };
+  cv.onmousemove  = function(e) { if(currentSim!=='g5mirror') return; if(!S.mfDragSrc&&!S.mfDragTip) return; const p=evtPos(e); onMove(p.x,p.y); };
+  cv.onmouseup    = cv.onmouseleave = function() { S.mfDragSrc=false; S.mfDragTip=false; };
+  cv.ontouchstart = function(e) { if(currentSim!=='g5mirror') return; e.preventDefault(); tryStartDrag(...Object.values(evtPos(e))); };
+  cv.ontouchmove  = function(e) { e.preventDefault(); if(!S.mfDragSrc&&!S.mfDragTip) return; const p=evtPos(e); onMove(p.x,p.y); };
+  cv.ontouchend   = function() { S.mfDragSrc=false; S.mfDragTip=false; };
+
   function draw() {
     if (currentSim !== 'g5mirror') return;
-    const w = cv.width, h = cv.height;
+    const G = getMirrorGeom();
+    const { w, h, mx, mcy, mLen, srcX, srcY, angleDeg, angleRad, rayPx } = G;
     c.fillStyle = '#1a1a2e'; c.fillRect(0,0,w,h);
 
-    const mx = w * 0.55, my = h * 0.5;
-    const mLen = h * 0.30;
-
-    // Mirror
+    // === المرآة الرأسية ===
     c.strokeStyle = '#C0C0FF'; c.lineWidth = 4;
-    c.beginPath(); c.moveTo(mx, my - mLen); c.lineTo(mx, my + mLen); c.stroke();
+    c.beginPath(); c.moveTo(mx, mcy - mLen); c.lineTo(mx, mcy + mLen); c.stroke();
     const mirGrad = c.createLinearGradient(mx-10, 0, mx+6, 0);
     mirGrad.addColorStop(0,'rgba(200,200,255,0.3)'); mirGrad.addColorStop(1,'rgba(200,200,255,0)');
-    c.fillStyle = mirGrad; c.fillRect(mx-10, my-mLen, 16, mLen*2);
-    // Hatch marks
+    c.fillStyle=mirGrad; c.fillRect(mx-10, mcy-mLen, 16, mLen*2);
     c.strokeStyle='rgba(180,180,255,0.2)'; c.lineWidth=1;
-    for(let hy=my-mLen; hy<my+mLen; hy+=14){
+    for(let hy=mcy-mLen; hy<mcy+mLen; hy+=14){
       c.beginPath(); c.moveTo(mx,hy); c.lineTo(mx+10,hy+10); c.stroke();
     }
     c.fillStyle='#aac'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center';
-    c.fillText('مرآة مستوية', mx+30, Math.min(my + mLen + 22, h*0.92));
+    c.fillText('مرآة مستوية', mx+32, Math.min(mcy + mLen + 22, h*0.92));
 
-    // Normal (dashed horizontal)
+    // === العمود المقام (أفقي منقط) ===
     c.strokeStyle='rgba(255,255,255,0.28)'; c.lineWidth=1.5; c.setLineDash([5,5]);
-    c.beginPath(); c.moveTo(mx - w*0.34, my); c.lineTo(mx + w*0.28, my); c.stroke();
+    c.beginPath(); c.moveTo(mx - w*0.38, mcy); c.lineTo(mx + w*0.28, mcy); c.stroke();
     c.setLineDash([]);
     c.fillStyle='rgba(255,255,255,0.45)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='right';
-    c.fillText('العمود المقام', mx - w*0.01, my - 8);
+    c.fillText('العمود المقام', mx - w*0.01, mcy - 8);
 
-    const rad = S.angle * Math.PI / 180;
-    const rayLen = (S.rayLenFrac || 0.32) * w;
+    // === الشعاع الساقط ===
+    c.strokeStyle='#FFD700'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(srcX, srcY); c.lineTo(mx, mcy); c.stroke();
+    // سهم على الشعاع الساقط
+    const arrowFrac = 0.72;
+    const axI = srcX+(mx-srcX)*arrowFrac, ayI = srcY+(mcy-srcY)*arrowFrac;
+    const angleInc = Math.atan2(mcy-srcY, mx-srcX);
+    c.save(); c.translate(axI,ayI); c.rotate(angleInc);
+    c.fillStyle='#FFD700'; c.beginPath(); c.moveTo(9,0); c.lineTo(-5,4); c.lineTo(-5,-4); c.fill(); c.restore();
 
-    // ── Light source icon at start of incident ray ──
-    const srcX = mx - rayLen * Math.cos(rad);
-    const srcY = my - rayLen * Math.sin(rad);
-    // glow
-    const srcGlow = c.createRadialGradient(srcX, srcY, 0, srcX, srcY, w*0.06);
-    srcGlow.addColorStop(0,'rgba(255,230,80,0.55)'); srcGlow.addColorStop(1,'rgba(255,230,80,0)');
-    c.fillStyle=srcGlow; c.beginPath(); c.arc(srcX,srcY,w*0.06,0,Math.PI*2); c.fill();
-    // bulb circle
-    c.fillStyle='#FFE040'; c.beginPath(); c.arc(srcX, srcY, Math.max(8,w*0.018), 0, Math.PI*2); c.fill();
-    c.strokeStyle='#CC9900'; c.lineWidth=1.5; c.stroke();
-    // label above
-    c.fillStyle='#FFE880'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('💡 مصدر الضوء', srcX, srcY - Math.max(14,w*0.032));
-    // Drag ring indicator
-    c.strokeStyle='rgba(255,232,128,0.55)'; c.lineWidth=1.5; c.setLineDash([3,3]);
-    c.beginPath(); c.arc(srcX, srcY, Math.max(14,w*0.028), 0, Math.PI*2); c.stroke();
-    c.setLineDash([]);
+    // === الشعاع المنعكس ===
+    // انعكاس بالنسبة للعمود المقام الأفقي → y ينعكس، x يبقى
+    const refEndX = mx + rayPx;
+    const refEndY = mcy - (mcy - srcY);   // انعكاس رأسي
+    c.strokeStyle='#4AFF9D'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(mx, mcy); c.lineTo(refEndX, refEndY); c.stroke();
+    const axR = mx+(refEndX-mx)*0.6, ayR = mcy+(refEndY-mcy)*0.6;
+    const angleRef = Math.atan2(refEndY-mcy, refEndX-mx);
+    c.save(); c.translate(axR,ayR); c.rotate(angleRef);
+    c.fillStyle='#4AFF9D'; c.beginPath(); c.moveTo(9,0); c.lineTo(-5,4); c.lineTo(-5,-4); c.fill(); c.restore();
 
-    // Incident ray (source → mirror)
-    c.strokeStyle = '#FFD700'; c.lineWidth = 2.5;
-    c.beginPath(); c.moveTo(srcX, srcY); c.lineTo(mx, my); c.stroke();
-    // Arrow on incident ray (near mirror)
-    const arrowFrac = 0.75;
-    const arrowX = srcX + (mx-srcX)*arrowFrac, arrowY = srcY + (my-srcY)*arrowFrac;
-    c.save(); c.translate(arrowX, arrowY); c.rotate(Math.PI - rad);
-    c.fillStyle='#FFD700'; c.beginPath(); c.moveTo(8,0); c.lineTo(-5,4); c.lineTo(-5,-4); c.fill(); c.restore();
-
-    // Reflected ray (mirror → away)
-    const refEndX = mx + rayLen * Math.cos(rad);
-    const refEndY = my - rayLen * Math.sin(rad);
-    c.strokeStyle = '#4AFF9D'; c.lineWidth = 2.5;
-    c.beginPath(); c.moveTo(mx, my); c.lineTo(refEndX, refEndY); c.stroke();
-    // Arrow on reflected ray
-    const arrowX2 = mx + (refEndX-mx)*0.6, arrowY2 = my + (refEndY-my)*0.6;
-    c.save(); c.translate(arrowX2, arrowY2); c.rotate(-rad);
-    c.fillStyle='#4AFF9D'; c.beginPath(); c.moveTo(8,0); c.lineTo(-5,4); c.lineTo(-5,-4); c.fill(); c.restore();
-
-    // Eye at end of reflected ray
+    // === العين ===
     c.font=`${Math.max(16,w*0.035)}px serif`; c.textAlign='center';
     c.fillText('👁️', refEndX, refEndY + 8);
     c.fillStyle='rgba(100,255,180,0.7)'; c.font=`${Math.max(8,w*0.016)}px Tajawal`;
-    c.fillText('العين', refEndX, refEndY + Math.max(22,w*0.045));
+    c.fillText('العين', refEndX, refEndY + Math.max(24,w*0.048));
 
-    // ── Angle arcs ──
-    // المرآة رأسية، canvas Y ينمو للأسفل
-    // الشعاع الساقط: يأتي من أعلى اليسار → اتجاهه من المرآة للمصدر = -(π - rad) = rad - π
-    //   (قيمة سالبة كبيرة، تقع في الربع الثاني/الثالث العلوي الأيسر)
-    // الشعاع المنعكس: يذهب لأعلى اليمين → اتجاهه = -rad
-    //   (قيمة سالبة صغيرة، تقع في الربع الرابع العلوي الأيمن)
-    // المرآة للأعلى = -π/2
-    //
-    // القوس الأصفر: يسار المرآة، بين (rad-π) و (-π/2) — عكس عقارب الساعة (false) ينتج القوس الصغير فوق يسار
-    // القوس الأخضر: يمين المرآة، بين (-π/2) و (-rad) — مع عقارب الساعة (true) ينتج القوس الصغير فوق يمين
+    // === أقواس الزوايا ===
+    const arcR = Math.min(64, h*0.12);
+    // المرآة رأسية → العمود المقام أفقي
+    // incidentDir: اتجاه من نقطة التقاطع نحو المصدر
+    const incidentAngle = Math.atan2(srcY - mcy, srcX - mx);   // فوق اليسار → سالب
+    const normalLeft    = Math.PI;                               // العمود نحو اليسار
+    // القوس الأصفر: بين incidentAngle و normalLeft (فوق اليسار)
+    c.strokeStyle='rgba(255,215,0,0.9)'; c.lineWidth=2.5;
+    // زاوية السقوط من العمود المقام لليسار نحو الشعاع الساقط
+    const startInc = normalLeft;
+    const endInc   = incidentAngle;
+    c.beginPath(); c.arc(mx, mcy, arcR, startInc, endInc, true); c.stroke();
+    const incMidA = (startInc + endInc) / 2;
+    c.fillStyle='#FFD700'; c.font=`bold ${Math.max(11,w*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText(`${angleDeg}°`, mx + arcR*0.65*Math.cos(incMidA), mcy + arcR*0.65*Math.sin(incMidA));
 
-    const arcR = 64;
-    const fontSize = Math.max(11, w*0.022);
-    const angleText = `${Math.round(S.angle)}°`;
-    c.font = `bold ${fontSize}px Tajawal`;
-
-    const mirrorUp    = -Math.PI / 2;          // سطح المرآة للأعلى = -90°
-    const incidentDir = rad - Math.PI;          // شعاع ساقط من المرآة نحو المصدر (فوق يسار)
-    const reflectDir  = -rad;                   // شعاع منعكس نحو العين (فوق يمين)
-
-    // زاوية السقوط (أصفر): من incidentDir إلى mirrorUp — عكس عقارب الساعة → قوس صغير فوق يسار
-    c.strokeStyle='rgba(255,215,0,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, incidentDir, mirrorUp, false); c.stroke();
-    const incMid = (incidentDir + mirrorUp) / 2;
-    const incLX = mx + arcR * 0.62 * Math.cos(incMid);
-    const incLY = my + arcR * 0.62 * Math.sin(incMid);
-    c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(angleText, incLX, incLY);
-
-    // زاوية الانعكاس (أخضر): من mirrorUp إلى reflectDir — عكس عقارب الساعة → قوس صغير فوق يمين
-    c.strokeStyle='rgba(74,255,157,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mx, my, arcR, mirrorUp, reflectDir, false); c.stroke();
-    const refMid = (mirrorUp + reflectDir) / 2;
-    const refLX = mx + arcR * 0.62 * Math.cos(refMid);
-    const refLY = my + arcR * 0.62 * Math.sin(refMid);
-    c.fillStyle='#4AFF9D'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(angleText, refLX, refLY);
-    c.textBaseline = 'alphabetic';
-    // Ray labels — avoid overlap by positioning carefully
-    const incLabelX = srcX + (mx-srcX)*0.45;
-    const incLabelY = srcY + (my-srcY)*0.45 - 14;
-    c.fillStyle='#FFD700'; c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
-    c.fillText('شعاع ساقط', incLabelX, Math.max(18, incLabelY));
-
-    const refLabelX = mx + (refEndX-mx)*0.45;
-    const refLabelY = my + (refEndY-my)*0.45 - 14;
+    // القوس الأخضر: الجانب الأيمن، زاوية انعكاس متماثلة
+    const reflectAngle = Math.atan2(refEndY - mcy, refEndX - mx);   // فوق اليمين → سالب
+    const normalRight  = 0;
+    c.strokeStyle='rgba(74,255,157,0.9)'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(mx, mcy, arcR, normalRight, reflectAngle, true); c.stroke();
+    const refMidA = (normalRight + reflectAngle) / 2;
     c.fillStyle='#4AFF9D';
-    c.fillText('شعاع منعكس', refLabelX, Math.max(18, refLabelY));
+    c.fillText(`${angleDeg}°`, mx + arcR*0.65*Math.cos(refMidA), mcy + arcR*0.65*Math.sin(refMidA));
+    c.textBaseline='alphabetic';
 
-    // Bottom law — with solid background so it never overlaps
-    const lawText = 'قانون الانعكاس: زاوية السقوط = زاوية الانعكاس ✅';
+    // === تسميات الأشعة ===
+    c.font=`bold ${Math.max(9,w*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillStyle='#FFD700';
+    c.fillText('شعاع ساقط', srcX+(mx-srcX)*0.45, srcY+(mcy-srcY)*0.45 - 14);
+    c.fillStyle='#4AFF9D';
+    c.fillText('شعاع منعكس', mx+(refEndX-mx)*0.45, mcy+(refEndY-mcy)*0.45 - 14);
+
+    // === مصدر الضوء (قابل للسحب) ===
+    const sg = c.createRadialGradient(srcX,srcY,0,srcX,srcY,w*0.06);
+    sg.addColorStop(0,'rgba(255,230,80,0.55)'); sg.addColorStop(1,'rgba(255,230,80,0)');
+    c.fillStyle=sg; c.beginPath(); c.arc(srcX,srcY,w*0.06,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE040'; c.beginPath(); c.arc(srcX,srcY,Math.max(8,w*0.018),0,Math.PI*2); c.fill();
+    c.strokeStyle='#CC9900'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='#FFE880'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('💡 مصدر الضوء', srcX, srcY - Math.max(14,w*0.032));
+    c.fillStyle='rgba(255,220,100,0.6)'; c.font=`${Math.max(8,w*0.015)}px Tajawal`;
+    c.fillText('(اسحب)', srcX, srcY + Math.max(20,w*0.034));
+
+    // === مقبض طرف الشعاع على المرآة (للتمديد) ===
+    const tipPulse = Math.sin(Date.now()*0.005)*2;
+    c.fillStyle='rgba(255,180,60,0.9)';
+    c.beginPath(); c.arc(mx, mcy, 10+tipPulse, 0, Math.PI*2); c.fill();
+    c.strokeStyle='white'; c.lineWidth=1.5; c.stroke();
+    c.fillStyle='white'; c.font=`bold ${Math.max(8,w*0.014)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('↔', mx, mcy);
+    c.textBaseline='alphabetic';
+
+    // === صندوق القانون ===
+    const lawText = `قانون الانعكاس: زاوية السقوط = زاوية الانعكاس = ${angleDeg}° ✅`;
     const lawFontSz = Math.max(11, Math.min(w*0.022, 17));
-    c.font = `bold ${lawFontSz}px Tajawal`;
+    c.font=`bold ${lawFontSz}px Tajawal`;
     const lawW = c.measureText(lawText).width + 28;
-    const lawX = (w - lawW) / 2;
-    const lawY = h * 0.93;
-    c.fillStyle = 'rgba(10,10,30,0.88)';
-    c.beginPath(); c.roundRect(lawX, lawY - lawFontSz - 4, Math.min(lawW, w*0.96), lawFontSz + 16, 8); c.fill();
-    c.fillStyle = 'rgba(255,255,255,0.92)'; c.textAlign = 'center';
-    c.fillText(lawText, w/2, lawY);
+    const lawX2 = (w-lawW)/2, lawY2 = h*0.93;
+    c.fillStyle='rgba(10,10,30,0.88)';
+    c.beginPath(); c.roundRect(lawX2, lawY2-lawFontSz-4, Math.min(lawW,w*0.96), lawFontSz+16, 8); c.fill();
+    c.fillStyle='rgba(255,255,255,0.92)'; c.textAlign='center';
+    c.fillText(lawText, w/2, lawY2);
 
-    const instrText = 'اسحب 💡 مصدر الضوء لتغيير الزاوية والطول — أو حرّك الماوس/إصبعك للأعلى والأسفل';
     c.fillStyle='rgba(160,160,220,0.65)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`;
-    c.fillText(instrText, w/2, h * 0.975);
+    c.fillText('اسحب 💡 للأعلى/الأسفل · اسحب ↔ لتمديد الشعاع', w/2, h*0.975);
+
     animFrame = requestAnimationFrame(draw);
   }
   draw();
@@ -35438,8 +35428,8 @@ function simG5LightDirection() {
 <div class="ctrl-section">
   <div class="ctrl-label">🎯 لعبة هندسة الضوء</div>
   <div class="ctrl-desc">
-    حرّك الليزر 🔴 <b>بحرية في أي اتجاه</b> — كلما اقتربت من العمود المقام قلّت الزاوية.<br>
-    اسحب <strong>طرف الشعاع ↔</strong> لتغيير نقطة السقوط على المرآة.
+    حرّك الليزر 🔴 للأعلى والأسفل — كلما اقتربت من العمود المقام قلّت الزاوية.<br>
+    اسحب <strong>طرف الشعاع</strong> لتمديده أو تقصيره.
   </div>
 </div>
 <div class="ctrl-section">
@@ -35461,24 +35451,23 @@ function simG5LightDirection() {
   if (!S.ldInit) {
     S.ldInit = true;
     S.t = 0;
-    // Laser source: free 2D position (relative 0..1)
-    S.laserX = 0.12;
+    // Laser source position (relative 0..1)
     S.laserY = 0.28;
-    S.laserLen = 0.55; // hit point along mirror (0..1)
+    S.laserLen = 0.55; // relative length of incident ray (0.2..0.85)
     S.draggingLaser = false;
     S.draggingTip = false;
     S.photonT = 0;
-    S._dragOffX = 0; S._dragOffY = 0;
   }
 
   function getGeom() {
     const w = cv.width, h = cv.height;
     const mirrorY = h * 0.68;
-    const mirrorX1 = w * 0.10, mirrorX2 = w * 0.92;
-    // Laser source: fully free position
-    const laserSrcX = S.laserX * w;
+    const mirrorX1 = w * 0.18, mirrorX2 = w * 0.85;
+    // Laser source fixed on left
+    const laserSrcX = w * 0.05;
     const laserSrcY = S.laserY * h;
-    // Hit point: on mirror, horizontally controlled by laserLen
+    // Hit point: on mirror surface, horizontally determined by ray length
+    // Ray goes from laserSrc toward mirror. hitX is determined by laserLen
     const hitX = mirrorX1 + (mirrorX2 - mirrorX1) * S.laserLen;
     const hitY = mirrorY;
     // Incident vector
@@ -35486,11 +35475,12 @@ function simG5LightDirection() {
     const dyInc = hitY - laserSrcY;
     const lenInc = Math.sqrt(dxInc*dxInc + dyInc*dyInc);
     const incUx = dxInc/lenInc, incUy = dyInc/lenInc;
-    // Mirror normal (pointing up = 0,-1)
-    const dot = incUy * (-1);
-    const refUx = incUx;
+    // Mirror normal (pointing up)
+    const dot = incUx*0 + incUy*(-1);
+    const refUx = incUx - 2*dot*0;
     const refUy = incUy - 2*dot*(-1);
-    // Angle from normal
+    // Angle from normal (vertical) = angle between incident ray and upward normal
+    // incUy is positive (going down). angle from normal = acos(|incUy|) but easier:
     const incAngleDeg = Math.round(Math.abs(Math.atan2(Math.abs(incUx), Math.abs(incUy)) * 180 / Math.PI));
     return { w, h, mirrorY, mirrorX1, mirrorX2, laserSrcX, laserSrcY, hitX, hitY, incUx, incUy, refUx, refUy, incAngleDeg, lenInc };
   }
@@ -35507,27 +35497,20 @@ function simG5LightDirection() {
   function tryStartDrag(px, py) {
     const G = getGeom();
     const { w, h } = G;
-    // Laser source drag (generous hit area)
-    if (Math.hypot(px - G.laserSrcX, py - G.laserSrcY) < Math.max(30, w * 0.07)) {
-      S.draggingLaser = true;
-      S._dragOffX = px - G.laserSrcX;
-      S._dragOffY = py - G.laserSrcY;
-      return;
+    // Check laser body drag (near source)
+    if (Math.hypot(px - G.laserSrcX, py - G.laserSrcY) < w * 0.08) {
+      S.draggingLaser = true; return;
     }
-    // Tip drag (hit point on mirror)
-    if (Math.hypot(px - G.hitX, py - G.hitY) < 28) {
+    // Check tip drag (near hitX point on mirror)
+    if (Math.hypot(px - G.hitX, py - G.hitY) < 22) {
       S.draggingTip = true; return;
     }
-    // Drag anywhere along the ray beam
+    // Also allow dragging along ray
     const dx = G.hitX - G.laserSrcX, dy = G.hitY - G.laserSrcY;
     const len2 = dx*dx + dy*dy;
-    const t = Math.max(0, Math.min(1, ((px - G.laserSrcX)*dx + (py - G.laserSrcY)*dy) / len2));
-    const cx = G.laserSrcX + t*dx, cy = G.laserSrcY + t*dy;
-    if (Math.hypot(px-cx, py-cy) < 20) {
-      S.draggingLaser = true;
-      S._dragOffX = px - G.laserSrcX;
-      S._dragOffY = py - G.laserSrcY;
-    }
+    const t = Math.max(0,Math.min(1,((px-G.laserSrcX)*dx+(py-G.laserSrcY)*dy)/len2));
+    const cx = G.laserSrcX+t*dx, cy = G.laserSrcY+t*dy;
+    if (Math.hypot(px-cx, py-cy) < 18) { S.draggingLaser = true; }
   }
 
   function onMove(px, py) {
@@ -35535,15 +35518,13 @@ function simG5LightDirection() {
     const { w, h } = G;
     const mirrorY = h * 0.68;
     if (S.draggingLaser) {
-      // Free 2D movement — stay above mirror with margin
-      const newX = (px - S._dragOffX) / w;
-      const newY = (py - S._dragOffY) / h;
-      S.laserX = Math.max(0.03, Math.min(0.88, newX));
-      S.laserY = Math.max(0.04, Math.min(0.62, newY)); // keep above mirror
+      // Move laser Y only (keep it on left side)
+      S.laserY = Math.max(0.06, Math.min(0.94, py / h));
     }
     if (S.draggingTip) {
-      const mirrorX1 = w * 0.10, mirrorX2 = w * 0.92;
-      const clampedX = Math.max(mirrorX1 + w*0.03, Math.min(mirrorX2 - w*0.02, px));
+      // Move hit point along mirror (adjust laserLen)
+      const mirrorX1 = w * 0.18, mirrorX2 = w * 0.85;
+      const clampedX = Math.max(mirrorX1 + w*0.04, Math.min(mirrorX2 - w*0.02, px));
       S.laserLen = (clampedX - mirrorX1) / (mirrorX2 - mirrorX1);
     }
   }
@@ -35683,24 +35664,15 @@ function simG5LightDirection() {
     c.fillStyle='rgba(80,220,80,0.8)';
     c.fillText('زاوية انعكاس', refLX, mirrorY + 16);
 
-    // === LASER SOURCE (draggable freely) ===
-    const laserGlow = c.createRadialGradient(laserSrcX, laserSrcY, 0, laserSrcX, laserSrcY, w*0.07);
-    laserGlow.addColorStop(0,'rgba(255,80,80,0.85)'); laserGlow.addColorStop(1,'rgba(255,80,80,0)');
-    c.fillStyle=laserGlow; c.beginPath(); c.arc(laserSrcX, laserSrcY, w*0.07, 0, Math.PI*2); c.fill();
-    c.fillStyle='#FF3030'; c.beginPath(); c.arc(laserSrcX, laserSrcY, Math.max(10,w*0.022), 0, Math.PI*2); c.fill();
-    // Drag ring
-    c.strokeStyle='rgba(255,160,160,0.6)'; c.lineWidth=1.5; c.setLineDash([3,3]);
-    c.beginPath(); c.arc(laserSrcX, laserSrcY, Math.max(18,w*0.04), 0, Math.PI*2); c.stroke();
-    c.setLineDash([]);
-    // Cross arrows indicating free 2D movement
-    const arSz = Math.max(7, w*0.013);
-    c.fillStyle='rgba(255,200,200,0.9)'; c.font=`bold ${arSz*1.4}px Arial`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('✛', laserSrcX, laserSrcY);
-    c.textBaseline='alphabetic';
-    c.fillStyle='rgba(255,120,120,0.95)'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('🔴 ليزر', laserSrcX, laserSrcY - Math.max(20,w*0.05));
+    // === LASER SOURCE (draggable) ===
+    const laserGlow = c.createRadialGradient(laserSrcX, laserSrcY, 0, laserSrcX, laserSrcY, w*0.06);
+    laserGlow.addColorStop(0,'rgba(255,80,80,0.8)'); laserGlow.addColorStop(1,'rgba(255,80,80,0)');
+    c.fillStyle=laserGlow; c.beginPath(); c.arc(laserSrcX, laserSrcY, w*0.06, 0, Math.PI*2); c.fill();
+    c.fillStyle='#FF3030'; c.beginPath(); c.arc(laserSrcX, laserSrcY, w*0.02, 0, Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,120,120,0.95)'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+    c.fillText('🔴 ليزر', laserSrcX, laserSrcY - w*0.04);
     c.fillStyle='rgba(255,200,200,0.7)'; c.font=`${Math.max(8,w*0.015)}px Tajawal`;
-    c.fillText('(اسحب بحرية)', laserSrcX, laserSrcY + Math.max(22,w*0.048));
+    c.fillText('(اسحب)', laserSrcX, laserSrcY + w*0.04);
 
     // === TIP HANDLE at hit point (elastic end) ===
     const tipPulse = Math.sin(S.t*5)*2;
@@ -35736,7 +35708,7 @@ function simG5LightDirection() {
     // Instruction
     const instrFontSz = Math.max(10, w*0.019);
     c.fillStyle='rgba(255,255,255,0.6)'; c.font=`bold ${instrFontSz}px Tajawal`; c.textAlign='center';
-    c.fillText('اسحب 🔴 الليزر بحرية في أي اتجاه · اسحب طرف الشعاع ↔ لتغيير نقطة السقوط', w*0.48, h*0.96);
+    c.fillText('← اسحب الليزر للأعلى/الأسفل · اسحب طرف الشعاع لتمديده أو تقصيره', w*0.45, h*0.96);
 
     animFrame = requestAnimationFrame(draw);
   }
