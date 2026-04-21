@@ -6,6 +6,11 @@
 <title>بيّن | منصة العلوم التفاعلية</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 <style>
 :root {
   --red: #C0392B;
@@ -2329,6 +2334,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
 }
 .pay-note { font-size: 11px; color: #AAA; margin: 8px 0 0; }
 </style>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -33864,9 +33870,8 @@ function simG5MirrorFlat() {
 <div class="ctrl-section">
   <div class="ctrl-label">🪞 المرآة المستوية — استقصاء المرايا المعكوسة</div>
   <div class="ctrl-desc">
-    اسحب <b>مصدر الضوء 💡</b> للأعلى والأسفل لتغيير الزاوية.<br>
-    كلما اقتربت من العمود المقام قلّت الزاوية ✅<br>
-    اسحب للأمام/الخلف لتمديد الشعاع أو تقصيره.
+    اسحب <b>مصدر الضوء 💡</b> بحرية — كلما اقتربت من العمود المقام قلّت الزاوية ✅<br>
+    كلما ابتعدت عن المرآة (أطلت الشعاع) كلما قلّت الزاوية أيضاً.
   </div>
 </div>
 <div class="ctrl-section">
@@ -33886,26 +33891,23 @@ function simG5MirrorFlat() {
   const S = simState;
   if (!S.mirrorInit) {
     S.mirrorInit = true;
-    // srcOffset: distance from hit point along normal direction (negative = above normal line)
-    // larger |srcOffset| → bigger angle. srcLen: distance from mirror along ray
-    S.srcOffset = -0.22;  // fraction of h (negative = above normal = angle > 0)
-    S.srcLen = 0.32;      // fraction of w (ray length)
+    // srcX, srcY: free position of light source as fractions of w, h
+    S.srcFX = 0.20;   // fraction of w  (to the left of mirror at 0.55)
+    S.srcFY = 0.28;   // fraction of h  (above mirror at 0.5)
     S.dragging = false;
   }
 
   function getGeom() {
     const w = cv.width, h = cv.height;
-    // Hit point: fixed on mirror at center height
     const mirX = w * 0.55, mirY = h * 0.5;
-    // Source: srcOffset is vertical distance above mirY (negative = above)
-    // srcLen is horizontal distance to the left of mirX
-    const srcX = mirX - Math.abs(S.srcLen) * w;
-    const srcY = mirY + S.srcOffset * h;  // srcOffset is negative → srcY < mirY (above)
-    // Vector from source to hit point
+    const srcX = S.srcFX * w;
+    const srcY = S.srcFY * h;
     const dx = mirX - srcX;   // always positive (source is to the left)
     const dy = mirY - srcY;   // always positive (source is above)
-    // Mirror is vertical → normal is horizontal (pointing left)
-    // Angle of incidence = angle between ray and horizontal normal = atan2(dy, dx)
+    // Mirror is vertical → normal is horizontal
+    // Angle of incidence = angle between incoming ray and the horizontal normal
+    // When source is far left (large dx) and close vertically (small dy) → small angle ✓
+    // When source is close left (small dx) and far vertically (large dy) → large angle ✓
     const angleDeg = Math.max(2, Math.min(82, Math.round(Math.atan2(dy, dx) * 180 / Math.PI)));
     const rad = angleDeg * Math.PI / 180;
     const rayLen = Math.sqrt(dx*dx + dy*dy);
@@ -33923,7 +33925,7 @@ function simG5MirrorFlat() {
 
   function tryDrag(px, py) {
     const G = getGeom();
-    if (Math.hypot(px - G.srcX, py - G.srcY) < Math.max(22, G.w*0.05)) {
+    if (Math.hypot(px - G.srcX, py - G.srcY) < Math.max(26, G.w*0.06)) {
       S.dragging = true;
     }
   }
@@ -33931,12 +33933,9 @@ function simG5MirrorFlat() {
     if (!S.dragging) return;
     const w = cv.width, h = cv.height;
     const mirX = w * 0.55, mirY = h * 0.5;
-    // srcOffset from mirY
-    const rawOffset = (py - mirY) / h;
-    S.srcOffset = Math.max(-0.85, Math.min(-0.04, rawOffset)); // always above mirror
-    // srcLen from mirX
-    const rawLen = (mirX - px) / w;
-    S.srcLen = Math.max(0.12, Math.min(0.75, rawLen));
+    // Keep source to the left of mirror and above it
+    S.srcFX = Math.max(0.03, Math.min(mirX/w - 0.05, px / w));
+    S.srcFY = Math.max(0.04, Math.min(mirY/h - 0.04, py / h));
   }
 
   cv.onmousedown  = function(e){ if(currentSim!=='g5mirror') return; tryDrag(...Object.values(evtPos(e))); };
@@ -33949,7 +33948,7 @@ function simG5MirrorFlat() {
   function draw() {
     if (currentSim !== 'g5mirror') return;
     const G = getGeom();
-    const { w, h, mirX, mirY, srcX, srcY, angleDeg } = G;
+    const { w, h, mirX, mirY, srcX, srcY, angleDeg, rad } = G;
 
     c.fillStyle = '#1a1a2e'; c.fillRect(0,0,w,h);
 
@@ -51743,5 +51742,4 @@ function simG9Ohm2(){
 
 
 </body>
-</html>  
-          
+</html>
