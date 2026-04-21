@@ -49972,7 +49972,7 @@ function simG9ReflType2(){
 // ══════════════════════════════════════════════════════════
 function simG9Refl1(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, ang:35, showNormal:true, showWaves:true, drag:false};
+  simState={t:0, ang:35, showNormal:true, showWaves:true, drag:false, dragType:'angle', rayLen:0.75};
   const S=simState;
   function clampAng(v){ return Math.max(5, Math.min(80, Math.round(v))); }
   window._setReflAng=function(v){
@@ -49993,9 +49993,9 @@ function simG9Refl1(){
   };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">📐 قانون الانعكاس — مرآة مستوية</div>
+      <div class="ctrl-label">قانون الانعكاس — مرآة مستوية</div>
       <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.65;margin-top:4px">
-        حرّك شريط الزاوية، أو <strong>اسحب مقبض الشعاع</strong> على الشاشة. الزوايا من العمود المقام. سؤال الاستنتاج من الزر أسفل الشاشة.
+        حرّك شريط الزاوية، أو <strong>اسحب المقبض البرتقالي</strong> لتغيير الزاوية، و<strong>المقبض الأبيض</strong> لتمديد الشعاع أو تقصيره.
       </div>
     </div>
     <div class="ctrl-section">
@@ -50014,50 +50014,59 @@ function simG9Refl1(){
     </div>
     <div class="info-box" style="margin-top:10px;text-align:center;line-height:1.75;font-size:13px">
       <strong>i = r</strong> (بالنسبة للعمود)<br>
-      اسحب الدائرة البرتقالية عند طرف الشعاع الساقط لتدويره.
+      اسحب البرتقالي للزاوية | الأبيض للطول
     </div>
   `);
 
   const cv=document.getElementById('simCanvas');
+  function getMaxL(w,h){ return Math.min(w,h)*0.52; }
   function rayGeom(w,h){
     const midX=w*0.5, midY=h*0.56, mirrorY=midY;
-    const i=(Math.PI/180)*S.ang, L=Math.min(w,h)*0.52;
+    const i=(Math.PI/180)*S.ang;
+    const maxL=getMaxL(w,h);
+    const L=maxL*S.rayLen;
     const incDir={x:Math.sin(i), y:Math.cos(i)};
     const refDir={x:Math.sin(i), y:-Math.cos(i)};
-    const p0={x:midX-incDir.x*L,y:mirrorY-incDir.y*L};
-    const hit={x:midX,y:mirrorY};
-    const p1={x:midX+refDir.x*L,y:mirrorY+refDir.y*L};
-    return {midX,midY,mirrorY,i,L,p0,hit,p1};
-  }
-  function distPointSeg(px,py,x1,y1,x2,y2){
-    const dx=x2-x1, dy=y2-y1, t=Math.max(0,Math.min(1,((px-x1)*dx+(py-y1)*dy)/(dx*dx+dy*dy||1)));
-    const qx=x1+t*dx, qy=y1+t*dy;
-    return Math.hypot(px-qx,py-qy);
+    const p0={x:midX-incDir.x*L, y:mirrorY-incDir.y*L};
+    const hit={x:midX, y:mirrorY};
+    const p1={x:midX+refDir.x*L, y:mirrorY+refDir.y*L};
+    const lenHandle={x:midX-incDir.x*L*0.5, y:mirrorY-incDir.y*L*0.5};
+    return {midX,midY,mirrorY,i,L,maxL,p0,hit,p1,lenHandle};
   }
   function posFromEvt(e){
     const r=cv.getBoundingClientRect();
     const p=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
-    return {mx:p.clientX-r.left,my:p.clientY-r.top};
+    return {mx:p.clientX-r.left, my:p.clientY-r.top};
   }
   function tryStartDrag(mx,my,w,h){
     const G=rayGeom(w,h);
-    const dTip=Math.hypot(mx-G.p0.x,my-G.p0.y);
-    const dSeg=distPointSeg(mx,my,G.p0.x,G.p0.y,G.hit.x,G.hit.y);
-    if(dTip<26||dSeg<18){ S.drag=true; return true; }
+    const dTip=Math.hypot(mx-G.p0.x, my-G.p0.y);
+    if(dTip<26){ S.drag=true; S.dragType='angle'; return true; }
+    const dLen=Math.hypot(mx-G.lenHandle.x, my-G.lenHandle.y);
+    if(dLen<22){ S.drag=true; S.dragType='len'; return true; }
+    const dx=G.hit.x-G.p0.x, dy=G.hit.y-G.p0.y, lenSq=dx*dx+dy*dy||1;
+    const t=Math.max(0,Math.min(1,((mx-G.p0.x)*dx+(my-G.p0.y)*dy)/lenSq));
+    const qx=G.p0.x+t*dx, qy=G.p0.y+t*dy;
+    if(Math.hypot(mx-qx,my-qy)<18){ S.drag=true; S.dragType='angle'; return true; }
     return false;
   }
-  function updateAngFromPointer(mx,my,w,h){
+  function updateFromPointer(mx,my,w,h){
     const G=rayGeom(w,h);
-    const dx=G.midX-mx, dy=G.mirrorY-my;
-    if(dy<8) return;
-    let deg=Math.atan2(Math.abs(dx),dy)*180/Math.PI;
-    window._setReflAng(deg);
+    if(S.dragType==='angle'){
+      const dx=G.midX-mx, dy=G.mirrorY-my;
+      if(dy<8) return;
+      let deg=Math.atan2(Math.abs(dx),dy)*180/Math.PI;
+      window._setReflAng(deg);
+    } else if(S.dragType==='len'){
+      const dist=Math.hypot(mx-G.midX, my-G.mirrorY);
+      S.rayLen=Math.max(0.25, Math.min(1.0, dist/G.maxL));
+    }
   }
   cv.onmousedown=function(e){ if(currentSim!=='g9refl')return; const {mx,my}=posFromEvt(e); tryStartDrag(mx,my,cv.width,cv.height); };
   cv.onmousemove=function(e){
     if(!S.drag||currentSim!=='g9refl') return;
     const {mx,my}=posFromEvt(e);
-    updateAngFromPointer(mx,my,cv.width,cv.height);
+    updateFromPointer(mx,my,cv.width,cv.height);
   };
   cv.onmouseup=cv.onmouseleave=function(){ S.drag=false; };
   cv.ontouchstart=function(e){ if(currentSim!=='g9refl')return; const {mx,my}=posFromEvt(e); if(tryStartDrag(mx,my,cv.width,cv.height)) e.preventDefault(); };
@@ -50065,7 +50074,7 @@ function simG9Refl1(){
     if(!S.drag) return;
     e.preventDefault();
     const {mx,my}=posFromEvt(e);
-    updateAngFromPointer(mx,my,cv.width,cv.height);
+    updateFromPointer(mx,my,cv.width,cv.height);
   };
   cv.ontouchend=function(){ S.drag=false; };
 
@@ -50076,25 +50085,20 @@ function simG9Refl1(){
     const bg=c.createLinearGradient(0,0,w,h);
     bg.addColorStop(0,'#F0F9FF'); bg.addColorStop(1,'#EEF2FF');
     c.fillStyle=bg; c.fillRect(0,0,w,h);
-
-    const {midX,midY,mirrorY,i,L,p0,hit,p1}=rayGeom(w,h);
-
+    const {midX,midY,mirrorY,i,L,p0,hit,p1,lenHandle}=rayGeom(w,h);
     c.fillStyle='rgba(30,45,61,0.06)'; c.fillRect(0,0,w,mirrorY);
-
     c.strokeStyle='rgba(30,45,61,0.4)'; c.lineWidth=10; c.lineCap='round';
     c.beginPath(); c.moveTo(w*0.16,mirrorY); c.lineTo(w*0.84,mirrorY); c.stroke();
     c.strokeStyle='rgba(255,255,255,0.65)'; c.lineWidth=2;
     c.beginPath(); c.moveTo(w*0.16,mirrorY-2); c.lineTo(w*0.84,mirrorY-2); c.stroke();
     c.fillStyle='rgba(30,45,61,0.85)'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
     c.fillText('سطح مرآة مستوية', midX, mirrorY-10);
-
     if(S.showNormal){
       c.strokeStyle='rgba(26,143,168,0.75)'; c.lineWidth=3; c.setLineDash([7,6]);
       c.beginPath(); c.moveTo(midX, mirrorY-h*0.34); c.lineTo(midX, mirrorY+h*0.22); c.stroke(); c.setLineDash([]);
       c.fillStyle='#1A8FA8'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textBaseline='top';
       c.fillText('N عمود مقام', midX+6, mirrorY+10);
     }
-
     function drawRayTube(x1,y1,x2,y2,isInc){
       if(!S.showWaves){
         c.strokeStyle=isInc?'#D97706':'#0891B2'; c.lineWidth=5; c.lineCap='round';
@@ -50108,7 +50112,7 @@ function simG9Refl1(){
       c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
       const steps=10, wx=x2-x1, wy=y2-y1;
       for(let k=0;k<=steps;k++){
-        const t=k/steps, px=x1+wx*t, py=y1+wy*t, ph=Math.sin(S.t*3+k*0.7)*4;
+        const t2=k/steps, px=x1+wx*t2, py=y1+wy*t2, ph=Math.sin(S.t*3+k*0.7)*4;
         c.strokeStyle=isInc?'rgba(245,158,11,0.35)':'rgba(6,182,212,0.35)';
         c.lineWidth=2;
         c.beginPath(); c.moveTo(px-ph,py); c.lineTo(px+ph,py); c.stroke();
@@ -50116,7 +50120,6 @@ function simG9Refl1(){
     }
     drawRayTube(p0.x,p0.y,hit.x,hit.y,true);
     drawRayTube(hit.x,hit.y,p1.x,p1.y,false);
-
     function arrow(x1,y1,x2,y2,col){
       const ang=Math.atan2(y2-y1,x2-x1), ah=13;
       c.fillStyle=col;
@@ -50127,28 +50130,30 @@ function simG9Refl1(){
     }
     arrow(p0.x,p0.y,hit.x,hit.y,'#B45309');
     arrow(hit.x,hit.y,p1.x,p1.y,'#0E7490');
-
     c.strokeStyle='rgba(245,158,11,0.85)'; c.lineWidth=2.5;
     const arcR=Math.min(w,h)*0.095;
     c.beginPath(); c.arc(midX,mirrorY,arcR,-Math.PI/2,-Math.PI/2+i,false); c.stroke();
     c.strokeStyle='rgba(6,182,212,0.85)';
     c.beginPath(); c.arc(midX,mirrorY,arcR,-Math.PI/2-i,-Math.PI/2,false); c.stroke();
-
+    // Orange handle: angle (tip)
     c.fillStyle='#F59E0B'; c.beginPath(); c.arc(p0.x,p0.y,14+Math.sin(S.t*4)*2,0,Math.PI*2); c.fill();
     c.strokeStyle='white'; c.lineWidth=2; c.stroke();
-    c.fillStyle='white'; c.font=`bold ${11}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('اسحب',p0.x,p0.y);
-
+    c.fillStyle='white'; c.font=`bold 10px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('زاوية',p0.x,p0.y);
+    // White handle: length (midpoint of ray)
+    c.fillStyle='rgba(255,255,255,0.92)';
+    c.beginPath(); c.arc(lenHandle.x,lenHandle.y,12,0,Math.PI*2); c.fill();
+    c.strokeStyle='#F59E0B'; c.lineWidth=2.5; c.stroke();
+    c.fillStyle='#B45309'; c.font=`bold 13px Arial`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('↔',lenHandle.x,lenHandle.y);
     c.fillStyle='rgba(15,23,42,0.9)'; c.font=`bold ${Math.min(20,Math.round(h*0.032))}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
     c.fillText('i = '+Math.round(S.ang)+'°   |   r = '+Math.round(S.ang)+'°', midX, mirrorY+h*0.26);
     c.fillStyle='rgba(51,65,85,0.75)'; c.font=`${Math.round(h*0.022)}px Tajawal`;
     c.fillText('قانون الانعكاس: زاوية السقوط = زاوية الانعكاس (من العمود)', midX, mirrorY+h*0.31);
-
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
-
 function simG9Refl2(){
   cancelAnimationFrame(animFrame);
   simState={t:0, boxX:0.22, boxY:0.32, ang:-28, dragging:false, showExt:true};
