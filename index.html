@@ -33891,38 +33891,27 @@ function simG5MirrorFlat() {
   const S = simState;
   if (!S.mirrorInit) {
     S.mirrorInit = true;
-    // srcX, srcY: free position of light source as fractions of w, h
-    S.srcFX = 0.20;   // fraction of w  (to the left of mirror at 0.55)
-    S.srcFY = 0.28;   // fraction of h  (above mirror at 0.5)
+    S.angleDeg = 35;    // angle of incidence in degrees (2–82)
+    S.rayLen = 0;       // will be set from canvas size on first draw
     S.dragging = false;
-    S.rayScale = 1.0; // scale factor for ray length (0.3 – 2.0)
-    S.dragMode = '';  // 'source' | 'handle'
+    S.dragMode = '';
   }
 
   function getGeom() {
     const w = cv.width, h = cv.height;
     const mirX = w * 0.55, mirY = h * 0.5;
-    // The direction of the ray is fixed by srcFX/srcFY (angle),
-    // actual source is scaled along that direction from mirror hit point.
-    const baseSrcX = S.srcFX * w;
-    const baseSrcY = S.srcFY * h;
-    const baseDX = mirX - baseSrcX;
-    const baseDY = mirY - baseSrcY;
-    const scale = Math.max(0.3, Math.min(2.2, S.rayScale));
-    const srcX = mirX - baseDX * scale;
-    const srcY = mirY - baseDY * scale;
-    const dx = mirX - srcX;   // always positive (source is to the left)
-    const dy = mirY - srcY;   // always positive (source is above)
-    // Mirror is vertical → normal is horizontal
-    // Angle of incidence = angle between incoming ray and the horizontal normal
-    // When source is far left (large dx) and close vertically (small dy) → small angle ✓
-    // When source is close left (small dx) and far vertically (large dy) → large angle ✓
-    const angleDeg = Math.max(2, Math.min(82, Math.round(Math.atan2(dy, dx) * 180 / Math.PI)));
-    const rad = angleDeg * Math.PI / 180;
-    const rayLen = Math.sqrt(dx*dx + dy*dy);
-    // Handle: draggable point at 62% along incident ray (for stretching)
-    const handleX = srcX + dx * 0.62;
-    const handleY = srcY + dy * 0.62;
+    // initialise rayLen relative to canvas if not set
+    if (!S.rayLen) S.rayLen = w * 0.32;
+    const len = Math.max(w*0.10, Math.min(w*0.65, S.rayLen));
+    const rad = S.angleDeg * Math.PI / 180;
+    // Source is to the left and above the mirror hit point
+    const srcX = mirX - len * Math.cos(rad);
+    const srcY = mirY - len * Math.sin(rad);
+    const angleDeg = S.angleDeg;
+    const rayLen = len;
+    // Handle: draggable point at 60% along incident ray (for stretching)
+    const handleX = srcX + (mirX - srcX) * 0.60;
+    const handleY = srcY + (mirY - srcY) * 0.60;
     return { w, h, mirX, mirY, srcX, srcY, angleDeg, rad, rayLen, handleX, handleY };
   }
 
@@ -33937,15 +33926,12 @@ function simG5MirrorFlat() {
 
   function tryDrag(px, py) {
     const G = getGeom();
-    const hitR = Math.max(26, G.w*0.055);
-    // Check handle first (smaller radius ok since it's a secondary control)
-    const handleR = Math.max(18, G.w*0.038);
+    const handleR = Math.max(20, G.w*0.04);
+    const srcR    = Math.max(26, G.w*0.055);
     if (Math.hypot(px - G.handleX, py - G.handleY) < handleR) {
       S.dragging = true;
       S.dragMode = 'handle';
-      // Store the base ray length at drag start for reference
-      S._dragBaseLen = Math.sqrt(Math.pow(G.mirX - G.srcX, 2) + Math.pow(G.mirY - G.srcY, 2));
-    } else if (Math.hypot(px - G.srcX, py - G.srcY) < hitR) {
+    } else if (Math.hypot(px - G.srcX, py - G.srcY) < srcR) {
       S.dragging = true;
       S.dragMode = 'source';
     }
@@ -33955,21 +33941,19 @@ function simG5MirrorFlat() {
     const w = cv.width, h = cv.height;
     const mirX = w * 0.55, mirY = h * 0.5;
     if (S.dragMode === 'source') {
-      // Move source: changes angle (direction), keep rayScale
-      S.srcFX = Math.max(0.03, Math.min(mirX/w - 0.05, px / w));
-      S.srcFY = Math.max(0.04, Math.min(mirY/h - 0.04, py / h));
+      // Dragging the bulb → change angle only
+      // clamp source to left-of-mirror and above-mirror
+      const clampX = Math.max(w*0.03, Math.min(mirX - w*0.05, px));
+      const clampY = Math.max(h*0.04, Math.min(mirY - h*0.04, py));
+      const dx = mirX - clampX;
+      const dy = mirY - clampY;
+      S.angleDeg = Math.max(2, Math.min(82, Math.round(Math.atan2(dy, dx) * 180 / Math.PI)));
     } else if (S.dragMode === 'handle') {
-      // Stretch/shrink ray: keep direction, change scale
-      // Project mouse onto ray direction to compute new scale
-      const baseSrcX = S.srcFX * w;
-      const baseSrcY = S.srcFY * h;
-      const baseDX = mirX - baseSrcX;
-      const baseDY = mirY - baseSrcY;
-      const baseLen = Math.sqrt(baseDX*baseDX + baseDY*baseDY) || 1;
-      // Distance from mirror to mouse projected onto ray direction
-      const mpx = mirX - px, mpy = mirY - py;
-      const proj = (mpx * baseDX + mpy * baseDY) / (baseLen * baseLen);
-      S.rayScale = Math.max(0.3, Math.min(2.2, proj));
+      // Dragging the handle → change ray length only (keep angle)
+      const dx = mirX - px;
+      const dy = mirY - py;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      S.rayLen = Math.max(w*0.10, Math.min(w*0.65, dist));
     }
   }
 
@@ -34034,33 +34018,36 @@ function simG5MirrorFlat() {
     c.fillStyle='#FFD700'; c.beginPath(); c.moveTo(8,0); c.lineTo(-5,4); c.lineTo(-5,-4); c.fill(); c.restore();
 
     // Angle arcs at hit point
-    // المرآة رأسية → العمود المقام أفقي → الاتجاه من mirX لليسار = π (180°)
-    // الشعاع الساقط جاء من أعلى اليسار → اتجاهه إلى المصدر من نقطة الانعكاس = π + rad (فوق يسار)
-    // أما الزاوية من العمود (الأفقي): incident angle = rad (من الأفق للشعاع)
     const arcR = Math.min(60, h*0.10);
     const fontSize = Math.max(11, w*0.022);
     const angleText = `${angleDeg}°`;
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // قوس زاوية السقوط: من اتجاه الشعاع الساقط (نحو المصدر) إلى الأفق الأيسر
-    // اتجاه الشعاع من mirX,mirY إلى srcX,srcY = Math.atan2(srcY-mirY, srcX-mirX) = π+rad (فوق يسار)
-    const incDir = Math.atan2(srcY-mirY, srcX-mirX);  // اتجاه نحو المصدر
-    const normalLeft = Math.PI;  // الأفق لليسار
+    // قوس زاوية السقوط (يسار العمود المقام): من الأفق الأيسر (π) إلى الشعاع الساقط
+    // الشعاع الساقط يأتي من أعلى يسار → اتجاهه من نقطة الانعكاس نحو المصدر = π + rad (فوق أفق)
+    // الزاوية المحصورة = rad (من الأفق للشعاع)
+    // نرسم من اتجاه الشعاع (-π-rad من الأفق) إلى الأفق الأيسر (π) باتجاه عقارب الساعة (false = CCW → نريد CW = true)
+    // incDir = اتجاه من mirX,mirY نحو srcX,srcY = atan2(srcY-mirY, srcX-mirX)
+    // srcY < mirY → srcY-mirY < 0, srcX < mirX → srcX-mirX < 0 → الاتجاه في الربع الثالث ≈ π + rad (فوق يسار = زاوية سالبة)
+    // نريد القوس الصغير بين الأفق الأيسر (π) والشعاع (π+rad) بالاتجاه CCW (عكس ع.ساعة = false) من π+rad إلى π
+    const incDir = Math.atan2(srcY - mirY, srcX - mirX); // ≈ -(π - rad) in top-left
     c.strokeStyle='rgba(255,215,0,0.85)'; c.lineWidth=2.5;
-    // القوس من incDir إلى normalLeft (عكس عقارب الساعة = false → القوس الأصغر فوق يسار)
-    c.beginPath(); c.arc(mirX, mirY, arcR, normalLeft, incDir, true); c.stroke();
-    const incMidAngle = normalLeft - rad*0.5;
+    c.beginPath(); c.arc(mirX, mirY, arcR, incDir, Math.PI, false); c.stroke();
+    // label midpoint
+    const incMid = incDir + (Math.PI - incDir) * 0.5;
     c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(angleText, mirX + arcR*0.65*Math.cos(incMidAngle), mirY + arcR*0.65*Math.sin(incMidAngle));
+    c.fillText(angleText, mirX + arcR*0.65*Math.cos(incMid), mirY + arcR*0.65*Math.sin(incMid));
 
-    // قوس زاوية الانعكاس: من الأفق الأيمر (0) إلى اتجاه الشعاع المنعكس
-    const refDir = Math.atan2(refEndY-mirY, refEndX-mirX);  // فوق يمين = -rad
-    const normalRight = 0;
+    // قوس زاوية الانعكاس (يمين العمود المقام): من الأفق الأيمن (0) إلى الشعاع المنعكس
+    // refDir = اتجاه من mirX,mirY نحو refEndX,refEndY = atan2(refEndY-mirY, refEndX-mirX)
+    // refEndY < mirY (فوق) و refEndX > mirX (يمين) → الربع الأول = -rad
+    const refDir2 = Math.atan2(refEndY - mirY, refEndX - mirX); // ≈ -rad
     c.strokeStyle='rgba(74,255,157,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mirX, mirY, arcR, refDir, normalRight, false); c.stroke();
-    const refMidAngle = -rad*0.5;
+    c.beginPath(); c.arc(mirX, mirY, arcR, refDir2, 0, false); c.stroke();
+    const refMid = refDir2 * 0.5;
     c.fillStyle='#4AFF9D';
-    c.fillText(angleText, mirX + arcR*0.65*Math.cos(refMidAngle), mirY + arcR*0.65*Math.sin(refMidAngle));
+    c.fillText(angleText, mirX + arcR*0.65*Math.cos(refMid), mirY + arcR*0.65*Math.sin(refMid));
+    c.textBaseline='alphabetic';
     c.textBaseline='alphabetic';
 
     // Light source (draggable bulb)
