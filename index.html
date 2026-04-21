@@ -38016,16 +38016,14 @@ function simG5Rainbow() {
 
     // ── الشعاع داخل المنشور (من نقطة الدخول إلى نقطة الخروج) ──
     const exitX = prismX + w*0.032;
-    // نقطة الخروج تتغير بناءً على زاوية الشعاع الداخل
-    const exitY = entryY + (entryY - prismMid)*0.15;
+    // نقطة الخروج تتغير بناءً على زاوية الشعاع الداخل (الانكسار داخل المنشور)
+    const exitY = prismMid + (entryY - prismMid) * 0.5 + incAngleRad * h * 0.08;
     c.strokeStyle='rgba(255,255,255,0.35)'; c.lineWidth=3; c.setLineDash([3,4]);
     c.beginPath(); c.moveTo(entryX,entryY); c.lineTo(exitX,exitY); c.stroke();
     c.setLineDash([]);
 
-    // ── الألوان الخارجة — تتغير بزاوية الشعاع ──
-    // حساب التأثير: كلما كان الشعاع أعلى أو أسفل، تتغير زاوية الخروج
-    const beamOffsetFactor = (entryY - prismMid) / (h * 0.30); // -1 إلى +1
-    const angleShift = beamOffsetFactor * 0.25; // إزاحة زاوية الخروج
+    // ── الألوان الخارجة — زاوية الانكسار تتغير بوضوح مع زاوية السقوط ──
+    const angleShift = incAngleRad * 0.7;
     const baseAngleRad = (30 * Math.PI / 180) + angleShift;
     const rayLen = Math.min(w, h) * 0.55;
 
