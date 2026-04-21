@@ -36580,10 +36580,12 @@ function simG5TransparentTest() {
 
       // شارة النوع
       const col = typeColors[mat.type] || '#aaa';
+      const badgeText = `بواسطة ${mat.name}`;
       c.fillStyle = col + 'DD';
-      c.beginPath(); c.roundRect(matX - w*0.06, matTop + h*0.02, w*0.12, h*0.05, 5); c.fill();
+      const badgeW = Math.max(w*0.14, c.measureText(badgeText).width + w*0.03);
+      c.beginPath(); c.roundRect(matX - badgeW/2, matTop + h*0.02, badgeW, h*0.05, 5); c.fill();
       c.fillStyle = 'white'; c.font = `bold ${Math.max(7,w*0.015)}px Tajawal`; c.textAlign = 'center';
-      c.fillText(mat.type, matX, matTop + h*0.053);
+      c.fillText(badgeText, matX, matTop + h*0.053);
 
     } else {
       // لا مادة مختارة
