@@ -33895,13 +33895,22 @@ function simG5MirrorFlat() {
     S.srcFX = 0.20;   // fraction of w  (to the left of mirror at 0.55)
     S.srcFY = 0.28;   // fraction of h  (above mirror at 0.5)
     S.dragging = false;
+    S.rayScale = 1.0; // scale factor for ray length (0.3 – 2.0)
+    S.dragMode = '';  // 'source' | 'handle'
   }
 
   function getGeom() {
     const w = cv.width, h = cv.height;
     const mirX = w * 0.55, mirY = h * 0.5;
-    const srcX = S.srcFX * w;
-    const srcY = S.srcFY * h;
+    // The direction of the ray is fixed by srcFX/srcFY (angle),
+    // actual source is scaled along that direction from mirror hit point.
+    const baseSrcX = S.srcFX * w;
+    const baseSrcY = S.srcFY * h;
+    const baseDX = mirX - baseSrcX;
+    const baseDY = mirY - baseSrcY;
+    const scale = Math.max(0.3, Math.min(2.2, S.rayScale));
+    const srcX = mirX - baseDX * scale;
+    const srcY = mirY - baseDY * scale;
     const dx = mirX - srcX;   // always positive (source is to the left)
     const dy = mirY - srcY;   // always positive (source is above)
     // Mirror is vertical → normal is horizontal
@@ -33911,7 +33920,10 @@ function simG5MirrorFlat() {
     const angleDeg = Math.max(2, Math.min(82, Math.round(Math.atan2(dy, dx) * 180 / Math.PI)));
     const rad = angleDeg * Math.PI / 180;
     const rayLen = Math.sqrt(dx*dx + dy*dy);
-    return { w, h, mirX, mirY, srcX, srcY, angleDeg, rad, rayLen };
+    // Handle: draggable point at 62% along incident ray (for stretching)
+    const handleX = srcX + dx * 0.62;
+    const handleY = srcY + dy * 0.62;
+    return { w, h, mirX, mirY, srcX, srcY, angleDeg, rad, rayLen, handleX, handleY };
   }
 
   function evtPos(e) {
@@ -33925,25 +33937,48 @@ function simG5MirrorFlat() {
 
   function tryDrag(px, py) {
     const G = getGeom();
-    if (Math.hypot(px - G.srcX, py - G.srcY) < Math.max(26, G.w*0.06)) {
+    const hitR = Math.max(26, G.w*0.055);
+    // Check handle first (smaller radius ok since it's a secondary control)
+    const handleR = Math.max(18, G.w*0.038);
+    if (Math.hypot(px - G.handleX, py - G.handleY) < handleR) {
       S.dragging = true;
+      S.dragMode = 'handle';
+      // Store the base ray length at drag start for reference
+      S._dragBaseLen = Math.sqrt(Math.pow(G.mirX - G.srcX, 2) + Math.pow(G.mirY - G.srcY, 2));
+    } else if (Math.hypot(px - G.srcX, py - G.srcY) < hitR) {
+      S.dragging = true;
+      S.dragMode = 'source';
     }
   }
   function onMove(px, py) {
     if (!S.dragging) return;
     const w = cv.width, h = cv.height;
     const mirX = w * 0.55, mirY = h * 0.5;
-    // Keep source to the left of mirror and above it
-    S.srcFX = Math.max(0.03, Math.min(mirX/w - 0.05, px / w));
-    S.srcFY = Math.max(0.04, Math.min(mirY/h - 0.04, py / h));
+    if (S.dragMode === 'source') {
+      // Move source: changes angle (direction), keep rayScale
+      S.srcFX = Math.max(0.03, Math.min(mirX/w - 0.05, px / w));
+      S.srcFY = Math.max(0.04, Math.min(mirY/h - 0.04, py / h));
+    } else if (S.dragMode === 'handle') {
+      // Stretch/shrink ray: keep direction, change scale
+      // Project mouse onto ray direction to compute new scale
+      const baseSrcX = S.srcFX * w;
+      const baseSrcY = S.srcFY * h;
+      const baseDX = mirX - baseSrcX;
+      const baseDY = mirY - baseSrcY;
+      const baseLen = Math.sqrt(baseDX*baseDX + baseDY*baseDY) || 1;
+      // Distance from mirror to mouse projected onto ray direction
+      const mpx = mirX - px, mpy = mirY - py;
+      const proj = (mpx * baseDX + mpy * baseDY) / (baseLen * baseLen);
+      S.rayScale = Math.max(0.3, Math.min(2.2, proj));
+    }
   }
 
   cv.onmousedown  = function(e){ if(currentSim!=='g5mirror') return; tryDrag(...Object.values(evtPos(e))); };
   cv.onmousemove  = function(e){ if(currentSim!=='g5mirror') return; onMove(...Object.values(evtPos(e))); };
-  cv.onmouseup = cv.onmouseleave = function(){ S.dragging = false; };
+  cv.onmouseup = cv.onmouseleave = function(){ S.dragging = false; S.dragMode = ''; };
   cv.ontouchstart = function(e){ if(currentSim!=='g5mirror') return; e.preventDefault(); tryDrag(...Object.values(evtPos(e))); };
   cv.ontouchmove  = function(e){ e.preventDefault(); onMove(...Object.values(evtPos(e))); };
-  cv.ontouchend   = function(){ S.dragging = false; };
+  cv.ontouchend   = function(){ S.dragging = false; S.dragMode = ''; };
 
   function draw() {
     if (currentSim !== 'g5mirror') return;
@@ -34039,6 +34074,25 @@ function simG5MirrorFlat() {
     c.fillStyle='rgba(255,230,150,0.7)'; c.font=`${Math.max(8,w*0.015)}px Tajawal`;
     c.fillText('(اسحب)', srcX, srcY + Math.max(22,w*0.038));
 
+    // ── Handle for stretching/shrinking the ray ──
+    const { handleX, handleY } = G;
+    const isHandleDrag = S.dragging && S.dragMode === 'handle';
+    const hR = Math.max(8, w*0.016);
+    const hGlow = c.createRadialGradient(handleX, handleY, 0, handleX, handleY, hR*2.5);
+    hGlow.addColorStop(0, isHandleDrag ? 'rgba(255,160,0,0.55)' : 'rgba(255,200,80,0.4)');
+    hGlow.addColorStop(1, 'rgba(255,200,80,0)');
+    c.fillStyle = hGlow; c.beginPath(); c.arc(handleX, handleY, hR*2.5, 0, Math.PI*2); c.fill();
+    c.fillStyle = isHandleDrag ? '#FF9500' : '#FFD700';
+    c.beginPath(); c.arc(handleX, handleY, hR, 0, Math.PI*2); c.fill();
+    c.strokeStyle = isHandleDrag ? '#FF6600' : 'rgba(255,255,255,0.6)'; c.lineWidth = 2;
+    c.stroke();
+    // Arrow hints on handle (←→)
+    c.fillStyle = 'rgba(255,255,255,0.9)'; c.font = `bold ${Math.max(9, w*0.017)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('↔', handleX, handleY);
+    c.textBaseline = 'alphabetic';
+    c.fillStyle = 'rgba(255,220,120,0.75)'; c.font = `${Math.max(8,w*0.014)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('(مدّد / قصّر)', handleX, handleY + hR + Math.max(13,w*0.026));
+
     // Eye at reflected ray end
     c.font=`${Math.max(16,w*0.035)}px serif`; c.textAlign='center';
     c.fillText('👁️', refEndX, refEndY + 8);
@@ -34065,7 +34119,7 @@ function simG5MirrorFlat() {
     c.fillText(lawText, w/2, lawY);
 
     c.fillStyle='rgba(160,160,220,0.65)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`;
-    c.fillText('اسحب مصدر الضوء للأعلى/أسفل لتغيير الزاوية — أو للأمام/خلف لتمديد الشعاع', w/2, h * 0.975);
+    c.fillText('اسحب 💡 لتغيير الزاوية — اسحب ↔ على الشعاع لتمديده أو تقصيره', w/2, h * 0.975);
     animFrame = requestAnimationFrame(draw);
   }
   draw();
