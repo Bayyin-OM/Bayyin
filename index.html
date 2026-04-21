@@ -34044,10 +34044,6 @@ function simG5MirrorFlat() {
     c.fillStyle = '#4AFF9D';
     c.fillText(angleText, mirX + arcR * 0.68 * Math.cos(refMid), mirY + arcR * 0.68 * Math.sin(refMid));
     c.textBaseline = 'alphabetic';
-    const refMid = refDir2 + (mirrorUp - refDir2) * 0.5;
-    c.fillStyle = '#4AFF9D';
-    c.fillText(angleText, mirX + arcR * 0.65 * Math.cos(refMid), mirY + arcR * 0.65 * Math.sin(refMid));
-    c.textBaseline = 'alphabetic';
 
     // Light source (draggable bulb)
     const srcGlow = c.createRadialGradient(srcX, srcY, 0, srcX, srcY, w*0.07);
