@@ -34019,29 +34019,35 @@ function simG5MirrorFlat() {
     const angleText = `${angleDeg}°`;
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // زاوية السقوط: بين الشعاع الساقط والمرآة الرأسية (فوق نقطة الارتطام)
-    // المرآة الرأسية فوق = -π/2 (270°)
-    // اتجاه الشعاع الساقط من mirX,mirY نحو srcX,srcY
-    const incDir = Math.atan2(srcY - mirY, srcX - mirX); // ≈ فوق يسار
-    const mirrorUp = -Math.PI / 2; // اتجاه المرآة للأعلى
-    c.strokeStyle = 'rgba(255,215,0,0.85)'; c.lineWidth = 2.5;
-    // القوس من mirrorUp إلى incDir باتجاه CCW (false) → القوس الصغير بين المرآة والشعاع
-    c.beginPath(); c.arc(mirX, mirY, arcR, mirrorUp, incDir, false); c.stroke();
-    const incMid = mirrorUp + (incDir - mirrorUp) * 0.5;
-    c.fillStyle = '#FFD700'; c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.fillText(angleText, mirX + arcR * 0.65 * Math.cos(incMid), mirY + arcR * 0.65 * Math.sin(incMid));
+    // المرآة رأسية:
+    //   فوق نقطة الارتطام = -π/2
+    // الشعاع الساقط يأتي من أعلى يسار:
+    //   incDir ≈ -(π - rad_from_mirror)  →  نحسبها مباشرة
+    //   الزاوية من المرآة = angleDeg  →  incDir = -(π/2 + angleDeg°)  لأن الشعاع يسار المرآة
+    //   بالـ radians: incDir = -π/2 - rad   (فوق يسار بمقدار angleDeg من المرآة)
+    const rad_m = angleDeg * Math.PI / 180;  // زاوية من المرآة بالـ radians
+    const mirrorUp = -Math.PI / 2;
+    const incAngle  = mirrorUp - rad_m;   // اتجاه الشعاع الساقط (يسار المرآة)
+    const refAngle  = mirrorUp + rad_m;   // اتجاه الشعاع المنعكس (يمين المرآة)
 
-    // زاوية الانعكاس: بين المرآة الرأسية والشعاع المنعكس (فوق نقطة الارتطام)
-    // refDir = اتجاه الشعاع المنعكس من mirX,mirY نحو refEndX,refEndY
-    const refDir2 = Math.atan2(refEndY - mirY, refEndX - mirX); // ≈ فوق يمين = -rad في مصطلحات جديدة
+    // قوس السقوط: من incAngle إلى mirrorUp (CCW = false → يسير من incAngle باتجاه عقارب الساعة إلى mirrorUp)
+    c.strokeStyle = 'rgba(255,215,0,0.85)'; c.lineWidth = 2.5;
+    c.beginPath(); c.arc(mirX, mirY, arcR, incAngle, mirrorUp, false); c.stroke();
+    const incMid = incAngle + rad_m * 0.5;
+    c.fillStyle = '#FFD700'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(angleText, mirX + arcR * 0.68 * Math.cos(incMid), mirY + arcR * 0.68 * Math.sin(incMid));
+
+    // قوس الانعكاس: من mirrorUp إلى refAngle (CCW = false → يسير باتجاه عقارب الساعة)
     c.strokeStyle = 'rgba(74,255,157,0.85)'; c.lineWidth = 2.5;
-    // القوس من refDir إلى mirrorUp باتجاه CCW (false)
-    c.beginPath(); c.arc(mirX, mirY, arcR, refDir2, mirrorUp, false); c.stroke();
+    c.beginPath(); c.arc(mirX, mirY, arcR, mirrorUp, refAngle, false); c.stroke();
+    const refMid = mirrorUp + rad_m * 0.5;
+    c.fillStyle = '#4AFF9D';
+    c.fillText(angleText, mirX + arcR * 0.68 * Math.cos(refMid), mirY + arcR * 0.68 * Math.sin(refMid));
+    c.textBaseline = 'alphabetic';
     const refMid = refDir2 + (mirrorUp - refDir2) * 0.5;
     c.fillStyle = '#4AFF9D';
     c.fillText(angleText, mirX + arcR * 0.65 * Math.cos(refMid), mirY + arcR * 0.65 * Math.sin(refMid));
     c.textBaseline = 'alphabetic';
-    c.textBaseline='alphabetic';
 
     // Light source (draggable bulb)
     const srcGlow = c.createRadialGradient(srcX, srcY, 0, srcX, srcY, w*0.07);
