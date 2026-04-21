@@ -33870,7 +33870,7 @@ function simG5MirrorFlat() {
 <div class="ctrl-section">
   <div class="ctrl-label">🪞 المرآة المستوية — استقصاء المرايا المعكوسة</div>
   <div class="ctrl-desc">
-    اسحب <b>مصدر الضوء 💡</b> بحرية — كلما اقتربت من العمود المقام قلّت الزاوية ✅<br>
+    اسحب <b>مصدر الضوء 💡</b> — كلما اقتربت من المرآة قلّت الزاوية ✅<br>
     كلما ابتعدت عن المرآة (أطلت الشعاع) كلما قلّت الزاوية أيضاً.
   </div>
 </div>
@@ -33891,8 +33891,8 @@ function simG5MirrorFlat() {
   const S = simState;
   if (!S.mirrorInit) {
     S.mirrorInit = true;
-    S.angleDeg = 35;    // angle of incidence in degrees (2–82)
-    S.rayLen = 0;       // will be set from canvas size on first draw
+    S.angleDeg = 35;    // angle between ray and mirror surface (2–88)
+    S.rayLen = 0;
     S.dragging = false;
     S.dragMode = '';
   }
@@ -33900,16 +33900,18 @@ function simG5MirrorFlat() {
   function getGeom() {
     const w = cv.width, h = cv.height;
     const mirX = w * 0.55, mirY = h * 0.5;
-    // initialise rayLen relative to canvas if not set
     if (!S.rayLen) S.rayLen = w * 0.32;
     const len = Math.max(w*0.10, Math.min(w*0.65, S.rayLen));
+    // angleDeg = angle between ray and the VERTICAL mirror surface
+    // → srcX is to the left:  dx = len * cos(rad)  [horizontal component]
+    //   srcY is above:         dy = len * sin(rad)  [vertical component, but sin gives small dy for small angle]
+    // Small angle → ray nearly horizontal (grazes mirror) ✓
+    // Large angle → ray nearly perpendicular to mirror ✓
     const rad = S.angleDeg * Math.PI / 180;
-    // Source is to the left and above the mirror hit point
-    const srcX = mirX - len * Math.cos(rad);
-    const srcY = mirY - len * Math.sin(rad);
+    const srcX = mirX - len * Math.sin(rad);   // small angle → small horizontal offset (close to mirror)
+    const srcY = mirY - len * Math.cos(rad);   // small angle → large vertical offset
     const angleDeg = S.angleDeg;
     const rayLen = len;
-    // Handle: draggable point at 60% along incident ray (for stretching)
     const handleX = srcX + (mirX - srcX) * 0.60;
     const handleY = srcY + (mirY - srcY) * 0.60;
     return { w, h, mirX, mirY, srcX, srcY, angleDeg, rad, rayLen, handleX, handleY };
@@ -33941,13 +33943,14 @@ function simG5MirrorFlat() {
     const w = cv.width, h = cv.height;
     const mirX = w * 0.55, mirY = h * 0.5;
     if (S.dragMode === 'source') {
-      // Dragging the bulb → change angle only
-      // clamp source to left-of-mirror and above-mirror
-      const clampX = Math.max(w*0.03, Math.min(mirX - w*0.05, px));
+      // Dragging the bulb → change angle between ray and mirror surface
+      const clampX = Math.max(w*0.03, Math.min(mirX - w*0.03, px));
       const clampY = Math.max(h*0.04, Math.min(mirY - h*0.04, py));
-      const dx = mirX - clampX;
-      const dy = mirY - clampY;
-      S.angleDeg = Math.max(2, Math.min(82, Math.round(Math.atan2(dy, dx) * 180 / Math.PI)));
+      const dx = mirX - clampX;  // horizontal distance from mirror
+      const dy = mirY - clampY;  // vertical distance (how far above)
+      // angle from mirror surface = atan2(horizontal, vertical) = atan2(dx, dy)
+      // small dx (close to mirror) → small angle ✓
+      S.angleDeg = Math.max(2, Math.min(88, Math.round(Math.atan2(dx, dy) * 180 / Math.PI)));
     } else if (S.dragMode === 'handle') {
       // Dragging the handle → change ray length only (keep angle)
       const dx = mirX - px;
@@ -33985,14 +33988,7 @@ function simG5MirrorFlat() {
     c.fillStyle='#aac'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center';
     c.fillText('مرآة مستوية', mirX+36, Math.min(mirY + mLen + 22, h*0.92));
 
-    // Normal (dashed horizontal) at hit point mirY
-    c.strokeStyle='rgba(255,255,255,0.28)'; c.lineWidth=1.5; c.setLineDash([5,5]);
-    c.beginPath(); c.moveTo(mirX - w*0.40, mirY); c.lineTo(mirX + w*0.32, mirY); c.stroke();
-    c.setLineDash([]);
-    c.fillStyle='rgba(255,255,255,0.45)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
-    c.fillText('العمود المقام', mirX - w*0.14, mirY - 10);
 
-    // ── المرآة رأسية، العمود المقام أفقي ──
     // الشعاع الساقط: من srcX,srcY (أعلى يسار) → mirX,mirY
     //   اتجاهه: atan2(dy, dx) حيث dy = mirY-srcY > 0, dx = mirX-srcX > 0
     //   rad = angleDeg * π/180 = الزاوية من الأفق (العمود المقام)
@@ -34017,37 +34013,34 @@ function simG5MirrorFlat() {
     c.save(); c.translate(arrowX, arrowY); c.rotate(Math.atan2(mirY-srcY, mirX-srcX));
     c.fillStyle='#FFD700'; c.beginPath(); c.moveTo(8,0); c.lineTo(-5,4); c.lineTo(-5,-4); c.fill(); c.restore();
 
-    // Angle arcs at hit point
-    const arcR = Math.min(60, h*0.10);
+    // Angle arcs — measured between ray and the VERTICAL mirror surface
+    const arcR = Math.min(55, h*0.09);
     const fontSize = Math.max(11, w*0.022);
     const angleText = `${angleDeg}°`;
     c.font = `bold ${fontSize}px Tajawal`;
 
-    // قوس زاوية السقوط (يسار العمود المقام): من الأفق الأيسر (π) إلى الشعاع الساقط
-    // الشعاع الساقط يأتي من أعلى يسار → اتجاهه من نقطة الانعكاس نحو المصدر = π + rad (فوق أفق)
-    // الزاوية المحصورة = rad (من الأفق للشعاع)
-    // نرسم من اتجاه الشعاع (-π-rad من الأفق) إلى الأفق الأيسر (π) باتجاه عقارب الساعة (false = CCW → نريد CW = true)
-    // incDir = اتجاه من mirX,mirY نحو srcX,srcY = atan2(srcY-mirY, srcX-mirX)
-    // srcY < mirY → srcY-mirY < 0, srcX < mirX → srcX-mirX < 0 → الاتجاه في الربع الثالث ≈ π + rad (فوق يسار = زاوية سالبة)
-    // نريد القوس الصغير بين الأفق الأيسر (π) والشعاع (π+rad) بالاتجاه CCW (عكس ع.ساعة = false) من π+rad إلى π
-    const incDir = Math.atan2(srcY - mirY, srcX - mirX); // ≈ -(π - rad) in top-left
-    c.strokeStyle='rgba(255,215,0,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mirX, mirY, arcR, incDir, Math.PI, false); c.stroke();
-    // label midpoint
-    const incMid = incDir + (Math.PI - incDir) * 0.5;
-    c.fillStyle='#FFD700'; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(angleText, mirX + arcR*0.65*Math.cos(incMid), mirY + arcR*0.65*Math.sin(incMid));
+    // زاوية السقوط: بين الشعاع الساقط والمرآة الرأسية (فوق نقطة الارتطام)
+    // المرآة الرأسية فوق = -π/2 (270°)
+    // اتجاه الشعاع الساقط من mirX,mirY نحو srcX,srcY
+    const incDir = Math.atan2(srcY - mirY, srcX - mirX); // ≈ فوق يسار
+    const mirrorUp = -Math.PI / 2; // اتجاه المرآة للأعلى
+    c.strokeStyle = 'rgba(255,215,0,0.85)'; c.lineWidth = 2.5;
+    // القوس من mirrorUp إلى incDir باتجاه CCW (false) → القوس الصغير بين المرآة والشعاع
+    c.beginPath(); c.arc(mirX, mirY, arcR, mirrorUp, incDir, false); c.stroke();
+    const incMid = mirrorUp + (incDir - mirrorUp) * 0.5;
+    c.fillStyle = '#FFD700'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(angleText, mirX + arcR * 0.65 * Math.cos(incMid), mirY + arcR * 0.65 * Math.sin(incMid));
 
-    // قوس زاوية الانعكاس (يمين العمود المقام): من الأفق الأيمن (0) إلى الشعاع المنعكس
-    // refDir = اتجاه من mirX,mirY نحو refEndX,refEndY = atan2(refEndY-mirY, refEndX-mirX)
-    // refEndY < mirY (فوق) و refEndX > mirX (يمين) → الربع الأول = -rad
-    const refDir2 = Math.atan2(refEndY - mirY, refEndX - mirX); // ≈ -rad
-    c.strokeStyle='rgba(74,255,157,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(mirX, mirY, arcR, refDir2, 0, false); c.stroke();
-    const refMid = refDir2 * 0.5;
-    c.fillStyle='#4AFF9D';
-    c.fillText(angleText, mirX + arcR*0.65*Math.cos(refMid), mirY + arcR*0.65*Math.sin(refMid));
-    c.textBaseline='alphabetic';
+    // زاوية الانعكاس: بين المرآة الرأسية والشعاع المنعكس (فوق نقطة الارتطام)
+    // refDir = اتجاه الشعاع المنعكس من mirX,mirY نحو refEndX,refEndY
+    const refDir2 = Math.atan2(refEndY - mirY, refEndX - mirX); // ≈ فوق يمين = -rad في مصطلحات جديدة
+    c.strokeStyle = 'rgba(74,255,157,0.85)'; c.lineWidth = 2.5;
+    // القوس من refDir إلى mirrorUp باتجاه CCW (false)
+    c.beginPath(); c.arc(mirX, mirY, arcR, refDir2, mirrorUp, false); c.stroke();
+    const refMid = refDir2 + (mirrorUp - refDir2) * 0.5;
+    c.fillStyle = '#4AFF9D';
+    c.fillText(angleText, mirX + arcR * 0.65 * Math.cos(refMid), mirY + arcR * 0.65 * Math.sin(refMid));
+    c.textBaseline = 'alphabetic';
     c.textBaseline='alphabetic';
 
     // Light source (draggable bulb)
