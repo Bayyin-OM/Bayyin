@@ -37062,49 +37062,50 @@ function simG5ShadowFactor() {
   };
   setTimeout(()=>window._sfpSel(S.sfPuppetShape), 60);
 
-  cv.onmousedown = function(e){
+  function _sfEvtX(e){ return (e.touches&&e.touches[0]?e.touches[0]:e.changedTouches&&e.changedTouches[0]?e.changedTouches[0]:e).clientX; }
+
+  function _sfHit(clientX){
     const rect=cv.getBoundingClientRect();
-    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width;
-    const my=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientY-rect.top)/rect.height;
-    // تحقق بالنسبة المئوية من موضع الدمية الحالي
-    const cw=cv.width, ch=cv.height;
-    const lx2=cw*0.08; const wallX2=cw*0.82;
-    const puppetX2 = lx2 + (S.sf2ObjDist / 120) * (wallX2 - lx2 - cw*0.06) + cw*0.04;
-    if(Math.abs(mx*cw - puppetX2) < cw*0.12) S.sfPuppetDragging=true;
+    const mx=clientX-rect.left;
+    const cw=cv.width, lx=cw*0.08, hit=cw*0.13;
+    if(S.sf2Variable==='objDist'){
+      // المصباح يتحرك: كلما زادت المسافة كلما ابتعد المصباح عن الجسم (يسار)
+      const lightX = lx + (1 - (S.sf2ObjDist-20)/100) * cw*0.30;
+      return Math.abs(mx-lightX)<hit ? 'light' : null;
+    } else if(S.sf2Variable==='wallDist'){
+      // الشاشة تتحرك يميناً/يساراً
+      const puppetFixed=cw*0.45;
+      const wallX=Math.min(puppetFixed+(S.sf2WallDist/80)*cw*0.48, cw*0.93);
+      return Math.abs(mx-wallX)<hit ? 'wall' : null;
+    }
+    return null;
+  }
+
+  cv.onmousedown = function(e){
+    S.sfDragTarget=_sfHit(_sfEvtX(e));
+    S.sfPuppetDragging=!!S.sfDragTarget;
   };
   cv.onmousemove = function(e){
-    if(!S.sfPuppetDragging) return;
+    if(!S.sfPuppetDragging||!S.sfDragTarget) return;
     const rect=cv.getBoundingClientRect();
-    const mx=((e.touches&&e.touches[0]||e.changedTouches&&e.changedTouches[0]||e).clientX-rect.left)/rect.width;
-    // تحويل موضع الفأرة إلى قيمة sf2ObjDist
-    const cw=cv.width; const lx2=cw*0.08; const wallX2=cw*0.82;
-    const rawX = mx*cw - lx2 - cw*0.04;
-    const range = wallX2 - lx2 - cw*0.06;
-    S.sf2ObjDist = Math.round(Math.max(20, Math.min(120, (rawX/range)*120)));
-    // تحديث السلايدر إذا كان المتغير النشط هو objDist
-    if(S.sf2Variable==='objDist'){
-      const sl=document.getElementById('sf-slider'); if(sl){sl.value=S.sf2ObjDist; sl.dispatchEvent(new Event('input'));}
+    const mx=_sfEvtX(e)-rect.left;
+    const cw=cv.width, lx=cw*0.08;
+    if(S.sfDragTarget==='light'){
+      // تحويل موضع الفأرة → sf2ObjDist (20–120): يسار=بعيد، يمين=قريب
+      const frac=Math.max(0,Math.min(1,(mx-lx)/(cw*0.30)));
+      S.sf2ObjDist=Math.round(120-(frac*100));
+      const sl=document.getElementById('sf-slider');
+      if(sl){sl.value=S.sf2ObjDist; sl.dispatchEvent(new Event('input'));}
+    } else if(S.sfDragTarget==='wall'){
+      const puppetFixed=cw*0.45;
+      S.sf2WallDist=Math.round(Math.max(10,Math.min(80,(mx-puppetFixed)/(cw*0.48)*80)));
+      const sl=document.getElementById('sf-slider');
+      if(sl){sl.value=S.sf2WallDist; sl.dispatchEvent(new Event('input'));}
     }
   };
-  cv.ontouchstart = function(e){ e.preventDefault();
-    const rect=cv.getBoundingClientRect();
-    const cw=cv.width, lx2=cw*0.08, wallX2=cw*0.82;
-    const puppetX2 = lx2 + (S.sf2ObjDist/120)*(wallX2-lx2-cw*0.06)+cw*0.04;
-    const mx=(e.touches[0].clientX-rect.left);
-    if(Math.abs(mx-puppetX2)<cw*0.14){ S.sfPuppetDragging=true; }
-  };
-  cv.ontouchmove = function(e){ e.preventDefault();
-    if(!S.sfPuppetDragging) return;
-    const rect=cv.getBoundingClientRect();
-    const cw=cv.width; const lx2=cw*0.08; const wallX2=cw*0.82;
-    const rawX=(e.touches[0].clientX-rect.left)-lx2-cw*0.04;
-    const range=wallX2-lx2-cw*0.06;
-    S.sf2ObjDist=Math.round(Math.max(20,Math.min(120,(rawX/range)*120)));
-    if(S.sf2Variable==='objDist'){
-      const sl=document.getElementById('sf-slider'); if(sl){sl.value=S.sf2ObjDist; sl.dispatchEvent(new Event('input'));}
-    }
-  };
-  cv.onmouseup = cv.ontouchend = function(){ S.sfPuppetDragging=false; };
+  cv.ontouchstart = function(e){ e.preventDefault(); cv.onmousedown(e); },{passive:false};
+  cv.ontouchmove  = function(e){ e.preventDefault(); cv.onmousemove(e); },{passive:false};
+  cv.onmouseup = cv.ontouchend = function(){ S.sfPuppetDragging=false; S.sfDragTarget=null; };
 
   function draw() {
     if (currentSim !== 'g5shadowfactor' || currentTab !== 0) {
@@ -37129,25 +37130,29 @@ function simG5ShadowFactor() {
     const puppetX_phys = lx + totalRange * puppetFrac;
     const wallX_phys   = lx + totalRange * Math.min(0.93, (totalDist / 200));
 
-    // عند تغيير مسافة الشاشة، نثبّت الجسم ونحرك الشاشة
-    // عند تغيير مسافة المصدر، نثبّت الشاشة ونحرك الجسم
-    let puppetX, wallX;
-    if (S.sf2Variable === 'wallDist') {
-      // الجسم ثابت في المنتصف، الشاشة تتحرك
+    // حساب مواضع العناصر الثلاثة حسب المتغير النشط
+    let lightX, puppetX, wallX;
+    if (S.sf2Variable === 'objDist') {
+      // المصباح يتحرك ← ثابتان: الجسم والشاشة
+      puppetX = w * 0.52;
+      wallX   = w * 0.82;
+      // كلما زادت المسافة كلما ابتعد المصباح يساراً
+      lightX  = lx + (1 - (S.sf2ObjDist-20)/100) * w * 0.30;
+    } else if (S.sf2Variable === 'wallDist') {
+      // الشاشة تتحرك ← ثابتان: المصباح والجسم
+      lightX  = lx;
       puppetX = w * 0.45;
       wallX   = puppetX + (S.sf2WallDist / 80) * (w * 0.48);
       wallX   = Math.min(wallX, w * 0.93);
-    } else if (S.sf2Variable === 'objDist') {
-      // الشاشة ثابتة في اليمين، الجسم يتحرك
-      wallX   = w * 0.82;
-      puppetX = lx + (S.sf2ObjDist / 120) * (wallX - lx - w*0.06) + w*0.04;
     } else {
-      // حجم الجسم — كلاهما شبه ثابت
-      wallX   = w * 0.82;
+      // حجم الجسم — الكل شبه ثابت
+      lightX  = lx;
       puppetX = w * 0.48;
+      wallX   = w * 0.82;
     }
+    const ly2 = ly; // y المصباح
 
-    // خلفية مسرح الظل — تتحول مع موضع الشاشة
+    // خلفية
     const wallFrac = wallX / w;
     const bgGrad = c.createLinearGradient(0,0,w,0);
     bgGrad.addColorStop(0,'#FFF5D6');
@@ -37161,26 +37166,40 @@ function simG5ShadowFactor() {
     c.strokeStyle='rgba(100,60,0,0.18)'; c.lineWidth=1;
     c.beginPath(); c.moveTo(0,h*0.76); c.lineTo(w,h*0.76); c.stroke();
 
-    // مخروط الضوء (يتوسع حتى الشاشة)
+    // مخروط الضوء
     c.fillStyle='rgba(255,235,100,0.22)';
-    c.beginPath(); c.moveTo(lx,ly); c.lineTo(wallX,h*0.04); c.lineTo(wallX,h*0.78); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(lightX,ly2); c.lineTo(wallX,h*0.04); c.lineTo(wallX,h*0.78); c.closePath(); c.fill();
 
-    // الشاشة (تتحرك)
+    // الشاشة
     c.fillStyle='rgba(0,0,0,0.12)'; c.fillRect(wallX+5,4,w-wallX-5,h-4);
     c.fillStyle='#FEFAF0'; c.fillRect(wallX,0,w-wallX,h);
     c.strokeStyle='#8B6520'; c.lineWidth=3;
     c.beginPath(); c.moveTo(wallX,0); c.lineTo(wallX,h); c.stroke();
     c.fillStyle='#6A4510'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center';
     c.fillText('الشاشة', Math.min(wallX + w*0.06, w - 10), h*0.06);
+    // مؤشر سحب الشاشة
+    if(S.sf2Variable==='wallDist' && !S.sfPuppetDragging){
+      c.fillStyle='rgba(60,30,0,0.55)';
+      c.beginPath(); c.roundRect(wallX-w*0.06, h*0.88, w*0.12, h*0.065, 8); c.fill();
+      c.fillStyle='rgba(255,240,160,0.95)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('← اسحب →', wallX, h*0.924);
+    }
 
-    // مصدر الضوء
-    const lg=c.createRadialGradient(lx,ly,0,lx,ly,w*0.20);
+    // مصدر الضوء (يتحرك في وضع objDist)
+    const lg=c.createRadialGradient(lightX,ly2,0,lightX,ly2,w*0.20);
     lg.addColorStop(0,'rgba(255,245,100,1)'); lg.addColorStop(0.4,'rgba(255,220,50,0.55)'); lg.addColorStop(1,'rgba(255,200,0,0)');
-    c.fillStyle=lg; c.beginPath(); c.arc(lx,ly,w*0.20,0,Math.PI*2); c.fill();
-    c.fillStyle='#FFE800'; c.beginPath(); c.arc(lx,ly,w*0.026,0,Math.PI*2); c.fill();
+    c.fillStyle=lg; c.beginPath(); c.arc(lightX,ly2,w*0.20,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE800'; c.beginPath(); c.arc(lightX,ly2,w*0.026,0,Math.PI*2); c.fill();
     c.strokeStyle='#CC9900'; c.lineWidth=2; c.stroke();
     c.fillStyle='#5A3800'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('مصدر الضوء', lx, ly+w*0.052);
+    c.fillText('مصدر الضوء', lightX, ly2+w*0.052);
+    // مؤشر سحب المصباح
+    if(S.sf2Variable==='objDist' && !S.sfPuppetDragging){
+      c.fillStyle='rgba(60,30,0,0.55)';
+      c.beginPath(); c.roundRect(lightX-w*0.07, ly2+w*0.06, w*0.14, h*0.065, 8); c.fill();
+      c.fillStyle='rgba(255,240,160,0.95)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('← اسحب →', lightX, ly2+w*0.06+h*0.042);
+    }
 
     // الدمية
     const puppetBodyH = h*0.38;
@@ -37195,10 +37214,10 @@ function simG5ShadowFactor() {
     const shadowScale = Math.min(physScale, 5.0);
     const shH = fontSize * shadowScale * 0.80;
     const shW = fontSize * shadowScale * 0.70;
-    const tRatio = (wallX - lx) / Math.max(1, puppetX - lx);
-    const shadowCY = ly + (puppetCY - ly) * tRatio;
+    const tRatio = (wallX - lightX) / Math.max(1, puppetX - lightX);
+    const shadowCY = ly2 + (puppetCY - ly2) * tRatio;
 
-    // ظل الدمية على الشاشة — يُرسم بحجم مكبّر يعكس المتغيرات
+    // ظل الدمية على الشاشة
     const shadowFontSize = fontSize * shadowScale;
     const ofc = document.createElement('canvas');
     ofc.width  = Math.ceil(shadowFontSize * 1.5 + 20);
@@ -37211,7 +37230,6 @@ function simG5ShadowFactor() {
     oc.fillStyle = 'rgba(0,0,0,0.90)';
     oc.fillRect(0,0,ofc.width,ofc.height);
     c.save();
-    // clip داخل الشاشة فقط
     c.beginPath(); c.rect(wallX, 0, w - wallX, h); c.clip();
     c.filter = 'blur(1.5px)';
     c.drawImage(ofc, wallX+3, shadowCY - ofc.height*0.5, ofc.width, ofc.height);
@@ -37219,8 +37237,8 @@ function simG5ShadowFactor() {
 
     // أشعة حواف الظل
     c.strokeStyle='rgba(200,150,10,0.25)'; c.lineWidth=1.2; c.setLineDash([5,7]);
-    c.beginPath(); c.moveTo(lx,ly); c.lineTo(puppetX, puppetTopY); c.lineTo(wallX, shadowCY-shH*0.52); c.stroke();
-    c.beginPath(); c.moveTo(lx,ly); c.lineTo(puppetX, puppetBotY); c.lineTo(wallX, shadowCY+shH*0.48); c.stroke();
+    c.beginPath(); c.moveTo(lightX,ly2); c.lineTo(puppetX, puppetTopY); c.lineTo(wallX, shadowCY-shH*0.52); c.stroke();
+    c.beginPath(); c.moveTo(lightX,ly2); c.lineTo(puppetX, puppetBotY); c.lineTo(wallX, shadowCY+shH*0.48); c.stroke();
     c.setLineDash([]);
 
     // الدمية (ملوّنة)
@@ -37232,14 +37250,6 @@ function simG5ShadowFactor() {
     c.beginPath(); c.moveTo(puppetX, puppetBotY+fontSize*0.05); c.lineTo(puppetX, h*0.76); c.stroke();
     c.fillStyle='#8B4513';
     c.beginPath(); c.roundRect(puppetX-14, h*0.72, 28, h*0.06, 5); c.fill();
-
-    // مؤشر السحب — فقط عند متغير الجسم
-    if(S.sf2Variable === 'objDist' && !S.sfPuppetDragging){
-      c.fillStyle='rgba(60,30,0,0.55)';
-      c.beginPath(); c.roundRect(puppetX-w*0.08, h*0.79, w*0.16, h*0.065, 8); c.fill();
-      c.fillStyle='rgba(255,240,160,0.95)'; c.font=`${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-      c.fillText('← اسحب →', puppetX, h*0.835);
-    }
 
     // صندوق المعلومات
     const varLabel = S.sf2Variable==='wallDist'
