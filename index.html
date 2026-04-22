@@ -37062,50 +37062,52 @@ function simG5ShadowFactor() {
   };
   setTimeout(()=>window._sfpSel(S.sfPuppetShape), 60);
 
-  function _sfEvtX(e){ return (e.touches&&e.touches[0]?e.touches[0]:e.changedTouches&&e.changedTouches[0]?e.changedTouches[0]:e).clientX; }
-
-  function _sfHit(clientX){
-    const rect=cv.getBoundingClientRect();
-    const mx=clientX-rect.left;
-    const cw=cv.width, lx=cw*0.08, hit=cw*0.13;
-    if(S.sf2Variable==='objDist'){
-      // المصباح يتحرك: كلما زادت المسافة كلما ابتعد المصباح عن الجسم (يسار)
-      const lightX = lx + (1 - (S.sf2ObjDist-20)/100) * cw*0.30;
-      return Math.abs(mx-lightX)<hit ? 'light' : null;
-    } else if(S.sf2Variable==='wallDist'){
-      // الشاشة تتحرك يميناً/يساراً
-      const puppetFixed=cw*0.45;
-      const wallX=Math.min(puppetFixed+(S.sf2WallDist/80)*cw*0.48, cw*0.93);
-      return Math.abs(mx-wallX)<hit ? 'wall' : null;
-    }
-    return null;
+  function getEvtX(e) {
+    const rect = cv.getBoundingClientRect();
+    const src = (e.touches&&e.touches[0]) || (e.changedTouches&&e.changedTouches[0]) || e;
+    return src.clientX - rect.left;
   }
 
-  cv.onmousedown = function(e){
-    S.sfDragTarget=_sfHit(_sfEvtX(e));
-    S.sfPuppetDragging=!!S.sfDragTarget;
+  cv.onmousedown = function(e) {
+    if(currentSim!=='g5shadowfactor') return;
+    const px = getEvtX(e);
+    const cw = cv.width;
+    if (S.sf2Variable === 'objDist') {
+      // حساب موضع المصدر الحالي
+      const puppetFixed = cw * 0.52;
+      const lightX_cur = puppetFixed - (S.sf2ObjDist / 120) * (puppetFixed - cw*0.04);
+      if (Math.abs(px - lightX_cur) < cw * 0.12) S.sfDragging = 'light';
+    } else if (S.sf2Variable === 'wallDist') {
+      // الشاشة تتحرك — نحسب موضعها الحالي
+      const puppetFixed = cw * 0.45;
+      const wallX_cur = puppetFixed + (S.sf2WallDist / 80) * (cw * 0.48);
+      if (Math.abs(px - wallX_cur) < cw * 0.10) S.sfDragging = 'wall';
+    }
+    // objSize → لا سحب
   };
-  cv.onmousemove = function(e){
-    if(!S.sfPuppetDragging||!S.sfDragTarget) return;
-    const rect=cv.getBoundingClientRect();
-    const mx=_sfEvtX(e)-rect.left;
-    const cw=cv.width, lx=cw*0.08;
-    if(S.sfDragTarget==='light'){
-      // تحويل موضع الفأرة → sf2ObjDist (20–120): يسار=بعيد، يمين=قريب
-      const frac=Math.max(0,Math.min(1,(mx-lx)/(cw*0.30)));
-      S.sf2ObjDist=Math.round(120-(frac*100));
-      const sl=document.getElementById('sf-slider');
-      if(sl){sl.value=S.sf2ObjDist; sl.dispatchEvent(new Event('input'));}
-    } else if(S.sfDragTarget==='wall'){
-      const puppetFixed=cw*0.45;
-      S.sf2WallDist=Math.round(Math.max(10,Math.min(80,(mx-puppetFixed)/(cw*0.48)*80)));
-      const sl=document.getElementById('sf-slider');
-      if(sl){sl.value=S.sf2WallDist; sl.dispatchEvent(new Event('input'));}
+
+  cv.onmousemove = function(e) {
+    if (!S.sfDragging || currentSim!=='g5shadowfactor') return;
+    const px = getEvtX(e);
+    const cw = cv.width;
+    if (S.sfDragging === 'light') {
+      // سحب مصدر الضوء — الجسم ثابت في 0.52
+      const puppetFixed = cw * 0.52;
+      const dist = Math.max(0, puppetFixed - px);
+      S.sf2ObjDist = Math.round(Math.max(20, Math.min(120, (dist / (puppetFixed - cw*0.04)) * 120)));
+      const sl = document.getElementById('sf-slider'); if(sl){sl.value=S.sf2ObjDist; sl.dispatchEvent(new Event('input'));}
+    } else if (S.sfDragging === 'wall') {
+      // سحب الشاشة — الجسم ثابت في 0.45
+      const puppetFixed = cw * 0.45;
+      const dist = Math.max(0, px - puppetFixed);
+      S.sf2WallDist = Math.round(Math.max(10, Math.min(80, (dist / (cw * 0.48)) * 80)));
+      const sl = document.getElementById('sf-slider'); if(sl){sl.value=S.sf2WallDist; sl.dispatchEvent(new Event('input'));}
     }
   };
-  cv.ontouchstart = function(e){ e.preventDefault(); cv.onmousedown(e); },{passive:false};
-  cv.ontouchmove  = function(e){ e.preventDefault(); cv.onmousemove(e); },{passive:false};
-  cv.onmouseup = cv.ontouchend = function(){ S.sfPuppetDragging=false; S.sfDragTarget=null; };
+
+  cv.ontouchstart = function(e) { e.preventDefault(); cv.onmousedown(e); };
+  cv.ontouchmove  = function(e) { e.preventDefault(); cv.onmousemove(e); };
+  cv.onmouseup = cv.onmouseleave = cv.ontouchend = function() { S.sfDragging = null; };
 
   function draw() {
     if (currentSim !== 'g5shadowfactor' || currentTab !== 0) {
@@ -37119,40 +37121,34 @@ function simG5ShadowFactor() {
     const shadowCm = calcShadow();
 
     // حساب مواضع ديناميكية من المتغيرات
-    // المساحة المتاحة: lx (يسار) → w*0.95 (يمين)
-    const totalRange = w * 0.87; // المسافة الكلية المتاحة على الشاشة
-    const lx = w*0.08, ly = h*0.40;
+    const totalRange = w * 0.87;
 
-    // مسافة المصدر عن الجسم: sf2ObjDist (20–120)
-    // مسافة الجسم عن الشاشة: sf2WallDist (10–80)
-    const totalDist = S.sf2ObjDist + S.sf2WallDist;
-    const puppetFrac = S.sf2ObjDist / totalDist; // نسبة موضع الجسم
-    const puppetX_phys = lx + totalRange * puppetFrac;
-    const wallX_phys   = lx + totalRange * Math.min(0.93, (totalDist / 200));
-
-    // حساب مواضع العناصر الثلاثة حسب المتغير النشط
+    // حساب مواضع العناصر حسب المتغير النشط
     let lightX, puppetX, wallX;
+    const ly = h * 0.40;
+
     if (S.sf2Variable === 'objDist') {
-      // المصباح يتحرك ← ثابتان: الجسم والشاشة
+      // المصدر يتحرك — الجسم والشاشة ثابتان
       puppetX = w * 0.52;
       wallX   = w * 0.82;
-      // كلما زادت المسافة كلما ابتعد المصباح يساراً
-      lightX  = lx + (1 - (S.sf2ObjDist-20)/100) * w * 0.30;
+      // المصدر: كلما زاد sf2ObjDist ابتعد عن الجسم (تحرك يساراً)
+      lightX  = puppetX - (S.sf2ObjDist / 120) * (puppetX - w*0.04);
+      lightX  = Math.max(w*0.04, lightX);
     } else if (S.sf2Variable === 'wallDist') {
-      // الشاشة تتحرك ← ثابتان: المصباح والجسم
-      lightX  = lx;
+      // الشاشة تتحرك — الجسم والمصدر ثابتان
+      lightX  = w * 0.08;
       puppetX = w * 0.45;
       wallX   = puppetX + (S.sf2WallDist / 80) * (w * 0.48);
       wallX   = Math.min(wallX, w * 0.93);
     } else {
-      // حجم الجسم — الكل شبه ثابت
-      lightX  = lx;
+      // حجم الجسم — الكل ثابت
+      lightX  = w * 0.08;
       puppetX = w * 0.48;
       wallX   = w * 0.82;
     }
-    const ly2 = ly; // y المصباح
+    const lx = lightX;
 
-    // خلفية
+    // خلفية مسرح الظل — تتحول مع موضع الشاشة
     const wallFrac = wallX / w;
     const bgGrad = c.createLinearGradient(0,0,w,0);
     bgGrad.addColorStop(0,'#FFF5D6');
@@ -37166,40 +37162,26 @@ function simG5ShadowFactor() {
     c.strokeStyle='rgba(100,60,0,0.18)'; c.lineWidth=1;
     c.beginPath(); c.moveTo(0,h*0.76); c.lineTo(w,h*0.76); c.stroke();
 
-    // مخروط الضوء
+    // مخروط الضوء (يتوسع حتى الشاشة)
     c.fillStyle='rgba(255,235,100,0.22)';
-    c.beginPath(); c.moveTo(lightX,ly2); c.lineTo(wallX,h*0.04); c.lineTo(wallX,h*0.78); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(wallX,h*0.04); c.lineTo(wallX,h*0.78); c.closePath(); c.fill();
 
-    // الشاشة
+    // الشاشة (تتحرك)
     c.fillStyle='rgba(0,0,0,0.12)'; c.fillRect(wallX+5,4,w-wallX-5,h-4);
     c.fillStyle='#FEFAF0'; c.fillRect(wallX,0,w-wallX,h);
     c.strokeStyle='#8B6520'; c.lineWidth=3;
     c.beginPath(); c.moveTo(wallX,0); c.lineTo(wallX,h); c.stroke();
     c.fillStyle='#6A4510'; c.font=`bold ${Math.max(10,w*0.020)}px Tajawal`; c.textAlign='center';
     c.fillText('الشاشة', Math.min(wallX + w*0.06, w - 10), h*0.06);
-    // مؤشر سحب الشاشة
-    if(S.sf2Variable==='wallDist' && !S.sfPuppetDragging){
-      c.fillStyle='rgba(60,30,0,0.55)';
-      c.beginPath(); c.roundRect(wallX-w*0.06, h*0.88, w*0.12, h*0.065, 8); c.fill();
-      c.fillStyle='rgba(255,240,160,0.95)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
-      c.fillText('← اسحب →', wallX, h*0.924);
-    }
 
-    // مصدر الضوء (يتحرك في وضع objDist)
-    const lg=c.createRadialGradient(lightX,ly2,0,lightX,ly2,w*0.20);
+    // مصدر الضوء
+    const lg=c.createRadialGradient(lx,ly,0,lx,ly,w*0.20);
     lg.addColorStop(0,'rgba(255,245,100,1)'); lg.addColorStop(0.4,'rgba(255,220,50,0.55)'); lg.addColorStop(1,'rgba(255,200,0,0)');
-    c.fillStyle=lg; c.beginPath(); c.arc(lightX,ly2,w*0.20,0,Math.PI*2); c.fill();
-    c.fillStyle='#FFE800'; c.beginPath(); c.arc(lightX,ly2,w*0.026,0,Math.PI*2); c.fill();
+    c.fillStyle=lg; c.beginPath(); c.arc(lx,ly,w*0.20,0,Math.PI*2); c.fill();
+    c.fillStyle='#FFE800'; c.beginPath(); c.arc(lx,ly,w*0.026,0,Math.PI*2); c.fill();
     c.strokeStyle='#CC9900'; c.lineWidth=2; c.stroke();
     c.fillStyle='#5A3800'; c.font=`bold ${Math.max(9,w*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText('مصدر الضوء', lightX, ly2+w*0.052);
-    // مؤشر سحب المصباح
-    if(S.sf2Variable==='objDist' && !S.sfPuppetDragging){
-      c.fillStyle='rgba(60,30,0,0.55)';
-      c.beginPath(); c.roundRect(lightX-w*0.07, ly2+w*0.06, w*0.14, h*0.065, 8); c.fill();
-      c.fillStyle='rgba(255,240,160,0.95)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
-      c.fillText('← اسحب →', lightX, ly2+w*0.06+h*0.042);
-    }
+    c.fillText('مصدر الضوء', lx, ly+w*0.052);
 
     // الدمية
     const puppetBodyH = h*0.38;
@@ -37214,10 +37196,10 @@ function simG5ShadowFactor() {
     const shadowScale = Math.min(physScale, 5.0);
     const shH = fontSize * shadowScale * 0.80;
     const shW = fontSize * shadowScale * 0.70;
-    const tRatio = (wallX - lightX) / Math.max(1, puppetX - lightX);
-    const shadowCY = ly2 + (puppetCY - ly2) * tRatio;
+    const tRatio = (wallX - lx) / Math.max(1, puppetX - lx);
+    const shadowCY = ly + (puppetCY - ly) * tRatio;
 
-    // ظل الدمية على الشاشة
+    // ظل الدمية على الشاشة — يُرسم بحجم مكبّر يعكس المتغيرات
     const shadowFontSize = fontSize * shadowScale;
     const ofc = document.createElement('canvas');
     ofc.width  = Math.ceil(shadowFontSize * 1.5 + 20);
@@ -37230,6 +37212,7 @@ function simG5ShadowFactor() {
     oc.fillStyle = 'rgba(0,0,0,0.90)';
     oc.fillRect(0,0,ofc.width,ofc.height);
     c.save();
+    // clip داخل الشاشة فقط
     c.beginPath(); c.rect(wallX, 0, w - wallX, h); c.clip();
     c.filter = 'blur(1.5px)';
     c.drawImage(ofc, wallX+3, shadowCY - ofc.height*0.5, ofc.width, ofc.height);
@@ -37237,8 +37220,8 @@ function simG5ShadowFactor() {
 
     // أشعة حواف الظل
     c.strokeStyle='rgba(200,150,10,0.25)'; c.lineWidth=1.2; c.setLineDash([5,7]);
-    c.beginPath(); c.moveTo(lightX,ly2); c.lineTo(puppetX, puppetTopY); c.lineTo(wallX, shadowCY-shH*0.52); c.stroke();
-    c.beginPath(); c.moveTo(lightX,ly2); c.lineTo(puppetX, puppetBotY); c.lineTo(wallX, shadowCY+shH*0.48); c.stroke();
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(puppetX, puppetTopY); c.lineTo(wallX, shadowCY-shH*0.52); c.stroke();
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(puppetX, puppetBotY); c.lineTo(wallX, shadowCY+shH*0.48); c.stroke();
     c.setLineDash([]);
 
     // الدمية (ملوّنة)
@@ -37250,6 +37233,21 @@ function simG5ShadowFactor() {
     c.beginPath(); c.moveTo(puppetX, puppetBotY+fontSize*0.05); c.lineTo(puppetX, h*0.76); c.stroke();
     c.fillStyle='#8B4513';
     c.beginPath(); c.roundRect(puppetX-14, h*0.72, 28, h*0.06, 5); c.fill();
+
+    // مؤشر السحب — على العنصر المتحرك حسب المتغير
+    if (S.sf2Variable === 'objDist') {
+      // مؤشر على مصدر الضوء
+      c.fillStyle='rgba(60,30,0,0.55)';
+      c.beginPath(); c.roundRect(lx-w*0.07, ly+w*0.055, w*0.14, h*0.065, 8); c.fill();
+      c.fillStyle='rgba(255,240,160,0.95)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('← اسحب →', lx, ly+w*0.055+h*0.045);
+    } else if (S.sf2Variable === 'wallDist') {
+      // مؤشر على الشاشة
+      c.fillStyle='rgba(60,30,0,0.55)';
+      c.beginPath(); c.roundRect(wallX-w*0.07, h*0.79, w*0.14, h*0.065, 8); c.fill();
+      c.fillStyle='rgba(255,240,160,0.95)'; c.font=`${Math.max(9,w*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('← اسحب →', wallX, h*0.835);
+    }
 
     // صندوق المعلومات
     const varLabel = S.sf2Variable==='wallDist'
@@ -39385,26 +39383,39 @@ function simG5DayNight() {
   let paused = false;
   const cv   = document.getElementById('simCanvas');
 
-  // القارات lon/lat
+  // القارات المحسّنة (مع أنتاركتيكا وجرينلاند)
   const LANDS_DN=[
-    {lon:-1.70,lat:0.55,pts:[[-0.55,-0.28],[0.55,-0.28],[0.60,0.10],[0.30,0.32],[-0.10,0.35],[-0.50,0.20],[-0.65,-0.05]]},
-    {lon:-1.15,lat:-0.25,pts:[[-0.28,-0.48],[0.18,-0.48],[0.32,0.00],[0.20,0.48],[-0.10,0.50],[-0.30,0.20],[-0.35,-0.15]]},
-    {lon:0.25,lat:0.78,pts:[[-0.30,-0.22],[0.25,-0.28],[0.38,0.05],[0.15,0.28],[-0.20,0.22],[-0.32,0.00]]},
-    {lon:0.22,lat:0.00,pts:[[-0.30,-0.55],[0.22,-0.55],[0.38,-0.10],[0.28,0.50],[0.00,0.68],[-0.22,0.45],[-0.35,0.00],[-0.35,-0.28]]},
-    {lon:1.55,lat:0.55,pts:[[-0.80,-0.30],[-0.10,-0.55],[0.65,-0.45],[0.90,-0.10],[0.75,0.28],[0.30,0.40],[-0.10,0.35],[-0.50,0.18],[-0.80,0.00]]},
-    {lon:2.30,lat:-0.42,pts:[[-0.35,-0.22],[0.28,-0.28],[0.40,0.05],[0.22,0.28],[-0.10,0.30],[-0.38,0.10]]},
+    { lon:-1.70, lat: 0.55, pts:[[-0.55,-0.28],[0.55,-0.28],[0.60,0.10],[0.30,0.32],[-0.10,0.35],[-0.50,0.20],[-0.65,-0.05]] },
+    { lon:-1.15, lat:-0.25, pts:[[-0.28,-0.48],[0.18,-0.48],[0.32,0.00],[0.20,0.48],[-0.10,0.50],[-0.30,0.20],[-0.35,-0.15]] },
+    { lon: 0.25, lat: 0.78, pts:[[-0.30,-0.22],[0.25,-0.28],[0.38,0.05],[0.15,0.28],[-0.20,0.22],[-0.32,0.00]] },
+    { lon: 0.22, lat: 0.00, pts:[[-0.30,-0.55],[0.22,-0.55],[0.38,-0.10],[0.28,0.50],[0.00,0.68],[-0.22,0.45],[-0.35,0.00],[-0.35,-0.28]] },
+    { lon: 1.55, lat: 0.55, pts:[[-0.80,-0.30],[-0.10,-0.55],[0.65,-0.45],[0.90,-0.10],[0.75,0.28],[0.30,0.40],[-0.10,0.35],[-0.50,0.18],[-0.80,0.00]] },
+    { lon: 2.30, lat:-0.42, pts:[[-0.35,-0.22],[0.28,-0.28],[0.40,0.05],[0.22,0.28],[-0.10,0.30],[-0.38,0.10]] },
+    { lon:-0.82, lat: 1.10, pts:[[-0.18,-0.18],[0.12,-0.18],[0.18,0.10],[0.00,0.22],[-0.18,0.10]] },
+    { lon: 0.00, lat:-1.38, pts:[[-1.0,-0.15],[1.0,-0.15],[1.0,0.15],[-1.0,0.15]] },
   ];
 
-  // رسم الكرة الأرضية الواقعية
+  function lonLatToXYZ_DN(lon, lat) {
+    const c2 = Math.cos(lat);
+    return { x: c2*Math.sin(lon), y: Math.sin(lat), z: c2*Math.cos(lon) };
+  }
+  function projectDN(x, y, z, rot, cx, cy, R) {
+    const xr =  x*Math.cos(rot) + z*Math.sin(rot);
+    const yr =  y;
+    const zr = -x*Math.sin(rot) + z*Math.cos(rot);
+    return { px: cx+xr*R, py: cy-yr*R, zr };
+  }
+
+  // رسم الكرة الأرضية المحسّنة
   function drawEarthDN(ctx, cx, cy, R, rot) {
     const D=Math.ceil(R*2)+8; const off=document.createElement('canvas'); off.width=off.height=D; const oc=off.getContext('2d'); const half=D/2;
     const id=oc.createImageData(D,D); const data=id.data;
     for(let row=0;row<D;row++){for(let col=0;col<D;col++){
       const nx=(col-half)/R, ny=(row-half)/R, n2=nx*nx+ny*ny; if(n2>1) continue;
       const nz=Math.sqrt(1-n2), wx=nx*Math.cos(-rot)+nz*Math.sin(-rot);
-      const raw=-wx, lit=Math.max(0,Math.min(1,(raw+0.10)/0.20));
+      const raw=-wx, lit=Math.max(0,Math.min(1,(raw+0.09)/0.18));
       let r,g,b;
-      if(lit>0.01){const t2=lit;r=Math.round(20+t2*50);g=Math.round(80+t2*100);b=Math.round(160+t2*80);if(lit<0.35){const tw=(0.35-lit)/0.35;r=Math.round(r+tw*90);g=Math.round(g+tw*25);}}
+      if(lit>0.01){const t2=lit;r=Math.round(20+t2*50);g=Math.round(80+t2*100);b=Math.round(160+t2*80);if(lit<0.35){const tw=(0.35-lit)/0.35;r=Math.round(r+tw*80);g=Math.round(g+tw*20);}}
       else{r=3;g=6;b=22;}
       const idx=(row*D+col)*4; data[idx]=r;data[idx+1]=g;data[idx+2]=b;data[idx+3]=255;
     }}
@@ -39412,49 +39423,49 @@ function simG5DayNight() {
     oc.save(); oc.beginPath(); oc.arc(half,half,R,0,Math.PI*2); oc.clip();
     LANDS_DN.forEach(land=>{
       const verts=land.pts.map(([dl,dlt])=>{
-        const cL=Math.cos(land.lat+dlt),lx=cL*Math.sin(land.lon+dl),ly=Math.sin(land.lat+dlt),lz=cL*Math.cos(land.lon+dl);
-        const xr=lx*Math.cos(rot)+lz*Math.sin(rot),yr=ly;
-        const zr=-lx*Math.sin(rot)+lz*Math.cos(rot);
-        return {px:half+xr*R,py:half-yr*R,zr};
+        const p3=lonLatToXYZ_DN(land.lon+dl,land.lat+dlt);
+        return projectDN(p3.x,p3.y,p3.z,rot,half,half,R);
       });
-      const cL0=Math.cos(land.lat),cx0=cL0*Math.sin(land.lon),cz0=cL0*Math.cos(land.lon);
-      const cenRx=cx0*Math.cos(-rot)+cz0*Math.sin(-rot);
-      const cenLit=Math.max(0,Math.min(1,(-cenRx+0.10)/0.20));
+      const cen3=lonLatToXYZ_DN(land.lon,land.lat);
+      const cenRx=cen3.x*Math.cos(-rot)+cen3.z*Math.sin(-rot);
+      const cenLit=Math.max(0,Math.min(1,(-cenRx+0.09)/0.18));
+      const isAntarctic=Math.abs(land.lat)>1.2;
+      let dr,dg,db,nr,ng,nb;
+      if(isAntarctic){dr=235;dg=245;db=255;nr=40;ng=55;nb=80;}
+      else{dr=52;dg=160;db=72;nr=8;ng=30;nb=14;}
+      const cr=Math.round(nr+(dr-nr)*cenLit), cg2=Math.round(ng+(dg-ng)*cenLit), cb2=Math.round(nb+(db-nb)*cenLit);
       if(verts.filter(v=>v.zr>-0.1).length<2) return;
-      const cr=Math.round(8+(52-8)*cenLit),cg=Math.round(30+(160-30)*cenLit),cb=Math.round(14+(72-14)*cenLit);
       oc.beginPath(); oc.moveTo(verts[0].px,verts[0].py);
       for(let i=1;i<verts.length;i++) oc.lineTo(verts[i].px,verts[i].py);
-      oc.closePath(); oc.fillStyle=`rgb(${cr},${cg},${cb})`; oc.fill();
-      if(cenLit>0.15){oc.strokeStyle=`rgba(30,80,30,${cenLit*0.35})`;oc.lineWidth=0.5;oc.stroke();}
+      oc.closePath(); oc.fillStyle=`rgb(${cr},${cg2},${cb2})`; oc.fill();
+      if(cenLit>0.15){oc.strokeStyle=`rgba(30,80,30,${cenLit*0.4})`;oc.lineWidth=0.5;oc.stroke();}
     });
-    // أضواء مدن
+    // أضواء مدن ليلية
     const CITIES_DN=[[-1.62,0.84],[-0.13,0.89],[2.35,0.84],[1.39,0.62],[0.37,0.52],[2.17,0.62],[-0.77,0.35],[2.63,-0.60],[-1.98,0.79],[0.68,0.86],[2.03,0.57],[0.24,0.61]];
     CITIES_DN.forEach(([lon2,lat2])=>{
-      const cL2=Math.cos(lat2),px2=cL2*Math.sin(lon2),py2=Math.sin(lat2),pz2=cL2*Math.cos(lon2);
-      const pr_x=px2*Math.cos(rot)+pz2*Math.sin(rot),pr_y=py2,pr_zr=-px2*Math.sin(rot)+pz2*Math.cos(rot);
-      if(pr_zr<0.05) return;
-      const wx2=px2*Math.cos(-rot)+pz2*Math.sin(-rot);
-      const litC=Math.max(0,Math.min(1,(-wx2+0.10)/0.20));
-      if(litC>0.22) return;
-      const alpha=(0.22-litC)/0.22*0.88;
-      const glow2=oc.createRadialGradient(half+pr_x*R,half-pr_y*R,0,half+pr_x*R,half-pr_y*R,R*0.044);
+      const p3=lonLatToXYZ_DN(lon2,lat2);
+      const pr=projectDN(p3.x,p3.y,p3.z,rot,half,half,R);
+      if(pr.zr<0.05) return;
+      const wxC=p3.x*Math.cos(-rot)+p3.z*Math.sin(-rot);
+      const litC=Math.max(0,Math.min(1,(-wxC+0.09)/0.18));
+      if(litC>0.25) return;
+      const alpha=(0.25-litC)/0.25*0.9;
+      const glow2=oc.createRadialGradient(pr.px,pr.py,0,pr.px,pr.py,R*0.045);
       glow2.addColorStop(0,`rgba(255,220,100,${alpha})`); glow2.addColorStop(1,'rgba(255,190,60,0)');
-      oc.beginPath(); oc.arc(half+pr_x*R,half-pr_y*R,R*0.044,0,Math.PI*2); oc.fillStyle=glow2; oc.fill();
-      oc.beginPath(); oc.arc(half+pr_x*R,half-pr_y*R,R*0.011,0,Math.PI*2); oc.fillStyle=`rgba(255,245,180,${alpha})`; oc.fill();
+      oc.beginPath(); oc.arc(pr.px,pr.py,R*0.045,0,Math.PI*2); oc.fillStyle=glow2; oc.fill();
+      oc.beginPath(); oc.arc(pr.px,pr.py,R*0.012,0,Math.PI*2); oc.fillStyle=`rgba(255,245,180,${alpha})`; oc.fill();
     });
     oc.restore();
-    // هالة غلاف جوي
-    const atmo=oc.createRadialGradient(half,half,R*0.88,half,half,R*1.22);
-    atmo.addColorStop(0,'rgba(100,180,255,0.30)'); atmo.addColorStop(0.5,'rgba(60,130,220,0.10)'); atmo.addColorStop(1,'rgba(20,60,180,0)');
-    oc.beginPath(); oc.arc(half,half,R*1.22,0,Math.PI*2); oc.fillStyle=atmo; oc.fill();
+    const atmo=oc.createRadialGradient(half,half,R*0.88,half,half,R*1.20);
+    atmo.addColorStop(0,'rgba(100,180,255,0.28)'); atmo.addColorStop(0.5,'rgba(60,130,220,0.10)'); atmo.addColorStop(1,'rgba(20,60,180,0)');
+    oc.beginPath(); oc.arc(half,half,R*1.20,0,Math.PI*2); oc.fillStyle=atmo; oc.fill();
     oc.beginPath(); oc.arc(half,half,R,0,Math.PI*2); oc.strokeStyle='rgba(80,150,230,0.45)'; oc.lineWidth=2; oc.stroke();
     ctx.drawImage(off,cx-half,cy-half);
-    // محور 23.5°
     ctx.save(); ctx.translate(cx,cy);
-    const tilt=23.5*Math.PI/180, axX=Math.sin(tilt)*R*1.34, axY=Math.cos(tilt)*R*1.34;
+    const tilt=23.5*Math.PI/180, axX=Math.sin(tilt)*R*1.32, axY=Math.cos(tilt)*R*1.32;
     ctx.beginPath(); ctx.moveTo(-axX,-axY); ctx.lineTo(axX,axY);
     ctx.strokeStyle='rgba(200,230,255,0.55)'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
-    [-1,1].forEach(d=>{ctx.beginPath();ctx.arc(d*axX,d*axY,4,0,Math.PI*2);ctx.fillStyle='rgba(220,240,255,0.88)';ctx.fill();});
+    [-1,1].forEach(d=>{ctx.beginPath();ctx.arc(d*axX,d*axY,4,0,Math.PI*2);ctx.fillStyle='rgba(220,240,255,0.90)';ctx.fill();});
     ctx.restore();
   }
 
@@ -39632,9 +39643,25 @@ function simG5DayNight() {
     c.font=`${Math.round(minD*0.020)}px Tajawal`; c.fillStyle='rgba(140,215,255,.65)'; c.fillText('تدور حول محورها',earthX,earthLY+22);
 
     const gap=earthR+26;
-    c.font=`bold ${Math.round(minD*0.027)}px Tajawal`;
-    c.textAlign='right'; c.fillStyle='#FFD54F'; c.fillText('☀️ نهار',earthX-gap,earthY-10);
-    c.textAlign='left'; c.fillStyle='#90B8FF'; c.fillText('🌙 ليل',earthX+gap,earthY-10);
+    // بادجات نهار/ليل فوق الكرة
+    const labelY = earthY - earthR - 36;
+    c.font = `bold ${Math.round(minD*0.027)}px Tajawal`;
+    const dayLabel='نهار ☀️', nightLabel='🌙 ليل';
+    // نهار على اليسار (جهة الشمس)
+    const dayLX = earthX - earthR - 14;
+    const dayW  = c.measureText(dayLabel).width + 20;
+    c.fillStyle='rgba(255,215,50,0.15)'; c.beginPath(); c.roundRect(dayLX-dayW, labelY-14, dayW, 28, 8); c.fill();
+    c.strokeStyle='rgba(255,215,50,0.40)'; c.lineWidth=1; c.stroke();
+    c.textAlign='right'; c.fillStyle='#FFD54F'; c.textBaseline='middle';
+    c.fillText(dayLabel, dayLX, labelY);
+    // ليل على اليمين
+    const nitLX = earthX + earthR + 14;
+    const nitW  = c.measureText(nightLabel).width + 20;
+    c.fillStyle='rgba(130,180,255,0.15)'; c.beginPath(); c.roundRect(nitLX, labelY-14, nitW, 28, 8); c.fill();
+    c.strokeStyle='rgba(130,180,255,0.40)'; c.lineWidth=1; c.stroke();
+    c.textAlign='left'; c.fillStyle='#90B8FF';
+    c.fillText(nightLabel, nitLX, labelY);
+    c.textBaseline='alphabetic';
 
     // مؤشر الدوران
     const deg=Math.round(((angle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2)/(Math.PI*2)*360);
