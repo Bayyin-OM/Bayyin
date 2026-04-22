@@ -39413,7 +39413,7 @@ function simG5DayNight() {
     for(let row=0;row<D;row++){for(let col=0;col<D;col++){
       const nx=(col-half)/R, ny=(row-half)/R, n2=nx*nx+ny*ny; if(n2>1) continue;
       const nz=Math.sqrt(1-n2), wx=nx*Math.cos(-rot)+nz*Math.sin(-rot);
-      const raw=-wx, lit=Math.max(0,Math.min(1,(raw+0.05)/0.12));
+      const raw=wx, lit=Math.max(0,Math.min(1,(raw+0.09)/0.18));
       let r,g,b;
       if(lit>0.01){const t2=lit;r=Math.round(20+t2*50);g=Math.round(80+t2*100);b=Math.round(160+t2*80);if(lit<0.35){const tw=(0.35-lit)/0.35;r=Math.round(r+tw*80);g=Math.round(g+tw*20);}}
       else{r=3;g=6;b=22;}
@@ -39428,7 +39428,7 @@ function simG5DayNight() {
       });
       const cen3=lonLatToXYZ_DN(land.lon,land.lat);
       const cenRx=cen3.x*Math.cos(-rot)+cen3.z*Math.sin(-rot);
-      const cenLit=Math.max(0,Math.min(1,(-cenRx+0.05)/0.12));
+      const cenLit=Math.max(0,Math.min(1,(cenRx+0.09)/0.18));
       const isAntarctic=Math.abs(land.lat)>1.2;
       let dr,dg,db,nr,ng,nb;
       if(isAntarctic){dr=235;dg=245;db=255;nr=40;ng=55;nb=80;}
@@ -39447,7 +39447,7 @@ function simG5DayNight() {
       const pr=projectDN(p3.x,p3.y,p3.z,rot,half,half,R);
       if(pr.zr<0.05) return;
       const wxC=p3.x*Math.cos(-rot)+p3.z*Math.sin(-rot);
-      const litC=Math.max(0,Math.min(1,(-wxC+0.05)/0.12));
+      const litC=Math.max(0,Math.min(1,(-wxC+0.09)/0.18));
       if(litC>0.20) return;
       const alpha=(0.25-litC)/0.25*0.9;
       const glow2=oc.createRadialGradient(pr.px,pr.py,0,pr.px,pr.py,R*0.045);
