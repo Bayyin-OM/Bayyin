@@ -32283,7 +32283,7 @@ Object.assign(SIM_QUESTIONS, {
     q: 'ماذا نستنتج من هذا الاستقصاء؟',
     opts: [
       'يتغير حجم الشمس على مدار السنة',
-      'تدور الأرض حول الشمس مع ميل محورها، فتختلف كمية الضوء الواصلة لكل نصف كرة',
+      'تدور الأرض حول الشمس ',
       'تبتعد الأرض عن الشمس في الشتاء وتقترب في الصيف',
       'تتوقف الأرض عن الدوران في الفصول الباردة'
     ],
@@ -39151,10 +39151,15 @@ function simG5Sunrise() {
     </div>
     <div class="ctrl-section">
       <div class="ctrl-label">💡 استكشف وفكّر</div>
-      <div class="q-box"><strong>❓ هل الشمس تتحرك أم الأرض؟</strong></div>
+      <div class="q-box"><strong>❓ هل الشمس تتحرك أم الأرض؟</strong>
+        <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+        <div class="q-ans-panel">الشمس ثابتة في مكانها — الأرض هي التي تدور حول محورها من الغرب إلى الشرق، مما يجعل الشمس تبدو وكأنها تشرق من الشرق وتغرب في الغرب.</div>
+      </div>
       <div class="q-box" style="margin-top:6px">
         <strong>❓ لماذا تتغير ألوان السماء؟</strong>
         <div style="font-size:11px;margin-top:3px;color:var(--muted)">لاحظ زاوية الأشعة عند الشروق والظهر</div>
+        <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+        <div class="q-ans-panel">عند الشروق والغروب تمر أشعة الشمس بمسار أطول في الغلاف الجوي، فتتشتت الألوان الزرقاء ويبقى الأحمر والبرتقالي. أما عند الظهر فالأشعة مباشرة فتبدو السماء زرقاء.</div>
       </div>
     </div>
     <div class="ctrl-section">
