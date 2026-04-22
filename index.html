@@ -36550,6 +36550,13 @@ function simG5TransparentTest() {
     c.fillStyle = 'rgba(0,0,0,0.45)';
     c.font = `bold ${Math.max(7,w*0.013)}px Tajawal`; c.textAlign = 'center';
     c.fillText('الروبوت', robotX, robotY + w*0.048);
+    // اسم المادة تحت الروبوت
+    if (mat) {
+      const col = typeColors[mat.type] || '#888';
+      c.fillStyle = col;
+      c.font = `bold ${Math.max(8,w*0.016)}px Tajawal`; c.textAlign = 'center';
+      c.fillText(`مصنوع من: ${mat.name}`, robotX, robotY + w*0.068);
+    }
 
     // ── المادة في الوسط (w=0.50) ──
     const shadowAlpha = (mat && lightOn) ? 1 - trans : 0;
