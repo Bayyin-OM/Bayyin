@@ -24219,6 +24219,29 @@ function simMagField1() {
 // ══════════════════════════════════════════════════════════════
 // 11-3 · TAB 2 — بوصلة تفاعلية
 // ══════════════════════════════════════════════════════════════
+function _drawCompassMF2(c,cx,cy,R,angle){
+  c.save(); c.shadowColor='rgba(0,0,0,0.12)'; c.shadowBlur=10; c.shadowOffsetY=3;
+  c.fillStyle='#fff'; c.strokeStyle='#BDC3C7'; c.lineWidth=1.5;
+  c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.fill(); c.stroke(); c.restore();
+  for(let i=0;i<12;i++){
+    const a=i/12*Math.PI*2,r1=i%3===0?R*.7:R*.82;
+    c.strokeStyle=i%3===0?'#95A5A6':'#D5D8DC'; c.lineWidth=i%3===0?1.5:1;
+    c.beginPath(); c.moveTo(cx+Math.cos(a)*r1,cy+Math.sin(a)*r1); c.lineTo(cx+Math.cos(a)*R*.94,cy+Math.sin(a)*R*.94); c.stroke();
+  }
+  c.save(); c.translate(cx,cy); c.rotate(angle);
+  c.fillStyle='#E74C3C';
+  c.beginPath(); c.moveTo(0,-R*.76); c.lineTo(R*.13,0); c.lineTo(0,R*.15); c.lineTo(-R*.13,0); c.closePath(); c.fill();
+  c.fillStyle='#95A5A6';
+  c.beginPath(); c.moveTo(0,R*.76); c.lineTo(R*.13,0); c.lineTo(0,-R*.15); c.lineTo(-R*.13,0); c.closePath(); c.fill();
+  c.fillStyle='#2C3E50'; c.beginPath(); c.arc(0,0,R*.1,0,Math.PI*2); c.fill();
+  c.restore();
+  c.font=`bold ${Math.round(R*.3)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+  c.save(); c.translate(cx,cy); c.rotate(angle);
+  c.fillStyle='#E74C3C'; c.fillText('ش',0,-R*.5);
+  c.fillStyle='#6C7A7D'; c.fillText('ج',0,R*.5);
+  c.restore();
+}
+
 function simMagField2() {
   cancelAnimationFrame(animFrame);
   const cv=document.getElementById('simCanvas');
@@ -24238,13 +24261,14 @@ function simMagField2() {
     <div class="ctrl-section">
       <div class="ctrl-label">🧭 بوصلة تفاعلية</div>
       <button class="ctrl-btn" onclick="simState.mf2.flipped=!simState.mf2.flipped">🔄 اقلب المغناطيس</button>
-      <button class="ctrl-btn reset" onclick="simState.mf2.compX=.75;simState.mf2.compY=.3">↺ أعِد البوصلة</button>
+      <button class="ctrl-btn reset" onclick="simState.mf2.compX=.22;simState.mf2.compY=.28">↺ أعِد البوصلة</button>
     </div>
     <div class="info-box" style="font-size:13px;line-height:2">
       🔴 الإبرة الحمراء = القطب <strong>الشمالي</strong> للبوصلة<br>
       تنجذب نحو القطب <strong>الجنوبي (ج)</strong> للمغناطيس<br><br>
-      ✋ اسحب البوصلة حول المغناطيس<br>وشاهد كيف تتبع خطوط المجال
-    </div>`);
+      ✋ اسحب البوصلة أو المغناطيس
+    </div>
+    <div id="mf2Lbl" style="margin-top:10px;font-size:14px;font-weight:600;line-height:1.7;padding:10px 12px;background:rgba(26,143,168,0.08);border-radius:8px;min-height:44px;text-align:center"></div>`);
 
   function gp(e){
     const r=cv.getBoundingClientRect(),sc=cv.width/r.width;
@@ -24391,66 +24415,86 @@ function simMagField2() {
     if(currentSim!=='magfield'||currentTab!==1)return;
     const w=cv.width,h=cv.height;
     c.clearRect(0,0,w,h);
-    c.fillStyle='#F5F8FF'; c.fillRect(0,0,w,h);
+    c.fillStyle='#F7F8FC'; c.fillRect(0,0,w,h);
 
     const mx=S.magX*w, my=S.magY*h;
-    const mW=Math.min(w*.22,120), mH=Math.min(h*.10,44);
-    const nPoleX = S.flipped ? mx-mW*.26 : mx+mW*.26;
-    const sPoleX = S.flipped ? mx+mW*.26 : mx-mW*.26;
-    const nPoleY=my, sPoleY=my;
-
-    // compass position & size
+    const mW=Math.min(w*.24,140), mH=Math.min(h*.14,50);
+    const nPoleX=S.flipped?mx-mW*.26:mx+mW*.26;
+    const sPoleX=S.flipped?mx+mW*.26:mx-mW*.26;
     const cx2=S.compX*w, cy2=S.compY*h;
-    const R=Math.min(w*.09,58);
+    const R=Math.min(w*.082,56);
 
-    // compute field at compass
-    const {fx,fy}=fieldAt(cx2,cy2,nPoleX,nPoleY,sPoleX,sPoleY);
+    // compute field & smooth rotation
+    const {fx,fy}=fieldAt(cx2,cy2,nPoleX,my,sPoleX,my);
     const targetAngle=Math.atan2(fy,fx);
     let diff=targetAngle-S.needleAngle;
-    while(diff> Math.PI) diff-=Math.PI*2;
-    while(diff<-Math.PI) diff+=Math.PI*2;
+    while(diff>Math.PI)diff-=Math.PI*2; while(diff<-Math.PI)diff+=Math.PI*2;
     S.needleAngle+=diff*0.10;
 
-    // arrow from red tip toward nearest relevant pole
-    const redTipX=cx2+Math.cos(S.needleAngle)*R;
-    const redTipY=cy2+Math.sin(S.needleAngle)*R;
-    const distToS=Math.hypot(redTipX-sPoleX,redTipY-sPoleY);
-    const distToN=Math.hypot(redTipX-nPoleX,redTipY-nPoleY);
-    const targetPX = distToS<distToN ? sPoleX : nPoleX;
-    const targetPY = distToS<distToN ? sPoleY : nPoleY;
-    const dax=targetPX-cx2, day=targetPY-cy2, daDist=Math.hypot(dax,day);
-    if(daDist>R+mW*.3){
-      const fromX=cx2+dax/daDist*(R+6), fromY=cy2+day/daDist*(R+6);
-      const toX=targetPX-dax/daDist*(mW*.28), toY=targetPY-day/daDist*(mW*.28);
-      c.save();
-      c.setLineDash([6,5]); c.strokeStyle='rgba(231,76,60,0.55)'; c.lineWidth=2;
-      c.beginPath(); c.moveTo(fromX,fromY); c.lineTo(toX,toY); c.stroke();
-      const aAng=Math.atan2(toY-fromY,toX-fromX);
-      c.setLineDash([]);
-      c.fillStyle='rgba(231,76,60,0.7)';
-      c.beginPath(); c.moveTo(toX,toY);
-      c.lineTo(toX-10*Math.cos(aAng-0.4),toY-10*Math.sin(aAng-0.4));
-      c.lineTo(toX-10*Math.cos(aAng+0.4),toY-10*Math.sin(aAng+0.4));
-      c.closePath(); c.fill();
-      c.restore();
+    const dToS=Math.hypot(cx2-sPoleX,cy2-my);
+    const dToN=Math.hypot(cx2-nPoleX,cy2-my);
+    const isNearS=dToS<dToN;
+
+    // field lines (8 lines, self-contained)
+    const sources=[{cx:nPoleX,cy:my,sign:1},{cx:sPoleX,cy:my,sign:-1}];
+    sources.forEach(src=>{
+      if(src.sign<0)return;
+      for(let li=0;li<8;li++){
+        const a0=(li/8)*Math.PI*2;
+        let px=src.cx+Math.cos(a0)*18, py=src.cy+Math.sin(a0)*18;
+        const pts=[[px,py]];
+        for(let s=0;s<160;s++){
+          let ffx=0,ffy=0;
+          sources.forEach(s2=>{const ddx=px-s2.cx,ddy=py-s2.cy,dd=Math.max(15,Math.hypot(ddx,ddy));ffx+=s2.sign*ddx/(dd**3)*8000;ffy+=s2.sign*ddy/(dd**3)*8000;});
+          const fm=Math.hypot(ffx,ffy)||1; px+=ffx/fm*5; py+=ffy/fm*5;
+          let hit=false; sources.forEach(s2=>{if(s2.sign<0&&Math.hypot(px-s2.cx,py-s2.cy)<18)hit=true;});
+          if(hit||px<1||px>w-1||py<1||py>h-1)break;
+          pts.push([px,py]);
+        }
+        c.beginPath(); c.moveTo(pts[0][0],pts[0][1]);
+        for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);
+        c.strokeStyle='rgba(52,152,219,0.22)'; c.lineWidth=1.5; c.stroke();
+        if(pts.length>6){
+          const idx=Math.floor(pts.length*.55);
+          if(idx>=2){
+            const [ax,ay]=pts[idx],[bx,by]=pts[idx-2],ang=Math.atan2(ay-by,ax-bx),sz=6;
+            c.save(); c.translate(ax,ay); c.rotate(ang);
+            c.fillStyle='rgba(52,152,219,0.4)';
+            c.beginPath(); c.moveTo(sz,0); c.lineTo(-sz,-sz*.5); c.lineTo(-sz*.3,0); c.lineTo(-sz,sz*.5); c.closePath(); c.fill();
+            c.restore();
+          }
+        }
+      }
+    });
+
+    // attraction arrow (red dashed)
+    const aPX=isNearS?sPoleX:nPoleX;
+    const daa=Math.hypot(cx2-aPX,cy2-my);
+    if(daa>R+mW*.3){
+      const ddx=(aPX-cx2)/daa, ddy=(my-cy2)/daa;
+      const fx2=cx2+ddx*(R+4), fy2=cy2+ddy*(R+4);
+      const tx=aPX-ddx*mW*.28, ty=my-ddy*mW*.28;
+      c.save(); c.setLineDash([5,4]);
+      c.strokeStyle='rgba(231,76,60,0.65)'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(fx2,fy2); c.lineTo(tx,ty); c.stroke();
+      const aAng=Math.atan2(ty-fy2,tx-fx2);
+      c.setLineDash([]); c.fillStyle='rgba(231,76,60,0.85)';
+      c.beginPath(); c.moveTo(tx,ty);
+      c.lineTo(tx-12*Math.cos(aAng-.4),ty-12*Math.sin(aAng-.4));
+      c.lineTo(tx-12*Math.cos(aAng+.4),ty-12*Math.sin(aAng+.4));
+      c.closePath(); c.fill(); c.restore();
     }
 
-    // magnet
     _drawBarMagnet(c,mx,my,mW,mH,S.flipped);
+    _drawCompassMF2(c,cx2,cy2,R,S.needleAngle);
 
-    // compass
-    drawCompass(cx2,cy2,R,S.needleAngle);
-
-    // status label
-    const nearS=Math.hypot(cx2-sPoleX,cy2-sPoleY);
-    const nearN=Math.hypot(cx2-nPoleX,cy2-nPoleY);
-    const msg = nearS<nearN
-      ? '🔴 الإبرة الحمراء تنجذب نحو القطب الجنوبي (ج)'
-      : '⬜ الإبرة الحمراء تبتعد عن القطب الشمالي (ش)';
-    c.fillStyle='rgba(255,255,255,0.88)';
-    const tw=Math.min(c.measureText(msg).width+28, w-20);
-    c.beginPath(); c.roundRect(w/2-tw/2,h-46,tw,30,8); c.fill();
-    U9.txt(c,msg,w/2,h-30,'#444',13,true);
+    // update sidebar label
+    const lbl=document.getElementById('mf2Lbl');
+    if(lbl){
+      lbl.innerHTML=isNearS
+        ?'🔴 الإبرة الحمراء <strong>(ش)</strong> تنجذب نحو القطب <strong style="color:#C0392B">الجنوبي (ج)</strong>'
+        :'🔵 الإبرة الحمراء <strong>(ش)</strong> تبتعد عن القطب <strong style="color:#2980B9">الشمالي (ش)</strong>';
+    }
 
     animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
   }
