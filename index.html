@@ -24093,8 +24093,8 @@ function simMagField1() {
       for(let li=0;li<N;li++){
         const a0=(li/N)*Math.PI*2;
         let px=src.cx+Math.cos(a0)*22, py=src.cy+Math.sin(a0)*22;
-        c.beginPath(); c.moveTo(px,py);
-        let steps=0;
+        // collect points for arrow drawing
+        const pts=[[px,py]];
         for(let s=0;s<180;s++){
           let fx=0,fy=0;
           sources.forEach(s2=>{
@@ -24105,15 +24105,42 @@ function simMagField1() {
           });
           const fm=Math.hypot(fx,fy)||1;
           px+=fx/fm*4.5; py+=fy/fm*4.5;
-          steps++;
-          // stop if we hit an S pole (within 22px)
           let hitS=false;
           sources.forEach(s2=>{ if(s2.sign<0&&Math.hypot(px-s2.cx,py-s2.cy)<22) hitS=true; });
           if(hitS||px<2||px>w-2||py<2||py>h-2) break;
-          c.lineTo(px,py);
+          pts.push([px,py]);
         }
         const alpha=0.12+(li%5===0?0.2:li%3===0?0.1:0.04);
-        c.strokeStyle=`rgba(26,143,168,${alpha})`; c.lineWidth=1.5; c.stroke();
+        const col=`rgba(26,143,168,${alpha})`;
+        // draw line
+        c.beginPath(); c.moveTo(pts[0][0],pts[0][1]);
+        for(let i=1;i<pts.length;i++) c.lineTo(pts[i][0],pts[i][1]);
+        c.strokeStyle=col; c.lineWidth=1.5; c.stroke();
+        // draw arrow at ~40% and ~75% of the line
+        if(pts.length>8){
+          const alphaArrow=0.25+(li%5===0?0.45:li%3===0?0.25:0.1);
+          const arrowCol=`rgba(26,143,168,${alphaArrow})`;
+          [0.4,0.72].forEach(frac=>{
+            const idx=Math.floor(frac*pts.length);
+            if(idx<2||idx>=pts.length) return;
+            const [ax,ay]=pts[idx];
+            const [bx,by]=pts[idx-2];
+            const angle=Math.atan2(ay-by,ax-bx);
+            const sz=5;
+            c.save();
+            c.translate(ax,ay);
+            c.rotate(angle);
+            c.beginPath();
+            c.moveTo(sz,0);
+            c.lineTo(-sz,-sz*0.55);
+            c.lineTo(-sz*0.3,0);
+            c.lineTo(-sz,sz*0.55);
+            c.closePath();
+            c.fillStyle=arrowCol;
+            c.fill();
+            c.restore();
+          });
+        }
       }
     });
   }
