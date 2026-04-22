@@ -24342,13 +24342,49 @@ function simMagField2() {
     c.restore();
   }
 
-  // draw faint field-line background using the shared fieldLines helper
+  // draw faint field-line background (self-contained, no external dependency)
   function drawBgLines(nPoleX,nPoleY,sPoleX,sPoleY,w,h){
-    const sources=[
-      {cx:nPoleX,cy:nPoleY,sign:1},
-      {cx:sPoleX,cy:sPoleY,sign:-1}
-    ];
-    fieldLines(sources,w,h);
+    const sources=[{cx:nPoleX,cy:nPoleY,sign:1},{cx:sPoleX,cy:sPoleY,sign:-1}];
+    sources.forEach(src=>{
+      if(src.sign<0) return;
+      const N=20;
+      for(let li=0;li<N;li++){
+        const a0=(li/N)*Math.PI*2;
+        let px=src.cx+Math.cos(a0)*22, py=src.cy+Math.sin(a0)*22;
+        const pts=[[px,py]];
+        for(let s=0;s<180;s++){
+          let fx=0,fy=0;
+          sources.forEach(s2=>{
+            const dx=px-s2.cx,dy=py-s2.cy,d=Math.max(18,Math.hypot(dx,dy));
+            fx+=s2.sign*dx/(d*d*d)*9000; fy+=s2.sign*dy/(d*d*d)*9000;
+          });
+          const fm=Math.hypot(fx,fy)||1;
+          px+=fx/fm*4.5; py+=fy/fm*4.5;
+          let hitS=false;
+          sources.forEach(s2=>{ if(s2.sign<0&&Math.hypot(px-s2.cx,py-s2.cy)<22) hitS=true; });
+          if(hitS||px<2||px>w-2||py<2||py>h-2) break;
+          pts.push([px,py]);
+        }
+        const alpha=0.10+(li%5===0?0.18:li%3===0?0.08:0.03);
+        c.beginPath(); c.moveTo(pts[0][0],pts[0][1]);
+        for(let i=1;i<pts.length;i++) c.lineTo(pts[i][0],pts[i][1]);
+        c.strokeStyle=`rgba(26,143,168,${alpha})`; c.lineWidth=1.5; c.stroke();
+        // arrows
+        if(pts.length>8){
+          const arrowAlpha=0.22+(li%5===0?0.4:li%3===0?0.2:0.08);
+          [0.4,0.72].forEach(frac=>{
+            const idx=Math.floor(frac*pts.length);
+            if(idx<2||idx>=pts.length) return;
+            const [ax,ay]=pts[idx],[bx,by]=pts[idx-2];
+            const angle=Math.atan2(ay-by,ax-bx),sz=5;
+            c.save(); c.translate(ax,ay); c.rotate(angle);
+            c.beginPath(); c.moveTo(sz,0); c.lineTo(-sz,-sz*.55); c.lineTo(-sz*.3,0); c.lineTo(-sz,sz*.55); c.closePath();
+            c.fillStyle=`rgba(26,143,168,${arrowAlpha})`; c.fill();
+            c.restore();
+          });
+        }
+      }
+    });
   }
 
   function draw(){
