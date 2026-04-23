@@ -10076,11 +10076,21 @@ function simCircuitBuilder1() {
     {type:'swC',  label:'مفتاح مغلق',   emoji:'🔒', isSwitch:true, open:false},
   ];
 
-  var SNAP = 22;
-  function compHW(type){ return type==='bulb'||type==='res'?{w:56,h:36}:{w:60,h:34}; }
+  var SNAP = 28;
+  function compHW(type){
+    if(type==='bat')  return {w:102,h:28};
+    if(type==='cell') return {w:76, h:24};
+    if(type==='bulb') return {w:60, h:50};
+    if(type==='res')  return {w:76, h:20};
+    return {w:86, h:22};
+  }
   function getPorts(comp){
-    var s=compHW(comp.type);
-    return [{x:comp.x-s.w/2,y:comp.y,idx:0},{x:comp.x+s.w/2,y:comp.y,idx:1}];
+    var t=comp.type;
+    if(t==='bat')  return [{x:comp.x-51,y:comp.y,idx:0},{x:comp.x+51,y:comp.y,idx:1}];
+    if(t==='cell') return [{x:comp.x-38,y:comp.y,idx:0},{x:comp.x+38,y:comp.y,idx:1}];
+    if(t==='bulb') return [{x:comp.x-30,y:comp.y-4,idx:0},{x:comp.x+30,y:comp.y-4,idx:1}];
+    if(t==='res')  return [{x:comp.x-38,y:comp.y,idx:0},{x:comp.x+38,y:comp.y,idx:1}];
+    return [{x:comp.x-43,y:comp.y,idx:0},{x:comp.x+43,y:comp.y,idx:1}];
   }
 
   function calcCircuit(){
@@ -10292,50 +10302,187 @@ function simCircuitBuilder1() {
 
   function drawComp(ctx,comp,lit,I){
     var type=comp.type,cx=comp.x,cy=comp.y;
-    var ink=isDarkMode()?'#D8E4F0':'#1E2D3D';
-    ctx.save(); ctx.strokeStyle=ink; ctx.fillStyle=ink; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.lineJoin='round';
+    var dm=isDarkMode();
+    ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+
     if(type==='bat'){
-      ctx.beginPath();ctx.moveTo(cx-30,cy);ctx.lineTo(cx-10,cy);ctx.stroke();
-      [-10,0,10].forEach(function(ox,i){ctx.lineWidth=i===1?2:4.5;ctx.beginPath();ctx.moveTo(cx+ox,cy-12);ctx.lineTo(cx+ox,cy+12);ctx.stroke();});
-      ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(cx+10,cy);ctx.lineTo(cx+30,cy);ctx.stroke();
-      ctx.font='bold 9px Arial';ctx.textAlign='center';ctx.fillStyle=ink;
-      ctx.fillText('+',cx+22,cy-14);ctx.fillText('−',cx-22,cy-14);ctx.fillText('9V',cx,cy+22);
+      // ── بطارية واقعية: جسم أسطواني مع قطبين ──
+      var bw=52,bh=28;
+      // جسم البطارية
+      var g=ctx.createLinearGradient(cx-bw/2,cy-bh/2,cx-bw/2,cy+bh/2);
+      g.addColorStop(0,dm?'#3A4A5A':'#6C8CA0');
+      g.addColorStop(0.45,dm?'#5A7A9A':'#A8C8D8');
+      g.addColorStop(1,dm?'#2A3A4A':'#4A6878');
+      ctx.fillStyle=g; ctx.strokeStyle=dm?'#4A6A8A':'#3A5A70'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.roundRect(cx-bw/2,cy-bh/2,bw,bh,5); ctx.fill(); ctx.stroke();
+      // شريط أصفر في المنتصف
+      ctx.fillStyle='#D4901A';
+      ctx.beginPath(); ctx.roundRect(cx-6,cy-bh/2,12,bh,0); ctx.fill();
+      // علامة الجهد
+      ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.fillStyle='white'; ctx.textBaseline='middle';
+      ctx.fillText('9V',cx,cy);
+      // القطب الموجب (+) يمين
+      ctx.fillStyle='#E74C3C';
+      ctx.beginPath(); ctx.roundRect(cx+bw/2,cy-7,10,14,3); ctx.fill();
+      ctx.fillStyle='white'; ctx.font='bold 11px Arial'; ctx.fillText('+',cx+bw/2+5,cy+1);
+      // القطب السالب (-) يسار
+      ctx.fillStyle='#555';
+      ctx.beginPath(); ctx.roundRect(cx-bw/2-10,cy-7,10,14,3); ctx.fill();
+      ctx.fillStyle='white'; ctx.font='bold 13px Arial'; ctx.fillText('−',cx-bw/2-5,cy+1);
+      // سلكا التوصيل
+      ctx.strokeStyle=dm?'#8AAAC0':'#445566'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx-bw/2-10,cy); ctx.lineTo(cx-bw/2-24,cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+bw/2+10,cy); ctx.lineTo(cx+bw/2+24,cy); ctx.stroke();
+      // اسم
+      ctx.font='bold 11px Tajawal'; ctx.fillStyle=dm?'#8AAAC0':'#445566';
+      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText('بطارية',cx,cy+bh/2+6);
+
     } else if(type==='cell'){
-      ctx.beginPath();ctx.moveTo(cx-30,cy);ctx.lineTo(cx-5,cy);ctx.stroke();
-      ctx.lineWidth=4.5;ctx.beginPath();ctx.moveTo(cx-5,cy-13);ctx.lineTo(cx-5,cy+13);ctx.stroke();
-      ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx+5,cy-7);ctx.lineTo(cx+5,cy+7);ctx.stroke();
-      ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(cx+5,cy);ctx.lineTo(cx+30,cy);ctx.stroke();
-      ctx.font='bold 9px Arial';ctx.textAlign='center';ctx.fillStyle=ink;
-      ctx.fillText('+',cx+20,cy-14);ctx.fillText('−',cx-20,cy-14);ctx.fillText('1.5V',cx,cy+22);
+      // ── خلية كهربائية: أنحف من البطارية ──
+      var cw=38,ch=24;
+      var g2=ctx.createLinearGradient(cx-cw/2,cy-ch/2,cx-cw/2,cy+ch/2);
+      g2.addColorStop(0,dm?'#3A5040':'#6CA080');
+      g2.addColorStop(0.5,dm?'#4A7050':'#90C8A0');
+      g2.addColorStop(1,dm?'#2A3A30':'#4A7860');
+      ctx.fillStyle=g2; ctx.strokeStyle=dm?'#3A6050':'#2A5840'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.roundRect(cx-cw/2,cy-ch/2,cw,ch,4); ctx.fill(); ctx.stroke();
+      ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.fillStyle='white'; ctx.textBaseline='middle';
+      ctx.fillText('1.5V',cx,cy);
+      ctx.fillStyle='#E74C3C';
+      ctx.beginPath(); ctx.roundRect(cx+cw/2,cy-6,8,12,2); ctx.fill();
+      ctx.fillStyle='white'; ctx.font='bold 10px Arial'; ctx.fillText('+',cx+cw/2+4,cy+1);
+      ctx.fillStyle='#555';
+      ctx.beginPath(); ctx.roundRect(cx-cw/2-8,cy-6,8,12,2); ctx.fill();
+      ctx.fillStyle='white'; ctx.font='bold 12px Arial'; ctx.fillText('−',cx-cw/2-4,cy+1);
+      ctx.strokeStyle=dm?'#8AAAC0':'#445566'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx-cw/2-8,cy); ctx.lineTo(cx-cw/2-22,cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+cw/2+8,cy); ctx.lineTo(cx+cw/2+22,cy); ctx.stroke();
+      ctx.font='bold 11px Tajawal'; ctx.fillStyle=dm?'#8AAAC0':'#445566';
+      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText('خلية',cx,cy+ch/2+5);
+
     } else if(type==='bulb'){
+      // ── مصباح واقعي: كروي + قاعدة ──
       var lbr=lit?Math.min(1,I/0.5):0;
-      if(lbr>.05){ctx.shadowBlur=22*lbr;ctx.shadowColor='rgba(255,220,0,'+(lbr*.9)+')';}
-      ctx.fillStyle=lbr>.05?'rgba(255,'+(200+lbr*55|0)+',0,'+(0.35+lbr*.6)+')': (isDarkMode()?'rgba(50,65,85,.5)':'rgba(200,210,225,.6)');
-      ctx.beginPath();ctx.arc(cx,cy,16,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-      ctx.strokeStyle=lbr>.05?'#F39C12':ink;ctx.lineWidth=2.5;
-      ctx.beginPath();ctx.arc(cx,cy,16,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx-9,cy+9);ctx.lineTo(cx+9,cy-9);ctx.moveTo(cx+9,cy+9);ctx.lineTo(cx-9,cy-9);ctx.stroke();
-      ctx.strokeStyle=ink;ctx.beginPath();ctx.moveTo(cx-30,cy);ctx.lineTo(cx-16,cy);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx+16,cy);ctx.lineTo(cx+30,cy);ctx.stroke();
-      ctx.font='bold 10px Tajawal';ctx.textAlign='center';ctx.fillStyle=isDarkMode()?'#B0C8E0':'#556677';ctx.fillText('مصباح',cx,cy+32);
+      var R=20; // نصف قطر الزجاج
+      // توهج خارجي
+      if(lbr>.05){
+        ctx.shadowBlur=30*lbr; ctx.shadowColor='rgba(255,230,50,'+(lbr*.95)+')';
+        var glow=ctx.createRadialGradient(cx,cy,0,cx,cy,R*2.5);
+        glow.addColorStop(0,'rgba(255,255,100,'+(lbr*.4)+')');
+        glow.addColorStop(1,'rgba(255,200,0,0)');
+        ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(cx,cy,R*2.5,0,Math.PI*2); ctx.fill();
+      }
+      // الزجاج
+      var bulbG=ctx.createRadialGradient(cx-R*.3,cy-R*.3,1,cx,cy,R);
+      if(lbr>.05){
+        bulbG.addColorStop(0,'rgba(255,255,180,0.95)');
+        bulbG.addColorStop(0.5,'rgba(255,'+(200+lbr*55|0)+',20,0.9)');
+        bulbG.addColorStop(1,'rgba(220,140,0,0.7)');
+      } else {
+        bulbG.addColorStop(0,dm?'rgba(80,100,120,0.7)':'rgba(220,230,240,0.9)');
+        bulbG.addColorStop(1,dm?'rgba(40,60,80,0.6)':'rgba(180,195,210,0.7)');
+      }
+      ctx.shadowBlur=0;
+      ctx.fillStyle=bulbG;
+      ctx.beginPath(); ctx.arc(cx,cy-4,R,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle=lbr>.05?'rgba(200,130,0,0.7)':(dm?'rgba(100,130,150,0.6)':'rgba(140,160,180,0.7)');
+      ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,cy-4,R,0,Math.PI*2); ctx.stroke();
+      // خيط التوهج
+      if(lbr>.05){
+        ctx.strokeStyle='rgba(255,250,100,'+(0.5+lbr*.5)+')'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.moveTo(cx-5,cy+4); ctx.lineTo(cx-1,cy-4); ctx.lineTo(cx+3,cy+2); ctx.lineTo(cx+6,cy-6); ctx.stroke();
+      }
+      // لمعة
+      ctx.fillStyle='rgba(255,255,255,'+(lbr>.05?0.3:0.25)+')';
+      ctx.beginPath(); ctx.ellipse(cx-R*.35,cy-R*.55,R*.22,R*.14,-0.5,0,Math.PI*2); ctx.fill();
+      // قاعدة المصباح
+      var baseG=ctx.createLinearGradient(cx-10,cy+R-4,cx+10,cy+R-4);
+      baseG.addColorStop(0,dm?'#4A5A6A':'#8A9AAA');
+      baseG.addColorStop(0.5,dm?'#6A7A8A':'#BACcDD');
+      baseG.addColorStop(1,dm?'#3A4A5A':'#6A7A8A');
+      ctx.fillStyle=baseG; ctx.strokeStyle=dm?'#3A4A5A':'#5A6A7A'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect(cx-9,cy+R-5,18,14,2); ctx.fill(); ctx.stroke();
+      // خطوط القاعدة
+      ctx.strokeStyle=dm?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)'; ctx.lineWidth=1;
+      [cy+R,cy+R+4].forEach(function(y){ctx.beginPath();ctx.moveTo(cx-9,y);ctx.lineTo(cx+9,y);ctx.stroke();});
+      // أسلاك
+      ctx.strokeStyle=dm?'#8AAAC0':'#445566'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx-30,cy-4); ctx.lineTo(cx-R-1,cy-4); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+R+1,cy-4); ctx.lineTo(cx+30,cy-4); ctx.stroke();
+      ctx.font='bold 11px Tajawal'; ctx.fillStyle=dm?'#8AAAC0':'#445566';
+      ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillText('مصباح',cx,cy+R+12);
+
     } else if(type==='res'){
-      ctx.beginPath();ctx.moveTo(cx-30,cy);ctx.lineTo(cx-20,cy);ctx.stroke();
-      ctx.beginPath();ctx.rect(cx-20,cy-10,40,20);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx+20,cy);ctx.lineTo(cx+30,cy);ctx.stroke();
+      // ── مقاومة واقعية: أسطوانة بحلقات ألوان ──
+      var rw=44,rh=20;
+      var rg=ctx.createLinearGradient(cx-rw/2,cy-rh/2,cx-rw/2,cy+rh/2);
+      rg.addColorStop(0,dm?'#5A4A3A':'#D4C4A0');
+      rg.addColorStop(0.4,dm?'#7A6A5A':'#F0E0C0');
+      rg.addColorStop(1,dm?'#4A3A2A':'#B0A080');
+      ctx.fillStyle=rg; ctx.strokeStyle=dm?'#6A5A4A':'#8A7A60'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.roundRect(cx-rw/2,cy-rh/2,rw,rh,rh/2); ctx.fill(); ctx.stroke();
+      // حلقات الألوان
+      var bands=[{c:'#C0392B',x:-14},{c:'#E67E22',x:-6},{c:'#F1C40F',x:2},{c:'#8E44AD',x:12}];
+      bands.forEach(function(b){
+        ctx.fillStyle=b.c; ctx.fillRect(cx+b.x-2,cy-rh/2,4,rh);
+      });
+      // ظل على الأسطوانة
+      ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.roundRect(cx-rw/2,cy-rh/2,rw,rh,rh/2); ctx.stroke();
+      // أسلاك
+      ctx.strokeStyle=dm?'#8AAAC0':'#445566'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx-rw/2-2,cy); ctx.lineTo(cx-rw/2-16,cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+rw/2+2,cy); ctx.lineTo(cx+rw/2+16,cy); ctx.stroke();
       var rdef=PALETTE.find(function(p){return p.type==='res';});
-      ctx.font='bold 10px Arial';ctx.textAlign='center';ctx.fillStyle=ink;ctx.fillText((rdef&&rdef.r||10)+'Ω',cx,cy+28);
+      ctx.font='bold 10px Tajawal'; ctx.textAlign='center'; ctx.fillStyle=dm?'#8AAAC0':'#445566';
+      ctx.textBaseline='top'; ctx.fillText((rdef&&rdef.r||10)+'Ω مقاومة',cx,cy+rh/2+5);
+
     } else if(type==='swO'||type==='swC'){
+      // ── مفتاح واقعي: جسم بلاستيكي مع ذراع ──
       var closed=(type==='swC');
-      ctx.beginPath();ctx.moveTo(cx-30,cy);ctx.lineTo(cx-10,cy);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(cx+10,cy);ctx.lineTo(cx+30,cy);ctx.stroke();
-      ctx.fillStyle=closed?'#27AE60':'#C0392B';
-      ctx.beginPath();ctx.arc(cx-10,cy,4,0,Math.PI*2);ctx.fill();
-      ctx.beginPath();ctx.arc(cx+10,cy,4,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle=closed?'#27AE60':'#999';ctx.lineWidth=2.5;
-      if(closed){ctx.beginPath();ctx.moveTo(cx-10,cy);ctx.lineTo(cx+10,cy);ctx.stroke();}
-      else{ctx.beginPath();ctx.moveTo(cx-10,cy);ctx.lineTo(cx+8,cy-14);ctx.stroke();}
-      ctx.font='bold 9px Tajawal';ctx.textAlign='center';ctx.fillStyle=closed?'#27AE60':'#C0392B';
-      ctx.fillText(closed?'مغلق 🔒':'مفتوح 🔓',cx,cy+26);
+      var sw=54,sh=22;
+      // قاعدة المفتاح
+      var sg=ctx.createLinearGradient(cx-sw/2,cy-sh/2,cx-sw/2,cy+sh/2);
+      sg.addColorStop(0,dm?'#3A4A3A':'#C8D8C0');
+      sg.addColorStop(0.5,dm?'#4A6A4A':'#E8F8E0');
+      sg.addColorStop(1,dm?'#2A3A2A':'#90A888');
+      ctx.fillStyle=sg; ctx.strokeStyle=closed?'#27AE60':'#95A5A6'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.roundRect(cx-sw/2,cy-sh/2,sw,sh,6); ctx.fill(); ctx.stroke();
+      // نقاط التوصيل (مسامير)
+      [-sw/2+6, sw/2-6].forEach(function(ox){
+        var sg2=ctx.createRadialGradient(cx+ox,cy,0,cx+ox,cy,6);
+        sg2.addColorStop(0,dm?'#9DC8D0':'#C8E8F0');
+        sg2.addColorStop(1,dm?'#3A6A7A':'#5A9AAA');
+        ctx.fillStyle=sg2; ctx.strokeStyle=dm?'#5A8A9A':'#3A7A8A'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.arc(cx+ox,cy,6,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        // ثقب المسمار
+        ctx.fillStyle=dm?'rgba(0,0,0,.5)':'rgba(0,0,0,.3)';
+        ctx.beginPath(); ctx.arc(cx+ox,cy,2.5,0,Math.PI*2); ctx.fill();
+      });
+      // ذراع المفتاح
+      if(closed){
+        var barG=ctx.createLinearGradient(cx-sw/2+12,cy-3,cx+sw/2-12,cy+3);
+        barG.addColorStop(0,'#E74C3C'); barG.addColorStop(0.5,'#F1948A'); barG.addColorStop(1,'#C0392B');
+        ctx.fillStyle=barG; ctx.strokeStyle='#922B21'; ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.roundRect(cx-sw/2+11,cy-3.5,sw-22,7,3.5); ctx.fill(); ctx.stroke();
+      } else {
+        ctx.strokeStyle='#E74C3C'; ctx.lineWidth=3; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(cx-sw/2+12,cy); ctx.lineTo(cx+sw/2-22,cy-16); ctx.stroke();
+        ctx.fillStyle='#E74C3C';
+        ctx.beginPath(); ctx.arc(cx-sw/2+12,cy,4,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx+sw/2-12,cy,4,0,Math.PI*2); ctx.fill();
+      }
+      // مؤشر ON/OFF
+      ctx.font='bold 9px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillStyle=closed?'#1E8449':'#922B21';
+      ctx.fillText(closed?'ON':'OFF',cx,cy);
+      // أسلاك
+      ctx.strokeStyle=dm?'#8AAAC0':'#445566'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx-sw/2-2,cy); ctx.lineTo(cx-sw/2-16,cy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx+sw/2+2,cy); ctx.lineTo(cx+sw/2+16,cy); ctx.stroke();
+      ctx.font='bold 11px Tajawal'; ctx.fillStyle=closed?'#1E8449':'#922B21';
+      ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText(closed?'مفتاح مغلق 🔒':'مفتاح مفتوح 🔓',cx,cy+sh/2+5);
     }
     ctx.restore();
   }
