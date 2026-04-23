@@ -10379,6 +10379,8 @@ function simCircuitBuilder2() {
 
   // إعادة حساب الاتصالات التلقائية
   function recalcConns(){
+    if(!simState||!simState.placed) return;
+    if(simState.isQuick) return; // الدائرة الجاهزة لها أسلاك ثابتة
     var conns=[];
     var p=simState.placed;
     for(var i=0;i<p.length;i++){
@@ -10580,6 +10582,7 @@ function simCircuitBuilder2() {
 
   cv.addEventListener('mousedown',function(e){
     if(ghostDrag) return;
+    if(!simState||!simState.placed) return;
     var p=getPos(e,cv);
     for(var i=simState.placed.length-1;i>=0;i--){
       var comp=simState.placed[i];
@@ -10591,6 +10594,7 @@ function simCircuitBuilder2() {
 
   document.addEventListener('mousemove',function(e){
     var cv2=document.getElementById('simCanvas'); if(!cv2) return;
+    if(!simState||!simState.placed) return;
     var p=getPos(e,cv2);
     if(ghostDrag){ ghostDrag.x=p.x; ghostDrag.y=p.y; }
     else if(simState.dragging!==null && simState.placed && simState.placed[simState.dragging]){
@@ -10602,6 +10606,7 @@ function simCircuitBuilder2() {
 
   document.addEventListener('mouseup',function(e){
     var cv2=document.getElementById('simCanvas'); if(!cv2) return;
+    if(!simState||!simState.placed) return;
     var p=getPos(e,cv2);
     if(ghostDrag){
       simState.placed.push({id:simState.nextId++, type:ghostDrag.type, x:ghostDrag.x, y:ghostDrag.y});
@@ -10612,6 +10617,7 @@ function simCircuitBuilder2() {
 
   cv.addEventListener('touchstart',function(e){
     if(ghostDrag) return;
+    if(!simState||!simState.placed) return;
     e.preventDefault();
     var p=getPos(e,cv);
     for(var i=simState.placed.length-1;i>=0;i--){
@@ -10624,6 +10630,7 @@ function simCircuitBuilder2() {
 
   cv.addEventListener('touchmove',function(e){
     e.preventDefault();
+    if(!simState||!simState.placed) return;
     var p=getPos(e,cv);
     if(ghostDrag){ ghostDrag.x=p.x; ghostDrag.y=p.y; }
     else if(simState.dragging!==null && simState.placed && simState.placed[simState.dragging]){
@@ -10634,6 +10641,7 @@ function simCircuitBuilder2() {
   },{passive:false});
 
   cv.addEventListener('touchend',function(e){
+    if(!simState||!simState.placed) return;
     if(ghostDrag){
       simState.placed.push({id:simState.nextId++, type:ghostDrag.type, x:ghostDrag.x, y:ghostDrag.y});
       ghostDrag=null; recalcConns();
@@ -10642,6 +10650,7 @@ function simCircuitBuilder2() {
   });
 
   cv.addEventListener('dblclick',function(e){
+    if(!simState||!simState.placed) return;
     var p=getPos(e,cv);
     for(var i=simState.placed.length-1;i>=0;i--){
       if(Math.abs(p.x-simState.placed[i].x)<40&&Math.abs(p.y-simState.placed[i].y)<34){
