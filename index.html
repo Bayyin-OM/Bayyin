@@ -10337,7 +10337,7 @@ function simCircuitBuilder2() {
 
   // نصف-عرض الرمز للحصول على نقطتي الوصل (يمين ويسار)
   var HALF = { cell:28, bat:24, bulb:28, swO:22, swC:22, amm:28 };
-  var SNAP_DIST = 38; // مسافة الـ snap بالبكسل
+  var SNAP_DIST = 62; // مسافة الـ snap بالبكسل — مرفوعة لسهولة التوصيل
 
   simState = { t:0, placed:[], conns:[], dragging:null, dragOffX:0, dragOffY:0, nextId:0 };
 
@@ -10463,15 +10463,20 @@ function simCircuitBuilder2() {
   // ─── Panel ───
   elCtrl(`
     <div class="ctrl-section">
-      <div class="ctrl-label">📐 اسحب رمزاً إلى اللوحة</div>
+      <div class="ctrl-label">⚡ بناء سريع</div>
+      <button onclick="window._quickCircuit()" style="width:100%;padding:10px;border-radius:10px;border:2px solid rgba(39,174,96,.4);background:rgba(39,174,96,.08);color:#1E8449;font-family:Tajawal;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:6px">✅ ابنِ دائرة بسيطة تلقائياً</button>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">📐 أضف رمزاً إلى اللوحة</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">اضغط الزر لإضافة الرمز، أو اسحبه مباشرة</div>
       <div id="sym-palette" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center"></div>
     </div>
     <div class="ctrl-section" style="margin-top:4px">
       <button onclick="window._clearBoard()" style="width:100%;padding:8px;border-radius:8px;background:rgba(192,57,43,.08);border:1.5px solid rgba(192,57,43,.25);color:#C0392B;font-family:Tajawal;font-size:13px;cursor:pointer">🗑️ مسح اللوحة</button>
     </div>
     <div class="info-box" style="font-size:12px;margin-top:4px">
-      💡 اسحب الرموز بحرية على اللوحة<br>
-      🔗 الأسلاك تتصل تلقائياً عند التقريب<br>
+      👆 اضغط الرمز لإضافته تلقائياً<br>
+      🔗 الأسلاك تتصل عند التقريب<br>
       🗑️ دبل-كليك على رمز لحذفه
     </div>
     <div id="cir-status" class="info-box" style="font-size:13px;margin-top:4px;text-align:center;min-height:36px"></div>`);
@@ -10487,6 +10492,12 @@ function simCircuitBuilder2() {
       var lbl=document.createElement('div');
       lbl.style.cssText='font-size:10px;text-align:center;color:var(--text-secondary)';
       lbl.textContent=s.name; btn.appendChild(lbl);
+      // زر "أضف"
+      var addBtn=document.createElement('button');
+      addBtn.textContent='+ أضف';
+      addBtn.style.cssText='margin-top:3px;padding:3px 8px;border-radius:6px;border:1.5px solid rgba(26,143,168,.35);background:rgba(26,143,168,.1);color:#1A8FA8;font-family:Tajawal;font-size:10px;font-weight:700;cursor:pointer;width:100%';
+      (function(sId){ addBtn.addEventListener('click',function(e){ e.stopPropagation(); window._addSymToCenter(sId); }); })(s.id);
+      btn.appendChild(addBtn);
       palette.appendChild(btn);
       (function(cvM,sType){
         var ctx2=cvM.getContext('2d');
@@ -10498,7 +10509,38 @@ function simCircuitBuilder2() {
     });
   }
 
+  // إضافة رمز إلى وسط اللوحة مع إزاحة تلقائية
+  window._addSymToCenter=function(symId){
+    var cv2=document.getElementById('simCanvas'); if(!cv2) return;
+    if(!simState||!simState.placed) return;
+    var w=cv2.width, h=cv2.height;
+    var count=simState.placed.length;
+    // ترتيب الرموز أفقياً في وسط اللوحة
+    var spacing=90, startX=w/2 - (count*spacing/2);
+    var x=Math.max(60, Math.min(w-60, startX + count*spacing));
+    var y=h*0.42 + (count%2)*30;
+    simState.placed.push({id:simState.nextId++, type:symId, x:x, y:y});
+    recalcConns();
+    try{U9Sound.ping(500,.08,.12);}catch(ex){}
+  };
+
+  // بناء دائرة بسيطة تلقائياً: خلية + مفتاح مغلق + مصباح
+  window._quickCircuit=function(){
+    if(!simState) return;
+    simState.placed=[]; simState.conns=[];
+    var cv2=document.getElementById('simCanvas'); if(!cv2) return;
+    var w=cv2.width, h=cv2.height;
+    var cx=w/2, cy=h*0.42;
+    var gap=100;
+    simState.placed.push({id:simState.nextId++, type:'cell', x:cx-gap, y:cy});
+    simState.placed.push({id:simState.nextId++, type:'swC',  x:cx,     y:cy});
+    simState.placed.push({id:simState.nextId++, type:'bulb', x:cx+gap, y:cy});
+    recalcConns();
+    try{U9Sound.ping(560,.12,.15);}catch(ex){}
+  };
+
   window._clearBoard=function(){
+    if(!simState) return;
     simState.placed=[]; simState.conns=[];
     try{U9Sound.thud();}catch(ex){}
   };
