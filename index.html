@@ -10352,6 +10352,7 @@ function simCircuitBuilder2() {
 
   // هل الدائرة مكتملة؟ — تحقق بالرسم البياني للاتصالات
   function circuitOK(){
+    if(!simState||!simState.placed) return false;
     var p = simState.placed;
     if(p.length < 2) return false;
     var hasPower = p.some(function(c){ return SYMS.find(function(s){return s.id===c.type;}).hasPower; });
@@ -10513,6 +10514,7 @@ function simCircuitBuilder2() {
   window._addSymToCenter=function(symId){
     var cv2=document.getElementById('simCanvas'); if(!cv2) return;
     if(!simState||!simState.placed) return;
+    simState.isQuick=false; simState.fixedWires=null;
     var w=cv2.width, h=cv2.height;
     var count=simState.placed.length;
     // ترتيب الرموز أفقياً في وسط اللوحة
@@ -10524,24 +10526,37 @@ function simCircuitBuilder2() {
     try{U9Sound.ping(500,.08,.12);}catch(ex){}
   };
 
-  // بناء دائرة بسيطة تلقائياً: خلية + مفتاح مغلق + مصباح
+  // بناء دائرة بسيطة تلقائياً: رموز على أضلاع مستطيل
   window._quickCircuit=function(){
     if(!simState) return;
-    simState.placed=[]; simState.conns=[];
     var cv2=document.getElementById('simCanvas'); if(!cv2) return;
     var w=cv2.width, h=cv2.height;
-    var cx=w/2, cy=h*0.42;
-    var gap=100;
-    simState.placed.push({id:simState.nextId++, type:'cell', x:cx-gap, y:cy});
-    simState.placed.push({id:simState.nextId++, type:'swC',  x:cx,     y:cy});
-    simState.placed.push({id:simState.nextId++, type:'bulb', x:cx+gap, y:cy});
-    recalcConns();
+    var x1=w*0.18, x2=w*0.82, y1=h*0.22, y2=h*0.68;
+    var mx=(x1+x2)/2, my=(y1+y2)/2;
+    simState.placed=[];
+    simState.conns=[];
+    simState.nextId=0;
+    // بطارية على الضلع الأيسر
+    simState.placed.push({id:simState.nextId++, type:'cell', x:x1, y:my-30, fixedPort:{l:{x:x1,y:y1}, r:{x:x1,y:y2}}});
+    // مفتاح مغلق على الضلع العلوي
+    simState.placed.push({id:simState.nextId++, type:'swC',  x:mx, y:y1,   fixedPort:{l:{x:x1,y:y1}, r:{x:x2,y:y1}}});
+    // مصباح على الضلع الأيمن
+    simState.placed.push({id:simState.nextId++, type:'bulb', x:x2, y:my,   fixedPort:{l:{x:x2,y:y1}, r:{x:x2,y:y2}}});
+    // أسلاك المستطيل الثابتة
+    simState.fixedWires=[
+      {x1:x1,y1:y1, x2:x2,y2:y1},  // أعلى
+      {x1:x2,y1:y1, x2:x2,y2:y2},  // يمين
+      {x1:x2,y1:y2, x2:x1,y2:y2},  // أسفل
+      {x1:x1,y1:y2, x2:x1,y2:y1},  // يسار
+    ];
+    simState.isQuick=true;
     try{U9Sound.ping(560,.12,.15);}catch(ex){}
   };
 
   window._clearBoard=function(){
     if(!simState) return;
     simState.placed=[]; simState.conns=[];
+    simState.fixedWires=null; simState.isQuick=false;
     try{U9Sound.thud();}catch(ex){}
   };
 
@@ -10644,10 +10659,11 @@ function simCircuitBuilder2() {
 
   function draw(){
     if(currentSim!=='g6circuit'){ cancelAnimationFrame(animFrame); return; }
+    if(!simState||!simState.placed||!simState.conns){ animFrame=requestAnimationFrame(draw); return; }
     var c=elCtx(), w=elW(), h=elH();
     c.clearRect(0,0,w,h);
     c.fillStyle=isDarkMode()?'#0E1620':'#EEF2FB'; c.fillRect(0,0,w,h);
-    simState.t+=0.025;
+    simState.t=(simState.t||0)+0.025;
     var ok=circuitOK();
 
     // خلفية اللوحة
@@ -10661,6 +10677,26 @@ function simCircuitBuilder2() {
     for(var gx=36;gx<w-20;gx+=28){
       for(var gy=36;gy<h-20;gy+=28){
         c.beginPath(); c.arc(gx,gy,1.5,0,Math.PI*2); c.fill();
+      }
+    }
+
+    // ─── أسلاك الدائرة الجاهزة (quickCircuit) ───
+    if(simState.isQuick && simState.fixedWires){
+      var wc2=ok?'#27AE60':(isDarkMode()?'#4A6080':'#90A0B0');
+      if(ok){ c.strokeStyle='rgba(39,174,96,.15)'; c.lineWidth=14; c.lineCap='round';
+        simState.fixedWires.forEach(function(fw){ c.beginPath(); c.moveTo(fw.x1,fw.y1); c.lineTo(fw.x2,fw.y2); c.stroke(); }); }
+      c.strokeStyle=wc2; c.lineWidth=3; c.lineCap='round';
+      simState.fixedWires.forEach(function(fw){
+        c.beginPath(); c.moveTo(fw.x1,fw.y1); c.lineTo(fw.x2,fw.y2); c.stroke();
+      });
+      // نقاط الزوايا
+      var cv2r=document.getElementById('simCanvas'); if(cv2r){
+        var wr=cv2r.width, hr=cv2r.height;
+        var fx1=wr*0.18,fx2=wr*0.82,fy1=hr*0.22,fy2=hr*0.68;
+        [[fx1,fy1],[fx2,fy1],[fx2,fy2],[fx1,fy2]].forEach(function(pt){
+          c.fillStyle=ok?'#27AE60':'#78909C';
+          c.beginPath(); c.arc(pt[0],pt[1],5,0,Math.PI*2); c.fill();
+        });
       }
     }
 
