@@ -3525,6 +3525,16 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
 
+        <div class="sim-card" onclick="openSim('g6voltage')">
+          <div class="sim-thumb t4">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">5-7 · الجهد الكهربائي</div>
+            <div class="sim-name">لماذا لا يعمل الطنان ببطارية واحدة؟</div>
+            <div class="sim-desc">اكتشف كيف يؤثر الجهد على تشغيل الأجهزة المختلفة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
         <div class="sim-card" onclick="openSim('g6wirelength')">
           <div class="sim-thumb t6">📏</div>
           <div class="sim-body">
@@ -5895,6 +5905,7 @@ const SIM_META = {
   g6metalconductor: { title: '5-3 · المعادن والكهرباء', badge: '⚡ 6', tabs: ['قياس التيار بالأميتر ⚡', 'مقارنة المعادن 🔩'] },
   g6circuit:        { title: '5-5 · مختبر الدوائر الكهربائية', badge: '⚡ 6', tabs: ['ابنِ دائرتك 🔌', 'رموز الدائرة 📐'] },
   g6circuitchange:  { title: '5-6 · تغيير مكونات الدائرة', badge: '⚡ 6', tabs: ['إضافة مصابيح 💡', 'إضافة خلايا 🔋'] },
+  g6voltage:        { title: '5-7 · الجهد الكهربائي', badge: '⚡ 6', tabs: ['المصباح 💡', 'الطنان 🔔', 'الجرس 🔔', 'ماذا تستنتج؟ 🧠'] },
   g6wirelength:     { title: '5-8 · طول وسُمك السلك', badge: '⚡ 6', tabs: ['طول السلك 📏', 'سُمك السلك 🔗'] },
   g6battery:        { title: '5-9 · كيف اخترع العلماء البطاريات؟', badge: '🔋 6', tabs: ['بطارية بغداد 🏺', 'اكتشاف جلفاني 🐸', 'عمود فولتا 🔋'] },
   // ── الصف 8 — الجهاز الدوري وتبادل الغازات ──
@@ -6148,6 +6159,12 @@ const SIM_QUESTIONS = {
     opts: ['يزيد السطوع','يبقى السطوع نفسه','يقل السطوع','يتوقف المصباح عن الإضاءة تماماً'],
     ans: 2,
     fb: '✅ في الدائرة على التوالي، إضافة مصباح جديد تزيد المقاومة الكلية. وبقانون أوم (I = V/R)، زيادة المقاومة مع ثبات الجهد تعني تقليل التيار وبالتالي يقل سطوع كل مصباح.'
+  },
+  g6voltage: {
+    q: 'لماذا لا يعمل الجرس الكهربائي ببطارية واحدة (1.5 V)؟',
+    opts: ['لأن البطارية معطوبة','لأن الجرس يحتاج جهداً أعلى (6V) مما توفره بطارية واحدة','لأن الأسلاك غير موصولة','لأن الجرس يعمل بالتيار المتردد فقط'],
+    ans: 1,
+    fb: '✅ كل جهاز كهربائي يحتاج حداً أدنى من الجهد ليعمل. الجرس يحتاج 6V، وبطارية واحدة تعطي 1.5V فقط — لذا يجب ربط 4 خلايا على التوالي للحصول على الجهد الكافي.'
   },
   g6wirelength: {
     q: 'أيّ السلكين له مقاومة أكبر في دائرة كهربائية؟',
@@ -6504,6 +6521,7 @@ function openSim(type) {
     g6metalconductor:'كل المعادن توصِّل لكن بكفاءة مختلفة 🔩 — شوف الأميتر!',
     g6circuit:'ابنِ دائرتك الأولى 🔌 — بطارية + سلك + مصباح = نور!',
     g6circuitchange:'كيف يؤثر عدد المصابيح على السطوع؟ 💡 جرّب وشوف!',
+    g6voltage:'كل جهاز له جهده الخاص ⚡ — أضف بطاريات وشاهد الفرق!',
     g6wirelength:'السلك الطويل = مقاومة أكبر = تيار أقل 📏 — جرّب واقيس!',
     g6battery:'رحلة عبر الزمن 🕰️ — من بطارية بغداد القديمة إلى اختراع فولتا!',
     magnets:'القطبان المتشابهان يتنافران والمختلفان يتجاذبان 🧲 — جرّب!',
@@ -6758,6 +6776,7 @@ function startSim(type, tab) {
     g6metalconductor: [simMetalConductor1, simMetalConductor2],
     g6circuit:        [simCircuitBuilder1, simCircuitBuilder2],
     g6circuitchange:  [simCircuitChange1, simCircuitChange2],
+    g6voltage:        [simVoltage1, simVoltage2, simVoltage3, simVoltage4],
     g6wirelength:     [simWireLength1, simWireLength2],
     g6battery:        [simBattery1, simBattery2, simBattery3],
     // ── الصف 8 — الجهاز الدوري وتبادل الغازات ──
@@ -11498,6 +11517,534 @@ function simCircuitChange2() {
     animFrame=requestAnimationFrame(draw);
   }
   draw();
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// 5-7 · الجهد الكهربائي — تبويب 1: المصباح 💡
+// ═══════════════════════════════════════════════════════════════
+function simVoltage1() {
+  cancelAnimationFrame(animFrame);
+  var VS = { n: 1, t: 0, maxN: 3, deviceV: 1.5, label: 'مصباح', emoji: '💡' };
+  simState = VS;
+
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">💡 المصباح يحتاج: 1.5 V</div>
+      <div style="background:rgba(39,174,96,.1);border:1.5px solid rgba(39,174,96,.3);border-radius:10px;padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7">
+        المصباح العادي يعمل بجهد منخفض<br>
+        <strong style="color:#1E8449">خلية واحدة (1.5 V) تكفي!</strong>
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔋 عدد الخلايا</div>
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0">
+        <button onclick="if(window._vs1&&window._vs1.n>1){window._vs1.n--;}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">−</button>
+        <span id="vs1-count" style="font-size:22px;font-weight:700;color:var(--text-primary);min-width:32px;text-align:center">1</span>
+        <button onclick="if(window._vs1&&window._vs1.n<3){window._vs1.n++;}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">+</button>
+      </div>
+      <div id="vs1-volt" style="text-align:center;font-size:13px;color:#D4901A;font-weight:700">⚡ 1.5 V</div>
+    </div>
+    <div class="info-box" style="font-size:12px;margin-top:6px">
+      🔍 <strong>الجهد الكهربائي</strong> هو "قوة" الكهرباء<br>
+      كل جهاز يحتاج حداً أدنى ليعمل
+    </div>
+  `);
+  window._vs1 = VS;
+
+  function draw() {
+    if (currentSim !== 'g6voltage') { cancelAnimationFrame(animFrame); return; }
+    if (!simState || simState !== VS) { animFrame = requestAnimationFrame(draw); return; }
+    VS.t += 0.03;
+    var ctx = elCtx(), w = elW(), h = elH(), dm = isDarkMode();
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = dm ? '#0E1620' : '#F5F8FF'; ctx.fillRect(0, 0, w, h);
+    // نقاط الخلفية
+    ctx.fillStyle = dm ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)';
+    for (var gx = 24; gx < w; gx += 28) for (var gy = 24; gy < h; gy += 28) { ctx.beginPath(); ctx.arc(gx, gy, 1.3, 0, Math.PI * 2); ctx.fill(); }
+
+    var V = VS.n * 1.5, needed = 1.5, lit = V >= needed;
+    var brightness = lit ? Math.min(1, V / needed) : 0;
+    var cx = w / 2, cy = h * 0.42;
+
+    // ── رسم الدائرة ──
+    var batX = cx - 130, batY = cy, bulbX = cx + 110, bulbY = cy;
+    var wireY1 = cy - 80, wireY2 = cy + 60;
+
+    // أسلاك
+    var wCol = lit ? '#27AE60' : (dm ? '#4A6080' : '#90A0B0');
+    var wW = lit ? 3.5 : 2.5;
+    if (lit) { ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(39,174,96,.5)'; }
+    ctx.strokeStyle = wCol; ctx.lineWidth = wW; ctx.lineCap = 'round';
+    // سلك علوي
+    ctx.beginPath(); ctx.moveTo(batX, batY - 18); ctx.lineTo(batX, wireY1); ctx.lineTo(bulbX, wireY1); ctx.lineTo(bulbX, bulbY - 20); ctx.stroke();
+    // سلك سفلي
+    ctx.beginPath(); ctx.moveTo(batX, batY + 18); ctx.lineTo(batX, wireY2); ctx.lineTo(bulbX, wireY2); ctx.lineTo(bulbX, bulbY + 20); ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // إلكترونات متحركة
+    if (lit) {
+      var path = [
+        { x: batX, y: batY - 18 }, { x: batX, y: wireY1 },
+        { x: bulbX, y: wireY1 }, { x: bulbX, y: bulbY - 20 },
+        { x: bulbX, y: bulbY + 20 }, { x: bulbX, y: wireY2 },
+        { x: batX, y: wireY2 }, { x: batX, y: batY + 18 }
+      ];
+      var totalLen = 0;
+      for (var pi = 0; pi < path.length - 1; pi++) totalLen += Math.hypot(path[pi + 1].x - path[pi].x, path[pi + 1].y - path[pi].y);
+      for (var ei = 0; ei < 8; ei++) {
+        var et = ((VS.t * 0.4 * brightness + ei / 8) % 1);
+        var ed = et * totalLen, acc = 0;
+        for (var pi2 = 0; pi2 < path.length - 1; pi2++) {
+          var segL = Math.hypot(path[pi2 + 1].x - path[pi2].x, path[pi2 + 1].y - path[pi2].y);
+          if (acc + segL >= ed) { var f2 = (ed - acc) / segL; ctx.fillStyle = 'rgba(0,220,255,.85)'; ctx.beginPath(); ctx.arc(path[pi2].x + (path[pi2 + 1].x - path[pi2].x) * f2, path[pi2].y + (path[pi2 + 1].y - path[pi2].y) * f2, 4, 0, Math.PI * 2); ctx.fill(); break; }
+          acc += segL;
+        }
+      }
+    }
+
+    // ── البطاريات ──
+    _drawBatteryStack(ctx, batX, batY, VS.n, dm);
+
+    // ── المصباح ──
+    _drawBulbV(ctx, bulbX, bulbY, brightness, dm);
+
+    // ── الجهد ──
+    var vTxt = V.toFixed(1) + ' V', el = document.getElementById('vs1-count'), ev = document.getElementById('vs1-volt');
+    if (el) el.textContent = VS.n;
+    if (ev) ev.textContent = '⚡ ' + vTxt;
+
+    // شريط المعلومات
+    var sbH = 52, sbY2 = h - sbH - 8;
+    ctx.fillStyle = dm ? 'rgba(14,22,34,.94)' : 'rgba(255,255,255,.95)';
+    ctx.beginPath(); ctx.roundRect(10, sbY2, w - 20, sbH, 11); ctx.fill();
+    ctx.strokeStyle = lit ? 'rgba(39,174,96,.4)' : 'rgba(0,0,0,.07)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(10, sbY2, w - 20, sbH, 11); ctx.stroke();
+    ctx.font = 'bold 15px Tajawal'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = lit ? '#1E8449' : '#C0392B';
+    ctx.fillText(lit ? '✅ المصباح يضيء! الجهد كافٍ (' + vTxt + ')' : '❌ الجهد غير كافٍ (' + vTxt + ' < ' + needed + ' V)', w / 2, sbY2 + sbH / 2 - 8);
+    ctx.font = '12px Tajawal'; ctx.fillStyle = dm ? '#8AA8C0' : '#666';
+    ctx.fillText('المصباح يحتاج: ' + needed + ' V  |  المتاح: ' + vTxt, w / 2, sbY2 + sbH / 2 + 10);
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 5-7 · TAB 2: الطنان 🔔
+// ═══════════════════════════════════════════════════════════════
+function simVoltage2() {
+  cancelAnimationFrame(animFrame);
+  var VS2 = { n: 1, t: 0, maxN: 4, deviceV: 3.0, buzzing: false, audioCtx: null, osc: null, gain: null };
+  simState = VS2;
+
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔔 الطنان يحتاج: 3 V</div>
+      <div style="background:rgba(214,122,30,.1);border:1.5px solid rgba(214,122,30,.3);border-radius:10px;padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7">
+        الطنان يحتاج <strong style="color:#D4901A">3V كحدٍّ أدنى</strong><br>
+        بطارية واحدة (1.5V) لا تكفيه!
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔋 أضف خلايا (1 ← 4)</div>
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0">
+        <button onclick="if(window._vs2&&window._vs2.n>1){window._vs2.n--;window._vs2._updateSound();}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">−</button>
+        <span id="vs2-count" style="font-size:22px;font-weight:700;color:var(--text-primary);min-width:32px;text-align:center">1</span>
+        <button onclick="if(window._vs2&&window._vs2.n<4){window._vs2.n++;window._vs2._updateSound();}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">+</button>
+      </div>
+      <div id="vs2-volt" style="text-align:center;font-size:13px;color:#D4901A;font-weight:700">⚡ 1.5 V</div>
+    </div>
+    <div id="vs2-msg" style="padding:8px 12px;border-radius:10px;font-size:13px;font-family:Tajawal;text-align:center;margin-top:4px;background:rgba(192,57,43,.08);color:#C0392B;border:1.5px solid rgba(192,57,43,.2)">
+      🔇 الطنان لا يعمل — أضف خلية أخرى
+    </div>
+  `);
+  window._vs2 = VS2;
+
+  VS2._updateSound = function () {
+    var V2 = VS2.n * 1.5, active = V2 >= 3.0;
+    if (active && !VS2.buzzing) {
+      try {
+        VS2.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        VS2.osc = VS2.audioCtx.createOscillator();
+        VS2.gain = VS2.audioCtx.createGain();
+        VS2.osc.type = 'square';
+        VS2.osc.frequency.value = 220 + (V2 - 3) * 60;
+        VS2.gain.gain.value = Math.min(0.18, (V2 - 3) / 3 * 0.18 + 0.04);
+        VS2.osc.connect(VS2.gain); VS2.gain.connect(VS2.audioCtx.destination);
+        VS2.osc.start(); VS2.buzzing = true;
+      } catch (ex) {}
+    } else if (active && VS2.buzzing) {
+      try { VS2.osc.frequency.value = 220 + (V2 - 3) * 60; VS2.gain.gain.value = Math.min(0.18, (V2 - 3) / 3 * 0.18 + 0.04); } catch (ex) {}
+    } else if (!active && VS2.buzzing) {
+      try { VS2.osc.stop(); VS2.audioCtx.close(); } catch (ex) {}
+      VS2.buzzing = false;
+    }
+  };
+
+  // إيقاف الصوت عند مغادرة التبويب
+  var origStop = window._stopCurrentSim || function(){};
+  window._stopCurrentSim = function(){ try { if(VS2.osc) VS2.osc.stop(); if(VS2.audioCtx) VS2.audioCtx.close(); } catch(ex){} VS2.buzzing=false; origStop(); };
+
+  function draw2() {
+    if (currentSim !== 'g6voltage') { try { if(VS2.osc)VS2.osc.stop(); if(VS2.audioCtx)VS2.audioCtx.close(); } catch(ex){} VS2.buzzing=false; cancelAnimationFrame(animFrame); return; }
+    if (!simState || simState !== VS2) { animFrame = requestAnimationFrame(draw2); return; }
+    VS2.t += 0.04;
+    var ctx = elCtx(), w = elW(), h = elH(), dm = isDarkMode();
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = dm ? '#0E1620' : '#F5F8FF'; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = dm ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)';
+    for (var gx = 24; gx < w; gx += 28) for (var gy = 24; gy < h; gy += 28) { ctx.beginPath(); ctx.arc(gx, gy, 1.3, 0, Math.PI * 2); ctx.fill(); }
+
+    var V2 = VS2.n * 1.5, needed2 = 3.0, active2 = V2 >= needed2;
+    var intensity = active2 ? Math.min(1, (V2 - needed2 + 1.5) / 4.5) : 0;
+    var cx = w / 2, cy = h * 0.42;
+    var batX2 = cx - 140, batY2 = cy, buzzX = cx + 100, buzzY = cy;
+    var wireY1 = cy - 75, wireY2 = cy + 55;
+
+    var wCol2 = active2 ? '#F39C12' : (dm ? '#4A6080' : '#90A0B0');
+    if (active2) { ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(243,156,18,.5)'; }
+    ctx.strokeStyle = wCol2; ctx.lineWidth = active2 ? 3.5 : 2.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(batX2, batY2 - 18); ctx.lineTo(batX2, wireY1); ctx.lineTo(buzzX, wireY1); ctx.lineTo(buzzX, buzzY - 22); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(batX2, batY2 + 18); ctx.lineTo(batX2, wireY2); ctx.lineTo(buzzX, wireY2); ctx.lineTo(buzzX, buzzY + 22); ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // إلكترونات
+    if (active2) {
+      var path2 = [{x:batX2,y:batY2-18},{x:batX2,y:wireY1},{x:buzzX,y:wireY1},{x:buzzX,y:buzzY-22},{x:buzzX,y:buzzY+22},{x:buzzX,y:wireY2},{x:batX2,y:wireY2},{x:batX2,y:batY2+18}];
+      var tLen2=0; for(var pi=0;pi<path2.length-1;pi++) tLen2+=Math.hypot(path2[pi+1].x-path2[pi].x,path2[pi+1].y-path2[pi].y);
+      for(var ei=0;ei<8;ei++){ var et2=((VS2.t*0.45*intensity+ei/8)%1),ed2=et2*tLen2,acc2=0; for(var pi2=0;pi2<path2.length-1;pi2++){var sL=Math.hypot(path2[pi2+1].x-path2[pi2].x,path2[pi2+1].y-path2[pi2].y);if(acc2+sL>=ed2){var f3=(ed2-acc2)/sL;ctx.fillStyle='rgba(255,180,0,.85)';ctx.beginPath();ctx.arc(path2[pi2].x+(path2[pi2+1].x-path2[pi2].x)*f3,path2[pi2].y+(path2[pi2+1].y-path2[pi2].y)*f3,4,0,Math.PI*2);ctx.fill();break;} acc2+=sL;} }
+    }
+
+    _drawBatteryStack(ctx, batX2, batY2, VS2.n, dm);
+    _drawBuzzer(ctx, buzzX, buzzY, active2, intensity, VS2.t, dm);
+
+    // موجات صوتية
+    if (active2) {
+      for (var wi = 1; wi <= 3; wi++) {
+        var wr = 28 + wi * 20 + ((VS2.t * 30) % 20);
+        var wa = Math.max(0, (0.7 - wi * 0.2) * intensity);
+        ctx.strokeStyle = 'rgba(243,156,18,' + wa + ')';
+        ctx.lineWidth = 2; ctx.beginPath();
+        ctx.arc(buzzX + 10, buzzY, wr, -Math.PI * 0.6, Math.PI * 0.6);
+        ctx.stroke();
+      }
+    }
+
+    // تحديث UI
+    var cEl = document.getElementById('vs2-count'), vEl = document.getElementById('vs2-volt'), mEl = document.getElementById('vs2-msg');
+    if (cEl) cEl.textContent = VS2.n;
+    if (vEl) vEl.textContent = '⚡ ' + V2.toFixed(1) + ' V';
+    if (mEl) {
+      if (active2) { mEl.style.background='rgba(39,174,96,.1)'; mEl.style.color='#1E8449'; mEl.style.borderColor='rgba(39,174,96,.3)'; mEl.textContent = '🔊 الطنان يعمل! الجهد = ' + V2.toFixed(1) + ' V' + (intensity > 0.5 ? ' — الصوت قوي جداً!' : ''); }
+      else { mEl.style.background='rgba(192,57,43,.08)'; mEl.style.color='#C0392B'; mEl.style.borderColor='rgba(192,57,43,.2)'; mEl.textContent = '🔇 الجهد غير كافٍ (' + V2.toFixed(1) + 'V < ' + needed2 + 'V) — أضف خلية!'; }
+    }
+
+    var sbH2 = 52, sbY3 = h - sbH2 - 8;
+    ctx.fillStyle = dm ? 'rgba(14,22,34,.94)' : 'rgba(255,255,255,.95)';
+    ctx.beginPath(); ctx.roundRect(10, sbY3, w - 20, sbH2, 11); ctx.fill();
+    ctx.strokeStyle = active2 ? 'rgba(243,156,18,.4)' : 'rgba(0,0,0,.07)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(10, sbY3, w - 20, sbH2, 11); ctx.stroke();
+    ctx.font = 'bold 15px Tajawal'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = active2 ? '#D4901A' : '#C0392B';
+    ctx.fillText(active2 ? '🔊 الطنان يعمل! الجهد = ' + V2.toFixed(1) + ' V' : '🔇 الطنان لا يعمل — يحتاج ' + needed2 + ' V', w / 2, sbY3 + sbH2 / 2 - 8);
+    ctx.font = '12px Tajawal'; ctx.fillStyle = dm ? '#8AA8C0' : '#666';
+    ctx.fillText('الجهد الحالي: ' + V2.toFixed(1) + ' V  |  الحد الأدنى: ' + needed2 + ' V', w / 2, sbY3 + sbH2 / 2 + 10);
+
+    animFrame = requestAnimationFrame(draw2);
+  }
+  draw2();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 5-7 · TAB 3: الجرس 🔔
+// ═══════════════════════════════════════════════════════════════
+function simVoltage3() {
+  cancelAnimationFrame(animFrame);
+  var VS3 = { n: 1, t: 0, maxN: 6, deviceV: 6.0, ringing: false };
+  simState = VS3;
+
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔔 الجرس يحتاج: 6 V</div>
+      <div style="background:rgba(142,68,173,.1);border:1.5px solid rgba(142,68,173,.3);border-radius:10px;padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.7">
+        الجرس يحتاج <strong style="color:#8E44AD">6V كحدٍّ أدنى</strong><br>
+        يحتاج 4 خلايا على التوالي!
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔋 أضف خلايا (1 ← 6)</div>
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0">
+        <button onclick="if(window._vs3&&window._vs3.n>1){window._vs3.n--;}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">−</button>
+        <span id="vs3-count" style="font-size:22px;font-weight:700;color:var(--text-primary);min-width:32px;text-align:center">1</span>
+        <button onclick="if(window._vs3&&window._vs3.n<6){window._vs3.n++;}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">+</button>
+      </div>
+      <div id="vs3-volt" style="text-align:center;font-size:13px;color:#8E44AD;font-weight:700">⚡ 1.5 V</div>
+    </div>
+    <div id="vs3-msg" style="padding:8px 12px;border-radius:10px;font-size:13px;font-family:Tajawal;text-align:center;margin-top:4px;background:rgba(192,57,43,.08);color:#C0392B;border:1.5px solid rgba(192,57,43,.2)">
+      🔕 الجرس لا يعمل — أضف المزيد من الخلايا
+    </div>
+  `);
+  window._vs3 = VS3;
+
+  function draw3() {
+    if (currentSim !== 'g6voltage') { cancelAnimationFrame(animFrame); return; }
+    if (!simState || simState !== VS3) { animFrame = requestAnimationFrame(draw3); return; }
+    VS3.t += 0.04;
+    var ctx = elCtx(), w = elW(), h = elH(), dm = isDarkMode();
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = dm ? '#0E1620' : '#F5F8FF'; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = dm ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)';
+    for (var gx = 24; gx < w; gx += 28) for (var gy = 24; gy < h; gy += 28) { ctx.beginPath(); ctx.arc(gx, gy, 1.3, 0, Math.PI * 2); ctx.fill(); }
+
+    var V3 = VS3.n * 1.5, needed3 = 6.0, active3 = V3 >= needed3;
+    var intens3 = active3 ? Math.min(1, (V3 - needed3 + 1.5) / 4.5) : 0;
+    var cx = w / 2, cy = h * 0.42;
+    var batX3 = cx - 145, batY3 = cy, bellX = cx + 105, bellY = cy;
+    var wireY1 = cy - 78, wireY2 = cy + 58;
+
+    var wCol3 = active3 ? '#8E44AD' : (dm ? '#4A6080' : '#90A0B0');
+    if (active3) { ctx.shadowBlur = 8; ctx.shadowColor = 'rgba(142,68,173,.5)'; }
+    ctx.strokeStyle = wCol3; ctx.lineWidth = active3 ? 3.5 : 2.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(batX3, batY3 - 18); ctx.lineTo(batX3, wireY1); ctx.lineTo(bellX, wireY1); ctx.lineTo(bellX, bellY - 30); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(batX3, batY3 + 18); ctx.lineTo(batX3, wireY2); ctx.lineTo(bellX, wireY2); ctx.lineTo(bellX, bellY + 30); ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // إلكترونات
+    if (active3) {
+      var path3=[{x:batX3,y:batY3-18},{x:batX3,y:wireY1},{x:bellX,y:wireY1},{x:bellX,y:bellY-30},{x:bellX,y:bellY+30},{x:bellX,y:wireY2},{x:batX3,y:wireY2},{x:batX3,y:batY3+18}];
+      var tLen3=0; for(var pi=0;pi<path3.length-1;pi++) tLen3+=Math.hypot(path3[pi+1].x-path3[pi].x,path3[pi+1].y-path3[pi].y);
+      for(var ei=0;ei<9;ei++){var et3=((VS3.t*0.48*intens3+ei/9)%1),ed3=et3*tLen3,acc3=0;for(var pi2=0;pi2<path3.length-1;pi2++){var sL=Math.hypot(path3[pi2+1].x-path3[pi2].x,path3[pi2+1].y-path3[pi2].y);if(acc3+sL>=ed3){var f4=(ed3-acc3)/sL;ctx.fillStyle='rgba(180,100,255,.85)';ctx.beginPath();ctx.arc(path3[pi2].x+(path3[pi2+1].x-path3[pi2].x)*f4,path3[pi2].y+(path3[pi2+1].y-path3[pi2].y)*f4,4,0,Math.PI*2);ctx.fill();break;}acc3+=sL;}}
+    }
+
+    _drawBatteryStack(ctx, batX3, batY3, VS3.n, dm);
+    _drawBell(ctx, bellX, bellY, active3, intens3, VS3.t, dm);
+
+    // حلقات الصوت
+    if (active3) {
+      for (var wi = 1; wi <= 4; wi++) {
+        var wr = 30 + wi * 18 + ((VS3.t * 25) % 18);
+        var wa = Math.max(0, (0.75 - wi * 0.17) * intens3);
+        ctx.strokeStyle = 'rgba(142,68,173,' + wa + ')';
+        ctx.lineWidth = 2.5; ctx.beginPath();
+        ctx.arc(bellX + 5, bellY, wr, -Math.PI * 0.55, Math.PI * 0.55);
+        ctx.stroke();
+      }
+    }
+
+    // مقياس الجهد
+    var barW = w * 0.55, barH = 14, barX2 = cx - barW / 2, barY2 = h * 0.78;
+    ctx.fillStyle = dm?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)';
+    ctx.beginPath(); ctx.roundRect(barX2, barY2, barW, barH, barH/2); ctx.fill();
+    var prog = Math.min(1, V3 / needed3);
+    if(prog>0){
+      var barGrad=ctx.createLinearGradient(barX2,0,barX2+barW*prog,0);
+      barGrad.addColorStop(0,'#E74C3C'); barGrad.addColorStop(0.6,'#E67E22'); barGrad.addColorStop(1,active3?'#8E44AD':'#E67E22');
+      ctx.fillStyle=barGrad; ctx.beginPath(); ctx.roundRect(barX2,barY2,barW*prog,barH,barH/2); ctx.fill();
+    }
+    // علامة الحد
+    var thX=barX2+barW*(needed3/(VS3.maxN*1.5));
+    ctx.strokeStyle='#8E44AD';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(thX,barY2-6);ctx.lineTo(thX,barY2+barH+6);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font='bold 10px Tajawal';ctx.fillStyle='#8E44AD';ctx.textAlign='center';
+    ctx.fillText(needed3+'V',thX,barY2-10);
+
+    var cEl=document.getElementById('vs3-count'),vEl=document.getElementById('vs3-volt'),mEl=document.getElementById('vs3-msg');
+    if(cEl)cEl.textContent=VS3.n;
+    if(vEl){vEl.textContent='⚡ '+V3.toFixed(1)+' V';vEl.style.color=active3?'#8E44AD':'#C0392B';}
+    if(mEl){
+      if(active3){mEl.style.background='rgba(142,68,173,.1)';mEl.style.color='#8E44AD';mEl.style.borderColor='rgba(142,68,173,.3)';mEl.textContent='🔔 الجرس يرنّ! الجهد = '+V3.toFixed(1)+' V';}
+      else{mEl.style.background='rgba(192,57,43,.08)';mEl.style.color='#C0392B';mEl.style.borderColor='rgba(192,57,43,.2)';mEl.textContent='🔕 الجهد غير كافٍ ('+V3.toFixed(1)+'V < '+needed3+'V) — يحتاج '+(Math.ceil((needed3-V3)/1.5))+' خلايا إضافية';}
+    }
+
+    var sbH3=52,sbY4=h-sbH3-8;
+    ctx.fillStyle=dm?'rgba(14,22,34,.94)':'rgba(255,255,255,.95)';
+    ctx.beginPath();ctx.roundRect(10,sbY4,w-20,sbH3,11);ctx.fill();
+    ctx.strokeStyle=active3?'rgba(142,68,173,.4)':'rgba(0,0,0,.07)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.roundRect(10,sbY4,w-20,sbH3,11);ctx.stroke();
+    ctx.font='bold 15px Tajawal';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle=active3?'#8E44AD':'#C0392B';
+    ctx.fillText(active3?'🔔 الجرس يرنّ! '+V3.toFixed(1)+' V':'🔕 لا يعمل — الجهد الحالي '+V3.toFixed(1)+' V من أصل '+needed3+' V',w/2,sbY4+sbH3/2-8);
+    ctx.font='12px Tajawal';ctx.fillStyle=dm?'#8AA8C0':'#666';
+    ctx.fillText('الجهد الحالي: '+V3.toFixed(1)+' V  |  الحد الأدنى: '+needed3+' V  |  عدد الخلايا: '+VS3.n,w/2,sbY4+sbH3/2+10);
+    animFrame=requestAnimationFrame(draw3);
+  }
+  draw3();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 5-7 · TAB 4: ماذا تستنتج؟ 🧠
+// ═══════════════════════════════════════════════════════════════
+function simVoltage4() {
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+
+  elCtrl(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🧠 خلاصة التجربة</div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.9">
+        <div style="margin-bottom:6px">💡 <strong>مصباح</strong> → 1.5 V ✅</div>
+        <div style="margin-bottom:6px">🔔 <strong>طنان</strong> → 3.0 V ✅</div>
+        <div>🔔 <strong>جرس</strong> → 6.0 V ✅</div>
+      </div>
+    </div>
+    <div class="info-box" style="font-size:12px;margin-top:6px">
+      📌 الجهد الكهربائي يُقاس بـ <strong>الفولت (V)</strong><br>
+      زيادة عدد الخلايا = زيادة الجهد
+    </div>
+  `);
+
+  function draw4() {
+    if (currentSim !== 'g6voltage') { cancelAnimationFrame(animFrame); return; }
+    simState.t += 0.02;
+    var ctx = elCtx(), w = elW(), h = elH(), dm = isDarkMode();
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = dm ? '#0E1620' : '#F5F8FF'; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = dm ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)';
+    for (var gx = 24; gx < w; gx += 28) for (var gy = 24; gy < h; gy += 28) { ctx.beginPath(); ctx.arc(gx, gy, 1.3, 0, Math.PI * 2); ctx.fill(); }
+
+    var t = simState.t;
+    // بطاقات المقارنة
+    var devices = [
+      { label: 'مصباح', emoji: '💡', needed: 1.5, cells: 1, color: '#27AE60' },
+      { label: 'طنان',  emoji: '🔔', needed: 3.0, cells: 2, color: '#D4901A' },
+      { label: 'جرس',   emoji: '🔔', needed: 6.0, cells: 4, color: '#8E44AD' },
+    ];
+    var cardW = (w - 60) / 3, cardH = h * 0.52, cardY = h * 0.07;
+    devices.forEach(function (d, i) {
+      var cx2 = 20 + i * (cardW + 10) + cardW / 2;
+      // بطاقة
+      ctx.fillStyle = dm ? 'rgba(255,255,255,.05)' : 'rgba(255,255,255,.92)';
+      ctx.strokeStyle = d.color + '55'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(cx2 - cardW / 2, cardY, cardW, cardH, 14); ctx.fill(); ctx.stroke();
+      // إيموجي الجهاز
+      ctx.font = '28px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(d.emoji, cx2, cardY + 14);
+      // اسم الجهاز
+      ctx.font = 'bold 13px Tajawal'; ctx.fillStyle = d.color; ctx.textBaseline = 'top';
+      ctx.fillText(d.label, cx2, cardY + 52);
+      // شريط الجهد
+      var barW2 = cardW - 24, barH2 = 12, barX3 = cx2 - barW2 / 2, barY3 = cardY + 76;
+      ctx.fillStyle = dm?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)';
+      ctx.beginPath(); ctx.roundRect(barX3, barY3, barW2, barH2, barH2/2); ctx.fill();
+      var prog2 = Math.min(1, (d.needed / 6.0));
+      var bg = ctx.createLinearGradient(barX3, 0, barX3 + barW2 * prog2, 0);
+      bg.addColorStop(0, d.color + 'AA'); bg.addColorStop(1, d.color);
+      ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect(barX3, barY3, barW2 * prog2, barH2, barH2/2); ctx.fill();
+      // قيمة الجهد
+      ctx.font = 'bold 14px Tajawal'; ctx.fillStyle = d.color; ctx.textBaseline = 'top';
+      ctx.fillText(d.needed + ' V', cx2, barY3 + barH2 + 6);
+      // عدد البطاريات
+      ctx.font = '11px Tajawal'; ctx.fillStyle = dm?'#8AA8C0':'#666';
+      ctx.fillText(d.cells + ' خلية × 1.5V', cx2, barY3 + barH2 + 24);
+      // رسم خلايا صغيرة
+      for (var bi = 0; bi < d.cells; bi++) {
+        var bx2 = cx2 - (d.cells - 1) * 10 + bi * 20;
+        var by3 = cardY + cardH - 42;
+        ctx.fillStyle = d.color; ctx.strokeStyle = dm?'rgba(255,255,255,.3)':'rgba(0,0,0,.2)'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(bx2 - 7, by3, 14, 24, 3); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = 'white'; ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('+', bx2 + 5, by3 + 4);
+      }
+    });
+
+    // استنتاج في الأسفل
+    var concY = cardY + cardH + 14;
+    ctx.fillStyle = dm?'rgba(26,143,168,.12)':'rgba(26,143,168,.08)';
+    ctx.strokeStyle = 'rgba(26,143,168,.3)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(14, concY, w - 28, h - concY - 58, 12); ctx.fill(); ctx.stroke();
+    ctx.font = 'bold 14px Tajawal'; ctx.fillStyle = '#1A8FA8'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('📌 الاستنتاج', w/2, concY + 10);
+    ctx.font = '13px Tajawal'; ctx.fillStyle = dm?'#B0C8D8':'#334455';
+    ctx.fillText('كلّما زاد الجهد الكهربائي، عمل الجهاز بكفاءة أعلى.', w/2, concY + 32);
+    ctx.fillText('الجهد = عدد الخلايا × 1.5 V', w/2, concY + 52);
+
+    animFrame = requestAnimationFrame(draw4);
+  }
+  draw4();
+}
+
+// ── دوال مساعدة لرسم المكونات (تُستخدم في استقصاء الجهد) ──
+function _drawBatteryStack(ctx, cx, cy, n, dm) {
+  var totalW = Math.min(20 + n * 14, 120), bh = 36;
+  var g = ctx.createLinearGradient(cx - totalW/2, cy - bh/2, cx - totalW/2, cy + bh/2);
+  g.addColorStop(0, dm?'#3A4A5A':'#6C8CA0'); g.addColorStop(0.5, dm?'#5A7A9A':'#A8C8D8'); g.addColorStop(1, dm?'#2A3A4A':'#4A6878');
+  ctx.fillStyle = g; ctx.strokeStyle = dm?'#4A6A8A':'#3A5A70'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(cx - totalW/2, cy - bh/2, totalW, bh, 5); ctx.fill(); ctx.stroke();
+  // خطوط الخلايا
+  for (var i = 1; i < n; i++) {
+    var sx = cx - totalW/2 + i * (totalW / n);
+    ctx.strokeStyle = dm?'rgba(255,255,255,.2)':'rgba(0,0,0,.2)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(sx, cy - bh/2 + 3); ctx.lineTo(sx, cy + bh/2 - 3); ctx.stroke();
+  }
+  ctx.fillStyle = '#D4901A'; ctx.beginPath(); ctx.roundRect(cx - 5, cy - bh/2, 10, bh, 0); ctx.fill();
+  ctx.font = 'bold 8px Arial'; ctx.textAlign = 'center'; ctx.fillStyle = 'white'; ctx.textBaseline = 'middle';
+  ctx.fillText(n > 1 ? (n*1.5).toFixed(1)+'V' : '1.5V', cx, cy);
+  ctx.fillStyle = '#E74C3C'; ctx.beginPath(); ctx.roundRect(cx + totalW/2, cy - 7, 10, 14, 3); ctx.fill();
+  ctx.fillStyle = 'white'; ctx.font = 'bold 10px Arial'; ctx.fillText('+', cx + totalW/2 + 5, cy + 1);
+  ctx.fillStyle = '#555'; ctx.beginPath(); ctx.roundRect(cx - totalW/2 - 10, cy - 7, 10, 14, 3); ctx.fill();
+  ctx.fillStyle = 'white'; ctx.font = 'bold 12px Arial'; ctx.fillText('−', cx - totalW/2 - 5, cy + 1);
+  ctx.font = 'bold 11px Tajawal'; ctx.fillStyle = dm?'#8AAAC0':'#445566';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(n + ' خلية', cx, cy + bh/2 + 5);
+}
+
+function _drawBulbV(ctx, cx, cy, brightness, dm) {
+  var R = 22, lbr = brightness;
+  if (lbr > 0.05) { ctx.shadowBlur = 30 * lbr; ctx.shadowColor = 'rgba(255,230,50,' + (lbr * .9) + ')'; var glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 2.5); glow.addColorStop(0, 'rgba(255,255,100,' + (lbr * .4) + ')'); glow.addColorStop(1, 'rgba(255,200,0,0)'); ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(cx, cy, R * 2.5, 0, Math.PI * 2); ctx.fill(); }
+  var bg = ctx.createRadialGradient(cx - R * .3, cy - R * .3, 1, cx, cy, R);
+  if (lbr > 0.05) { bg.addColorStop(0, 'rgba(255,255,180,.95)'); bg.addColorStop(0.5, 'rgba(255,' + (200 + lbr * 55 | 0) + ',20,.9)'); bg.addColorStop(1, 'rgba(220,140,0,.7)'); }
+  else { bg.addColorStop(0, dm ? 'rgba(80,100,120,.7)' : 'rgba(220,230,240,.9)'); bg.addColorStop(1, dm ? 'rgba(40,60,80,.6)' : 'rgba(180,195,210,.7)'); }
+  ctx.shadowBlur = 0; ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(cx, cy - 4, R, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = lbr > .05 ? 'rgba(200,130,0,.7)' : (dm ? 'rgba(100,130,150,.6)' : 'rgba(140,160,180,.7)'); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx, cy - 4, R, 0, Math.PI * 2); ctx.stroke();
+  if (lbr > .05) { ctx.strokeStyle = 'rgba(255,250,100,' + (.5 + lbr * .5) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(cx - 5, cy + 4); ctx.lineTo(cx - 1, cy - 4); ctx.lineTo(cx + 3, cy + 2); ctx.lineTo(cx + 6, cy - 6); ctx.stroke(); }
+  ctx.fillStyle = dm ? '#4A5A6A' : '#8A9AAA'; ctx.beginPath(); ctx.roundRect(cx - 9, cy + R - 5, 18, 14, 2); ctx.fill();
+  ctx.font = 'bold 11px Tajawal'; ctx.fillStyle = dm ? '#8AAAC0' : '#445566'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('مصباح', cx, cy + R + 12);
+}
+
+function _drawBuzzer(ctx, cx, cy, active, intensity, t, dm) {
+  var r = 22;
+  var g = ctx.createRadialGradient(cx, cy, 2, cx, cy, r);
+  if (active) { g.addColorStop(0, '#F39C12'); g.addColorStop(1, '#E67E22'); ctx.shadowBlur = 15 * intensity; ctx.shadowColor = 'rgba(243,156,18,.6)'; }
+  else { g.addColorStop(0, dm ? '#4A5A6A' : '#9AAABA'); g.addColorStop(1, dm ? '#2A3A4A' : '#6A7A8A'); }
+  ctx.fillStyle = g; ctx.strokeStyle = active ? '#D4901A' : (dm ? '#3A4A5A' : '#5A6A7A'); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur = 0;
+  // ثقب الطنان
+  ctx.fillStyle = active ? 'rgba(0,0,0,.5)' : 'rgba(0,0,0,.3)';
+  ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2); ctx.fill();
+  // اهتزاز
+  if (active) {
+    var shk = Math.sin(t * 20) * 2 * intensity;
+    ctx.strokeStyle = 'rgba(255,200,0,.4)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(cx + shk, cy, r + 5, 0, Math.PI * 2); ctx.stroke();
+  }
+  ctx.font = 'bold 11px Tajawal'; ctx.fillStyle = dm ? '#8AAAC0' : '#445566'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('طنان', cx, cy + r + 5);
+}
+
+function _drawBell(ctx, cx, cy, active, intensity, t, dm) {
+  var shk = active ? Math.sin(t * 18) * 5 * intensity : 0;
+  ctx.save(); ctx.translate(shk, 0);
+  // جسم الجرس
+  var r2 = 26;
+  ctx.fillStyle = active ? '#8E44AD' : (dm ? '#4A5A6A' : '#8A9AAA');
+  ctx.strokeStyle = active ? '#6C3483' : (dm ? '#3A4A5A' : '#5A6A7A'); ctx.lineWidth = 2;
+  if (active) { ctx.shadowBlur = 15 * intensity; ctx.shadowColor = 'rgba(142,68,173,.6)'; }
+  ctx.beginPath(); ctx.arc(cx, cy, r2, Math.PI, 0, false); ctx.lineTo(cx + r2, cy + 12); ctx.lineTo(cx - r2, cy + 12); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur = 0;
+  // قبة الجرس
+  ctx.fillStyle = active ? '#9B59B6' : (dm ? '#5A6A7A' : '#9AAAБА');
+  ctx.beginPath(); ctx.arc(cx, cy, r2, Math.PI, 0, false); ctx.fill();
+  // قاعدة
+  ctx.fillStyle = active ? '#6C3483' : (dm ? '#3A4A5A' : '#6A7A8A');
+  ctx.beginPath(); ctx.roundRect(cx - r2 - 2, cy + 10, (r2 + 2) * 2, 8, 3); ctx.fill();
+  // الطرق
+  ctx.fillStyle = active ? '#E74C3C' : (dm ? '#5A6A7A' : '#8A9AAA');
+  ctx.beginPath(); ctx.arc(cx + shk * 0.5, cy + 6, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  ctx.font = 'bold 11px Tajawal'; ctx.fillStyle = dm ? '#8AAAC0' : '#445566'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('جرس', cx, cy + 28 + 12);
 }
 
 // 5-8 TAB 1: طول السلك (شريط قابل للسحب)
