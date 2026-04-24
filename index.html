@@ -27819,7 +27819,7 @@ async function _checkSubscription() {
     }
 
     var resp = await _db.from('profiles')
-      .select('subscription_status, active_device_fp')
+      .select('subscription_status, subscription_expires_at, active_device_fp')
       .eq('id', user.id)
       .single();
 
@@ -27832,7 +27832,10 @@ async function _checkSubscription() {
 
     var status = resp.data && resp.data.subscription_status;
 
-    if (status === 'active') {
+    const expiresAt = resp.data && resp.data.subscription_expires_at;
+    const notExpired = !expiresAt || new Date(expiresAt) > new Date();
+
+    if (status === 'active' && notExpired) {
       _unlockPlatform();
     } else {
       // أخفِ حقول الدخول وأظهر صفحة الدفع بشكل واضح
