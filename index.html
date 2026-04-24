@@ -10261,12 +10261,23 @@ function simCircuitBuilder1() {
   cv.addEventListener('mousedown',function(e){
     if(ghost||!simState||simState!==CB) return;
     var p=getP(e);
-    var port=findNearPort(p.x,p.y,-1);
-    if(port&&Math.hypot(p.x-port.x,p.y-port.y)<SNAP*2){CB.wireStart=port;return;}
+    // أولاً: تحقق من جسم المكوّن → سحب
     for(var i=CB.comps.length-1;i>=0;i--){
       var c=CB.comps[i],s=compHW(c.type);
-      if(Math.abs(p.x-c.x)<s.w/2+8&&Math.abs(p.y-c.y)<s.h/2+8){CB.dragging=i;CB.dragOffX=p.x-c.x;CB.dragOffY=p.y-c.y;return;}
+      if(Math.abs(p.x-c.x)<s.w/2+10&&Math.abs(p.y-c.y)<s.h/2+10){
+        // تحقق إذا كان الضغط مباشرة على نقطة وصل (نصف قطر ≤ 10px) → سلك
+        var ports=getPorts(c);
+        var onPort=ports.some(function(pt){return Math.hypot(p.x-pt.x,p.y-pt.y)<10;});
+        if(onPort){
+          var port=findNearPort(p.x,p.y,-1);
+          if(port){CB.wireStart=port;return;}
+        }
+        CB.dragging=i;CB.dragOffX=p.x-c.x;CB.dragOffY=p.y-c.y;return;
+      }
     }
+    // إذا لم يكن على أي مكوّن، تحقق من نقاط الوصل للسلك
+    var port=findNearPort(p.x,p.y,-1);
+    if(port&&Math.hypot(p.x-port.x,p.y-port.y)<SNAP*2){CB.wireStart=port;return;}
   });
 
   document.addEventListener('mousemove',function(e){
@@ -10627,12 +10638,12 @@ function simCircuitBuilder1() {
       else if(hasOpen) msg='🔓 المفتاح مفتوح — الدائرة مقطوعة، المصباح لا يضيء';
       else msg='⚡ الدائرة غير مغلقة — وصّل طرفَي البطارية (+) و (−) عبر المصباح';
     }
-    var sbH=34,sbY=h-sbH-8;
+    var sbH=46,sbY=h-sbH-8;
     ctx.fillStyle=isDarkMode()?'rgba(14,22,34,.94)':'rgba(255,255,255,.95)';
-    ctx.beginPath();ctx.roundRect(10,sbY,w-20,sbH,9);ctx.fill();
+    ctx.beginPath();ctx.roundRect(10,sbY,w-20,sbH,11);ctx.fill();
     ctx.strokeStyle=st.ok?'rgba(39,174,96,.3)':'rgba(0,0,0,.07)';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.roundRect(10,sbY,w-20,sbH,9);ctx.stroke();
-    ctx.fillStyle=mc;ctx.font='bold 12px Tajawal';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.beginPath();ctx.roundRect(10,sbY,w-20,sbH,11);ctx.stroke();
+    ctx.fillStyle=mc;ctx.font='bold 15px Tajawal';ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillText(msg,w/2,sbY+sbH/2);
     animFrame=requestAnimationFrame(draw);
   }
