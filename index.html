@@ -11762,7 +11762,7 @@ function simVoltage2() {
 // ═══════════════════════════════════════════════════════════════
 function simVoltage3() {
   cancelAnimationFrame(animFrame);
-  var VS3 = { n: 1, t: 0, maxN: 6, deviceV: 6.0, ringing: false };
+  var VS3 = { n: 1, t: 0, maxN: 6, deviceV: 6.0, ringing: false, audioCtx: null, osc: null, osc2: null, gainNode: null, lfoOsc: null, lfoGain: null };
   simState = VS3;
 
   elCtrl(`
@@ -11776,9 +11776,9 @@ function simVoltage3() {
     <div class="ctrl-section">
       <div class="ctrl-label">🔋 أضف خلايا (1 ← 6)</div>
       <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0">
-        <button onclick="if(window._vs3&&window._vs3.n>1){window._vs3.n--;}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">−</button>
+        <button onclick="if(window._vs3&&window._vs3.n>1){window._vs3.n--;window._vs3._updateBellSound();}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">−</button>
         <span id="vs3-count" style="font-size:22px;font-weight:700;color:var(--text-primary);min-width:32px;text-align:center">1</span>
-        <button onclick="if(window._vs3&&window._vs3.n<6){window._vs3.n++;}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">+</button>
+        <button onclick="if(window._vs3&&window._vs3.n<6){window._vs3.n++;window._vs3._updateBellSound();}" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border-color);background:var(--surface);font-size:18px;cursor:pointer;font-family:Tajawal">+</button>
       </div>
       <div id="vs3-volt" style="text-align:center;font-size:13px;color:#8E44AD;font-weight:700">⚡ 1.5 V</div>
     </div>
@@ -11788,8 +11788,64 @@ function simVoltage3() {
   `);
   window._vs3 = VS3;
 
+  // ── صوت الجرس: نغمة دينغ-دونغ تتكرر وتزداد قوة مع الجهد ──
+  VS3._updateBellSound = function() {
+    var V3 = VS3.n * 1.5, active3 = V3 >= 6.0;
+    var vol = active3 ? Math.min(0.35, 0.08 + ((V3 - 6) / 3) * 0.27) : 0;
+    var pitch = active3 ? 520 + (V3 - 6) * 55 : 520; // كلما زاد الجهد ارتفعت النغمة
+
+    if (active3 && !VS3.ringing) {
+      // إنشاء audio context وبدء صوت الجرس
+      try {
+        VS3.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        VS3._ringBell(vol, pitch);
+        VS3.ringing = true;
+        // جدولة رنّات متكررة
+        VS3._bellInterval = setInterval(function() {
+          if (!VS3.ringing || currentSim !== 'g6voltage') { clearInterval(VS3._bellInterval); return; }
+          var V = VS3.n * 1.5;
+          if (V >= 6.0) VS3._ringBell(Math.min(0.35, 0.08 + ((V-6)/3)*0.27), 520 + (V-6)*55);
+        }, 1200);
+      } catch(ex) {}
+    } else if (active3 && VS3.ringing) {
+      // تحديث مستوى الصوت فقط — الرنين مستمر
+    } else if (!active3 && VS3.ringing) {
+      VS3._stopBell();
+    }
+  };
+
+  VS3._ringBell = function(vol, pitch) {
+    if (!VS3.audioCtx) return;
+    try {
+      // النغمة الأولى (ding)
+      var o1 = VS3.audioCtx.createOscillator();
+      var g1 = VS3.audioCtx.createGain();
+      o1.type = 'sine'; o1.frequency.value = pitch;
+      g1.gain.setValueAtTime(vol, VS3.audioCtx.currentTime);
+      g1.gain.exponentialRampToValueAtTime(0.001, VS3.audioCtx.currentTime + 0.6);
+      o1.connect(g1); g1.connect(VS3.audioCtx.destination);
+      o1.start(); o1.stop(VS3.audioCtx.currentTime + 0.65);
+
+      // النغمة الثانية (dong) بعد 0.35 ثانية — أخفض بقليل
+      var o2 = VS3.audioCtx.createOscillator();
+      var g2 = VS3.audioCtx.createGain();
+      o2.type = 'sine'; o2.frequency.value = pitch * 0.75;
+      g2.gain.setValueAtTime(vol * 0.85, VS3.audioCtx.currentTime + 0.35);
+      g2.gain.exponentialRampToValueAtTime(0.001, VS3.audioCtx.currentTime + 0.95);
+      o2.connect(g2); g2.connect(VS3.audioCtx.destination);
+      o2.start(VS3.audioCtx.currentTime + 0.35); o2.stop(VS3.audioCtx.currentTime + 1.0);
+    } catch(ex) {}
+  };
+
+  VS3._stopBell = function() {
+    try { clearInterval(VS3._bellInterval); } catch(ex) {}
+    VS3.ringing = false;
+    try { VS3.audioCtx.close(); } catch(ex) {}
+    VS3.audioCtx = null;
+  };
+
   function draw3() {
-    if (currentSim !== 'g6voltage') { cancelAnimationFrame(animFrame); return; }
+    if (currentSim !== 'g6voltage') { VS3._stopBell(); cancelAnimationFrame(animFrame); return; }
     if (!simState || simState !== VS3) { animFrame = requestAnimationFrame(draw3); return; }
     VS3.t += 0.04;
     var ctx = elCtx(), w = elW(), h = elH(), dm = isDarkMode();
@@ -11800,7 +11856,7 @@ function simVoltage3() {
 
     var V3 = VS3.n * 1.5, needed3 = 6.0, active3 = V3 >= needed3;
     var intens3 = active3 ? Math.min(1, (V3 - needed3 + 1.5) / 4.5) : 0;
-    var cx = w / 2, cy = h * 0.42;
+    var cx = w / 2, cy = h * 0.40;
     var batX3 = cx - 145, batY3 = cy, bellX = cx + 105, bellY = cy;
     var wireY1 = cy - 78, wireY2 = cy + 58;
 
@@ -11821,20 +11877,20 @@ function simVoltage3() {
     _drawBatteryStack(ctx, batX3, batY3, VS3.n, dm);
     _drawBell(ctx, bellX, bellY, active3, intens3, VS3.t, dm);
 
-    // حلقات الصوت
+    // حلقات الصوت — تكبر مع الجهد
     if (active3) {
-      for (var wi = 1; wi <= 4; wi++) {
-        var wr = 30 + wi * 18 + ((VS3.t * 25) % 18);
-        var wa = Math.max(0, (0.75 - wi * 0.17) * intens3);
+      var numWaves = 3 + Math.floor(intens3 * 2); // 3-5 موجات حسب القوة
+      for (var wi = 1; wi <= numWaves; wi++) {
+        var wr = 28 + wi * 16 + ((VS3.t * 30) % 16);
+        var wa = Math.max(0, (0.8 - wi * 0.14) * intens3);
         ctx.strokeStyle = 'rgba(142,68,173,' + wa + ')';
-        ctx.lineWidth = 2.5; ctx.beginPath();
-        ctx.arc(bellX + 5, bellY, wr, -Math.PI * 0.55, Math.PI * 0.55);
-        ctx.stroke();
+        ctx.lineWidth = 1.5 + intens3;
+        ctx.beginPath(); ctx.arc(bellX + 5, bellY, wr, -Math.PI * 0.55, Math.PI * 0.55); ctx.stroke();
       }
     }
 
     // مقياس الجهد
-    var barW = w * 0.55, barH = 14, barX2 = cx - barW / 2, barY2 = h * 0.78;
+    var barW = w * 0.55, barH = 16, barX2 = cx - barW / 2, barY2 = h * 0.76;
     ctx.fillStyle = dm?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)';
     ctx.beginPath(); ctx.roundRect(barX2, barY2, barW, barH, barH/2); ctx.fill();
     var prog = Math.min(1, V3 / needed3);
@@ -11843,32 +11899,38 @@ function simVoltage3() {
       barGrad.addColorStop(0,'#E74C3C'); barGrad.addColorStop(0.6,'#E67E22'); barGrad.addColorStop(1,active3?'#8E44AD':'#E67E22');
       ctx.fillStyle=barGrad; ctx.beginPath(); ctx.roundRect(barX2,barY2,barW*prog,barH,barH/2); ctx.fill();
     }
-    // علامة الحد
     var thX=barX2+barW*(needed3/(VS3.maxN*1.5));
     ctx.strokeStyle='#8E44AD';ctx.lineWidth=2;ctx.setLineDash([4,3]);
     ctx.beginPath();ctx.moveTo(thX,barY2-6);ctx.lineTo(thX,barY2+barH+6);ctx.stroke();
     ctx.setLineDash([]);
-    ctx.font='bold 10px Tajawal';ctx.fillStyle='#8E44AD';ctx.textAlign='center';
-    ctx.fillText(needed3+'V',thX,barY2-10);
+    ctx.font='bold 13px Tajawal';ctx.fillStyle='#8E44AD';ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.fillText(needed3+'V',thX,barY2-4);
+
+    // تسمية مستوى الصوت
+    if(active3){
+      var volLabel = V3<=6?'🔔 هادئ': V3<=7.5?'🔔🔔 متوسط':'🔔🔔🔔 عالٍ جداً!';
+      ctx.font='bold 14px Tajawal'; ctx.fillStyle='#8E44AD'; ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText(volLabel, cx, barY2 + barH + 6);
+    }
 
     var cEl=document.getElementById('vs3-count'),vEl=document.getElementById('vs3-volt'),mEl=document.getElementById('vs3-msg');
     if(cEl)cEl.textContent=VS3.n;
     if(vEl){vEl.textContent='⚡ '+V3.toFixed(1)+' V';vEl.style.color=active3?'#8E44AD':'#C0392B';}
     if(mEl){
-      if(active3){mEl.style.background='rgba(142,68,173,.1)';mEl.style.color='#8E44AD';mEl.style.borderColor='rgba(142,68,173,.3)';mEl.textContent='🔔 الجرس يرنّ! الجهد = '+V3.toFixed(1)+' V';}
+      if(active3){mEl.style.background='rgba(142,68,173,.1)';mEl.style.color='#8E44AD';mEl.style.borderColor='rgba(142,68,173,.3)';mEl.textContent='🔔 الجرس يرنّ! الجهد = '+V3.toFixed(1)+' V'+(intens3>0.5?' — الرنين قوي جداً!':'');}
       else{mEl.style.background='rgba(192,57,43,.08)';mEl.style.color='#C0392B';mEl.style.borderColor='rgba(192,57,43,.2)';mEl.textContent='🔕 الجهد غير كافٍ ('+V3.toFixed(1)+'V < '+needed3+'V) — يحتاج '+(Math.ceil((needed3-V3)/1.5))+' خلايا إضافية';}
     }
 
-    var sbH3=52,sbY4=h-sbH3-8;
+    var sbH3=56,sbY4=h-sbH3-8;
     ctx.fillStyle=dm?'rgba(14,22,34,.94)':'rgba(255,255,255,.95)';
     ctx.beginPath();ctx.roundRect(10,sbY4,w-20,sbH3,11);ctx.fill();
     ctx.strokeStyle=active3?'rgba(142,68,173,.4)':'rgba(0,0,0,.07)';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.roundRect(10,sbY4,w-20,sbH3,11);ctx.stroke();
-    ctx.font='bold 15px Tajawal';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font='bold 16px Tajawal';ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillStyle=active3?'#8E44AD':'#C0392B';
-    ctx.fillText(active3?'🔔 الجرس يرنّ! '+V3.toFixed(1)+' V':'🔕 لا يعمل — الجهد الحالي '+V3.toFixed(1)+' V من أصل '+needed3+' V',w/2,sbY4+sbH3/2-8);
-    ctx.font='12px Tajawal';ctx.fillStyle=dm?'#8AA8C0':'#666';
-    ctx.fillText('الجهد الحالي: '+V3.toFixed(1)+' V  |  الحد الأدنى: '+needed3+' V  |  عدد الخلايا: '+VS3.n,w/2,sbY4+sbH3/2+10);
+    ctx.fillText(active3?'🔔 الجرس يرنّ! '+V3.toFixed(1)+' V':'🔕 لا يعمل — الجهد الحالي '+V3.toFixed(1)+' V من أصل '+needed3+' V',w/2,sbY4+sbH3/2-9);
+    ctx.font='13px Tajawal';ctx.fillStyle=dm?'#8AA8C0':'#666';
+    ctx.fillText('الجهد الحالي: '+V3.toFixed(1)+' V  |  الحد الأدنى: '+needed3+' V  |  عدد الخلايا: '+VS3.n,w/2,sbY4+sbH3/2+11);
     animFrame=requestAnimationFrame(draw3);
   }
   draw3();
