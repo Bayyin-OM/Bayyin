@@ -10096,14 +10096,65 @@ function simCircuitBuilder1() {
   function calcCircuit(){
     var comps=CB.comps;
     if(comps.length<2||CB.wires.length<1) return {ok:false,I:0,V:0,R:0};
-    var adj={};
-    comps.forEach(function(c){adj[c.id]=[];});
+
+    // بناء الجراف: كل node = (compId, portIdx)
+    // مفتاح: "compId:portIdx"
+    // الأسلاك تربط nodeA ↔ nodeB
+    // داخل كل مكوّن: port0 ↔ port1 (إلا المفتاح المفتوح)
+
+    var graph = {}; // node → [node, ...]
+    function nodeKey(cid,pidx){ return cid+':'+pidx; }
+    function ensure(k){ if(!graph[k]) graph[k]=[]; }
+
+    // إضافة أسلاك خارجية
     CB.wires.forEach(function(w){
-      if(adj[w.a]!==undefined&&adj[w.b]!==undefined){adj[w.a].push(w.b);adj[w.b].push(w.a);}
+      var na=nodeKey(w.a,w.ap), nb=nodeKey(w.b,w.bp);
+      ensure(na); ensure(nb);
+      graph[na].push(nb); graph[nb].push(na);
     });
-    var visited={},q=[comps[0].id]; visited[comps[0].id]=true;
-    while(q.length){var cur=q.shift();(adj[cur]||[]).forEach(function(n){if(!visited[n]){visited[n]=true;q.push(n);}});}
-    if(!comps.every(function(c){return visited[c.id];})) return {ok:false,I:0,V:0,R:0};
+
+    // إضافة اتصال داخلي لكل مكوّن (port0 ↔ port1)
+    comps.forEach(function(c){
+      var def=PALETTE.find(function(p){return p.type===c.type;});
+      if(!def) return;
+      if(def.isSwitch && c.open) return; // مفتاح مفتوح = لا اتصال داخلي
+      var n0=nodeKey(c.id,0), n1=nodeKey(c.id,1);
+      ensure(n0); ensure(n1);
+      graph[n0].push(n1); graph[n1].push(n0);
+    });
+
+    // ابحث عن مصدر (بطارية/خلية)
+    var sources=comps.filter(function(c){
+      return PALETTE.find(function(p){return p.type===c.type&&p.isSource;});
+    });
+    if(!sources.length) return {ok:false,I:0,V:0,R:0};
+
+    // تحقق من الدائرة المغلقة: هل يمكن الوصول من قطب+ البطارية إلى قطب− عبر المسار؟
+    // port 1 = القطب الموجب (+)، port 0 = القطب السالب (−)
+    var src=sources[0];
+    var startNode=nodeKey(src.id,1); // قطب + البطارية
+    var endNode=nodeKey(src.id,0);   // قطب − البطارية
+
+    // BFS من قطب+ إلى قطب− (بدون المرور عبر الاتصال الداخلي للبطارية نفسها)
+    var visited={}, queue=[startNode];
+    visited[startNode]=true;
+    var found=false;
+    while(queue.length){
+      var cur=queue.shift();
+      if(cur===endNode){found=true;break;}
+      (graph[cur]||[]).forEach(function(nb){
+        // تخطى الاتصال الداخلي للمصدر نفسه
+        var skip=(cur===startNode&&nb===endNode)||(cur===endNode&&nb===startNode);
+        // كلا الـ nodes من نفس المصدر؟
+        var curId=parseInt(cur.split(':')[0]), nbId=parseInt(nb.split(':')[0]);
+        var srcSelfSkip=(curId===src.id&&nbId===src.id);
+        if(!skip&&!srcSelfSkip&&!visited[nb]){visited[nb]=true;queue.push(nb);}
+      });
+    }
+
+    if(!found) return {ok:false,I:0,V:0,R:0};
+
+    // حساب القيم
     var V=0,R=0,hasLoad=false,hasOpen=false;
     comps.forEach(function(c){
       var def=PALETTE.find(function(p){return p.type===c.type;});
@@ -10158,7 +10209,13 @@ function simCircuitBuilder1() {
     var el=document.getElementById('phet-reads'); if(!el) return;
     var st=calcCircuit();
     if(!st.ok){
-      var msg=CB.comps.length===0?'أضف مكونات من القائمة':CB.wires.length<1?'وصّل المكونات بأسلاك':'الدائرة غير مكتملة';
+      var msg;
+      if(CB.comps.length===0) msg='أضف مكونات من القائمة';
+      else if(CB.wires.length<1) msg='وصّل المكونات بأسلاك';
+      else {
+        var hasOpen=CB.comps.some(function(c){return c.open;});
+        msg=hasOpen?'المفتاح مفتوح — الدائرة مقطوعة':'الدائرة غير مغلقة — وصّل (+) و (−)';
+      }
       el.innerHTML='<span style="color:var(--text-secondary)">'+msg+'</span>'; return;
     }
     el.innerHTML=
@@ -10240,12 +10297,16 @@ function simCircuitBuilder1() {
   cv.addEventListener('touchstart',function(e){
     if(ghost||!simState||simState!==CB) return; e.preventDefault();
     var p=getP(e);
-    var port=findNearPort(p.x,p.y,-1);
-    if(port&&Math.hypot(p.x-port.x,p.y-port.y)<SNAP*2.5){CB.wireStart=port;return;}
+    // أولاً تحقق إذا الضغط على جسم مكوّن → سحب
     for(var i=CB.comps.length-1;i>=0;i--){
       var c=CB.comps[i],s=compHW(c.type);
-      if(Math.abs(p.x-c.x)<s.w/2+12&&Math.abs(p.y-c.y)<s.h/2+12){CB.dragging=i;CB.dragOffX=p.x-c.x;CB.dragOffY=p.y-c.y;return;}
+      if(Math.abs(p.x-c.x)<s.w/2+14&&Math.abs(p.y-c.y)<s.h/2+14){
+        CB.dragging=i;CB.dragOffX=p.x-c.x;CB.dragOffY=p.y-c.y;return;
+      }
     }
+    // ثم تحقق من نقاط الوصل → رسم سلك
+    var port=findNearPort(p.x,p.y,-1);
+    if(port&&Math.hypot(p.x-port.x,p.y-port.y)<SNAP*2.5){CB.wireStart=port;return;}
   },{passive:false});
 
   cv.addEventListener('touchmove',function(e){
@@ -10555,8 +10616,17 @@ function simCircuitBuilder1() {
     var msg='',mc='#888';
     if(CB.comps.length===0){msg='🔧 اسحب مكوناً من القائمة اليسرى';}
     else if(CB.wires.length===0){msg='● اضغط نقطة وصل (●) لرسم سلك بين المكونات';}
-    else if(st.ok){msg='✅ الدائرة تعمل!  '+st.I.toFixed(2)+' A  |  '+st.V+' V  |  '+st.R+' Ω';mc='#1E8449';}
-    else{msg='⚠️ الدائرة غير مكتملة — تحقق من الاتصالات والمفاتيح';}
+    else if(st.ok){msg='✅ الدائرة مغلقة — المصباح يضيء!  '+st.I.toFixed(2)+' A  |  '+st.V+' V  |  '+st.R+' Ω';mc='#1E8449';}
+    else {
+      // رسائل تعليمية دقيقة
+      var hasSrc=CB.comps.some(function(c){return PALETTE.find(function(p){return p.type===c.type&&p.isSource;});});
+      var hasLoad=CB.comps.some(function(c){return PALETTE.find(function(p){return p.type===c.type&&p.isLoad;});});
+      var hasOpen=CB.comps.some(function(c){return c.open;});
+      if(!hasSrc) msg='⚠️ أضف بطارية — المصباح يحتاج مصدر طاقة';
+      else if(!hasLoad) msg='⚠️ أضف مصباحاً أو مقاومة لإكمال الدائرة';
+      else if(hasOpen) msg='🔓 المفتاح مفتوح — الدائرة مقطوعة، المصباح لا يضيء';
+      else msg='⚡ الدائرة غير مغلقة — وصّل طرفَي البطارية (+) و (−) عبر المصباح';
+    }
     var sbH=34,sbY=h-sbH-8;
     ctx.fillStyle=isDarkMode()?'rgba(14,22,34,.94)':'rgba(255,255,255,.95)';
     ctx.beginPath();ctx.roundRect(10,sbY,w-20,sbH,9);ctx.fill();
