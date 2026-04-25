@@ -11983,97 +11983,102 @@ function simVoltage4() {
     for (var gx = 30; gx < w; gx += 32) for (var gy = 30; gy < h; gy += 32) { ctx.beginPath(); ctx.arc(gx, gy, 1.4, 0, Math.PI * 2); ctx.fill(); }
 
     var t = simState.t;
-    var pad = 18;
+    var pad = 14;
 
     // ── عنوان ──
-    ctx.font = 'bold 24px Tajawal'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.font = 'bold 20px Tajawal'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.fillStyle = dm ? '#E8F4FF' : '#1A2A3A';
     ctx.fillText('📌 الجهد الكهربائي والأجهزة', w / 2, pad);
 
     // ── البطاقات الثلاث ──
     var devices = [
-      { label: 'مصباح', sub: 'يضيء',  emoji: '💡', needed: 1.5, cells: 1, color: '#27AE60', bg: 'rgba(39,174,96,' },
-      { label: 'طنان',  sub: 'يطنّ',   emoji: '🔔', needed: 3.0, cells: 2, color: '#D4901A', bg: 'rgba(212,144,26,' },
-      { label: 'جرس',   sub: 'يرنّ',   emoji: '🔕', needed: 6.0, cells: 4, color: '#8E44AD', bg: 'rgba(142,68,173,' },
+      { label: 'مصباح', sub: 'يضيء', emoji: '💡', needed: 1.5, cells: 1, color: '#27AE60', bg: 'rgba(39,174,96,' },
+      { label: 'طنان',  sub: 'يطنّ',  emoji: '🔔', needed: 3.0, cells: 2, color: '#D4901A', bg: 'rgba(212,144,26,' },
+      { label: 'جرس',   sub: 'يرنّ',  emoji: '🔕', needed: 6.0, cells: 4, color: '#8E44AD', bg: 'rgba(142,68,173,' },
     ];
 
-    var topY = pad + 48;
-    var cardW = (w - pad * 2 - 16) / 3;
-    var cardH = h * 0.46;
+    var topY   = pad + 38;          // بداية البطاقات
+    var cardGap = 10;
+    var cardW  = (w - pad * 2 - cardGap * 2) / 3;
+    var cardH  = Math.min(h * 0.50, 240);   // حد أقصى للارتفاع
+
+    // نقاط Y ثابتة داخل البطاقة
+    var emojiY  = topY + 10;          // إيموجي
+    var nameY   = topY + 56;          // اسم الجهاز
+    var subY    = topY + 82;          // فعل الجهاز (يضيء / يطنّ...)
+    var barY    = topY + 110;         // شريط الجهد
+    var voltY   = barY + 18;          // قيمة الجهد
+    var cellsY  = topY + cardH - 32;  // صف الخلايا في الأسفل
 
     devices.forEach(function(d, i) {
-      var cx2 = pad + i * (cardW + 8) + cardW / 2;
-      var cardX = cx2 - cardW / 2;
-      var pulse = 1 + Math.sin(t * 2 + i * 1.2) * 0.015;
+      var cardX = pad + i * (cardW + cardGap);
+      var cx2   = cardX + cardW / 2;
+      var pulse = 1 + Math.sin(t * 1.8 + i * 1.2) * 0.012;
 
-      // بطاقة
+      // ── رسم البطاقة ──
       ctx.save();
       ctx.translate(cx2, topY + cardH / 2);
       ctx.scale(pulse, pulse);
       ctx.translate(-cx2, -(topY + cardH / 2));
-      ctx.fillStyle = dm ? d.bg + '.13)' : d.bg + '.09)';
-      ctx.strokeStyle = d.color + (dm ? 'AA' : '88');
+
+      ctx.fillStyle = dm ? d.bg + '.12)' : d.bg + '.08)';
+      ctx.strokeStyle = d.color + '99';
       ctx.lineWidth = 2.5;
       ctx.beginPath(); ctx.roundRect(cardX, topY, cardW, cardH, 14); ctx.fill(); ctx.stroke();
+
       // شريط علوي ملوّن
       ctx.fillStyle = d.color;
-      ctx.beginPath(); ctx.roundRect(cardX, topY, cardW, 7, [14,14,0,0]); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(cardX, topY, cardW, 6, [14, 14, 0, 0]); ctx.fill();
       ctx.restore();
 
-      // إيموجي كبير
-      ctx.font = Math.round(cardW * 0.30) + 'px serif';
+      // ── إيموجي ──
+      ctx.font = '36px serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-      ctx.fillText(d.emoji, cx2, topY + 12);
+      ctx.fillText(d.emoji, cx2, emojiY);
 
-      // اسم الجهاز — أكبر وأوضح
-      var nameSize = Math.max(16, Math.round(cardW * 0.175));
-      ctx.font = 'bold ' + nameSize + 'px Tajawal';
-      ctx.fillStyle = d.color;
-      ctx.fillText(d.label, cx2, topY + cardW * 0.32 + 16);
+      // ── اسم الجهاز ──
+      ctx.font = 'bold 18px Tajawal';
+      ctx.fillStyle = d.color; ctx.textBaseline = 'top';
+      ctx.fillText(d.label, cx2, nameY);
 
-      // فعل الجهاز
-      var subSize = Math.max(13, Math.round(cardW * 0.12));
-      ctx.font = subSize + 'px Tajawal';
-      ctx.fillStyle = dm ? '#AAC0D0' : '#556677';
-      ctx.fillText(d.sub, cx2, topY + cardW * 0.32 + 16 + nameSize + 5);
+      // ── فعل الجهاز ──
+      ctx.font = '13px Tajawal';
+      ctx.fillStyle = dm ? '#9ABAD0' : '#556677'; ctx.textBaseline = 'top';
+      ctx.fillText(d.sub, cx2, subY);
 
       // ── شريط الجهد ──
-      var bTop = topY + cardH * 0.58;
-      var bW = cardW - 18, bH = 14, bX = cx2 - bW / 2;
-      ctx.fillStyle = dm ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
-      ctx.beginPath(); ctx.roundRect(bX, bTop, bW, bH, bH / 2); ctx.fill();
-      var prog2 = d.needed / 6.0;
-      var bg2 = ctx.createLinearGradient(bX, 0, bX + bW * prog2, 0);
-      bg2.addColorStop(0, d.color + '90'); bg2.addColorStop(1, d.color);
-      ctx.fillStyle = bg2;
-      ctx.beginPath(); ctx.roundRect(bX, bTop, bW * prog2, bH, bH / 2); ctx.fill();
+      var bW = cardW - 20, bH = 11, bX = cx2 - bW / 2;
+      ctx.fillStyle = dm ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.09)';
+      ctx.beginPath(); ctx.roundRect(bX, barY, bW, bH, bH / 2); ctx.fill();
+      var pr = d.needed / 6.0;
+      var grd = ctx.createLinearGradient(bX, 0, bX + bW, 0);
+      grd.addColorStop(0, d.color + '80'); grd.addColorStop(pr, d.color); grd.addColorStop(1, dm ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.05)');
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.roundRect(bX, barY, bW * pr, bH, bH / 2); ctx.fill();
 
-      // قيمة الجهد — أكبر وأوضح
-      var voltSize = Math.max(18, Math.round(cardW * 0.195));
-      ctx.font = 'bold ' + voltSize + 'px Tajawal';
+      // ── قيمة الجهد ──
+      ctx.font = 'bold 20px Tajawal';
       ctx.fillStyle = d.color; ctx.textBaseline = 'top';
-      ctx.fillText(d.needed + ' V', cx2, bTop + bH + 6);
+      ctx.fillText(d.needed + ' V', cx2, voltY);
 
-      // عدد الخلايا
-      var cellSize = Math.max(13, Math.round(cardW * 0.115));
-      ctx.font = 'bold ' + cellSize + 'px Tajawal';
-      ctx.fillStyle = dm ? '#9AAFC0' : '#445566';
-      ctx.fillText(d.cells + ' خلية', cx2, bTop + bH + 6 + voltSize + 4);
+      // ── عدد الخلايا ──
+      ctx.font = 'bold 13px Tajawal';
+      ctx.fillStyle = dm ? '#8AAFC8' : '#445566'; ctx.textBaseline = 'top';
+      ctx.fillText(d.cells + ' خلية', cx2, voltY + 26);
 
-      // ── خلايا صغيرة مرسومة ──
-      var bRow = topY + cardH - 26;
-      var cellW = 13, cellH = 22, gap = 4;
-      var totalBW = d.cells * cellW + (d.cells - 1) * gap;
-      var bStartX = cx2 - totalBW / 2;
+      // ── خلايا مرسومة في الأسفل ──
+      var cW = 12, cH = 20, cGap = 3;
+      var totalCW = d.cells * cW + (d.cells - 1) * cGap;
+      var cStart = cx2 - totalCW / 2;
       for (var bi = 0; bi < d.cells; bi++) {
-        var bx3 = bStartX + bi * (cellW + gap);
+        var bx3 = cStart + bi * (cW + cGap);
         ctx.fillStyle = d.color;
-        ctx.strokeStyle = dm ? 'rgba(255,255,255,.3)' : 'rgba(0,0,0,.2)';
+        ctx.strokeStyle = dm ? 'rgba(255,255,255,.3)' : 'rgba(0,0,0,.18)';
         ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.roundRect(bx3, bRow - cellH / 2, cellW, cellH, 3); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = 'rgba(255,255,255,.85)';
-        ctx.font = 'bold 8px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('+', bx3 + cellW - 3, bRow - cellH / 2 + 1);
+        ctx.beginPath(); ctx.roundRect(bx3, cellsY, cW, cH, 3); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.9)';
+        ctx.font = 'bold 7px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('+', bx3 + cW - 3, cellsY + 1);
       }
     });
 
