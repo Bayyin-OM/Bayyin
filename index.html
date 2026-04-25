@@ -11685,11 +11685,10 @@ function simVoltage2() {
   };
 
   // إيقاف الصوت عند مغادرة التبويب
-  var origStop = window._stopCurrentSim || function(){};
-  window._stopCurrentSim = function(){ try { if(VS2.osc) VS2.osc.stop(); if(VS2.audioCtx) VS2.audioCtx.close(); } catch(ex){} VS2.buzzing=false; origStop(); };
+  window._stopCurrentSim = function(){ try { if(VS2.osc) VS2.osc.stop(); if(VS2.audioCtx) VS2.audioCtx.close(); } catch(ex){} VS2.buzzing=false; };
 
   function draw2() {
-    if (currentSim !== 'g6voltage') { try { if(VS2.osc)VS2.osc.stop(); if(VS2.audioCtx)VS2.audioCtx.close(); } catch(ex){} VS2.buzzing=false; cancelAnimationFrame(animFrame); return; }
+    if (currentSim !== 'g6voltage' || currentTab !== 1) { try { if(VS2.osc)VS2.osc.stop(); if(VS2.audioCtx)VS2.audioCtx.close(); } catch(ex){} VS2.buzzing=false; cancelAnimationFrame(animFrame); return; }
     if (!simState || simState !== VS2) { animFrame = requestAnimationFrame(draw2); return; }
     VS2.t += 0.04;
     var ctx = elCtx(), w = elW(), h = elH(), dm = isDarkMode();
@@ -11842,12 +11841,15 @@ function simVoltage3() {
   VS3._stopBell = function() {
     try { clearInterval(VS3._bellInterval); } catch(ex) {}
     VS3.ringing = false;
-    try { VS3.audioCtx.close(); } catch(ex) {}
+    try { if(VS3.audioCtx) VS3.audioCtx.close(); } catch(ex) {}
     VS3.audioCtx = null;
   };
 
+  // تسجيل دالة الإيقاف في النظام العام حتى تُستدعى عند تبديل التاب
+  window._stopCurrentSim = function() { VS3._stopBell(); };
+
   function draw3() {
-    if (currentSim !== 'g6voltage') { VS3._stopBell(); cancelAnimationFrame(animFrame); return; }
+    if (currentSim !== 'g6voltage' || currentTab !== 2) { VS3._stopBell(); cancelAnimationFrame(animFrame); return; }
     if (!simState || simState !== VS3) { animFrame = requestAnimationFrame(draw3); return; }
     VS3.t += 0.04;
     var ctx = elCtx(), w = elW(), h = elH(), dm = isDarkMode();
@@ -11984,7 +11986,7 @@ function simVoltage4() {
     var pad = 18;
 
     // ── عنوان ──
-    ctx.font = 'bold 22px Tajawal'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.font = 'bold 24px Tajawal'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.fillStyle = dm ? '#E8F4FF' : '#1A2A3A';
     ctx.fillText('📌 الجهد الكهربائي والأجهزة', w / 2, pad);
 
@@ -11995,7 +11997,7 @@ function simVoltage4() {
       { label: 'جرس',   sub: 'يرنّ',   emoji: '🔕', needed: 6.0, cells: 4, color: '#8E44AD', bg: 'rgba(142,68,173,' },
     ];
 
-    var topY = pad + 42;
+    var topY = pad + 48;
     var cardW = (w - pad * 2 - 16) / 3;
     var cardH = h * 0.46;
 
@@ -12009,30 +12011,35 @@ function simVoltage4() {
       ctx.translate(cx2, topY + cardH / 2);
       ctx.scale(pulse, pulse);
       ctx.translate(-cx2, -(topY + cardH / 2));
-      ctx.fillStyle = dm ? d.bg + '.10)' : d.bg + '.07)';
+      ctx.fillStyle = dm ? d.bg + '.13)' : d.bg + '.09)';
       ctx.strokeStyle = d.color + (dm ? 'AA' : '88');
-      ctx.lineWidth = 2.2;
+      ctx.lineWidth = 2.5;
       ctx.beginPath(); ctx.roundRect(cardX, topY, cardW, cardH, 14); ctx.fill(); ctx.stroke();
+      // شريط علوي ملوّن
+      ctx.fillStyle = d.color;
+      ctx.beginPath(); ctx.roundRect(cardX, topY, cardW, 7, [14,14,0,0]); ctx.fill();
       ctx.restore();
 
       // إيموجي كبير
-      ctx.font = Math.round(cardW * 0.28) + 'px serif';
+      ctx.font = Math.round(cardW * 0.30) + 'px serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-      ctx.fillText(d.emoji, cx2, topY + 10);
+      ctx.fillText(d.emoji, cx2, topY + 12);
 
-      // اسم الجهاز — كبير وواضح
-      ctx.font = 'bold ' + Math.round(cardW * 0.155) + 'px Tajawal';
+      // اسم الجهاز — أكبر وأوضح
+      var nameSize = Math.max(16, Math.round(cardW * 0.175));
+      ctx.font = 'bold ' + nameSize + 'px Tajawal';
       ctx.fillStyle = d.color;
-      ctx.fillText(d.label, cx2, topY + cardW * 0.3 + 14);
+      ctx.fillText(d.label, cx2, topY + cardW * 0.32 + 16);
 
       // فعل الجهاز
-      ctx.font = Math.round(cardW * 0.11) + 'px Tajawal';
+      var subSize = Math.max(13, Math.round(cardW * 0.12));
+      ctx.font = subSize + 'px Tajawal';
       ctx.fillStyle = dm ? '#AAC0D0' : '#556677';
-      ctx.fillText(d.sub, cx2, topY + cardW * 0.3 + 14 + Math.round(cardW * 0.155) + 4);
+      ctx.fillText(d.sub, cx2, topY + cardW * 0.32 + 16 + nameSize + 5);
 
       // ── شريط الجهد ──
-      var bTop = topY + cardH * 0.56;
-      var bW = cardW - 20, bH = 13, bX = cx2 - bW / 2;
+      var bTop = topY + cardH * 0.58;
+      var bW = cardW - 18, bH = 14, bX = cx2 - bW / 2;
       ctx.fillStyle = dm ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
       ctx.beginPath(); ctx.roundRect(bX, bTop, bW, bH, bH / 2); ctx.fill();
       var prog2 = d.needed / 6.0;
@@ -12041,31 +12048,32 @@ function simVoltage4() {
       ctx.fillStyle = bg2;
       ctx.beginPath(); ctx.roundRect(bX, bTop, bW * prog2, bH, bH / 2); ctx.fill();
 
-      // قيمة الجهد — خط كبير
-      ctx.font = 'bold ' + Math.round(cardW * 0.175) + 'px Tajawal';
+      // قيمة الجهد — أكبر وأوضح
+      var voltSize = Math.max(18, Math.round(cardW * 0.195));
+      ctx.font = 'bold ' + voltSize + 'px Tajawal';
       ctx.fillStyle = d.color; ctx.textBaseline = 'top';
-      ctx.fillText(d.needed + ' V', cx2, bTop + bH + 7);
+      ctx.fillText(d.needed + ' V', cx2, bTop + bH + 6);
 
-      // عدد الخلايا — واضح
-      ctx.font = Math.round(cardW * 0.105) + 'px Tajawal';
-      ctx.fillStyle = dm ? '#9AAFC0' : '#667788';
-      ctx.fillText(d.cells + ' خلية', cx2, bTop + bH + 7 + Math.round(cardW * 0.175) + 3);
+      // عدد الخلايا
+      var cellSize = Math.max(13, Math.round(cardW * 0.115));
+      ctx.font = 'bold ' + cellSize + 'px Tajawal';
+      ctx.fillStyle = dm ? '#9AAFC0' : '#445566';
+      ctx.fillText(d.cells + ' خلية', cx2, bTop + bH + 6 + voltSize + 4);
 
       // ── خلايا صغيرة مرسومة ──
-      var bRow = topY + cardH - 30;
-      var cellW = 12, cellH = 20, gap = 3;
+      var bRow = topY + cardH - 26;
+      var cellW = 13, cellH = 22, gap = 4;
       var totalBW = d.cells * cellW + (d.cells - 1) * gap;
       var bStartX = cx2 - totalBW / 2;
       for (var bi = 0; bi < d.cells; bi++) {
         var bx3 = bStartX + bi * (cellW + gap);
         ctx.fillStyle = d.color;
-        ctx.strokeStyle = dm ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.18)';
+        ctx.strokeStyle = dm ? 'rgba(255,255,255,.3)' : 'rgba(0,0,0,.2)';
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.roundRect(bx3, bRow - cellH / 2, cellW, cellH, 3); ctx.fill(); ctx.stroke();
-        // علامة +
-        ctx.fillStyle = 'rgba(255,255,255,.8)';
-        ctx.font = 'bold 7px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-        ctx.fillText('+', bx3 + cellW - 2, bRow - cellH / 2 + 1);
+        ctx.fillStyle = 'rgba(255,255,255,.85)';
+        ctx.font = 'bold 8px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('+', bx3 + cellW - 3, bRow - cellH / 2 + 1);
       }
     });
 
@@ -12078,26 +12086,26 @@ function simVoltage4() {
     ctx.beginPath(); ctx.roundRect(pad, concY, w - pad * 2, concH, 14); ctx.fill(); ctx.stroke();
 
     // عنوان الاستنتاج
-    ctx.font = 'bold 17px Tajawal'; ctx.fillStyle = '#1A8FA8';
+    ctx.font = 'bold 20px Tajawal'; ctx.fillStyle = '#1A8FA8';
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     ctx.fillText('🧠 الاستنتاج', w / 2, concY + 10);
 
     // خط فاصل
     ctx.strokeStyle = 'rgba(26,143,168,.25)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(pad + 20, concY + 33); ctx.lineTo(w - pad - 20, concY + 33); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(pad + 20, concY + 38); ctx.lineTo(w - pad - 20, concY + 38); ctx.stroke();
 
-    // نص الاستنتاج — خط 16px واضح
-    var lineH = 24;
+    // نص الاستنتاج — خط 17px واضح
+    var lineH = 28;
     var lines = [
       { text: 'كلّما زاد عدد الخلايا → زاد الجهد', bold: true, color: dm ? '#C8E8F0' : '#1A3A4A' },
       { text: 'كلّما زاد الجهد → عمل الجهاز بكفاءة أعلى', bold: false, color: dm ? '#AAC8D8' : '#2A4A5A' },
-      { text: 'الجهد = عدد الخلايا × 1.5 فولت', bold: true, color: '#1A8FA8' },
+      { text: '⚡  الجهد = عدد الخلايا × 1.5 فولت', bold: true, color: '#1A8FA8' },
     ];
     lines.forEach(function(ln, i) {
-      ctx.font = (ln.bold ? 'bold ' : '') + '15px Tajawal';
+      ctx.font = (ln.bold ? 'bold ' : '') + '17px Tajawal';
       ctx.fillStyle = ln.color;
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-      ctx.fillText(ln.text, w / 2, concY + 42 + i * lineH);
+      ctx.fillText(ln.text, w / 2, concY + 46 + i * lineH);
     });
 
     animFrame = requestAnimationFrame(draw4);
