@@ -40122,7 +40122,8 @@ function simG5SunSeeming() {
     window._g5ss_stars.forEach(st => {
       const p = 0.45 + 0.55 * Math.sin(Date.now() / 1500 + st.ph);
       c.beginPath();
-      c.arc(st.x * W, st.y * (cy - R * 0.90), st.r * p, 0, Math.PI * 2);
+      const starAreaH = Math.max(10, cy - R * 0.90);
+      c.arc(st.x * W, st.y * starAreaH, Math.max(0.1, st.r * p), 0, Math.PI * 2);
       c.fillStyle = `rgba(255,255,255,${0.60 * p})`;
       c.fill();
     });
