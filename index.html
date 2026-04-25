@@ -6009,8 +6009,8 @@ const SIM_META = {
   g9refractN:{ title: '١٣-٢ · معامل الانكسار', badge: '💎 9', tabs: ['قِس المعامل 🔢', 'قارن المواد 🧪'] },
   g9tir:    { title: '١٣-٣ · الانعكاس الكلي الداخلي', badge: '🌈 9', tabs: ['استقصاء الزاوية الحرجة 🔬', 'كيف يعمل TIR؟ 💡'] },
   g9fiber:  { title: '١٣-٤ · الألياف البصرية', badge: '🔬 9', tabs: ['الليف البصري 💡', 'تطبيقات TIR 📡'] },
-  g9lens:   { title: 'الوحدة 14 · العدسات وتكوّن الصور', badge: '🔬 9', tabs: ['أنواع العدسات 🧪', 'موقع الصورة 🎯'] },
-  g9raydiagram:{ title: '١٤-٢ · نشاط ارسم مخطط الأشعة', badge: '✏️ 9', tabs: ['صورة حقيقية 🎯', 'صورة تقديرية 🔍'] },
+  g9lens:   { title: 'الوحدة ١٤ · العدسات المحدّبة الرقيقة', badge: '🔬 9', tabs: ['أنواع العدسات 🧪', 'تكوّن الصورة 🎯', 'نشاط ١-١٤ 📐', 'العدسة المكبِّرة 🔍'] },
+  g9raydiagram:{ title: '١٤-٢ · مخطط الأشعة خطوة بخطوة', badge: '✏️ 9', tabs: ['الجسم بعيد (d > 2f) 🎯', 'الجسم قريب (d < f) 🔍'] },
   g9circuits:{ title: 'الوحدة 15 · الدوائر الكهربائية', badge: '🔌 9', tabs: ['متسلسلة/متوازية ⚡', 'تحليل الدائرة 📊'] },
   g9ohm:    { title: 'الوحدة 15 · قانون أوم والقدرة', badge: '📐 9', tabs: ['V=IR 🔢', 'القدرة والكفاءة 🔋'] }
 };
@@ -6881,7 +6881,7 @@ function startSim(type, tab) {
     g9refractN:[simG9RefractN1, simG9RefractN2],
     g9tir:    [simG9TIR1, simG9TIR2],
     g9fiber:  [simG9Fiber1, simG9Fiber2],
-    g9lens:   [simG9Lens1, simG9Lens2],
+    g9lens:   [simG9Lens1, simG9Lens2, simG9Lens3, simG9Lens4],
     g9raydiagram:[simG9RayDiagram1, simG9RayDiagram2],
     g9circuits:[simG9Circuits1, simG9Circuits2],
     g9ohm:    [simG9Ohm1, simG9Ohm2]
@@ -11893,27 +11893,35 @@ function simVoltage3() {
       }
     }
 
-    // مقياس الجهد
-    var barW = w * 0.55, barH = 16, barX2 = cx - barW / 2, barY2 = h * 0.76;
-    ctx.fillStyle = dm?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)';
+    // مقياس الجهد — الشريط الكامل = needed3 (6V)
+    var barW = w * 0.58, barH = 16, barX2 = cx - barW / 2, barY2 = h * 0.76;
+    ctx.fillStyle = dm ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
     ctx.beginPath(); ctx.roundRect(barX2, barY2, barW, barH, barH/2); ctx.fill();
     var prog = Math.min(1, V3 / needed3);
-    if(prog>0){
-      var barGrad=ctx.createLinearGradient(barX2,0,barX2+barW*prog,0);
-      barGrad.addColorStop(0,'#E74C3C'); barGrad.addColorStop(0.6,'#E67E22'); barGrad.addColorStop(1,active3?'#8E44AD':'#E67E22');
-      ctx.fillStyle=barGrad; ctx.beginPath(); ctx.roundRect(barX2,barY2,barW*prog,barH,barH/2); ctx.fill();
+    if (prog > 0) {
+      var barGrad = ctx.createLinearGradient(barX2, 0, barX2 + barW, 0);
+      barGrad.addColorStop(0, '#E74C3C');
+      barGrad.addColorStop(0.65, '#E67E22');
+      barGrad.addColorStop(1, '#8E44AD');
+      ctx.fillStyle = barGrad;
+      ctx.beginPath(); ctx.roundRect(barX2, barY2, barW * prog, barH, barH/2); ctx.fill();
     }
-    var thX=barX2+barW*(needed3/(VS3.maxN*1.5));
-    ctx.strokeStyle='#8E44AD';ctx.lineWidth=2;ctx.setLineDash([4,3]);
-    ctx.beginPath();ctx.moveTo(thX,barY2-6);ctx.lineTo(thX,barY2+barH+6);ctx.stroke();
+    // علامة نهاية الشريط = 6V دائماً
+    ctx.strokeStyle = '#8E44AD'; ctx.lineWidth = 2.5; ctx.setLineDash([5, 3]);
+    ctx.beginPath(); ctx.moveTo(barX2 + barW, barY2 - 7); ctx.lineTo(barX2 + barW, barY2 + barH + 7); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.font='bold 13px Tajawal';ctx.fillStyle='#8E44AD';ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillText(needed3+'V',thX,barY2-4);
-
+    ctx.font = 'bold 13px Tajawal'; ctx.fillStyle = '#8E44AD'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(needed3 + ' V', barX2 + barW, barY2 - 4);
+    // قيمة الجهد الحالية فوق نهاية الشريط المملوء (فقط إذا أقل من 6V)
+    if (!active3 && prog > 0.05) {
+      var curX = barX2 + barW * prog;
+      ctx.font = 'bold 12px Tajawal'; ctx.fillStyle = '#E67E22'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.fillText(V3.toFixed(1) + 'V', curX, barY2 - 3);
+    }
     // تسمية مستوى الصوت
-    if(active3){
-      var volLabel = V3<=6?'🔔 هادئ': V3<=7.5?'🔔🔔 متوسط':'🔔🔔🔔 عالٍ جداً!';
-      ctx.font='bold 14px Tajawal'; ctx.fillStyle='#8E44AD'; ctx.textAlign='center'; ctx.textBaseline='top';
+    if (active3) {
+      var volLabel = V3 <= 6 ? '🔔 هادئ' : V3 <= 7.5 ? '🔔🔔 متوسط' : '🔔🔔🔔 عالٍ جداً!';
+      ctx.font = 'bold 14px Tajawal'; ctx.fillStyle = '#8E44AD'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
       ctx.fillText(volLabel, cx, barY2 + barH + 6);
     }
 
@@ -12177,26 +12185,75 @@ function _drawBuzzer(ctx, cx, cy, active, intensity, t, dm) {
 }
 
 function _drawBell(ctx, cx, cy, active, intensity, t, dm) {
-  var shk = active ? Math.sin(t * 18) * 5 * intensity : 0;
-  ctx.save(); ctx.translate(shk, 0);
-  // جسم الجرس
-  var r2 = 26;
-  ctx.fillStyle = active ? '#8E44AD' : (dm ? '#4A5A6A' : '#8A9AAA');
-  ctx.strokeStyle = active ? '#6C3483' : (dm ? '#3A4A5A' : '#5A6A7A'); ctx.lineWidth = 2;
-  if (active) { ctx.shadowBlur = 15 * intensity; ctx.shadowColor = 'rgba(142,68,173,.6)'; }
-  ctx.beginPath(); ctx.arc(cx, cy, r2, Math.PI, 0, false); ctx.lineTo(cx + r2, cy + 12); ctx.lineTo(cx - r2, cy + 12); ctx.closePath(); ctx.fill(); ctx.stroke();
+  var shk = active ? Math.sin(t * 18) * 6 * intensity : 0;
+  ctx.save();
+  ctx.translate(cx + shk, cy);
+
+  var r = 28; // نصف قطر القبة
+
+  // ── ظل/توهج ──
+  if (active) { ctx.shadowBlur = 18 * intensity; ctx.shadowColor = 'rgba(142,68,173,.7)'; }
+
+  // ── جسم الجرس: قبة نصف بيضاوية + جانبان متسعان ──
+  var bellColor = active ? '#9B59B6' : (dm ? '#5A6A7A' : '#95A5A6');
+  var bellStroke = active ? '#6C3483' : (dm ? '#3A4A5A' : '#6A7A8A');
+  ctx.fillStyle = bellColor;
+  ctx.strokeStyle = bellStroke;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  // من اليسار السفلي → قوس علوي → اليمين السفلي → حافة سفلية متسعة
+  ctx.moveTo(-r - 8, 10);
+  ctx.quadraticCurveTo(-r - 12, -r * 0.3, -r * 0.5, -r - 4);
+  ctx.quadraticCurveTo(0, -r - 14, r * 0.5, -r - 4);
+  ctx.quadraticCurveTo(r + 12, -r * 0.3, r + 8, 10);
+  ctx.lineTo(-r - 8, 10);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
   ctx.shadowBlur = 0;
-  // قبة الجرس
-  ctx.fillStyle = active ? '#9B59B6' : (dm ? '#5A6A7A' : '#9AAAБА');
-  ctx.beginPath(); ctx.arc(cx, cy, r2, Math.PI, 0, false); ctx.fill();
-  // قاعدة
-  ctx.fillStyle = active ? '#6C3483' : (dm ? '#3A4A5A' : '#6A7A8A');
-  ctx.beginPath(); ctx.roundRect(cx - r2 - 2, cy + 10, (r2 + 2) * 2, 8, 3); ctx.fill();
-  // الطرق
-  ctx.fillStyle = active ? '#E74C3C' : (dm ? '#5A6A7A' : '#8A9AAA');
-  ctx.beginPath(); ctx.arc(cx + shk * 0.5, cy + 6, 5, 0, Math.PI * 2); ctx.fill();
+
+  // ── بريق علوي ──
+  if (active) {
+    var shine = ctx.createLinearGradient(-r * 0.3, -r - 14, r * 0.2, -r * 0.3);
+    shine.addColorStop(0, 'rgba(255,255,255,.35)');
+    shine.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = shine;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.3, -r - 4);
+    ctx.quadraticCurveTo(0, -r - 12, r * 0.3, -r - 4);
+    ctx.quadraticCurveTo(r * 0.1, -r * 0.4, -r * 0.3, -r - 4);
+    ctx.fill();
+  }
+
+  // ── قاعدة عريضة ──
+  ctx.fillStyle = active ? '#7D3C98' : (dm ? '#3A4A5A' : '#7F8C8D');
+  ctx.strokeStyle = bellStroke; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(-r - 10, 10, (r + 10) * 2, 10, [0, 0, 5, 5]); ctx.fill(); ctx.stroke();
+
+  // ── عروة الجرس (الحلقة العلوية) ──
+  ctx.strokeStyle = active ? '#5B2C6F' : (dm ? '#2A3A4A' : '#566573');
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(0, -r - 10, 5, 0, Math.PI * 2); ctx.stroke();
+  ctx.fillStyle = active ? '#7D3C98' : (dm ? '#3A4A5A' : '#7F8C8D');
+  ctx.fill();
+
+  // ── قضيب الطارق ──
+  ctx.strokeStyle = active ? '#4A235A' : (dm ? '#2A3A4A' : '#5D6D7E');
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, -2); ctx.lineTo(shk * 0.6, 12); ctx.stroke();
+
+  // ── رأس الطارق ──
+  var clapperColor = active ? '#E74C3C' : (dm ? '#4A5A6A' : '#85929E');
+  ctx.fillStyle = clapperColor;
+  if (active) { ctx.shadowBlur = 8 * intensity; ctx.shadowColor = 'rgba(231,76,60,.6)'; }
+  ctx.beginPath(); ctx.arc(shk * 0.6, 14, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+
   ctx.restore();
-  ctx.font = 'bold 11px Tajawal'; ctx.fillStyle = dm ? '#8AAAC0' : '#445566'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText('جرس', cx, cy + 28 + 12);
+
+  // ── تسمية ──
+  ctx.font = 'bold 12px Tajawal'; ctx.fillStyle = dm ? '#8AAAC0' : '#445566';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('جرس', cx, cy + 24);
 }
 
 // 5-8 TAB 1: طول السلك (شريط قابل للسحب)
@@ -52555,300 +52612,730 @@ function simG9Fiber2(){
 // ══════════════════════════════════════════════════════════
 // الصف التاسع — الوحدة 14: مخطط الأشعة التفاعلي (١٤-٢)
 // ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════
+// الوحدة ١٤ · TAB 1: أنواع العدسات وتأثيرها على الأشعة
+// ══════════════════════════════════════════════════════════════════════
 function simG9RayDiagram1(){
   cancelAnimationFrame(animFrame);
-  simState={objD:180, f:80, t:0};
-  window._rdSet=function(v){
-    simState.objD=+v;
-    var e=document.getElementById('rd-d'); if(e) e.textContent=v+' px';
+  simState={step:0,d:2.6,f:1,t:0};
+  const S=simState;
+  const steps=[
+    'اضغط "التالي" — الجسم بعيد (d > 2f) عن العدسة',
+    '① الشعاع ١: مواز للمحور → ينكسر عبر البؤرة F بعد العدسة',
+    '② الشعاع ٢: يمرّ بمركز العدسة (O) دون انكسار — مستقيم',
+    '③ نقطة تقاطع الشعاعَين = رأس الصورة (I)',
+    '✅ الصورة حقيقية · مقلوبة · مصغَّرة · بين F و 2F'
+  ];
+  window._rd1Step=function(n){
+    S.step=Math.max(0,Math.min(4,n));
+    const el=document.getElementById('rd1-info'); if(el) el.textContent=steps[S.step];
+    const sn=document.getElementById('rd1-sn'); if(sn) sn.textContent=S.step+'/4';
   };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">✏️ نشاط ١٤-١ · ارسم مخطط الأشعة</div>
-      <div class="ctrl-label">📏 بعد الجسم عن العدسة: <span id="rd-d">180 px</span></div>
-      <input type="range" min="85" max="280" value="180" oninput="window._rdSet(this.value)" style="width:100%">
-      <div class="ctrl-btns-grid" style="margin-top:8px">
-        <button class="ctrl-btn" onclick="window._rdSet(280)">🔙 بعيد جداً (>2f)</button>
-        <button class="ctrl-btn action" onclick="window._rdSet(180)">📍 بين f و 2f</button>
-        <button class="ctrl-btn" onclick="window._rdSet(86)">🔍 قريب جداً (~f)</button>
-      </div>
+      <div class="ctrl-label">📐 مخطط الأشعة: d > 2f → صورة حقيقية</div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">اتبع الخطوات لرسم الشعاعَين وفق الكتاب (نشاط ١-١٤).</div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>الشعاع ١: يمرّ مستقيماً من الجسم عبر مركز العدسة. الشعاع ٢: يسقط موازياً للمحور وينكسر عند البؤرة. تقاطع الشعاعَين = موقع الصورة.</div>
+    <div id="rd1-info" style="background:rgba(59,130,246,.1);border:1.5px solid rgba(59,130,246,.3);border-radius:10px;padding:10px;font-size:13px;font-family:Tajawal;line-height:1.6;min-height:52px">${steps[0]}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+      <button onclick="window._rd1Step(0)" style="padding:7px 12px;border-radius:8px;border:2px solid var(--border-color);background:var(--surface);font-family:Tajawal;cursor:pointer">↩ بداية</button>
+      <span id="rd1-sn" style="flex:1;text-align:center;font-family:Tajawal;color:var(--text-secondary);font-size:13px">0/4</span>
+      <button onclick="window._rd1Step(simState.step+1)" style="padding:7px 16px;border-radius:8px;border:none;background:#3B82F6;color:white;font-family:Tajawal;font-size:14px;cursor:pointer;font-weight:700">التالي →</button>
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      📌 قانون العدسة: <strong>1/f = 1/d_o + 1/d_i</strong>
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9raydiagram'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    simState.t+=0.016;
+    S.t+=0.016;
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dm=isDarkMode();
     c.clearRect(0,0,w,h);
-    c.fillStyle='#FAFAF8'; c.fillRect(0,0,w,h);
-    const cx=w*0.52, cy=h*0.52, f=simState.f, dObj=simState.objD;
-    const objH=h*0.18;
-    // Axis
-    c.strokeStyle='rgba(30,45,61,0.25)'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(w*0.04,cy); c.lineTo(w*0.96,cy); c.stroke();
-    // Axis arrows
-    c.fillStyle='rgba(30,45,61,0.25)';
-    c.beginPath(); c.moveTo(w*0.96,cy); c.lineTo(w*0.94,cy-5); c.lineTo(w*0.94,cy+5); c.closePath(); c.fill();
-    // Lens
-    const lensH=h*0.38;
-    c.strokeStyle='#3B82F6'; c.lineWidth=3.5;
-    c.beginPath(); c.moveTo(cx,cy-lensH); c.lineTo(cx,cy+lensH); c.stroke();
-    // Lens arrows (converging)
-    c.fillStyle='#3B82F6';
-    [[cx,cy-lensH,1],[cx,cy+lensH,-1]].forEach(([lx,ly,d])=>{
-      c.beginPath(); c.moveTo(lx,ly); c.lineTo(lx-10,ly+d*18); c.lineTo(lx+10,ly+d*18); c.closePath(); c.fill();
+    c.fillStyle=dm?'#070D18':'#EEF3FF'; c.fillRect(0,0,w,h);
+    c.strokeStyle=dm?'rgba(255,255,255,.04)':'rgba(0,0,180,.04)'; c.lineWidth=1;
+    for(let gx=0;gx<w;gx+=28){c.beginPath();c.moveTo(gx,0);c.lineTo(gx,h);c.stroke();}
+    for(let gy=0;gy<h;gy+=28){c.beginPath();c.moveTo(0,gy);c.lineTo(w,gy);c.stroke();}
+
+    const cx=w*0.48, cy=h*0.55, f=w*0.13;
+    const dox=f*S.d, oh=h*0.21;
+    const di=(f*dox)/(dox-f), ih=oh*(di/dox);
+    const ox=cx-dox, ix=cx+di, iy=cy+ih;
+
+    // محور
+    c.strokeStyle=dm?'rgba(200,220,255,.4)':'rgba(30,58,138,.25)'; c.lineWidth=1.5; c.setLineDash([8,6]);
+    c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke(); c.setLineDash([]);
+    // علامات f و 2f
+    [cx-f,cx+f,cx-2*f,cx+2*f].forEach((px,i)=>{
+      c.strokeStyle=i<2?'rgba(239,68,68,.3)':'rgba(100,130,200,.2)'; c.lineWidth=1; c.setLineDash([4,4]);
+      c.beginPath(); c.moveTo(px,cy-h*0.44); c.lineTo(px,cy+h*0.28); c.stroke(); c.setLineDash([]);
+      c.fillStyle=i<2?'#EF4444':(dm?'rgba(200,200,255,.55)':'rgba(80,100,180,.6)');
+      c.font='bold 12px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+      c.fillText(i<2?'F':'2f',px,cy+6);
+      if(i<2){c.fillStyle='#EF4444';c.beginPath();c.arc(px,cy,5,0,Math.PI*2);c.fill();}
     });
-    // Focal points
-    c.fillStyle='#DC2626';
-    c.beginPath(); c.arc(cx+f,cy,5,0,Math.PI*2); c.fill();
-    c.beginPath(); c.arc(cx-f,cy,5,0,Math.PI*2); c.fill();
-    // 2f points (small)
-    c.fillStyle='rgba(220,38,38,0.4)';
-    c.beginPath(); c.arc(cx+2*f,cy,3.5,0,Math.PI*2); c.fill();
-    c.beginPath(); c.arc(cx-2*f,cy,3.5,0,Math.PI*2); c.fill();
-    c.fillStyle='#DC2626'; c.font=`${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText('F',cx+f,cy+h*0.04); c.fillText('F',cx-f,cy+h*0.04);
-    c.fillText('2f',cx+2*f,cy+h*0.04); c.fillText('2f',cx-2*f,cy+h*0.04);
-    // Object (arrow)
-    const ox=cx-dObj;
+    // عدسة
+    const lH=h*0.5, lW=13;
+    c.fillStyle=dm?'rgba(99,179,237,.15)':'rgba(59,130,246,.1)';
+    c.strokeStyle='#3B82F6'; c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cx-lW,cy-lH/2); c.quadraticCurveTo(cx+lW*1.8,cy,cx-lW,cy+lH/2);
+    c.lineTo(cx+lW,cy+lH/2); c.quadraticCurveTo(cx-lW*1.8,cy,cx+lW,cy-lH/2);
+    c.closePath(); c.fill(); c.stroke();
+    [[1,cy-lH/2],[-1,cy+lH/2]].forEach(([d2,y])=>{
+      c.fillStyle='#3B82F6';
+      c.beginPath(); c.moveTo(cx,y); c.lineTo(cx-9*d2,y+16*d2); c.lineTo(cx+9*d2,y+16*d2); c.closePath(); c.fill();
+    });
+    // الجسم
     c.strokeStyle='#F59E0B'; c.lineWidth=3;
-    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-objH); c.stroke();
+    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-oh); c.stroke();
     c.fillStyle='#F59E0B';
-    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(ox-7,cy-objH+14); c.lineTo(ox+7,cy-objH+14); c.closePath(); c.fill();
-    c.fillStyle='#92400E'; c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText('الجسم', ox, cy-objH-h*0.025);
-    // Image via thin lens formula
-    const di=(f*dObj)/(dObj-f);
-    const imgH=-(objH*(di/dObj));
-    const isReal=di>0 && isFinite(di);
-    // Ray 1: Through center of lens (undeviated)
-    c.strokeStyle='rgba(239,68,68,0.85)'; c.lineWidth=2.5; c.setLineDash([]);
-    const r1endX=isReal?cx+di:cx+di*0.6;
-    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(r1endX,cy-objH*(isReal?di/dObj:0.6)); c.stroke();
-    // Ray 2: Parallel to axis then through focal point
-    c.strokeStyle='rgba(22,163,74,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(cx,cy-objH); // horizontal part
-    c.stroke();
-    // After lens: toward F on other side (real image = through F; virtual = extend back)
-    if(isReal && di<w*0.6){
-      c.beginPath(); c.moveTo(cx,cy-objH); c.lineTo(cx+di,cy+imgH); c.stroke();
-    } else {
-      c.beginPath(); c.moveTo(cx,cy-objH); c.lineTo(cx+f*2,cy-objH+objH*(2*f/dObj)); c.stroke();
+    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ox-6,cy-oh+12); c.lineTo(ox+6,cy-oh+12); c.closePath(); c.fill();
+    c.font='bold 13px Tajawal'; c.fillStyle=dm?'#FCD34D':'#92400E'; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('O',ox,cy-oh-4);
+    // الشعاع 1
+    if(S.step>=1){
+      const a=S.step===1?(0.55+Math.sin(S.t*4)*0.45):1; c.globalAlpha=a;
+      c.strokeStyle='#EF4444'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(cx,cy-oh); c.stroke();
+      c.beginPath(); c.moveTo(cx,cy-oh); c.lineTo(ix,iy); c.stroke();
+      // سهم
+      const ang=Math.atan2(iy-(cy-oh),ix-cx);
+      c.fillStyle='#EF4444';
+      c.beginPath(); c.moveTo(ix,iy); c.lineTo(ix-10*Math.cos(ang-0.3),iy-10*Math.sin(ang-0.3)); c.lineTo(ix-10*Math.cos(ang+0.3),iy-10*Math.sin(ang+0.3)); c.closePath(); c.fill();
+      c.globalAlpha=1;
+      c.font='11px Tajawal'; c.fillStyle='#EF4444'; c.textAlign='right'; c.textBaseline='bottom';
+      c.fillText('شعاع ①',cx-4,cy-oh-4);
     }
-    // Image
-    if(isReal && di>0 && di<w*0.45){
-      const ix=cx+di, ih=imgH;
-      c.strokeStyle='#0EA5E9'; c.lineWidth=3;
-      c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,cy+ih); c.stroke();
-      c.fillStyle='#0EA5E9';
-      c.beginPath(); c.moveTo(ix,cy+ih); c.lineTo(ix-7,cy+ih-14); c.lineTo(ix+7,cy+ih-14); c.closePath(); c.fill();
-      c.fillStyle='#1E3A8A'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
-      c.fillText('الصورة', ix, cy+ih-h*0.04);
-      // Properties panel
-      const mag=Math.abs(imgH/objH);
-      const bX=w*0.63, bY=h*0.07;
-      c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(bX,bY,w*0.34,h*0.34,12); c.fill();
-      c.strokeStyle='#0EA5E9'; c.lineWidth=1.5; c.stroke();
-      c.fillStyle='#0C4A6E'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='center';
-      c.fillText('📊 خصائص الصورة',bX+w*0.17,bY+h*0.048);
-      c.fillStyle='#1E3A8A'; c.font=`${Math.round(h*0.025)}px Tajawal`;
-      c.fillText(`النوع: ${isReal?'حقيقية ✅':'تقديرية'}`,bX+w*0.17,bY+h*0.1);
-      c.fillText(`الاتجاه: مقلوبة 🔃`,bX+w*0.17,bY+h*0.15);
-      c.fillText(`التكبير: ${mag.toFixed(2)}×`,bX+w*0.17,bY+h*0.2);
-      c.fillText(`بعد الصورة: ${di.toFixed(0)} px`,bX+w*0.17,bY+h*0.25);
-      c.fillText(di>dObj?'أبعد من الجسم 📍':'أقرب من الجسم 📍',bX+w*0.17,bY+h*0.3);
-    } else {
-      c.fillStyle='#DC2626'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
-      c.fillText('الجسم قريب جداً من البؤرة', w*0.5, h*0.12);
-      c.fillStyle='#555'; c.font=`${Math.round(h*0.025)}px Tajawal`;
-      c.fillText('← أبعد الجسم أو ادفعه لما بعد f', w*0.5, h*0.18);
+    // الشعاع 2
+    if(S.step>=2){
+      const a=S.step===2?(0.55+Math.sin(S.t*4)*0.45):1; c.globalAlpha=a;
+      c.strokeStyle='#10B981'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ix,iy); c.stroke();
+      const ang2=Math.atan2(iy-(cy-oh),ix-ox);
+      c.fillStyle='#10B981';
+      c.beginPath(); c.moveTo(ix,iy); c.lineTo(ix-10*Math.cos(ang2-0.3),iy-10*Math.sin(ang2-0.3)); c.lineTo(ix-10*Math.cos(ang2+0.3),iy-10*Math.sin(ang2+0.3)); c.closePath(); c.fill();
+      c.globalAlpha=1;
+      c.font='11px Tajawal'; c.fillStyle='#10B981'; c.textAlign='left'; c.textBaseline='middle';
+      c.fillText('شعاع ②',cx+8,cy-oh*0.3);
     }
-    // Lens label
-    c.fillStyle='#3B82F6'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
-    c.fillText(`عدسة محدّبة (f = ${f} px)`, cx, cy-lensH-h*0.025);
+    // نقطة التقاطع
+    if(S.step>=3){
+      const r=6+Math.sin(S.t*5)*2;
+      c.fillStyle='#7C3AED'; c.beginPath(); c.arc(ix,iy,r,0,Math.PI*2); c.fill();
+      c.strokeStyle='white'; c.lineWidth=2; c.stroke();
+      c.font='bold 12px Tajawal'; c.fillStyle='#7C3AED'; c.textAlign='left'; c.textBaseline='middle';
+      c.fillText(' I (رأس الصورة)',ix,iy);
+    }
+    // الصورة الكاملة + بطاقة
+    if(S.step>=4){
+      c.strokeStyle='#7C3AED'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,iy); c.stroke();
+      c.fillStyle='#7C3AED';
+      c.beginPath(); c.moveTo(ix,iy); c.lineTo(ix-6,iy-12); c.lineTo(ix+6,iy-12); c.closePath(); c.fill();
+      const bx=w*0.02, by=h*0.05, bw=w*0.41, bH=80;
+      c.fillStyle=dm?'rgba(124,58,237,.15)':'rgba(124,58,237,.09)';
+      c.strokeStyle='rgba(124,58,237,.45)'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(bx,by,bw,bH,10); c.fill(); c.stroke();
+      c.font='bold 15px Tajawal'; c.fillStyle='#7C3AED'; c.textAlign='center'; c.textBaseline='top';
+      c.fillText('✅ خصائص الصورة',bx+bw/2,by+8);
+      c.font='13px Tajawal'; c.fillStyle=dm?'#C4B5FD':'#5B21B6';
+      c.fillText('حقيقية  |  مقلوبة  |  مصغَّرة',bx+bw/2,by+30);
+      c.fillText('تقع بين F و 2F من العدسة',bx+bw/2,by+52);
+    }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// ١٤-٢ · TAB 2: الجسم قريب (d < f) → صورة تقديرية — مخطط أشعة
+// ══════════════════════════════════════════════════════════════════════
 function simG9RayDiagram2(){
   cancelAnimationFrame(animFrame);
-  simState={objD:55, f:80, t:0};
-  window._rdSet2=function(v){simState.objD=+v; var e=document.getElementById('rd-d2'); if(e) e.textContent=v+' px';};
+  simState={step:0,d:0.58,f:1,t:0};
+  const S=simState;
+  const steps=[
+    'اضغط "التالي" — الجسم داخل البؤرة (d < f)',
+    '① الشعاع ١: مواز للمحور → ينكسر عبر F بعد العدسة (يتباعد)',
+    '② الشعاع ٢: يمرّ بمركز العدسة (O) دون انحراف',
+    '③ امدد الشعاعَين للخلف (خط متقطع) — يتقاطعان خلف العدسة',
+    '✅ الصورة تقديرية · معتدلة · مكبَّرة — مبدأ العدسة المكبِّرة 🔍'
+  ];
+  window._rd2Step=function(n){
+    S.step=Math.max(0,Math.min(4,n));
+    const el=document.getElementById('rd2-info'); if(el) el.textContent=steps[S.step];
+    const sn=document.getElementById('rd2-sn'); if(sn) sn.textContent=S.step+'/4';
+  };
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🔍 العدسة المكبّرة (صورة تقديرية)</div>
-      <div class="ctrl-label">📏 بعد الجسم: <span id="rd-d2">55 px</span></div>
-      <input type="range" min="10" max="79" value="55" oninput="window._rdSet2(this.value)" style="width:100%">
-      <div class="ctrl-btns-grid" style="margin-top:8px">
-        <button class="ctrl-btn" onclick="window._rdSet2(20)">🔍 قريب جداً</button>
-        <button class="ctrl-btn action" onclick="window._rdSet2(55)">📍 وسط</button>
-        <button class="ctrl-btn" onclick="window._rdSet2(75)">↗️ قريب من f</button>
-      </div>
+      <div class="ctrl-label">🔍 مخطط الأشعة: d &lt; f → صورة تقديرية</div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">عند وضع الجسم بين العدسة وبؤرتها تتكوّن صورة تقديرية مكبَّرة.</div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>عندما يكون الجسم بين العدسة والبؤرة (d < f) تتكوّن صورة تقديرية: معتدلة، مكبّرة، وعلى نفس جهة الجسم. هذا هو مبدأ العدسة المكبّرة!</div>
+    <div id="rd2-info" style="background:rgba(139,92,246,.1);border:1.5px solid rgba(139,92,246,.3);border-radius:10px;padding:10px;font-size:13px;font-family:Tajawal;line-height:1.6;min-height:52px">${steps[0]}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+      <button onclick="window._rd2Step(0)" style="padding:7px 12px;border-radius:8px;border:2px solid var(--border-color);background:var(--surface);font-family:Tajawal;cursor:pointer">↩ بداية</button>
+      <span id="rd2-sn" style="flex:1;text-align:center;font-family:Tajawal;color:var(--text-secondary);font-size:13px">0/4</span>
+      <button onclick="window._rd2Step(simState.step+1)" style="padding:7px 16px;border-radius:8px;border:none;background:#8B5CF6;color:white;font-family:Tajawal;font-size:14px;cursor:pointer;font-weight:700">التالي →</button>
+    </div>
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      📌 هذا هو مبدأ <strong>العدسة المكبِّرة (المجهر البسيط)</strong>
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9raydiagram'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    simState.t+=0.016;
+    S.t+=0.016;
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dm=isDarkMode();
     c.clearRect(0,0,w,h);
-    c.fillStyle='#FAFAF8'; c.fillRect(0,0,w,h);
-    const cx=w*0.52, cy=h*0.52, f=simState.f, dObj=Math.min(simState.objD,f-1);
-    const objH=h*0.15;
-    // Axis
-    c.strokeStyle='rgba(30,45,61,0.2)'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(w*0.04,cy); c.lineTo(w*0.96,cy); c.stroke();
-    // Lens
-    c.strokeStyle='#3B82F6'; c.lineWidth=3.5;
-    c.beginPath(); c.moveTo(cx,cy-h*0.35); c.lineTo(cx,cy+h*0.35); c.stroke();
-    c.fillStyle='#3B82F6';
-    [[cx,cy-h*0.35,1],[cx,cy+h*0.35,-1]].forEach(([lx,ly,d])=>{
-      c.beginPath(); c.moveTo(lx,ly); c.lineTo(lx-10,ly+d*18); c.lineTo(lx+10,ly+d*18); c.closePath(); c.fill();
+    c.fillStyle=dm?'#070D18':'#F5F0FF'; c.fillRect(0,0,w,h);
+    c.strokeStyle=dm?'rgba(255,255,255,.04)':'rgba(100,0,180,.04)'; c.lineWidth=1;
+    for(let gx=0;gx<w;gx+=28){c.beginPath();c.moveTo(gx,0);c.lineTo(gx,h);c.stroke();}
+    for(let gy=0;gy<h;gy+=28){c.beginPath();c.moveTo(0,gy);c.lineTo(w,gy);c.stroke();}
+
+    const cx=w*0.5, cy=h*0.55, f=w*0.17;
+    const dox=f*S.d, oh=h*0.16;
+    const di=(f*dox)/(dox-f); // سالب
+    const mag=Math.abs(di/dox);
+    const ih=oh*mag;
+    const ox=cx-dox;
+    const virtX=cx+di; // سالب → يسار
+
+    // محور
+    c.strokeStyle=dm?'rgba(200,220,255,.4)':'rgba(80,20,180,.2)'; c.lineWidth=1.5; c.setLineDash([8,6]);
+    c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke(); c.setLineDash([]);
+    // F
+    c.fillStyle='#EF4444'; c.beginPath(); c.arc(cx+f,cy,5,0,Math.PI*2); c.fill();
+    c.font='bold 12px Tajawal'; c.fillStyle='#EF4444'; c.textAlign='center'; c.textBaseline='top'; c.fillText('F',cx+f,cy+6);
+    c.strokeStyle='rgba(239,68,68,.25)'; c.lineWidth=1; c.setLineDash([4,4]);
+    c.beginPath(); c.moveTo(cx+f,cy-h*0.44); c.lineTo(cx+f,cy+h*0.28); c.stroke(); c.setLineDash([]);
+
+    // عدسة
+    const lH=h*0.5, lW=13;
+    c.fillStyle=dm?'rgba(139,92,246,.15)':'rgba(139,92,246,.1)';
+    c.strokeStyle='#8B5CF6'; c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cx-lW,cy-lH/2); c.quadraticCurveTo(cx+lW*1.8,cy,cx-lW,cy+lH/2);
+    c.lineTo(cx+lW,cy+lH/2); c.quadraticCurveTo(cx-lW*1.8,cy,cx+lW,cy-lH/2);
+    c.closePath(); c.fill(); c.stroke();
+    [[1,cy-lH/2],[-1,cy+lH/2]].forEach(([d2,y])=>{
+      c.fillStyle='#8B5CF6';
+      c.beginPath(); c.moveTo(cx,y); c.lineTo(cx-9*d2,y+16*d2); c.lineTo(cx+9*d2,y+16*d2); c.closePath(); c.fill();
     });
-    // Focal points
-    c.fillStyle='#DC2626';
-    c.beginPath(); c.arc(cx+f,cy,5,0,Math.PI*2); c.fill();
-    c.beginPath(); c.arc(cx-f,cy,5,0,Math.PI*2); c.fill();
-    c.fillStyle='#DC2626'; c.font=`${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText('F',cx+f,cy+h*0.04); c.fillText('F',cx-f,cy+h*0.04);
-    // Object
-    const ox=cx-dObj;
+
+    // الجسم
     c.strokeStyle='#F59E0B'; c.lineWidth=3;
-    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-objH); c.stroke();
+    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-oh); c.stroke();
     c.fillStyle='#F59E0B';
-    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(ox-7,cy-objH+14); c.lineTo(ox+7,cy-objH+14); c.closePath(); c.fill();
-    c.fillStyle='#92400E'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText('الجسم', ox, cy-objH-h*0.03);
-    // Virtual image (di is negative for virtual)
-    const di=(f*dObj)/(dObj-f); // will be negative
-    const imgH=-(objH*(di/dObj)); // will be positive (upright)
-    const ix=cx+di; // left of lens
-    // Ray 1: through center
-    c.strokeStyle='rgba(239,68,68,0.8)'; c.lineWidth=2.5;
-    c.beginPath(); c.moveTo(ox,cy-objH);
-    // Extend to virtual image side
-    c.lineTo(cx+di*0.5,cy-objH*(di*0.5/dObj)*(-1)); c.stroke();
-    // Dashed extension to virtual image
-    c.setLineDash([5,5]); c.strokeStyle='rgba(239,68,68,0.4)'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(ix,cy+imgH); c.stroke(); c.setLineDash([]);
-    // Ray 2: parallel then through near focal point
-    c.strokeStyle='rgba(22,163,74,0.8)'; c.lineWidth=2.5;
-    c.beginPath(); c.moveTo(ox,cy-objH); c.lineTo(cx,cy-objH); c.stroke();
-    // After lens toward F
-    c.beginPath(); c.moveTo(cx,cy-objH); c.lineTo(cx+f*1.5,cy-objH+objH*1.5/dObj*f); c.stroke();
-    // Dashed back to virtual image
-    c.setLineDash([5,5]); c.strokeStyle='rgba(22,163,74,0.4)'; c.lineWidth=1.5;
-    c.beginPath(); c.moveTo(cx,cy-objH); c.lineTo(ix,cy+imgH); c.stroke(); c.setLineDash([]);
-    // Virtual image (dashed arrow)
-    if(ix>w*0.05 && ix<cx){
-      c.strokeStyle='rgba(147,51,234,0.7)'; c.lineWidth=2.5; c.setLineDash([5,4]);
-      c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,cy+imgH); c.stroke(); c.setLineDash([]);
-      c.fillStyle='rgba(147,51,234,0.85)';
-      c.beginPath(); c.moveTo(ix,cy+imgH); c.lineTo(ix-7,cy+imgH-14); c.lineTo(ix+7,cy+imgH-14); c.closePath(); c.fill();
-      c.fillStyle='#6B21A8'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
-      c.fillText('الصورة التقديرية', ix, cy+imgH-h*0.05);
+    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ox-5,cy-oh+10); c.lineTo(ox+5,cy-oh+10); c.closePath(); c.fill();
+    c.font='bold 12px Tajawal'; c.fillStyle=dm?'#FCD34D':'#92400E'; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('O',ox,cy-oh-4);
+
+    // الشعاع 1 (مواز → عبر F → يتباعد بعد العدسة)
+    if(S.step>=1){
+      const a=S.step===1?(0.55+Math.sin(S.t*4)*0.45):1; c.globalAlpha=a;
+      c.strokeStyle='#EF4444'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(cx,cy-oh); c.stroke();
+      // بعد العدسة: باتجاه F ثم يتباعد
+      const extX2=cx+f*2.8, extY2=cy+oh*(f*2.8/f);
+      c.beginPath(); c.moveTo(cx,cy-oh); c.lineTo(Math.min(extX2,w),Math.min(extY2,h)); c.stroke();
+      c.globalAlpha=1;
+      c.font='11px Tajawal'; c.fillStyle='#EF4444'; c.textAlign='right'; c.textBaseline='bottom';
+      c.fillText('شعاع ①',cx-4,cy-oh-4);
     }
-    // Properties panel
-    const mag=Math.abs(imgH/objH);
-    const bX=w*0.62, bY=h*0.07;
-    c.fillStyle='rgba(255,255,255,0.95)'; c.beginPath(); c.roundRect(bX,bY,w*0.35,h*0.36,12); c.fill();
-    c.strokeStyle='#9333EA'; c.lineWidth=1.5; c.stroke();
-    c.fillStyle='#6B21A8'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='center';
-    c.fillText('📊 خصائص الصورة',bX+w*0.175,bY+h*0.048);
-    c.fillStyle='#4C1D95'; c.font=`${Math.round(h*0.025)}px Tajawal`;
-    c.fillText('النوع: تقديرية 🔮',bX+w*0.175,bY+h*0.1);
-    c.fillText('الاتجاه: معتدلة ✅',bX+w*0.175,bY+h*0.15);
-    c.fillText(`التكبير: ${mag.toFixed(1)}×`,bX+w*0.175,bY+h*0.2);
-    c.fillText('الجانب: نفس جهة الجسم',bX+w*0.175,bY+h*0.25);
-    c.fillStyle='#7C3AED'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`;
-    c.fillText('مبدأ العدسة المكبّرة 🔍',bX+w*0.175,bY+h*0.31);
-    // Lens label
-    c.fillStyle='#3B82F6'; c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText(`عدسة محدّبة (f = ${f} px)`, cx, cy-h*0.37);
+    // الشعاع 2 (مركز العدسة → مستقيم)
+    if(S.step>=2){
+      const a=S.step===2?(0.55+Math.sin(S.t*4)*0.45):1; c.globalAlpha=a;
+      c.strokeStyle='#10B981'; c.lineWidth=2.5;
+      // من رأس الجسم عبر مركز العدسة O ومستمر
+      const slope2=(cy-oh-cy)/(ox-cx);
+      const extX3=cx+f*2.5, extY3=cy-oh+slope2*(extX3-ox)*(-1);
+      c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(Math.min(extX3,w),extY3); c.stroke();
+      c.globalAlpha=1;
+      c.font='11px Tajawal'; c.fillStyle='#10B981'; c.textAlign='left'; c.textBaseline='middle';
+      c.fillText('شعاع ②',cx+8,cy-oh*0.4);
+    }
+    // امتداد للخلف (خط متقطع)
+    if(S.step>=3){
+      const a=S.step===3?(0.55+Math.sin(S.t*4)*0.45):1; c.globalAlpha=a;
+      c.setLineDash([7,5]);
+      c.strokeStyle='rgba(239,68,68,.6)'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(cx,cy-oh); c.lineTo(virtX,cy-ih); c.stroke();
+      c.strokeStyle='rgba(16,185,129,.6)';
+      c.beginPath(); c.moveTo(cx,cy-oh); c.lineTo(virtX,cy-ih); c.stroke();
+      c.setLineDash([]); c.globalAlpha=1;
+      // نقطة التقاطع الوهمية
+      const r=6+Math.sin(S.t*5)*2;
+      c.fillStyle='#8B5CF6'; c.beginPath(); c.arc(virtX,cy-ih,r,0,Math.PI*2); c.fill();
+      c.font='bold 12px Tajawal'; c.fillStyle='#8B5CF6'; c.textAlign='right'; c.textBaseline='middle';
+      c.fillText('I ',virtX,cy-ih);
+    }
+    // الصورة التقديرية كاملة + بطاقة
+    if(S.step>=4){
+      c.setLineDash([6,4]);
+      c.strokeStyle='#8B5CF6'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(virtX,cy); c.lineTo(virtX,cy-ih); c.stroke(); c.setLineDash([]);
+      c.fillStyle='rgba(139,92,246,.18)';
+      c.beginPath(); c.rect(virtX-8,cy-ih,16,ih); c.fill();
+      c.fillStyle='#8B5CF6';
+      c.beginPath(); c.moveTo(virtX,cy-ih); c.lineTo(virtX-6,cy-ih+12); c.lineTo(virtX+6,cy-ih+12); c.closePath(); c.fill();
+      c.font='bold 12px Tajawal'; c.fillStyle='#8B5CF6'; c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText('الصورة التقديرية',virtX,cy-ih-4);
+      const bx=w*0.54, by=h*0.05, bw=w*0.44, bH=82;
+      c.fillStyle=dm?'rgba(139,92,246,.15)':'rgba(139,92,246,.09)';
+      c.strokeStyle='rgba(139,92,246,.45)'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(bx,by,bw,bH,10); c.fill(); c.stroke();
+      c.font='bold 15px Tajawal'; c.fillStyle='#8B5CF6'; c.textAlign='center'; c.textBaseline='top';
+      c.fillText('✅ خصائص الصورة',bx+bw/2,by+8);
+      c.font='13px Tajawal'; c.fillStyle=dm?'#C4B5FD':'#5B21B6';
+      c.fillText('تقديرية  |  معتدلة  |  مكبَّرة',bx+bw/2,by+30);
+      c.fillText('التكبير = '+mag.toFixed(1)+'×  |  نفس جهة الجسم',bx+bw/2,by+52);
+    }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// الوحدة ١٤ · TAB 1: أنواع العدسات — محدّبة ومقعرة
+// ══════════════════════════════════════════════════════════════════════
 function simG9Lens1(){
   cancelAnimationFrame(animFrame);
-  simState={convex:true};
+  simState={type:'convex',t:0};
+  const S=simState;
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🔬 أنواع العدسات</div>
+      <div class="ctrl-label">🔬 نوع العدسة</div>
       <div class="ctrl-btns-grid">
-        <button class="ctrl-btn action" onclick="simState.convex=true">عدسة محدبة</button>
-        <button class="ctrl-btn" onclick="simState.convex=false">عدسة مقعرة</button>
+        <button class="ctrl-btn action" id="lb-cx" onclick="window._lensType('convex')">محدّبة (مجمِّعة) 🔭</button>
+        <button class="ctrl-btn" id="lb-cc" onclick="window._lensType('concave')">مقعرة (مفرِّقة) 🔻</button>
       </div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>المحدبة تجمع الأشعة، والمقعرة تفرّق الأشعة.</div>
+    <div class="info-box" style="font-size:12px;margin-top:6px;line-height:1.85">
+      <strong>العدسة المحدّبة (Converging lens):</strong><br>
+      تجمع الأشعة المتوازية عند <strong>البؤرة F</strong> على المحور.<br><br>
+      <strong>العدسة المقعرة (Diverging lens):</strong><br>
+      تفرّق الأشعة وكأنها صادرة من بؤرة تقديرية خلف العدسة.
+    </div>
+    <div class="q-box" style="margin-top:8px;font-size:12px">
+      🧠 في أيّ نوع من العدسات تتكوّن صورة حقيقية على شاشة؟
+    </div>
   `);
+  window._lensType=function(t){
+    S.type=t;
+    document.getElementById('lb-cx').classList.toggle('action',t==='convex');
+    document.getElementById('lb-cc').classList.toggle('action',t==='concave');
+  };
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9lens' || currentTab!==0){cancelAnimationFrame(animFrame);return;}
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h); c.fillStyle='#F7FAFC'; c.fillRect(0,0,w,h);
-    const x=w*0.5;
-    c.strokeStyle='#94A3B8'; c.lineWidth=2; c.beginPath(); c.moveTo(0,h*0.5); c.lineTo(w,h*0.5); c.stroke();
-    c.fillStyle='rgba(59,130,246,0.22)';
+    if(currentSim!=='g9lens'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    S.t+=0.022;
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dm=isDarkMode();
+    c.clearRect(0,0,w,h);
+    c.fillStyle=dm?'#0E1620':'#F5F8FF'; c.fillRect(0,0,w,h);
+    c.fillStyle=dm?'rgba(255,255,255,.04)':'rgba(0,0,0,.04)';
+    for(let gx=30;gx<w;gx+=32) for(let gy=30;gy<h;gy+=32){c.beginPath();c.arc(gx,gy,1.2,0,Math.PI*2);c.fill();}
+
+    const cx=w/2, cy=h/2, lH=h*0.52, lW=26, f=w*0.19;
+    // محور
+    c.strokeStyle=dm?'rgba(255,255,255,.2)':'rgba(0,0,0,.12)'; c.lineWidth=1.5; c.setLineDash([6,5]);
+    c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke(); c.setLineDash([]);
+    // عدسة
+    c.fillStyle=dm?'rgba(99,179,237,.18)':'rgba(59,130,246,.12)';
+    c.strokeStyle=dm?'#60A5FA':'#3B82F6'; c.lineWidth=3;
     c.beginPath();
-    if(simState.convex){
-      c.moveTo(x-18,h*0.22); c.quadraticCurveTo(x+20,h*0.5,x-18,h*0.78); c.lineTo(x+18,h*0.78); c.quadraticCurveTo(x-20,h*0.5,x+18,h*0.22); c.closePath();
+    if(S.type==='convex'){
+      c.moveTo(cx-lW,cy-lH/2); c.quadraticCurveTo(cx+lW*1.7,cy,cx-lW,cy+lH/2);
+      c.lineTo(cx+lW,cy+lH/2); c.quadraticCurveTo(cx-lW*1.7,cy,cx+lW,cy-lH/2);
     }else{
-      c.moveTo(x-18,h*0.22); c.quadraticCurveTo(x-2,h*0.5,x-18,h*0.78); c.lineTo(x+18,h*0.78); c.quadraticCurveTo(x+2,h*0.5,x+18,h*0.22); c.closePath();
+      c.moveTo(cx-lW,cy-lH/2); c.quadraticCurveTo(cx-lW*0.35,cy,cx-lW,cy+lH/2);
+      c.lineTo(cx+lW,cy+lH/2); c.quadraticCurveTo(cx+lW*0.35,cy,cx+lW,cy-lH/2);
     }
-    c.fill(); c.strokeStyle='#3B82F6'; c.stroke();
-    c.fillStyle='#1E2D3D'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
-    c.fillText(simState.convex?'عدسة محدبة (مجمِّعة)':'عدسة مقعرة (مفرِّقة)', w/2, h*0.12);
+    c.closePath(); c.fill(); c.stroke();
+    // بؤرة
+    if(S.type==='convex'){
+      c.fillStyle='#EF4444'; c.beginPath(); c.arc(cx+f,cy,6,0,Math.PI*2); c.fill();
+      c.font='bold 14px Tajawal'; c.fillStyle='#B91C1C'; c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText('F',cx+f,cy-10);
+    }
+    // أشعة (5 أشعة متوازية من اليسار)
+    const nR=5;
+    for(let ri=0;ri<nR;ri++){
+      const ry=cy-lH/2+lH/(nR+1)*(ri+1);
+      const hitY=ry-cy;
+      const alpha=0.7+Math.sin(S.t*1.8+ri)*0.18;
+      c.strokeStyle=`rgba(251,191,36,${alpha})`; c.lineWidth=2.5; c.lineCap='round';
+      c.beginPath(); c.moveTo(0,ry); c.lineTo(cx,ry); c.stroke();
+      if(S.type==='convex'){
+        // ينكسر نحو البؤرة
+        const g2=c.createLinearGradient(cx,ry,cx+f,cy);
+        g2.addColorStop(0,`rgba(239,68,68,${alpha})`);
+        g2.addColorStop(1,`rgba(16,185,129,${alpha})`);
+        c.strokeStyle=g2; c.beginPath(); c.moveTo(cx,ry); c.lineTo(cx+f,cy); c.stroke();
+        if(Math.abs(hitY)>3){
+          const extX=w, extY=cy+(cy-ry)*(w-cx-f)/f;
+          c.strokeStyle=`rgba(16,185,129,${alpha*0.45})`; c.setLineDash([5,4]);
+          c.beginPath(); c.moveTo(cx+f,cy); c.lineTo(Math.min(extX,w),Math.max(0,Math.min(h,extY))); c.stroke(); c.setLineDash([]);
+        }
+      }else{
+        // تتباعد
+        const slope=(ry-cy)/(cx-(cx-f));
+        const extX=w, extY=ry+slope*(extX-cx);
+        c.strokeStyle=`rgba(239,68,68,${alpha})`; c.lineWidth=2.5;
+        c.beginPath(); c.moveTo(cx,ry); c.lineTo(Math.min(extX,w),Math.max(0,Math.min(h,extY))); c.stroke();
+        c.strokeStyle=`rgba(239,68,68,${alpha*0.3})`; c.setLineDash([4,4]);
+        c.beginPath(); c.moveTo(cx,ry); c.lineTo(cx-f,cy); c.stroke(); c.setLineDash([]);
+      }
+    }
+    c.fillStyle=dm?'#E8F4FF':'#1A2A3A'; c.font='bold 17px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+    c.fillText(S.type==='convex'?'عدسة محدّبة — تجمع الأشعة عند البؤرة F':'عدسة مقعرة — تفرّق الأشعة',w/2,14);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// الوحدة ١٤ · TAB 2: تكوّن الصورة — حرّك الجسم وشاهد التغيير
+// ══════════════════════════════════════════════════════════════════════
 function simG9Lens2(){
   cancelAnimationFrame(animFrame);
-  simState={d:120,f:70};
-  window._lensD=v=>{simState.d=+v; var e=document.getElementById('lens-d'); if(e) e.textContent=v;};
+  const F=72;
+  simState={d:190,f:F,t:0};
+  const S=simState;
+  window._lensSetD=function(v){S.d=Math.max(5,+v); var e=document.getElementById('ld-d'); if(e) e.textContent=S.d;};
   controls(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🎯 موقع الجسم d: <span id="lens-d">120</span> px</div>
-      <input type="range" min="60" max="220" value="120" oninput="window._lensD(this.value)" style="width:100%">
+      <div class="ctrl-label">📏 بعد الجسم (d): <span id="ld-d">190</span> px  |  f = ${F} px</div>
+      <input type="range" min="10" max="280" value="190" oninput="window._lensSetD(this.value)" style="width:100%">
+      <div class="ctrl-btns-grid" style="margin-top:6px">
+        <button class="ctrl-btn" onclick="window._lensSetD(40)">d &lt; f</button>
+        <button class="ctrl-btn" onclick="window._lensSetD(${F*2})">d = 2f</button>
+        <button class="ctrl-btn action" onclick="window._lensSetD(190)">d &gt; 2f</button>
+        <button class="ctrl-btn" onclick="window._lensSetD(260)">d ≫ 2f</button>
+      </div>
     </div>
-    <div class="q-box"><strong>💡 ماذا نستنتج؟</strong><br>كلما تغيّر بعد الجسم عن العدسة تغيّر مكان الصورة وحجمها وقد تكون حقيقية أو تقديرية.</div>
+    <div id="ld-info" class="info-box" style="font-size:13px;line-height:1.8;margin-top:6px">حرّك الشريط لترى تأثير بعد الجسم على الصورة</div>
+    <div class="q-box" style="margin-top:8px;font-size:12px">
+      📌 قانون العدسة: <strong>1/f = 1/d_o + 1/d_i</strong><br>
+      f = ${F} px (ثابت)
+    </div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function imgType(d,f){
+    if(d<=f) return {label:'تقديرية',desc:'معتدلة · مكبَّرة · أبعد من الجسم',col:'#8B5CF6',real:false};
+    if(Math.abs(d-2*f)<5) return {label:'حقيقية',desc:'مقلوبة · بنفس الحجم · عند 2f',col:'#0891B2',real:true};
+    if(d<2*f) return {label:'حقيقية',desc:'مقلوبة · مكبَّرة · أبعد من 2f',col:'#059669',real:true};
+    return {label:'حقيقية',desc:'مقلوبة · مصغَّرة · بين f و 2f',col:'#D97706',real:true};
+  }
+  function draw(){
+    if(currentSim!=='g9lens'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    S.t+=0.015;
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dm=isDarkMode();
+    c.clearRect(0,0,w,h);
+    c.fillStyle=dm?'#0E1620':'#F5F8FF'; c.fillRect(0,0,w,h);
+    const sc=Math.min(w,h)/520;
+    const cx=w*0.52, cy=h*0.58, f=S.f*sc, dox=S.d*sc;
+    const di=(f*dox)/(dox-f);
+    const info=imgType(S.d,S.f);
+    // محور
+    c.strokeStyle=dm?'rgba(255,255,255,.2)':'rgba(0,0,0,.12)'; c.lineWidth=1.5; c.setLineDash([6,5]);
+    c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke(); c.setLineDash([]);
+    // عدسة
+    const lH=h*0.48, lW=13*sc;
+    c.fillStyle=dm?'rgba(99,179,237,.18)':'rgba(59,130,246,.11)';
+    c.strokeStyle='#3B82F6'; c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cx-lW,cy-lH/2); c.quadraticCurveTo(cx+lW*1.9,cy,cx-lW,cy+lH/2);
+    c.lineTo(cx+lW,cy+lH/2); c.quadraticCurveTo(cx-lW*1.9,cy,cx+lW,cy-lH/2);
+    c.closePath(); c.fill(); c.stroke();
+    // بؤرتان + 2f
+    [-f,f].forEach((fx,i)=>{
+      c.fillStyle='#EF4444'; c.beginPath(); c.arc(cx+fx,cy,5,0,Math.PI*2); c.fill();
+      c.font='bold 12px Tajawal'; c.fillStyle='#B91C1C'; c.textAlign='center'; c.textBaseline='bottom';
+      c.fillText('F',cx+fx,cy-7);
+    });
+    c.fillStyle=dm?'rgba(255,255,255,.3)':'rgba(0,0,0,.2)'; c.font='11px Tajawal'; c.textBaseline='top';
+    c.fillText('2f',cx-2*f,cy+13); c.fillText('2f',cx+2*f,cy+13);
+    // جسم
+    const oh=55*sc, ox=cx-dox;
+    c.strokeStyle='#F59E0B'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-oh); c.stroke();
+    c.fillStyle='#F59E0B';
+    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ox-6,cy-oh+11); c.lineTo(ox+6,cy-oh+11); c.closePath(); c.fill();
+    c.font='bold 12px Tajawal'; c.fillStyle='#B45309'; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('الجسم',ox,cy-oh-3);
+    // صورة
+    if(isFinite(di)&&Math.abs(di)<w*0.8){
+      const ix=cx+di;
+      const ih=info.real?oh*(di/dox)*(-1):(oh*1.35);
+      const imgY=info.real?cy+ih:cy-ih;
+      if(info.real){
+        c.strokeStyle=info.col; c.lineWidth=3;
+        c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,imgY); c.stroke();
+        c.fillStyle=info.col;
+        c.beginPath(); c.moveTo(ix,imgY); c.lineTo(ix-6,imgY+12); c.lineTo(ix+6,imgY+12); c.closePath(); c.fill();
+      }else{
+        c.setLineDash([5,4]); c.strokeStyle=info.col; c.lineWidth=2.5;
+        c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,imgY); c.stroke(); c.setLineDash([]);
+        c.fillStyle=info.col+'90';
+        c.beginPath(); c.rect(ix-7,cy-ih,14,ih); c.fill();
+        c.fillStyle=info.col;
+        c.beginPath(); c.moveTo(ix,imgY); c.lineTo(ix-6,imgY-11); c.lineTo(ix+6,imgY-11); c.closePath(); c.fill();
+      }
+      c.font='bold 12px Tajawal'; c.fillStyle=info.col; c.textAlign='center'; c.textBaseline='top';
+      c.fillText('الصورة',ix,cy+8);
+    }
+    // شريط الحالة
+    const sbH=58,sbY=h-sbH-8;
+    c.fillStyle=dm?'rgba(14,22,34,.94)':'rgba(255,255,255,.95)';
+    c.beginPath(); c.roundRect(10,sbY,w-20,sbH,11); c.fill();
+    c.strokeStyle=info.real?'rgba(39,174,96,.3)':'rgba(139,92,246,.3)'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(10,sbY,w-20,sbH,11); c.stroke();
+    c.font='bold 16px Tajawal'; c.fillStyle=info.col; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('صورة '+info.label+' — '+info.desc,w/2,sbY+sbH/2-9);
+    c.font='12px Tajawal'; c.fillStyle=dm?'#8AA8C0':'#666';
+    c.fillText('d_o = '+S.d+' px  |  f = '+S.f+' px  |  d_i = '+(isFinite(di)?Math.round(di)+'px':'∞'),w/2,sbY+sbH/2+11);
+    const el=document.getElementById('ld-info');
+    if(el) el.innerHTML='<strong style="color:'+info.col+'">صورة '+info.label+'</strong> — '+info.desc;
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// الوحدة ١٤ · TAB 3: نشاط ١-١٤ — مخطط الأشعة خطوة بخطوة (d > 2f)
+// ══════════════════════════════════════════════════════════════════════
+function simG9Lens3(){
+  cancelAnimationFrame(animFrame);
+  simState={step:0,d:2.5,f:1,t:0};
+  const S=simState;
+  const steps=[
+    'الخطوة ١: حدّد موقع البؤرة F وارسم الجسم O (d > 2f)',
+    'الخطوة ٢: الشعاع ①  — مواز للمحور → ينكسر عبر F الأمامية',
+    'الخطوة ٣: الشعاع ②  — يمرّ بمركز العدسة O بلا انحراف',
+    'الخطوة ٤: نقطة التقاطع = رأس الصورة (I) — ارسم الصورة للأسفل',
+    'الخطوة ٥: الصورة حقيقية · مقلوبة · مصغَّرة (تقع بين f و 2f)'
+  ];
+  window._ls3Step=function(n){
+    S.step=Math.max(0,Math.min(4,n));
+    const el=document.getElementById('ls3-info'); if(el) el.textContent=steps[S.step];
+    const sn=document.getElementById('ls3-sn'); if(sn) sn.textContent=(S.step+1)+'/5';
+  };
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">📐 نشاط ١-١٤ · ارسم مخطط الأشعة (d > 2f)</div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">اتبع الخطوات الخمس لتحديد موقع الصورة الحقيقية وفق الكتاب.</div>
+    </div>
+    <div id="ls3-info" style="background:rgba(59,130,246,.1);border:1.5px solid rgba(59,130,246,.3);border-radius:10px;padding:10px;font-size:13px;font-family:Tajawal;line-height:1.6;min-height:52px">${steps[0]}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+      <button onclick="window._ls3Step(S.step-1)" style="padding:7px 12px;border-radius:8px;border:2px solid var(--border-color);background:var(--surface);font-family:Tajawal;cursor:pointer">← السابق</button>
+      <span id="ls3-sn" style="flex:1;text-align:center;font-family:Tajawal;color:var(--text-secondary);font-size:13px">1/5</span>
+      <button onclick="window._ls3Step(simState.step+1)" style="padding:7px 16px;border-radius:8px;border:none;background:#3B82F6;color:white;font-family:Tajawal;font-size:14px;cursor:pointer;font-weight:700">التالي →</button>
+    </div>
   `);
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(currentSim!=='g9lens' || currentTab!==1){cancelAnimationFrame(animFrame);return;}
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.clearRect(0,0,w,h); c.fillStyle='#F8FAFC'; c.fillRect(0,0,w,h);
-    const cx=w*0.5, cy=h*0.6, f=simState.f, dox=simState.d;
-    c.strokeStyle='#94A3B8'; c.lineWidth=2; c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke();
-    c.strokeStyle='#3B82F6'; c.lineWidth=4; c.beginPath(); c.moveTo(cx,h*0.2); c.lineTo(cx,h*0.86); c.stroke();
-    // focal points
-    c.fillStyle='#1E2D3D'; c.font=`${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillText('F',cx-f,cy+18); c.fillText('F',cx+f,cy+18);
-    // object arrow
-    const ox=cx-dox, oh=80;
-    c.strokeStyle='#F59E0B'; c.lineWidth=4; c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-oh); c.stroke();
-    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ox-7,cy-oh+14); c.lineTo(ox+7,cy-oh+14); c.closePath(); c.fillStyle='#F59E0B'; c.fill();
-    // thin lens formula (scaled px)
-    const fpx=f, dopx=Math.max(40,dox), dipx=(fpx*dopx)/(dopx-fpx);
-    const real = dipx>0 && isFinite(dipx) && dipx<500;
-    if(real){
-      const ix=cx+dipx, ih=oh*(dipx/dopx);
-      c.strokeStyle='#06B6D4'; c.lineWidth=4; c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,cy+ih); c.stroke();
-      c.fillStyle='#06B6D4'; c.beginPath(); c.moveTo(ix,cy+ih); c.lineTo(ix-7,cy+ih-14); c.lineTo(ix+7,cy+ih-14); c.closePath(); c.fill();
-      c.fillStyle='#1E2D3D'; c.fillText('صورة حقيقية مقلوبة',w*0.78,h*0.18);
-    }else{
-      c.fillStyle='#1E2D3D'; c.fillText('صورة تقديرية (عند d ≤ f)',w*0.72,h*0.18);
+    if(currentSim!=='g9lens'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    S.t+=0.016;
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dm=isDarkMode();
+    c.clearRect(0,0,w,h);
+    c.fillStyle=dm?'#070D18':'#EEF3FF'; c.fillRect(0,0,w,h);
+    c.strokeStyle=dm?'rgba(255,255,255,.04)':'rgba(0,0,180,.04)'; c.lineWidth=1;
+    for(let gx=0;gx<w;gx+=28){c.beginPath();c.moveTo(gx,0);c.lineTo(gx,h);c.stroke();}
+    for(let gy=0;gy<h;gy+=28){c.beginPath();c.moveTo(0,gy);c.lineTo(w,gy);c.stroke();}
+
+    const cx=w*0.48, cy=h*0.55, f=w*0.135;
+    const dox=f*S.d, oh=h*0.22;
+    const di=(f*dox)/(dox-f), ih=oh*(di/dox);
+    const ox=cx-dox, ix=cx+di, iy=cy+ih;
+
+    // محور
+    c.strokeStyle=dm?'rgba(200,220,255,.35)':'rgba(30,58,138,.25)'; c.lineWidth=1.5; c.setLineDash([8,6]);
+    c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke(); c.setLineDash([]);
+    // F و 2F
+    [cx-f,cx+f,cx-2*f,cx+2*f].forEach((px,i)=>{
+      c.strokeStyle=i<2?'rgba(239,68,68,.3)':'rgba(100,130,200,.2)'; c.lineWidth=1; c.setLineDash([4,4]);
+      c.beginPath(); c.moveTo(px,cy-h*0.44); c.lineTo(px,cy+h*0.3); c.stroke(); c.setLineDash([]);
+      c.fillStyle=i<2?'#EF4444':(dm?'rgba(200,200,255,.55)':'rgba(80,100,180,.6)');
+      c.font='bold 12px Tajawal'; c.textAlign='center'; c.textBaseline='top';
+      c.fillText(i<2?'F':'2f',px,cy+6);
+      if(i<2){c.fillStyle='#EF4444';c.beginPath();c.arc(px,cy,5,0,Math.PI*2);c.fill();}
+    });
+    // عدسة
+    const lH=h*0.5, lW=12;
+    c.fillStyle=dm?'rgba(99,179,237,.14)':'rgba(59,130,246,.09)';
+    c.strokeStyle='#3B82F6'; c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cx-lW,cy-lH/2); c.quadraticCurveTo(cx+lW*1.8,cy,cx-lW,cy+lH/2);
+    c.lineTo(cx+lW,cy+lH/2); c.quadraticCurveTo(cx-lW*1.8,cy,cx+lW,cy-lH/2);
+    c.closePath(); c.fill(); c.stroke();
+    [[1,cy-lH/2],[-1,cy+lH/2]].forEach(([d2,y])=>{
+      c.fillStyle='#3B82F6';
+      c.beginPath(); c.moveTo(cx,y); c.lineTo(cx-9*d2,y+16*d2); c.lineTo(cx+9*d2,y+16*d2); c.closePath(); c.fill();
+    });
+    // جسم (دائماً ظاهر من الخطوة 0)
+    c.strokeStyle='#F59E0B'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-oh); c.stroke();
+    c.fillStyle='#F59E0B';
+    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ox-6,cy-oh+12); c.lineTo(ox+6,cy-oh+12); c.closePath(); c.fill();
+    c.font='bold 13px Tajawal'; c.fillStyle=dm?'#FCD34D':'#92400E'; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('O',ox,cy-oh-4);
+    // شعاع 1
+    if(S.step>=1){
+      const a=S.step===1?(0.5+Math.sin(S.t*4)*0.5):1; c.globalAlpha=a;
+      c.strokeStyle='#EF4444'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(cx,cy-oh); c.stroke();
+      c.beginPath(); c.moveTo(cx,cy-oh); c.lineTo(ix,iy); c.stroke();
+      const ang=Math.atan2(iy-(cy-oh),ix-cx);
+      c.fillStyle='#EF4444';
+      c.beginPath(); c.moveTo(ix,iy); c.lineTo(ix-10*Math.cos(ang-0.3),iy-10*Math.sin(ang-0.3)); c.lineTo(ix-10*Math.cos(ang+0.3),iy-10*Math.sin(ang+0.3)); c.closePath(); c.fill();
+      c.globalAlpha=1;
+      c.font='11px Tajawal'; c.fillStyle='#EF4444'; c.textAlign='right'; c.textBaseline='bottom';
+      c.fillText('①',cx-4,cy-oh-4);
+    }
+    // شعاع 2
+    if(S.step>=2){
+      const a=S.step===2?(0.5+Math.sin(S.t*4)*0.5):1; c.globalAlpha=a;
+      c.strokeStyle='#10B981'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ix,iy); c.stroke();
+      const ang2=Math.atan2(iy-(cy-oh),ix-ox);
+      c.fillStyle='#10B981';
+      c.beginPath(); c.moveTo(ix,iy); c.lineTo(ix-10*Math.cos(ang2-0.3),iy-10*Math.sin(ang2-0.3)); c.lineTo(ix-10*Math.cos(ang2+0.3),iy-10*Math.sin(ang2+0.3)); c.closePath(); c.fill();
+      c.globalAlpha=1;
+      c.font='11px Tajawal'; c.fillStyle='#10B981'; c.textAlign='left'; c.textBaseline='middle';
+      c.fillText('②',cx+8,cy-oh*0.28);
+    }
+    // نقطة تقاطع I
+    if(S.step>=3){
+      const r=6+Math.sin(S.t*5)*2;
+      c.fillStyle='#7C3AED'; c.beginPath(); c.arc(ix,iy,r,0,Math.PI*2); c.fill();
+      c.strokeStyle='white'; c.lineWidth=2; c.stroke();
+      c.font='bold 12px Tajawal'; c.fillStyle='#7C3AED'; c.textAlign='left'; c.textBaseline='middle';
+      c.fillText(' I',ix,iy);
+    }
+    // الصورة كاملة + بطاقة
+    if(S.step>=4){
+      c.strokeStyle='#7C3AED'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(ix,cy); c.lineTo(ix,iy); c.stroke();
+      c.fillStyle='#7C3AED';
+      c.beginPath(); c.moveTo(ix,iy); c.lineTo(ix-6,iy-12); c.lineTo(ix+6,iy-12); c.closePath(); c.fill();
+      const bx=w*0.03, by=h*0.05, bw=w*0.4, bH=82;
+      c.fillStyle=dm?'rgba(124,58,237,.15)':'rgba(124,58,237,.09)';
+      c.strokeStyle='rgba(124,58,237,.45)'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(bx,by,bw,bH,10); c.fill(); c.stroke();
+      c.font='bold 15px Tajawal'; c.fillStyle='#7C3AED'; c.textAlign='center'; c.textBaseline='top';
+      c.fillText('✅ خصائص الصورة',bx+bw/2,by+8);
+      c.font='13px Tajawal'; c.fillStyle=dm?'#C4B5FD':'#5B21B6';
+      c.fillText('حقيقية  |  مقلوبة  |  مصغَّرة',bx+bw/2,by+30);
+      c.fillText('تقع بين F و 2F',bx+bw/2,by+52);
     }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// الوحدة ١٤ · TAB 4: العدسة المكبِّرة — الجسم داخل البؤرة (d < f)
+// ══════════════════════════════════════════════════════════════════════
+function simG9Lens4(){
+  cancelAnimationFrame(animFrame);
+  const fPx=65;
+  simState={d:38,f:fPx,t:0};
+  const S=simState;
+  window._magSetD=function(v){S.d=Math.min(+v,S.f-3); var e=document.getElementById('mg-d'); if(e) e.textContent=S.d;};
+  controls(`
+    <div class="ctrl-section">
+      <div class="ctrl-label">🔍 العدسة المكبِّرة — الجسم داخل البؤرة</div>
+      <div style="background:rgba(139,92,246,.1);border:1.5px solid rgba(139,92,246,.3);border-radius:10px;padding:10px;font-size:12px;color:var(--text-secondary);line-height:1.75">
+        الجسم <strong>بين العدسة والبؤرة</strong> → صورة <strong>تقديرية مكبَّرة معتدلة</strong> على الجانب ذاته من الجسم.<br>
+        هذا هو مبدأ <strong>العدسة المكبِّرة والمجهر البسيط</strong>.
+      </div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-label">📏 بعد الجسم: <span id="mg-d">38</span> px  (f = ${fPx}px)</div>
+      <input type="range" min="5" max="${fPx-3}" value="38" oninput="window._magSetD(this.value)" style="width:100%">
+    </div>
+    <div id="mg-info" class="info-box" style="font-size:12px;line-height:1.8;margin-top:6px">التكبير يزداد كلما اقترب الجسم من البؤرة</div>
+  `);
+  const cv=document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9lens'||currentTab!==3){cancelAnimationFrame(animFrame);return;}
+    S.t+=0.015;
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dm=isDarkMode();
+    c.clearRect(0,0,w,h);
+    c.fillStyle=dm?'#0E1620':'#F5F8FF'; c.fillRect(0,0,w,h);
+    const sc=Math.min(w,h)/460;
+    const cx=w*0.5, cy=h*0.56, f=S.f*sc, dox=S.d*sc;
+    const di=(f*dox)/(dox-f); // سالب
+    const mag=Math.abs(di/dox);
+    const oh=48*sc, ih=oh*mag;
+    const ox=cx-dox, virtX=cx+di;
+
+    // محور
+    c.strokeStyle=dm?'rgba(255,255,255,.2)':'rgba(0,0,0,.12)'; c.lineWidth=1.5; c.setLineDash([6,5]);
+    c.beginPath(); c.moveTo(0,cy); c.lineTo(w,cy); c.stroke(); c.setLineDash([]);
+    // بؤرة
+    c.fillStyle='#EF4444'; c.beginPath(); c.arc(cx+f,cy,5,0,Math.PI*2); c.fill();
+    c.font='bold 13px Tajawal'; c.fillStyle='#B91C1C'; c.textAlign='center'; c.textBaseline='bottom'; c.fillText('F',cx+f,cy-8);
+    c.strokeStyle='rgba(239,68,68,.25)'; c.lineWidth=1; c.setLineDash([4,4]);
+    c.beginPath(); c.moveTo(cx+f,cy-h*0.44); c.lineTo(cx+f,cy+h*0.28); c.stroke(); c.setLineDash([]);
+    // عدسة
+    const lH=h*0.5, lW=13*sc;
+    c.fillStyle=dm?'rgba(139,92,246,.15)':'rgba(139,92,246,.09)';
+    c.strokeStyle='#8B5CF6'; c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cx-lW,cy-lH/2); c.quadraticCurveTo(cx+lW*1.9,cy,cx-lW,cy+lH/2);
+    c.lineTo(cx+lW,cy+lH/2); c.quadraticCurveTo(cx-lW*1.9,cy,cx+lW,cy-lH/2);
+    c.closePath(); c.fill(); c.stroke();
+    // جسم
+    c.strokeStyle='#F59E0B'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(ox,cy); c.lineTo(ox,cy-oh); c.stroke();
+    c.fillStyle='#F59E0B';
+    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(ox-5,cy-oh+10); c.lineTo(ox+5,cy-oh+10); c.closePath(); c.fill();
+    c.font='bold 12px Tajawal'; c.fillStyle='#B45309'; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('الجسم',ox,cy-oh-3);
+    // شعاع 1 مواز
+    c.strokeStyle='rgba(239,68,68,.75)'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(cx,cy-oh); c.stroke();
+    c.beginPath(); c.moveTo(cx,cy-oh); c.lineTo(cx+f*2.4,cy+oh*2.2); c.stroke();
+    // شعاع 2 مركز
+    const slope2=(cy-oh-cy)/(ox-cx);
+    c.strokeStyle='rgba(16,185,129,.75)'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(ox,cy-oh); c.lineTo(cx+f*2.4,cy-oh*(1+(f*2.4)/(Math.abs(ox-cx)))); c.stroke();
+    // امتداد وهمي للخلف
+    c.setLineDash([6,5]);
+    c.strokeStyle='rgba(239,68,68,.45)'; c.lineWidth=1.8;
+    c.beginPath(); c.moveTo(cx,cy-oh); c.lineTo(virtX,cy-ih); c.stroke();
+    c.strokeStyle='rgba(16,185,129,.45)';
+    c.beginPath(); c.moveTo(cx,cy-oh); c.lineTo(virtX,cy-ih); c.stroke();
+    c.setLineDash([]);
+    // الصورة التقديرية
+    c.setLineDash([6,4]);
+    c.strokeStyle='#8B5CF6'; c.lineWidth=2.5;
+    c.beginPath(); c.moveTo(virtX,cy); c.lineTo(virtX,cy-ih); c.stroke(); c.setLineDash([]);
+    c.fillStyle='rgba(139,92,246,.18)';
+    c.beginPath(); c.rect(virtX-8,cy-ih,16,ih); c.fill();
+    c.fillStyle='#8B5CF6';
+    c.beginPath(); c.moveTo(virtX,cy-ih); c.lineTo(virtX-6,cy-ih+11); c.lineTo(virtX+6,cy-ih+11); c.closePath(); c.fill();
+    c.font='bold 12px Tajawal'; c.fillStyle='#8B5CF6'; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('الصورة التقديرية',virtX,cy-ih-4);
+    // شريط الحالة
+    const sbH=58,sbY=h-sbH-8;
+    c.fillStyle=dm?'rgba(14,22,34,.94)':'rgba(255,255,255,.95)';
+    c.beginPath(); c.roundRect(10,sbY,w-20,sbH,11); c.fill();
+    c.strokeStyle='rgba(139,92,246,.4)'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(10,sbY,w-20,sbH,11); c.stroke();
+    c.font='bold 16px Tajawal'; c.fillStyle='#7C3AED'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('صورة تقديرية · معتدلة · مكبَّرة  |  التكبير = '+mag.toFixed(1)+'×',w/2,sbY+sbH/2-9);
+    c.font='12px Tajawal'; c.fillStyle=dm?'#8AA8C0':'#666';
+    c.fillText('d_o = '+S.d+' px  |  f = '+S.f+' px  |  d_i = '+Math.abs(di).toFixed(0)+' px (تقديرية)',w/2,sbY+sbH/2+11);
+    const el=document.getElementById('mg-info');
+    if(el) el.innerHTML='<strong style="color:#7C3AED">التكبير = '+mag.toFixed(2)+'×</strong>  |  كلما قرب الجسم من F زاد التكبير';
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
 
 // ══════════════════════════════════════════════════════════
 // الصف التاسع — فيزياء الوحدة 14: الدوائر وقانون أوم
