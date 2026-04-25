@@ -39946,65 +39946,60 @@ function simG5DayNight2() {
 }
 function simG5SunSeeming() {
   cancelAnimationFrame(animFrame);
-
   const cv = document.getElementById('simCanvas');
   if (cv._g5ss_cleanup) cv._g5ss_cleanup();
   cv._g5ss_cleanup = null;
 
-  if (!simState.g5ss_new) {
-    simState.g5ss_new = { timeH: 6, dragging: false, dragX0: 0, timeH0: 6 };
-  }
+  if (!simState.g5ss_new) simState.g5ss_new = {};
   const S = simState.g5ss_new;
-  S.timeH = 6; // reset on open
+  S.timeH   = 6;
+  S.dragging = false;
+  S.dragX0  = 0;
+  S.timeH0  = 6;
+  S._moved  = false;
 
-  // ── دالة تنسيق الوقت ──
   window._g5ss_fmtTime = function(h) {
-    const hh = Math.floor(h);
-    const mm = Math.floor((h - hh) * 60);
+    const hh = Math.floor(h), mm = Math.floor((h - hh) * 60);
     const ampm = hh < 12 ? 'ص' : 'م';
-    const h12 = hh === 0 ? 12 : hh > 12 ? hh - 12 : hh;
+    const h12  = hh === 0 ? 12 : hh > 12 ? hh - 12 : hh;
     return `${String(h12).padStart(2,'0')}:${String(mm).padStart(2,'0')} ${ampm}`;
   };
 
-  // ── أحداث السحب على الكانفس ──
+  // ── أحداث السحب ──
   const onMD = e => {
-    S.dragging = true;
-    S.dragX0 = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+    S.dragging = true; S._moved = true;
+    S.dragX0 = (e.touches ? e.touches[0].clientX : e.clientX);
     S.timeH0 = S.timeH;
     cv.style.cursor = 'grabbing';
   };
   const onMM = e => {
     if (!S.dragging) return;
-    const x = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
-    const dx = x - S.dragX0;
-    // سحب يمين = تقديم الوقت، سحب يسار = تأخير الوقت
-    S.timeH = Math.min(18, Math.max(6, S.timeH0 - dx * 0.040));
-    // تحديث الشريط
+    const x = (e.touches ? e.touches[0].clientX : e.clientX);
+    S.timeH = Math.min(18, Math.max(6, S.timeH0 - (x - S.dragX0) * 0.038));
     const sl = document.getElementById('g5ss_slider');
-    if (sl) { sl.value = S.timeH; }
-    const lbl = document.getElementById('g5ss_time_lbl');
-    if (lbl) lbl.textContent = window._g5ss_fmtTime(S.timeH);
+    if (sl) sl.value = S.timeH;
+    const lb = document.getElementById('g5ss_time_lbl');
+    if (lb) lb.textContent = window._g5ss_fmtTime(S.timeH);
   };
   const onMU = () => { S.dragging = false; cv.style.cursor = 'grab'; };
-  const onTS = e => { e.preventDefault(); onMD(e.touches[0]); };
-  const onTM = e => { e.preventDefault(); onMM(e.touches[0]); };
-  const onTE = () => onMU();
+  const onTS = e => { e.preventDefault(); onMD(e); };
+  const onTM = e => { e.preventDefault(); onMM(e); };
 
   cv.style.cursor = 'grab';
-  cv.addEventListener('mousedown',  onMD);
-  cv.addEventListener('mousemove',  onMM);
+  cv.addEventListener('mousedown', onMD);
+  cv.addEventListener('mousemove', onMM);
   document.addEventListener('mouseup', onMU);
   cv.addEventListener('touchstart', onTS, { passive: false });
   cv.addEventListener('touchmove',  onTM, { passive: false });
-  cv.addEventListener('touchend',   onTE);
+  cv.addEventListener('touchend',   onMU);
 
   cv._g5ss_cleanup = () => {
-    cv.removeEventListener('mousedown',  onMD);
-    cv.removeEventListener('mousemove',  onMM);
+    cv.removeEventListener('mousedown', onMD);
+    cv.removeEventListener('mousemove', onMM);
     document.removeEventListener('mouseup', onMU);
     cv.removeEventListener('touchstart', onTS);
     cv.removeEventListener('touchmove',  onTM);
-    cv.removeEventListener('touchend',   onTE);
+    cv.removeEventListener('touchend',   onMU);
     cv.style.cursor = '';
   };
 
@@ -40014,282 +40009,46 @@ function simG5SunSeeming() {
       <div class="ctrl-label">🕐 الوقت من اليوم</div>
       <div style="font-size:12px;color:var(--text-secondary);line-height:1.8;margin:4px 0 10px">
         اسحب الشريط <strong>أو اسحب الكانفس</strong><br>
-        يميناً ← ويساراً لتدير الأرض ☀️
+        يميناً ← ويساراً لتدوير الأرض ☀️
       </div>
       <input type="range" min="6" max="18" step="0.05" value="6" id="g5ss_slider"
         style="width:100%;margin-bottom:8px"
-        oninput="simState.g5ss_new.timeH = +this.value; document.getElementById('g5ss_time_lbl').textContent = window._g5ss_fmtTime(+this.value);">
+        oninput="simState.g5ss_new.timeH=+this.value;simState.g5ss_new._moved=true;document.getElementById('g5ss_time_lbl').textContent=window._g5ss_fmtTime(+this.value);">
       <div id="g5ss_time_lbl" style="text-align:center;font-weight:800;font-size:16px;color:var(--teal);margin-bottom:6px">٦:٠٠ ص</div>
     </div>
-
     <div class="info-box" style="font-size:12px;line-height:2.1;margin-top:6px">
       ☀️ <strong>الشمس ثابتة</strong> تماماً في مكانها<br>
       🌍 <strong>الأرض تدور</strong> وتأخذك معها<br>
       👁️ <strong>زاوية نظرك</strong> هي التي تتغير
     </div>
-
     <div class="q-box" style="margin-top:8px">
       <strong>❓ لماذا نرى الشمس ترتفع وتنزل؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡</button>
-      <div class="q-ans-panel">
-        الشمس ثابتة ولا تتحرك أبداً! الأرض هي التي تدور. عندما تدور بك نحو الشمس تراها «تشرق»، وعندما تبتعد تراها «تغرب». إنه وهم بصري بسبب دورانك أنت!
-      </div>
+      <div class="q-ans-panel">الشمس ثابتة ولا تتحرك أبداً! الأرض هي التي تدور. عندما تدور بك نحو الشمس تراها «تشرق»، وعندما تبتعد تراها «تغرب». إنه وهم بصري!</div>
     </div>
   `);
 
-  // ── رسائل توضيحية ──
   function getMsg(h) {
-    if (h <= 6.4)  return { text: 'الشمس ثابتة! الأرض تديرك نحوها الآن', sub: '🌅 وقت الشروق — أنت تتجه نحو الشمس' };
-    if (h <= 8.5)  return { text: 'لاحظ كيف مال جسمك مع دوران الأرض', sub: '🌤️ الصباح الباكر — زاوية رؤيتك تتغير' };
-    if (h <= 11.5) return { text: 'الأرض تواصل دورانها وأنت معها!', sub: '☀️ الضحى — ترتفع زاوية نظرك للشمس' };
-    if (h <= 12.5) return { text: 'الأرض جعلتك تواجه الشمس مباشرةً', sub: '🌞 وقت الظهيرة — أنت مواجه للشمس تماماً' };
-    if (h <= 15)   return { text: 'الأرض بدأت تبعدك عن مواجهة الشمس', sub: '🌤️ بعد الظهر — زاوية نظرك تنخفض' };
-    if (h <= 17.5) return { text: 'الأرض تديرك بعيداً عن الشمس تدريجياً', sub: '🌇 العصر — تقترب من الغروب' };
-    return { text: 'الشمس ثابتة! الأرض أدارتك بعيداً عنها', sub: '🌆 وقت الغروب — أنت تبتعد عن الشمس' };
+    if (h <= 6.4)  return { t: 'الشمس ثابتة! الأرض تديرك نحوها الآن',        s: '🌅 وقت الشروق — أنت تتجه نحو الشمس' };
+    if (h <= 9.0)  return { t: 'لاحظ كيف تدور معك مع الأرض!',                s: '🌤️ الصباح الباكر — زاوية رؤيتك ترتفع' };
+    if (h <= 11.5) return { t: 'الأرض تواصل دورانها وأنت معها!',              s: '☀️ الضحى — زاوية نظرك للشمس ترتفع' };
+    if (h <= 12.5) return { t: 'الأرض جعلتك تواجه الشمس مباشرةً',            s: '🌞 وقت الظهيرة — أنت مواجه للشمس تماماً' };
+    if (h <= 15)   return { t: 'الأرض بدأت تبعدك عن مواجهة الشمس',           s: '🌤️ بعد الظهر — زاوية نظرك تنخفض' };
+    if (h <= 17.5) return { t: 'الأرض تديرك بعيداً عن الشمس تدريجياً',       s: '🌇 العصر — تقترب من الغروب' };
+    return         { t: 'الشمس ثابتة! الأرض أدارتك بعيداً عنها',             s: '🌆 وقت الغروب — أنت تبتعد عن الشمس' };
   }
 
-  // نجوم عشوائية
   if (!window._g5ss2_stars) {
-    window._g5ss2_stars = Array.from({ length: 70 }, () => ({
-      x: Math.random(), y: Math.random() * 0.70,
-      r: 0.4 + Math.random() * 1.3,
-      ph: Math.random() * Math.PI * 2,
+    window._g5ss2_stars = Array.from({ length: 65 }, () => ({
+      x: Math.random(), y: Math.random(),
+      r: 0.4 + Math.random() * 1.2, ph: Math.random() * Math.PI * 2,
     }));
   }
 
-  function drawEarth(c, cx, cy, R, earthRot) {
-    c.save();
-    c.translate(cx, cy);
-    c.rotate(earthRot);
-
-    // ── clip نصف الكرة (نصف دائرة علوي) ──
-    c.save();
-    c.beginPath();
-    c.arc(0, 0, R, -Math.PI, 0); // نصف دائرة علوي
-    c.closePath();
-    c.clip();
-
-    // ── المحيط ──
-    const ocean = c.createRadialGradient(-R * 0.15, -R * 0.25, R * 0.08, 0, 0, R);
-    ocean.addColorStop(0,   '#2196F3');
-    ocean.addColorStop(0.45,'#1565C0');
-    ocean.addColorStop(0.85,'#0D47A1');
-    ocean.addColorStop(1,   '#0A3880');
-    c.beginPath(); c.arc(0, 0, R, 0, Math.PI * 2);
-    c.fillStyle = ocean; c.fill();
-
-    // ── القارات (موضوعة بدقة على الكرة) ──
-    // كل قارة: [زاوية_المركز°, العرض°, إزاحة_y_نسبية, rx_نسبي, ry_نسبي, لون]
-    const CONTINENTS = [
-      // أمريكا الشمالية
-      { lon: -130, lat: 25,  rx: 0.22, ry: 0.17, col: '#5B8A3A', col2: '#4A7A2A' },
-      // أمريكا الجنوبية
-      { lon: -105, lat: -10, rx: 0.12, ry: 0.18, col: '#3A7A2A', col2: '#2D6020' },
-      // أوروبا وأفريقيا
-      { lon: -20,  lat: 15,  rx: 0.11, ry: 0.10, col: '#8B7355', col2: '#7A6240' },
-      { lon: -10,  lat: -8,  rx: 0.13, ry: 0.19, col: '#C8A43A', col2: '#B08A28' },
-      // آسيا
-      { lon:  45,  lat: 20,  rx: 0.28, ry: 0.17, col: '#7B9E3A', col2: '#6A8A2A' },
-      // أستراليا
-      { lon:  90,  lat: -15, rx: 0.12, ry: 0.10, col: '#C09040', col2: '#A87828' },
-      // أنتاركتيكا (قطبية)
-      { lon:   0,  lat: -42, rx: 0.20, ry: 0.06, col: '#E8EFF5', col2: '#D0DDE8' },
-    ];
-
-    CONTINENTS.forEach(ct => {
-      const lonRad = ct.lon * Math.PI / 180;
-      const latRad = ct.lat * Math.PI / 180;
-
-      // إحداثيات المركز على الكرة
-      const px = Math.sin(lonRad) * Math.cos(latRad) * R;
-      const py = -Math.sin(latRad) * R;
-
-      // تضيق القارة حسب الزاوية (perspective)
-      const cosLon = Math.cos(lonRad);
-      if (cosLon < 0.05) return; // الجانب الخلفي
-
-      const scaleX = Math.abs(cosLon);
-      const rxPx = ct.rx * R * scaleX;
-      const ryPx = ct.ry * R * 0.55;
-
-      if (rxPx < 2) return;
-
-      const cg = c.createRadialGradient(
-        px - rxPx * 0.3, py - ryPx * 0.3, 0,
-        px, py, Math.max(rxPx, ryPx)
-      );
-      cg.addColorStop(0,   _lighter(ct.col, 35));
-      cg.addColorStop(0.55, ct.col);
-      cg.addColorStop(1,   ct.col2);
-
-      c.beginPath();
-      c.ellipse(px, py, rxPx, ryPx, 0, 0, Math.PI * 2);
-      c.fillStyle = cg; c.fill();
-      c.strokeStyle = 'rgba(0,0,0,0.18)'; c.lineWidth = 0.8; c.stroke();
-    });
-
-    // ── خطوط خطوط الطول (meridians) ──
-    c.globalAlpha = 0.08;
-    c.strokeStyle = '#ffffff';
-    c.lineWidth = 0.8;
-    for (let i = 0; i < 12; i++) {
-      const a = (i / 12) * Math.PI;
-      const cosA = Math.cos(a);
-      if (Math.abs(cosA) < 0.04) continue;
-      c.beginPath();
-      c.ellipse(0, 0, Math.abs(cosA) * R, R, 0, -Math.PI, 0);
-      c.stroke();
-    }
-    // ── خطوط العرض (parallels) ──
-    [-0.45, -0.2, 0.2, 0.45].forEach(latN => {
-      const yy  = latN * R;
-      const rxL = Math.sqrt(Math.max(0, R * R - yy * yy));
-      c.beginPath();
-      c.ellipse(0, yy, rxL, rxL * 0.18, 0, -Math.PI, 0);
-      c.stroke();
-    });
-    c.globalAlpha = 1;
-
-    c.restore(); // restore clip
-
-    // ── حافة الكرة (stroke) ──
-    c.beginPath();
-    c.arc(0, 0, R, -Math.PI, 0);
-    c.strokeStyle = 'rgba(100,160,255,0.5)'; c.lineWidth = 2.5; c.stroke();
-
-    // ── خط الأفق ──
-    c.beginPath();
-    c.moveTo(-R, 0); c.lineTo(R, 0);
-    c.strokeStyle = 'rgba(100,200,255,0.55)'; c.lineWidth = 2; c.stroke();
-
-    // ── سطح أخضر (شريط رفيع عند حافة الكرة) ──
-    c.save();
-    c.beginPath();
-    c.arc(0, 0, R, -Math.PI * 0.15, -Math.PI * 0.85, true);
-    c.strokeStyle = 'rgba(80,200,80,0.75)'; c.lineWidth = 3.5; c.lineCap = 'round'; c.stroke();
-    c.restore();
-
-    // ── الغلاف الجوي ──
-    const atm = c.createRadialGradient(0, 0, R * 0.92, 0, 0, R * 1.12);
-    atm.addColorStop(0,   'rgba(80,155,255,0)');
-    atm.addColorStop(0.5, 'rgba(80,155,255,0.18)');
-    atm.addColorStop(1,   'rgba(60,120,230,0)');
-    c.beginPath(); c.arc(0, 0, R * 1.12, -Math.PI, 0);
-    c.fillStyle = atm; c.fill();
-
-    c.restore(); // restore translate+rotate
-  }
-
-  function drawPerson(c, cx, cy, R, earthRot) {
-    // موضع الشخص في الإحداثيات المحلية للأرض: (0, -R) = أعلى الكرة
-    // بعد تدوير الأرض، موضعه في الإحداثيات العالمية:
-    const localX = 0, localY = -R;
-    const worldX = cx + localX * Math.cos(earthRot) - localY * Math.sin(earthRot);
-    const worldY = cy + localX * Math.sin(earthRot) + localY * Math.cos(earthRot);
-
-    // اتجاه "للخارج" من الأرض (للأعلى المحلي للشخص)
-    const normalX = -Math.sin(earthRot); // تدوير (0,-1) بزاوية earthRot
-    const normalY = -Math.cos(earthRot);
-
-    const pSize = R * 0.095;
-
-    c.save();
-    c.translate(worldX, worldY);
-    // نُدير رسم الشخص ليقف عمودياً على سطح الأرض
-    const personAngle = earthRot; // زاوية الانتصاب بالنسبة للأرض
-    c.rotate(personAngle);
-
-    // ── جسم الشخص (أحجام أكبر وأوضح) ──
-    // ظل تحته
-    c.beginPath();
-    c.ellipse(0, pSize * 0.1, pSize * 0.55, pSize * 0.15, 0, 0, Math.PI * 2);
-    c.fillStyle = 'rgba(0,0,0,0.35)'; c.fill();
-
-    // ساقان
-    c.lineCap = 'round';
-    c.beginPath();
-    c.moveTo(-pSize * 0.22, -pSize * 0.1);
-    c.lineTo(-pSize * 0.35, pSize * 0.55);
-    c.moveTo( pSize * 0.22, -pSize * 0.1);
-    c.lineTo( pSize * 0.35, pSize * 0.55);
-    c.strokeStyle = '#2255BB'; c.lineWidth = pSize * 0.35; c.stroke();
-
-    // جسم (ملابس)
-    c.fillStyle = '#3399EE';
-    c.beginPath();
-    c.roundRect(-pSize * 0.38, -pSize * 0.95, pSize * 0.76, pSize * 0.88, pSize * 0.15);
-    c.fill();
-    c.strokeStyle = '#1A77CC'; c.lineWidth = 1; c.stroke();
-
-    // ذراعان
-    c.beginPath();
-    c.moveTo(-pSize * 0.38, -pSize * 0.75);
-    c.lineTo(-pSize * 0.75, -pSize * 0.30);
-    c.moveTo( pSize * 0.38, -pSize * 0.75);
-    c.lineTo( pSize * 0.75, -pSize * 0.30);
-    c.strokeStyle = '#3399EE'; c.lineWidth = pSize * 0.32; c.stroke();
-
-    // رقبة
-    c.fillStyle = '#FFD07A';
-    c.beginPath();
-    c.rect(-pSize * 0.14, -pSize * 1.10, pSize * 0.28, pSize * 0.20);
-    c.fill();
-
-    // رأس (دائرة أكبر)
-    const headR = pSize * 0.50;
-    const headY = -pSize * 1.10 - headR;
-
-    // هالة حمراء للخوذة
-    c.beginPath();
-    c.arc(0, headY, headR * 1.25, 0, Math.PI * 2);
-    c.fillStyle = 'rgba(255,80,60,0.18)'; c.fill();
-
-    // رأس
-    const headG = c.createRadialGradient(-headR * 0.25, headY - headR * 0.25, headR * 0.05, 0, headY, headR);
-    headG.addColorStop(0,   '#FFE5A0');
-    headG.addColorStop(0.6, '#FFD07A');
-    headG.addColorStop(1,   '#E8A840');
-    c.beginPath(); c.arc(0, headY, headR, 0, Math.PI * 2);
-    c.fillStyle = headG; c.fill();
-    c.strokeStyle = '#C89030'; c.lineWidth = 1.5; c.stroke();
-
-    // عيون
-    c.fillStyle = '#1A2A4A';
-    c.beginPath();
-    c.arc(-headR * 0.30, headY - headR * 0.05, headR * 0.13, 0, Math.PI * 2);
-    c.arc( headR * 0.30, headY - headR * 0.05, headR * 0.13, 0, Math.PI * 2);
-    c.fill();
-
-    // بريق عيون
-    c.fillStyle = 'white';
-    c.beginPath();
-    c.arc(-headR * 0.24, headY - headR * 0.12, headR * 0.05, 0, Math.PI * 2);
-    c.arc( headR * 0.36, headY - headR * 0.12, headR * 0.05, 0, Math.PI * 2);
-    c.fill();
-
-    // ابتسامة
-    c.beginPath();
-    c.arc(0, headY + headR * 0.15, headR * 0.30, 0.2, Math.PI - 0.2);
-    c.strokeStyle = '#9A6820'; c.lineWidth = headR * 0.12; c.lineCap = 'round'; c.stroke();
-
-    // شارة "عيني" (سهم صغير من العين)
-    c.beginPath();
-    c.arc(0, headY, headR * 1.0, -Math.PI * 0.12, -Math.PI * 0.12);
-    c.lineTo(pSize * 1.3, headY - headR * 0.2);
-    c.strokeStyle = 'rgba(255,255,100,0.70)'; c.lineWidth = 1.2; c.stroke();
-
-    c.lineCap = 'butt';
-    c.restore();
-
-    // إرجاع موضع العين للخط البصري
-    const eyeX = worldX - Math.sin(earthRot) * pSize * 1.68;
-    const eyeY = worldY - Math.cos(earthRot) * pSize * 1.68;
-    return { eyeX, eyeY };
-  }
-
-  function _lighter(hex, amt) {
+  // ── مساعد لتفتيح اللون ──
+  function lighter(hex, a) {
     const n = parseInt(hex.slice(1), 16);
-    return `rgb(${Math.min(255,((n>>16)&0xff)+amt)},${Math.min(255,((n>>8)&0xff)+amt)},${Math.min(255,(n&0xff)+amt)})`;
+    return `rgb(${Math.min(255,((n>>16)&0xff)+a)},${Math.min(255,((n>>8)&0xff)+a)},${Math.min(255,(n&0xff)+a)})`;
   }
 
   function draw() {
@@ -40300,239 +40059,348 @@ function simG5SunSeeming() {
     }
 
     const c = cv.getContext('2d');
-    const W = cv.width;
-    const H = cv.height;
+    const W = cv.width, H = cv.height;
     c.clearRect(0, 0, W, H);
 
     const h = S.timeH;
-    const t = (h - 6) / 12; // 0..1
+    const t = (h - 6) / 12; // 0 شروق → 1 غروب
+    // زاوية دوران الأرض: t=0 → مائل +67.5°, t=0.5 → 0°, t=1 → -67.5°
+    const earthRot = (0.5 - t) * (Math.PI * 0.75);
 
-    // ── خلفية الفضاء ──
-    const spaceBg = c.createLinearGradient(0, 0, 0, H * 0.75);
-    spaceBg.addColorStop(0, '#010710');
-    spaceBg.addColorStop(1, '#081525');
-    c.fillStyle = spaceBg;
-    c.fillRect(0, 0, W, H * 0.75);
+    // ── 1. خلفية الفضاء ──
+    const bg = c.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0,   '#010510');
+    bg.addColorStop(0.6, '#081428');
+    bg.addColorStop(1,   '#040C1C');
+    c.fillStyle = bg; c.fillRect(0, 0, W, H);
 
-    // منطقة تحت الأرض
-    c.fillStyle = '#060E1C';
-    c.fillRect(0, H * 0.75, W, H * 0.25);
-
-    // ── نجوم ──
+    // ── 2. نجوم ──
     window._g5ss2_stars.forEach(st => {
-      const p = 0.5 + 0.5 * Math.sin(Date.now() / 1600 + st.ph);
+      const p = 0.45 + 0.55 * Math.sin(Date.now() / 1700 + st.ph);
       c.beginPath();
-      c.arc(st.x * W, st.y * H * 0.68, Math.max(0.1, st.r * p), 0, Math.PI * 2);
-      c.fillStyle = `rgba(255,255,255,${0.55 * p})`;
-      c.fill();
+      c.arc(st.x * W, st.y * H * 0.72, Math.max(0.1, st.r * p), 0, Math.PI * 2);
+      c.fillStyle = `rgba(255,255,255,${0.55 * p})`; c.fill();
     });
 
-    // ══════════════════════════════════
-    // ☀️ الشمس — ثابتة تماماً
-    // ══════════════════════════════════
+    // ── 3. الشمس (ثابتة في الأعلى) ──
     const sunX = W * 0.50;
-    const sunY = H * 0.11;
-    const sunR = Math.min(W, H) * 0.075;
+    const sunY = H * 0.115;
+    const sunR = Math.min(W, H) * 0.068;
 
-    // هالة خارجية
-    const halo = c.createRadialGradient(sunX, sunY, sunR * 0.3, sunX, sunY, sunR * 5.0);
-    halo.addColorStop(0,   'rgba(255,240,80,0.45)');
-    halo.addColorStop(0.35,'rgba(255,170,20,0.18)');
-    halo.addColorStop(0.7, 'rgba(255,100,0,0.06)');
-    halo.addColorStop(1,   'rgba(255,60,0,0)');
-    c.beginPath(); c.arc(sunX, sunY, sunR * 5.0, 0, Math.PI * 2);
+    // هالة
+    const halo = c.createRadialGradient(sunX, sunY, sunR * 0.3, sunX, sunY, sunR * 4.8);
+    halo.addColorStop(0,   'rgba(255,240,80,0.50)');
+    halo.addColorStop(0.3, 'rgba(255,180,30,0.20)');
+    halo.addColorStop(0.65,'rgba(255,100,0,0.07)');
+    halo.addColorStop(1,   'rgba(255,50,0,0)');
+    c.beginPath(); c.arc(sunX, sunY, sunR * 4.8, 0, Math.PI * 2);
     c.fillStyle = halo; c.fill();
 
     // جسم الشمس
-    const sg = c.createRadialGradient(sunX - sunR * 0.30, sunY - sunR * 0.30, sunR * 0.05, sunX, sunY, sunR);
-    sg.addColorStop(0,   '#FFFDE7');
-    sg.addColorStop(0.28,'#FFE857');
-    sg.addColorStop(0.60,'#FFA000');
-    sg.addColorStop(1,   '#E65100');
+    const sg = c.createRadialGradient(sunX - sunR*0.30, sunY - sunR*0.30, sunR*0.05, sunX, sunY, sunR);
+    sg.addColorStop(0,   '#FFFDE7'); sg.addColorStop(0.25,'#FFE840');
+    sg.addColorStop(0.60,'#FFA000'); sg.addColorStop(1,   '#E65000');
     c.beginPath(); c.arc(sunX, sunY, sunR, 0, Math.PI * 2);
     c.fillStyle = sg; c.fill();
-    // حافة متوهجة
     c.beginPath(); c.arc(sunX, sunY, sunR, 0, Math.PI * 2);
-    c.strokeStyle = 'rgba(255,220,50,0.6)'; c.lineWidth = 2.5; c.stroke();
+    c.strokeStyle = 'rgba(255,225,60,0.55)'; c.lineWidth = 2; c.stroke();
 
-    // أشعة الشمس
+    // أشعة
     const rayT = Date.now() / 1000;
     for (let i = 0; i < 16; i++) {
-      const ra = (i / 16) * Math.PI * 2 + rayT * 0.30;
-      const r1 = sunR * 1.18, r2 = sunR * (1.60 + (i % 2) * 0.32);
-      const alpha = 0.35 + 0.15 * Math.sin(rayT * 2.5 + i * 0.7);
-      c.strokeStyle = `rgba(255,215,60,${alpha})`;
-      c.lineWidth = 2.8; c.lineCap = 'round';
-      c.beginPath();
-      c.moveTo(sunX + Math.cos(ra) * r1, sunY + Math.sin(ra) * r1);
-      c.lineTo(sunX + Math.cos(ra) * r2, sunY + Math.sin(ra) * r2);
-      c.stroke();
+      const ra = (i / 16) * Math.PI * 2 + rayT * 0.28;
+      const r1 = sunR * 1.18, r2 = sunR * (1.58 + (i%2)*0.30);
+      c.strokeStyle = `rgba(255,210,55,${0.32 + 0.14*Math.sin(rayT*2.2+i*0.7)})`;
+      c.lineWidth = 2.5; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(sunX+Math.cos(ra)*r1, sunY+Math.sin(ra)*r1);
+      c.lineTo(sunX+Math.cos(ra)*r2, sunY+Math.sin(ra)*r2); c.stroke();
     }
     c.lineCap = 'butt';
 
-    // نص الشمس
+    // تسمية الشمس
     c.textAlign = 'center'; c.textBaseline = 'top';
-    c.font = `bold ${Math.round(H * 0.030)}px Tajawal`;
-    c.fillStyle = '#FFE87A';
-    c.shadowColor = 'rgba(0,0,0,0.8)'; c.shadowBlur = 6;
-    c.fillText('☀️ الشمس', sunX, sunY + sunR + 8);
-    c.font = `${Math.round(H * 0.019)}px Tajawal`;
+    c.font = `bold ${Math.round(H*0.028)}px Tajawal`;
+    c.fillStyle = '#FFE87A'; c.shadowColor = 'rgba(0,0,0,0.9)'; c.shadowBlur = 6;
+    c.fillText('☀️ الشمس', sunX, sunY + sunR + 7);
+    c.font = `${Math.round(H*0.018)}px Tajawal`;
     c.fillStyle = 'rgba(255,240,120,0.80)';
-    c.fillText('ثابتة — لا تتحرك أبداً!', sunX, sunY + sunR + 8 + Math.round(H * 0.032));
+    c.fillText('ثابتة — لا تتحرك أبداً!', sunX, sunY + sunR + 7 + Math.round(H*0.030));
     c.shadowBlur = 0;
 
-    // ══════════════════════════════════
-    // 🌍 الأرض
-    // ══════════════════════════════════
+    // ── 4. الكرة الأرضية الكاملة ──
+    // المركز تحت الشاشة بحيث تظهر نصف كرة كبيرة
     const earthCX = W * 0.50;
-    const earthCY = H * 0.98; // مركز الكرة أسفل الشاشة
-    const earthR  = Math.min(W * 0.68, H * 0.72);
+    const earthCY = H * 1.02;
+    const earthR  = Math.min(W * 0.70, H * 0.75);
 
-    // زاوية الدوران: t=0 شروق (مائل يمين)، t=0.5 ظهر (مستقيم)، t=1 غروب (مائل يسار)
-    const earthRot = (t - 0.5) * (Math.PI * 0.75);
-
-    drawEarth(c, earthCX, earthCY, earthR, earthRot);
-    const { eyeX, eyeY } = drawPerson(c, earthCX, earthCY, earthR, earthRot);
-
-    // ══════════════════════════════════
-    // 👁️ خط النظر
-    // ══════════════════════════════════
-    const sunEdgeX = sunX;
-    const sunEdgeY = sunY + sunR * 1.1;
-
-    // خط منقط
+    // ارسم الكرة الكاملة (دائرة 360°) — لا clip جزئي
     c.save();
-    c.setLineDash([10, 6]);
-    c.strokeStyle = 'rgba(255,235,60,0.82)';
-    c.lineWidth = 2.8;
+    c.translate(earthCX, earthCY);
+    c.rotate(earthRot);
+
+    // clip على الكرة الكاملة فقط (دائرة)
+    c.save();
+    c.beginPath(); c.arc(0, 0, earthR, 0, Math.PI * 2); c.clip();
+
+    // المحيط
+    const ocean = c.createRadialGradient(-earthR*0.15, -earthR*0.28, earthR*0.08, 0, 0, earthR);
+    ocean.addColorStop(0,   '#2196F3'); ocean.addColorStop(0.5, '#1565C0');
+    ocean.addColorStop(0.85,'#0D47A1'); ocean.addColorStop(1,   '#0A3070');
+    c.beginPath(); c.arc(0, 0, earthR, 0, Math.PI * 2);
+    c.fillStyle = ocean; c.fill();
+
+    // القارات — كل قارة بزاوية طولية (lon) وعرضية (lat)
+    // نرسمها على الكرة بشكل إهليلجي (perspective)
+    const CONT = [
+      // lon°   lat°   rx     ry    col_light       col_dark
+      [-100,  35,  0.195, 0.165, '#6BAA3A', '#4A8A28'],  // أمريكا الشمالية
+      [ -65, -15,  0.110, 0.170, '#4AAA30', '#357820'],  // أمريكا الجنوبية
+      [  15,  18,  0.095, 0.095, '#A8884A', '#886035'],  // أوروبا
+      [  18, -10,  0.120, 0.185, '#D4B035', '#B09022'],  // أفريقيا
+      [  80,  35,  0.260, 0.165, '#7AAA3A', '#5A8828'],  // آسيا
+      [ 135, -25,  0.110, 0.090, '#C09040', '#9A7028'],  // أستراليا
+      [   0, -75,  0.220, 0.055, '#E0EEF8', '#C8DCF0'],  // أنتاركتيكا
+    ];
+
+    CONT.forEach(([lon, lat, rxF, ryF, colL, colD]) => {
+      const lonR = lon * Math.PI / 180;
+      const latR = lat * Math.PI / 180;
+      const cosLon = Math.cos(lonR);
+      // فقط الجانب المرئي (cos > -0.1 يعني حتى الحافة بقليل)
+      const px  = Math.sin(lonR) * Math.cos(latR) * earthR;
+      const py  = -Math.sin(latR) * earthR;
+      const scX = Math.max(0.02, Math.abs(cosLon));
+      const rxPx = rxF * earthR * scX;
+      const ryPx = ryF * earthR * 0.52;
+      if (rxPx < 3) return;
+
+      const cg = c.createRadialGradient(px-rxPx*0.3, py-ryPx*0.3, 0, px, py, Math.max(rxPx,ryPx));
+      cg.addColorStop(0, lighter(colL, 40));
+      cg.addColorStop(0.5, colL); cg.addColorStop(1, colD);
+
+      c.beginPath(); c.ellipse(px, py, rxPx, ryPx, 0, 0, Math.PI * 2);
+      c.fillStyle = cg; c.fill();
+      c.strokeStyle = 'rgba(0,0,0,0.18)'; c.lineWidth = 0.8; c.stroke();
+    });
+
+    // خطوط الشبكة (grid)
+    c.globalAlpha = 0.07; c.strokeStyle = '#fff'; c.lineWidth = 0.8;
+    for (let i = 0; i < 12; i++) {
+      const a = (i/12) * Math.PI;
+      const cosA = Math.cos(a);
+      if (Math.abs(cosA) < 0.04) continue;
+      c.beginPath(); c.ellipse(0, 0, Math.abs(cosA)*earthR, earthR, 0, 0, Math.PI*2); c.stroke();
+    }
+    [-0.5,-0.25,0,0.25,0.5].forEach(latN => {
+      const yy = latN * earthR;
+      const rx2 = Math.sqrt(Math.max(0, earthR*earthR - yy*yy));
+      c.beginPath(); c.ellipse(0, yy, rx2, rx2*0.20, 0, 0, Math.PI*2); c.stroke();
+    });
+    c.globalAlpha = 1;
+
+    // ظل الليل (الجانب الأيسر = بعيد عن الشمس)
+    // الشمس في الإحداثيات المحلية للأرض تكون في اتجاه -earthRot من الأعلى
+    // بما أن الشمس ثابتة فوق، نحسب اتجاهها في الإطار المحلي
+    const shadowGrad = c.createLinearGradient(-earthR*0.6, -earthR, earthR*0.6, -earthR);
+    shadowGrad.addColorStop(0,    'rgba(2,5,18,0.88)');
+    shadowGrad.addColorStop(0.25, 'rgba(2,5,18,0.50)');
+    shadowGrad.addColorStop(0.45, 'rgba(2,5,18,0)');
+    shadowGrad.addColorStop(0.55, 'rgba(2,5,18,0)');
+    shadowGrad.addColorStop(0.75, 'rgba(2,5,18,0.50)');
+    shadowGrad.addColorStop(1,    'rgba(2,5,18,0.88)');
+    c.beginPath(); c.arc(0, 0, earthR, 0, Math.PI * 2);
+    c.fillStyle = shadowGrad; c.fill();
+
+    c.restore(); // restore clip الكرة
+
+    // ── غلاف جوي (خارج clip الكرة) ──
+    const atm = c.createRadialGradient(0, 0, earthR*0.93, 0, 0, earthR*1.10);
+    atm.addColorStop(0,   'rgba(80,155,255,0)');
+    atm.addColorStop(0.5, 'rgba(80,155,255,0.17)');
+    atm.addColorStop(1,   'rgba(60,120,230,0)');
+    c.beginPath(); c.arc(0, 0, earthR*1.10, 0, Math.PI*2);
+    c.fillStyle = atm; c.fill();
+
+    // حافة الكرة
+    c.beginPath(); c.arc(0, 0, earthR, 0, Math.PI*2);
+    c.strokeStyle = 'rgba(100,170,255,0.45)'; c.lineWidth = 2.5; c.stroke();
+
+    c.restore(); // restore translate+rotate
+
+    // ── 5. الشخص (يقف على القمة) ──
+    // موضع قمة الكرة بعد التدوير والإزاحة
+    // النقطة (0, -earthR) في الإطار المحلي → تحوّل للعالمي
+    const topX = earthCX + (0 * Math.cos(earthRot) - (-earthR) * Math.sin(earthRot));
+    const topY = earthCY + (0 * Math.sin(earthRot) + (-earthR) * Math.cos(earthRot));
+
+    // حجم الشخص (أصغر بكثير، متناسب مع الكرة)
+    const pSz = earthR * 0.072;
+
+    c.save();
+    c.translate(topX, topY);
+    c.rotate(earthRot); // يقف عمودياً على السطح
+
+    // ظل
+    c.beginPath(); c.ellipse(0, pSz*0.08, pSz*0.48, pSz*0.12, 0, 0, Math.PI*2);
+    c.fillStyle = 'rgba(0,0,0,0.32)'; c.fill();
+
+    // ساقان
+    c.lineCap = 'round';
+    c.strokeStyle = '#2255BB'; c.lineWidth = pSz*0.28;
     c.beginPath();
-    c.moveTo(eyeX, eyeY);
-    c.lineTo(sunEdgeX, sunEdgeY);
+    c.moveTo(-pSz*0.18, -pSz*0.05); c.lineTo(-pSz*0.28, pSz*0.55);
+    c.moveTo( pSz*0.18, -pSz*0.05); c.lineTo( pSz*0.28, pSz*0.55);
     c.stroke();
+
+    // جسم
+    c.fillStyle = '#3A99EE';
+    c.beginPath(); c.roundRect(-pSz*0.32, -pSz*0.88, pSz*0.64, pSz*0.86, pSz*0.14);
+    c.fill(); c.strokeStyle='#1A77CC'; c.lineWidth=0.8; c.stroke();
+
+    // شارة
+    c.fillStyle = 'rgba(255,255,255,0.4)';
+    c.beginPath(); c.roundRect(-pSz*0.20, -pSz*0.76, pSz*0.40, pSz*0.28, pSz*0.06); c.fill();
+
+    // ذراعان
+    c.strokeStyle = '#3A99EE'; c.lineWidth = pSz*0.26;
+    c.beginPath();
+    c.moveTo(-pSz*0.32, -pSz*0.68); c.lineTo(-pSz*0.62, -pSz*0.28);
+    c.moveTo( pSz*0.32, -pSz*0.68); c.lineTo( pSz*0.62, -pSz*0.28);
+    c.stroke(); c.lineCap = 'butt';
+
+    // رأس
+    const hR = pSz * 0.42;
+    const hY = -pSz*0.88 - hR;
+
+    // هالة بسيطة
+    c.beginPath(); c.arc(0, hY, hR*1.3, 0, Math.PI*2);
+    c.fillStyle = 'rgba(255,220,80,0.12)'; c.fill();
+
+    // وجه
+    const fG = c.createRadialGradient(-hR*0.2, hY-hR*0.25, hR*0.05, 0, hY, hR);
+    fG.addColorStop(0, '#FFE8A5'); fG.addColorStop(0.65, '#FFD07A'); fG.addColorStop(1, '#E0A840');
+    c.beginPath(); c.arc(0, hY, hR, 0, Math.PI*2);
+    c.fillStyle = fG; c.fill(); c.strokeStyle='#C89030'; c.lineWidth=1.2; c.stroke();
+
+    // عيون
+    c.fillStyle = '#1A2A4A';
+    c.beginPath(); c.arc(-hR*0.28, hY-hR*0.04, hR*0.11, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc( hR*0.28, hY-hR*0.04, hR*0.11, 0, Math.PI*2); c.fill();
+    c.fillStyle = 'white';
+    c.beginPath(); c.arc(-hR*0.22, hY-hR*0.11, hR*0.042, 0, Math.PI*2); c.fill();
+    c.beginPath(); c.arc( hR*0.34, hY-hR*0.11, hR*0.042, 0, Math.PI*2); c.fill();
+
+    // ابتسامة
+    c.beginPath(); c.arc(0, hY+hR*0.18, hR*0.28, 0.22, Math.PI-0.22);
+    c.strokeStyle='#9A6820'; c.lineWidth=hR*0.10; c.lineCap='round'; c.stroke();
+    c.lineCap='butt';
+
+    c.restore();
+
+    // موضع العين في الإطار العالمي (لخط النظر)
+    const eyeOff  = pSz * (0.88 + 0.42 + 0.04); // من قمة الأرض إلى العين
+    const eyeX = earthCX + (-eyeOff * Math.sin(earthRot));
+    const eyeY = earthCY + (-eyeOff * Math.cos(earthRot));
+
+    // ── 6. خط النظر ──
+    const sunEdgeX = sunX;
+    const sunEdgeY = sunY + sunR * 1.05;
+
+    c.save();
+    c.setLineDash([9, 5]);
+    c.strokeStyle = 'rgba(255,238,60,0.85)'; c.lineWidth = 2.5;
+    c.beginPath(); c.moveTo(eyeX, eyeY); c.lineTo(sunEdgeX, sunEdgeY); c.stroke();
     c.setLineDash([]);
 
     // سهم عند الشمس
-    const dx = sunEdgeX - eyeX, dy = sunEdgeY - eyeY;
-    const len = Math.sqrt(dx * dx + dy * dy) || 1;
-    const ux = dx / len, uy = dy / len;
-    const arTX = sunEdgeX - ux * 2, arTY = sunEdgeY - uy * 2;
-    const perp = { x: -uy, y: ux };
-    c.fillStyle = 'rgba(255,235,60,0.90)';
-    c.beginPath();
-    c.moveTo(arTX, arTY);
-    c.lineTo(arTX - ux * 14 + perp.x * 7, arTY - uy * 14 + perp.y * 7);
-    c.lineTo(arTX - ux * 14 - perp.x * 7, arTY - uy * 14 - perp.y * 7);
+    const dx2 = sunEdgeX - eyeX, dy2 = sunEdgeY - eyeY;
+    const len2 = Math.sqrt(dx2*dx2+dy2*dy2) || 1;
+    const ux = dx2/len2, uy = dy2/len2;
+    const aX = sunEdgeX - ux*3, aY = sunEdgeY - uy*3;
+    const px2 = -uy, py2 = ux;
+    c.fillStyle = 'rgba(255,238,60,0.90)';
+    c.beginPath(); c.moveTo(aX, aY);
+    c.lineTo(aX-ux*13+px2*6, aY-uy*13+py2*6);
+    c.lineTo(aX-ux*13-px2*6, aY-uy*13-py2*6);
     c.closePath(); c.fill();
 
-    // تسمية الخط في المنتصف
-    const midX = (eyeX + sunEdgeX) / 2;
-    const midY = (eyeY + sunEdgeY) / 2;
-    c.font = `bold ${Math.round(H * 0.021)}px Tajawal`;
-    c.fillStyle = 'rgba(255,245,120,0.95)';
+    // تسمية
+    const midX = (eyeX+sunEdgeX)/2 + (t<0.5?42:-42);
+    const midY = (eyeY+sunEdgeY)/2;
+    c.font = `bold ${Math.round(H*0.020)}px Tajawal`;
+    c.fillStyle = 'rgba(255,245,110,0.95)';
     c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.shadowColor = 'rgba(0,0,0,0.9)'; c.shadowBlur = 6;
-    c.fillText('👁️ خط النظر', midX + (t < 0.5 ? 45 : -45), midY);
-    c.shadowBlur = 0;
-    c.restore();
+    c.shadowColor = 'rgba(0,0,0,0.95)'; c.shadowBlur = 6;
+    c.fillText('👁️ خط النظر', midX, midY);
+    c.shadowBlur = 0; c.restore();
 
-    // ══════════════════════════════════
-    // 💬 صندوق الرسالة التوضيحية
-    // ══════════════════════════════════
+    // ── 7. صندوق الرسالة ──
     const msg = getMsg(h);
-    const boxW = Math.min(W * 0.88, 440);
-    const boxX = (W - boxW) / 2;
-    const boxY = H * 0.56;
-    const boxH2 = Math.round(H * 0.130);
+    const bW  = Math.min(W*0.86, 420);
+    const bX  = (W-bW)/2;
+    const bY  = H * 0.565;
+    const bH  = Math.round(H * 0.125);
+    const br2 = 13;
 
     c.save();
     c.beginPath();
-    const br = 14;
-    c.moveTo(boxX + br, boxY);
-    c.lineTo(boxX + boxW - br, boxY);
-    c.quadraticCurveTo(boxX + boxW, boxY, boxX + boxW, boxY + br);
-    c.lineTo(boxX + boxW, boxY + boxH2 - br);
-    c.quadraticCurveTo(boxX + boxW, boxY + boxH2, boxX + boxW - br, boxY + boxH2);
-    c.lineTo(boxX + br, boxY + boxH2);
-    c.quadraticCurveTo(boxX, boxY + boxH2, boxX, boxY + boxH2 - br);
-    c.lineTo(boxX, boxY + br);
-    c.quadraticCurveTo(boxX, boxY, boxX + br, boxY);
-    c.closePath();
+    c.moveTo(bX+br2, bY); c.lineTo(bX+bW-br2, bY);
+    c.quadraticCurveTo(bX+bW, bY, bX+bW, bY+br2);
+    c.lineTo(bX+bW, bY+bH-br2);
+    c.quadraticCurveTo(bX+bW, bY+bH, bX+bW-br2, bY+bH);
+    c.lineTo(bX+br2, bY+bH);
+    c.quadraticCurveTo(bX, bY+bH, bX, bY+bH-br2);
+    c.lineTo(bX, bY+br2);
+    c.quadraticCurveTo(bX, bY, bX+br2, bY); c.closePath();
+    const bbg = c.createLinearGradient(bX, bY, bX, bY+bH);
+    bbg.addColorStop(0, 'rgba(6,16,42,0.91)'); bbg.addColorStop(1, 'rgba(3,8,22,0.91)');
+    c.fillStyle = bbg; c.fill();
+    c.strokeStyle = 'rgba(110,210,255,0.38)'; c.lineWidth = 1.4; c.stroke();
 
-    // تدرج خلفية الصندوق
-    const boxBg = c.createLinearGradient(boxX, boxY, boxX, boxY + boxH2);
-    boxBg.addColorStop(0, 'rgba(8,18,45,0.88)');
-    boxBg.addColorStop(1, 'rgba(4,10,28,0.88)');
-    c.fillStyle = boxBg; c.fill();
-    c.strokeStyle = 'rgba(120,210,255,0.38)'; c.lineWidth = 1.5; c.stroke();
-
-    // النص الرئيسي
     c.textAlign = 'center'; c.textBaseline = 'top';
-    c.font = `bold ${Math.round(H * 0.027)}px Tajawal`;
-    c.fillStyle = '#FFE87A';
-    c.shadowColor = 'rgba(0,0,0,0.9)'; c.shadowBlur = 5;
-    c.fillText(msg.text, W / 2, boxY + boxH2 * 0.10);
-    c.shadowBlur = 0;
-
-    c.font = `${Math.round(H * 0.021)}px Tajawal`;
-    c.fillStyle = 'rgba(170,220,255,0.92)';
-    c.fillText(msg.sub, W / 2, boxY + boxH2 * 0.58);
+    c.font = `bold ${Math.round(H*0.026)}px Tajawal`;
+    c.fillStyle = '#FFE87A'; c.shadowColor='rgba(0,0,0,0.9)'; c.shadowBlur=5;
+    c.fillText(msg.t, W/2, bY + bH*0.09); c.shadowBlur=0;
+    c.font = `${Math.round(H*0.020)}px Tajawal`;
+    c.fillStyle = 'rgba(165,218,255,0.92)';
+    c.fillText(msg.s, W/2, bY + bH*0.56);
     c.restore();
 
-    // ══════════════════════════════════
-    // شريط الوقت (أسفل)
-    // ══════════════════════════════════
-    const stripH2 = 48;
-    const stripY2 = H - stripH2;
-    c.fillStyle = 'rgba(4,10,28,0.92)';
-    c.fillRect(0, stripY2, W, stripH2);
-    c.strokeStyle = 'rgba(100,160,255,0.22)';
-    c.lineWidth = 1;
-    c.beginPath(); c.moveTo(0, stripY2); c.lineTo(W, stripY2); c.stroke();
+    // ── 8. شريط الوقت ──
+    const sH = 46, sY = H - sH;
+    c.fillStyle = 'rgba(3,9,26,0.93)'; c.fillRect(0, sY, W, sH);
+    c.strokeStyle = 'rgba(100,160,255,0.20)'; c.lineWidth=1;
+    c.beginPath(); c.moveTo(0, sY); c.lineTo(W, sY); c.stroke();
 
-    const icons2 = [
-      { h: 6,  icon: '🌅', lbl: 'الشروق' },
-      { h: 9,  icon: '🌤️', lbl: 'الصباح' },
-      { h: 12, icon: '🌞', lbl: 'الظهيرة' },
-      { h: 15, icon: '☀️', lbl: 'العصر' },
-      { h: 18, icon: '🌇', lbl: 'الغروب' },
+    const icons = [
+      {h:6,'e':'🌅','l':'الشروق'},{h:9,'e':'🌤️','l':'الصباح'},
+      {h:12,'e':'🌞','l':'الظهيرة'},{h:15,'e':'☀️','l':'العصر'},{h:18,'e':'🌇','l':'الغروب'},
     ];
-    icons2.forEach(ic => {
-      const px2 = ((ic.h - 6) / 12) * W;
-      c.font = `${Math.round(stripH2 * 0.42)}px Tajawal`;
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(ic.icon, px2, stripY2 + stripH2 * 0.36);
-      c.font = `bold ${Math.round(stripH2 * 0.24)}px Tajawal`;
-      c.fillStyle = 'rgba(200,225,255,0.65)';
-      c.fillText(ic.lbl, px2, stripY2 + stripH2 * 0.78);
+    icons.forEach(ic => {
+      const px3 = ((ic.h-6)/12)*W;
+      c.font = `${Math.round(sH*0.40)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(ic.e, px3, sY+sH*0.35);
+      c.font=`bold ${Math.round(sH*0.22)}px Tajawal`; c.fillStyle='rgba(195,222,255,0.62)';
+      c.fillText(ic.l, px3, sY+sH*0.76);
     });
 
-    // مؤشر الوقت الحالي
-    const indX = ((h - 6) / 12) * W;
-    c.strokeStyle = 'rgba(255,220,60,0.95)';
-    c.lineWidth = 3;
-    c.setLineDash([5, 3]);
-    c.beginPath(); c.moveTo(indX, stripY2); c.lineTo(indX, H); c.stroke();
-    c.setLineDash([]);
+    const indX = ((h-6)/12)*W;
+    c.strokeStyle='rgba(255,218,55,0.95)'; c.lineWidth=2.8; c.setLineDash([5,3]);
+    c.beginPath(); c.moveTo(indX, sY); c.lineTo(indX, H); c.stroke(); c.setLineDash([]);
 
-    // وقت
-    const lblX2 = Math.min(W - 38, Math.max(38, indX));
-    c.font = `bold ${Math.round(stripH2 * 0.30)}px Tajawal`;
-    c.textAlign = 'center'; c.textBaseline = 'top';
-    c.fillStyle = 'rgba(5,12,30,0.80)';
-    c.fillRect(lblX2 - 32, stripY2 + 1, 64, Math.round(stripH2 * 0.33));
-    c.fillStyle = '#FFE066';
-    c.shadowColor = 'rgba(0,0,0,0.7)'; c.shadowBlur = 3;
-    c.fillText(window._g5ss_fmtTime(h), lblX2, stripY2 + 3);
-    c.shadowBlur = 0;
+    const lbX2 = Math.min(W-38, Math.max(38, indX));
+    c.fillStyle='rgba(4,10,26,0.82)';
+    c.fillRect(lbX2-32, sY+1, 64, Math.round(sH*0.34));
+    c.font=`bold ${Math.round(sH*0.29)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillStyle='#FFE066'; c.shadowColor='rgba(0,0,0,0.7)'; c.shadowBlur=3;
+    c.fillText(window._g5ss_fmtTime(h), lbX2, sY+2); c.shadowBlur=0;
 
-    // تلميح السحب (يختفي بعد اول حركة)
+    // تلميح السحب
     if (!S._moved) {
-      c.font = `${Math.round(H * 0.022)}px Tajawal`;
-      c.textAlign = 'center'; c.textBaseline = 'bottom';
-      c.fillStyle = 'rgba(200,230,255,0.55)';
-      c.fillText('← اسحب هنا لتدوير الأرض →', W / 2, stripY2 - 8);
+      c.font=`${Math.round(H*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
+      c.fillStyle='rgba(180,220,255,0.52)';
+      c.fillText('← اسحب هنا لتدوير الأرض →', W/2, sY-8);
     }
-    if (S.dragging) S._moved = true;
 
     animFrame = requestAnimationFrame(draw);
   }
