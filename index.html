@@ -6661,6 +6661,7 @@ function switchSimTab(i) {
   // تغيير صوت استقصاء الإنسان عند تبديل التاب
   // إيقاف نبضات القلب عند تبديل التاب
   if(window._stopHeartbeat) window._stopHeartbeat();
+  if(window._stopCurrentSim) { window._stopCurrentSim(); window._stopCurrentSim = null; }
   if(currentSim==='human' && window._stopNatureSound && window._playSoundFor){
     window._stopNatureSound();
     setTimeout(function(){
@@ -11787,6 +11788,7 @@ function simVoltage3() {
     </div>
   `);
   window._vs3 = VS3;
+  window._stopCurrentSim = function() { VS3._stopBell(); };
 
   // ── صوت الجرس: نغمة دينغ-دونغ تتكرر وتزداد قوة مع الجهد ──
   VS3._updateBellSound = function() {
@@ -11945,83 +11947,158 @@ function simVoltage4() {
 
   elCtrl(`
     <div class="ctrl-section">
-      <div class="ctrl-label">🧠 خلاصة التجربة</div>
-      <div style="font-size:12px;color:var(--text-secondary);line-height:1.9">
-        <div style="margin-bottom:6px">💡 <strong>مصباح</strong> → 1.5 V ✅</div>
-        <div style="margin-bottom:6px">🔔 <strong>طنان</strong> → 3.0 V ✅</div>
-        <div>🔔 <strong>جرس</strong> → 6.0 V ✅</div>
+      <div class="ctrl-label">🧠 ماذا تعلّمنا؟</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--text-primary);line-height:1.8">
+        <div style="background:rgba(39,174,96,.1);border-right:3px solid #27AE60;padding:8px 10px;border-radius:6px">
+          💡 <strong>المصباح</strong><br>
+          <span style="color:var(--text-secondary)">يحتاج 1.5 V — خلية واحدة</span>
+        </div>
+        <div style="background:rgba(212,144,26,.1);border-right:3px solid #D4901A;padding:8px 10px;border-radius:6px">
+          🔔 <strong>الطنان</strong><br>
+          <span style="color:var(--text-secondary)">يحتاج 3 V — خليتان</span>
+        </div>
+        <div style="background:rgba(142,68,173,.1);border-right:3px solid #8E44AD;padding:8px 10px;border-radius:6px">
+          🔕 <strong>الجرس</strong><br>
+          <span style="color:var(--text-secondary)">يحتاج 6 V — 4 خلايا</span>
+        </div>
       </div>
     </div>
-    <div class="info-box" style="font-size:12px;margin-top:6px">
-      📌 الجهد الكهربائي يُقاس بـ <strong>الفولت (V)</strong><br>
-      زيادة عدد الخلايا = زيادة الجهد
+    <div class="info-box" style="margin-top:8px;font-size:12px;line-height:1.7">
+      ⚡ <strong>القاعدة:</strong><br>
+      الجهد = عدد الخلايا × 1.5 V
     </div>
   `);
 
   function draw4() {
     if (currentSim !== 'g6voltage') { cancelAnimationFrame(animFrame); return; }
-    simState.t += 0.02;
+    simState.t += 0.018;
     var ctx = elCtx(), w = elW(), h = elH(), dm = isDarkMode();
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = dm ? '#0E1620' : '#F5F8FF'; ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = dm ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)';
-    for (var gx = 24; gx < w; gx += 28) for (var gy = 24; gy < h; gy += 28) { ctx.beginPath(); ctx.arc(gx, gy, 1.3, 0, Math.PI * 2); ctx.fill(); }
+
+    // نقاط الخلفية
+    ctx.fillStyle = dm ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.04)';
+    for (var gx = 30; gx < w; gx += 32) for (var gy = 30; gy < h; gy += 32) { ctx.beginPath(); ctx.arc(gx, gy, 1.4, 0, Math.PI * 2); ctx.fill(); }
 
     var t = simState.t;
-    // بطاقات المقارنة
+    var pad = 18;
+
+    // ── عنوان ──
+    ctx.font = 'bold 22px Tajawal'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillStyle = dm ? '#E8F4FF' : '#1A2A3A';
+    ctx.fillText('📌 الجهد الكهربائي والأجهزة', w / 2, pad);
+
+    // ── البطاقات الثلاث ──
     var devices = [
-      { label: 'مصباح', emoji: '💡', needed: 1.5, cells: 1, color: '#27AE60' },
-      { label: 'طنان',  emoji: '🔔', needed: 3.0, cells: 2, color: '#D4901A' },
-      { label: 'جرس',   emoji: '🔔', needed: 6.0, cells: 4, color: '#8E44AD' },
+      { label: 'مصباح', sub: 'يضيء',  emoji: '💡', needed: 1.5, cells: 1, color: '#27AE60', bg: 'rgba(39,174,96,' },
+      { label: 'طنان',  sub: 'يطنّ',   emoji: '🔔', needed: 3.0, cells: 2, color: '#D4901A', bg: 'rgba(212,144,26,' },
+      { label: 'جرس',   sub: 'يرنّ',   emoji: '🔕', needed: 6.0, cells: 4, color: '#8E44AD', bg: 'rgba(142,68,173,' },
     ];
-    var cardW = (w - 60) / 3, cardH = h * 0.52, cardY = h * 0.07;
-    devices.forEach(function (d, i) {
-      var cx2 = 20 + i * (cardW + 10) + cardW / 2;
+
+    var topY = pad + 42;
+    var cardW = (w - pad * 2 - 16) / 3;
+    var cardH = h * 0.46;
+
+    devices.forEach(function(d, i) {
+      var cx2 = pad + i * (cardW + 8) + cardW / 2;
+      var cardX = cx2 - cardW / 2;
+      var pulse = 1 + Math.sin(t * 2 + i * 1.2) * 0.015;
+
       // بطاقة
-      ctx.fillStyle = dm ? 'rgba(255,255,255,.05)' : 'rgba(255,255,255,.92)';
-      ctx.strokeStyle = d.color + '55'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.roundRect(cx2 - cardW / 2, cardY, cardW, cardH, 14); ctx.fill(); ctx.stroke();
-      // إيموجي الجهاز
-      ctx.font = '28px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-      ctx.fillText(d.emoji, cx2, cardY + 14);
-      // اسم الجهاز
-      ctx.font = 'bold 13px Tajawal'; ctx.fillStyle = d.color; ctx.textBaseline = 'top';
-      ctx.fillText(d.label, cx2, cardY + 52);
-      // شريط الجهد
-      var barW2 = cardW - 24, barH2 = 12, barX3 = cx2 - barW2 / 2, barY3 = cardY + 76;
-      ctx.fillStyle = dm?'rgba(255,255,255,.1)':'rgba(0,0,0,.08)';
-      ctx.beginPath(); ctx.roundRect(barX3, barY3, barW2, barH2, barH2/2); ctx.fill();
-      var prog2 = Math.min(1, (d.needed / 6.0));
-      var bg = ctx.createLinearGradient(barX3, 0, barX3 + barW2 * prog2, 0);
-      bg.addColorStop(0, d.color + 'AA'); bg.addColorStop(1, d.color);
-      ctx.fillStyle = bg; ctx.beginPath(); ctx.roundRect(barX3, barY3, barW2 * prog2, barH2, barH2/2); ctx.fill();
-      // قيمة الجهد
-      ctx.font = 'bold 14px Tajawal'; ctx.fillStyle = d.color; ctx.textBaseline = 'top';
-      ctx.fillText(d.needed + ' V', cx2, barY3 + barH2 + 6);
-      // عدد البطاريات
-      ctx.font = '11px Tajawal'; ctx.fillStyle = dm?'#8AA8C0':'#666';
-      ctx.fillText(d.cells + ' خلية × 1.5V', cx2, barY3 + barH2 + 24);
-      // رسم خلايا صغيرة
+      ctx.save();
+      ctx.translate(cx2, topY + cardH / 2);
+      ctx.scale(pulse, pulse);
+      ctx.translate(-cx2, -(topY + cardH / 2));
+      ctx.fillStyle = dm ? d.bg + '.10)' : d.bg + '.07)';
+      ctx.strokeStyle = d.color + (dm ? 'AA' : '88');
+      ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.roundRect(cardX, topY, cardW, cardH, 14); ctx.fill(); ctx.stroke();
+      ctx.restore();
+
+      // إيموجي كبير
+      ctx.font = Math.round(cardW * 0.28) + 'px serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(d.emoji, cx2, topY + 10);
+
+      // اسم الجهاز — كبير وواضح
+      ctx.font = 'bold ' + Math.round(cardW * 0.155) + 'px Tajawal';
+      ctx.fillStyle = d.color;
+      ctx.fillText(d.label, cx2, topY + cardW * 0.3 + 14);
+
+      // فعل الجهاز
+      ctx.font = Math.round(cardW * 0.11) + 'px Tajawal';
+      ctx.fillStyle = dm ? '#AAC0D0' : '#556677';
+      ctx.fillText(d.sub, cx2, topY + cardW * 0.3 + 14 + Math.round(cardW * 0.155) + 4);
+
+      // ── شريط الجهد ──
+      var bTop = topY + cardH * 0.56;
+      var bW = cardW - 20, bH = 13, bX = cx2 - bW / 2;
+      ctx.fillStyle = dm ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
+      ctx.beginPath(); ctx.roundRect(bX, bTop, bW, bH, bH / 2); ctx.fill();
+      var prog2 = d.needed / 6.0;
+      var bg2 = ctx.createLinearGradient(bX, 0, bX + bW * prog2, 0);
+      bg2.addColorStop(0, d.color + '90'); bg2.addColorStop(1, d.color);
+      ctx.fillStyle = bg2;
+      ctx.beginPath(); ctx.roundRect(bX, bTop, bW * prog2, bH, bH / 2); ctx.fill();
+
+      // قيمة الجهد — خط كبير
+      ctx.font = 'bold ' + Math.round(cardW * 0.175) + 'px Tajawal';
+      ctx.fillStyle = d.color; ctx.textBaseline = 'top';
+      ctx.fillText(d.needed + ' V', cx2, bTop + bH + 7);
+
+      // عدد الخلايا — واضح
+      ctx.font = Math.round(cardW * 0.105) + 'px Tajawal';
+      ctx.fillStyle = dm ? '#9AAFC0' : '#667788';
+      ctx.fillText(d.cells + ' خلية', cx2, bTop + bH + 7 + Math.round(cardW * 0.175) + 3);
+
+      // ── خلايا صغيرة مرسومة ──
+      var bRow = topY + cardH - 30;
+      var cellW = 12, cellH = 20, gap = 3;
+      var totalBW = d.cells * cellW + (d.cells - 1) * gap;
+      var bStartX = cx2 - totalBW / 2;
       for (var bi = 0; bi < d.cells; bi++) {
-        var bx2 = cx2 - (d.cells - 1) * 10 + bi * 20;
-        var by3 = cardY + cardH - 42;
-        ctx.fillStyle = d.color; ctx.strokeStyle = dm?'rgba(255,255,255,.3)':'rgba(0,0,0,.2)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.roundRect(bx2 - 7, by3, 14, 24, 3); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = 'white'; ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('+', bx2 + 5, by3 + 4);
+        var bx3 = bStartX + bi * (cellW + gap);
+        ctx.fillStyle = d.color;
+        ctx.strokeStyle = dm ? 'rgba(255,255,255,.25)' : 'rgba(0,0,0,.18)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(bx3, bRow - cellH / 2, cellW, cellH, 3); ctx.fill(); ctx.stroke();
+        // علامة +
+        ctx.fillStyle = 'rgba(255,255,255,.8)';
+        ctx.font = 'bold 7px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText('+', bx3 + cellW - 2, bRow - cellH / 2 + 1);
       }
     });
 
-    // استنتاج في الأسفل
-    var concY = cardY + cardH + 14;
-    ctx.fillStyle = dm?'rgba(26,143,168,.12)':'rgba(26,143,168,.08)';
-    ctx.strokeStyle = 'rgba(26,143,168,.3)'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.roundRect(14, concY, w - 28, h - concY - 58, 12); ctx.fill(); ctx.stroke();
-    ctx.font = 'bold 14px Tajawal'; ctx.fillStyle = '#1A8FA8'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillText('📌 الاستنتاج', w/2, concY + 10);
-    ctx.font = '13px Tajawal'; ctx.fillStyle = dm?'#B0C8D8':'#334455';
-    ctx.fillText('كلّما زاد الجهد الكهربائي، عمل الجهاز بكفاءة أعلى.', w/2, concY + 32);
-    ctx.fillText('الجهد = عدد الخلايا × 1.5 V', w/2, concY + 52);
+    // ── قسم الاستنتاج ──
+    var concY = topY + cardH + 14;
+    var concH = h - concY - 12;
+
+    ctx.fillStyle = dm ? 'rgba(26,143,168,.12)' : 'rgba(26,143,168,.07)';
+    ctx.strokeStyle = 'rgba(26,143,168,.35)'; ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.roundRect(pad, concY, w - pad * 2, concH, 14); ctx.fill(); ctx.stroke();
+
+    // عنوان الاستنتاج
+    ctx.font = 'bold 17px Tajawal'; ctx.fillStyle = '#1A8FA8';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText('🧠 الاستنتاج', w / 2, concY + 10);
+
+    // خط فاصل
+    ctx.strokeStyle = 'rgba(26,143,168,.25)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad + 20, concY + 33); ctx.lineTo(w - pad - 20, concY + 33); ctx.stroke();
+
+    // نص الاستنتاج — خط 16px واضح
+    var lineH = 24;
+    var lines = [
+      { text: 'كلّما زاد عدد الخلايا → زاد الجهد', bold: true, color: dm ? '#C8E8F0' : '#1A3A4A' },
+      { text: 'كلّما زاد الجهد → عمل الجهاز بكفاءة أعلى', bold: false, color: dm ? '#AAC8D8' : '#2A4A5A' },
+      { text: 'الجهد = عدد الخلايا × 1.5 فولت', bold: true, color: '#1A8FA8' },
+    ];
+    lines.forEach(function(ln, i) {
+      ctx.font = (ln.bold ? 'bold ' : '') + '15px Tajawal';
+      ctx.fillStyle = ln.color;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(ln.text, w / 2, concY + 42 + i * lineH);
+    });
 
     animFrame = requestAnimationFrame(draw4);
   }
