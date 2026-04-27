@@ -54927,6 +54927,1118 @@ function simG9IVChar2(){
 
 
 // ══════════════════════════════════════════════════════════
+// 🌿 استقصاءات الأحياء — الصف التاسع — الوحدة ٧
+// التغذية في النبات (نشاط ١ → ٨، ٣ تبويبات لكل نشاط)
+// ══════════════════════════════════════════════════════════
+
+/* ── helpers مشتركة ── */
+function bioBg(){ return dm15()?'#0B1A10':'#F0FAF3'; }
+function bioTxt(){ return dm15()?'#C8EDD4':'#1A3A25'; }
+function bioMut(){ return dm15()?'#6BA87A':'#4A7A5A'; }
+function bioAccent(){ return dm15()?'#4ADE80':'#16A34A'; }
+function bioCard(){ return dm15()?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.85)'; }
+function bioShadow(){ return dm15()?'rgba(0,0,0,0.4)':'rgba(0,0,0,0.08)'; }
+
+function bioInfoPanel(lines, icon){
+  return `<div class="q-box" style="font-size:14px;line-height:1.8">${icon ? `<strong>${icon}</strong><br>` : ''}${lines.join('<br>')}</div>`;
+}
+
+function bioDrawCard(c, x, y, w, h, title, value, unit, color, dark){
+  c.fillStyle = dark ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.9)';
+  c.beginPath(); c.roundRect(x, y, w, h, 10); c.fill();
+  c.strokeStyle = color; c.lineWidth = 2;
+  c.beginPath(); c.roundRect(x, y, w, h, 10); c.stroke();
+  c.fillStyle = dark ? '#9CA3AF' : '#6B7280'; c.font = `${Math.round(h*0.22)}px Tajawal`; c.textAlign = 'center';
+  c.fillText(title, x + w/2, y + h*0.38);
+  c.fillStyle = color; c.font = `bold ${Math.round(h*0.34)}px Tajawal`;
+  c.fillText(value, x + w/2, y + h*0.68);
+  c.fillStyle = dark ? '#9CA3AF' : '#6B7280'; c.font = `${Math.round(h*0.18)}px Tajawal`;
+  c.fillText(unit, x + w/2, y + h*0.88);
+}
+
+/* ════════════════════════════════════════
+   نشاط ١-٧ · أنواع التغذية
+════════════════════════════════════════ */
+function simG9Bio7N1a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, selected: null };
+  controls(bioInfoPanel([
+    '🌿 <strong>التغذية الذاتية (Autotrophs)</strong>: تصنع غذاءها بنفسها',
+    '🔬 مثال: النباتات الخضراء، الطحالب، البكتيريا الضوئية',
+    '🦁 <strong>التغذية الغيرية (Heterotrophs)</strong>: تحصل على غذائها من الكائنات الأخرى',
+    '🔬 مثال: الحيوانات، الفطريات، معظم البكتيريا',
+  ], '🌿 أنواع التغذية'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n1'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.02;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height;
+    const dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    // عنوان
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.045)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('التغذية الذاتية مقابل التغذية الغيرية', w/2, h*0.09);
+    // بطاقة النبات (يمين)
+    const cx1 = w*0.28, cy = h*0.35, bw = w*0.36, bh = h*0.42;
+    c.fillStyle = dark ? 'rgba(22,163,74,0.15)' : 'rgba(220,252,231,0.9)';
+    c.beginPath(); c.roundRect(cx1 - bw/2, cy, bw, bh, 14); c.fill();
+    c.strokeStyle = bioAccent(); c.lineWidth = 2.5;
+    c.beginPath(); c.roundRect(cx1 - bw/2, cy, bw, bh, 14); c.stroke();
+    c.font = `${Math.round(bh*0.28)}px serif`; c.textAlign = 'center';
+    c.fillText('🌿', cx1, cy + bh*0.35);
+    c.fillStyle = bioAccent(); c.font = `bold ${Math.round(bh*0.13)}px Tajawal`;
+    c.fillText('ذاتية التغذية', cx1, cy + bh*0.56);
+    c.fillStyle = bioMut(); c.font = `${Math.round(bh*0.1)}px Tajawal`;
+    c.fillText('تصنع غذاءها بالضوء', cx1, cy + bh*0.72);
+    c.fillStyle = dark?'#86EFAC':'#15803D'; c.font = `${Math.round(bh*0.09)}px Tajawal`;
+    c.fillText('☀️ + H₂O + CO₂ → سكر', cx1, cy + bh*0.88);
+    // بطاقة الحيوان (يسار)
+    const cx2 = w*0.72;
+    c.fillStyle = dark ? 'rgba(234,88,12,0.15)' : 'rgba(255,237,213,0.9)';
+    c.beginPath(); c.roundRect(cx2 - bw/2, cy, bw, bh, 14); c.fill();
+    c.strokeStyle = dark?'#FB923C':'#EA580C'; c.lineWidth = 2.5;
+    c.beginPath(); c.roundRect(cx2 - bw/2, cy, bw, bh, 14); c.stroke();
+    c.font = `${Math.round(bh*0.28)}px serif`; c.textAlign = 'center';
+    c.fillText('🦁', cx2, cy + bh*0.35);
+    c.fillStyle = dark?'#FB923C':'#EA580C'; c.font = `bold ${Math.round(bh*0.13)}px Tajawal`;
+    c.fillText('غيرية التغذية', cx2, cy + bh*0.56);
+    c.fillStyle = bioMut(); c.font = `${Math.round(bh*0.1)}px Tajawal`;
+    c.fillText('تحصل على غذاء جاهز', cx2, cy + bh*0.72);
+    c.fillStyle = dark?'#FCA5A5':'#991B1B'; c.font = `${Math.round(bh*0.09)}px Tajawal`;
+    c.fillText('🍃 تأكل نباتات أو حيوانات', cx2, cy + bh*0.88);
+    // سهم في المنتصف
+    c.fillStyle = dark?'#D1D5DB':'#374151'; c.font = `bold ${Math.round(h*0.06)}px Arial`; c.textAlign = 'center';
+    c.fillText('⟵', w/2, cy + bh/2 + h*0.02);
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.025)}px Tajawal`;
+    c.fillText('تعتمد على', w/2, cy + bh/2 + h*0.07);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N1b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🧬 <strong>المواد العضوية</strong>: تحتوي على كربون — سكر، نشا، بروتين، دهون',
+    '⚗️ <strong>المواد غير العضوية</strong>: لا تحتوي على كربون — ماء، أملاح، ثاني أكسيد الكربون',
+    '🌿 النباتات تحوِّل المواد غير العضوية → مواد عضوية عبر التمثيل الضوئي',
+  ], '🧬 المواد العضوية وغير العضوية'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n1'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.015;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.045)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('المواد العضوية وغير العضوية', w/2, h*0.09);
+    const items = [
+      { emoji:'🍬', name:'سكر جلوكوز', type:'عضوية', color: dark?'#4ADE80':'#16A34A', x:0.17 },
+      { emoji:'🌾', name:'نشا', type:'عضوية', color: dark?'#4ADE80':'#16A34A', x:0.37 },
+      { emoji:'💧', name:'ماء H₂O', type:'غير عضوية', color: dark?'#60A5FA':'#2563EB', x:0.57 },
+      { emoji:'💨', name:'CO₂', type:'غير عضوية', color: dark?'#60A5FA':'#2563EB', x:0.77 },
+    ];
+    items.forEach(item => {
+      const ix = w * item.x, iy = h * 0.3, iw = w*0.15, ih = h*0.45;
+      c.fillStyle = item.type === 'عضوية' ? (dark?'rgba(74,222,128,0.12)':'rgba(220,252,231,0.9)') : (dark?'rgba(96,165,250,0.12)':'rgba(219,234,254,0.9)');
+      c.beginPath(); c.roundRect(ix - iw/2, iy, iw, ih, 12); c.fill();
+      c.strokeStyle = item.color; c.lineWidth = 2;
+      c.beginPath(); c.roundRect(ix - iw/2, iy, iw, ih, 12); c.stroke();
+      c.font = `${Math.round(ih*0.22)}px serif`; c.textAlign = 'center';
+      c.fillText(item.emoji, ix, iy + ih*0.3);
+      c.fillStyle = item.color; c.font = `bold ${Math.round(ih*0.11)}px Tajawal`;
+      c.fillText(item.name, ix, iy + ih*0.52);
+      c.fillStyle = dark?'#9CA3AF':'#6B7280'; c.font = `${Math.round(ih*0.09)}px Tajawal`;
+      c.fillText(item.type, ix, iy + ih*0.68);
+    });
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N1c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, answers: {}, score: null };
+  const organisms = [
+    { name:'الأشجار', emoji:'🌳', answer:'ذاتية' },
+    { name:'الأسماك', emoji:'🐟', answer:'غيرية' },
+    { name:'العشب', emoji:'🌱', answer:'ذاتية' },
+    { name:'الأسد', emoji:'🦁', answer:'غيرية' },
+  ];
+  let html = `<div class="ctrl-section"><div class="ctrl-label">🎯 صنِّف كل كائن: ذاتي أم غيري؟</div>`;
+  organisms.forEach((org, i) => {
+    html += `<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px;background:var(--bg-card2);border-radius:10px">
+      <span style="font-size:24px">${org.emoji}</span>
+      <span style="flex:1;font-weight:700">${org.name}</span>
+      <button onclick="window._bioAns(${i},'ذاتية')" id="bio1c_${i}_a" style="padding:6px 12px;border-radius:8px;border:2px solid var(--border-color);background:var(--bg-ctrl-btn);cursor:pointer;font-family:Tajawal;font-weight:700">ذاتية</button>
+      <button onclick="window._bioAns(${i},'غيرية')" id="bio1c_${i}_b" style="padding:6px 12px;border-radius:8px;border:2px solid var(--border-color);background:var(--bg-ctrl-btn);cursor:pointer;font-family:Tajawal;font-weight:700">غيرية</button>
+    </div>`;
+  });
+  html += `<button onclick="window._bioCheck()" style="width:100%;padding:10px;margin-top:10px;border-radius:10px;background:#16A34A;color:white;font-family:Tajawal;font-weight:700;font-size:15px;border:none;cursor:pointer">✅ تحقق من إجاباتك</button>
+  <div id="bio1c_result" style="margin-top:8px;font-weight:700;text-align:center;font-size:15px"></div></div>`;
+  controls(html);
+  window._bioAns = (i, val) => { simState.answers[i] = val; };
+  window._bioCheck = () => {
+    let score = 0;
+    organisms.forEach((org, i) => {
+      if(simState.answers[i] === org.answer) score++;
+    });
+    document.getElementById('bio1c_result').innerHTML =
+      score === 4 ? '🎉 ممتاز! جميع إجاباتك صحيحة' :
+      `✅ أجبت ${score} من ${organisms.length} بشكل صحيح — راجع الإجابات`;
+  };
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n1'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.05)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('🎯 صنِّف الكائنات الحية', w/2, h*0.15);
+    const emojis = ['🌳','🐟','🌱','🦁'];
+    emojis.forEach((e, i) => {
+      const x = w * (0.2 + i * 0.2), y = h * 0.35;
+      c.font = `${Math.round(h*0.12)}px serif`; c.textAlign = 'center';
+      c.fillText(e, x, y + h*0.1);
+    });
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.03)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('استخدم اللوحة الجانبية للتصنيف', w/2, h*0.65);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ٢-٧ · التمثيل الضوئي
+════════════════════════════════════════ */
+function simG9Bio7N2a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '☀️ <strong>معادلة التمثيل الضوئي:</strong>',
+    '6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂',
+    '🔋 طاقة الضوء تحوِّل ثاني أكسيد الكربون والماء إلى جلوكوز وأكسجين',
+    '🌿 تحدث داخل البلاستيدات الخضراء في خلايا النبات',
+  ], '☀️ معادلة التمثيل الضوئي'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n2'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.02;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    // ضوء الشمس يتحرك
+    const sunX = w*0.5, sunY = h*0.12 + Math.sin(simState.t)*h*0.01;
+    c.fillStyle = dark?'#FCD34D':'#FBBF24'; c.font = `${Math.round(h*0.1)}px serif`; c.textAlign = 'center';
+    c.fillText('☀️', sunX, sunY);
+    // أشعة
+    for(let i=0; i<6; i++){
+      const angle = (i/6)*Math.PI*2 + simState.t*0.3;
+      c.strokeStyle = dark?'rgba(252,211,77,0.4)':'rgba(251,191,36,0.5)';
+      c.lineWidth = 2;
+      c.beginPath();
+      c.moveTo(sunX + Math.cos(angle)*30, sunY - 20 + Math.sin(angle)*30);
+      c.lineTo(sunX + Math.cos(angle)*55, sunY - 20 + Math.sin(angle)*55);
+      c.stroke();
+    }
+    // ورقة النبات
+    const lx = w*0.5, ly = h*0.42, lr = h*0.18;
+    c.fillStyle = dark?'rgba(74,222,128,0.3)':'rgba(134,239,172,0.8)';
+    c.beginPath(); c.ellipse(lx, ly, lr*1.6, lr, -0.3, 0, Math.PI*2); c.fill();
+    c.strokeStyle = dark?'#4ADE80':'#16A34A'; c.lineWidth = 2;
+    c.beginPath(); c.ellipse(lx, ly, lr*1.6, lr, -0.3, 0, Math.PI*2); c.stroke();
+    c.fillStyle = dark?'#4ADE80':'#166534'; c.font = `${Math.round(h*0.035)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('🍃 ورقة النبات', lx, ly + h*0.035);
+    // مدخلات ومخرجات
+    const arrowY = h*0.7;
+    // CO2
+    c.fillStyle = dark?'#FCA5A5':'#DC2626'; c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('CO₂ + H₂O', w*0.25, arrowY);
+    c.fillStyle = dark?'#D1D5DB':'#6B7280'; c.font = `${Math.round(h*0.055)}px Arial`;
+    c.fillText('→', w*0.5, arrowY + h*0.02);
+    // ناتج
+    c.fillStyle = dark?'#86EFAC':'#15803D'; c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('C₆H₁₂O₆ + O₂', w*0.75, arrowY);
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.028)}px Tajawal`;
+    c.fillText('(جلوكوز + أكسجين)', w*0.75, arrowY + h*0.05);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N2b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🍃 <strong>الكلوروفيل</strong>: الصبغة الخضراء في البلاستيدات الخضراء',
+    '🌈 يمتص الضوء الأحمر والأزرق ويعكس الأخضر → لذلك النبات يبدو أخضر',
+    '⚡ يحوِّل طاقة الضوء إلى طاقة كيميائية (ATP)',
+    '🔬 يوجد في الكلوروبلاست داخل خلايا النبات',
+  ], '🍃 الكلوروفيل والطاقة الضوئية'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n2'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.02;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.045)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('الكلوروفيل يمتص الضوء', w/2, h*0.09);
+    // طيف الضوء
+    const colors = ['#EF4444','#F97316','#EAB308','#22C55E','#3B82F6','#8B5CF6','#EC4899'];
+    const bandW = w*0.7 / colors.length;
+    colors.forEach((col, i) => {
+      const bx = w*0.15 + i*bandW, bh2 = h*0.14;
+      const absorbed = i===0 || i===4; // أحمر وأزرق ممتص
+      c.fillStyle = col + (absorbed ? 'FF' : '44');
+      c.fillRect(bx, h*0.18, bandW, bh2);
+      if(absorbed){
+        c.fillStyle = dark?'white':'#111';
+        c.font = `bold ${Math.round(bh2*0.35)}px Arial`; c.textAlign = 'center';
+        c.fillText('↓', bx + bandW/2, h*0.18 + bh2*0.65);
+      }
+    });
+    // الكلوروبلاست
+    c.fillStyle = dark?'rgba(74,222,128,0.2)':'rgba(220,252,231,0.9)';
+    c.beginPath(); c.ellipse(w/2, h*0.56, w*0.22, h*0.12, 0, 0, Math.PI*2); c.fill();
+    c.strokeStyle = bioAccent(); c.lineWidth = 2.5;
+    c.beginPath(); c.ellipse(w/2, h*0.56, w*0.22, h*0.12, 0, 0, Math.PI*2); c.stroke();
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.035)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('🍃 كلوروبلاست', w/2, h*0.56 + h*0.015);
+    // إشارة الطاقة
+    const pulse = 0.7 + Math.sin(simState.t*2)*0.3;
+    c.fillStyle = dark?`rgba(250,204,21,${pulse})`:`rgba(234,179,8,${pulse})`;
+    c.font = `${Math.round(h*0.06)}px serif`; c.textAlign = 'center';
+    c.fillText('⚡ ATP', w/2, h*0.78);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N2c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, light: true, water: true, co2: true };
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">⚙️ شروط التمثيل الضوئي</div>
+    <label style="display:flex;align-items:center;gap:10px;margin:8px 0;font-weight:700">
+      <input type="checkbox" checked onchange="simState.light=this.checked" style="width:20px;height:20px"> ☀️ الضوء
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;margin:8px 0;font-weight:700">
+      <input type="checkbox" checked onchange="simState.water=this.checked" style="width:20px;height:20px"> 💧 الماء
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;margin:8px 0;font-weight:700">
+      <input type="checkbox" checked onchange="simState.co2=this.checked" style="width:20px;height:20px"> 💨 ثاني أكسيد الكربون
+    </label>
+    <div id="bio2c_result" style="margin-top:12px;padding:10px;border-radius:10px;background:var(--bg-card2);font-weight:700;text-align:center"></div>
+  </div>`);
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n2'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.025;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    const active = simState.light && simState.water && simState.co2;
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.045)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('شروط التمثيل الضوئي', w/2, h*0.09);
+    // ورقة
+    c.fillStyle = active ? (dark?'rgba(74,222,128,0.4)':'rgba(134,239,172,0.9)') : (dark?'rgba(100,100,100,0.3)':'rgba(200,200,200,0.8)');
+    c.beginPath(); c.ellipse(w/2, h*0.45, w*0.25, h*0.15, 0, 0, Math.PI*2); c.fill();
+    c.strokeStyle = active ? bioAccent() : (dark?'#6B7280':'#9CA3AF'); c.lineWidth = 2.5;
+    c.beginPath(); c.ellipse(w/2, h*0.45, w*0.25, h*0.15, 0, 0, Math.PI*2); c.stroke();
+    c.font = `${Math.round(h*0.07)}px serif`; c.textAlign = 'center';
+    c.fillText(active ? '🌿' : '🍂', w/2, h*0.45 + h*0.03);
+    // فقاعات O2 إذا نشط
+    if(active){
+      for(let i = 0; i < 5; i++){
+        const bx = w*0.4 + (i * w*0.05) + Math.sin(simState.t + i)*w*0.02;
+        const by = h*0.35 - ((simState.t * h*0.05 + i * h*0.06) % (h*0.22));
+        c.fillStyle = dark?'rgba(147,197,253,0.6)':'rgba(59,130,246,0.5)';
+        c.beginPath(); c.arc(bx, by, h*0.015, 0, Math.PI*2); c.fill();
+        c.strokeStyle = dark?'#93C5FD':'#2563EB'; c.lineWidth = 1;
+        c.beginPath(); c.arc(bx, by, h*0.015, 0, Math.PI*2); c.stroke();
+      }
+    }
+    // نتيجة
+    const res = document.getElementById('bio2c_result');
+    if(res) res.textContent = active ? '✅ التمثيل الضوئي يعمل بكفاءة!' : '⚠️ التمثيل الضوئي متوقف — يلزم توفر جميع الشروط';
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ٣-٧ · تركيب ورقة النبات
+════════════════════════════════════════ */
+function simG9Bio7N3a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, hover: -1 };
+  controls(bioInfoPanel([
+    '🔬 <strong>طبقات ورقة النبات من الأعلى للأسفل:</strong>',
+    '1️⃣ البشرة العليا: طبقة شفافة تحمي الورقة',
+    '2️⃣ النسيج العمادي: خلايا طويلة تحتوي على كلوروبلاست',
+    '3️⃣ النسيج الإسفنجي: خلايا متفرقة تتيح تبادل الغازات',
+    '4️⃣ البشرة السفلى: تحتوي على الثغور',
+  ], '🔬 طبقات الورقة'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n3'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('مقطع عرضي في ورقة النبات', w/2, h*0.07);
+    const layers = [
+      { name:'البشرة العليا', color: dark?'rgba(186,230,253,0.7)':'rgba(224,242,254,0.9)', h:0.08 },
+      { name:'النسيج العمادي', color: dark?'rgba(74,222,128,0.4)':'rgba(187,247,208,0.9)', h:0.22 },
+      { name:'النسيج الإسفنجي', color: dark?'rgba(134,239,172,0.25)':'rgba(220,252,231,0.8)', h:0.22 },
+      { name:'البشرة السفلى', color: dark?'rgba(186,230,253,0.5)':'rgba(207,250,254,0.9)', h:0.08 },
+    ];
+    let ly = h * 0.14;
+    const lx = w*0.1, lw = w*0.55;
+    layers.forEach(layer => {
+      const lh = h * layer.h;
+      c.fillStyle = layer.color;
+      c.beginPath(); c.roundRect(lx, ly, lw, lh, 4); c.fill();
+      c.strokeStyle = dark?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.15)'; c.lineWidth = 1;
+      c.beginPath(); c.roundRect(lx, ly, lw, lh, 4); c.stroke();
+      // تسمية
+      c.fillStyle = bioTxt(); c.font = `${Math.round(lh*0.5)}px Tajawal`; c.textAlign = 'right';
+      c.fillText(layer.name, w*0.95, ly + lh*0.65);
+      // خط توصيل
+      c.strokeStyle = bioMut(); c.lineWidth = 1; c.setLineDash([3,3]);
+      c.beginPath(); c.moveTo(lx + lw, ly + lh/2); c.lineTo(w*0.95 - c.measureText(layer.name).width - 5, ly + lh/2); c.stroke();
+      c.setLineDash([]);
+      ly += lh;
+    });
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N3b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, open: true };
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🚪 حالة الثغر</div>
+    <label style="display:flex;align-items:center;gap:10px;margin:10px 0;font-weight:700">
+      <input type="checkbox" checked onchange="simState.open=this.checked" style="width:20px;height:20px"> الثغر مفتوح (نهاراً)
+    </label>
+    ${bioInfoPanel([
+      '🚪 <strong>الثغور</strong>: فتحات صغيرة في البشرة السفلى',
+      '☀️ تفتح نهاراً لدخول CO₂ وخروج O₂',
+      '🌙 تغلق ليلاً للحفاظ على الماء',
+      '💧 خلايا حارسة تتحكم في الفتح والإغلاق',
+    ], '')}`);
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n3'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.02;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.045)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('الثغور والخلايا الحارسة', w/2, h*0.09);
+    const cx = w/2, cy = h*0.45, size = h*0.18;
+    const gap = simState.open ? size*0.35 : size*0.05;
+    // خلية حارسة يمين
+    c.fillStyle = dark?'rgba(74,222,128,0.35)':'rgba(134,239,172,0.85)';
+    c.beginPath(); c.ellipse(cx - size*0.4, cy, size*0.35, size*0.7, 0.3, 0, Math.PI*2); c.fill();
+    c.strokeStyle = bioAccent(); c.lineWidth = 2; c.stroke();
+    // خلية حارسة يسار
+    c.fillStyle = dark?'rgba(74,222,128,0.35)':'rgba(134,239,172,0.85)';
+    c.beginPath(); c.ellipse(cx + size*0.4, cy, size*0.35, size*0.7, -0.3, 0, Math.PI*2); c.fill();
+    c.strokeStyle = bioAccent(); c.lineWidth = 2; c.stroke();
+    // الفتحة
+    c.fillStyle = dark?'rgba(15,23,42,0.8)':'rgba(240,253,244,0.9)';
+    c.beginPath(); c.ellipse(cx, cy, gap, size*0.3, 0, 0, Math.PI*2); c.fill();
+    // سهام الغازات
+    if(simState.open){
+      c.fillStyle = dark?'#FCA5A5':'#DC2626'; c.font = `${Math.round(h*0.028)}px Tajawal`; c.textAlign = 'center';
+      c.fillText('← CO₂', cx - w*0.2, cy - h*0.08);
+      c.fillStyle = dark?'#86EFAC':'#16A34A';
+      c.fillText('O₂ →', cx + w*0.2, cy + h*0.08);
+    }
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.03)}px Tajawal`; c.textAlign = 'center';
+    c.fillText(simState.open ? '🌞 الثغر مفتوح' : '🌙 الثغر مغلق', w/2, h*0.82);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N3c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🌿 <strong>الأوعية الوعائية</strong>: تنقل المواد عبر النبات',
+    '🪵 <strong>الخشب (Xylem)</strong>: ينقل الماء والأملاح من الجذور إلى الأوراق',
+    '🍬 <strong>اللحاء (Phloem)</strong>: ينقل السكر (الجلوكوز) من الأوراق لبقية النبات',
+  ], '🌿 الأوعية الوعائية'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n3'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.02;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('الأوعية الوعائية في النبات', w/2, h*0.08);
+    // نبات بسيط
+    const px = w/2, py = h*0.85, stemH = h*0.55;
+    // ساق
+    c.strokeStyle = dark?'#6B7280':'#92400E'; c.lineWidth = 12;
+    c.beginPath(); c.moveTo(px, py); c.lineTo(px, py - stemH); c.stroke();
+    // خشب (ماء يصعد)
+    const waterY = py - ((simState.t * 60) % stemH);
+    c.fillStyle = dark?'#60A5FA':'#2563EB';
+    c.beginPath(); c.arc(px - 4, waterY, 5, 0, Math.PI*2); c.fill();
+    // لحاء (سكر ينزل)
+    const sugarY = (py - stemH) + ((simState.t * 40) % stemH);
+    c.fillStyle = dark?'#FCD34D':'#D97706';
+    c.beginPath(); c.arc(px + 4, sugarY, 5, 0, Math.PI*2); c.fill();
+    // ورقة
+    c.fillStyle = dark?'rgba(74,222,128,0.5)':'rgba(134,239,172,0.9)';
+    c.beginPath(); c.ellipse(px + w*0.1, py - stemH*0.6, w*0.12, h*0.07, 0.5, 0, Math.PI*2); c.fill();
+    c.strokeStyle = bioAccent(); c.lineWidth = 1.5; c.stroke();
+    // تسميات
+    c.fillStyle = dark?'#60A5FA':'#2563EB'; c.font = `${Math.round(h*0.028)}px Tajawal`; c.textAlign = 'right';
+    c.fillText('↑ خشب (ماء)', px - 20, h*0.5);
+    c.fillStyle = dark?'#FCD34D':'#D97706'; c.textAlign = 'left';
+    c.fillText('↓ لحاء (سكر)', px + 20, h*0.6);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ٤-٧ · الكشف عن الكلوروفيل
+════════════════════════════════════════ */
+function simG9Bio7N4a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🌈 الكلوروفيل يمتص الضوء الأحمر (650-680nm) والأزرق (430-450nm)',
+    '🟢 يعكس الأخضر → لذلك تبدو الأوراق خضراء',
+    '🔴 بدون كلوروفيل لا يمتص الضوء → لا تمثيل ضوئي',
+  ], '🌈 الكلوروفيل وامتصاص الضوء'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n4'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.015;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('طيف امتصاص الكلوروفيل', w/2, h*0.08);
+    // رسم منحنى الامتصاص
+    const graphX = w*0.1, graphY = h*0.18, graphW = w*0.8, graphH = h*0.55;
+    c.fillStyle = dark?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.8)';
+    c.beginPath(); c.roundRect(graphX, graphY, graphW, graphH, 10); c.fill();
+    c.strokeStyle = dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.1)'; c.lineWidth = 1; c.stroke();
+    // خلفية الطيف
+    const gradient = c.createLinearGradient(graphX, 0, graphX + graphW, 0);
+    gradient.addColorStop(0, 'rgba(139,0,255,0.3)');
+    gradient.addColorStop(0.2, 'rgba(0,0,255,0.3)');
+    gradient.addColorStop(0.4, 'rgba(0,255,0,0.3)');
+    gradient.addColorStop(0.6, 'rgba(255,255,0,0.3)');
+    gradient.addColorStop(0.8, 'rgba(255,165,0,0.3)');
+    gradient.addColorStop(1, 'rgba(255,0,0,0.3)');
+    c.fillStyle = gradient;
+    c.fillRect(graphX + 5, graphY + 5, graphW - 10, graphH - 10);
+    // منحنى الامتصاص
+    c.strokeStyle = dark?'#4ADE80':'#16A34A'; c.lineWidth = 3;
+    c.beginPath();
+    for(let x = 0; x <= graphW; x++){
+      const wl = 400 + (x/graphW)*300; // 400-700nm
+      const abs = 0.8*Math.exp(-Math.pow(wl-430,2)/500) + 0.9*Math.exp(-Math.pow(wl-662,2)/500);
+      const y = graphY + graphH - abs * graphH * 0.8;
+      x===0 ? c.moveTo(graphX + x, y) : c.lineTo(graphX + x, y);
+    }
+    c.stroke();
+    // محاور
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.025)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('400nm (بنفسجي)', graphX + graphW*0.05, graphY + graphH + h*0.06);
+    c.fillText('700nm (أحمر)', graphX + graphW*0.95, graphY + graphH + h*0.06);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N4b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, hasChlorophyll: true, hasLight: true };
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🔬 تجربة الكلوروفيل والضوء</div>
+    <label style="display:flex;align-items:center;gap:10px;margin:8px 0;font-weight:700">
+      <input type="checkbox" checked onchange="simState.hasChlorophyll=this.checked" style="width:18px;height:18px"> 🍃 يوجد كلوروفيل
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;margin:8px 0;font-weight:700">
+      <input type="checkbox" checked onchange="simState.hasLight=this.checked" style="width:18px;height:18px"> ☀️ يوجد ضوء
+    </label>
+    ${bioInfoPanel(['الضوء والكلوروفيل كلاهما ضروري لإنتاج النشا'], '💡')}`);
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n4'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.02;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    const active = simState.hasChlorophyll && simState.hasLight;
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('الكلوروفيل + الضوء = نشا', w/2, h*0.09);
+    // ورقة
+    c.fillStyle = simState.hasChlorophyll ? (dark?'rgba(74,222,128,0.35)':'rgba(187,247,208,0.9)') : (dark?'rgba(156,163,175,0.2)':'rgba(229,231,235,0.9)');
+    c.beginPath(); c.ellipse(w/2, h*0.45, w*0.25, h*0.15, 0, 0, Math.PI*2); c.fill();
+    c.strokeStyle = simState.hasChlorophyll ? bioAccent() : (dark?'#6B7280':'#9CA3AF'); c.lineWidth = 2.5; c.stroke();
+    c.font = `${Math.round(h*0.07)}px serif`; c.textAlign = 'center';
+    c.fillText(simState.hasChlorophyll ? '🍃' : '🍂', w/2, h*0.45 + h*0.03);
+    // ضوء
+    if(simState.hasLight){
+      c.fillStyle = dark?'rgba(252,211,77,0.8)':'rgba(251,191,36,0.9)';
+      c.font = `${Math.round(h*0.07)}px serif`;
+      c.fillText('☀️', w/2, h*0.16);
+    }
+    // نتيجة
+    c.fillStyle = active ? (dark?'#4ADE80':'#16A34A') : (dark?'#F87171':'#DC2626');
+    c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText(active ? '✅ ينتج النشا' : '❌ لا ينتج النشا', w/2, h*0.72);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N4c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🧪 <strong>خطوات التجربة:</strong>',
+    '1️⃣ غطِّ جزءاً من الورقة بورق أسود لمنع الضوء',
+    '2️⃣ اترك النبات في الضوء 6 ساعات',
+    '3️⃣ أزل الكلوروفيل بالغلي في الكحول',
+    '4️⃣ أضف محلول اليود',
+    '🔵 الجزء المكشوف يتحول أزرق أسود (يوجد نشا)',
+    '🟡 الجزء المغطى يبقى بني صفراوي (لا نشا)',
+  ], '🧪 تجربة الورقة الخضراء'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n4'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('تجربة: الكلوروفيل والنشا', w/2, h*0.08);
+    // ورقتان
+    const leaves = [{x:w*0.28, label:'مغطى بورق أسود', starch:false},{x:w*0.72, label:'مكشوف للضوء', starch:true}];
+    leaves.forEach(leaf => {
+      c.fillStyle = leaf.starch ? (dark?'rgba(30,30,120,0.5)':'rgba(30,30,180,0.4)') : (dark?'rgba(180,140,60,0.4)':'rgba(212,184,100,0.7)');
+      c.beginPath(); c.ellipse(leaf.x, h*0.44, w*0.17, h*0.14, 0, 0, Math.PI*2); c.fill();
+      c.strokeStyle = leaf.starch ? (dark?'#6366F1':'#3730A3') : (dark?'#B45309':'#92400E'); c.lineWidth = 2; c.stroke();
+      c.fillStyle = bioTxt(); c.font = `${Math.round(h*0.028)}px Tajawal`; c.textAlign = 'center';
+      c.fillText(leaf.label, leaf.x, h*0.64);
+      c.fillStyle = leaf.starch ? (dark?'#818CF8':'#3730A3') : (dark?'#FCD34D':'#B45309');
+      c.font = `bold ${Math.round(h*0.03)}px Tajawal`;
+      c.fillText(leaf.starch ? '🔵 نشا موجود' : '🟡 لا نشا', leaf.x, h*0.72);
+    });
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ٥-٧ · الكشف عن النشا
+════════════════════════════════════════ */
+function simG9Bio7N5a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🟤 <strong>اختبار اليود للنشا:</strong>',
+    '• محلول اليود (لوغول): لون بني برتقالي',
+    '• عند وجود النشا: يتحول إلى أزرق أسود',
+    '⚗️ النشا مصنوع من وحدات جلوكوز متصلة',
+    '🔬 اليود يدخل في حلزون النشا ويعطي اللون الأزرق',
+  ], '🟤 اختبار اليود للنشا'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n5'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.02;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('اختبار اليود — تغيُّر اللون', w/2, h*0.08);
+    // أنبوبتان
+    const tubes = [
+      { x: w*0.3, label: 'بدون نشا', iodine: dark?'#B45309':'#D97706', result: dark?'#B45309':'#D97706', resLabel: 'بني برتقالي — سالب' },
+      { x: w*0.7, label: 'مع نشا', iodine: dark?'#B45309':'#D97706', result: dark?'#1E1B4B':'#1E3A8A', resLabel: 'أزرق أسود — موجب 🔬' },
+    ];
+    tubes.forEach(tube => {
+      // أنبوبة اختبار
+      c.strokeStyle = dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.3)'; c.lineWidth = 2;
+      c.fillStyle = tube.result;
+      c.beginPath();
+      c.moveTo(tube.x - w*0.05, h*0.25);
+      c.lineTo(tube.x - w*0.05, h*0.65);
+      c.arc(tube.x, h*0.65, w*0.05, Math.PI, 0);
+      c.lineTo(tube.x + w*0.05, h*0.25);
+      c.fill(); c.stroke();
+      // تسميات
+      c.fillStyle = bioTxt(); c.font = `${Math.round(h*0.028)}px Tajawal`; c.textAlign = 'center';
+      c.fillText(tube.label, tube.x, h*0.22);
+      c.fillStyle = dark?'#D1D5DB':'#374151'; c.font = `bold ${Math.round(h*0.025)}px Tajawal`;
+      c.fillText(tube.resLabel, tube.x, h*0.78);
+    });
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N5b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, step: 0 };
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🔬 خطوات التجربة المخبرية</div>
+    <button onclick="simState.step=Math.min(simState.step+1,4)" style="width:100%;padding:10px;margin:5px 0;border-radius:10px;background:#16A34A;color:white;font-family:Tajawal;font-weight:700;font-size:14px;border:none;cursor:pointer">▶ الخطوة التالية</button>
+    <button onclick="simState.step=0" style="width:100%;padding:8px;margin:5px 0;border-radius:10px;background:var(--bg-card2);color:var(--text-primary);font-family:Tajawal;font-weight:700;font-size:14px;border:2px solid var(--border-color);cursor:pointer">🔄 إعادة</button>
+  </div>`);
+  const steps = ['انتزاع الورقة وتسخينها في ماء مغلي','تسخينها في الكحول لإزالة الكلوروفيل','غسلها بالماء البارد','وضعها في طبق بتري وإضافة اليود','ملاحظة تغيُّر اللون'];
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n5'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText(`خطوة ${simState.step + 1} من ${steps.length}`, w/2, h*0.1);
+    const emojis = ['🌿','🧪','💧','🔬','🔵'];
+    c.font = `${Math.round(h*0.2)}px serif`; c.textAlign = 'center';
+    c.fillText(emojis[simState.step], w/2, h*0.45);
+    c.fillStyle = bioTxt(); c.font = `${Math.round(h*0.035)}px Tajawal`; c.textAlign = 'center';
+    // تقطيع النص إذا طال
+    const words = steps[simState.step];
+    c.fillText(words, w/2, h*0.65);
+    // شريط التقدم
+    c.fillStyle = dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)';
+    c.beginPath(); c.roundRect(w*0.1, h*0.8, w*0.8, h*0.04, 10); c.fill();
+    c.fillStyle = bioAccent();
+    c.beginPath(); c.roundRect(w*0.1, h*0.8, w*0.8 * ((simState.step+1)/steps.length), h*0.04, 10); c.fill();
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N5c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '📊 <strong>تفسير النتائج:</strong>',
+    '🔵 لون أزرق أسود → نشا موجود → تمثيل ضوئي حدث',
+    '🟡 لون بني برتقالي → لا نشا → لم يحدث تمثيل ضوئي',
+    '🔍 المنطقة المغطاة ببقى بني → لا ضوء = لا نشا',
+    '✅ الاستنتاج: الضوء والكلوروفيل شرطان للتمثيل الضوئي',
+  ], '📊 تفسير النتائج'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n5'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('ملخص نتائج اختبار النشا', w/2, h*0.08);
+    const rows = [
+      {cond:'مغطى + كلوروفيل', result:'لا نشا', color:dark?'#D97706':'#92400E', icon:'🟡'},
+      {cond:'مكشوف + كلوروفيل', result:'نشا موجود', color:dark?'#6366F1':'#1E3A8A', icon:'🔵'},
+      {cond:'مكشوف + بلا كلوروفيل', result:'لا نشا', color:dark?'#D97706':'#92400E', icon:'🟡'},
+    ];
+    rows.forEach((row, i) => {
+      const ry = h*(0.22 + i*0.22), rh = h*0.16;
+      c.fillStyle = dark?'rgba(255,255,255,0.05)':'rgba(255,255,255,0.85)';
+      c.beginPath(); c.roundRect(w*0.05, ry, w*0.9, rh, 10); c.fill();
+      c.fillStyle = bioTxt(); c.font = `${Math.round(rh*0.35)}px Tajawal`; c.textAlign = 'right';
+      c.fillText(row.cond, w*0.88, ry + rh*0.65);
+      c.fillStyle = row.color; c.font = `bold ${Math.round(rh*0.35)}px Tajawal`; c.textAlign = 'left';
+      c.fillText(`${row.icon} ${row.result}`, w*0.12, ry + rh*0.65);
+    });
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ٦-٧ · التمثيل الضوئي في نبات مائي
+════════════════════════════════════════ */
+function simG9Bio7N6a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, distance: 20, bubbles: [] };
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">💡 المسافة من المصباح: <span id="bio6a_dist">20</span> cm</div>
+    <input type="range" min="5" max="50" value="20" oninput="simState.distance=+this.value;document.getElementById('bio6a_dist').textContent=this.value" style="width:100%">
+    ${bioInfoPanel(['كلما قلّت المسافة زادت شدة الضوء وزاد معدل الفقاعات'], '💧')}`);
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n6'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.03;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    const rate = Math.max(0.1, 1 - simState.distance/55);
+    // إضافة فقاعات
+    if(Math.random() < rate * 0.4) simState.bubbles.push({x: w*0.45 + (Math.random()-0.5)*w*0.08, y: h*0.55, r: 3+Math.random()*4});
+    simState.bubbles.forEach(b => { b.y -= 1.5 + rate*1.5; });
+    simState.bubbles = simState.bubbles.filter(b => b.y > h*0.15);
+    c.fillStyle = dark?'#0F172A':'#EFF6FF'; c.fillRect(0,0,w,h);
+    // ماء
+    c.fillStyle = dark?'rgba(59,130,246,0.15)':'rgba(186,230,253,0.5)';
+    c.fillRect(w*0.2, h*0.2, w*0.6, h*0.6);
+    // نبات إيلوديا
+    c.strokeStyle = dark?'#4ADE80':'#16A34A'; c.lineWidth = 3;
+    for(let i=0;i<3;i++){
+      c.beginPath(); c.moveTo(w*0.42+i*w*0.04, h*0.75); c.quadraticCurveTo(w*0.4+i*w*0.04+Math.sin(simState.t+i)*8,h*0.55,w*0.44+i*w*0.04,h*0.38); c.stroke();
+    }
+    // مصباح
+    const lx = w*0.5, ly = h*0.1 + simState.distance/50*h*0.1;
+    c.font = `${Math.round(h*0.08)}px serif`; c.textAlign = 'center';
+    c.fillText('💡', lx, ly);
+    // فقاعات
+    simState.bubbles.forEach(b => {
+      c.fillStyle = dark?'rgba(147,197,253,0.5)':'rgba(59,130,246,0.4)';
+      c.beginPath(); c.arc(b.x, b.y, b.r, 0, Math.PI*2); c.fill();
+      c.strokeStyle = dark?'#93C5FD':'#3B82F6'; c.lineWidth = 1; c.stroke();
+    });
+    // معدل الفقاعات
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.035)}px Tajawal`; c.textAlign = 'center';
+    c.fillText(`معدل O₂: ${Math.round(rate*100)}%`, w/2, h*0.9);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N6b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '📈 <strong>العلاقة بين المسافة ومعدل التمثيل:</strong>',
+    '• شدة الضوء تقل بمربع المسافة',
+    '• معدل فقاعات O₂ يقل بزيادة المسافة',
+    '🔍 الرسم البياني يوضح علاقة عكسية',
+  ], '📈 الرسم البياني'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n6'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('العلاقة بين شدة الضوء ومعدل التمثيل', w/2, h*0.08);
+    const gx = w*0.15, gy = h*0.15, gw = w*0.75, gh = h*0.6;
+    // إطار
+    c.strokeStyle = dark?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.2)'; c.lineWidth = 1.5;
+    c.strokeRect(gx, gy, gw, gh);
+    // منحنى
+    c.strokeStyle = bioAccent(); c.lineWidth = 3;
+    c.beginPath();
+    for(let i=0;i<=50;i++){
+      const x = gx + (i/50)*gw;
+      const rate = 1/(1+i*0.08);
+      const y = gy + gh - rate*gh*0.85;
+      i===0?c.moveTo(x,y):c.lineTo(x,y);
+    }
+    c.stroke();
+    // محاور
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.03)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('المسافة من المصباح (cm) →', gx + gw/2, gy + gh + h*0.07);
+    c.save(); c.translate(gx - h*0.06, gy + gh/2); c.rotate(-Math.PI/2);
+    c.fillText('معدل O₂ ←', 0, 0); c.restore();
+    // نقاط بيانات
+    [[5,0.9],[10,0.7],[20,0.5],[30,0.35],[40,0.25],[50,0.18]].forEach(([d,r])=>{
+      const px = gx + (d/50)*gw, py = gy + gh - r*gh*0.85;
+      c.fillStyle = bioAccent();
+      c.beginPath(); c.arc(px, py, 5, 0, Math.PI*2); c.fill();
+    });
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N6c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🔍 <strong>استنتج العلاقة:</strong>',
+    '✅ زيادة شدة الضوء → زيادة معدل التمثيل الضوئي',
+    '✅ كلما قلّت المسافة → زادت الفقاعات (O₂)',
+    '⚠️ لكن هناك حد أقصى — عند التشبع الضوئي يتوقف الزيادة',
+    '📌 العامل المحدود يصبح CO₂ أو الكلوروفيل وليس الضوء',
+  ], '🔍 استنتج العلاقة'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n6'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.015;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('ملخص الاستنتاجات', w/2, h*0.09);
+    const points = ['↑ شدة الضوء ← قرب المصباح', '↑ معدل O₂ ← تمثيل أكثر', '⚠️ حد أقصى عند التشبع', '📌 عوامل أخرى قد تحدّ'];
+    points.forEach((pt, i) => {
+      const py = h*(0.25 + i*0.16);
+      const alpha = 0.5 + Math.sin(simState.t + i*0.8)*0.5;
+      c.fillStyle = dark?`rgba(74,222,128,${alpha})`:`rgba(22,163,74,${alpha})`;
+      c.beginPath(); c.arc(w*0.12, py, h*0.025, 0, Math.PI*2); c.fill();
+      c.fillStyle = bioTxt(); c.font = `${Math.round(h*0.033)}px Tajawal`; c.textAlign = 'right';
+      c.fillText(pt, w*0.9, py + h*0.012);
+    });
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ٧-٧ · تأثير شدة الضوء
+════════════════════════════════════════ */
+function simG9Bio7N7a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, intensity: 50, bubbles: [] };
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">💡 شدة الضوء: <span id="bio7a_int">50</span>%</div>
+    <input type="range" min="0" max="100" value="50" oninput="simState.intensity=+this.value;document.getElementById('bio7a_int').textContent=this.value" style="width:100%">
+    ${bioInfoPanel(['شدة الضوء تؤثر مباشرة على معدل التمثيل الضوئي'], '💡')}`);
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n7'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.03;
+    const rate = simState.intensity / 100;
+    if(rate > 0.1 && Math.random() < rate * 0.3) simState.bubbles.push({x: w*0.45 + (Math.random()-0.5)*40, y: h*0.6, r: 2+Math.random()*5});
+    simState.bubbles.forEach(b => b.y -= 1 + rate*2);
+    simState.bubbles = simState.bubbles.filter(b => b.y > 0);
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = dark?'#071810':'#F0FFF4'; c.fillRect(0,0,w,h);
+    // مؤشر الشدة
+    const brightness = `rgba(252,211,77,${rate*0.8 + 0.1})`;
+    c.fillStyle = brightness; c.font = `${Math.round(h*0.12)}px serif`; c.textAlign = 'center';
+    c.fillText('☀️', w/2, h*0.15);
+    // ورقة
+    c.fillStyle = rate > 0 ? (dark?'rgba(74,222,128,0.4)':'rgba(187,247,208,0.9)') : (dark?'rgba(100,100,100,0.3)':'rgba(200,200,200,0.8)');
+    c.beginPath(); c.ellipse(w/2, h*0.48, w*0.22, h*0.13, 0, 0, Math.PI*2); c.fill();
+    c.strokeStyle = rate > 0 ? bioAccent() : '#9CA3AF'; c.lineWidth = 2.5; c.stroke();
+    c.font = `${Math.round(h*0.06)}px serif`; c.textAlign = 'center';
+    c.fillText('🌿', w/2, h*0.5);
+    // فقاعات
+    simState.bubbles.forEach(b => {
+      c.fillStyle = dark?'rgba(147,197,253,0.5)':'rgba(59,130,246,0.45)';
+      c.beginPath(); c.arc(b.x, b.y, b.r, 0, Math.PI*2); c.fill();
+    });
+    const bw = w*0.8, bx = w*0.1, bbarW = bw * rate;
+    c.fillStyle = dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)';
+    c.beginPath(); c.roundRect(bx, h*0.78, bw, h*0.05, 8); c.fill();
+    c.fillStyle = bioAccent();
+    c.beginPath(); c.roundRect(bx, h*0.78, bbarW, h*0.05, 8); c.fill();
+    c.fillStyle = bioTxt(); c.font = `${Math.round(h*0.03)}px Tajawal`; c.textAlign = 'center';
+    c.fillText(`معدل التمثيل: ${Math.round(rate*100)}%`, w/2, h*0.9);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N7b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '📈 <strong>منحنى التشبع الضوئي:</strong>',
+    '• المنطقة أ: زيادة الضوء → زيادة التمثيل (علاقة طردية)',
+    '• نقطة التشبع: أقصى معدل للتمثيل',
+    '• المنطقة ب: زيادة الضوء لا تزيد المعدل',
+    '⚠️ العامل المحدود يكون CO₂ أو الكلوروفيل',
+  ], '📈 منحنى التشبع الضوئي'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n7'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('منحنى التشبع الضوئي', w/2, h*0.07);
+    const gx=w*0.13,gy=h*0.13,gw=w*0.78,gh=h*0.65;
+    c.strokeStyle=dark?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.15)'; c.lineWidth=1.5; c.strokeRect(gx,gy,gw,gh);
+    // منحنى
+    c.strokeStyle=bioAccent(); c.lineWidth=3; c.beginPath();
+    for(let i=0;i<=100;i++){
+      const x=gx+(i/100)*gw;
+      const rate = Math.min(1, i/60) * (1 - Math.exp(-i*0.05));
+      const y=gy+gh-rate*gh*0.85;
+      i===0?c.moveTo(x,y):c.lineTo(x,y);
+    }
+    c.stroke();
+    // نقطة التشبع
+    const satX = gx + gw*0.6, satY = gy + gh*0.15;
+    c.fillStyle = dark?'#F87171':'#DC2626';
+    c.beginPath(); c.arc(satX, satY, 7, 0, Math.PI*2); c.fill();
+    c.fillStyle = dark?'#F87171':'#DC2626'; c.font = `bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign = 'right';
+    c.fillText('نقطة التشبع', satX - 12, satY - 12);
+    // تسمية المناطق
+    c.fillStyle=dark?'#86EFAC':'#15803D'; c.font=`${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('منطقة أ: علاقة طردية', gx+gw*0.3, gy+gh+h*0.05);
+    c.fillStyle=dark?'#FCA5A5':'#DC2626';
+    c.fillText('منطقة ب: تشبع', gx+gw*0.8, gy+gh+h*0.05);
+    c.fillStyle=bioMut(); c.font=`${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('شدة الضوء ←', gx+gw/2, gy+gh+h*0.1);
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N7c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, src: 0 };
+  const sources = ['مصباح عادي 100W', 'مصباح LED', 'ضوء الشمس'];
+  const rates = [0.5, 0.75, 1.0];
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">⚡ مصدر الضوء</div>
+    ${sources.map((s,i)=>`<label style="display:flex;align-items:center;gap:10px;margin:8px 0;font-weight:700"><input type="radio" name="bioSrc" ${i===0?'checked':''} onchange="simState.src=${i}" style="width:18px;height:18px"> ${s}</label>`).join('')}
+  </div>`);
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n7'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.02;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('مقارنة مصادر الضوء', w/2, h*0.08);
+    sources.forEach((src, i) => {
+      const bx = w*(0.18+i*0.28), by = h*0.55, bw2 = w*0.18, bh = h*0.35*rates[i];
+      // عمود
+      c.fillStyle = i===simState.src ? bioAccent() : (dark?'rgba(74,222,128,0.2)':'rgba(187,247,208,0.6)');
+      c.beginPath(); c.roundRect(bx-bw2/2, by-bh, bw2, bh, 8); c.fill();
+      c.strokeStyle = i===simState.src ? (dark?'#4ADE80':'#16A34A') : (dark?'rgba(74,222,128,0.4)':'rgba(22,163,74,0.4)');
+      c.lineWidth = i===simState.src ? 2.5 : 1.5; c.stroke();
+      c.fillStyle = bioTxt(); c.font = `${Math.round(h*0.028)}px Tajawal`; c.textAlign = 'center';
+      c.fillText(src, bx, by + h*0.06);
+      c.fillStyle = i===simState.src ? bioAccent() : bioMut();
+      c.font = `bold ${Math.round(h*0.032)}px Tajawal`;
+      c.fillText(`${Math.round(rates[i]*100)}%`, bx, by - bh - h*0.02);
+    });
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ٨-٧ · تأثير درجة الحرارة
+════════════════════════════════════════ */
+function simG9Bio7N8a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, temp: 25, bubbles: [] };
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🌡️ درجة الحرارة: <span id="bio8a_tmp">25</span> °م</div>
+    <input type="range" min="0" max="50" value="25" oninput="simState.temp=+this.value;document.getElementById('bio8a_tmp').textContent=this.value" style="width:100%">
+    ${bioInfoPanel(['الدرجة المثلى للتمثيل الضوئي: 25-35°م'], '🌡️')}`);
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n8'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.025;
+    const T = simState.temp;
+    const rate = T < 5 ? 0.05 : T > 45 ? 0.05 : Math.exp(-Math.pow(T-30,2)/200);
+    if(rate > 0.1 && Math.random() < rate * 0.3) simState.bubbles.push({x:w*0.45+(Math.random()-0.5)*40, y:h*0.6, r:2+Math.random()*5});
+    simState.bubbles.forEach(b=>b.y -= 1+rate*2);
+    simState.bubbles = simState.bubbles.filter(b=>b.y>0);
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    // مؤشر حرارة
+    const heatColor = T < 15 ? '#60A5FA' : T < 35 ? '#4ADE80' : '#F87171';
+    c.fillStyle = heatColor; c.font = `${Math.round(h*0.1)}px serif`; c.textAlign = 'center';
+    c.fillText('🌡️', w*0.15, h*0.25);
+    c.fillStyle = heatColor; c.font = `bold ${Math.round(h*0.05)}px Tajawal`;
+    c.fillText(`${T}°م`, w*0.15, h*0.35);
+    // ورقة
+    c.fillStyle = rate > 0.3 ? (dark?'rgba(74,222,128,0.4)':'rgba(187,247,208,0.9)') : (dark?'rgba(156,163,175,0.25)':'rgba(209,250,229,0.5)');
+    c.beginPath(); c.ellipse(w*0.56, h*0.48, w*0.22, h*0.14, 0, 0, Math.PI*2); c.fill();
+    c.strokeStyle = rate > 0.3 ? bioAccent() : '#9CA3AF'; c.lineWidth = 2.5; c.stroke();
+    c.font = `${Math.round(h*0.065)}px serif`; c.textAlign = 'center';
+    c.fillText(rate > 0.3 ? '🌿' : '🍂', w*0.56, h*0.5);
+    simState.bubbles.forEach(b => {
+      c.fillStyle = dark?'rgba(147,197,253,0.5)':'rgba(59,130,246,0.45)';
+      c.beginPath(); c.arc(b.x, b.y, b.r, 0, Math.PI*2); c.fill();
+    });
+    c.fillStyle = bioTxt(); c.font = `${Math.round(h*0.03)}px Tajawal`; c.textAlign = 'center';
+    c.fillText(`معدل التمثيل: ${Math.round(rate*100)}%`, w/2, h*0.88);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N8b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🔬 <strong>الإنزيمات والحرارة:</strong>',
+    '✅ الدرجة المثلى (25-35°م): إنزيمات نشطة → تمثيل جيد',
+    '❄️ درجة منخفضة: الإنزيمات بطيئة → تمثيل ضعيف',
+    '🔥 درجة مرتفعة (+45°م): الإنزيمات تتغيّر وتُعطَّل',
+    '📌 الإنزيمات بروتينات تتحطم بالحرارة الزائدة',
+  ], '🔬 الدرجة المثلى للإنزيمات'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n8'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('منحنى نشاط الإنزيم مع درجة الحرارة', w/2, h*0.08);
+    const gx=w*0.13, gy=h*0.15, gw=w*0.78, gh=h*0.58;
+    c.strokeStyle=dark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.12)'; c.lineWidth=1.5; c.strokeRect(gx,gy,gw,gh);
+    c.strokeStyle=bioAccent(); c.lineWidth=3; c.beginPath();
+    for(let t=0;t<=50;t++){
+      const x=gx+(t/50)*gw;
+      const act = t<5?0.05:t>45?0.05:Math.exp(-Math.pow(t-30,2)/200);
+      const y=gy+gh-act*gh*0.9;
+      t===0?c.moveTo(x,y):c.lineTo(x,y);
+    }
+    c.stroke();
+    // نقطة مثلى
+    const optX=gx+gw*0.6, optY=gy+gh*0.1;
+    c.fillStyle=dark?'#FCD34D':'#D97706';
+    c.beginPath(); c.arc(optX,optY,7,0,Math.PI*2); c.fill();
+    c.fillStyle=dark?'#FCD34D':'#D97706'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='left';
+    c.fillText('الدرجة المثلى ~30°م',optX+12,optY-5);
+    c.fillStyle=bioMut(); c.font=`${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('درجة الحرارة (°م) →', gx+gw/2, gy+gh+h*0.08);
+    ['0','10','20','30','40','50'].forEach((v,i)=>{
+      c.fillStyle=bioMut(); c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+      c.fillText(v, gx+i*(gw/5), gy+gh+h*0.04);
+    });
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N8c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '⚖️ <strong>مقارنة بين درجتين:</strong>',
+    '❄️ عند 10°م: الإنزيمات بطيئة جداً — معدل منخفض جداً',
+    '🔥 عند 80°م: الإنزيمات مُعطَّلة — معدل يكاد يكون صفراً',
+    '✅ الفرق يوضح أن لكل درجة حرارة تأثير مختلف',
+  ], '⚖️ مقارنة 10°م مقابل 80°م'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n8'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.015;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('مقارنة التمثيل عند درجات مختلفة', w/2, h*0.08);
+    const compare = [
+      {temp:'10°م',rate:0.08,emoji:'❄️',color:dark?'#60A5FA':'#2563EB',x:w*0.25},
+      {temp:'25°م',rate:0.85,emoji:'✅',color:dark?'#4ADE80':'#16A34A',x:w*0.5},
+      {temp:'80°م',rate:0.04,emoji:'🔥',color:dark?'#F87171':'#DC2626',x:w*0.75},
+    ];
+    compare.forEach(item => {
+      const bh = h*0.45*item.rate, by = h*0.65;
+      c.fillStyle = item.color + '55';
+      c.beginPath(); c.roundRect(item.x-w*0.09, by-bh, w*0.18, bh, 8); c.fill();
+      c.strokeStyle = item.color; c.lineWidth = 2.5; c.stroke();
+      c.font = `${Math.round(h*0.055)}px serif`; c.textAlign = 'center';
+      c.fillText(item.emoji, item.x, by - bh - h*0.04);
+      c.fillStyle = item.color; c.font = `bold ${Math.round(h*0.032)}px Tajawal`;
+      c.fillText(item.temp, item.x, by + h*0.05);
+      c.fillStyle = bioTxt(); c.font = `${Math.round(h*0.026)}px Tajawal`;
+      c.fillText(`${Math.round(item.rate*100)}%`, item.x, by + h*0.1);
+    });
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
 // 🖊 السبورة التفاعلية — Interactive Whiteboard
 // يدعم الماوس + اللمس (iPad / Tablet)
 // ══════════════════════════════════════════════════════════
