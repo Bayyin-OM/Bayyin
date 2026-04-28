@@ -26956,28 +26956,30 @@ function simCircuit8Mystery() {
   const c  = cv.getContext('2d');
 
   if (!simState.c8m) simState.c8m = {
-    voltage: 6, ammeterPos: 0, bulbCount: 2, revealed: false, t: 0, r: 10
+    voltage: 6, ammeterPos: 0, bulbCount: 1, revealed: false, t: 0, r: 15
   };
   const S = simState.c8m;
 
   function renderControls() {
+    const bulbLabels = ['مصباح ١','مصباح ١، مصباح ٢','مصباح ١، مصباح ٢، مصباح ٣'];
     controls(`
       <div class="ctrl-section">
         <div class="ctrl-label">🔋 الجهد: <span class="ctrl-val">${S.voltage}</span> V</div>
         <input type="range" min="3" max="12" step="3" value="${S.voltage}"
-          oninput="simState.c8m.voltage=+this.value;simState.c8m.revealed=false">
+          oninput="simState.c8m.voltage=+this.value;simState.c8m.revealed=false;simCircuit8Mystery()">
       </div>
       <div class="ctrl-section">
         <div class="ctrl-label">💡 عدد المصابيح: <span class="ctrl-val">${S.bulbCount}</span></div>
         <input type="range" min="1" max="3" step="1" value="${S.bulbCount}"
-          oninput="simState.c8m.bulbCount=+this.value;simState.c8m.revealed=false">
+          oninput="simState.c8m.bulbCount=+this.value;simState.c8m.revealed=false;simCircuit8Mystery()">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;text-align:center">${bulbLabels[S.bulbCount-1]}</div>
       </div>
       <div class="ctrl-section">
         <div class="ctrl-label">📍 موضع الأميتر</div>
         ${[0,1,2].map(i=>`
           <button class="ctrl-btn${S.ammeterPos===i?' play':''}"
-            onclick="simState.c8m.ammeterPos=${i};simState.c8m.revealed=false">
-            ${['① قبل م١','② بين م١-م٢','③ بعد آخر م'][i]}
+            onclick="simState.c8m.ammeterPos=${i};simState.c8m.revealed=false;simCircuit8Mystery()">
+            ${['① قبل مصباح ١','② بين مصباح ١ و ٢','③ بعد آخر مصباح'][i]}
           </button>`).join('')}
       </div>
       <div class="info-box" style="font-size:12px;line-height:1.9">
@@ -26986,7 +26988,7 @@ function simCircuit8Mystery() {
         وغيّر عدد المصابيح<br>
         <em style="color:var(--muted)">ماذا تلاحظ؟</em>
       </div>
-      <button class="ctrl-btn play" onclick="simState.c8m.revealed=!simState.c8m.revealed"
+      <button class="ctrl-btn play" onclick="simState.c8m.revealed=!simState.c8m.revealed;simCircuit8Mystery()"
         style="margin-top:8px;width:100%">
         ${S.revealed ? '🙈 أخفِ التفسير' : '💡 اكشف الحقيقة!'}
       </button>
@@ -26994,11 +26996,6 @@ function simCircuit8Mystery() {
   }
 
   renderControls();
-  const panel = document.getElementById('simControls');
-  if (panel) {
-    panel.addEventListener('input', () => renderControls());
-    panel.addEventListener('click', () => renderControls());
-  }
 
   function draw() {
     if (currentSim !== 'circuit8' || currentTab !== 2) return;
@@ -27007,233 +27004,233 @@ function simCircuit8Mystery() {
     c.clearRect(0, 0, w, h);
 
     // ── خلفية فاتحة ──
-    const bgColor = '#EEE9E2';
-    c.fillStyle = bgColor; c.fillRect(0, 0, w, h);
+    c.fillStyle = '#EEE9E2'; c.fillRect(0, 0, w, h);
 
     // ── حسابات ──
     const R_total = S.r * S.bulbCount;
     const I = +(S.voltage / R_total).toFixed(2);
-    // إضاءة: تتناسب عكسياً مع عدد المصابيح
-    const maxI = S.voltage / S.r;  // تيار مصباح واحد
-    const brightness = Math.min(1, I / maxI);
+    // إضاءة واضحة: مصباح واحد = MAX، كل مصباح إضافي يقلل بشكل ملحوظ
+    const I_single = S.voltage / S.r;
+    const brightness = I / I_single; // 1.0 لمصباح واحد، 0.5 لمصباحين، 0.33 لثلاثة
 
-    // ── تخطيط الدائرة ──
-    // البطارية على اليسار الرأسي
-    // السلك العلوي: left→right عليه الأميتر + المصابيح (ماعدا الأخير)
-    // السلك الأيمن والأسفل والأيسر عادي
-    // المصباح الأخير على السلك الأسفل في المنتصف
-
-    const left  = w * 0.10;
-    const right = w * 0.92;
-    const top   = h * 0.20;
-    const bot   = h * 0.80;
+    // ── تخطيط ──
+    const left  = w * 0.12;
+    const right = w * 0.91;
+    const top   = h * 0.18;
+    const bot   = h * 0.82;
     const midY  = (top + bot) / 2;
     const wireClr = '#1A8FA8';
-    const dotClr  = '#27AE60';
 
     // ── رسم الأسلاك ──
-    c.strokeStyle = wireClr; c.lineWidth = 4;
-    c.beginPath(); c.moveTo(left, top);  c.lineTo(right, top);  c.stroke(); // أعلى
-    c.beginPath(); c.moveTo(left, bot);  c.lineTo(right, bot);  c.stroke(); // أسفل
-    c.beginPath(); c.moveTo(right, top); c.lineTo(right, bot);  c.stroke(); // يمين
-    c.beginPath(); c.moveTo(left,  top); c.lineTo(left,  bot);  c.stroke(); // يسار
+    c.strokeStyle = wireClr; c.lineWidth = 4.5;
+    c.lineCap = 'round';
+    c.beginPath(); c.moveTo(left, top);  c.lineTo(right, top);  c.stroke();
+    c.beginPath(); c.moveTo(left, bot);  c.lineTo(right, bot);  c.stroke();
+    c.beginPath(); c.moveTo(right, top); c.lineTo(right, bot);  c.stroke();
+    c.beginPath(); c.moveTo(left,  top); c.lineTo(left,  bot);  c.stroke();
 
-    // نقاط الزوايا
+    // نقاط زوايا
     [[left,top],[right,top],[right,bot],[left,bot]].forEach(([dx,dy])=>{
-      c.fillStyle=dotClr; c.beginPath(); c.arc(dx,dy,7,0,Math.PI*2); c.fill();
+      c.fillStyle='#27AE60'; c.beginPath(); c.arc(dx,dy,7,0,Math.PI*2); c.fill();
     });
 
-    // ── إلكترونات متحركة ──
+    // ── إلكترونات ──
     for (let i = 0; i < 9; i++) {
-      const frac = ((S.t*0.22 + i/9) % 1);
+      const frac = ((S.t * 0.22 + i/9) % 1);
       const topW=right-left, sideH=bot-top, perim=2*(topW+sideH);
       const dist=frac*perim;
       let ex,ey;
-      if      (dist < topW)              { ex=left+dist;                    ey=top; }
-      else if (dist < topW+sideH)        { ex=right;                        ey=top+(dist-topW); }
-      else if (dist < 2*topW+sideH)      { ex=right-(dist-topW-sideH);     ey=bot; }
-      else                               { ex=left;  ey=bot-(dist-2*topW-sideH); }
-      const alpha=0.5+0.4*Math.sin(S.t*4+i);
+      if      (dist < topW)           { ex=left+dist;                ey=top; }
+      else if (dist < topW+sideH)     { ex=right;                    ey=top+(dist-topW); }
+      else if (dist < 2*topW+sideH)   { ex=right-(dist-topW-sideH); ey=bot; }
+      else                            { ex=left; ey=bot-(dist-2*topW-sideH); }
+      const alpha=0.55+0.35*Math.sin(S.t*4+i);
       c.fillStyle=`rgba(26,143,168,${alpha})`;
       c.beginPath(); c.arc(ex,ey,5,0,Math.PI*2); c.fill();
     }
 
     // ── بطارية ──
     function drawBattery(cx,cy) {
-      c.fillStyle='#F5F0E8'; c.strokeStyle='#888'; c.lineWidth=1.5;
-      c.beginPath(); c.roundRect(cx-16,cy-36,32,72,5); c.fill(); c.stroke();
-      [['#E74C3C',cy-26],['#F39C12',cy-10],['#27AE60',cy+6]].forEach(([col,y])=>{
-        c.fillStyle=col; c.fillRect(cx-11,y,22,10);
+      c.fillStyle='#F5F0E8'; c.strokeStyle='#999'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(cx-16,cy-38,32,76,5); c.fill(); c.stroke();
+      [['#E74C3C',cy-28],['#F39C12',cy-10],['#27AE60',cy+8]].forEach(([col,y])=>{
+        c.fillStyle=col; c.fillRect(cx-11,y,22,12);
       });
       c.textAlign='center'; c.textBaseline='middle';
-      c.font='bold 14px sans-serif';
-      c.fillStyle='#E74C3C'; c.fillText('+', cx, cy-48);
-      c.fillStyle='#3498DB'; c.fillText('−', cx, cy+50);
+      c.font='bold 15px sans-serif';
+      c.fillStyle='#E74C3C'; c.fillText('+',cx,cy-52);
+      c.fillStyle='#3498DB';  c.fillText('−',cx,cy+54);
       c.font='bold 13px Tajawal'; c.fillStyle='#2C3A4A'; c.textBaseline='alphabetic';
-      c.fillText(S.voltage+'V', cx, cy+68);
+      c.fillText(S.voltage+'V',cx,cy+72);
     }
     drawBattery(left, midY);
 
     // ── توزيع المصابيح ──
-    // المصباح الأخير دائماً في الأسفل (منتصف السلك السفلي)
-    // باقي المصابيح على السلك العلوي موزّعة
-    const topBulbCount = S.bulbCount - 1;  // المصابيح على الأعلى
-    const bottomBulbX  = (left + right) / 2; // مصباح الأسفل
+    // المصباح الأخير دائماً أسفل · الباقون أعلى
+    const topCount = S.bulbCount - 1;
+    const botBulbX = (left + right) / 2;
 
-    // المصابيح العلوية: موزّعة بين left وright بعد الأميتر
-    // نقسّم السلك العلوي إلى (topBulbCount+2) قسم حتى يكون الأميتر في القسم الأول
-    const topSeg = (right - left) / (topBulbCount + 2);
+    // المصابيح العلوية: الثلث الأيمن من السلك العلوي
+    const topAreaStart = left + (right-left)*0.35;
+    const topAreaEnd   = right - (right-left)*0.05;
     const topBulbX = [];
-    for (let i = 0; i < topBulbCount; i++) {
-      topBulbX.push(left + topSeg * (i + 2)); // تبدأ بعد الأميتر
+    for (let i=0; i<topCount; i++) {
+      const x = topCount===1
+        ? (topAreaStart+topAreaEnd)/2
+        : topAreaStart + (topAreaEnd-topAreaStart)*i/(topCount-1);
+      topBulbX.push(x);
     }
 
-    // مواضع الأميتر على السلك العلوي
-    // موضع 0: قبل أول مصباح علوي (أو وسط السلك لو bulbCount=1)
-    // موضع 1: بين م١ وم٢ (على السلك العلوي)
-    // موضع 2: على السلك الأسفل قبل المصباح الأخير
-    let ammeterX, ammeterY, ammeterLabel;
-    if (S.ammeterPos === 0) {
-      ammeterX = left + topSeg * 0.9;
-      ammeterY = top;
-      ammeterLabel = 'قبل م١';
-    } else if (S.ammeterPos === 1) {
-      // بين م١ وم٢: إذا topBulbCount>=1 نضعه بعد م١ وإلا على السلك الأسفل
-      if (topBulbCount >= 1) {
-        ammeterX = topBulbX[0] + topSeg * 0.6;
-        ammeterY = top;
-        ammeterLabel = 'بين م١ وم٢';
-      } else {
-        ammeterX = bottomBulbX - (right-left)*0.18;
-        ammeterY = bot;
-        ammeterLabel = 'قبل م٢ (أسفل)';
-      }
-    } else {
-      ammeterX = bottomBulbX + (right-left)*0.18;
-      ammeterY = bot;
-      ammeterLabel = 'بعد آخر مصباح';
-    }
+    // ── دالة رسم المصباح كرمز كهربائي ──
+    function drawBulb(bx, by, nameLabel, brt, side) {
+      // side: 'top' → فوق السلك · 'bot' → تحت السلك
+      const R = 22;
+      const isTop = side === 'top';
+      const cy2 = isTop ? by - R - 2 : by + R + 2;
 
-    // ── دالة رسم المصباح ──
-    function drawBulb(bx, by, label, brt, onWireDir) {
-      // onWireDir: 'top' أو 'bot'
-      const R = 20;
-      const isTop = onWireDir === 'top';
-      const centerY = isTop ? by - R - 4 : by + R + 4;
+      // فجوة بسيطة في السلك
+      c.strokeStyle='#EEE9E2'; c.lineWidth=6;
+      c.beginPath(); c.moveTo(bx-R+4,by); c.lineTo(bx+R-4,by); c.stroke();
+      c.strokeStyle=wireClr; c.lineWidth=4.5;
 
-      // هالة
-      if (brt > 0.15) {
-        const glow = c.createRadialGradient(bx, centerY, 2, bx, centerY, R*2.8);
-        glow.addColorStop(0, `rgba(255,210,0,${brt*0.6})`);
-        glow.addColorStop(1, `rgba(255,210,0,0)`);
-        c.fillStyle=glow; c.beginPath(); c.arc(bx,centerY,R*2.8,0,Math.PI*2); c.fill();
+      // هالة إضاءة (تتغير بشكل واضح)
+      const glowSize = R * (1.5 + brt * 2.5);
+      const glowAlpha = brt * 0.7;
+      if (brt > 0.05) {
+        const glow = c.createRadialGradient(bx,cy2,2,bx,cy2,glowSize);
+        glow.addColorStop(0,`rgba(255,220,50,${glowAlpha})`);
+        glow.addColorStop(0.5,`rgba(255,180,0,${glowAlpha*0.4})`);
+        glow.addColorStop(1,`rgba(255,150,0,0)`);
+        c.fillStyle=glow; c.beginPath(); c.arc(bx,cy2,glowSize,0,Math.PI*2); c.fill();
       }
 
       // جسم المصباح
-      const bulbFill = brt > 0.3
-        ? `rgba(255,${Math.floor(180+60*brt)},0,0.95)`
-        : '#CCC';
-      c.fillStyle=bulbFill; c.strokeStyle=brt>0.3?'#C07000':'#999';
+      const lum = Math.floor(brt * 255);
+      const bulbFill = brt > 0.1
+        ? `rgb(255,${Math.floor(130+brt*110)},${Math.floor(brt*40)})`
+        : '#DCDCDC';
+      c.fillStyle=bulbFill;
+      c.strokeStyle=brt>0.2?`rgba(180,100,0,0.8)`:'#AAA';
       c.lineWidth=2.5;
-      c.beginPath(); c.arc(bx,centerY,R,0,Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.arc(bx,cy2,R,0,Math.PI*2); c.fill(); c.stroke();
 
-      // خيط مضيء داخلي
-      c.strokeStyle=brt>0.3?'#FFF8':'#7776'; c.lineWidth=2;
+      // خيط داخلي
+      c.strokeStyle = brt>0.2 ? `rgba(255,255,255,${0.5+brt*0.5})` : '#BBB';
+      c.lineWidth=2.2;
       c.beginPath();
-      c.moveTo(bx-6,centerY+7); c.lineTo(bx,centerY-8); c.lineTo(bx+6,centerY+7);
+      c.moveTo(bx-7,cy2+8); c.quadraticCurveTo(bx,cy2-2,bx+7,cy2+8);
+      c.stroke();
+      c.beginPath();
+      c.moveTo(bx-4,cy2+8); c.lineTo(bx-4,cy2+14);
+      c.moveTo(bx+4,cy2+8); c.lineTo(bx+4,cy2+14);
       c.stroke();
 
-      // قاعدة المصباح (مستطيل صغير يلتقي بالسلك)
-      c.fillStyle='#888'; c.strokeStyle='#666'; c.lineWidth=1.5;
-      const baseH=8;
+      // وصلة بالسلك
+      c.strokeStyle=wireClr; c.lineWidth=3;
       if (isTop) {
-        c.beginPath(); c.roundRect(bx-7, centerY+R-1, 14, baseH+2, 2); c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(bx,cy2+R); c.lineTo(bx,by); c.stroke();
       } else {
-        c.beginPath(); c.roundRect(bx-7, centerY-R-baseH, 14, baseH+2, 2); c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(bx,cy2-R); c.lineTo(bx,by); c.stroke();
       }
 
-      // تسمية
+      // تسمية + مقاومة
       c.font='bold 13px Tajawal'; c.fillStyle='#1E2D3D'; c.textAlign='center';
       if (isTop) {
         c.textBaseline='top';
-        c.fillText(label, bx, centerY+R+baseH+6);
+        c.fillText(nameLabel, bx, cy2+R+8);
         c.font='12px Tajawal'; c.fillStyle='#5A6A7A';
-        c.fillText(S.r+'Ω', bx, centerY+R+baseH+22);
+        c.fillText(S.r+'Ω', bx, cy2+R+24);
       } else {
         c.textBaseline='bottom';
-        c.fillText(label, bx, centerY-R-baseH-6);
+        c.fillText(nameLabel, bx, cy2-R-8);
         c.font='12px Tajawal'; c.fillStyle='#5A6A7A';
-        c.fillText(S.r+'Ω', bx, centerY-R-baseH-20);
+        c.fillText(S.r+'Ω', bx, cy2-R-22);
       }
       c.textBaseline='alphabetic';
     }
 
-    // رسم المصابيح العلوية
-    for (let i = 0; i < topBulbCount; i++) {
-      drawBulb(topBulbX[i], top, `م${i+1}`, brightness, 'top');
+    // رسم المصابيح
+    const bulbNames=['مصباح ١','مصباح ٢','مصباح ٣'];
+    for (let i=0; i<topCount; i++) drawBulb(topBulbX[i], top, bulbNames[i], brightness, 'top');
+    drawBulb(botBulbX, bot, bulbNames[S.bulbCount-1], brightness, 'bot');
+
+    // ── الأميتر (داخل الدائرة على السلك) ──
+    // موضع 0 → السلك العلوي يسار المصابيح
+    // موضع 1 → السلك العلوي بين مصباح ١ و ٢ (أو الأسفل إذا bulbCount=1)
+    // موضع 2 → السلك الأسفل يمين المصباح الأخير
+    let aX, aY;
+    if (S.ammeterPos === 0) {
+      aX = left + (right-left)*0.20; aY = top;
+    } else if (S.ammeterPos === 1) {
+      if (topCount >= 2 && topBulbX.length >= 2) {
+        aX = (topBulbX[0]+topBulbX[1])/2; aY = top;
+      } else if (topCount === 1) {
+        aX = (topBulbX[0] + right)*0.5; aY = top;
+      } else {
+        aX = botBulbX - (right-left)*0.15; aY = bot;
+      }
+    } else {
+      aX = botBulbX + (right-left)*0.18; aY = bot;
     }
-    // المصباح الأخير في الأسفل
-    drawBulb(bottomBulbX, bot, `م${S.bulbCount}`, brightness, 'bot');
+    const ammeterLabels=['قبل مصباح ١','بين مصباح ١ و ٢','بعد آخر مصباح'];
 
-    // ── الأميتر ──
-    const aR = 26;
-    const isTop = ammeterY === top;
-    const aCenterY = isTop ? ammeterY - aR - 6 : ammeterY + aR + 6;
+    const aR = 22;
+    // فجوة في السلك
+    c.strokeStyle='#EEE9E2'; c.lineWidth=6;
+    c.beginPath(); c.moveTo(aX-aR+4,aY); c.lineTo(aX+aR-4,aY); c.stroke();
 
-    // نبضة خضراء
-    const pulse = 0.3+0.3*Math.sin(S.t*3.5);
-    c.fillStyle=`rgba(39,174,96,${pulse*0.25})`;
-    c.beginPath(); c.arc(ammeterX,aCenterY,aR*1.9,0,Math.PI*2); c.fill();
+    // نبضة
+    const pulse=0.25+0.25*Math.sin(S.t*3.5);
+    c.fillStyle=`rgba(26,95,122,${pulse})`;
+    c.beginPath(); c.arc(aX,aY,aR*1.6,0,Math.PI*2); c.fill();
 
-    // دائرة الأميتر
-    c.fillStyle='#FFFFFF'; c.strokeStyle='#1A8FA8'; c.lineWidth=3;
-    c.beginPath(); c.arc(ammeterX,aCenterY,aR,0,Math.PI*2); c.fill(); c.stroke();
-
-    // حرف A
-    c.font=`bold 20px sans-serif`; c.fillStyle='#1A5F7A';
+    // دائرة الأميتر (مركزها على السلك مباشرة)
+    c.fillStyle='#FFFFFF'; c.strokeStyle='#1A5F7A'; c.lineWidth=3;
+    c.beginPath(); c.arc(aX,aY,aR,0,Math.PI*2); c.fill(); c.stroke();
+    c.font='bold 18px sans-serif'; c.fillStyle='#1A5F7A';
     c.textAlign='center'; c.textBaseline='middle';
-    c.fillText('A', ammeterX, aCenterY);
+    c.fillText('A',aX,aY);
     c.textBaseline='alphabetic';
 
-    // بطاقة قراءة التيار
-    const cardW=90, cardH=38, cardX=ammeterX-cardW/2;
-    const cardY = isTop ? aCenterY - aR - 52 : aCenterY + aR + 8;
-    c.fillStyle='#1A5F7A'; c.strokeStyle='#27AE60'; c.lineWidth=2;
-    c.beginPath(); c.roundRect(cardX,cardY,cardW,cardH,8); c.fill(); c.stroke();
-    c.font='bold 15px Tajawal'; c.fillStyle='#FFFFFF';
+    // بطاقة قراءة التيار (فوق أو تحت حسب الموضع)
+    const cardW=100, cardH=42;
+    const cardX=aX-cardW/2;
+    const cardY = (aY===top) ? aY-aR-cardH-10 : aY+aR+10;
+    c.fillStyle='#1A5F7A'; c.strokeStyle='#4EC9F0'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(cardX,cardY,cardW,cardH,9); c.fill(); c.stroke();
+    c.font='bold 16px Tajawal'; c.fillStyle='#FFFFFF';
     c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(`${I} A`, ammeterX, cardY+13);
-    c.font='11px Tajawal'; c.fillStyle='#AEE8C8';
-    c.fillText(ammeterLabel, ammeterX, cardY+28);
+    c.fillText(I+' A', aX, cardY+14);
+    c.font='11px Tajawal'; c.fillStyle='#AEE8F8';
+    c.fillText(ammeterLabels[S.ammeterPos], aX, cardY+30);
     c.textBaseline='alphabetic';
 
     // ── عنوان ──
     c.font='bold 17px Tajawal'; c.fillStyle='#1E2D3D'; c.textAlign='center';
-    c.fillText('⚡ استقصاء دائرة التوالي', w/2, h*0.10);
+    c.fillText('⚡ استقصاء دائرة التوالي', w/2, h*0.09);
 
     // ── معادلة أسفل ──
     const rStr=Array(S.bulbCount).fill(S.r).join('+');
-    c.font='13px Tajawal'; c.fillStyle='#C07000';
-    c.fillText(`I = ${S.voltage}V ÷ (${rStr})Ω = ${I} A`, w/2, h*0.93);
+    c.font='13px Tajawal'; c.fillStyle='#B07000';
+    c.fillText(`I = ${S.voltage}V ÷ (${rStr})Ω = ${I} A`, w/2, h*0.95);
 
     // ── كشف الحقيقة ──
     if (S.revealed) {
-      const bx=w*0.5, by=h*0.54;
-      c.fillStyle='rgba(0,0,0,0.07)';
-      c.beginPath(); c.roundRect(bx-205,by-76+5,410,162,14); c.fill();
-      c.fillStyle='#FFFEF7'; c.strokeStyle='#27AE60'; c.lineWidth=2;
-      c.beginPath(); c.roundRect(bx-205,by-76,410,162,14); c.fill(); c.stroke();
-
-      c.font='bold 14px Tajawal'; c.fillStyle='#1E6B3C'; c.textAlign='center';
-      c.textBaseline='middle';
-      c.fillText('💡 الملاحظة الأولى: التيار لا يُستهلك!', bx, by-50);
+      const bx=w*0.5, by=h*0.52;
+      c.fillStyle='rgba(0,0,0,0.06)';
+      c.beginPath(); c.roundRect(bx-210,by-76+6,420,170,14); c.fill();
+      c.fillStyle='#FFFEF7'; c.strokeStyle='#27AE60'; c.lineWidth=2.5;
+      c.beginPath(); c.roundRect(bx-210,by-76,420,170,14); c.fill(); c.stroke();
+      c.textAlign='center'; c.textBaseline='middle';
+      c.font='bold 14px Tajawal'; c.fillStyle='#1E6B3C';
+      c.fillText('💡 الملاحظة الأولى: التيار لا يُستهلك!', bx, by-52);
       c.font='13px Tajawal'; c.fillStyle='#2C3A4A';
-      c.fillText('الأميتر يقرأ نفس القيمة في أي موضع على الدائرة', bx, by-28);
-      c.fillText('لأن دائرة التوالي مسار واحد فقط.', bx, by-8);
-      c.font='bold 14px Tajawal'; c.fillStyle='#C07000';
-      c.fillText('💡 الملاحظة الثانية: زيادة المصابيح تقلل الإضاءة!', bx, by+20);
+      c.fillText('الأميتر يقرأ نفس القيمة في أي موضع على الدائرة', bx, by-30);
+      c.fillText('لأن دائرة التوالي مسار واحد فقط.', bx, by-10);
+      c.font='bold 14px Tajawal'; c.fillStyle='#B07000';
+      c.fillText('💡 الملاحظة الثانية: زيادة المصابيح تقلل الإضاءة!', bx, by+18);
       c.font='13px Tajawal'; c.fillStyle='#2C3A4A';
-      c.fillText(`${S.bulbCount} مصباح ← R = ${R_total}Ω ← I = ${I}A`, bx, by+44);
+      c.fillText(`${S.bulbCount} مصباح → R = ${R_total}Ω → I = ${I}A`, bx, by+42);
       c.fillText('كلما زاد عدد المصابيح، زادت المقاومة وقلّ التيار', bx, by+66);
       c.textBaseline='alphabetic';
     }
