@@ -4188,7 +4188,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           <div class="sim-thumb t2">🔌</div>
           <div class="sim-body">
             <div class="sim-num">11-9 · الدائرة الكهربائية</div>
-            <div class="sim-name">متسلسلة ومتوازية</div>
+            <div class="sim-name">على التوالي وعلى التوازي</div>
             <div class="sim-desc">ابنِ دوائر وافصل المصابيح — واكتشف الفرق بين النوعين</div>
           </div>
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
@@ -6083,14 +6083,14 @@ const SIM_META = {
   magfield:     { title: 'نشاط 3-11 · المجال المغناطيسيّ', badge: '🧲 8', tabs: ['خطوط المجال 🔮', 'بوصلة تفاعلية 🧭', 'المجال الأرضي 🌍'] },
   electromagnet:{ title: 'نشاط 4-11 · الكهرومغناطيس', badge: '🧲 8', tabs: ['اصنع مغناطيساً ⚡', 'قوة الكهرومغناطيس 💪'] },
   staticelec:   { title: 'نشاط 6-11 · الكهرباء الساكنة', badge: '⚡ 8', tabs: ['شحن الأجسام ⚡', 'التجاذب والتنافر 🔄', 'التنافر الكهربائي 📏'] },
-  circuit8:     { title: 'نشاط 9-11 · الدائرة الكهربائية', badge: '⚡ 8', tabs: ['دائرة متسلسلة 🔌', 'دائرة متوازية 🔀'] },
+  circuit8:     { title: 'نشاط 9-11 · الدائرة الكهربائية', badge: '⚡ 8', tabs: ['دائرة على التوالي 🔌', 'دائرة على التوازي 🔀'] },
   magcompare:   { title: 'نشاط 2-11 · مقارنة أنواع المغناطيس', badge: '🧲 8', tabs: ['قياس القوة 📏', 'اختبار المواد 🔬'] },
   emstronger:   { title: 'نشاط 5-11 · تحسين الكهرومغناطيس', badge: '🧲 8', tabs: ['أثر اللفّات 🔁', 'أثر التيار ⚡'] },
   charges:      { title: 'نشاط 7-11 · الشحنة الموجبة والسالبة', badge: '⚡ 8', tabs: ['قياس الشحنة ⊕', 'تجاذب وتنافر 🔄'] },
   electrons:    { title: 'نشاط 8-11 · حركة الإلكترونات', badge: '⚡ 8', tabs: ['الشحن بالاحتكاك 🔀', 'الإلكترونات داخل الذرة ⚛️'] },
   cellvoltage:  { title: 'نشاط 10-11 · توصيل الخلايا', badge: '⚡ 8', tabs: ['الخلايا على التوالي 🔋', 'الجهد والتيار 📊'] },
   resistance:   { title: 'نشاط 11-11 · المقاومة الكهربائية', badge: '⚡ 8', tabs: ['المقاومة الثابتة 〰️', 'المقاومة المتغيرة 🎛️'] },
-  parallel12:   { title: 'نشاط 12-11 · التوصيل على التوازي', badge: '⚡ 8', tabs: ['الدائرة المتوازية 🔀', 'مقارنة التسلسل والتوازي ⚖️'] },
+  parallel12:   { title: 'نشاط 12-11 · التوصيل على التوازي', badge: '⚡ 8', tabs: ['الدائرة على التوازي 🔀', 'مقارنة التوالي والتوازي ⚖️'] },
   forces:      { title: 'نشاط 1-9 · القُوى', badge: '9-1', tabs: ['أنواع القوى 💪', 'مخطط القوى 🏹', 'محصلة القوى 🏆'] },
   forcemeter:  { title: 'نشاط 2-9 · قياس القوى', badge: '9-2', tabs: ['الميزان الزنبركي ⚖️', 'قياس قوى الدفع 📏'] },
   gravity:     { title: 'نشاط 3-9 · الوزن والجاذبية', badge: '9-3', tabs: ['الكتلة والوزن 🌍', 'الجاذبية على القمر 🌕'] },
@@ -26815,7 +26815,7 @@ function simCircuit8Series() {
       ${[0,1,2].map(i=>`<button class="ctrl-btn" onclick="simState.c8s.bulbs[${i}]=!simState.c8s.bulbs[${i}]">💡 مصباح ${['١','٢','٣'][i]}</button>`).join('')}
     </div>
     <div class="info-box" style="font-size:13px;line-height:1.9">
-      ⚠️ في التسلسل:<br>
+      ⚠️ في التوالي:<br>
       إيقاف <strong>أي</strong> مصباح<br>
       = الكل ينطفئ!<br>
       <em style="color:#888">مسار واحد للتيار</em>
@@ -26869,8 +26869,8 @@ function simCircuit8Series() {
       c.fillText(S.bulbs[i]?'متصل':'مفصول',bx,top+30);
     });
 
-    U9.txt(c,`الدائرة المتسلسلة · I = ${I} A`,w/2,h*.12,'#6C3483',14,true);
-    if(!allOn) U9.txt(c,'⚠️ قطع التسلسل — الكل انطفأ!',w/2,h*.88,'#E74C3C',13,true);
+    U9.txt(c,`الدائرة على التوالي · I = ${I} A`,w/2,h*.12,'#6C3483',14,true);
+    if(!allOn) U9.txt(c,'⚠️ قطع التوالي — الكل انطفأ!',w/2,h*.88,'#E74C3C',13,true);
     animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
   }
   draw();
@@ -26940,7 +26940,7 @@ function simCircuit8Parallel() {
     });
 
     const onCnt=S.bulbs.filter(b=>b).length;
-    U9.txt(c,`الدائرة المتوازية · ${onCnt} مصابيح تضيء`,w/2,h*.12,'#1E8449',14,true);
+    U9.txt(c,`الدائرة على التوازي · ${onCnt} مصابيح تضيء`,w/2,h*.12,'#1E8449',14,true);
     if(onCnt<3) U9.txt(c,'✅ الباقون يضيئون باستقلالية!',w/2,h*.88,'#27AE60',13,true);
     animFrame=requestAnimationFrame(()=>{try{draw();}catch(e){}});
   }
@@ -28241,8 +28241,8 @@ function simParallel12b() {
     <button class="ctrl-btn play" onclick="simState.p12b.running=true;simState.p12b.t=0">▶ قارن</button>
     <button class="ctrl-btn reset" onclick="simState.p12b.running=false;simState.p12b.t=0">↺ إعادة</button>
     <div class="info-box" style="font-size:12px;line-height:1.9">
-      تسلسل: تيار واحد عبر الكل<br>
-      توازي: كل فرع له تياره<br>
+      على التوالي: تيار واحد عبر الكل<br>
+      على التوازي: كل فرع له تياره<br>
       <em>المنازل تستخدم التوازي!</em>
     </div>`);
 
@@ -28257,7 +28257,7 @@ function simParallel12b() {
     // ===== الجانب الأيسر: تسلسل =====
     const lMid=w*.25, top=h*.2, bot=h*.72;
     const Is=+(S.voltage/30).toFixed(2);
-    U9.txt(c,'التسلسل',lMid,top-18,'#8E44AD',13,true);
+    U9.txt(c,'على التوالي',lMid,top-18,'#8E44AD',13,true);
 
     c.strokeStyle='#8E44AD'; c.lineWidth=2.5;
     [[lMid-60,top,lMid+60,top],[lMid-60,bot,lMid+60,bot],
@@ -28284,7 +28284,7 @@ function simParallel12b() {
     // ===== الجانب الأيمن: توازي =====
     const rMid=w*.75;
     const Ip=+(S.voltage/15).toFixed(2);
-    U9.txt(c,'التوازي',rMid,top-18,'#27AE60',13,true);
+    U9.txt(c,'على التوازي',rMid,top-18,'#27AE60',13,true);
 
     c.strokeStyle='#555'; c.lineWidth=2.5;
     c.beginPath(); c.moveTo(rMid-60,top); c.lineTo(rMid+60,top); c.stroke();
