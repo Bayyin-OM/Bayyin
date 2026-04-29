@@ -6155,6 +6155,8 @@ const SIM_META = {
   g9bio7n6: { title: 'نشاط ٦-٧ · التمثيل الضوئي في نبات مائي', badge: '💧 أحياء ٩', tabs: ['فقاعات الأكسجين وشدة الضوء 💧', 'رسم بياني: المسافة مقابل المعدل 📈', 'استنتج العلاقة 🔍'] },
   g9bio7n7: { title: 'نشاط ٧-٧ · تأثير شدة الضوء', badge: '💡 أحياء ٩', tabs: ['شدة الضوء ومعدل التمثيل 💡', 'منحنى التشبع الضوئي 📈', 'مقارنة مصادر الضوء ⚡'] },
   g9bio7n8: { title: 'نشاط ٨-٧ · تأثير درجة الحرارة', badge: '🌡️ أحياء ٩', tabs: ['درجة الحرارة ومعدل التمثيل 🌡️', 'الدرجة المثلى للإنزيمات 🔬', 'قارن: ١٠°م مقابل ٨٠°م ⚖️'] },
+  g9bio7n9: { title: 'موضوع ٤-٧ · الأملاح المعدنية', badge: '🌿 أحياء ٩', tabs: ['النيترات ونقص النيتروجين 🍃', 'الماغنيسيوم ونقص الكلوروفيل 💚', 'قارن: نبات طبيعي ونبات ناقص 🔬'] },
+  g9bio7n10: { title: 'موضوع ٤-٧ · نقل السكروز', badge: '🍬 أحياء ٩', tabs: ['لماذا نقل الجلوكوز إلى سكروز؟ 🧬', 'أنابيب اللحاء وتوزيع السكر 🌿', 'مصير الجلوكوز في النبات 🔄'] },
   // ── الصف التاسع — الوحدة ٦: الأحماض والقواعد ──
   g9acidprop:   { title: 'نشاط 6-1 · خصائص الأحماض والقواعد', badge: '⚗️ 9', tabs: ['تصنيف المحاليل 🧪', 'الأحماض العضوية 🍋', 'القواعد والقلويات 🧴'] },
   g9indicator:  { title: 'نشاط 6-2 · الكواشف وتغيُّر اللون', badge: '🌺 9', tabs: ['ورق تبّاع الشمس 📄', 'الكاشف العام 🎨', 'الكاشف الطبيعي 🌸'] },
@@ -6755,6 +6757,8 @@ function openSim(type) {
     g9bio7n6: 'كلما اقتربت المصباح ازدادت الفقاعات 💧 — الأكسجين دليل مباشر على نشاط التمثيل الضوئي!',
     g9bio7n7: 'الضوء الزائد لا يزيد المعدل إلى ما لا نهاية 💡 — هناك حد أقصى عند التشبع الضوئي!',
     g9bio7n8: 'الحرارة الزائدة تُعطِّل الإنزيمات 🌡️ — الدرجة المثلى تعطي أقصى معدل للتمثيل الضوئي!',
+    g9bio7n9: 'النيترات لبناء البروتين والكلوروفيل 🌿 — النقص يجعل الأوراق صفراء وصغيرة!',
+    g9bio7n10: 'الجلوكوز يتحول إلى سكروز للنقل 🍬 — أنابيب اللحاء تحمله لكل خلية في النبات!',
     // ── الصف التاسع — الوحدة ٦: الأحماض والقواعد ──
     g9acidprop:'الأحماض لها طعم حامض والقواعد ملمسها زلق 🍋 — صنِّفها من خصائصها!',
     g9indicator:'لون واحد يخبرك بكل شيء 🌺 — ورق تبّاع الشمس سيكشف السر!',
@@ -7057,6 +7061,8 @@ function startSim(type, tab) {
     g9bio7n6: [simG9Bio7N6a, simG9Bio7N6b, simG9Bio7N6c],
     g9bio7n7: [simG9Bio7N7a, simG9Bio7N7b, simG9Bio7N7c],
     g9bio7n8: [simG9Bio7N8a, simG9Bio7N8b, simG9Bio7N8c],
+    g9bio7n9: [simG9Bio7N9a, simG9Bio7N9b, simG9Bio7N9c],
+    g9bio7n10: [simG9Bio7N10a, simG9Bio7N10b, simG9Bio7N10c],
     // ── الوحدة السابعة: معادلات التفاعلات ──
     g9wordeq:    [simG9WordEq1, simG9WordEq2, simG9WordEq3],
     g9balance:   [simG9Balance1, simG9Balance2, simG9Balance3],
@@ -56351,6 +56357,403 @@ function simG9Bio7N8c(){
   }
   draw();
 }
+
+/* ════════════════════════════════════════
+   موضوع ٤-٧ · الأملاح المعدنية (n9)
+   النيترات والماغنيسيوم
+════════════════════════════════════════ */
+function simG9Bio7N9a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🌱 <strong>النيتروجين</strong>: ضروري لبناء البروتينات والكلوروفيل وجميع الأحماض الأمينية',
+    '⚗️ <strong>مصدره في النبات</strong>: يمتصه من التربة على شكل أيونات النترات (NO₃⁻)',
+    '🍃 <strong>عند نقص النيترات</strong>: أوراق صفراء اللون، صغيرة الحجم، ضعف النمو',
+    '💡 النبات لا يستطيع استخدام نيتروجين الهواء مباشرةً — يحتاج إلى أيونات النترات من التربة',
+  ], '🌱 النيترات ونقص النيتروجين'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n9'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.015;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('نقص أيونات النترات في النبات', w/2, h*0.09);
+    // نبات صحي
+    const p1x = w*0.28, leafH = h*0.42, leafY = h*0.22;
+    // ساق
+    c.strokeStyle = dark?'#86EFAC':'#15803D'; c.lineWidth = 4;
+    c.beginPath(); c.moveTo(p1x, leafY+leafH); c.lineTo(p1x, leafY+leafH+h*0.12); c.stroke();
+    // أوراق خضراء كبيرة
+    [[-0.28,-0.12],[0.28,-0.24],[-0.32,-0.35],[0.32,-0.47]].forEach(([dx,dy])=>{
+      c.fillStyle = dark?'rgba(74,222,128,0.85)':'rgba(34,197,94,0.85)';
+      c.beginPath(); c.ellipse(p1x+dx*w*0.25, leafY+leafH+dy*leafH, w*0.1, h*0.055, dx>0?0.5:-0.5, 0, Math.PI*2); c.fill();
+      c.strokeStyle = dark?'#4ADE80':'#15803D'; c.lineWidth=1.5; c.stroke();
+    });
+    c.fillStyle = dark?'#4ADE80':'#15803D'; c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText('نبات سليم', p1x, leafY+leafH+h*0.2);
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.026)}px Tajawal`;
+    c.fillText('تربة غنية بالنترات', p1x, leafY+leafH+h*0.27);
+    // نبات مريض (نقص نيترات)
+    const p2x = w*0.72;
+    c.strokeStyle = dark?'#FDE68A':'#CA8A04'; c.lineWidth = 3;
+    c.beginPath(); c.moveTo(p2x, leafY+leafH); c.lineTo(p2x, leafY+leafH+h*0.12); c.stroke();
+    [[-0.2,-0.09],[0.2,-0.18],[-0.22,-0.27]].forEach(([dx,dy])=>{
+      c.fillStyle = dark?'rgba(253,230,138,0.8)':'rgba(253,224,71,0.75)';
+      c.beginPath(); c.ellipse(p2x+dx*w*0.25, leafY+leafH+dy*leafH, w*0.07, h*0.04, dx>0?0.5:-0.5, 0, Math.PI*2); c.fill();
+      c.strokeStyle = dark?'#FCD34D':'#CA8A04'; c.lineWidth=1.5; c.stroke();
+    });
+    c.fillStyle = dark?'#FCD34D':'#B45309'; c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText('نبات ناقص نيترات', p2x, leafY+leafH+h*0.2);
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.026)}px Tajawal`;
+    c.fillText('أوراق صفراء صغيرة', p2x, leafY+leafH+h*0.27);
+    // سهم في المنتصف وعلامة x
+    c.fillStyle = dark?'#F87171':'#DC2626'; c.font = `bold ${Math.round(h*0.05)}px Arial`; c.textAlign='center';
+    c.fillText('NO₃⁻', w/2, h*0.48);
+    c.fillStyle = dark?'#F87171':'#DC2626'; c.font = `${Math.round(h*0.04)}px serif`; c.textAlign='center';
+    c.fillText('✗', w/2, h*0.57);
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('غياب الأيون', w/2, h*0.64);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N9b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '💚 <strong>الماغنيسيوم</strong>: عنصر مركزي في جزيء الكلوروفيل',
+    '🔬 كل جزيء كلوروفيل يحتوي على ذرة ماغنيسيوم واحدة في مركزه',
+    '🍃 <strong>عند نقص الماغنيسيوم</strong>: اصفرار أوراق النبات (كلوروز) مع بقاء العروق خضراء',
+    '💡 المصدر: أيونات الماغنيسيوم (Mg²⁺) التي تمتصها النبتة من التربة',
+  ], '💚 الماغنيسيوم ونقص الكلوروفيل'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n9'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.015;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('دور الماغنيسيوم في الكلوروفيل', w/2, h*0.09);
+    // رسم جزيء كلوروفيل مبسّط
+    const cx = w/2, cy = h*0.42, R = Math.min(w,h)*0.13;
+    // حلقة الكلوروفيل
+    const pulse = 0.9 + Math.sin(simState.t*1.5)*0.1;
+    c.strokeStyle = dark?`rgba(74,222,128,${pulse})`:`rgba(21,128,61,${pulse})`;
+    c.lineWidth = 3;
+    for(let i=0;i<4;i++){
+      const ang = (i/4)*Math.PI*2;
+      c.beginPath(); c.arc(cx+Math.cos(ang)*R*0.7, cy+Math.sin(ang)*R*0.7, R*0.35, 0, Math.PI*2); c.stroke();
+    }
+    // Mg في المركز
+    c.fillStyle = dark?'rgba(74,222,128,0.2)':'rgba(187,247,208,0.9)';
+    c.beginPath(); c.arc(cx, cy, R*0.32, 0, Math.PI*2); c.fill();
+    c.strokeStyle = dark?'#4ADE80':'#15803D'; c.lineWidth = 3;
+    c.beginPath(); c.arc(cx, cy, R*0.32, 0, Math.PI*2); c.stroke();
+    c.fillStyle = dark?'#4ADE80':'#15803D'; c.font = `bold ${Math.round(R*0.55)}px Tajawal`; c.textAlign='center';
+    c.fillText('Mg²⁺', cx, cy + R*0.13);
+    // تسمية
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText('جزيء الكلوروفيل', w/2, h*0.67);
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.027)}px Tajawal`;
+    c.fillText('الماغنيسيوم في مركز كل جزيء', w/2, h*0.74);
+    // مقارنة ورقة
+    c.fillStyle = dark?'rgba(74,222,128,0.6)':'rgba(134,239,172,0.8)';
+    c.beginPath(); c.ellipse(w*0.2, h*0.84, w*0.1, h*0.045, 0.4, 0, Math.PI*2); c.fill();
+    c.fillStyle = dark?'#4ADE80':'#15803D'; c.font = `${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('مع Mg²⁺ ✓', w*0.2, h*0.9);
+    c.fillStyle = dark?'rgba(253,230,138,0.7)':'rgba(254,240,138,0.85)';
+    c.beginPath(); c.ellipse(w*0.8, h*0.84, w*0.1, h*0.045, 0.4, 0, Math.PI*2); c.fill();
+    c.fillStyle = dark?'#FCD34D':'#B45309'; c.font = `${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText('بدون Mg²⁺ ✗', w*0.8, h*0.9);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N9c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, answers: {}, checked: false };
+  const questions = [
+    { q: 'أي أيون يحتاجه النبات لصنع البروتين؟', opts: ['NO₃⁻ (النترات)', 'Mg²⁺ (الماغنيسيوم)', 'K⁺ (البوتاسيوم)'], ans: 0 },
+    { q: 'ما علامة نقص الماغنيسيوم في النبات؟', opts: ['تساقط الأوراق', 'اصفرار الأوراق مع عروق خضراء', 'توقف النمو'], ans: 1 },
+    { q: 'كيف يصل النيتروجين إلى النبات؟', opts: ['من الهواء مباشرة', 'عبر الضوء', 'عبر أيونات النترات من التربة'], ans: 2 },
+  ];
+  let html = `<div class="ctrl-section"><div class="ctrl-label">🔬 اختبر فهمك: الأملاح المعدنية</div>`;
+  questions.forEach((q, qi) => {
+    html += `<div style="margin:12px 0;padding:10px;background:var(--bg-card2);border-radius:10px">
+      <div style="font-weight:700;margin-bottom:8px;font-size:14px">${qi+1}. ${q.q}</div>`;
+    q.opts.forEach((opt, oi) => {
+      html += `<label style="display:flex;align-items:center;gap:8px;margin:5px 0;cursor:pointer;padding:6px 8px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-q-opt)">
+        <input type="radio" name="bio9q${qi}" value="${oi}" onchange="simState.answers[${qi}]=${oi}" style="width:16px;height:16px"> 
+        <span style="font-size:13px">${opt}</span></label>`;
+    });
+    html += `</div>`;
+  });
+  html += `<button onclick="window._bio9check()" style="width:100%;padding:10px;margin-top:8px;border-radius:10px;background:#16A34A;color:white;font-family:Tajawal;font-weight:700;font-size:15px;border:none;cursor:pointer">✅ تحقق من إجاباتك</button>
+  <div id="bio9_result" style="margin-top:8px;font-weight:700;text-align:center;font-size:15px;padding:8px"></div></div>`;
+  controls(html);
+  window._bio9check = () => {
+    let score = 0;
+    questions.forEach((q,i) => { if(simState.answers[i]===q.ans) score++; });
+    const r = document.getElementById('bio9_result');
+    if(r) r.innerHTML = score===3 ? '🎉 ممتاز! جميع الإجابات صحيحة' : `✅ ${score} من ${questions.length} صحيح — راجع الإجابات`;
+  };
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n9'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.01;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.045)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('مقارنة الأيونات المعدنية', w/2, h*0.1);
+    const items = [
+      { sym:'NO₃⁻', name:'النترات', use:'بناء البروتين والكلوروفيل', color:dark?'#4ADE80':'#15803D', x:0.28 },
+      { sym:'Mg²⁺', name:'الماغنيسيوم', use:'مركز جزيء الكلوروفيل', color:dark?'#60A5FA':'#2563EB', x:0.72 },
+    ];
+    items.forEach(item => {
+      const ix = w*item.x, iy = h*0.22, iw = w*0.3, ih = h*0.5;
+      c.fillStyle = item.color + (dark?'22':'18');
+      c.beginPath(); c.roundRect(ix-iw/2, iy, iw, ih, 14); c.fill();
+      c.strokeStyle = item.color; c.lineWidth = 2.5;
+      c.beginPath(); c.roundRect(ix-iw/2, iy, iw, ih, 14); c.stroke();
+      c.fillStyle = item.color; c.font = `bold ${Math.round(h*0.055)}px Tajawal`; c.textAlign='center';
+      c.fillText(item.sym, ix, iy+ih*0.22);
+      c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.033)}px Tajawal`;
+      c.fillText(item.name, ix, iy+ih*0.44);
+      c.fillStyle = bioMut(); c.font = `${Math.round(h*0.026)}px Tajawal`;
+      const words = item.use.split(' ');
+      words.forEach((w2,wi) => {
+        c.fillText(w2, ix, iy+ih*(0.58+wi*0.1));
+      });
+    });
+    c.fillStyle = bioMut(); c.font = `${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('استخدم اللوحة الجانبية للإجابة', w/2, h*0.88);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   موضوع ٤-٧ · نقل السكروز (n10)
+   تحويل الجلوكوز إلى سكروز ونقله عبر اللحاء
+════════════════════════════════════════ */
+function simG9Bio7N10a(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0 };
+  controls(bioInfoPanel([
+    '🍬 <strong>الجلوكوز</strong>: السكر المنتج مباشرة بالتمثيل الضوئي في الورقة',
+    '🔄 <strong>لماذا يتحول إلى سكروز؟</strong>: الجلوكوز قابل للذوبان جداً ويتفاعل مع جزيئات أخرى',
+    '📦 <strong>السكروز</strong>: سكر ثنائي أكثر استقراراً وأقل تفاعلاً — مثالي للنقل',
+    '🚌 السكروز صغير الحجم ويذوب في الماء بسهولة → مناسب للنقل عبر أنابيب اللحاء',
+  ], '🍬 لماذا نقل الجلوكوز إلى سكروز؟'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n10'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.018;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('تحويل الجلوكوز → سكروز للنقل', w/2, h*0.09);
+    // جلوكوز
+    const g1x = w*0.22, g1y = h*0.28, gR = h*0.1;
+    c.fillStyle = dark?'rgba(253,224,71,0.25)':'rgba(254,240,138,0.9)';
+    c.beginPath(); c.arc(g1x, g1y, gR, 0, Math.PI*2); c.fill();
+    c.strokeStyle = dark?'#FCD34D':'#CA8A04'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(g1x, g1y, gR, 0, Math.PI*2); c.stroke();
+    c.fillStyle = dark?'#FCD34D':'#92400E'; c.font=`bold ${Math.round(gR*0.55)}px Tajawal`; c.textAlign='center';
+    c.fillText('C₆H₁₂O₆', g1x, g1y+gR*0.2);
+    c.fillStyle = bioMut(); c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText('جلوكوز', g1x, g1y+gR+h*0.05);
+    c.fillStyle = dark?'#FCA5A5':'#DC2626'; c.font=`${Math.round(h*0.022)}px Tajawal`;
+    c.fillText('⚠️ عالي التفاعل', g1x, g1y+gR+h*0.09);
+    // + جلوكوز ثاني
+    const g2x = w*0.42;
+    c.fillStyle = dark?'rgba(253,224,71,0.25)':'rgba(254,240,138,0.9)';
+    c.beginPath(); c.arc(g2x, g1y, gR, 0, Math.PI*2); c.fill();
+    c.strokeStyle = dark?'#FCD34D':'#CA8A04'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(g2x, g1y, gR, 0, Math.PI*2); c.stroke();
+    c.fillStyle = dark?'#FCD34D':'#92400E'; c.font=`bold ${Math.round(gR*0.55)}px Tajawal`; c.textAlign='center';
+    c.fillText('C₆H₁₂O₆', g2x, g1y+gR*0.2);
+    c.fillStyle = bioMut(); c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText('جلوكوز', g2x, g1y+gR+h*0.05);
+    // إشارة +
+    c.fillStyle = bioTxt(); c.font=`bold ${Math.round(h*0.06)}px Arial`; c.textAlign='center';
+    c.fillText('+', w*0.32, g1y+h*0.01);
+    // سهم التحويل
+    const arrowX = w*0.52;
+    c.strokeStyle = dark?'#86EFAC':'#15803D'; c.lineWidth=3;
+    c.beginPath(); c.moveTo(arrowX, g1y); c.lineTo(arrowX+w*0.12, g1y); c.stroke();
+    c.fillStyle = dark?'#86EFAC':'#15803D';
+    c.beginPath(); c.moveTo(arrowX+w*0.12, g1y-h*0.018); c.lineTo(arrowX+w*0.12+w*0.025, g1y); c.lineTo(arrowX+w*0.12, g1y+h*0.018); c.fill();
+    c.fillStyle = bioMut(); c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText('إنزيم', arrowX+w*0.06, g1y-h*0.03);
+    c.fillText('− ماء', arrowX+w*0.06, g1y+h*0.038);
+    // سكروز ناتج
+    const sx = w*0.79, sy = h*0.28, sR = h*0.115;
+    const pulse = 0.85+Math.sin(simState.t*1.8)*0.15;
+    c.fillStyle = dark?`rgba(74,222,128,${pulse*0.3})`:`rgba(187,247,208,${pulse*0.95})`;
+    c.beginPath(); c.arc(sx, sy, sR, 0, Math.PI*2); c.fill();
+    c.strokeStyle = dark?`rgba(74,222,128,${pulse})`:`rgba(21,128,61,${pulse})`; c.lineWidth=3;
+    c.beginPath(); c.arc(sx, sy, sR, 0, Math.PI*2); c.stroke();
+    c.fillStyle = dark?'#4ADE80':'#15803D'; c.font=`bold ${Math.round(sR*0.48)}px Tajawal`; c.textAlign='center';
+    c.fillText('C₁₂H₂₂O₁₁', sx, sy+sR*0.2);
+    c.fillStyle = bioMut(); c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText('سكروز', sx, sy+sR+h*0.05);
+    c.fillStyle = dark?'#86EFAC':'#166534'; c.font=`${Math.round(h*0.022)}px Tajawal`;
+    c.fillText('✅ مستقر وقابل للنقل', sx, sy+sR+h*0.09);
+    // خط أنبوب اللحاء في الأسفل
+    c.fillStyle = bioTxt(); c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText('↓', w/2, h*0.73);
+    c.fillStyle = dark?'rgba(74,222,128,0.2)':'rgba(187,247,208,0.8)';
+    c.beginPath(); c.roundRect(w*0.1, h*0.78, w*0.8, h*0.1, 10); c.fill();
+    c.strokeStyle = dark?'#4ADE80':'#15803D'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(w*0.1, h*0.78, w*0.8, h*0.1, 10); c.stroke();
+    c.fillStyle = dark?'#4ADE80':'#15803D'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText('🚰 أنبوب اللحاء (Phloem tube) — ينقل السكروز', w/2, h*0.84);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N10b(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, particles: [] };
+  for(let i=0;i<18;i++){
+    simState.particles.push({ x: Math.random(), y: Math.random(), vy: 0.003+Math.random()*0.004, phase: Math.random()*Math.PI*2 });
+  }
+  controls(bioInfoPanel([
+    '🌿 <strong>أنابيب اللحاء (Phloem tubes)</strong>: أنابيب رفيعة تنقل السكروز في جميع أنحاء النبات',
+    '📍 <strong>مصدر النقل</strong>: الأوراق (حيث يصنع السكر) → بقية أجزاء النبات',
+    '🎯 <strong>وجهات السكروز</strong>: الجذور، الثمار، البذور، الساق — أي خلية تحتاج طاقة',
+    '🔄 السكروز يمكن تحويله إلى جلوكوز مرة أخرى في الخلية المستهدفة لإطلاق الطاقة',
+  ], '🌿 أنابيب اللحاء وتوزيع السكر'));
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n10'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.018;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.038)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('أنابيب اللحاء — نقل السكروز', w/2, h*0.07);
+    // رسم نبات مبسط: ورقة في الأعلى، ساق، جذور
+    const stX = w*0.5, stTop = h*0.12, stBot = h*0.82, stW = w*0.045;
+    // ساق
+    c.fillStyle = dark?'rgba(134,239,172,0.25)':'rgba(187,247,208,0.7)';
+    c.beginPath(); c.roundRect(stX-stW/2, stTop, stW, stBot-stTop, 8); c.fill();
+    c.strokeStyle = dark?'#4ADE80':'#15803D'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(stX-stW/2, stTop, stW, stBot-stTop, 8); c.stroke();
+    // ورقة
+    c.fillStyle = dark?'rgba(74,222,128,0.6)':'rgba(134,239,172,0.85)';
+    c.beginPath(); c.ellipse(stX, stTop+h*0.01, w*0.15, h*0.06, 0, 0, Math.PI*2); c.fill();
+    c.strokeStyle = dark?'#4ADE80':'#15803D'; c.lineWidth=2;
+    c.beginPath(); c.ellipse(stX, stTop+h*0.01, w*0.15, h*0.06, 0, 0, Math.PI*2); c.stroke();
+    c.fillStyle = dark?'#4ADE80':'#166534'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='center';
+    c.fillText('☀️ ورقة — مصنع السكر', stX, stTop+h*0.065);
+    // جذور
+    [[-0.28,0.88],[0.28,0.88],[0,0.93],[-0.18,0.96],[0.18,0.97]].forEach(([dx,dy])=>{
+      c.strokeStyle = dark?'rgba(134,239,172,0.4)':'rgba(21,128,61,0.5)'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(stX+dx*stW*1.5, stBot); c.bezierCurveTo(stX+dx*w*0.18, h*dy, stX+dx*w*0.25, h*(dy+0.03), stX+dx*w*0.3, h*(dy+0.01)); c.stroke();
+    });
+    c.fillStyle = dark?'rgba(134,239,172,0.5)':'rgba(21,128,61,0.4)'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('جذور', stX, h*0.96);
+    // تسميات لأجزاء النبات
+    const labels = [
+      {x:w*0.2, y:h*0.4, txt:'ثمار 🍎', col:dark?'#FCA5A5':'#DC2626'},
+      {x:w*0.8, y:h*0.55, txt:'بذور 🌰', col:dark?'#FCD34D':'#92400E'},
+      {x:w*0.2, y:h*0.72, txt:'ساق 🌿', col:dark?'#86EFAC':'#15803D'},
+    ];
+    labels.forEach(l=>{
+      c.fillStyle = l.col; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+      c.fillText(l.txt, l.x, l.y);
+      c.strokeStyle = l.col+'88'; c.lineWidth=1.5; c.setLineDash([5,4]);
+      c.beginPath(); c.moveTo(l.x+(l.x<stX?w*0.08:-w*0.08), l.y-h*0.01); c.lineTo(stX+(l.x<stX?stW/2:-stW/2), l.y); c.stroke();
+      c.setLineDash([]);
+    });
+    // جسيمات السكروز تتحرك للأسفل
+    simState.particles.forEach(p=>{
+      p.y += p.vy;
+      if(p.y > 1) p.y = 0.12;
+      const px = stX + (Math.sin(p.phase + simState.t*0.5)*stW*0.3);
+      const py = p.y * h;
+      if(py > stTop && py < stBot){
+        const r = Math.round(h*0.014);
+        c.fillStyle = dark?'rgba(253,224,71,0.85)':'rgba(234,179,8,0.9)';
+        c.beginPath(); c.arc(px, py, r, 0, Math.PI*2); c.fill();
+        c.strokeStyle = dark?'#FCD34D':'#92400E'; c.lineWidth=1;
+        c.beginPath(); c.arc(px, py, r, 0, Math.PI*2); c.stroke();
+      }
+    });
+    c.fillStyle = dark?'#FCD34D':'#92400E'; c.font=`${Math.round(h*0.023)}px Tajawal`; c.textAlign='center';
+    c.fillText('● سكروز يتحرك عبر اللحاء', stX+w*0.22, h*0.35);
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function simG9Bio7N10c(){
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, selected: null };
+  const destinations = [
+    { id:'growth', label:'النمو والتكاثر', emoji:'🌱', desc:'بناء خلايا جديدة في نقاط النمو', x:0.22, y:0.3 },
+    { id:'fruit', label:'الثمار والبذور', emoji:'🍎', desc:'تخزين الطاقة في الثمار والبذور', x:0.78, y:0.3 },
+    { id:'roots', label:'الجذور', emoji:'🌿', desc:'تخزين السكر وبناء الجذور', x:0.22, y:0.7 },
+    { id:'energy', label:'إنتاج الطاقة', emoji:'⚡', desc:'التنفس الخلوي في جميع الخلايا', x:0.78, y:0.7 },
+  ];
+  let html = `<div class="ctrl-section"><div class="ctrl-label">🔄 مصير الجلوكوز في النبات</div>`;
+  destinations.forEach(d=>{
+    html += `<div onclick="simState.selected='${d.id}'; document.querySelectorAll('.dest-btn').forEach(b=>b.style.background='var(--bg-ctrl-btn)'); this.style.background='var(--bg-info-box)'" class="dest-btn" style="display:flex;align-items:center;gap:10px;margin:7px 0;padding:8px 10px;border-radius:10px;border:1.5px solid var(--border-color);background:var(--bg-ctrl-btn);cursor:pointer">
+      <span style="font-size:20px">${d.emoji}</span>
+      <div><div style="font-weight:700;font-size:13px">${d.label}</div><div style="font-size:12px;color:var(--text-secondary)">${d.desc}</div></div>
+    </div>`;
+  });
+  html += `</div>`;
+  controls(html);
+  const cv = document.getElementById('simCanvas');
+  function draw(){
+    if(currentSim!=='g9bio7n10'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
+    simState.t += 0.015;
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
+    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle = bioTxt(); c.font = `bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign = 'center';
+    c.fillText('مصير الجلوكوز الناتج عن التمثيل الضوئي', w/2, h*0.08);
+    // مركز: جلوكوز
+    const cx2 = w*0.5, cy2 = h*0.5;
+    const pulse2 = 0.8+Math.sin(simState.t*2)*0.2;
+    c.fillStyle = dark?`rgba(253,224,71,${pulse2*0.3})`:`rgba(254,240,138,${pulse2*0.9})`;
+    c.beginPath(); c.arc(cx2, cy2, h*0.1, 0, Math.PI*2); c.fill();
+    c.strokeStyle = dark?`rgba(253,224,71,${pulse2})`:`rgba(202,138,4,${pulse2})`; c.lineWidth=3;
+    c.beginPath(); c.arc(cx2, cy2, h*0.1, 0, Math.PI*2); c.stroke();
+    c.fillStyle = dark?'#FCD34D':'#92400E'; c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText('جلوكوز', cx2, cy2-h*0.015);
+    c.fillStyle = bioMut(); c.font=`${Math.round(h*0.023)}px Tajawal`;
+    c.fillText('C₆H₁₂O₆', cx2, cy2+h*0.03);
+    // وجهات
+    destinations.forEach(d=>{
+      const dx = d.x*w, dy2 = d.y*h;
+      const isSelected = simState.selected===d.id;
+      // خط
+      const lineAlpha = isSelected ? 0.9 : 0.35+Math.sin(simState.t+d.x*3)*0.15;
+      c.strokeStyle = dark?`rgba(74,222,128,${lineAlpha})`:`rgba(21,128,61,${lineAlpha})`; c.lineWidth = isSelected?3:1.5;
+      c.setLineDash(isSelected?[]:[6,4]);
+      c.beginPath(); c.moveTo(cx2,cy2); c.lineTo(dx,dy2); c.stroke();
+      c.setLineDash([]);
+      // دائرة الوجهة
+      c.fillStyle = isSelected ? (dark?'rgba(74,222,128,0.3)':'rgba(187,247,208,0.9)') : (dark?'rgba(74,222,128,0.1)':'rgba(220,252,231,0.6)');
+      c.beginPath(); c.arc(dx,dy2,h*0.07,0,Math.PI*2); c.fill();
+      c.strokeStyle = dark?'#4ADE80':'#15803D'; c.lineWidth=isSelected?2.5:1.5;
+      c.beginPath(); c.arc(dx,dy2,h*0.07,0,Math.PI*2); c.stroke();
+      c.font=`${Math.round(h*0.055)}px serif`; c.textAlign='center';
+      c.fillText(d.emoji, dx, dy2-h*0.007);
+      c.fillStyle = dark?'#D1FAE5':'#065F46'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`;
+      c.fillText(d.label, dx, dy2+h*0.055);
+    });
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
 
 // ══════════════════════════════════════════════════════════
 // 🖊 السبورة التفاعلية — Interactive Whiteboard
