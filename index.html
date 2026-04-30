@@ -59031,52 +59031,256 @@ function simG9Bio8N7b(){
 
 function simG9Bio8N7c(){
   cancelAnimationFrame(animFrame);
-  simState={t:0};
+  // state: which test is active (0=iodine-in, 1=iodine-out, 2=benedict-in, 3=benedict-out), heating anim
+  simState={t:0, active:null, revealed:{}, heating:false, heatT:0, conclusion:false};
 
-  controls(bioInfoPanel([
-    '📊 <strong>تفسير النتائج:</strong>',
-    '✅ اليود (يودين) + نشا داخل الأنبوبة → أزرق أسود',
-    '✅ اليود + ماء خارج الأنبوبة → لا تغيير (لا نشا)',
-    '✅ بنيديكت + جلوكوز داخل → أحمر/برتقالي',
-    '✅ بنيديكت + ماء خارج → أحمر/برتقالي (الجلوكوز عبر!)',
-    '💡 <strong>الاستنتاج</strong>: الغشاء يسمح للجلوكوز ويحجب النشا — مثل جدار الأمعاء الدقيقة',
-  ],'📊 تفسير نتائج الديلسة'));
+  const tests=[
+    {id:'iodIn',  side:'داخل',  mol:'نشا',     reagent:'يود',      expect:'blue',  label:'نشا داخل الأنبوبة'},
+    {id:'iodOut', side:'خارج',  mol:'نشا',     reagent:'يود',      expect:'none',  label:'نشا خارج الأنبوبة'},
+    {id:'benIn',  side:'داخل',  mol:'جلوكوز', reagent:'بنيديكت',  expect:'orange',label:'جلوكوز داخل الأنبوبة'},
+    {id:'benOut', side:'خارج',  mol:'جلوكوز', reagent:'بنيديكت',  expect:'orange',label:'جلوكوز خارج الأنبوبة'},
+  ];
+
+  const colorMap={
+    blue:   {fill:'#1E1B4B', label:'أزرق أسود 🔵', meaning:'نشا موجود ✓'},
+    none:   {fill:'#D97706', label:'لا تغيير 🟡',  meaning:'لا نشا — لم يعبر ✓'},
+    orange: {fill:'#C2410C', label:'أحمر برتقالي 🔴', meaning:'جلوكوز موجود ✓'},
+  };
+
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🧪 فسِّري نتائج تجربة الديلسة</div>
+    <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px;line-height:1.7">انقري على أنبوبة الاختبار لإضافة الكاشف وكشف النتيجة</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      ${tests.map((t,i)=>`<button id="testbtn_${t.id}" onclick="simState.active='${t.id}';simState.heating=true;simState.heatT=0" style="padding:8px 6px;border-radius:9px;border:2px solid ${t.reagent==='يود'?'#7C3AED44':'#D9770644'};background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:12px;cursor:pointer;text-align:center;transition:all 0.2s">
+        <div style="font-size:16px">${t.reagent==='يود'?'🟤':'🔵'}</div>
+        <div style="font-weight:700;color:${t.reagent==='يود'?'#7C3AED':'#D97706'};font-size:12px">${t.reagent}</div>
+        <div style="color:var(--text-secondary);font-size:11px">${t.label}</div>
+      </button>`).join('')}
+    </div>
+    <button onclick="simState.conclusion=!simState.conclusion" style="width:100%;margin-top:8px;padding:9px;border-radius:10px;background:#7C3AED;color:white;font-family:Tajawal;font-weight:700;font-size:13px;border:none;cursor:pointer">💡 الاستنتاج</button>
+    <div id="n7c_conclusion" style="display:none;margin-top:8px;padding:10px;border-radius:10px;background:rgba(109,40,217,0.12);border:1.5px solid #7C3AED55;font-size:12.5px;line-height:1.8">
+      <strong style="color:#7C3AED">الاستنتاج:</strong><br>
+      ✅ النشا يبقى داخل الأنبوبة — <strong>حجمه كبير</strong> يمنعه من عبور مسام الغشاء<br>
+      ✅ الجلوكوز وُجد داخل وخارج — <strong>حجمه صغير</strong> يسمح له بالعبور<br>
+      🔬 الغشاء شبه النافذ يُحاكي جدار الأمعاء الدقيقة تماماً
+    </div>
+  </div>`);
+
+  // Toggle conclusion panel
+  const origOnclick_n7c = ()=>{
+    const el=document.getElementById('n7c_conclusion');
+    if(el) el.style.display = simState.conclusion ? 'block' : 'none';
+  };
 
   const cv=document.getElementById('simCanvas');
+
+  // Draw a test tube with liquid and color
+  function drawTestTube(c,cx,cy,tw,th,liquidColor,labelTop,labelBot,glowing,t){
+    const dark=dm15();
+    // Glass body
+    c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(200,230,255,0.25)';
+    c.beginPath();
+    c.moveTo(cx-tw/2,cy-th/2);
+    c.lineTo(cx-tw/2,cy+th*0.35);
+    c.quadraticCurveTo(cx-tw/2,cy+th/2,cx,cy+th/2);
+    c.quadraticCurveTo(cx+tw/2,cy+th/2,cx+tw/2,cy+th*0.35);
+    c.lineTo(cx+tw/2,cy-th/2);
+    c.closePath();c.fill();
+    // Liquid fill
+    if(liquidColor){
+      const grad=c.createLinearGradient(cx-tw/2,cy,cx+tw/2,cy);
+      grad.addColorStop(0,liquidColor+'CC');
+      grad.addColorStop(0.5,liquidColor+'FF');
+      grad.addColorStop(1,liquidColor+'AA');
+      c.fillStyle=grad;
+      c.beginPath();
+      c.moveTo(cx-tw*0.45,cy-th*0.05+Math.sin(t*2)*th*0.01);
+      c.lineTo(cx-tw*0.45,cy+th*0.32);
+      c.quadraticCurveTo(cx-tw*0.45,cy+th*0.44,cx,cy+th*0.44);
+      c.quadraticCurveTo(cx+tw*0.45,cy+th*0.44,cx+tw*0.45,cy+th*0.32);
+      c.lineTo(cx+tw*0.45,cy-th*0.05+Math.sin(t*2)*th*0.01);
+      c.closePath();c.fill();
+      // Bubble animation
+      if(glowing){
+        for(let b=0;b<3;b++){
+          const bp=((t*0.8+b*0.33)%1);
+          const bx=cx+(-0.3+b*0.3)*tw*0.4;
+          const by=cy+th*0.44-bp*th*0.4;
+          c.fillStyle='rgba(255,255,255,0.5)';
+          c.beginPath();c.arc(bx,by,tw*0.04,0,Math.PI*2);c.fill();
+        }
+      }
+      // Shimmer
+      c.fillStyle='rgba(255,255,255,0.15)';
+      c.beginPath();c.ellipse(cx-tw*0.15,cy+th*0.05,tw*0.08,th*0.12,0,0,Math.PI*2);c.fill();
+    }
+    // Glass outline
+    c.strokeStyle=dark?'rgba(147,197,253,0.5)':'rgba(96,165,250,0.6)';c.lineWidth=2;
+    c.beginPath();
+    c.moveTo(cx-tw/2,cy-th/2);
+    c.lineTo(cx-tw/2,cy+th*0.35);
+    c.quadraticCurveTo(cx-tw/2,cy+th/2,cx,cy+th/2);
+    c.quadraticCurveTo(cx+tw/2,cy+th/2,cx+tw/2,cy+th*0.35);
+    c.lineTo(cx+tw/2,cy-th/2);
+    c.stroke();
+    // Rim
+    c.fillStyle=dark?'rgba(147,197,253,0.3)':'rgba(96,165,250,0.2)';
+    c.beginPath();c.roundRect(cx-tw/2-2,cy-th/2-6,tw+4,10,3);c.fill();
+    c.strokeStyle=dark?'rgba(147,197,253,0.5)':'rgba(96,165,250,0.6)';c.lineWidth=1.5;c.stroke();
+    // Glow
+    if(glowing){
+      c.shadowColor=liquidColor;c.shadowBlur=18;
+      c.strokeStyle=liquidColor+'88';c.lineWidth=3;
+      c.beginPath();c.arc(cx,cy+th*0.1,tw*0.55,0,Math.PI*2);c.stroke();
+      c.shadowBlur=0;
+    }
+    // Labels
+    const dark2=dm15();
+    c.fillStyle=dark2?'#E5E7EB':'#1F2937';c.font=`bold ${Math.round(th*0.12)}px Tajawal`;c.textAlign='center';c.fillText(labelTop,cx,cy-th/2-10);
+    c.fillStyle=dark2?'#9CA3AF':'#6B7280';c.font=`${Math.round(th*0.1)}px Tajawal`;c.fillText(labelBot,cx,cy+th/2+18);
+  }
+
+  // Draw membrane
+  function drawMembrane(c,mx,y1,y2,dark){
+    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=5;c.setLineDash([6,4]);
+    c.beginPath();c.moveTo(mx,y1);c.lineTo(mx,y2);c.stroke();c.setLineDash([]);
+    // Pore dots
+    for(let p=0;p<5;p++){
+      const py=y1+(y2-y1)*(0.1+p*0.2);
+      c.fillStyle=dark?'#FCD34D':'#D97706';
+      c.beginPath();c.arc(mx,py,4,0,Math.PI*2);c.fill();
+    }
+    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold 11px Tajawal`;c.textAlign='center';
+    c.fillText('غشاء',mx,y1-8);
+  }
+
   function draw(){
     if(currentSim!=='g9bio8n7'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.014;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
+    simState.t+=0.016;
+    const t=simState.t;
+    const dark=dm15();
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    drawLabel(c,'نتائج تجربة الديلسة وتفسيرها',w/2,h*0.08,bioTxt(),Math.round(h*0.035));
 
-    const results=[
-      {label:'نشا — داخل الأنبوبة',test:'يود',result:'أزرق أسود',color:'#1E1B4B',correct:true,x:0.5,y:0.2},
-      {label:'نشا — خارج الأنبوبة',test:'يود',result:'لا تغيير',color:dark?'#6B7280':'#9CA3AF',correct:false,x:0.5,y:0.35},
-      {label:'جلوكوز — داخل الأنبوبة',test:'بنيديكت',result:'أحمر/برتقالي',color:'#C2410C',correct:true,x:0.5,y:0.52},
-      {label:'جلوكوز — خارج الأنبوبة',test:'بنيديكت',result:'أحمر/برتقالي ✓',color:'#C2410C',correct:true,x:0.5,y:0.67},
-    ];
+    // Handle conclusion toggle
+    origOnclick_n7c();
 
-    results.forEach((r,i)=>{
-      const ry=h*r.y,rh=h*0.1;
-      const pulse=r.correct?0.85+Math.sin(simState.t*2+i)*0.1:1;
-      // بطاقة
-      c.fillStyle=r.correct?(dark?'rgba(74,222,128,0.12)':'rgba(187,247,208,0.6)'):(dark?'rgba(156,163,175,0.1)':'rgba(243,244,246,0.7)');
-      c.beginPath();c.roundRect(w*0.04,ry,w*0.92,rh*pulse,10);c.fill();
-      c.strokeStyle=r.correct?(dark?'#4ADE80':'#15803D'):(dark?'#4B5563':'#D1D5DB');c.lineWidth=r.correct?2:1;c.stroke();
-      // نتيجة (دائرة ملونة)
-      c.fillStyle=r.color;c.beginPath();c.arc(w*0.1,ry+rh/2,rh*0.3,0,Math.PI*2);c.fill();
-      // نص
-      c.fillStyle=r.correct?(dark?'#D1FAE5':'#065F46'):(dark?'#9CA3AF':'#6B7280');
-      c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='right';c.fillText(r.label,w*0.93,ry+rh*0.42);
-      c.fillStyle=r.color;c.font=`${Math.round(h*0.022)}px Tajawal`;c.textAlign='right';c.fillText(`${r.test}: ${r.result}`,w*0.93,ry+rh*0.78);
+    // Heating progress
+    if(simState.heating){
+      simState.heatT+=0.012;
+      if(simState.heatT>=1){
+        simState.heatT=1;simState.heating=false;
+        if(simState.active) simState.revealed[simState.active]=true;
+      }
+    }
+
+    // Update button styles
+    tests.forEach(tt=>{
+      const btn=document.getElementById(`testbtn_${tt.id}`);
+      if(!btn)return;
+      const done=simState.revealed[tt.id];
+      const active=simState.active===tt.id&&simState.heating;
+      const cm=colorMap[tt.expect];
+      btn.style.background=done?(cm.fill+'33'):active?'rgba(99,102,241,0.2)':'var(--bg-ctrl-btn)';
+      btn.style.borderColor=done?cm.fill:active?'#6366F1':'var(--border-color)';
     });
 
-    // استنتاج
-    c.fillStyle=dark?'rgba(109,40,217,0.15)':'rgba(237,233,254,0.7)';c.beginPath();c.roundRect(w*0.04,h*0.8,w*0.92,h*0.13,10);c.fill();
-    c.strokeStyle=dark?'#7C3AED':'#6D28D9';c.lineWidth=2;c.stroke();
-    drawLabel(c,'💡 الجلوكوز يعبر — النشا لا يعبر',w/2,h*0.855,dark?'#A78BFA':'#6D28D9',Math.round(h*0.027));
-    drawSmallLabel(c,'الغشاء الانتقائي النفاذية يُحاكي عمل جدار الأمعاء الدقيقة',w/2,h*0.9,dark?'#C4B5FD':'#7C3AED',Math.round(h*0.022));
+    // Title
+    drawLabel(c,'تجربة الديلسة — إضافة الكواشف',w/2,h*0.07,bioTxt(),Math.round(h*0.034));
+
+    // Layout: 4 test tubes side by side
+    const tubeW=w*0.12,tubeH=h*0.32;
+    const positions=[
+      {x:w*0.15,y:h*0.4, test:tests[0]},
+      {x:w*0.35,y:h*0.4, test:tests[1]},
+      {x:h*0.01+w*0.55,y:h*0.4, test:tests[2]},
+      {x:h*0.01+w*0.75,y:h*0.4, test:tests[3]},
+    ];
+
+    // Draw membrane dividers between tube pairs
+    drawMembrane(c,w*0.25,h*0.22,h*0.75,dark);
+    drawMembrane(c,w*0.65,h*0.22,h*0.75,dark);
+
+    // Section labels
+    [['داخل الأنبوبة',w*0.15],['خارج الأنبوبة',w*0.35],['داخل الأنبوبة',w*0.55],['خارج الأنبوبة',w*0.75]].forEach(([lbl,lx])=>{
+      c.fillStyle=dark?'#9CA3AF':'#6B7280';c.font=`${Math.round(h*0.019)}px Tajawal`;c.textAlign='center';c.fillText(lbl,lx,h*0.19);
+    });
+
+    // Reagent group labels
+    c.fillStyle=dark?'#C4B5FD':'#6D28D9';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
+    c.fillText('اختبار النشا — اليود',w*0.25,h*0.13);
+    c.fillStyle=dark?'#FCD34D':'#D97706';
+    c.fillText('اختبار الجلوكوز — بنيديكت',w*0.65,h*0.13);
+
+    // Draw each test tube
+    positions.forEach((p,i)=>{
+      const tt=p.test;
+      const revealed=simState.revealed[tt.id];
+      const isActive=simState.active===tt.id;
+      const heatProg=isActive?simState.heatT:0;
+      let liquidCol=null;
+
+      if(revealed){
+        liquidCol=colorMap[tt.expect].fill;
+      } else if(isActive&&simState.heating){
+        // Transition color
+        const reagentCol=tt.reagent==='يود'?'#7C3AED':'#3B82F6';
+        liquidCol=reagentCol;
+      }
+
+      const glowing=revealed&&tt.expect!=='none';
+      drawTestTube(c,p.x,p.y,tubeW,tubeH,liquidCol,tt.mol,tt.reagent,glowing,t);
+
+      // Heating bar under tube
+      if(isActive&&simState.heating&&tt.reagent==='بنيديكت'){
+        const bx=p.x-tubeW/2,by=p.y+tubeH/2+25,bw=tubeW,bh=8;
+        c.fillStyle=dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)';
+        c.beginPath();c.roundRect(bx,by,bw,bh,4);c.fill();
+        c.fillStyle='#EF4444';
+        c.beginPath();c.roundRect(bx,by,bw*heatProg,bh,4);c.fill();
+        c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`10px Tajawal`;c.textAlign='center';
+        c.fillText('🔥 تسخين...',p.x,by+bh+12);
+      }
+
+      // Result badge
+      if(revealed){
+        const cm=colorMap[tt.expect];
+        const badgeY=p.y+tubeH/2+42;
+        c.fillStyle=cm.fill+'33';
+        c.beginPath();c.roundRect(p.x-tubeW*0.7,badgeY,tubeW*1.4,22,6);c.fill();
+        c.strokeStyle=cm.fill;c.lineWidth=1.5;c.stroke();
+        c.fillStyle=cm.fill;c.font=`bold 11px Tajawal`;c.textAlign='center';
+        c.fillText(cm.label,p.x,badgeY+14);
+        // Meaning
+        c.fillStyle=dark?'#9CA3AF':'#4B5563';c.font=`10px Tajawal`;
+        c.fillText(cm.meaning,p.x,badgeY+30);
+      }
+
+      // Reagent drop animation when adding
+      if(isActive&&simState.heating&&heatProg<0.4){
+        const dropY=p.y-tubeH/2-30+heatProg*80;
+        const reagentCol=tt.reagent==='يود'?'#7C3AED':'#3B82F6';
+        c.fillStyle=reagentCol;
+        c.beginPath();c.arc(p.x,dropY,6,0,Math.PI*2);c.fill();
+        c.fillStyle=reagentCol+'44';
+        c.beginPath();c.arc(p.x,dropY+10,3,0,Math.PI*2);c.fill();
+      }
+    });
+
+    // Summary row at bottom (only when all revealed)
+    const allDone=tests.every(tt=>simState.revealed[tt.id]);
+    if(allDone){
+      const sy=h*0.84;
+      c.fillStyle=dark?'rgba(109,40,217,0.18)':'rgba(237,233,254,0.7)';
+      c.beginPath();c.roundRect(w*0.03,sy,w*0.94,h*0.12,12);c.fill();
+      c.strokeStyle=dark?'#7C3AED':'#6D28D9';c.lineWidth=2;c.stroke();
+      drawLabel(c,'🎉 الاستنتاج: الجلوكوز عبر الغشاء — النشا لم يعبر',w/2,sy+h*0.042,dark?'#A78BFA':'#6D28D9',Math.round(h*0.026));
+      drawSmallLabel(c,'الغشاء شبه النافذ انتقائي — يُحاكي جدار الأمعاء الدقيقة',w/2,sy+h*0.086,dark?'#C4B5FD':'#7C3AED',Math.round(h*0.022));
+    } else {
+      // instruction
+      const doneCount=tests.filter(tt=>simState.revealed[tt.id]).length;
+      drawSmallLabel(c,`${doneCount}/4 اختبارات مكتملة — انقري على زر لإضافة كاشف`,w/2,h*0.88,dark?'#6B7280':'#9CA3AF',Math.round(h*0.022));
+    }
 
     animFrame=requestAnimationFrame(draw);
   }
