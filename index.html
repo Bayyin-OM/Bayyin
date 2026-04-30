@@ -57585,6 +57585,7 @@ function simG9Bio8N2b(){
     const rect=cv.getBoundingClientRect();
     const my2=(e.clientY-rect.top)*(cv.height/rect.height);
     const h=cv.height;
+    const rows=getRows(dm15());
     rows.forEach((r,i)=>{
       const ry=h*(0.2+i*0.25);
       if(my2>ry&&my2<ry+h*0.22){
@@ -57596,6 +57597,7 @@ function simG9Bio8N2b(){
   };
 
   function drawMolecule(c,x,y,size,col,formula,name,isLarge){
+    const dark=dm15();
     if(isLarge){
       // جزيء كبير — سلسلة
       const nodes=5;
@@ -59517,4 +59519,4 @@ function simG9Bio8N8c(){
 
 
 </body>
-</html>
+</html>v
