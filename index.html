@@ -57122,7 +57122,7 @@ function simG9Bio8N1b(){
       place:'خارج الجسم',
       col:'#6B7280',
       detail:'الثعلب يرى وجبته — الجهاز الهضمي يستعد: تزداد إفرازات اللعاب والمعدة استجابةً للرائحة والمنظر',
-      drawFn: function(c,w,h,t,col){
+      drawFn: function(c,w,h,t,col){const dark=dm15();
         // ثعلب يتطلع للطعام
         drawFoxBody(c,w*0.3,h*0.5,h*0.18,col,0,t);
         // طعام أمامه
@@ -57143,7 +57143,7 @@ function simG9Bio8N1b(){
       place:'١. الابتلاع',
       col:'#3B82F6',
       detail:'الثعلب يأكل — الأسنان الحادة تمزّق اللحم ميكانيكياً. اللعاب يرطّب الطعام ويبدأ أميليز اللعاب هضم أي نشا. تتشكّل البلعة وتنزل عبر المريء',
-      drawFn: function(c,w,h,t,col){
+      drawFn: function(c,w,h,t,col){const dark=dm15();
         drawFoxBody(c,w*0.28,h*0.48,h*0.18,col,1,t);
         // فم مفتوح مع طعام
         c.font=`${Math.round(h*0.07)}px serif`;c.textAlign='center';c.fillText('🍖',w*0.55,h*0.46);
@@ -57167,7 +57167,7 @@ function simG9Bio8N1b(){
       place:'٢. الهضم',
       col:'#10B981',
       detail:'الكيموس يتشكّل في المعدة: حمض HCl يقتل البكتيريا، البيبسين يبدأ هضم البروتين. ثم الأمعاء الدقيقة تُكمل الهضم بأنزيمات البنكرياس والعصارة الصفراوية',
-      drawFn: function(c,w,h,t,col){
+      drawFn: function(c,w,h,t,col){const dark=dm15();
         // معدة ثعلب
         drawFoxBody(c,w*0.15,h*0.45,h*0.15,col,2,t);
         // رسم معدة داخلية
@@ -57205,7 +57205,7 @@ function simG9Bio8N1b(){
       place:'٣. الامتصاص',
       col:'#F59E0B',
       detail:'الخملات تمتص الجلوكوز والأحماض الأمينية عبر الشعيرات الدموية → الدم ينقلها للكبد ثم لخلايا الجسم. الدهون تُمتص في الأوعية اللمفاوية',
-      drawFn: function(c,w,h,t,col){
+      drawFn: function(c,w,h,t,col){const dark=dm15();
         drawFoxBody(c,w*0.15,h*0.48,h*0.15,col,3,t);
         // قطاع عرضي لجدار الأمعاء
         const ix=w*0.42,iy=h*0.22,iw=w*0.52,ih=h*0.52;
@@ -57250,7 +57250,7 @@ function simG9Bio8N1b(){
       place:'٤. التبرّز',
       col:'#EF4444',
       detail:'الفضلات غير المهضومة (ألياف، خلايا ميتة، بكتيريا) تصل الأمعاء الغليظة — تُمتص منها الماء والأملاح، تتشكّل البراز وتُطرح عبر فتحة الشرج',
-      drawFn: function(c,w,h,t,col){
+      drawFn: function(c,w,h,t,col){const dark=dm15();
         drawFoxBody(c,w*0.15,h*0.48,h*0.15,col,4,t);
         // قولون
         const qx=w*0.38,qy=h*0.2,qw=w*0.56,qh=h*0.58;
@@ -57559,7 +57559,7 @@ function simG9Bio8N2b(){
     </div>
   </div>`);
 
-  const rows=[
+  function getRows(dark){return[
     {
       from:'النشا',fromFormula:'(C₆H₁₀O₅)ₙ',fromCol:dark?'#FCD34D':'#CA8A04',
       enz:'أميليز',enzCol:'#7C3AED',
@@ -57578,7 +57578,7 @@ function simG9Bio8N2b(){
       to:'أحماض دهنية + جليسرول',toFormula:'R-COOH + C₃H₈O₃',toCol:dark?'#C4B5FD':'#7C3AED',
       detail:'الليبييز البنكرياسي يقطع الروابط الإسترية في الجليسيريدات الثلاثية. لكن الدهون لا تذوب في الماء — لذلك العصارة الصفراوية تستحلبها أولاً إلى قطرات صغيرة لتُمكِّن الليبييز من العمل'
     },
-  ];
+  ];}
 
   const cv=document.getElementById('simCanvas');
   cv.onclick=function(e){
@@ -57621,6 +57621,7 @@ function simG9Bio8N2b(){
     if(currentSim!=='g9bio8n2'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.018;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
+    const rows=getRows(dark);
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
     drawLabel(c,'الأنزيمات تُحوِّل جزيئات كبيرة → صغيرة قابلة للامتصاص',w/2,h*0.09,bioTxt(),Math.round(h*0.034));
 
@@ -57920,7 +57921,7 @@ function simG9Bio8N3c(){
 
   const journey=[
     {place:'الفم',col:'#3B82F6',time:'30 ثانية',action:'الأسنان تقطع الطعام، اللعاب يُرطِّبه، الأميليز يبدأ هضم النشا → تتشكّل البلعة',
-     drawFn:function(c,w,h,t,col){
+     drawFn:function(c,w,h,t,col){const dark=dm15();
       // فم مفتوح
       c.fillStyle=col+'22';c.beginPath();c.arc(w*0.5,h*0.42,h*0.2,0,Math.PI*2);c.fill();
       c.strokeStyle=col;c.lineWidth=3;c.stroke();
@@ -57941,7 +57942,7 @@ function simG9Bio8N3c(){
      }
     },
     {place:'المريء',col:'#8B5CF6',time:'10 ثوانٍ',action:'التمعّج يدفع البلعة للأسفل — الأنبوب العضلي لا يهضم بل ينقل فقط',
-     drawFn:function(c,w,h,t,col){
+     drawFn:function(c,w,h,t,col){const dark=dm15();
       // مريء أنبوبي
       const ex=w*0.5,etop=h*0.18,ebot=h*0.78,ew=w*0.1;
       c.fillStyle=col+'22';
@@ -57964,7 +57965,7 @@ function simG9Bio8N3c(){
      }
     },
     {place:'المعدة',col:'#F59E0B',time:'2-4 ساعات',action:'الكيموس يتشكّل: تقلصات عضلية + HCl (يقتل البكتيريا، pH=2) + بيبسين يبدأ هضم البروتين',
-     drawFn:function(c,w,h,t,col){
+     drawFn:function(c,w,h,t,col){const dark=dm15();
       const mx=w*0.5,my=h*0.44,mw=w*0.4,mh=h*0.32;
       // معدة مرسومة بالكامل
       c.fillStyle=col+'22';
@@ -57997,7 +57998,7 @@ function simG9Bio8N3c(){
      }
     },
     {place:'الأمعاء الدقيقة',col:'#10B981',time:'2-4 ساعات',action:'العصارة الصفراوية تستحلب الدهون، إنزيمات البنكرياس تُكمل الهضم، الخملات تمتص كل شيء',
-     drawFn:function(c,w,h,t,col){
+     drawFn:function(c,w,h,t,col){const dark=dm15();
       // أمعاء ملتفة
       const loops=[[0.5,0.35,0.3],[0.4,0.48,0.25],[0.58,0.5,0.22],[0.46,0.62,0.2],[0.54,0.67,0.18]];
       loops.forEach(([lx,ly,lr])=>{
@@ -58023,7 +58024,7 @@ function simG9Bio8N3c(){
      }
     },
     {place:'الأمعاء الغليظة',col:'#6366F1',time:'10-20 ساعة',action:'امتصاص الماء والأملاح، بكتيريا نافعة تُنتج فيتامين K، تشكّل البراز',
-     drawFn:function(c,w,h,t,col){
+     drawFn:function(c,w,h,t,col){const dark=dm15();
       // قولون إطاري
       c.strokeStyle=col;c.lineWidth=14;c.lineCap='round';c.lineJoin='round';
       c.beginPath();
@@ -58664,7 +58665,7 @@ function simG9Bio8N6b(){
 
     const panels=[
       {title:'أنبوب أملس',surface:'~1 م²',col:'#EF4444',x:0.04,y:0.17,w:0.29,h:0.7,
-       drawFn:function(c,px,py,pw,ph){
+       drawFn:function(c,px,py,pw,ph){const dark=dm15();
         // مقطع أنبوبي أملس
         c.fillStyle=dark?'rgba(248,113,113,0.15)':'rgba(254,226,226,0.7)';
         c.beginPath();c.roundRect(w*px,h*py,w*pw,h*ph,10);c.fill();
@@ -58678,7 +58679,7 @@ function simG9Bio8N6b(){
        }
       },
       {title:'مع خملات',surface:'~10 م²',col:'#F59E0B',x:0.36,y:0.17,w:0.27,h:0.7,
-       drawFn:function(c,px,py,pw,ph){
+       drawFn:function(c,px,py,pw,ph){const dark=dm15();
         c.fillStyle=dark?'rgba(251,191,36,0.12)':'rgba(254,240,138,0.5)';
         c.beginPath();c.roundRect(w*px,h*py,w*pw,h*ph,10);c.fill();
         // خملات
@@ -58695,7 +58696,7 @@ function simG9Bio8N6b(){
        }
       },
       {title:'مع خملات وزغيبات',surface:'~250 م²',col:'#10B981',x:0.66,y:0.17,w:0.3,h:0.7,
-       drawFn:function(c,px,py,pw,ph){
+       drawFn:function(c,px,py,pw,ph){const dark=dm15();
         c.fillStyle=dark?'rgba(74,222,128,0.12)':'rgba(187,247,208,0.5)';
         c.beginPath();c.roundRect(w*px,h*py,w*pw,h*ph,10);c.fill();
         // خملات مع زغيبات
