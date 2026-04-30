@@ -56918,49 +56918,196 @@ function simG9Bio7N10c(){
 /* helpers مشتركة مع الوحدة السابعة (bioBg, bioTxt …) */
 
 /* ════════ نشاط ١-٨ · مراحل الهضم ════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   الوحدة الثامنة — الهضم في الإنسان  (نسخة مُحسَّنة بالرسوم الكاملة)
+   8 استقصاءات × 3 تبويبات = 24 دالة
+═══════════════════════════════════════════════════════════════ */
+
+/* ─── أدوات رسم مشتركة ─── */
+function drawRoundedRect(c,x,y,w,h,r,fill,stroke,lw){
+  c.beginPath();c.roundRect(x,y,w,h,r);
+  if(fill){c.fillStyle=fill;c.fill();}
+  if(stroke){c.strokeStyle=stroke;c.lineWidth=lw||2;c.stroke();}
+}
+function drawArrow(c,x1,y1,x2,y2,col,lw,headSize){
+  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  if(len<1)return;
+  const ux=dx/len,uy=dy/len,hs=headSize||12;
+  c.strokeStyle=col;c.lineWidth=lw||2.5;
+  c.beginPath();c.moveTo(x1,y1);c.lineTo(x2-ux*hs*0.7,y2-uy*hs*0.7);c.stroke();
+  c.fillStyle=col;c.beginPath();
+  c.moveTo(x2,y2);
+  c.lineTo(x2-ux*hs+uy*hs*0.5,y2-uy*hs-ux*hs*0.5);
+  c.lineTo(x2-ux*hs-uy*hs*0.5,y2-uy*hs+ux*hs*0.5);
+  c.closePath();c.fill();
+}
+function drawLabel(c,text,x,y,col,size,align){
+  c.fillStyle=col;c.font=`bold ${size}px Tajawal`;c.textAlign=align||'center';c.fillText(text,x,y);
+}
+function drawSmallLabel(c,text,x,y,col,size,align){
+  c.fillStyle=col;c.font=`${size||13}px Tajawal`;c.textAlign=align||'center';c.fillText(text,x,y);
+}
+
+/* ════════════════════════════════════════════════
+   نشاط ١-٨ · مراحل الهضم
+════════════════════════════════════════════════ */
 function simG9Bio8N1a(){
   cancelAnimationFrame(animFrame);
-  simState={t:0};
-  controls(bioInfoPanel([
-    '1️⃣ <strong>الابتلاع (Ingestion)</strong>: إدخال الطعام والشراب عبر الفم',
-    '2️⃣ <strong>الهضم (Digestion)</strong>: تفكيك جزيئات الطعام الكبيرة إلى صغيرة قابلة للذوبان — ميكانيكياً وكيميائياً',
-    '3️⃣ <strong>الامتصاص (Absorption)</strong>: انتقال الجزيئات الصغيرة عبر جدار الأمعاء إلى الدم',
-    '4️⃣ <strong>التبرّز (Egestion)</strong>: طرح الطعام غير المهضوم عبر فتحة الشرج',
-  ],'🔄 مراحل الهضم الأربع'));
+  simState={t:0,activeStage:-1};
+
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🔄 مراحل الهضم الأربع</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">انقر على أي مرحلة في الرسم لتكبيرها وقراءة تفاصيلها</div>
+    <div id="bio8_stage_info" style="padding:12px;border-radius:10px;background:var(--bg-card2);font-size:13px;line-height:1.8;min-height:80px">← انقر على مرحلة لرؤية تفاصيلها</div>
+    <div style="margin-top:12px;padding:10px;background:rgba(99,102,241,0.1);border-radius:8px;font-size:12px;border:1px solid rgba(99,102,241,0.25)">
+      💡 <strong>تذكَّري:</strong> الهضم في الإنسان يشمل أربع مراحل متتابعة تحدث داخل الجهاز الهضمي
+    </div>
+  </div>`);
+
+  const stagesInfo=[
+    {label:'الابتلاع',en:'Ingestion',col:'#3B82F6',detail:'إدخال الطعام والشراب عبر الفم — الأسنان تقطع الطعام ميكانيكياً، واللعاب يرطّبه ويبدأ هضم النشا بأنزيم الأميليز'},
+    {label:'الهضم',en:'Digestion',col:'#10B981',detail:'تفكيك جزيئات الطعام الكبيرة إلى صغيرة قابلة للذوبان — يشمل الهضم الميكانيكي (عصر المعدة) والكيميائي (أنزيمات المعدة والبنكرياس)'},
+    {label:'الامتصاص',en:'Absorption',col:'#F59E0B',detail:'انتقال الجزيئات الصغيرة المهضومة (جلوكوز، أحماض أمينية، دهون) عبر جدار الأمعاء الدقيقة إلى الدم عبر الخملات'},
+    {label:'التبرّز',en:'Egestion',col:'#EF4444',detail:'طرح الطعام غير المهضوم والفضلات عبر فتحة الشرج — الأمعاء الغليظة تمتص الماء أولاً وتُشكِّل البراز'},
+  ];
+
   const cv=document.getElementById('simCanvas');
-  function draw(){
-    if(currentSim!=='g9bio8n1'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.012;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
-    c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    const stages=[
-      {num:'١',label:'الابتلاع',emoji:'👄',col:dark?'#60A5FA':'#2563EB',desc:'الفم يدخل الطعام'},
-      {num:'٢',label:'الهضم',emoji:'⚙️',col:dark?'#4ADE80':'#15803D',desc:'تفكيك الجزيئات'},
-      {num:'٣',label:'الامتصاص',emoji:'🩸',col:dark?'#FCD34D':'#D97706',desc:'الدم يمتص الغذاء'},
-      {num:'٤',label:'التبرّز',emoji:'🚪',col:dark?'#F87171':'#DC2626',desc:'طرح الفضلات'},
-    ];
-    const bw=w*0.18,bh=h*0.38,by=h*0.28;
-    stages.forEach((s,i)=>{
-      const bx=w*(0.12+i*0.22);
-      const pulse=i===Math.floor((simState.t*0.5)%4)?1:0.7;
-      c.fillStyle=s.col+(dark?'33':'22');
-      c.beginPath();c.roundRect(bx-bw/2,by,bw,bh,14);c.fill();
-      c.strokeStyle=s.col;c.lineWidth=pulse>0.8?3:1.5;
-      c.beginPath();c.roundRect(bx-bw/2,by,bw,bh,14);c.stroke();
-      c.font=`${Math.round(bh*0.22)}px serif`;c.textAlign='center';
-      c.fillText(s.emoji,bx,by+bh*0.32);
-      c.fillStyle=s.col;c.font=`bold ${Math.round(h*0.032)}px Tajawal`;
-      c.fillText(s.label,bx,by+bh*0.56);
-      c.fillStyle=bioMut();c.font=`${Math.round(h*0.024)}px Tajawal`;
-      c.fillText(s.desc,bx,by+bh*0.73);
-      // سهم
-      if(i<3){
-        c.fillStyle=dark?'#9CA3AF':'#6B7280';c.font=`bold ${Math.round(h*0.04)}px Arial`;
-        c.fillText('→',bx+bw/2+w*0.01,by+bh/2);
+  cv.onclick=function(e){
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my=(e.clientY-rect.top)*(cv.height/rect.height);
+    const w=cv.width,h=cv.height;
+    stagesInfo.forEach((s,i)=>{
+      const bx=w*(0.08+i*0.23),by=h*0.25,bw=w*0.2,bh=h*0.55;
+      if(mx>bx&&mx<bx+bw&&my>by&&my<by+bh){
+        simState.activeStage=i;
+        const el=document.getElementById('bio8_stage_info');
+        if(el)el.innerHTML=`<strong style="color:${s.col}">${s.label} (${s.en}):</strong><br>${s.detail}`;
       }
     });
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('مراحل الهضم الأربع في الجسم',w/2,h*0.17);
+  };
+
+  function drawMouth(c,cx,cy,r,col){
+    // وجه مبسّط مع فم مفتوح
+    c.fillStyle=col+'33';c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
+    c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.stroke();
+    // عيون
+    c.fillStyle=col;
+    c.beginPath();c.arc(cx-r*0.3,cy-r*0.25,r*0.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.arc(cx+r*0.3,cy-r*0.25,r*0.1,0,Math.PI*2);c.fill();
+    // فم مبتسم مع طعام
+    c.strokeStyle=col;c.lineWidth=2;
+    c.beginPath();c.arc(cx,cy+r*0.1,r*0.4,0.2,Math.PI-0.2);c.stroke();
+    // طعام
+    c.fillStyle='#FCD34D';c.font=`${Math.round(r*0.6)}px serif`;c.textAlign='center';c.fillText('🍎',cx,cy+r*1.5);
+  }
+
+  function drawDigestionOrgan(c,cx,cy,w2,h2,col,dark){
+    // معدة مبسطة
+    c.fillStyle=col+'25';
+    c.beginPath();
+    c.moveTo(cx-w2*0.5,cy-h2*0.35);
+    c.bezierCurveTo(cx-w2*0.8,cy-h2*0.15,cx-w2*0.8,cy+h2*0.35,cx-w2*0.2,cy+h2*0.5);
+    c.bezierCurveTo(cx+w2*0.2,cy+h2*0.6,cx+w2*0.6,cy+h2*0.3,cx+w2*0.5,cy-h2*0.1);
+    c.bezierCurveTo(cx+w2*0.4,cy-h2*0.5,cx+w2*0.0,cy-h2*0.6,cx-w2*0.5,cy-h2*0.35);
+    c.closePath();c.fill();
+    c.strokeStyle=col;c.lineWidth=2.5;c.stroke();
+    // خطوط انقباض
+    for(let i=0;i<3;i++){
+      c.strokeStyle=col+'66';c.lineWidth=1.5;
+      c.beginPath();c.moveTo(cx-w2*0.35,cy-h2*0.1+i*h2*0.2);c.bezierCurveTo(cx,cy+i*h2*0.1,cx,cy+i*h2*0.1,cx+w2*0.3,cy-h2*0.15+i*h2*0.2);c.stroke();
+    }
+  }
+
+  function drawAbsorption(c,cx,cy,r,col,t){
+    // شكل دائري مع أوعية دموية
+    c.fillStyle=col+'22';c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
+    c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.stroke();
+    // خملة صغيرة
+    c.fillStyle=col+'55';
+    c.beginPath();c.moveTo(cx-r*0.25,cy+r*0.4);c.lineTo(cx-r*0.1,cy-r*0.3);c.lineTo(cx+r*0.1,cy-r*0.3);c.lineTo(cx+r*0.25,cy+r*0.4);c.closePath();c.fill();
+    // أوعية دموية
+    c.strokeStyle='#EF4444';c.lineWidth=2;
+    c.beginPath();c.moveTo(cx-r*0.1,cy+r*0.35);c.bezierCurveTo(cx-r*0.3,cy,cx+r*0.3,cy,cx+r*0.1,cy+r*0.35);c.stroke();
+    // جزيء ينتقل
+    const px=cx-r*0.1+Math.cos(t*3)*r*0.2,py=cy+r*0.1+Math.sin(t*2)*r*0.15;
+    c.fillStyle='#FCD34D';c.beginPath();c.arc(px,py,r*0.08,0,Math.PI*2);c.fill();
+  }
+
+  function drawEgestion(c,cx,cy,r,col){
+    c.fillStyle=col+'22';c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
+    c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.stroke();
+    // قولون مبسّط
+    c.strokeStyle=col;c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cx-r*0.5,cy-r*0.3);
+    c.bezierCurveTo(cx-r*0.6,cy+r*0.1,cx-r*0.2,cy+r*0.5,cx,cy+r*0.45);
+    c.bezierCurveTo(cx+r*0.2,cy+r*0.4,cx+r*0.5,cy+r*0.1,cx+r*0.5,cy-r*0.3);
+    c.stroke();
+    // سهم خروج
+    c.fillStyle=col;c.font=`${Math.round(r*0.5)}px serif`;c.textAlign='center';c.fillText('↓',cx,cy+r*0.15);
+  }
+
+  function draw(){
+    if(currentSim!=='g9bio8n1'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
+    simState.t+=0.018;
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
+    c.fillStyle=bioBg();c.fillRect(0,0,w,h);
+
+    const stages=[
+      {label:'١. الابتلاع',en:'Ingestion',col:'#3B82F6'},
+      {label:'٢. الهضم',en:'Digestion',col:'#10B981'},
+      {label:'٣. الامتصاص',en:'Absorption',col:'#F59E0B'},
+      {label:'٤. التبرّز',en:'Egestion',col:'#EF4444'},
+    ];
+    const bw=w*0.2,bh=h*0.55,by=h*0.25;
+
+    // عنوان
+    drawLabel(c,'مراحل الهضم الأربع',w/2,h*0.12,bioTxt(),Math.round(h*0.042));
+
+    stages.forEach((s,i)=>{
+      const bx=w*(0.08+i*0.23);
+      const isActive=simState.activeStage===i;
+      const pulse=isActive?1:(0.75+Math.sin(simState.t*1.5+i*0.8)*0.08);
+
+      // بطاقة
+      c.fillStyle=s.col+(isActive?'33':'18');
+      c.beginPath();c.roundRect(bx,by,bw,bh,14);c.fill();
+      c.strokeStyle=s.col;c.lineWidth=isActive?3:1.8;
+      c.beginPath();c.roundRect(bx,by,bw,bh,14);c.stroke();
+
+      const cx2=bx+bw/2,cy2=by+bh*0.38,r=h*0.09*pulse;
+
+      // رسم محتوى كل مرحلة
+      if(i===0) drawMouth(c,cx2,cy2,r,s.col);
+      else if(i===1) drawDigestionOrgan(c,cx2,cy2,r*1.1,r*0.9,s.col,dark);
+      else if(i===2) drawAbsorption(c,cx2,cy2,r,s.col,simState.t);
+      else drawEgestion(c,cx2,cy2,r,s.col);
+
+      // اسم المرحلة
+      drawLabel(c,s.label,cx2,by+bh*0.76,s.col,Math.round(h*0.027));
+      drawSmallLabel(c,s.en,cx2,by+bh*0.87,dark?'#9CA3AF':'#6B7280',Math.round(h*0.022));
+
+      // سهم انتقال
+      if(i<3){
+        const ax=bx+bw+2,ay=by+bh/2;
+        const pulse2=0.5+Math.abs(Math.sin(simState.t*2+i))*0.5;
+        drawArrow(c,ax,ay,ax+w*0.03,ay,s.col+(Math.floor(pulse2*255).toString(16).padStart(2,'0')),3,10);
+      }
+    });
+
+    // طعام متحرك بين المراحل
+    const prog=(simState.t*0.3)%1;
+    const stageIdx=Math.floor(prog*4);
+    const stageProg=(prog*4)%1;
+    if(stageIdx<4){
+      const sx=w*(0.08+stageIdx*0.23)+w*0.1+stageProg*w*0.13;
+      const sy=by+bh*0.5;
+      c.fillStyle='#FCD34D';c.beginPath();c.arc(sx,sy,h*0.018,0,Math.PI*2);c.fill();
+      c.fillStyle='#92400E';c.font=`${Math.round(h*0.016)}px Tajawal`;c.textAlign='center';c.fillText('طعام',sx,sy+h*0.035);
+    }
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -56969,41 +57116,251 @@ function simG9Bio8N1a(){
 function simG9Bio8N1b(){
   cancelAnimationFrame(animFrame);
   simState={t:0,step:0};
+
+  const steps=[
+    {
+      place:'خارج الجسم',
+      col:'#6B7280',
+      detail:'الثعلب يرى وجبته — الجهاز الهضمي يستعد: تزداد إفرازات اللعاب والمعدة استجابةً للرائحة والمنظر',
+      drawFn: function(c,w,h,t,col){
+        // ثعلب يتطلع للطعام
+        drawFoxBody(c,w*0.3,h*0.5,h*0.18,col,0,t);
+        // طعام أمامه
+        c.font=`${Math.round(h*0.1)}px serif`;c.textAlign='center';c.fillText('🐇',w*0.65,h*0.52);
+        // خطوط شم
+        for(let i=0;i<4;i++){
+          const sx=w*0.52-i*w*0.03,sy=h*(0.42-i*0.05);
+          c.strokeStyle=col+(Math.round((1-i*0.2)*200).toString(16).padStart(2,'0'));
+          c.lineWidth=1.5;c.setLineDash([3,3]);
+          c.beginPath();c.moveTo(sx,sy);c.bezierCurveTo(sx-w*0.04,sy-h*0.03,sx-w*0.06,sy-h*0.02,w*0.3+h*0.1,h*0.45);c.stroke();
+          c.setLineDash([]);
+        }
+        drawLabel(c,'الثعلب يشم رائحة الطعام',w/2,h*0.82,col,Math.round(h*0.028));
+        drawSmallLabel(c,'الجهاز الهضمي يستعد للاستقبال',w/2,h*0.9,dark?'#9CA3AF':'#6B7280',Math.round(h*0.023));
+      }
+    },
+    {
+      place:'١. الابتلاع',
+      col:'#3B82F6',
+      detail:'الثعلب يأكل — الأسنان الحادة تمزّق اللحم ميكانيكياً. اللعاب يرطّب الطعام ويبدأ أميليز اللعاب هضم أي نشا. تتشكّل البلعة وتنزل عبر المريء',
+      drawFn: function(c,w,h,t,col){
+        drawFoxBody(c,w*0.28,h*0.48,h*0.18,col,1,t);
+        // فم مفتوح مع طعام
+        c.font=`${Math.round(h*0.07)}px serif`;c.textAlign='center';c.fillText('🍖',w*0.55,h*0.46);
+        // سهم إلى الفم
+        drawArrow(c,w*0.5,h*0.46,w*0.38+h*0.1,h*0.44,col,3,10);
+        // مريء
+        c.strokeStyle=col+'88';c.lineWidth=8;
+        c.beginPath();c.moveTo(w*0.28,h*0.58);c.bezierCurveTo(w*0.3,h*0.65,w*0.32,h*0.7,w*0.35,h*0.75);c.stroke();
+        // بلعة تنزل
+        const bp=((t*0.5)%1);
+        const bpx=w*0.28+bp*w*0.07,bpy=h*0.58+bp*h*0.17;
+        c.fillStyle='#FCD34D';c.beginPath();c.arc(bpx,bpy,h*0.018,0,Math.PI*2);c.fill();
+        // اللعاب
+        c.fillStyle=col+'44';
+        for(let i=0;i<5;i++){c.beginPath();c.arc(w*(0.31+i*0.025),h*0.55,h*0.008,0,Math.PI*2);c.fill();}
+        drawLabel(c,'الابتلاع والبلع',w/2,h*0.82,col,Math.round(h*0.028));
+        drawSmallLabel(c,'أسنان + لعاب (أميليز) → بلعة تنزل للمعدة',w/2,h*0.9,dark?'#9CA3AF':'#6B7280',Math.round(h*0.022));
+      }
+    },
+    {
+      place:'٢. الهضم',
+      col:'#10B981',
+      detail:'الكيموس يتشكّل في المعدة: حمض HCl يقتل البكتيريا، البيبسين يبدأ هضم البروتين. ثم الأمعاء الدقيقة تُكمل الهضم بأنزيمات البنكرياس والعصارة الصفراوية',
+      drawFn: function(c,w,h,t,col){
+        // معدة ثعلب
+        drawFoxBody(c,w*0.15,h*0.45,h*0.15,col,2,t);
+        // رسم معدة داخلية
+        const mx=w*0.55,my=h*0.38,mw=w*0.28,mh=h*0.28;
+        c.fillStyle=col+'22';
+        c.beginPath();
+        c.moveTo(mx-mw*0.45,my+mh*0.1);
+        c.bezierCurveTo(mx-mw*0.55,my,mx-mw*0.55,my+mh*0.7,mx-mw*0.2,my+mh*0.85);
+        c.bezierCurveTo(mx+mw*0.1,my+mh*0.95,mx+mw*0.5,my+mh*0.6,mx+mw*0.45,my+mh*0.1);
+        c.bezierCurveTo(mx+mw*0.35,my-mh*0.15,mx+mw*0.0,my-mh*0.15,mx-mw*0.45,my+mh*0.1);
+        c.closePath();c.fill();
+        c.strokeStyle=col;c.lineWidth=2.5;c.stroke();
+        // موجات هضم
+        for(let i=0;i<3;i++){
+          const wave=Math.sin(t*3+i*1.2)*mh*0.05;
+          c.strokeStyle=col+(Math.round(180-i*40).toString(16).padStart(2,'0'));
+          c.lineWidth=1.5;c.beginPath();
+          c.moveTo(mx-mw*0.35,my+mh*0.3+i*mh*0.18+wave);
+          c.bezierCurveTo(mx-mw*0.1,my+mh*0.25+i*mh*0.18,mx+mw*0.1,my+mh*0.35+i*mh*0.18,mx+mw*0.3,my+mh*0.3+i*mh*0.18+wave);
+          c.stroke();
+        }
+        // تسميات كيميائية
+        c.fillStyle=col;c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';
+        c.fillText('HCl + بيبسين',mx,my+mh+h*0.05);
+        // أمعاء دقيقة
+        c.strokeStyle=col+'66';c.lineWidth=6;
+        c.beginPath();c.moveTo(mx,my+mh*0.9);
+        for(let i=0;i<5;i++)c.lineTo(mx+(i%2===0?mw*0.2:-mw*0.1),my+mh+h*0.08+i*h*0.05);
+        c.stroke();
+        drawLabel(c,'الهضم في المعدة والأمعاء',w/2,h*0.83,col,Math.round(h*0.027));
+        drawSmallLabel(c,'HCl + أنزيمات = هضم كيميائي كامل',w/2,h*0.9,dark?'#9CA3AF':'#6B7280',Math.round(h*0.022));
+      }
+    },
+    {
+      place:'٣. الامتصاص',
+      col:'#F59E0B',
+      detail:'الخملات تمتص الجلوكوز والأحماض الأمينية عبر الشعيرات الدموية → الدم ينقلها للكبد ثم لخلايا الجسم. الدهون تُمتص في الأوعية اللمفاوية',
+      drawFn: function(c,w,h,t,col){
+        drawFoxBody(c,w*0.15,h*0.48,h*0.15,col,3,t);
+        // قطاع عرضي لجدار الأمعاء
+        const ix=w*0.42,iy=h*0.22,iw=w*0.52,ih=h*0.52;
+        c.fillStyle=col+'15';c.beginPath();c.roundRect(ix,iy,iw,ih,12);c.fill();
+        c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.roundRect(ix,iy,iw,ih,12);c.stroke();
+        drawLabel(c,'قطاع عرضي — جدار الأمعاء الدقيقة',ix+iw/2,iy-h*0.02,dark?'#9CA3AF':'#6B7280',Math.round(h*0.02));
+        // خملات
+        const numV=7;
+        for(let vi=0;vi<numV;vi++){
+          const vx=ix+iw*(0.07+vi*(0.86/numV));
+          const vh2=ih*0.45;
+          const vtop=iy+ih*0.05;
+          // جسم الخملة
+          c.fillStyle=col+'44';
+          c.beginPath();c.moveTo(vx-iw*0.035,vtop+vh2);c.lineTo(vx-iw*0.02,vtop);c.lineTo(vx+iw*0.02,vtop);c.lineTo(vx+iw*0.035,vtop+vh2);c.closePath();c.fill();
+          c.strokeStyle=col;c.lineWidth=1.5;c.stroke();
+          // زغيبات
+          for(let z=0;z<5;z++){
+            const zx=vx+(-2+z)*iw*0.008;
+            c.strokeStyle=col;c.lineWidth=1.2;c.beginPath();c.moveTo(zx,vtop);c.lineTo(zx,vtop-ih*0.06);c.stroke();
+          }
+          // وعاء دموي
+          c.strokeStyle='#EF4444';c.lineWidth=2;
+          c.beginPath();c.moveTo(vx-iw*0.02,vtop+vh2*0.25);c.bezierCurveTo(vx-iw*0.01,vtop+vh2*0.6,vx+iw*0.01,vtop+vh2*0.6,vx+iw*0.02,vtop+vh2*0.25);c.stroke();
+        }
+        // جزيئات متحركة تُمتص
+        for(let p=0;p<6;p++){
+          const pp=((t*0.4+p*0.17)%1);
+          const pvx=ix+iw*(0.1+p*(0.13));
+          const pvy=iy+ih*(0.6-pp*0.4);
+          c.fillStyle=p%2===0?'#3B82F6':'#10B981';
+          c.beginPath();c.arc(pvx,pvy,ih*0.025,0,Math.PI*2);c.fill();
+        }
+        // وعاء دم رئيسي
+        c.fillStyle='#EF444422';c.beginPath();c.roundRect(ix,iy+ih*0.72,iw,ih*0.25,8);c.fill();
+        c.strokeStyle='#EF4444';c.lineWidth=2;c.stroke();
+        drawLabel(c,'🩸 الدم يحمل الغذاء المُمتَص',ix+iw/2,iy+ih*0.87,dark?'#F87171':'#DC2626',Math.round(h*0.023));
+        drawLabel(c,'الامتصاص عبر الخملات',w/2,h*0.84,col,Math.round(h*0.027));
+      }
+    },
+    {
+      place:'٤. التبرّز',
+      col:'#EF4444',
+      detail:'الفضلات غير المهضومة (ألياف، خلايا ميتة، بكتيريا) تصل الأمعاء الغليظة — تُمتص منها الماء والأملاح، تتشكّل البراز وتُطرح عبر فتحة الشرج',
+      drawFn: function(c,w,h,t,col){
+        drawFoxBody(c,w*0.15,h*0.48,h*0.15,col,4,t);
+        // قولون
+        const qx=w*0.38,qy=h*0.2,qw=w*0.56,qh=h*0.58;
+        // رسم القولون على شكل إطار
+        c.strokeStyle=col;c.lineWidth=12;c.lineCap='round';c.lineJoin='round';
+        c.beginPath();
+        c.moveTo(qx+qw*0.1,qy);
+        c.lineTo(qx+qw*0.9,qy);
+        c.arcTo(qx+qw,qy,qx+qw,qy+qh*0.15,qh*0.12);
+        c.lineTo(qx+qw,qy+qh*0.7);
+        c.arcTo(qx+qw,qy+qh,qx+qw*0.6,qy+qh,qh*0.12);
+        c.lineTo(qx+qw*0.5,qy+qh);
+        c.stroke();
+        c.lineWidth=10;
+        c.beginPath();
+        c.moveTo(qx+qw*0.5,qy);
+        c.lineTo(qx,qy);
+        c.arcTo(qx-qw*0.05,qy,qx-qw*0.05,qy+qh*0.3,qh*0.12);
+        c.lineTo(qx-qw*0.05,qy+qh*0.5);
+        c.arcTo(qx-qw*0.05,qy+qh,qx+qw*0.2,qy+qh,qh*0.12);
+        c.stroke();
+        // فضلات تتحرك داخل القولون
+        for(let fi=0;fi<4;fi++){
+          const fpos=((t*0.2+fi*0.25)%1);
+          const fx=qx+qw*(0.15+fpos*0.65),fy=qy+h*0.04;
+          c.fillStyle=col+'77';c.beginPath();c.arc(fx,fy,h*0.022,0,Math.PI*2);c.fill();
+        }
+        // سهم خروج
+        drawArrow(c,qx+qw*0.5,qy+qh+h*0.02,qx+qw*0.5,qy+qh+h*0.1,col,4,12);
+        drawLabel(c,'فتحة الشرج — طرح الفضلات',qx+qw*0.5,qy+qh+h*0.15,col,Math.round(h*0.025));
+        // امتصاص ماء
+        c.fillStyle='#60A5FA';c.font=`${Math.round(h*0.025)}px serif`;c.textAlign='right';
+        c.fillText('💧 امتصاص الماء',qx+qw*0.9,qy+qh*0.45);
+        drawLabel(c,'التبرّز — طرح الفضلات',w/2,h*0.84,col,Math.round(h*0.027));
+        drawSmallLabel(c,'الأمعاء الغليظة تمتص الماء → يتشكّل البراز',w/2,h*0.91,dark?'#9CA3AF':'#6B7280',Math.round(h*0.022));
+      }
+    },
+  ];
+
+  function drawFoxBody(c,x,y,size,col,mood,t){
+    // جسم الثعلب مرسوم بالكامل
+    const s=size;
+    // جسم
+    c.fillStyle='#E67E22';
+    c.beginPath();c.ellipse(x,y,s*0.55,s*0.4,-0.2,0,Math.PI*2);c.fill();
+    // بطن أبيض
+    c.fillStyle='#FDEBD0';
+    c.beginPath();c.ellipse(x+s*0.05,y+s*0.05,s*0.3,s*0.25,-0.15,0,Math.PI*2);c.fill();
+    // رأس
+    c.fillStyle='#E67E22';
+    c.beginPath();c.arc(x+s*0.55,y-s*0.15,s*0.32,0,Math.PI*2);c.fill();
+    // خطم
+    c.fillStyle='#FDEBD0';
+    c.beginPath();c.ellipse(x+s*0.78,y-s*0.08,s*0.18,s*0.13,0.2,0,Math.PI*2);c.fill();
+    c.fillStyle='#333';c.beginPath();c.arc(x+s*0.88,y-s*0.1,s*0.04,0,Math.PI*2);c.fill();
+    // عين
+    c.fillStyle='#1a1a1a';c.beginPath();c.arc(x+s*0.67,y-s*0.25,s*0.06,0,Math.PI*2);c.fill();
+    c.fillStyle='white';c.beginPath();c.arc(x+s*0.69,y-s*0.27,s*0.02,0,Math.PI*2);c.fill();
+    // أذن
+    c.fillStyle='#E67E22';
+    c.beginPath();c.moveTo(x+s*0.55,y-s*0.44);c.lineTo(x+s*0.48,y-s*0.65);c.lineTo(x+s*0.68,y-s*0.48);c.closePath();c.fill();
+    c.fillStyle='#F39C12';
+    c.beginPath();c.moveTo(x+s*0.57,y-s*0.46);c.lineTo(x+s*0.52,y-s*0.58);c.lineTo(x+s*0.64,y-s*0.49);c.closePath();c.fill();
+    // ذيل
+    c.fillStyle='#E67E22';
+    c.beginPath();c.moveTo(x-s*0.5,y);c.bezierCurveTo(x-s*0.9,y-s*0.3,x-s*0.85,y-s*0.65,x-s*0.55,y-s*0.5);
+    c.bezierCurveTo(x-s*0.75,y-s*0.3,x-s*0.7,y+s*0.1,x-s*0.5,y);c.closePath();c.fill();
+    c.fillStyle='white';
+    c.beginPath();c.arc(x-s*0.7,y-s*0.55,s*0.12,0,Math.PI*2);c.fill();
+    // أرجل
+    c.fillStyle='#E67E22';
+    c.beginPath();c.ellipse(x-s*0.15,y+s*0.38,s*0.12,s*0.2,0.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(x+s*0.2,y+s*0.38,s*0.12,s*0.2,0.1,0,Math.PI*2);c.fill();
+  }
+
   controls(`<div class="ctrl-section">
     <div class="ctrl-label">🦊 رحلة الطعام في الثعلب</div>
-    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">انقر على الزر لرؤية كل مرحلة</div>
-    <button onclick="simState.step=(simState.step+1)%5" style="width:100%;padding:10px;border-radius:10px;background:#E67E22;color:white;font-family:Tajawal;font-weight:700;font-size:15px;border:none;cursor:pointer">▶ المرحلة التالية</button>
-    <div id="bio8n1b_info" style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-card2);font-size:13px;line-height:1.7"></div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+      ${steps.map((s,i)=>`<button onclick="simState.step=${i}" id="fox_btn_${i}" style="padding:7px 10px;border-radius:8px;border:2px solid ${s.col}44;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:13px;cursor:pointer;text-align:right;transition:all 0.2s"><span style="color:${s.col};font-weight:700">${s.place}</span></button>`).join('')}
+    </div>
+    <div id="fox_info" style="padding:10px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.8;min-height:70px">← اختاري مرحلة لرؤية تفاصيلها</div>
   </div>`);
-  const steps=[
-    {label:'الطعام خارج الجسم',desc:'الثعلب يرى الطعام ويشم رائحته — الجهاز الهضمي يستعد!',color:'#6B7280'},
-    {label:'١. الابتلاع',desc:'الثعلب يأكل — الأسنان تقطع اللحم، اللسان يخلطه مع اللعاب، يُبتلع كبولة',color:'#2563EB'},
-    {label:'٢. الهضم',desc:'المعدة تعصره وتضيف أحماض. الأمعاء الدقيقة تُكمل بأنزيمات البنكرياس',color:'#15803D'},
-    {label:'٣. الامتصاص',desc:'الخملات تمتص الجلوكوز والأحماض الأمينية والدهون — تنتقل للدم',color:'#D97706'},
-    {label:'٤. التبرّز',desc:'الفضلات غير المهضومة تصل القولون — تُطرح عبر فتحة الشرج',color:'#DC2626'},
-  ];
+
   const cv=document.getElementById('simCanvas');
+  let lastStep=-1;
   function draw(){
     if(currentSim!=='g9bio8n1'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.015;
+    simState.t+=0.018;
+    if(simState.step!==lastStep){
+      lastStep=simState.step;
+      const el=document.getElementById('fox_info');
+      const s=steps[simState.step];
+      if(el)el.innerHTML=`<strong style="color:${s.col}">${s.place}:</strong><br>${s.detail}`;
+      steps.forEach((_,i)=>{
+        const btn=document.getElementById(`fox_btn_${i}`);
+        if(btn)btn.style.background=i===simState.step?steps[i].col+'33':'var(--bg-ctrl-btn)';
+      });
+    }
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
     const s=steps[simState.step];
-    // خلفية ملونة
-    c.fillStyle=s.color+'18';c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.042)}px Tajawal`;c.textAlign='center';
-    c.fillText(s.label,w/2,h*0.12);
-    // ثعلب SVG بديل
-    c.font=`${Math.round(h*0.22)}px serif`;c.fillText('🦊',w/2,h*0.45);
-    // مسار أسهم
-    const prog=simState.step/4;
-    c.strokeStyle=s.color;c.lineWidth=5;c.setLineDash([8,4]);
-    c.beginPath();c.moveTo(w*0.1,h*0.72);c.lineTo(w*(0.1+prog*0.8),h*0.72);c.stroke();
-    c.setLineDash([]);
-    c.fillStyle=s.color;c.beginPath();c.arc(w*(0.1+prog*0.8),h*0.72,10,0,Math.PI*2);c.fill();
-    // تحديث الوصف
-    const info=document.getElementById('bio8n1b_info');
-    if(info)info.innerHTML=`<strong style="color:${s.color}">${s.label}:</strong> ${s.desc}`;
+    // خلفية ملونة طفيفة
+    c.fillStyle=s.col+'0D';c.fillRect(0,0,w,h);
+    // شريط تقدم
+    c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)';
+    c.beginPath();c.roundRect(w*0.05,h*0.04,w*0.9,h*0.04,6);c.fill();
+    c.fillStyle=s.col+'BB';
+    c.beginPath();c.roundRect(w*0.05,h*0.04,w*0.9*((simState.step+1)/steps.length),h*0.04,6);c.fill();
+    drawLabel(c,s.place,w/2,h*0.14,s.col,Math.round(h*0.038));
+    s.drawFn(c,w,h,simState.t,s.col);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57011,105 +57368,179 @@ function simG9Bio8N1b(){
 
 function simG9Bio8N1c(){
   cancelAnimationFrame(animFrame);
-  simState={t:0,answers:{},checked:false};
-  const qs=[
-    {q:'دخول الطعام عبر الفم تُسمّى عملية:',opts:['الهضم','الابتلاع','الامتصاص'],ans:1},
-    {q:'طرح الفضلات عبر فتحة الشرج يُسمّى:',opts:['التبرّز','الامتصاص','الهضم الكيميائي'],ans:0},
-    {q:'أيُّ مرحلة ينتقل فيها الغذاء من الأمعاء إلى الدم؟',opts:['الهضم','التبرّز','الامتصاص'],ans:2},
-    {q:'الهضم الكيميائي يتضمن:',opts:['قطع الأسنان','عمل الأنزيمات','حركة المعدة'],ans:1},
+  simState={t:0,drag:null,placed:{},checked:false};
+
+  const stages=[
+    {id:'ingest',label:'الابتلاع',col:'#3B82F6'},
+    {id:'digest',label:'الهضم',col:'#10B981'},
+    {id:'absorb',label:'الامتصاص',col:'#F59E0B'},
+    {id:'egest',label:'التبرّز',col:'#EF4444'},
   ];
-  let html=`<div class="ctrl-section"><div class="ctrl-label">🎯 اختبر فهمك: مراحل الهضم</div>`;
-  qs.forEach((q,qi)=>{
-    html+=`<div style="margin:10px 0;padding:10px;background:var(--bg-card2);border-radius:10px">
-      <div style="font-weight:700;font-size:13px;margin-bottom:7px">${qi+1}. ${q.q}</div>`;
-    q.opts.forEach((o,oi)=>{
-      html+=`<label style="display:flex;align-items:center;gap:8px;margin:4px 0;padding:6px 8px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-q-opt);cursor:pointer">
-        <input type="radio" name="b8q${qi}" value="${oi}" onchange="simState.answers[${qi}]=${oi}" style="width:15px;height:15px">
-        <span style="font-size:13px">${o}</span></label>`;
-    });
-    html+=`</div>`;
+  const scenarios=[
+    {text:'الأسنان تقطع الطبق',ans:'ingest'},
+    {text:'أميليز البنكرياس يعمل',ans:'digest'},
+    {text:'الجلوكوز يدخل الدم',ans:'absorb'},
+    {text:'الفضلات تُطرح',ans:'egest'},
+    {text:'اللعاب يرطّب الطعام',ans:'ingest'},
+    {text:'الخملات تمتص الأحماض الأمينية',ans:'absorb'},
+  ];
+
+  let html=`<div class="ctrl-section"><div class="ctrl-label">🎯 اختبر فهمك: صنِّفي كل سيناريو</div>`;
+  scenarios.forEach((sc,i)=>{
+    html+=`<div style="margin:6px 0;padding:8px;background:var(--bg-card2);border-radius:8px;border:1.5px solid var(--border-color)">
+      <div style="font-size:12.5px;font-weight:700;margin-bottom:5px">${i+1}. ${sc.text}</div>
+      <select id="sc_${i}" style="width:100%;padding:5px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:12px">
+        <option value="">اختاري المرحلة...</option>
+        ${stages.map(s=>`<option value="${s.id}">${s.label}</option>`).join('')}
+      </select>
+    </div>`;
   });
-  html+=`<button onclick="window._b8n1check()" style="width:100%;padding:10px;margin-top:6px;border-radius:10px;background:#E67E22;color:white;font-family:Tajawal;font-weight:700;font-size:15px;border:none;cursor:pointer">✅ تحقق</button>
-  <div id="b8n1_res" style="margin-top:8px;font-weight:700;text-align:center;font-size:15px;padding:8px"></div></div>`;
+  html+=`<button onclick="window._b8n1c_check()" style="width:100%;padding:9px;margin-top:6px;border-radius:10px;background:#E67E22;color:white;font-family:Tajawal;font-weight:700;font-size:14px;border:none;cursor:pointer">✅ تحقق</button>
+  <div id="b8n1c_res" style="margin-top:8px;font-size:12px;padding:8px;border-radius:8px;background:var(--bg-card2)"></div></div>`;
   controls(html);
-  window._b8n1check=()=>{
-    let sc=0;qs.forEach((q,i)=>{if(simState.answers[i]===q.ans)sc++;});
-    const r=document.getElementById('b8n1_res');
-    if(r)r.innerHTML=sc===4?'🎉 ممتاز! جميع إجاباتك صحيحة':`✅ ${sc} من ${qs.length} صحيح`;
+
+  window._b8n1c_check=()=>{
+    let sc=0;
+    const msgs=[];
+    scenarios.forEach((s,i)=>{
+      const sel=document.getElementById(`sc_${i}`);
+      const val=sel?sel.value:'';
+      const correct=val===s.ans;
+      if(correct)sc++;
+      else msgs.push(`<span style="color:#EF4444">✗ رقم ${i+1}: الصحيح هو ${stages.find(st=>st.id===s.ans)?.label}</span>`);
+      if(sel)sel.style.border=`2px solid ${correct?'#10B981':'#EF4444'}`;
+    });
+    const el=document.getElementById('b8n1c_res');
+    if(el)el.innerHTML=sc===scenarios.length?`🎉 <strong style="color:#10B981">ممتاز! جميع إجاباتك صحيحة (${sc}/${scenarios.length})</strong>`:`<strong>نتيجتك: ${sc}/${scenarios.length}</strong><br>${msgs.join('<br>')}`;
   };
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n1'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.01;
+    simState.t+=0.012;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.042)}px Tajawal`;c.textAlign='center';
-    c.fillText('🎯 اختبر معلوماتك',w/2,h*0.15);
-    ['👄 ابتلاع','⚙️ هضم','🩸 امتصاص','🚪 تبرّز'].forEach((s,i)=>{
-      const x=w*(0.2+i*0.2),y=h*0.45;
+    drawLabel(c,'مراحل الهضم الأربع — مرجع سريع',w/2,h*0.1,bioTxt(),Math.round(h*0.038));
+    stages.forEach((s,i)=>{
+      const bx=w*(0.05+i*0.24),by=h*0.22,bw=w*0.2,bh=h*0.62;
+      c.fillStyle=s.col+'18';c.beginPath();c.roundRect(bx,by,bw,bh,12);c.fill();
+      c.strokeStyle=s.col;c.lineWidth=2;c.beginPath();c.roundRect(bx,by,bw,bh,12);c.stroke();
+      // أيقونة
       c.font=`${Math.round(h*0.08)}px serif`;c.textAlign='center';
-      c.fillText(s.split(' ')[0],x,y);
-      c.fillStyle=bioMut();c.font=`${Math.round(h*0.026)}px Tajawal`;
-      c.fillText(s.split(' ')[1],x,y+h*0.1);
-      c.fillStyle=bioTxt();
+      c.fillText(['👄','⚙️','🩸','🚪'][i],bx+bw/2,by+bh*0.32);
+      drawLabel(c,s.label,bx+bw/2,by+bh*0.53,s.col,Math.round(h*0.026));
+      // رقم
+      c.fillStyle=s.col+'44';c.beginPath();c.arc(bx+bw*0.85,by+h*0.04,h*0.03,0,Math.PI*2);c.fill();
+      c.fillStyle=s.col;c.font=`bold ${Math.round(h*0.028)}px Tajawal`;c.textAlign='center';c.fillText(`${i+1}`,bx+bw*0.85,by+h*0.05);
     });
-    c.fillStyle=bioMut();c.font=`${Math.round(h*0.027)}px Tajawal`;c.textAlign='center';
-    c.fillText('أجب على الأسئلة في اللوحة الجانبية',w/2,h*0.75);
+    drawSmallLabel(c,'أجيبي على الأسئلة في اللوحة الجانبية',w/2,h*0.9,dark?'#9CA3AF':'#6B7280',Math.round(h*0.026));
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-/* ════════ نشاط ٢-٨ · الهضم الميكانيكي والكيميائي ════════ */
+/* ════════════════════════════════════════════════
+   نشاط ٢-٨ · الهضم الميكانيكي والكيميائي
+════════════════════════════════════════════════ */
 function simG9Bio8N2a(){
   cancelAnimationFrame(animFrame);
-  simState={t:0};
-  controls(bioInfoPanel([
-    '🦷 <strong>الهضم الميكانيكي</strong>: تفكيك الطعام إلى أجزاء صغيرة دون تغيير كيميائي',
-    '✂️ أمثلة: قطع الأسنان، عصر المعدة، حركة الأمعاء',
-    '🧪 <strong>الهضم الكيميائي</strong>: تحويل جزيئات كبيرة إلى أصغر بمساعدة الأنزيمات',
-    '⚗️ أمثلة: الأميليز يحوّل النشا → جلوكوز · البروتييز يحوّل بروتين → أحماض أمينية',
-    '🔗 يعملان معاً: الهضم الميكانيكي يزيد السطح للهضم الكيميائي',
-  ],'🦷 الهضم الميكانيكي'));
+  simState={t:0,showSmall:false};
+
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🦷 الهضم الميكانيكي</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;line-height:1.7">تفكيك الطعام إلى أجزاء صغيرة <strong>دون تغيير تركيبه الكيميائي</strong></div>
+    <button onclick="simState.showSmall=!simState.showSmall" style="width:100%;padding:10px;border-radius:10px;background:#2563EB;color:white;font-family:Tajawal;font-weight:700;font-size:14px;border:none;cursor:pointer">🦷 تقطيع الطعام</button>
+    <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:7px">
+      <div style="padding:9px;background:rgba(37,99,235,0.1);border-radius:8px;border:1px solid rgba(37,99,235,0.3);font-size:12.5px;line-height:1.7">
+        <strong style="color:#2563EB">✓ أمثلة الهضم الميكانيكي:</strong><br>
+        • أسنان القاطعة: تقطع وتمزّق<br>
+        • أسنان الطاحنة: تطحن وتسحق<br>
+        • تقلصات المعدة: تعجن وتخلط<br>
+        • تمعّج الأمعاء: يحرّك ويمزج
+      </div>
+      <div style="padding:9px;background:rgba(37,99,235,0.08);border-radius:8px;border:1px solid rgba(37,99,235,0.2);font-size:12.5px">
+        <strong style="color:#2563EB">🔗 الهدف:</strong> زيادة السطح المعرَّض لعمل الأنزيمات الكيميائية
+      </div>
+    </div>
+  </div>`);
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n2'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.015;
+    simState.t+=0.018;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.04)}px Tajawal`;c.textAlign='center';
-    c.fillText('الهضم الميكانيكي — تفكيك الطعام',w/2,h*0.09);
-    // رغيف كبير → قطع صغيرة
-    const t=simState.t%4;
-    if(t<1.5){
-      // رغيف كبير
-      c.fillStyle=dark?'rgba(253,224,71,0.4)':'rgba(254,240,138,0.9)';
-      c.beginPath();c.roundRect(w*0.3,h*0.22,w*0.4,h*0.22,20);c.fill();
-      c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=2.5;
-      c.beginPath();c.roundRect(w*0.3,h*0.22,w*0.4,h*0.22,20);c.stroke();
-      c.font=`${Math.round(h*0.06)}px serif`;c.textAlign='center';
-      c.fillText('🍞',w/2,h*0.38);
+    drawLabel(c,'الهضم الميكانيكي — الأسنان تقطع الطعام',w/2,h*0.09,bioTxt(),Math.round(h*0.038));
+
+    // رسم فم كبير مع أسنان
+    const mx=w*0.5,my=h*0.38,mr=h*0.22;
+    // الفك العلوي
+    c.fillStyle=dark?'rgba(253,186,116,0.3)':'rgba(254,215,170,0.8)';
+    c.beginPath();c.arc(mx,my-mr*0.2,mr,Math.PI,Math.PI*2);c.fill();
+    c.strokeStyle=dark?'#FB923C':'#EA580C';c.lineWidth=2.5;c.stroke();
+    // الفك السفلي
+    c.fillStyle=dark?'rgba(253,186,116,0.3)':'rgba(254,215,170,0.8)';
+    c.beginPath();c.arc(mx,my+mr*0.2,mr,0,Math.PI);c.fill();
+    c.strokeStyle=dark?'#FB923C':'#EA580C';c.lineWidth=2.5;c.stroke();
+
+    // أسنان علوية
+    const numTeeth=8;
+    for(let ti=0;ti<numTeeth;ti++){
+      const angle=Math.PI+ti*(Math.PI/numTeeth)+Math.PI/(numTeeth*2);
+      const tx=mx+mr*0.85*Math.cos(angle);
+      const ty=my-mr*0.2+mr*0.85*Math.sin(angle);
+      // شكل السن
+      const toothH=ti===0||ti===numTeeth-1?mr*0.18:mr*0.14;
+      c.save();c.translate(tx,ty);c.rotate(angle+Math.PI/2);
+      c.fillStyle='white';c.strokeStyle='#ddd';c.lineWidth=1;
+      c.beginPath();c.roundRect(-mr*0.06,-toothH/2,mr*0.12,toothH,mr*0.02);c.fill();c.stroke();
+      c.restore();
+    }
+    // أسنان سفلية (معكوسة)
+    for(let ti=0;ti<numTeeth;ti++){
+      const angle=ti*(Math.PI/numTeeth)+Math.PI/(numTeeth*2);
+      const tx=mx+mr*0.85*Math.cos(angle);
+      const ty=my+mr*0.2+mr*0.85*Math.sin(angle);
+      const toothH=ti===0||ti===numTeeth-1?mr*0.18:mr*0.14;
+      c.save();c.translate(tx,ty);c.rotate(angle-Math.PI/2);
+      c.fillStyle='white';c.strokeStyle='#ddd';c.lineWidth=1;
+      c.beginPath();c.roundRect(-mr*0.06,-toothH/2,mr*0.12,toothH,mr*0.02);c.fill();c.stroke();
+      c.restore();
+    }
+
+    // طعام (قبل / بعد)
+    if(!simState.showSmall){
+      // خبز كبير في المنتصف
+      c.fillStyle=dark?'rgba(253,224,71,0.5)':'rgba(254,240,138,0.9)';
+      c.beginPath();c.roundRect(mx-mr*0.35,my-mr*0.18,mr*0.7,mr*0.36,8);c.fill();
+      c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=2;c.stroke();
+      // نمط الخبز
+      c.strokeStyle=dark?'#FCD34D55':'#CA8A0444';c.lineWidth=1;
+      for(let l=0;l<4;l++){c.beginPath();c.moveTo(mx-mr*0.25+l*mr*0.15,my-mr*0.15);c.lineTo(mx-mr*0.22+l*mr*0.15,my+mr*0.12);c.stroke();}
+      drawLabel(c,'طعام كامل (قبل التقطيع)',w/2,h*0.69,dark?'#FCD34D':'#92400E',Math.round(h*0.027));
     } else {
       // قطع صغيرة
-      [[0.22,0.23],[0.4,0.21],[0.58,0.24],[0.28,0.38],[0.5,0.36],[0.68,0.37]].forEach(([px,py])=>{
-        c.fillStyle=dark?'rgba(253,224,71,0.4)':'rgba(254,240,138,0.9)';
-        c.beginPath();c.roundRect(w*px,h*py,w*0.1,h*0.08,8);c.fill();
-        c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=1.5;
-        c.beginPath();c.roundRect(w*px,h*py,w*0.1,h*0.08,8);c.stroke();
+      const crumbs=[[0.36,0.32],[0.48,0.28],[0.6,0.34],[0.38,0.44],[0.5,0.46],[0.62,0.42],[0.42,0.54],[0.56,0.52]];
+      crumbs.forEach(([px,py])=>{
+        c.fillStyle=dark?'rgba(253,224,71,0.55)':'rgba(254,240,138,0.9)';
+        c.beginPath();c.roundRect(w*px-h*0.035,h*py-h*0.025,h*0.07,h*0.05,4);c.fill();
+        c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=1.5;c.stroke();
       });
+      drawLabel(c,'قطع صغيرة — سطح أكبر للأنزيمات ✓',w/2,h*0.69,dark?'#4ADE80':'#15803D',Math.round(h*0.027));
     }
-    // أسنان
-    c.font=`${Math.round(h*0.09)}px serif`;c.textAlign='center';
-    c.fillText('🦷',w*0.15,h*0.35);
-    c.fillText('🦷',w*0.85,h*0.35);
-    c.fillStyle=bioMut();c.font=`${Math.round(h*0.028)}px Tajawal`;c.textAlign='center';
-    c.fillText('الأسنان تقطع الطعام إلى أجزاء أصغر',w/2,h*0.58);
-    c.fillStyle=dark?'#60A5FA':'#2563EB';c.font=`bold ${Math.round(h*0.028)}px Tajawal`;
-    c.fillText('✓ لا يتغير التركيب الكيميائي',w/2,h*0.67);
-    // معدة
-    c.font=`${Math.round(h*0.07)}px serif`;c.fillText('🫁',w/2,h*0.82);
-    c.fillStyle=bioMut();c.font=`${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('المعدة تعصر وتحرّك الطعام',w/2,h*0.92);
+
+    // حركة الفك
+    const jawOpen=simState.showSmall?0:Math.abs(Math.sin(simState.t*2))*h*0.05;
+    c.fillStyle=dark?'rgba(253,186,116,0.15)':'rgba(254,215,170,0.4)';
+    c.beginPath();c.arc(mx,my+mr*0.2+jawOpen,mr,0,Math.PI);c.fill();
+
+    // معلومة سطح
+    const boxY=h*0.76;
+    c.fillStyle=dark?'rgba(37,99,235,0.15)':'rgba(219,234,254,0.8)';c.beginPath();c.roundRect(w*0.05,boxY,w*0.9,h*0.12,10);c.fill();
+    c.strokeStyle=dark?'#3B82F6':'#2563EB';c.lineWidth=1.5;c.stroke();
+    drawSmallLabel(c,'💡 الهضم الميكانيكي لا يغيّر التركيب الكيميائي للطعام',w/2,boxY+h*0.038,dark?'#93C5FD':'#1D4ED8',Math.round(h*0.024));
+    drawSmallLabel(c,'لكنه يزيد المساحة المعرَّضة → يُسرِّع الهضم الكيميائي',w/2,boxY+h*0.078,dark?'#93C5FD':'#1D4ED8',Math.round(h*0.022));
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57117,47 +57548,108 @@ function simG9Bio8N2a(){
 
 function simG9Bio8N2b(){
   cancelAnimationFrame(animFrame);
-  simState={t:0};
-  controls(bioInfoPanel([
-    '🧪 <strong>الهضم الكيميائي</strong>: تحويل جزيئات غير قابلة للذوبان → قابلة للذوبان بمساعدة الأنزيمات',
-    '🌾 النشا (كبير) ──أميليز──► سكريات بسيطة (جلوكوز)',
-    '🐟 البروتين (كبير) ──بروتييز──► أحماض أمينية',
-    '🧈 الدهون (كبيرة) ──ليبييز──► أحماض دهنية + جليسرول',
-    '💡 الأنزيمات مُحفِّزات — تُسرّع التفاعل ولا تُستهلك',
-  ],'🧪 الهضم الكيميائي'));
+  simState={t:0,activeRow:-1};
+
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🧪 الهضم الكيميائي — الأنزيمات</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">انقري على أي تفاعل في الرسم لرؤية تفاصيله</div>
+    <div id="chem_detail" style="padding:10px;border-radius:10px;background:var(--bg-card2);font-size:13px;line-height:1.8;min-height:80px">← انقري على تفاعل أنزيمي</div>
+    <div style="margin-top:10px;padding:9px;background:rgba(109,40,217,0.1);border-radius:8px;border:1px solid rgba(109,40,217,0.25);font-size:12.5px">
+      💡 الأنزيمات مُحفِّزات بيولوجية: تُسرِّع التفاعل ولا تُستهلك بعده
+    </div>
+  </div>`);
+
+  const rows=[
+    {
+      from:'النشا',fromFormula:'(C₆H₁₀O₅)ₙ',fromCol:dark?'#FCD34D':'#CA8A04',
+      enz:'أميليز',enzCol:'#7C3AED',
+      to:'جلوكوز',toFormula:'C₆H₁₂O₆',toCol:dark?'#4ADE80':'#15803D',
+      detail:'الأميليز يقطع الروابط الجليكوسيدية في سلسلة النشا. يُفرَز من الغدد اللعابية (الفم) والبنكرياس. النشا جزيء ضخم لا يمكن امتصاصه — الجلوكوز صغير وقابل للامتصاص'
+    },
+    {
+      from:'بروتين',fromFormula:'سلسلة أحماض أمينية',fromCol:dark?'#FCA5A5':'#DC2626',
+      enz:'بروتييز',enzCol:'#7C3AED',
+      to:'أحماض أمينية',toFormula:'NH₂-CHR-COOH',toCol:dark?'#60A5FA':'#2563EB',
+      detail:'البروتييز (بيبسين في المعدة، تريبسين في الأمعاء) يقطع الروابط الببتيدية. البيبسين يعمل في بيئة حمضية (pH=2)، التريبسين في بيئة قلوية (pH=8)'
+    },
+    {
+      from:'دهون',fromFormula:'جليسيريد ثلاثي',fromCol:dark?'#FDE68A':'#D97706',
+      enz:'ليبييز',enzCol:'#7C3AED',
+      to:'أحماض دهنية + جليسرول',toFormula:'R-COOH + C₃H₈O₃',toCol:dark?'#C4B5FD':'#7C3AED',
+      detail:'الليبييز البنكرياسي يقطع الروابط الإسترية في الجليسيريدات الثلاثية. لكن الدهون لا تذوب في الماء — لذلك العصارة الصفراوية تستحلبها أولاً إلى قطرات صغيرة لتُمكِّن الليبييز من العمل'
+    },
+  ];
+
   const cv=document.getElementById('simCanvas');
+  cv.onclick=function(e){
+    const rect=cv.getBoundingClientRect();
+    const my2=(e.clientY-rect.top)*(cv.height/rect.height);
+    const h=cv.height;
+    rows.forEach((r,i)=>{
+      const ry=h*(0.2+i*0.25);
+      if(my2>ry&&my2<ry+h*0.22){
+        simState.activeRow=i;
+        const el=document.getElementById('chem_detail');
+        if(el)el.innerHTML=`<strong style="color:${r.enzCol}">${r.enz}:</strong><br>${r.detail}`;
+      }
+    });
+  };
+
+  function drawMolecule(c,x,y,size,col,formula,name,isLarge){
+    if(isLarge){
+      // جزيء كبير — سلسلة
+      const nodes=5;
+      for(let i=0;i<nodes;i++){
+        const nx=x-size*(nodes/2-i)*0.5,ny=y+Math.sin(i*0.8)*size*0.15;
+        c.fillStyle=col+'55';c.beginPath();c.arc(nx,ny,size*0.22,0,Math.PI*2);c.fill();
+        c.strokeStyle=col;c.lineWidth=2;c.stroke();
+        if(i<nodes-1){
+          const nx2=x-size*(nodes/2-i-1)*0.5,ny2=y+Math.sin((i+1)*0.8)*size*0.15;
+          c.strokeStyle=col+'88';c.lineWidth=3;c.beginPath();c.moveTo(nx,ny);c.lineTo(nx2,ny2);c.stroke();
+        }
+      }
+    } else {
+      // جزيء صغير
+      c.fillStyle=col+'44';c.beginPath();c.arc(x,y,size*0.35,0,Math.PI*2);c.fill();
+      c.strokeStyle=col;c.lineWidth=2;c.stroke();
+    }
+    c.fillStyle=col;c.font=`bold ${Math.round(size*0.3)}px Tajawal`;c.textAlign='center';c.fillText(name,x,y+size*0.6);
+    c.fillStyle=dark?'#9CA3AF':'#6B7280';c.font=`${Math.round(size*0.22)}px Tajawal`;c.fillText(formula,x,y+size*0.82);
+  }
+
   function draw(){
     if(currentSim!=='g9bio8n2'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.018;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('الأنزيمات تُفكِّك الجزيئات الكبيرة',w/2,h*0.08);
-    const rows=[
-      {from:'🌾 نشا',fromCol:dark?'#FCD34D':'#92400E',enz:'أميليز',to:'🍬 جلوكوز',toCol:dark?'#86EFAC':'#15803D',y:0.22},
-      {from:'🐟 بروتين',fromCol:dark?'#FCA5A5':'#DC2626',enz:'بروتييز',to:'🔗 أحماض أمينية',toCol:dark?'#60A5FA':'#2563EB',y:0.48},
-      {from:'🧈 دهون',fromCol:dark?'#FDE68A':'#D97706',enz:'ليبييز',to:'💧 أحماض دهنية',toCol:dark?'#C4B5FD':'#7C3AED',y:0.74},
-    ];
-    rows.forEach(r=>{
-      const ry=h*r.y,rh=h*0.18;
-      // مادة كبيرة
-      c.fillStyle=r.fromCol+'33';c.beginPath();c.roundRect(w*0.03,ry,w*0.24,rh,10);c.fill();
-      c.strokeStyle=r.fromCol;c.lineWidth=2;c.beginPath();c.roundRect(w*0.03,ry,w*0.24,rh,10);c.stroke();
-      c.font=`${Math.round(rh*0.35)}px serif`;c.textAlign='center';c.fillText(r.from.split(' ')[0],w*0.15,ry+rh*0.58);
-      c.fillStyle=r.fromCol;c.font=`bold ${Math.round(h*0.025)}px Tajawal`;c.fillText(r.from.split(' ')[1],w*0.15,ry+rh*0.88);
+    drawLabel(c,'الأنزيمات تُحوِّل جزيئات كبيرة → صغيرة قابلة للامتصاص',w/2,h*0.09,bioTxt(),Math.round(h*0.034));
+
+    rows.forEach((r,i)=>{
+      const ry=h*(0.17+i*0.27),rh=h*0.23;
+      const isActive=simState.activeRow===i;
+      // خلفية الصف
+      c.fillStyle=isActive?r.fromCol+'18':dark?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.02)';
+      c.beginPath();c.roundRect(w*0.02,ry,w*0.96,rh,10);c.fill();
+      c.strokeStyle=isActive?r.fromCol:dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)';
+      c.lineWidth=isActive?2:1;c.stroke();
+
+      const cly=ry+rh/2;
+      // مادة أولية
+      drawMolecule(c,w*0.17,cly,rh*0.45,r.fromCol,r.fromFormula,r.from,true);
       // سهم + أنزيم
-      const arrowPulse=0.6+Math.sin(simState.t*2+rows.indexOf(r))*0.4;
-      c.strokeStyle=dark?`rgba(134,239,172,${arrowPulse})`:`rgba(21,128,61,${arrowPulse})`;c.lineWidth=2.5;
-      c.beginPath();c.moveTo(w*0.29,ry+rh/2);c.lineTo(w*0.57,ry+rh/2);c.stroke();
-      c.fillStyle=dark?`rgba(134,239,172,${arrowPulse})`:`rgba(21,128,61,${arrowPulse})`;
-      c.beginPath();c.moveTo(w*0.57,ry+rh/2-8);c.lineTo(w*0.57+12,ry+rh/2);c.lineTo(w*0.57,ry+rh/2+8);c.fill();
-      c.fillStyle=dark?'#A78BFA':'#6D28D9';c.font=`bold ${Math.round(h*0.023)}px Tajawal`;c.textAlign='center';
-      c.fillText(r.enz,w*0.43,ry+rh/2-h*0.015);
+      const pulse=0.5+Math.abs(Math.sin(simState.t*2+i))*0.5;
+      drawArrow(c,w*0.34,cly,w*0.59,cly,r.enzCol+Math.round(pulse*200).toString(16).padStart(2,'0'),3,12);
+      // أيقونة الأنزيم فوق السهم (مقص)
+      c.fillStyle=r.enzCol;c.font=`${Math.round(rh*0.35)}px serif`;c.textAlign='center';
+      c.fillText('✂️',w*0.465,cly-rh*0.05);
+      c.fillStyle=r.enzCol;c.font=`bold ${Math.round(rh*0.17)}px Tajawal`;c.textAlign='center';
+      c.fillText(r.enz,w*0.465,cly+rh*0.2);
       // ناتج
-      c.fillStyle=r.toCol+'33';c.beginPath();c.roundRect(w*0.61,ry,w*0.36,rh,10);c.fill();
-      c.strokeStyle=r.toCol;c.lineWidth=2;c.beginPath();c.roundRect(w*0.61,ry,w*0.36,rh,10);c.stroke();
-      c.font=`${Math.round(rh*0.35)}px serif`;c.textAlign='center';c.fillText(r.to.split(' ')[0],w*0.67,ry+rh*0.58);
-      c.fillStyle=r.toCol;c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.fillText(r.to.split(' ').slice(1).join(' '),w*0.79,ry+rh*0.75);
+      drawMolecule(c,w*0.8,cly,rh*0.42,r.toCol,r.toFormula,r.to,false);
+      // جزيئات متحركة
+      const ppos=((simState.t*0.5+i*0.33)%1);
+      const ppx=w*(0.34+ppos*0.25);
+      c.fillStyle=r.fromCol;c.beginPath();c.arc(ppx,cly+Math.sin(simState.t*3+i)*rh*0.08,rh*0.07,0,Math.PI*2);c.fill();
     });
     animFrame=requestAnimationFrame(draw);
   }
@@ -57166,112 +57658,188 @@ function simG9Bio8N2b(){
 
 function simG9Bio8N2c(){
   cancelAnimationFrame(animFrame);
-  simState={t:0};
-  controls(`<div class="ctrl-section"><div class="ctrl-label">⚖️ مقارنة: الهضم الميكانيكي مقابل الكيميائي</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-    <div style="background:var(--bg-card2);border-radius:10px;padding:10px;border:2px solid #2563EB44">
-      <div style="font-weight:800;color:#2563EB;font-size:14px;margin-bottom:6px">🦷 الميكانيكي</div>
-      <div style="font-size:12px;line-height:1.8;color:var(--text-secondary)">• يُصغِّر حجم الطعام<br>• لا يغيّر التركيب الكيميائي<br>• يزيد السطح للأنزيمات<br>• أمثلة: الأسنان، المعدة</div>
+  simState={t:0,foodSize:1.0,enzymeActive:false};
+
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">⚖️ الهضم الميكانيكي + الكيميائي معاً</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">جرِّبي كيف يزيد الهضم الميكانيكي من كفاءة الأنزيمات</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button onclick="simState.foodSize=Math.max(0.2,simState.foodSize-0.2)" style="padding:9px;border-radius:8px;background:#2563EB;color:white;font-family:Tajawal;font-weight:700;font-size:13px;border:none;cursor:pointer">🦷 هضم ميكانيكي: قطِّعي الطعام</button>
+      <button onclick="simState.enzymeActive=!simState.enzymeActive" style="padding:9px;border-radius:8px;background:#7C3AED;color:white;font-family:Tajawal;font-weight:700;font-size:13px;border:none;cursor:pointer">🧪 فعِّلي/أوقفي الأنزيمات</button>
+      <button onclick="simState.foodSize=1.0;simState.enzymeActive=false" style="padding:9px;border-radius:8px;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:13px;border:1px solid var(--border-color);cursor:pointer">🔄 إعادة تعيين</button>
     </div>
-    <div style="background:var(--bg-card2);border-radius:10px;padding:10px;border:2px solid #15803D44">
-      <div style="font-weight:800;color:#15803D;font-size:14px;margin-bottom:6px">🧪 الكيميائي</div>
-      <div style="font-size:12px;line-height:1.8;color:var(--text-secondary)">• يُغيّر التركيب الكيميائي<br>• يُحوِّل إلى مواد قابلة للذوبان<br>• يستخدم الأنزيمات<br>• أمثلة: الأميليز، البروتييز</div>
-    </div>
-  </div>
-  <div style="margin-top:10px;padding:10px;background:rgba(212,144,26,0.1);border-radius:10px;border:1.5px solid rgba(212,144,26,0.3);font-size:13px">
-    <strong>🔗 يعملان معاً:</strong> الهضم الميكانيكي يُصغِّر الطعام → يزيد السطح المعرّض → يُسرِّع الهضم الكيميائي!
-  </div></div>`);
+    <div id="mech_chem_info" style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.8"></div>
+  </div>`);
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n2'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.015;
+    simState.t+=0.018;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('الهضم الميكانيكي + الكيميائي = هضم كامل',w/2,h*0.09);
-    // طعام كبير
-    c.fillStyle=dark?'rgba(253,224,71,0.3)':'rgba(254,240,138,0.8)';
-    c.beginPath();c.arc(w*0.18,h*0.4,h*0.11,0,Math.PI*2);c.fill();
-    c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=2;c.stroke();
-    c.font=`${Math.round(h*0.07)}px serif`;c.textAlign='center';c.fillText('🍖',w*0.18,h*0.42);
-    c.fillStyle=bioMut();c.font=`${Math.round(h*0.025)}px Tajawal`;c.fillText('طعام كبير',w*0.18,h*0.57);
-    // سهم ميكانيكي
-    c.strokeStyle=dark?'#60A5FA':'#2563EB';c.lineWidth=3;c.setLineDash([6,3]);
-    c.beginPath();c.moveTo(w*0.3,h*0.4);c.lineTo(w*0.44,h*0.4);c.stroke();c.setLineDash([]);
-    c.fillStyle=dark?'#60A5FA':'#2563EB';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('🦷 ميكانيكي',w*0.37,h*0.34);
-    // قطع متوسطة
-    [[0.5,0.32],[0.56,0.28],[0.52,0.44],[0.58,0.42]].forEach(([px,py])=>{
-      c.fillStyle=dark?'rgba(253,224,71,0.35)':'rgba(254,240,138,0.85)';
-      c.beginPath();c.arc(w*px,h*py,h*0.04,0,Math.PI*2);c.fill();
-    });
-    // سهم كيميائي
-    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=3;c.setLineDash([6,3]);
-    c.beginPath();c.moveTo(w*0.65,h*0.4);c.lineTo(w*0.74,h*0.4);c.stroke();c.setLineDash([]);
-    c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('🧪 كيميائي',w*0.695,h*0.34);
-    // جزيئات صغيرة
-    for(let i=0;i<12;i++){
-      const angle=(i/12)*Math.PI*2+simState.t*0.3;
-      c.fillStyle=dark?'rgba(134,239,172,0.8)':'rgba(21,128,61,0.7)';
-      c.beginPath();c.arc(w*0.82+Math.cos(angle)*h*0.08,h*0.4+Math.sin(angle)*h*0.06,h*0.015,0,Math.PI*2);c.fill();
+    drawLabel(c,'الهضم الميكانيكي والكيميائي يعملان معاً',w/2,h*0.08,bioTxt(),Math.round(h*0.036));
+
+    const sz=simState.foodSize;
+    const pieces=Math.round(1/sz);
+    const enzymeSpeed=simState.enzymeActive?1:0;
+    const surface=Math.round((1/sz)*100)/100;
+
+    // شريط المعلومات
+    c.fillStyle=dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)';c.beginPath();c.roundRect(w*0.02,h*0.14,w*0.96,h*0.1,8);c.fill();
+    drawSmallLabel(c,`حجم القطعة: ${Math.round(sz*100)}%   |   عدد القطع: ${pieces}   |   المساحة: ${surface}×   |   سرعة الأنزيمات: ${simState.enzymeActive?'عالية ✓':'منخفضة ✗'}`,w/2,h*0.2,dark?'#A7F3D0':'#065F46',Math.round(h*0.023));
+
+    // رسم قطع الطعام
+    const cols=Math.ceil(Math.sqrt(pieces)),rows2=Math.ceil(pieces/cols);
+    const zone_x=w*0.05,zone_y=h*0.28,zone_w=w*0.45,zone_h=h*0.55;
+    c.fillStyle=dark?'rgba(253,224,71,0.08)':'rgba(254,240,138,0.15)';c.beginPath();c.roundRect(zone_x,zone_y,zone_w,zone_h,10);c.fill();
+    drawSmallLabel(c,'الطعام',zone_x+zone_w/2,zone_y-h*0.02,dark?'#FCD34D':'#92400E',Math.round(h*0.022));
+    let pi=0;
+    for(let r=0;r<rows2&&pi<pieces;r++){
+      for(let cc=0;cc<cols&&pi<pieces;cc++,pi++){
+        const px=zone_x+zone_w*(0.1+cc*(0.8/Math.max(cols-1,1))),py=zone_y+zone_h*(0.12+r*(0.75/Math.max(rows2-1,1)));
+        const ps=sz*h*0.08*(0.7+Math.sin(simState.t*2+pi)*0.1);
+        c.fillStyle=dark?'rgba(253,224,71,0.55)':'rgba(254,240,138,0.9)';
+        c.beginPath();c.roundRect(px-ps/2,py-ps/2,ps,ps,ps*0.2);c.fill();
+        c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=1.5;c.stroke();
+      }
     }
-    c.fillStyle=dark?'#A78BFA':'#6D28D9';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('جزيئات صغيرة',w*0.82,h*0.57);
-    c.fillText('قابلة للامتصاص ✓',w*0.82,h*0.63);
+
+    // أنزيمات
+    if(simState.enzymeActive){
+      const numEnz=Math.min(pieces*2,20);
+      for(let ei=0;ei<numEnz;ei++){
+        const angle=(ei/numEnz)*Math.PI*2+simState.t*(0.5+surface*0.3);
+        const er=zone_h*0.35;
+        const ex=zone_x+zone_w/2+Math.cos(angle)*er*(0.3+0.5*Math.random()),ey=zone_y+zone_h/2+Math.sin(angle)*er*0.5*(0.3+0.5*Math.random());
+        c.fillStyle='#7C3AED88';c.beginPath();c.arc(ex,ey,h*0.015,0,Math.PI*2);c.fill();
+        c.font=`${Math.round(h*0.025)}px serif`;c.textAlign='center';c.fillText('✂️',ex,ey+h*0.01);
+      }
+    }
+
+    // سهم + نواتج
+    if(simState.enzymeActive&&sz<0.8){
+      drawArrow(c,w*0.52,h*0.55,w*0.6,h*0.55,dark?'#4ADE80':'#15803D',3,12);
+      const res_x=w*0.62,res_y=h*0.28,res_w=w*0.35,res_h=h*0.55;
+      c.fillStyle=dark?'rgba(74,222,128,0.08)':'rgba(187,247,208,0.2)';c.beginPath();c.roundRect(res_x,res_y,res_w,res_h,10);c.fill();
+      drawSmallLabel(c,'نواتج قابلة للامتصاص',res_x+res_w/2,res_y-h*0.02,dark?'#4ADE80':'#15803D',Math.round(h*0.022));
+      const products=['جلوكوز','أحماض أمينية','أحماض دهنية'];
+      const productCols=[dark?'#FCD34D':'#D97706',dark?'#60A5FA':'#2563EB',dark?'#C4B5FD':'#7C3AED'];
+      products.forEach((p,pi)=>{
+        const py2=res_y+res_h*(0.2+pi*0.28);
+        for(let di=0;di<5;di++){
+          c.fillStyle=productCols[pi]+'88';c.beginPath();c.arc(res_x+res_w*(0.15+di*0.18),py2,h*0.022,0,Math.PI*2);c.fill();
+        }
+        drawSmallLabel(c,p,res_x+res_w*0.5,py2+h*0.042,productCols[pi],Math.round(h*0.021));
+      });
+    }
+
+    const infoEl=document.getElementById('mech_chem_info');
+    if(infoEl){
+      if(sz>=0.8)infoEl.innerHTML='<span style="color:#D97706">⚠️ الطعام لا يزال كبيراً — استخدمي الهضم الميكانيكي لتقطيعه أولاً</span>';
+      else if(!simState.enzymeActive)infoEl.innerHTML='<span style="color:#2563EB">✓ الطعام مقطَّع الآن — فعِّلي الأنزيمات لإتمام الهضم الكيميائي</span>';
+      else infoEl.innerHTML='<span style="color:#10B981">🎉 ممتاز! الهضم الميكانيكي قطَّع الطعام وزاد السطح → الأنزيمات تعمل بكفاءة عالية → نواتج قابلة للامتصاص!</span>';
+    }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-/* ════════ نشاط ٣-٨ · القناة الهضمية ════════ */
+/* ════════════════════════════════════════════════
+   نشاط ٣-٨ · القناة الهضمية
+════════════════════════════════════════════════ */
 function simG9Bio8N3a(){
   cancelAnimationFrame(animFrame);
-  simState={t:0,hover:-1};
+  simState={t:0,selected:null};
+
   const parts=[
-    {name:'الفم',emoji:'👄',func:'تفتيت الطعام، خلطه باللعاب',col:dark?'#60A5FA':'#2563EB',x:0.5,y:0.08},
-    {name:'المريء',emoji:'🌀',func:'ينقل الطعام للمعدة بالتمعّج',col:dark?'#4ADE80':'#15803D',x:0.5,y:0.22},
-    {name:'المعدة',emoji:'🫃',func:'عصر الطعام، إضافة حمض HCl',col:dark?'#FCD34D':'#D97706',x:0.5,y:0.37},
-    {name:'الأمعاء الدقيقة',emoji:'🌿',func:'الهضم الكامل والامتصاص',col:dark?'#F9A8D4':'#BE185D',x:0.5,y:0.55},
-    {name:'الأمعاء الغليظة',emoji:'🔵',func:'امتصاص الماء والأملاح',col:dark?'#C4B5FD':'#7C3AED',x:0.5,y:0.72},
-    {name:'الشرج',emoji:'🚪',func:'طرح الفضلات (التبرّز)',col:dark?'#F87171':'#DC2626',x:0.5,y:0.86},
+    {id:'mouth',name:'الفم',col:'#3B82F6',x:0.5,y:0.1,r:0.055,func:'تفتيت الطعام + أميليز اللعاب'},
+    {id:'esoph',name:'المريء',col:'#8B5CF6',x:0.5,y:0.23,r:0.035,func:'نقل البلعة بالتمعّج (10 ثوانٍ)'},
+    {id:'stomach',name:'المعدة',col:'#F59E0B',x:0.44,y:0.4,r:0.07,func:'HCl + بيبسين → الكيموس'},
+    {id:'duodenum',name:'الاثني عشر',col:'#EC4899',x:0.55,y:0.49,r:0.035,func:'يستقبل إنزيمات البنكرياس والعصارة الصفراوية'},
+    {id:'small',name:'الأمعاء الدقيقة',col:'#10B981',x:0.5,y:0.62,r:0.06,func:'الهضم الكامل + الامتصاص (5 متر)'},
+    {id:'large',name:'الأمعاء الغليظة',col:'#6366F1',x:0.5,y:0.77,r:0.055,func:'امتصاص الماء + تشكيل البراز'},
+    {id:'rectum',name:'المستقيم والشرج',col:'#EF4444',x:0.5,y:0.9,r:0.04,func:'تخزين البراز وطرحه'},
   ];
-  controls(bioInfoPanel([
-    '👄 <strong>الفم</strong>: أسنان + لسان + لعاب (أميليز)',
-    '🌀 <strong>المريء</strong>: أنبوب عضلي ينقل الطعام للمعدة',
-    '🫃 <strong>المعدة</strong>: تخزين + هضم ميكانيكي وكيميائي (HCl + بروتييز)',
-    '🌿 <strong>الأمعاء الدقيقة</strong>: 5m طول — الهضم الكامل والامتصاص عبر الخملات',
-    '🔵 <strong>الأمعاء الغليظة</strong>: امتصاص الماء والأملاح',
-    '🚪 <strong>الشرج</strong>: طرح الفضلات',
-  ],'🗺️ أجزاء القناة الهضمية'));
+  const accessories=[
+    {id:'liver',name:'الكبد',col:'#DC2626',x:0.22,y:0.36,r:0.055,func:'يُفرز العصارة الصفراوية لاستحلاب الدهون'},
+    {id:'gallbladder',name:'المرارة',col:'#CA8A04',x:0.25,y:0.47,r:0.035,func:'تُخزِّن العصارة الصفراوية'},
+    {id:'pancreas',name:'البنكرياس',col:'#7C3AED',x:0.75,y:0.43,r:0.045,func:'يُفرز أميليز + بروتييز + ليبييز + بيكربونات'},
+  ];
+
+  const allParts=[...parts,...accessories];
+
+  let selInfo=`<div style="color:var(--text-secondary);font-size:13px">← انقري على أي جزء في الرسم</div>`;
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🗺️ الجهاز الهضمي</div>
+    <div id="organ_info" style="padding:10px;border-radius:10px;background:var(--bg-card2);min-height:80px;font-size:13px;line-height:1.8">${selInfo}</div>
+    <div style="margin-top:10px;padding:9px;background:rgba(16,185,129,0.1);border-radius:8px;border:1px solid rgba(16,185,129,0.25);font-size:12px">
+      <strong style="color:#10B981">💡 معلومة:</strong> القناة الهضمية الكاملة من الفم إلى الشرج تبلغ ~9 أمتار في الإنسان البالغ
+    </div>
+  </div>`);
+
   const cv=document.getElementById('simCanvas');
-  function dm15(){return document.documentElement.classList.contains('dark-mode');}
+  cv.onclick=function(e){
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const my2=(e.clientY-rect.top)*(cv.height/rect.height);
+    const w=cv.width,h=cv.height;
+    allParts.forEach(p=>{
+      const dx=mx-w*p.x,dy=my2-h*p.y;
+      if(dx*dx+dy*dy<(h*p.r)*(h*p.r)){
+        simState.selected=p.id;
+        const el=document.getElementById('organ_info');
+        if(el)el.innerHTML=`<strong style="color:${p.col}">${p.name}:</strong><br>${p.func}`;
+      }
+    });
+  };
+
   function draw(){
     if(currentSim!=='g9bio8n3'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.012;
+    simState.t+=0.014;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-    c.fillText('القناة الهضمية — من الفم إلى الشرج',w/2,h*0.045);
-    // خط القناة
-    c.strokeStyle=dark?'rgba(134,239,172,0.3)':'rgba(21,128,61,0.2)';c.lineWidth=28;
-    c.beginPath();parts.forEach((p,i)=>{i===0?c.moveTo(w*p.x,h*p.y+h*0.04):c.lineTo(w*p.x,h*p.y+h*0.04);});c.stroke();
-    // أجزاء
-    parts.forEach((p,i)=>{
-      const pulse=0.85+Math.sin(simState.t*1.5+i*0.8)*0.15;
-      c.fillStyle=p.col+'44';c.beginPath();c.arc(w*p.x,h*p.y+h*0.04,h*0.055,0,Math.PI*2);c.fill();
-      c.strokeStyle=p.col;c.lineWidth=pulse>0.9?3:2;c.beginPath();c.arc(w*p.x,h*p.y+h*0.04,h*0.055,0,Math.PI*2);c.stroke();
-      c.font=`${Math.round(h*0.05)}px serif`;c.textAlign='center';
-      c.fillText(p.emoji,w*p.x,h*p.y+h*0.065);
-      c.fillStyle=p.col;c.font=`bold ${Math.round(h*0.025)}px Tajawal`;
-      c.fillText(p.name,w*(p.x>0.5?0.22:0.78),h*p.y+h*0.05);
-    });
-    // بلعة متحركة
-    const bpos=(simState.t*0.15)%1;
+    drawLabel(c,'الجهاز الهضمي — انقري على أي عضو',w/2,h*0.04,bioTxt(),Math.round(h*0.033));
+
+    // رسم القناة الرئيسية
+    c.strokeStyle=dark?'rgba(16,185,129,0.2)':'rgba(16,185,129,0.15)';c.lineWidth=h*0.06;c.lineCap='round';
+    c.beginPath();
+    parts.forEach((p,i)=>{i===0?c.moveTo(w*p.x,h*p.y):c.lineTo(w*p.x,h*p.y);});
+    c.stroke();
+
+    // تمعّج متحرك
+    const bpos=((simState.t*0.12)%1);
     const bi=Math.min(Math.floor(bpos*parts.length),parts.length-1);
-    const bp=parts[bi];
-    c.fillStyle=dark?'rgba(253,224,71,0.9)':'rgba(234,179,8,0.85)';
-    c.beginPath();c.arc(w*bp.x+Math.sin(simState.t*3)*w*0.015,h*bp.y+h*0.04,h*0.02,0,Math.PI*2);c.fill();
+    const bnext=Math.min(bi+1,parts.length-1);
+    const bfrac=(bpos*parts.length)%1;
+    const bx=w*(parts[bi].x+(parts[bnext].x-parts[bi].x)*bfrac);
+    const by2=h*(parts[bi].y+(parts[bnext].y-parts[bi].y)*bfrac);
+    c.fillStyle=dark?'rgba(253,224,71,0.9)':'rgba(234,179,8,0.9)';
+    c.beginPath();c.arc(bx,by2,h*0.022,0,Math.PI*2);c.fill();
+    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.018)}px Tajawal`;c.textAlign='center';c.fillText('طعام',bx,by2-h*0.032);
+
+    // خطوط توصيل الملحقات
+    [['liver','stomach'],['gallbladder','duodenum'],['pancreas','duodenum']].forEach(([from,to])=>{
+      const fp=allParts.find(p=>p.id===from),tp=allParts.find(p=>p.id===to);
+      if(fp&&tp){c.strokeStyle=fp.col+'55';c.lineWidth=2;c.setLineDash([4,3]);c.beginPath();c.moveTo(w*fp.x,h*fp.y);c.lineTo(w*tp.x,h*tp.y);c.stroke();c.setLineDash([]);}
+    });
+
+    // رسم الأعضاء
+    allParts.forEach(p=>{
+      const sel=simState.selected===p.id;
+      const pulse=sel?1:(0.88+Math.sin(simState.t*1.5+allParts.indexOf(p)*0.7)*0.08);
+      const r=h*p.r*pulse;
+      c.fillStyle=p.col+(sel?'44':'28');c.beginPath();c.arc(w*p.x,h*p.y,r,0,Math.PI*2);c.fill();
+      c.strokeStyle=p.col;c.lineWidth=sel?3:2;c.stroke();
+      // اسم العضو
+      const side=p.x>0.5?1:-1;
+      const lx=w*p.x+side*r*1.5;
+      c.fillStyle=p.col;c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign=side>0?'left':'right';c.fillText(p.name,lx,h*p.y+h*0.008);
+      if(sel){
+        // تمييز
+        c.strokeStyle=p.col;c.lineWidth=1.5;c.setLineDash([3,2]);
+        c.beginPath();c.arc(w*p.x,h*p.y,r+h*0.015,0,Math.PI*2);c.stroke();c.setLineDash([]);
+      }
+    });
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57280,56 +57848,66 @@ function simG9Bio8N3a(){
 function simG9Bio8N3b(){
   cancelAnimationFrame(animFrame);
   simState={t:0,selected:null};
+
   const parts=[
-    {id:'mouth',name:'الفم',emoji:'👄',details:'الأسنان تقطع، اللسان يخلط، الغدد اللعابية تُفرز أميليز يبدأ هضم النشا'},
-    {id:'esoph',name:'المريء',emoji:'🌀',details:'حركات عضلية (تمعّج) تدفع البلعة نحو المعدة — لا يحدث هضم'},
-    {id:'stomach',name:'المعدة',emoji:'🫃',details:'هضم ميكانيكي بالتقلصات + هضم كيميائي بـ HCl وبروتييز، تُنتج الكيموس'},
-    {id:'small',name:'الأمعاء الدقيقة',emoji:'🌿',details:'تستقبل إنزيمات البنكرياس والعصارة الصفراوية — الهضم الكامل والامتصاص عبر الخملات'},
-    {id:'large',name:'الأمعاء الغليظة',emoji:'🔵',details:'تمتص الماء والأملاح المعدنية، تحتوي بكتيريا نافعة، تُشكِّل البراز'},
-    {id:'liver',name:'الكبد',emoji:'🏥',details:'يُفرز العصارة الصفراوية لاستحلاب الدهون، يعالج الغذاء الممتص'},
-    {id:'pancreas',name:'البنكرياس',emoji:'🫁',details:'يُفرز أميليز وبروتييز وليبييز في الأمعاء الدقيقة، بيكربونات لتعديل الحموضة'},
+    {id:'mouth',name:'الفم',emoji:'👄',col:'#3B82F6',x:0.5,y:0.1,
+     detail:{title:'الفم — البداية',items:['🦷 أسنان القاطعة تمزّق، الطاحنة تطحن (هضم ميكانيكي)','💧 الغدد اللعابية تُفرز اللعاب (1.5 لتر/يوم)','🧪 أميليز اللعاب يبدأ هضم النشا','👅 اللسان يشكّل البلعة ويدفعها للبلع']}},
+    {id:'esoph',name:'المريء',emoji:'🌀',col:'#8B5CF6',x:0.5,y:0.23,
+     detail:{title:'المريء — ناقل البلعة',items:['📏 أنبوب عضلي طوله ~25 سم','🔄 الحركة التمعّجية تدفع الطعام للأسفل','⏱️ تستغرق البلعة ~10 ثوانٍ','⚠️ لا يحدث هضم هنا — فقط نقل']}},
+    {id:'stomach',name:'المعدة',emoji:'🫃',col:'#F59E0B',x:0.44,y:0.4,
+     detail:{title:'المعدة — مصنع الكيموس',items:['⚗️ تُفرز حمض HCl (pH=1.5-2) — يقتل البكتيريا','🧪 بيبسين يبدأ هضم البروتين','💪 تقلصات عضلية قوية تعجن الطعام','⏰ الطعام يبقى 2-4 ساعات → يتحول للكيموس']}},
+    {id:'small',name:'الأمعاء الدقيقة',emoji:'🌿',col:'#10B981',x:0.5,y:0.58,
+     detail:{title:'الأمعاء الدقيقة — الموقع الرئيسي',items:['📏 طولها ~5 أمتار (ثلاثة أقسام: اثني عشر، صائم، لفائفي)','🧪 تستقبل إنزيمات البنكرياس والعصارة الصفراوية','🌿 الخملات والزغيبات تُضاعف السطح إلى 250م²','🩸 الهضم الكامل والامتصاص يحدثان هنا']}},
+    {id:'large',name:'الأمعاء الغليظة',emoji:'🔵',col:'#6366F1',x:0.5,y:0.75,
+     detail:{title:'الأمعاء الغليظة — امتصاص الماء',items:['📏 طولها ~1.5 متر — أربعة أقسام','💧 تمتص الماء والأملاح المعدنية','🦠 تحتوي بكتيريا نافعة تُنتج فيتامين K','💩 تُشكِّل البراز وتُخزِّنه في المستقيم']}},
   ];
-  let html=`<div class="ctrl-section"><div class="ctrl-label">📋 اختر جزءاً لمعرفة وظيفته</div>`;
+
+  let html=`<div class="ctrl-section"><div class="ctrl-label">📋 اختاري عضواً لمعرفة وظيفته بالتفصيل</div>`;
   parts.forEach(p=>{
-    html+=`<div onclick="simState.selected='${p.id}'; document.querySelectorAll('.dpart').forEach(b=>b.style.background='var(--bg-ctrl-btn)'); this.style.background='var(--bg-info-box)'" class="dpart" style="display:flex;align-items:center;gap:8px;margin:5px 0;padding:7px 10px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-ctrl-btn);cursor:pointer">
-      <span style="font-size:18px">${p.emoji}</span>
-      <span style="font-weight:700;font-size:13px">${p.name}</span>
-    </div>`;
+    html+=`<button onclick="simState.selected='${p.id}'" style="display:flex;align-items:center;gap:8px;width:100%;margin:4px 0;padding:8px 10px;border-radius:8px;border:2px solid ${p.col}33;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:13px;cursor:pointer;text-align:right">
+      <span style="font-size:18px">${p.emoji}</span><span style="font-weight:700;color:${p.col}">${p.name}</span>
+    </button>`;
   });
-  html+=`<div id="b8n3b_detail" style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-card2);font-size:13px;line-height:1.7;min-height:60px">← اضغط على جزء لمعرفة وظيفته</div></div>`;
+  html+=`<div id="organ_detail" style="margin-top:8px;padding:10px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.9;min-height:80px">← اختاري عضواً</div></div>`;
   controls(html);
+
   const cv=document.getElementById('simCanvas');
   let lastSel=null;
   function draw(){
     if(currentSim!=='g9bio8n3'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.012;
+    simState.t+=0.014;
     if(simState.selected!==lastSel){
       lastSel=simState.selected;
       const p=parts.find(x=>x.id===simState.selected);
-      const el=document.getElementById('b8n3b_detail');
-      if(el&&p)el.innerHTML=`<strong>${p.emoji} ${p.name}:</strong> ${p.details}`;
+      const el=document.getElementById('organ_detail');
+      if(el&&p)el.innerHTML=`<strong style="color:${p.col}">${p.emoji} ${p.detail.title}:</strong><br>${p.detail.items.map(i=>`• ${i}`).join('<br>')}`;
     }
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('🗺️ الجهاز الهضمي',w/2,h*0.08);
-    // رسم مبسّط للجهاز
-    const emap=[
-      {id:'mouth',emoji:'👄',x:0.5,y:0.14},{id:'esoph',emoji:'🌀',x:0.5,y:0.27},
-      {id:'stomach',emoji:'🫃',x:0.45,y:0.41},{id:'small',emoji:'🌿',x:0.5,y:0.6},
-      {id:'large',emoji:'🔵',x:0.5,y:0.77},{id:'liver',emoji:'🏥',x:0.25,y:0.41},
-      {id:'pancreas',emoji:'🫁',x:0.75,y:0.41},
-    ];
-    // خط مركزي
-    c.strokeStyle=dark?'rgba(134,239,172,0.25)':'rgba(21,128,61,0.2)';c.lineWidth=20;
-    c.beginPath();c.moveTo(w*0.5,h*0.14);c.lineTo(w*0.5,h*0.87);c.stroke();
-    emap.forEach(e=>{
-      const sel=simState.selected===e.id;
-      c.fillStyle=sel?(dark?'rgba(74,222,128,0.3)':'rgba(187,247,208,0.9)'):(dark?'rgba(74,222,128,0.1)':'rgba(220,252,231,0.5)');
-      c.beginPath();c.arc(w*e.x,h*e.y,h*(sel?0.065:0.05),0,Math.PI*2);c.fill();
-      c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=sel?3:1.5;c.stroke();
-      c.font=`${Math.round(h*(sel?0.055:0.042))}px serif`;c.textAlign='center';
-      c.fillText(e.emoji,w*e.x,h*e.y+h*0.02);
+    drawLabel(c,'وظائف أجزاء القناة الهضمية',w/2,h*0.06,bioTxt(),Math.round(h*0.036));
+
+    // رسم الجسم (مخطط بسيط)
+    c.strokeStyle=dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)';c.lineWidth=h*0.055;c.lineCap='round';
+    c.beginPath();parts.forEach((p,i)=>{i===0?c.moveTo(w*p.x,h*p.y):c.lineTo(w*p.x,h*p.y);});c.stroke();
+
+    parts.forEach(p=>{
+      const sel=simState.selected===p.id;
+      const r=h*(sel?0.065:0.05)*(0.9+Math.sin(simState.t*1.5+parts.indexOf(p)*0.7)*0.08);
+      // عضو
+      c.fillStyle=p.col+(sel?'44':'22');c.beginPath();c.arc(w*p.x,h*p.y,r,0,Math.PI*2);c.fill();
+      c.strokeStyle=p.col;c.lineWidth=sel?3:2;c.stroke();
+      // أيقونة
+      c.font=`${Math.round(r*0.9)}px serif`;c.textAlign='center';c.fillText(p.emoji,w*p.x,h*p.y+r*0.32);
+      // اسم
+      const side=p.x>0.5?1:-1;
+      c.fillStyle=p.col;c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign=side>0?'left':'right';
+      c.fillText(p.name,w*p.x+side*(r+h*0.02),h*p.y+h*0.01);
+      if(sel){
+        // نبض حول العضو المحدد
+        const pulse2=0.5+Math.abs(Math.sin(simState.t*3))*0.5;
+        c.strokeStyle=p.col+(Math.round(pulse2*180).toString(16).padStart(2,'0'));c.lineWidth=2;c.setLineDash([4,3]);
+        c.beginPath();c.arc(w*p.x,h*p.y,r*1.4,0,Math.PI*2);c.stroke();c.setLineDash([]);
+      }
     });
     animFrame=requestAnimationFrame(draw);
   }
@@ -57338,90 +57916,253 @@ function simG9Bio8N3b(){
 
 function simG9Bio8N3c(){
   cancelAnimationFrame(animFrame);
-  simState={t:0,step:0};
+  simState={t:0,step:0,autoPlay:false};
+
   const journey=[
-    {place:'الفم 👄',action:'الأسنان تقطع الطعام. اللعاب يُرطِّبه. الأميليز يبدأ هضم النشا → جزيئات أصغر',color:'#2563EB'},
-    {place:'المريء 🌀',action:'البلعة تنتقل بالتمعّج خلال 10 ثواني — لا هضم هنا',color:'#15803D'},
-    {place:'المعدة 🫃',action:'الكيموس يتشكّل: حمض HCl + بروتييز يبدأ هضم البروتين. يبقى 2-4 ساعات',color:'#D97706'},
-    {place:'الأمعاء الدقيقة 🌿',action:'البنكرياس يُضيف أنزيمات. العصارة الصفراوية تستحلب الدهون. الخملات تمتص الغذاء → الدم',color:'#BE185D'},
-    {place:'الأمعاء الغليظة 🔵',action:'الماء والأملاح تُمتص. بكتيريا مفيدة. البراز يتشكّل',color:'#7C3AED'},
-    {place:'الشرج 🚪',action:'التبرّز: الفضلات تُطرح عبر فتحة الشرج',color:'#DC2626'},
+    {place:'الفم',col:'#3B82F6',time:'30 ثانية',action:'الأسنان تقطع الطعام، اللعاب يُرطِّبه، الأميليز يبدأ هضم النشا → تتشكّل البلعة',
+     drawFn:function(c,w,h,t,col){
+      // فم مفتوح
+      c.fillStyle=col+'22';c.beginPath();c.arc(w*0.5,h*0.42,h*0.2,0,Math.PI*2);c.fill();
+      c.strokeStyle=col;c.lineWidth=3;c.stroke();
+      // أسنان
+      for(let i=0;i<8;i++){
+        const a=Math.PI+i*Math.PI/8+Math.PI/16;
+        const tx=w*0.5+h*0.17*Math.cos(a),ty=h*0.42+h*0.17*Math.sin(a);
+        c.fillStyle='white';c.strokeStyle='#ddd';c.lineWidth=1;
+        c.beginPath();c.roundRect(tx-h*0.014,ty-h*0.02,h*0.028,h*0.04,2);c.fill();c.stroke();
+      }
+      // لعاب
+      c.fillStyle=col+'44';
+      for(let si=0;si<6;si++){c.beginPath();c.arc(w*0.5+Math.cos(t*2+si)*h*0.06,h*0.42+Math.sin(t*2+si)*h*0.05,h*0.012,0,Math.PI*2);c.fill();}
+      // طعام
+      c.font=`${Math.round(h*0.08)}px serif`;c.textAlign='center';c.fillText('🍖',w*0.5,h*0.44);
+      drawLabel(c,'الفم: تقطيع + لعاب + أميليز',w/2,h*0.72,col,Math.round(h*0.028));
+      drawSmallLabel(c,'مدة الإقامة: ~30 ثانية',w/2,h*0.8,dark?'#9CA3AF':'#6B7280',Math.round(h*0.023));
+     }
+    },
+    {place:'المريء',col:'#8B5CF6',time:'10 ثوانٍ',action:'التمعّج يدفع البلعة للأسفل — الأنبوب العضلي لا يهضم بل ينقل فقط',
+     drawFn:function(c,w,h,t,col){
+      // مريء أنبوبي
+      const ex=w*0.5,etop=h*0.18,ebot=h*0.78,ew=w*0.1;
+      c.fillStyle=col+'22';
+      c.beginPath();c.roundRect(ex-ew/2,etop,ew,ebot-etop,ew/2);c.fill();
+      c.strokeStyle=col;c.lineWidth=2.5;c.stroke();
+      // موجات تمعّج
+      for(let wi=0;wi<5;wi++){
+        const wt=(t*0.7+wi*0.2)%1;
+        const wy=etop+(ebot-etop)*wt;
+        c.strokeStyle=col+'88';c.lineWidth=6;c.lineCap='round';
+        c.beginPath();c.moveTo(ex-ew*0.45,wy);c.lineTo(ex+ew*0.45,wy);c.stroke();
+      }
+      // بلعة تنزل
+      const bp=((t*0.4)%1);
+      const bpy2=etop+(ebot-etop)*bp;
+      c.fillStyle='#FCD34D';c.beginPath();c.arc(ex,bpy2,ew*0.3,0,Math.PI*2);c.fill();
+      c.strokeStyle='#D97706';c.lineWidth=2;c.stroke();
+      drawLabel(c,'المريء: تمعّج يدفع البلعة',w/2,h*0.87,col,Math.round(h*0.026));
+      drawSmallLabel(c,'لا هضم هنا — نقل فقط (~10 ثوانٍ)',w/2,h*0.94,dark?'#9CA3AF':'#6B7280',Math.round(h*0.022));
+     }
+    },
+    {place:'المعدة',col:'#F59E0B',time:'2-4 ساعات',action:'الكيموس يتشكّل: تقلصات عضلية + HCl (يقتل البكتيريا، pH=2) + بيبسين يبدأ هضم البروتين',
+     drawFn:function(c,w,h,t,col){
+      const mx=w*0.5,my=h*0.44,mw=w*0.4,mh=h*0.32;
+      // معدة مرسومة بالكامل
+      c.fillStyle=col+'22';
+      c.beginPath();
+      c.moveTo(mx-mw*0.4,my-mh*0.4);
+      c.bezierCurveTo(mx-mw*0.7,my-mh*0.1,mx-mw*0.75,my+mh*0.4,mx-mw*0.3,my+mh*0.55);
+      c.bezierCurveTo(mx,my+mh*0.65,mx+mw*0.45,my+mh*0.35,mx+mw*0.4,my-mh*0.05);
+      c.bezierCurveTo(mx+mw*0.35,my-mh*0.5,mx+mw*0.1,my-mh*0.6,mx-mw*0.4,my-mh*0.4);
+      c.closePath();c.fill();
+      c.strokeStyle=col;c.lineWidth=3;c.stroke();
+      // تقلصات
+      for(let i=0;i<4;i++){
+        const contraction=Math.sin(t*2.5+i*0.8)*mh*0.03;
+        c.strokeStyle=col+(Math.round(120-i*20).toString(16).padStart(2,'0'));c.lineWidth=2;
+        c.beginPath();c.moveTo(mx-mw*0.4,my-mh*0.1+i*mh*0.18+contraction);
+        c.bezierCurveTo(mx-mw*0.1,my-mh*0.15+i*mh*0.18,mx+mw*0.1,my-mh*0.05+i*mh*0.18,mx+mw*0.3,my-mh*0.12+i*mh*0.18+contraction);
+        c.stroke();
+      }
+      // محتوى الكيموس (قطرات)
+      for(let qi=0;qi<12;qi++){
+        const angle=(qi/12)*Math.PI*2+t*0.5;
+        const qx=mx+Math.cos(angle)*mw*0.2,qy=my+mh*0.05+Math.sin(angle)*mh*0.15;
+        c.fillStyle=col+'66';c.beginPath();c.arc(qx,qy,mh*0.04,0,Math.PI*2);c.fill();
+      }
+      // تسميات
+      c.fillStyle=col;c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
+      c.fillText('HCl + بيبسين',mx,my+mh*0.85);
+      drawLabel(c,'المعدة: هضم ميكانيكي + كيميائي',w/2,h*0.85,col,Math.round(h*0.026));
+      drawSmallLabel(c,'الكيموس يُشكَّل ثم ينتقل للأمعاء الدقيقة (2-4 ساعات)',w/2,h*0.92,dark?'#9CA3AF':'#6B7280',Math.round(h*0.022));
+     }
+    },
+    {place:'الأمعاء الدقيقة',col:'#10B981',time:'2-4 ساعات',action:'العصارة الصفراوية تستحلب الدهون، إنزيمات البنكرياس تُكمل الهضم، الخملات تمتص كل شيء',
+     drawFn:function(c,w,h,t,col){
+      // أمعاء ملتفة
+      const loops=[[0.5,0.35,0.3],[0.4,0.48,0.25],[0.58,0.5,0.22],[0.46,0.62,0.2],[0.54,0.67,0.18]];
+      loops.forEach(([lx,ly,lr])=>{
+        c.strokeStyle=col;c.lineWidth=10;
+        c.beginPath();c.ellipse(w*lx,h*ly,w*lr*0.9,h*lr*0.6,lx>0.5?0.2:-0.2,0,Math.PI*2);c.stroke();
+      });
+      // خملات على جدار الأمعاء
+      for(let vi=0;vi<16;vi++){
+        const vangle=(vi/16)*Math.PI*2+t*0.1;
+        const vx=w*0.5+Math.cos(vangle)*w*0.28,vy=h*0.5+Math.sin(vangle)*h*0.3;
+        c.strokeStyle=col+'88';c.lineWidth=3;
+        c.beginPath();c.moveTo(vx,vy);c.lineTo(vx+Math.cos(vangle)*h*0.03,vy+Math.sin(vangle)*h*0.03);c.stroke();
+      }
+      // مواد تُمتص
+      for(let pi=0;pi<8;pi++){
+        const pangle=(pi/8)*Math.PI*2+(t*0.6);
+        const pr=w*0.12,px=w*0.5+Math.cos(pangle)*pr,py=h*0.5+Math.sin(pangle)*pr*0.6;
+        c.fillStyle=[dark?'#FCD34D':'#D97706',dark?'#60A5FA':'#2563EB',dark?'#4ADE80':'#10B981'][pi%3]+'99';
+        c.beginPath();c.arc(px,py,h*0.018,0,Math.PI*2);c.fill();
+      }
+      drawLabel(c,'الأمعاء الدقيقة: هضم كامل + امتصاص',w/2,h*0.85,col,Math.round(h*0.026));
+      drawSmallLabel(c,'5 متر + خملات = 250م² سطح امتصاص',w/2,h*0.92,dark?'#9CA3AF':'#6B7280',Math.round(h*0.022));
+     }
+    },
+    {place:'الأمعاء الغليظة',col:'#6366F1',time:'10-20 ساعة',action:'امتصاص الماء والأملاح، بكتيريا نافعة تُنتج فيتامين K، تشكّل البراز',
+     drawFn:function(c,w,h,t,col){
+      // قولون إطاري
+      c.strokeStyle=col;c.lineWidth=14;c.lineCap='round';c.lineJoin='round';
+      c.beginPath();
+      c.moveTo(w*0.2,h*0.72);c.lineTo(w*0.2,h*0.22);
+      c.arcTo(w*0.2,h*0.14,w*0.35,h*0.14,h*0.08);
+      c.lineTo(w*0.78,h*0.14);
+      c.arcTo(w*0.82,h*0.14,w*0.82,h*0.28,h*0.08);
+      c.lineTo(w*0.82,h*0.55);
+      c.arcTo(w*0.82,h*0.7,w*0.65,h*0.7,h*0.08);
+      c.lineTo(w*0.5,h*0.7);
+      c.stroke();
+      // قطرات ماء تُمتص
+      for(let wi=0;wi<8;wi++){
+        const wp=((t*0.3+wi*0.125)%1);
+        const wangle=wp*Math.PI*2;
+        const wx=w*0.5+Math.cos(wangle)*w*0.3,wy2=h*0.42+Math.sin(wangle)*h*0.26;
+        c.fillStyle='#60A5FA88';c.beginPath();c.arc(wx,wy2,h*0.016,0,Math.PI*2);c.fill();
+        c.font=`${Math.round(h*0.022)}px serif`;c.textAlign='center';c.fillText('💧',wx,wy2+h*0.01);
+      }
+      // براز يتشكّل
+      const bform=Math.min(1,(t%8)/4);
+      c.fillStyle=col+(Math.round(bform*100).toString(16).padStart(2,'0'));
+      c.beginPath();c.ellipse(w*0.5,h*0.65,h*0.04*bform,h*0.03*bform,0,0,Math.PI*2);c.fill();
+      drawLabel(c,'الأمعاء الغليظة: امتصاص الماء + تشكيل البراز',w/2,h*0.85,col,Math.round(h*0.024));
+      drawSmallLabel(c,'10-20 ساعة · بكتيريا نافعة · ثم التبرّز',w/2,h*0.92,dark?'#9CA3AF':'#6B7280',Math.round(h*0.022));
+     }
+    },
   ];
+
   controls(`<div class="ctrl-section">
-    <div class="ctrl-label">🚶 رحلة الطعام خطوة بخطوة</div>
-    <button onclick="simState.step=Math.max(0,simState.step-1)" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-ctrl-btn);font-family:Tajawal;cursor:pointer;font-size:14px">◀ السابق</button>
-    <button onclick="simState.step=Math.min(${journey.length-1},simState.step+1)" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-ctrl-btn);font-family:Tajawal;cursor:pointer;font-size:14px;margin-right:8px">▶ التالي</button>
-    <div id="b8n3c_info" style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-card2);font-size:13px;line-height:1.7"></div>
+    <div class="ctrl-label">🚶 تتبّعي الطعام خطوة بخطوة</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <button onclick="simState.step=Math.max(0,simState.step-1)" style="padding:8px;border-radius:8px;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:14px;border:1px solid var(--border-color);cursor:pointer">◀ السابق</button>
+      <button onclick="simState.step=Math.min(${journey.length-1},simState.step+1)" style="padding:8px;border-radius:8px;background:#10B981;color:white;font-family:Tajawal;font-size:14px;border:none;cursor:pointer">التالي ▶</button>
+    </div>
+    <div id="journey_info" style="padding:10px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.8;min-height:80px"></div>
+    <div style="display:flex;gap:4px;margin-top:8px;justify-content:center">
+      ${journey.map((j,i)=>`<div id="jp_${i}" style="width:${Math.floor(100/journey.length)-2}%;height:5px;border-radius:3px;background:${j.col}44;transition:background 0.3s"></div>`).join('')}
+    </div>
   </div>`);
+
   const cv=document.getElementById('simCanvas');
+  let lastStep=-1;
   function draw(){
     if(currentSim!=='g9bio8n3'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
-    simState.t+=0.012;
+    simState.t+=0.018;
+    if(simState.step!==lastStep){
+      lastStep=simState.step;
+      const j=journey[simState.step];
+      const el=document.getElementById('journey_info');
+      if(el)el.innerHTML=`<strong style="color:${j.col}">${j.place} (${j.time}):</strong><br>${j.action}`;
+      journey.forEach((_,i)=>{
+        const bar=document.getElementById(`jp_${i}`);
+        if(bar)bar.style.background=i<=simState.step?journey[i].col:journey[i].col+'44';
+      });
+    }
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    const s=journey[simState.step];
-    const el=document.getElementById('b8n3c_info');
-    if(el)el.innerHTML=`<strong style="color:${s.color}">${s.place}</strong><br>${s.action}`;
-    // تقدم البار
-    c.fillStyle=dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)';
-    c.beginPath();c.roundRect(w*0.05,h*0.06,w*0.9,h*0.035,8);c.fill();
-    c.fillStyle=s.color+'88';
-    c.beginPath();c.roundRect(w*0.05,h*0.06,w*0.9*((simState.step+1)/journey.length),h*0.035,8);c.fill();
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.04)}px Tajawal`;c.textAlign='center';
-    c.fillText(s.place,w/2,h*0.19);
-    c.font=`${Math.round(h*0.1)}px serif`;c.fillText(['👄','🌀','🫃','🌿','🔵','🚪'][simState.step],w/2,h*0.46);
-    c.fillStyle=bioMut();c.font=`${Math.round(h*0.027)}px Tajawal`;
-    c.fillText(`المرحلة ${simState.step+1} من ${journey.length}`,w/2,h*0.68);
+    const j=journey[simState.step];
+    c.fillStyle=j.col+'0C';c.fillRect(0,0,w,h);
+    // شريط تقدم
+    drawLabel(c,`المرحلة ${simState.step+1} من ${journey.length}: ${j.place}`,w/2,h*0.09,j.col,Math.round(h*0.036));
+    // رسم المحتوى
+    j.drawFn(c,w,h,simState.t,j.col);
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-/* ════════ نشاط ٤-٨ · الأنزيمات الهضمية ════════ */
+/* ════════════════════════════════════════════════
+   نشاط ٤-٨ · الأنزيمات الهضمية
+════════════════════════════════════════════════ */
 function simG9Bio8N4a(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
     '🌾 <strong>الأميليز (Amylase)</strong>: يهضم النشا → سكريات بسيطة (جلوكوز)',
-    '📍 <strong>أماكن إفرازه</strong>: الغدد اللعابية في الفم، البنكرياس',
-    '🔬 أميليز اللعاب يبدأ العمل في الفم — يُكمل أميليز البنكرياس في الأمعاء الدقيقة',
-    '💡 سبب تحويل النشا: جزيئات النشا كبيرة جداً ولا تستطيع العبور عبر جدار الأمعاء',
+    '📍 يُفرَز من: الغدد اللعابية (فم) + البنكرياس (أمعاء دقيقة)',
+    '🔬 أميليز اللعاب يبدأ في الفم — أميليز البنكرياس يُكمل في الأمعاء',
+    '💡 النشا (C₆H₁₀O₅)ₙ: جزيء ضخم لا يُمتص. الجلوكوز C₆H₁₂O₆: صغير يُمتص',
   ],'🌾 الأميليز — هضم النشا'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n4'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.016;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('الأميليز يُفكِّك النشا إلى جلوكوز',w/2,h*0.08);
-    // نشا كبير (سلسلة)
-    const chainY=h*0.3;
-    for(let i=0;i<8;i++){
-      const cx2=w*(0.12+i*0.095);
-      c.fillStyle=dark?'rgba(253,224,71,0.5)':'rgba(254,240,138,0.9)';
-      c.beginPath();c.arc(cx2,chainY,h*0.04,0,Math.PI*2);c.fill();
-      c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=2;c.stroke();
-      if(i<7){c.strokeStyle=dark?'#FCD34D55':'#CA8A0455';c.lineWidth=3;c.beginPath();c.moveTo(cx2+h*0.04,chainY);c.lineTo(w*(0.12+(i+1)*0.095)-h*0.04,chainY);c.stroke();}
+    drawLabel(c,'الأميليز يكسر سلسلة النشا إلى جلوكوز',w/2,h*0.08,bioTxt(),Math.round(h*0.036));
+
+    // سلسلة النشا (جزيء كبير)
+    const chainY=h*0.28,nodeR=h*0.038;
+    const numNodes=9;
+    const startX=w*(0.1),endX=w*0.92;
+    const nodeStep=(endX-startX)/(numNodes-1);
+    // روابط
+    for(let i=0;i<numNodes-1;i++){
+      const nx=startX+i*nodeStep,nx2=startX+(i+1)*nodeStep;
+      c.strokeStyle=dark?'#FCD34D55':'#CA8A0455';c.lineWidth=4;
+      c.beginPath();c.moveTo(nx+nodeR,chainY);c.lineTo(nx2-nodeR,chainY);c.stroke();
     }
-    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.028)}px Tajawal`;c.textAlign='center';
-    c.fillText('جزيء النشا (C₆H₁₀O₅)ₙ — جزيء ضخم',w/2,h*0.42);
-    // أميليز
-    const anim=Math.sin(simState.t*2)*w*0.05;
-    c.font=`${Math.round(h*0.07)}px serif`;c.fillText('✂️',w/2+anim,h*0.55);
-    c.fillStyle=dark?'#A78BFA':'#6D28D9';c.font=`bold ${Math.round(h*0.03)}px Tajawal`;c.textAlign='center';
-    c.fillText('أميليز',w/2,h*0.66);
-    // جلوكوز صغير
-    for(let i=0;i<8;i++){
-      const gx=w*(0.1+i*0.11),gy=h*0.8;
-      c.fillStyle=dark?'rgba(134,239,172,0.6)':'rgba(187,247,208,0.9)';
-      c.beginPath();c.arc(gx,gy,h*0.03,0,Math.PI*2);c.fill();
-      c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=1.5;c.stroke();
-      c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`${Math.round(h*0.018)}px Tajawal`;c.textAlign='center';
-      c.fillText('C₆H₁₂O₆',gx,gy+h*0.055);
+    // عُقد
+    for(let i=0;i<numNodes;i++){
+      const nx=startX+i*nodeStep;
+      c.fillStyle=dark?'rgba(253,224,71,0.55)':'rgba(254,240,138,0.9)';
+      c.beginPath();c.arc(nx,chainY+Math.sin(simState.t*1.5+i*0.4)*h*0.01,nodeR,0,Math.PI*2);c.fill();
+      c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=2.5;c.stroke();
+      c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(nodeR*0.55)}px Tajawal`;c.textAlign='center';
+      c.fillText('C₆',nx,chainY+Math.sin(simState.t*1.5+i*0.4)*h*0.01+nodeR*0.22);
+    }
+    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.027)}px Tajawal`;c.textAlign='center';
+    c.fillText('سلسلة النشا (C₆H₁₀O₅)ₙ — جزيء ضخم لا يُمتص',w/2,h*0.42);
+
+    // أميليز (مقص متحرك)
+    const apos=((simState.t*0.25)%1);
+    const ax=startX+apos*(endX-startX);
+    c.font=`${Math.round(h*0.06)}px serif`;c.textAlign='center';c.fillText('✂️',ax,chainY-h*0.07);
+    c.fillStyle=dark?'#A78BFA':'#6D28D9';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillText('أميليز',ax,chainY-h*0.13);
+
+    // جزيئات جلوكوز (نتيجة القطع)
+    const glcStartY=h*0.58;
+    for(let gi=0;gi<numNodes;gi++){
+      const gx=startX+gi*nodeStep;
+      const gy=glcStartY+Math.sin(simState.t*1.2+gi*0.5)*h*0.02;
+      const glcPhase=(simState.t*0.25)%1;
+      const appear=gi<Math.floor(glcPhase*numNodes+1)?1:0.2;
+      c.fillStyle=dark?`rgba(134,239,172,${0.35+appear*0.5})`:`rgba(187,247,208,${0.5+appear*0.4})`;
+      c.beginPath();c.arc(gx,gy,nodeR*0.85,0,Math.PI*2);c.fill();
+      c.strokeStyle=dark?`rgba(74,222,128,${appear})`:`rgba(21,128,61,${appear})`;c.lineWidth=2;c.stroke();
+      c.fillStyle=dark?`rgba(74,222,128,${appear})`:`rgba(21,128,61,${appear})`;
+      c.font=`bold ${Math.round(nodeR*0.45)}px Tajawal`;c.textAlign='center';c.fillText('C₆H₁₂O₆',gx,gy+nodeR*0.22);
     }
     c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-    c.fillText('جزيئات جلوكوز — صغيرة وقابلة للامتصاص ✓',w/2,h*0.92);
+    c.fillText('جزيئات جلوكوز — صغيرة وقابلة للامتصاص ✓',w/2,h*0.74);
+
+    // سهم تحويل
+    drawArrow(c,w/2,h*0.47,w/2,h*0.54,dark?'#4ADE80':'#15803D',3,10);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57430,45 +58171,68 @@ function simG9Bio8N4a(){
 function simG9Bio8N4b(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
     '🐟 <strong>البروتييز (Protease)</strong>: يهضم البروتين → أحماض أمينية',
-    '📍 <strong>أماكن إفرازه</strong>: جدار المعدة (بيبسين)، البنكرياس (تريبسين)',
-    '⚗️ البيبسين يعمل في بيئة حمضية (المعدة) — التريبسين في الأمعاء الدقيقة',
-    '💡 الأحماض الأمينية الـ20 تُبنى منها كل بروتينات جسمك!',
+    '📍 <strong>بيبسين</strong>: في المعدة، يعمل في بيئة حمضية (pH=2)',
+    '📍 <strong>تريبسين</strong>: من البنكرياس، يعمل في الأمعاء الدقيقة (pH=8)',
+    '🔗 الروابط الببتيدية بين الأحماض الأمينية — البروتييز يقطعها',
+    '💡 20 نوعاً من الأحماض الأمينية تبني كل بروتينات جسمك',
   ],'🐟 البروتييز — هضم البروتين'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n4'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.015;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('البروتييز يُحوِّل البروتين إلى أحماض أمينية',w/2,h*0.08);
-    // بروتين ضخم (خط متعرج)
+    drawLabel(c,'البروتييز يقطع الروابط الببتيدية',w/2,h*0.08,bioTxt(),Math.round(h*0.036));
+
+    // بروتين ملتوٍ (سلسلة ببتيدية)
+    const protPoints=[];
+    for(let i=0;i<12;i++){
+      protPoints.push({
+        x:w*(0.1+i*0.073),
+        y:h*(0.3+Math.sin(i*1.1)*0.1)
+      });
+    }
+    // رسم السلسلة
     c.strokeStyle=dark?'#FCA5A5':'#DC2626';c.lineWidth=4;
-    c.beginPath();
-    for(let i=0;i<12;i++){c.lineTo(w*(0.1+i*0.07),h*(0.25+Math.sin(i*0.8)*0.06));}
-    c.stroke();
-    c.fillStyle=dark?'#FCA5A5':'#DC2626';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-    c.fillText('سلسلة بروتين — جزيء ضخم',w/2,h*0.38);
-    // أنزيم
-    const apos=((simState.t*0.8)%1);
-    c.font=`${Math.round(h*0.065)}px serif`;
-    c.fillText('✂️',w*(0.12+apos*0.76),h*0.22);
-    c.fillStyle=dark?'#A78BFA':'#6D28D9';c.font=`bold ${Math.round(h*0.028)}px Tajawal`;c.textAlign='center';
-    c.fillText('بروتييز',w/2,h*0.48);
-    // أحماض أمينية
-    const aas=['Ala','Gly','Lys','Phe','Ser','Pro','Thr','Val'];
-    aas.forEach((aa,i)=>{
-      const ax=w*(0.1+i*0.1),ay=h*0.72;
-      c.fillStyle=dark?'rgba(96,165,250,0.4)':'rgba(219,234,254,0.9)';
-      c.beginPath();c.roundRect(ax-w*0.035,ay-h*0.025,w*0.075,h*0.07,8);c.fill();
-      c.strokeStyle=dark?'#60A5FA':'#2563EB';c.lineWidth=1.5;c.stroke();
-      c.fillStyle=dark?'#93C5FD':'#1D4ED8';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';
-      c.fillText(aa,ax+w*0.0015,ay+h*0.02);
+    c.beginPath();protPoints.forEach((p,i)=>{i===0?c.moveTo(p.x,p.y):c.lineTo(p.x,p.y);});c.stroke();
+    // عُقد البروتين
+    protPoints.forEach((p,i)=>{
+      c.fillStyle=dark?'rgba(252,165,165,0.55)':'rgba(254,226,226,0.9)';
+      c.beginPath();c.arc(p.x,p.y,h*0.032,0,Math.PI*2);c.fill();
+      c.strokeStyle=dark?'#FCA5A5':'#DC2626';c.lineWidth=2;c.stroke();
+      const aa=['Ala','Gly','Lys','Phe','Ser','Pro','Thr','Val','Ile','Leu','Met','Arg'][i%12];
+      c.fillStyle=dark?'#FCA5A5':'#B91C1C';c.font=`bold ${Math.round(h*0.019)}px Tajawal`;c.textAlign='center';c.fillText(aa,p.x,p.y+h*0.013);
     });
-    c.fillStyle=dark?'#60A5FA':'#1D4ED8';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-    c.fillText('أحماض أمينية — قابلة للامتصاص ✓',w/2,h*0.88);
+    c.fillStyle=dark?'#FCA5A5':'#B91C1C';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
+    c.fillText('سلسلة بروتين — روابط ببتيدية',w/2,h*0.48);
+
+    // أنزيم بروتييز يتحرك ويقطع
+    const apos=((simState.t*0.3)%1);
+    const ai=Math.floor(apos*protPoints.length);
+    const ap=protPoints[Math.min(ai,protPoints.length-1)];
+    c.font=`${Math.round(h*0.065)}px serif`;c.textAlign='center';c.fillText('✂️',ap.x,ap.y-h*0.06);
+    c.fillStyle=dark?'#A78BFA':'#6D28D9';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillText('بروتييز',ap.x,ap.y-h*0.12);
+
+    // أحماض أمينية منفردة (ناتج)
+    const aaNames=['Ala','Gly','Lys','Phe','Ser','Pro','Thr','Val'];
+    aaNames.forEach((aa,i)=>{
+      const ax2=w*(0.08+i*0.12),ay=h*0.73;
+      const glow=dark?'rgba(96,165,250,0.3)':'rgba(219,234,254,0.85)';
+      c.fillStyle=glow;c.beginPath();c.roundRect(ax2-h*0.038,ay-h*0.03,h*0.076,h*0.07,6);c.fill();
+      c.strokeStyle=dark?'#60A5FA':'#2563EB';c.lineWidth=1.8;c.stroke();
+      c.fillStyle=dark?'#93C5FD':'#1D4ED8';c.font=`bold ${Math.round(h*0.021)}px Tajawal`;c.textAlign='center';c.fillText(aa,ax2,ay+h*0.019);
+      // جزيء
+      c.font=`${Math.round(h*0.022)}px Tajawal`;c.fillStyle=dark?'#93C5FD':'#1E40AF';
+      c.fillText('NH₂',ax2,ay+h*0.054);
+    });
+    drawArrow(c,w/2,h*0.56,w/2,h*0.63,dark?'#4ADE80':'#15803D',3,10);
+    c.fillStyle=dark?'#60A5FA':'#1D4ED8';c.font=`bold ${Math.round(h*0.027)}px Tajawal`;c.textAlign='center';
+    c.fillText('أحماض أمينية حرّة — قابلة للامتصاص ✓',w/2,h*0.89);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57476,111 +58240,150 @@ function simG9Bio8N4b(){
 
 function simG9Bio8N4c(){
   cancelAnimationFrame(animFrame);
-  simState={t:0};
-  controls(bioInfoPanel([
-    '🧈 <strong>الليبييز (Lipase)</strong>: يهضم الدهون → أحماض دهنية + جليسرول',
-    '📍 <strong>مكان إفرازه</strong>: البنكرياس (يصل للأمعاء الدقيقة)',
-    '🟡 الدهون لا تذوب في الماء — العصارة الصفراوية تستحلبها أولاً → قطرات صغيرة جداً',
-    '💡 الأحماض الدهنية والجليسرول تُمتص في الأوعية اللمفاوية (لا الدموية) داخل الخملات',
-  ],'🧈 الليبييز — هضم الدهون'));
+  simState={t:0,showBile:false};
+
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🧈 الليبييز — هضم الدهون</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">الدهون لا تذوب في الماء! — شاهدي لماذا تحتاج العصارة الصفراوية أولاً</div>
+    <button onclick="simState.showBile=!simState.showBile" style="width:100%;padding:9px;border-radius:8px;background:#D97706;color:white;font-family:Tajawal;font-weight:700;font-size:14px;border:none;cursor:pointer">🟡 إضافة / إزالة العصارة الصفراوية</button>
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr;gap:7px">
+      <div style="padding:9px;background:rgba(217,119,6,0.1);border-radius:8px;border:1px solid rgba(217,119,6,0.3);font-size:12.5px;line-height:1.7">
+        <strong style="color:#D97706">⚙️ الخطوات:</strong><br>
+        1️⃣ العصارة الصفراوية تستحلب الدهون (ميكانيكي)<br>
+        2️⃣ الليبييز يهضم القطرات الصغيرة (كيميائي)<br>
+        3️⃣ الناتج: أحماض دهنية + جليسرول
+      </div>
+    </div>
+  </div>`);
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n4'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.015;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.035)}px Tajawal`;c.textAlign='center';
-    c.fillText('الليبييز يُحوِّل الدهون إلى أحماض دهنية',w/2,h*0.07);
-    // قطرة دهن كبيرة
-    const t2=simState.t;
-    c.fillStyle=dark?'rgba(253,230,138,0.4)':'rgba(254,240,138,0.85)';
-    c.beginPath();c.arc(w*0.2,h*0.35,h*0.12,0,Math.PI*2);c.fill();
-    c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=3;c.stroke();
-    c.font=`${Math.round(h*0.06)}px serif`;c.textAlign='center';c.fillText('🧈',w*0.2,h*0.37);
-    c.fillStyle=dark?'#FDE68A':'#D97706';c.font=`bold ${Math.round(h*0.025)}px Tajawal`;
-    c.fillText('دهن كبير',w*0.2,h*0.52);
-    // عصارة صفراوية
-    c.font=`${Math.round(h*0.06)}px serif`;c.fillText('🟡',w*0.38,h*0.3);
-    c.fillStyle=bioMut();c.font=`${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';
-    c.fillText('عصارة صفراوية',w*0.38,h*0.4);
-    c.fillText('(استحلاب)',w*0.38,h*0.46);
-    // سهم
-    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2.5;
-    c.beginPath();c.moveTo(w*0.46,h*0.35);c.lineTo(w*0.54,h*0.35);c.stroke();
-    // قطرات صغيرة
-    [[0.58,0.28],[0.64,0.24],[0.7,0.3],[0.66,0.36],[0.6,0.42],[0.72,0.22]].forEach(([px,py])=>{
-      c.fillStyle=dark?'rgba(253,230,138,0.55)':'rgba(254,240,138,0.8)';
-      c.beginPath();c.arc(w*px,h*py,h*0.03,0,Math.PI*2);c.fill();
-      c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=1.5;c.stroke();
-    });
-    // ليبييز
-    c.font=`${Math.round(h*0.055)}px serif`;c.fillText('✂️',w*0.65,h*0.52);
-    c.fillStyle=dark?'#A78BFA':'#6D28D9';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-    c.fillText('ليبييز',w*0.65,h*0.62);
-    // ناتج
-    c.fillStyle=dark?'rgba(196,181,253,0.4)':'rgba(237,233,254,0.9)';
-    c.beginPath();c.roundRect(w*0.58,h*0.7,w*0.35,h*0.18,12);c.fill();
-    c.strokeStyle=dark?'#C4B5FD':'#7C3AED';c.lineWidth=2;c.stroke();
-    c.fillStyle=dark?'#C4B5FD':'#6D28D9';c.font=`bold ${Math.round(h*0.028)}px Tajawal`;c.textAlign='center';
-    c.fillText('أحماض دهنية',w*0.755,h*0.76);
-    c.fillText('+ جليسرول ✓',w*0.755,h*0.82);
+    drawLabel(c,simState.showBile?'الليبييز يهضم القطرات الصغيرة':'الدهون قبل الاستحلاب',w/2,h*0.08,bioTxt(),Math.round(h*0.035));
+
+    if(!simState.showBile){
+      // قطرات دهن كبيرة (لا تذوب)
+      const bigDrops=[[0.27,0.38,0.11],[0.52,0.31,0.09],[0.73,0.42,0.1],[0.42,0.58,0.08],[0.65,0.6,0.09]];
+      bigDrops.forEach(([bx,by,br])=>{
+        c.fillStyle=dark?'rgba(253,230,138,0.45)':'rgba(254,240,138,0.85)';
+        c.beginPath();c.arc(w*bx,h*by,h*br,0,Math.PI*2);c.fill();
+        c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=2.5;c.stroke();
+        c.font=`${Math.round(h*br*0.7)}px serif`;c.textAlign='center';c.fillText('🧈',w*bx,h*by+h*br*0.25);
+      });
+      c.fillStyle=dark?'#FDE68A':'#D97706';c.font=`bold ${Math.round(h*0.027)}px Tajawal`;c.textAlign='center';
+      c.fillText('قطرات دهن كبيرة — لا تذوب في الماء',w/2,h*0.78);
+      c.fillStyle=dark?'#F87171':'#DC2626';c.font=`${Math.round(h*0.024)}px Tajawal`;
+      c.fillText('⚠️ الليبييز لا يستطيع الوصول لداخل القطرات الكبيرة',w/2,h*0.86);
+    } else {
+      // قطرات صغيرة بعد الاستحلاب
+      const numDrops=35;
+      for(let di=0;di<numDrops;di++){
+        const angle=(di/numDrops)*Math.PI*2*3+simState.t*(0.15+di*0.003);
+        const r2=h*(0.08+Math.sin(di*2.3)*0.12);
+        const dx=w*0.5+Math.cos(angle)*r2*1.1,dy=h*0.45+Math.sin(angle)*r2*0.65;
+        c.fillStyle=dark?'rgba(253,230,138,0.5)':'rgba(254,240,138,0.75)';
+        c.beginPath();c.arc(dx,dy,h*0.022,0,Math.PI*2);c.fill();
+        c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=1;c.stroke();
+        // ليبييز يهاجم القطرات
+        if(di%5===0){
+          c.font=`${Math.round(h*0.025)}px serif`;c.textAlign='center';c.fillText('✂️',dx,dy-h*0.025);
+        }
+      }
+      // نواتج
+      const prods=[[0.2,0.8,'أحماض دهنية','#C4B5FD'],[0.6,0.8,'جليسرول','#86EFAC']];
+      prods.forEach(([px,py,label,col])=>{
+        c.fillStyle=col+'44';c.beginPath();c.roundRect(w*px-w*0.12,h*py-h*0.04,w*0.24,h*0.1,8);c.fill();
+        c.strokeStyle=col;c.lineWidth=2;c.stroke();
+        c.fillStyle=dark?col:col.replace(/[0-9A-F]{2}$/,'CC');c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';c.fillText(label,w*px,h*py+h*0.015);
+      });
+      c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`bold ${Math.round(h*0.027)}px Tajawal`;c.textAlign='center';
+      c.fillText('✅ الاستحلاب يُضاعف السطح → الليبييز يعمل بكفاءة',w/2,h*0.75);
+    }
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-/* ════════ نشاط ٥-٨ · العصارة الصفراوية والاستحلاب ════════ */
+/* ════════════════════════════════════════════════
+   نشاط ٥-٨ · العصارة الصفراوية والاستحلاب
+════════════════════════════════════════════════ */
 function simG9Bio8N5a(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
     '🟡 <strong>العُصارة الصفراوية (Bile)</strong>: سائل أصفر-أخضر يُفرزه الكبد',
-    '🏺 <strong>تُخزَّن في</strong>: المرارة (الحُويصلة الصفراوية)',
-    '🚰 <strong>تصل عبر</strong>: قناة العُصارة الصفراوية إلى الأمعاء الدقيقة',
-    '⚠️ لا تحتوي على أنزيمات — لكنها تستحلب الدهون (هضم ميكانيكي)',
-    '🔬 تحتوي على بيكربونات الصوديوم لتعديل حموضة الكيموس القادم من المعدة',
-  ],'🟡 العُصارة الصفراوية'));
+    '🏺 تُخزَّن في المرارة (الحُويصلة الصفراوية)',
+    '🚰 تصل عبر قناة عُصارة صفراوية مشتركة إلى الاثني عشر',
+    '⚠️ لا تحتوي على أنزيمات — تستحلب الدهون (هضم ميكانيكي)',
+    '🔬 تحتوي بيكربونات الصوديوم لتعديل حموضة الكيموس',
+  ],'🟡 العُصارة الصفراوية — المسار والوظيفة'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n5'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.015;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('مسار العُصارة الصفراوية',w/2,h*0.08);
-    // كبد
-    c.fillStyle=dark?'rgba(248,113,113,0.35)':'rgba(254,226,226,0.9)';
-    c.beginPath();c.ellipse(w*0.25,h*0.28,w*0.14,h*0.1,0,0,Math.PI*2);c.fill();
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=2;c.stroke();
-    c.font=`${Math.round(h*0.055)}px serif`;c.textAlign='center';c.fillText('🏥',w*0.25,h*0.3);
-    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.025)}px Tajawal`;c.fillText('الكبد',w*0.25,h*0.43);
-    // سهم للمرارة
-    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2;
-    c.beginPath();c.moveTo(w*0.25,h*0.38);c.lineTo(w*0.25,h*0.5);c.stroke();
-    // مرارة
-    c.fillStyle=dark?'rgba(253,224,71,0.4)':'rgba(254,240,138,0.9)';
-    c.beginPath();c.ellipse(w*0.25,h*0.56,w*0.07,h*0.06,0,0,Math.PI*2);c.fill();
-    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2;c.stroke();
-    c.font=`${Math.round(h*0.04)}px serif`;c.textAlign='center';c.fillText('🟡',w*0.25,h*0.575);
-    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.fillText('المرارة',w*0.25,h*0.67);
-    // قناة → أمعاء
-    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2;
-    c.beginPath();c.moveTo(w*0.32,h*0.56);c.lineTo(w*0.55,h*0.56);c.stroke();
-    c.fillStyle=dark?'#FCD34D':'#D97706';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';
-    c.fillText('قناة العُصارة',w*0.43,h*0.51);
-    // أمعاء دقيقة
-    c.fillStyle=dark?'rgba(134,239,172,0.3)':'rgba(187,247,208,0.8)';
-    c.beginPath();c.roundRect(w*0.57,h*0.42,w*0.35,h*0.28,16);c.fill();
-    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2;c.stroke();
-    c.font=`${Math.round(h*0.05)}px serif`;c.textAlign='center';c.fillText('🌿',w*0.745,h*0.53);
-    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.025)}px Tajawal`;
-    c.fillText('الأمعاء الدقيقة',w*0.745,h*0.64);
-    // نقاط عصارة متحركة
-    for(let i=0;i<5;i++){
-      const px=w*(0.32+(i/5)*0.23+(simState.t*0.08)%0.23);
-      c.fillStyle=dark?'rgba(253,224,71,0.8)':'rgba(234,179,8,0.8)';
-      c.beginPath();c.arc(px,h*0.56,h*0.012,0,Math.PI*2);c.fill();
+    drawLabel(c,'مسار العُصارة الصفراوية: كبد → مرارة → أمعاء',w/2,h*0.07,bioTxt(),Math.round(h*0.034));
+
+    // رسم الكبد
+    const lx=w*0.22,ly=h*0.2,lw=w*0.25,lh=h*0.16;
+    c.fillStyle=dark?'rgba(248,113,113,0.3)':'rgba(254,226,226,0.85)';
+    c.beginPath();
+    c.moveTo(lx,ly+lh*0.5);
+    c.bezierCurveTo(lx-lw*0.05,ly-lh*0.1,lx+lw*0.4,ly-lh*0.35,lx+lw*0.8,ly);
+    c.bezierCurveTo(lx+lw*1.1,ly+lh*0.2,lx+lw*0.9,ly+lh*0.85,lx+lw*0.5,ly+lh*0.9);
+    c.bezierCurveTo(lx+lw*0.2,ly+lh*1.0,lx-lw*0.1,ly+lh*0.8,lx,ly+lh*0.5);
+    c.closePath();c.fill();
+    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=2.5;c.stroke();
+    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.028)}px Tajawal`;c.textAlign='center';c.fillText('الكبد',lx+lw*0.45,ly+lh*0.5);
+    c.fillStyle=dark?'#FCA5A5':'#DC2626';c.font=`${Math.round(h*0.021)}px Tajawal`;c.fillText('يُفرز العصارة الصفراوية',lx+lw*0.45,ly+lh*0.75);
+
+    // سهم كبد → مرارة
+    const glx=w*0.22,gly=h*0.5,glw=h*0.1,glh=h*0.09;
+    drawArrow(c,lx+lw*0.3,ly+lh,glx+glw*0.5,gly-glh*0.5,dark?'#FCD34D':'#D97706',2.5,10);
+
+    // رسم المرارة
+    c.fillStyle=dark?'rgba(253,224,71,0.4)':'rgba(254,240,138,0.85)';
+    c.beginPath();c.ellipse(glx+glw*0.5,gly,glw*0.5,glh*0.5,0,0,Math.PI*2);c.fill();
+    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2.5;c.stroke();
+    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';c.fillText('المرارة',glx+glw*0.5,gly+glh*0.65);
+
+    // قناة مشتركة
+    const qx1=glx+glw,qy1=gly,qx2=w*0.58,qy2=h*0.58;
+    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=3;
+    c.beginPath();c.moveTo(qx1,qy1);c.bezierCurveTo(qx1+w*0.08,qy1,qx2-w*0.05,qy2-h*0.05,qx2,qy2);c.stroke();
+    // نقاط عصارة تتحرك
+    for(let qi=0;qi<5;qi++){
+      const qp=((simState.t*0.3+qi*0.2)%1);
+      const qpx=qx1+qp*(qx2-qx1)+Math.sin(qp*Math.PI)*w*0.03;
+      const qpy=qy1+qp*(qy2-qy1);
+      c.fillStyle=dark?'rgba(253,224,71,0.85)':'rgba(234,179,8,0.8)';
+      c.beginPath();c.arc(qpx,qpy,h*0.014,0,Math.PI*2);c.fill();
     }
+    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillText('قناة صفراوية',w*0.46,h*0.48);
+
+    // البنكرياس
+    const px2=w*0.68,py2=h*0.38,pw=w*0.27,ph=h*0.11;
+    c.fillStyle=dark?'rgba(196,181,253,0.3)':'rgba(237,233,254,0.8)';
+    c.beginPath();c.ellipse(px2+pw*0.5,py2,pw*0.5,ph*0.5,-0.2,0,Math.PI*2);c.fill();
+    c.strokeStyle=dark?'#C4B5FD':'#7C3AED';c.lineWidth=2;c.stroke();
+    c.fillStyle=dark?'#C4B5FD':'#6D28D9';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';c.fillText('البنكرياس',px2+pw*0.5,py2+ph*0.8);
+
+    // سهم بنكرياس → قناة
+    drawArrow(c,px2+pw*0.2,py2+ph,qx2-w*0.04,qy2-h*0.04,dark?'#C4B5FD':'#7C3AED',2,8);
+
+    // الأمعاء الدقيقة
+    const ix=w*0.55,iy=h*0.6,iw=w*0.38,ih=h*0.28;
+    c.fillStyle=dark?'rgba(74,222,128,0.15)':'rgba(187,247,208,0.6)';c.beginPath();c.roundRect(ix,iy,iw,ih,14);c.fill();
+    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2;c.stroke();
+    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';c.fillText('الأمعاء الدقيقة',ix+iw/2,iy+ih*0.35);
+    c.fillStyle=dark?'#86EFAC':'#15803D';c.font=`${Math.round(h*0.021)}px Tajawal`;c.fillText('تستقبل العصارة + إنزيمات البنكرياس',ix+iw/2,iy+ih*0.62);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57588,46 +58391,79 @@ function simG9Bio8N5a(){
 
 function simG9Bio8N5b(){
   cancelAnimationFrame(animFrame);
-  simState={t:0,emulsified:false};
+  simState={t:0,emulsified:false,lipaseActive:false};
+
   controls(`<div class="ctrl-section">
-    <div class="ctrl-label">💧 استحلاب الدهون — جرِّب بنفسك</div>
-    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">الاستحلاب يُفتِّت الدهون الكبيرة إلى قطرات صغيرة جداً ← يزيد السطح المعرَّض للأنزيمات</div>
-    <button onclick="simState.emulsified=!simState.emulsified" style="width:100%;padding:10px;border-radius:10px;background:#D97706;color:white;font-family:Tajawal;font-weight:700;font-size:15px;border:none;cursor:pointer">🟡 أضف العُصارة الصفراوية</button>
-    <div id="b8n5b_res" style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-card2);font-size:13px"></div>
+    <div class="ctrl-label">💧 استحلاب الدهون — تجربة تفاعلية</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">شاهدي كيف تُحسِّن العصارة الصفراوية من عمل الليبييز</div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <button onclick="simState.emulsified=!simState.emulsified" style="padding:9px;border-radius:8px;background:#D97706;color:white;font-family:Tajawal;font-weight:700;font-size:14px;border:none;cursor:pointer">🟡 العصارة الصفراوية (الاستحلاب)</button>
+      <button onclick="simState.lipaseActive=!simState.lipaseActive" style="padding:9px;border-radius:8px;background:#7C3AED;color:white;font-family:Tajawal;font-weight:700;font-size:14px;border:none;cursor:pointer">✂️ تفعيل الليبييز</button>
+      <button onclick="simState.emulsified=false;simState.lipaseActive=false" style="padding:9px;border-radius:8px;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:13px;border:1px solid var(--border-color);cursor:pointer">🔄 إعادة تعيين</button>
+    </div>
+    <div id="emul_info" style="margin-top:10px;padding:10px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.8;min-height:60px"></div>
   </div>`);
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n5'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.015;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    const el=document.getElementById('b8n5b_res');
-    if(simState.emulsified){
-      c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-      c.fillText('بعد الاستحلاب — قطرات صغيرة كثيرة',w/2,h*0.09);
-      for(let i=0;i<40;i++){
-        const angle=(i/40)*Math.PI*2*3+simState.t*0.2;
-        const r2=h*0.18+Math.sin(i*7)*h*0.12;
-        const dx=w/2+Math.cos(angle)*r2,dy=h*0.45+Math.sin(angle)*h*0.32*0.6;
-        c.fillStyle=dark?'rgba(253,230,138,0.55)':'rgba(254,240,138,0.75)';
-        c.beginPath();c.arc(dx,dy,h*0.025,0,Math.PI*2);c.fill();
-        c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=1;c.stroke();
-      }
-      c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`bold ${Math.round(h*0.028)}px Tajawal`;c.textAlign='center';
-      c.fillText('✅ سطح كبير جداً ← الليبييز يعمل بكفاءة',w/2,h*0.86);
-      if(el)el.innerHTML='<strong style="color:#15803D">✅ بعد الاستحلاب:</strong> الدهون الكبيرة أصبحت قطرات صغيرة متعددة — السطح الكلي يتضاعف كثيراً، مما يُسهِّل عمل أنزيم الليبييز البنكرياسي!';
-    } else {
-      c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-      c.fillText('قبل الاستحلاب — قطرات دهن كبيرة',w/2,h*0.09);
-      [[0.28,0.38],[0.52,0.32],[0.72,0.42],[0.45,0.6],[0.68,0.62]].forEach(([px,py])=>{
-        c.fillStyle=dark?'rgba(253,230,138,0.4)':'rgba(254,240,138,0.85)';
-        c.beginPath();c.arc(w*px,h*py,h*0.08,0,Math.PI*2);c.fill();
-        c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=2;c.stroke();
-        c.font=`${Math.round(h*0.045)}px serif`;c.textAlign='center';c.fillText('🧈',w*px,h*py+h*0.02);
+
+    const infoEl=document.getElementById('emul_info');
+    if(!simState.emulsified){
+      drawLabel(c,'قبل الاستحلاب — قطرات دهن كبيرة',w/2,h*0.09,dark?'#FDE68A':'#D97706',Math.round(h*0.034));
+      // 5 قطرات كبيرة
+      [[0.25,0.38,0.1],[0.52,0.3,0.09],[0.72,0.41,0.1],[0.4,0.58,0.09],[0.65,0.58,0.08]].forEach(([bx,by,br])=>{
+        c.fillStyle=dark?'rgba(253,230,138,0.45)':'rgba(254,240,138,0.85)';
+        c.beginPath();c.arc(w*bx,h*by,h*br,0,Math.PI*2);c.fill();
+        c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=2.5;c.stroke();
+        c.font=`${Math.round(h*br*0.6)}px serif`;c.textAlign='center';c.fillText('🧈',w*bx,h*by+h*br*0.25);
+        // ليبييز لا يستطيع الدخول
+        if(simState.lipaseActive){
+          c.font=`${Math.round(h*0.03)}px serif`;c.fillText('✂️',w*bx+h*br,h*by-h*br);
+          c.strokeStyle='#EF4444';c.lineWidth=2;
+          c.beginPath();c.moveTo(w*bx+h*br-h*0.015,h*by-h*br-h*0.01);c.lineTo(w*bx+h*br+h*0.015,h*by-h*br+h*0.01);c.stroke();
+        }
       });
-      c.fillStyle=dark?'#F87171':'#DC2626';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-      c.fillText('⚠️ سطح صغير ← الليبييز يعمل ببطء',w/2,h*0.86);
-      if(el)el.innerHTML='<strong style="color:#D97706">قبل الاستحلاب:</strong> الدهون على شكل قطرات كبيرة — سطح صغير مُعرَّض للأنزيمات. اضغط الزر لإضافة العُصارة الصفراوية وشاهد ما يحدث!';
+      c.fillStyle=dark?'#F87171':'#DC2626';c.font=`bold ${Math.round(h*0.025)}px Tajawal`;c.textAlign='center';
+      c.fillText('⚠️ السطح الكلي صغير — الليبييز يعمل ببطء',w/2,h*0.8);
+      if(infoEl)infoEl.innerHTML='<strong style="color:#D97706">قبل الاستحلاب:</strong> 5 قطرات كبيرة فقط — الليبييز لا يمكنه الوصول لداخل القطرات. أضيفي العصارة الصفراوية!';
+    } else {
+      // قطرات صغيرة جداً
+      const numD=simState.lipaseActive?50:40;
+      drawLabel(c,simState.lipaseActive?'الليبييز يهضم القطرات الصغيرة ✓':'بعد الاستحلاب — قطرات صغيرة كثيرة',w/2,h*0.09,simState.lipaseActive?dark?'#4ADE80':'#15803D':dark?'#FDE68A':'#D97706',Math.round(h*0.034));
+      for(let di=0;di<numD;di++){
+        const angle=(di/numD)*Math.PI*2*4+simState.t*(0.12+di*0.002);
+        const r2=h*(0.05+Math.sin(di*1.7)*0.14);
+        const dx=w*0.5+Math.cos(angle)*r2*1.3,dy=h*0.45+Math.sin(angle)*r2*0.75;
+        if(simState.lipaseActive&&di%7===0){
+          // منتجات الهضم
+          c.fillStyle=dark?'rgba(196,181,253,0.7)':'rgba(237,233,254,0.85)';
+          c.beginPath();c.arc(dx,dy,h*0.016,0,Math.PI*2);c.fill();
+        } else {
+          c.fillStyle=dark?'rgba(253,230,138,0.5)':'rgba(254,240,138,0.75)';
+          c.beginPath();c.arc(dx,dy,h*(simState.lipaseActive?0.018:0.025),0,Math.PI*2);c.fill();
+          c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=1;c.stroke();
+          if(simState.lipaseActive&&di%4===0){
+            c.font=`${Math.round(h*0.02)}px serif`;c.textAlign='center';c.fillText('✂️',dx,dy-h*0.02);
+          }
+        }
+      }
+      if(!simState.lipaseActive){
+        c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`bold ${Math.round(h*0.025)}px Tajawal`;c.textAlign='center';
+        c.fillText('✅ السطح الكلي ضخم جداً — جاهز للليبييز',w/2,h*0.8);
+        if(infoEl)infoEl.innerHTML='<strong style="color:#15803D">✅ بعد الاستحلاب:</strong> الدهون تحوّلت لقطرات صغيرة كثيرة — السطح الكلي تضاعف مئات المرات! الآن فعِّلي الليبييز.';
+      } else {
+        // نواتج
+        [[0.2,0.83,'أحماض دهنية'],[0.6,0.83,'جليسرول']].forEach(([px,py,lbl])=>{
+          c.fillStyle=dark?'rgba(196,181,253,0.35)':'rgba(237,233,254,0.8)';c.beginPath();c.roundRect(w*px-w*0.12,h*py-h*0.035,w*0.24,h*0.075,8);c.fill();
+          c.strokeStyle=dark?'#C4B5FD':'#7C3AED';c.lineWidth=2;c.stroke();
+          c.fillStyle=dark?'#C4B5FD':'#6D28D9';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';c.fillText(lbl,w*px,h*py+h*0.015);
+        });
+        if(infoEl)infoEl.innerHTML='<strong style="color:#10B981">🎉 هضم الدهون مكتمل:</strong> الليبييز يهضم القطرات الصغيرة → أحماض دهنية + جليسرول قابلان للامتصاص في الأوعية اللمفاوية!';
+      }
     }
     animFrame=requestAnimationFrame(draw);
   }
@@ -57637,103 +58473,170 @@ function simG9Bio8N5b(){
 function simG9Bio8N5c(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
-    '🫁 <strong>البنكرياس</strong>: غدة هضمية تُفرز أكثر من 10 أنزيمات',
+    '🫁 <strong>البنكرياس</strong>: غدة مزدوجة الوظيفة (هضمية + صماء)',
     '🔬 <strong>العُصارة البنكرياسية تحتوي</strong>: أميليز + بروتييز (تريبسين) + ليبييز',
-    '⚗️ تحتوي أيضاً على بيكربونات الصوديوم (NaHCO₃) — تُعادِل حموضة الكيموس من المعدة',
+    '⚗️ تحتوي أيضاً على بيكربونات الصوديوم (NaHCO₃) — تُعادِل الكيموس الحمضي',
     '📍 تصل للأمعاء الدقيقة عبر القناة البنكرياسية',
-    '💡 البنكرياس أيضاً غدة صماء — يُفرز الأنسولين لتنظيم سكر الدم (وحدة مستقبلة)',
-  ],'🫁 دور البنكرياس'));
+    '💡 البنكرياس يُفرز أيضاً الأنسولين والجلوكاجون لتنظيم سكر الدم',
+  ],'🫁 البنكرياس — مصنع الأنزيمات'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n5'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.015;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('البنكرياس — مصنع الأنزيمات',w/2,h*0.08);
-    // بنكرياس
+    drawLabel(c,'البنكرياس — مصنع الأنزيمات الهضمية',w/2,h*0.07,bioTxt(),Math.round(h*0.036));
+
+    // رسم البنكرياس
+    const px=w*0.5,py=h*0.28,pw=w*0.55,ph=h*0.14;
     c.fillStyle=dark?'rgba(196,181,253,0.3)':'rgba(237,233,254,0.8)';
-    c.beginPath();c.ellipse(w*0.5,h*0.3,w*0.25,h*0.1,-0.2,0,Math.PI*2);c.fill();
-    c.strokeStyle=dark?'#C4B5FD':'#7C3AED';c.lineWidth=2.5;c.stroke();
-    c.font=`${Math.round(h*0.055)}px serif`;c.textAlign='center';c.fillText('🫁',w*0.5,h*0.32);
-    c.fillStyle=dark?'#C4B5FD':'#6D28D9';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.fillText('البنكرياس',w*0.5,h*0.44);
-    // أنزيمات تتساقط
-    const enzymes=[{name:'أميليز',col:dark?'#FCD34D':'#D97706'},{name:'تريبسين',col:dark?'#F87171':'#DC2626'},{name:'ليبييز',col:dark?'#86EFAC':'#15803D'},{name:'NaHCO₃',col:dark?'#60A5FA':'#2563EB'}];
+    c.beginPath();
+    c.moveTo(px-pw*0.5,py);
+    c.bezierCurveTo(px-pw*0.5,py-ph*0.4,px-pw*0.2,py-ph*0.55,px,py-ph*0.4);
+    c.bezierCurveTo(px+pw*0.2,py-ph*0.25,px+pw*0.45,py-ph*0.35,px+pw*0.5,py+ph*0.1);
+    c.bezierCurveTo(px+pw*0.5,py+ph*0.55,px+pw*0.2,py+ph*0.65,px,py+ph*0.5);
+    c.bezierCurveTo(px-pw*0.25,py+ph*0.35,px-pw*0.5,py+ph*0.4,px-pw*0.5,py);
+    c.closePath();c.fill();
+    c.strokeStyle=dark?'#C4B5FD':'#7C3AED';c.lineWidth=3;c.stroke();
+    drawLabel(c,'البنكرياس',px,py+ph*0.9,dark?'#C4B5FD':'#6D28D9',Math.round(h*0.026));
+
+    // أنزيمات تتقطّر
+    const enzymes=[
+      {name:'أميليز',col:dark?'#FCD34D':'#D97706',offset:0},
+      {name:'تريبسين',col:dark?'#F87171':'#DC2626',offset:0.33},
+      {name:'ليبييز',col:dark?'#86EFAC':'#15803D',offset:0.67},
+      {name:'NaHCO₃',col:dark?'#60A5FA':'#2563EB',offset:0.5},
+    ];
     enzymes.forEach((e,i)=>{
       const ex=w*(0.2+i*0.18);
-      const ey=h*(0.56+((simState.t*0.5+i*0.25)%0.35));
-      c.fillStyle=e.col+'55';
-      c.beginPath();c.arc(ex,ey,h*0.03,0,Math.PI*2);c.fill();
+      const drop=((simState.t*0.5+e.offset)%1);
+      const ey=h*(0.48+drop*0.28);
+      // قطرة
+      c.fillStyle=e.col+'77';c.beginPath();c.arc(ex,ey,h*0.028,0,Math.PI*2);c.fill();
       c.strokeStyle=e.col;c.lineWidth=2;c.stroke();
-      c.fillStyle=e.col;c.font=`bold ${Math.round(h*0.02)}px Tajawal`;c.textAlign='center';
-      c.fillText(e.name,ex,ey+h*0.06);
+      c.fillStyle=e.col;c.font=`bold ${Math.round(h*0.019)}px Tajawal`;c.textAlign='center';c.fillText(e.name,ex,ey+h*0.06);
     });
-    // أمعاء
-    c.fillStyle=dark?'rgba(134,239,172,0.2)':'rgba(187,247,208,0.6)';
+    // قناة البنكرياس
+    c.strokeStyle=dark?'#C4B5FD55':'#7C3AED55';c.lineWidth=4;
+    c.beginPath();c.moveTo(px,py+ph*0.4);c.lineTo(px,h*0.46);c.stroke();
+
+    // الأمعاء الدقيقة
+    c.fillStyle=dark?'rgba(74,222,128,0.15)':'rgba(187,247,208,0.6)';
     c.beginPath();c.roundRect(w*0.05,h*0.82,w*0.9,h*0.1,12);c.fill();
     c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2;c.stroke();
-    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-    c.fillText('🌿 الأمعاء الدقيقة — تستقبل العُصارة البنكرياسية',w/2,h*0.88);
+    drawSmallLabel(c,'الأمعاء الدقيقة — تستقبل العُصارة البنكرياسية الكاملة',w/2,h*0.88,dark?'#4ADE80':'#166534',Math.round(h*0.024));
+
+    // مصنع (آلة) داخل البنكرياس
+    for(let g=0;g<6;g++){
+      const angle=(g/6)*Math.PI*2+simState.t*0.3;
+      const gx=px+Math.cos(angle)*pw*0.15,gy=py+Math.sin(angle)*ph*0.3;
+      c.fillStyle=dark?'rgba(196,181,253,0.5)':'rgba(196,181,253,0.4)';
+      c.beginPath();c.arc(gx,gy,h*0.018,0,Math.PI*2);c.fill();
+    }
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-/* ════════ نشاط ٦-٨ · الخملات والامتصاص ════════ */
+/* ════════════════════════════════════════════════
+   نشاط ٦-٨ · الخملات والامتصاص
+════════════════════════════════════════════════ */
 function simG9Bio8N6a(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
-    '🌿 <strong>الخملات (Villi)</strong>: نتوءات على جدار الأمعاء الدقيقة — طولها ~1mm',
-    '🔬 كل خملة مُغطّاة بـ<strong>زغيبات</strong> (microvilli) تزيد السطح أكثر',
+    '🌿 <strong>الخملات (Villi)</strong>: نتوءات إصبعية على جدار الأمعاء الدقيقة، طولها 0.5-1.5مم',
+    '🔬 كل خملة مُغطّاة بزغيبات (Microvilli) تزيد السطح أكثر',
     '🩸 داخل كل خملة: شُعيرات دموية تمتص السكريات والأحماض الأمينية',
     '🌊 وعاء لمفاوي (كيلوس) يمتص الأحماض الدهنية والجليسرول',
-    '📐 تُضاعف السطح الداخلي للأمعاء من ~1m² إلى ~250m²!',
-  ],'🔬 تركيب الخملة'));
+    '📐 مجموع السطح: من ~1م² (أنبوب أملس) → ~250م² مع الخملات!',
+  ],'🔬 تركيب الخملة الواحدة — مقطع عرضي'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n6'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.012;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-    c.fillText('تركيب الخملة الواحدة',w/2,h*0.07);
-    // خملة — جسم رئيسي
-    const vx=w*0.5,vtop=h*0.14,vbot=h*0.82,vw=w*0.22;
-    c.fillStyle=dark?'rgba(134,239,172,0.25)':'rgba(187,247,208,0.8)';
-    c.beginPath();c.moveTo(vx-vw/2,vbot);c.lineTo(vx-vw/2.5,vtop+h*0.04);
-    c.quadraticCurveTo(vx,vtop,vx+vw/2.5,vtop+h*0.04);
-    c.lineTo(vx+vw/2,vbot);c.closePath();c.fill();
-    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2.5;
-    c.beginPath();c.moveTo(vx-vw/2,vbot);c.lineTo(vx-vw/2.5,vtop+h*0.04);
-    c.quadraticCurveTo(vx,vtop,vx+vw/2.5,vtop+h*0.04);
-    c.lineTo(vx+vw/2,vbot);c.stroke();
+    drawLabel(c,'تركيب الخملة الواحدة — مقطع تفصيلي',w/2,h*0.07,bioTxt(),Math.round(h*0.035));
+
+    const vcx=w*0.5,vtop=h*0.14,vbot=h*0.82,vwTop=w*0.16,vwBot=w*0.22;
+    // جسم الخملة
+    c.fillStyle=dark?'rgba(134,239,172,0.2)':'rgba(187,247,208,0.7)';
+    c.beginPath();
+    c.moveTo(vcx-vwBot/2,vbot);
+    c.lineTo(vcx-vwTop/2,vtop+h*0.04);
+    c.quadraticCurveTo(vcx,vtop,vcx+vwTop/2,vtop+h*0.04);
+    c.lineTo(vcx+vwBot/2,vbot);
+    c.closePath();c.fill();
+    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2.5;c.stroke();
+
+    // طبقة الظهارة (جدار الخملة)
+    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=4;
+    c.beginPath();c.moveTo(vcx-vwBot/2,vbot);c.lineTo(vcx-vwTop/2,vtop+h*0.04);c.stroke();
+    c.beginPath();c.moveTo(vcx+vwBot/2,vbot);c.lineTo(vcx+vwTop/2,vtop+h*0.04);c.stroke();
+
     // زغيبات على القمة
-    for(let i=-4;i<=4;i++){
-      const zx=vx+i*vw*0.1;
+    const numMicro=12;
+    for(let zi=0;zi<numMicro;zi++){
+      const zx=vcx+((-numMicro/2+zi+0.5)/(numMicro/2))*vwTop/2;
       c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2;
-      c.beginPath();c.moveTo(zx,vtop+h*0.04);c.lineTo(zx,vtop-h*0.04);c.stroke();
+      c.beginPath();c.moveTo(zx,vtop+h*0.04);c.lineTo(zx,vtop-h*0.045);c.stroke();
+      // رأس الزغيبة
+      c.fillStyle=dark?'#4ADE80':'#15803D';c.beginPath();c.arc(zx,vtop-h*0.045,h*0.007,0,Math.PI*2);c.fill();
     }
-    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.02)}px Tajawal`;c.textAlign='right';
-    c.fillText('← زغيبات',vx-vw/2-w*0.02,vtop+h*0.01);
-    // شُعيرات دموية
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=3;
-    c.beginPath();c.moveTo(vx-vw*0.18,vtop+h*0.15);c.bezierCurveTo(vx-vw*0.1,h*0.4,vx+vw*0.1,h*0.4,vx+vw*0.18,vtop+h*0.15);c.stroke();
-    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.02)}px Tajawal`;c.textAlign='left';
-    c.fillText('شُعيرة دموية →',vx+vw/2+w*0.02,h*0.32);
-    // وعاء لمفاوي
-    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=3;
-    c.beginPath();c.moveTo(vx,vtop+h*0.1);c.lineTo(vx,vbot-h*0.08);c.stroke();
-    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.02)}px Tajawal`;c.textAlign='right';
-    c.fillText('وعاء لمفاوي ←',vx-vw/2-w*0.02,h*0.6);
-    // جزيئات متحركة
-    const ptime=(simState.t*0.4)%1;
-    const py=vtop+h*0.15+(vbot-vtop-h*0.23)*ptime;
-    c.fillStyle=dark?'rgba(134,239,172,0.9)':'rgba(21,128,61,0.8)';
-    c.beginPath();c.arc(vx-vw*0.12,py,h*0.015,0,Math.PI*2);c.fill();
-    c.fillStyle=dark?'rgba(253,224,71,0.9)':'rgba(234,179,8,0.8)';
-    c.beginPath();c.arc(vx,py+h*0.02,h*0.012,0,Math.PI*2);c.fill();
+    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`${Math.round(h*0.021)}px Tajawal`;c.textAlign='right';
+    c.fillText('زغيبات دقيقة →',vcx-vwTop/2-h*0.01,vtop+h*0.01);
+
+    // شُعيرة دموية داخل الخملة
+    c.strokeStyle='#EF4444';c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(vcx-vwTop*0.35,vtop+h*0.12);
+    c.bezierCurveTo(vcx-vwTop*0.2,h*0.4,vcx+vwTop*0.2,h*0.4,vcx+vwTop*0.35,vtop+h*0.12);
+    c.bezierCurveTo(vcx+vwTop*0.2,h*0.55,vcx-vwTop*0.1,h*0.58,vcx-vwTop*0.35,h*0.5);
+    c.stroke();
+    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`${Math.round(h*0.02)}px Tajawal`;c.textAlign='left';
+    c.fillText('← شُعيرة دموية',vcx+vwBot/2+h*0.015,h*0.33);
+
+    // وعاء لمفاوي مركزي
+    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=4;
+    c.beginPath();c.moveTo(vcx,vtop+h*0.12);c.lineTo(vcx,vbot-h*0.06);c.stroke();
+    c.fillStyle=dark?'#FCD34D':'#D97706';c.font=`${Math.round(h*0.02)}px Tajawal`;c.textAlign='right';
+    c.fillText('وعاء لمفاوي ←',vcx-vwBot/2-h*0.015,h*0.55);
+
+    // جزيئات تُمتص تتحرك
+    const items=[
+      {col:'#3B82F6',y:0.35,label:'جلوكوز'},
+      {col:'#60A5FA',y:0.45,label:'أحماض أمينية'},
+      {col:'#FCD34D',y:0.55,label:'دهون → لمف'},
+    ];
+    items.forEach((item,i)=>{
+      const ptime=((simState.t*0.35+i*0.33)%1);
+      // جزيء يتحرك من الجانب نحو الداخل
+      const px2=vcx-vwBot*0.45+ptime*vwBot*0.35;
+      const py2=h*(item.y)+Math.sin(simState.t*2+i)*h*0.015;
+      c.fillStyle=item.col+'CC';c.beginPath();c.arc(px2,py2,h*0.016,0,Math.PI*2);c.fill();
+      if(ptime>0.7){
+        // يدخل الوعاء
+        c.fillStyle=item.col+'55';c.beginPath();c.arc(vcx+(i-1)*vwTop*0.12,py2,h*0.012,0,Math.PI*2);c.fill();
+      }
+    });
+
+    // ملصق "داخل الخملة"
+    c.fillStyle=dark?'rgba(134,239,172,0.15)':'rgba(187,247,208,0.3)';
+    c.beginPath();c.roundRect(vcx+vwBot/2+h*0.01,h*0.5,w*0.28,h*0.23,8);c.fill();
+    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=1;c.stroke();
+    [['🩸','دم','جلوكوز+أحم. أمينية'],['💛','لمف','دهون']] .forEach(([em,label,what],li)=>{
+      const lx=vcx+vwBot/2+h*0.02,ly=h*(0.55+li*0.1);
+      c.font=`${Math.round(h*0.022)}px serif`;c.textAlign='left';c.fillText(em,lx,ly);
+      c.fillStyle=dark?'#E5E7EB':'#374151';c.font=`${Math.round(h*0.019)}px Tajawal`;c.fillText(`${label}: ${what}`,lx+h*0.035,ly);
+    });
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57742,48 +58645,95 @@ function simG9Bio8N6a(){
 function simG9Bio8N6b(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
-    '📐 بدون خملات: السطح الداخلي للأمعاء ≈ أنبوب أملس → سطح صغير جداً',
-    '🌿 مع الخملات والزغيبات: السطح يرتفع إلى ~250m²! (بحجم ملعب تنس)',
-    '⚡ هذا السطح الضخم يضمن امتصاصاً سريعاً وكاملاً للغذاء',
-    '🔬 كل خملة ≈ 0.5-1.5mm طولاً — ملايين الخملات في الأمعاء الدقيقة',
-  ],'📐 الزغيبات وتضاعف السطح'));
+    '📐 بدون خملات: السطح الداخلي ~1م² (أنبوب أملس)',
+    '🌿 مع الخملات: السطح يصل ~10م²',
+    '🔬 مع الزغيبات الدقيقة (microvilli): ~250م²',
+    '⚡ هذا السطح الضخم = امتصاص سريع وكامل',
+    '💡 250م² ≈ ملعب تنس كامل! كله في أمعاء بطول 5 أمتار فقط',
+  ],'📐 كيف تُضاعف الخملات السطح؟'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n6'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.012;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-    c.fillText('الزغيبات تُضاعف السطح بشكل ضخم',w/2,h*0.08);
-    // بدون خملات
-    c.fillStyle=dark?'rgba(248,113,113,0.2)':'rgba(254,226,226,0.8)';
-    c.beginPath();c.roundRect(w*0.05,h*0.18,w*0.38,h*0.5,12);c.fill();
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=2;c.stroke();
-    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-    c.fillText('بدون خملات',w*0.24,h*0.16);
-    // خط أملس
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=3;
-    c.beginPath();c.moveTo(w*0.08,h*0.43);c.lineTo(w*0.4,h*0.43);c.stroke();
-    c.fillStyle=dark?'#F87171':'#DC2626';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('~1 م²',w*0.24,h*0.58);
-    c.fillText('سطح صغير!',w*0.24,h*0.64);
-    // مع خملات
-    c.fillStyle=dark?'rgba(134,239,172,0.2)':'rgba(187,247,208,0.8)';
-    c.beginPath();c.roundRect(w*0.57,h*0.18,w*0.38,h*0.5,12);c.fill();
-    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2;c.stroke();
-    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-    c.fillText('مع خملات وزغيبات',w*0.76,h*0.16);
-    // خملات
-    for(let i=0;i<12;i++){
-      const vx2=w*(0.59+i*0.03),vbaseY=h*0.65,vtopY=h*(0.28+Math.sin(i)*0.08);
-      c.fillStyle=dark?'rgba(134,239,172,0.4)':'rgba(187,247,208,0.7)';
-      c.beginPath();c.moveTo(vx2-w*0.01,vbaseY);c.lineTo(vx2-w*0.005,vtopY);c.lineTo(vx2+w*0.005,vtopY);c.lineTo(vx2+w*0.01,vbaseY);c.fill();
-      c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=1;c.stroke();
-    }
-    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
-    c.fillText('~250 م²',w*0.76,h*0.78);
-    c.fillText('سطح ضخم جداً! ✓',w*0.76,h*0.84);
+    drawLabel(c,'تضاعف السطح من الخملات والزغيبات',w/2,h*0.08,bioTxt(),Math.round(h*0.036));
+
+    const panels=[
+      {title:'أنبوب أملس',surface:'~1 م²',col:'#EF4444',x:0.04,y:0.17,w:0.29,h:0.7,
+       drawFn:function(c,px,py,pw,ph){
+        // مقطع أنبوبي أملس
+        c.fillStyle=dark?'rgba(248,113,113,0.15)':'rgba(254,226,226,0.7)';
+        c.beginPath();c.roundRect(w*px,h*py,w*pw,h*ph,10);c.fill();
+        // خط أملس
+        c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=4;
+        c.beginPath();c.moveTo(w*(px+0.02),h*(py+0.35));c.lineTo(w*(px+pw-0.02),h*(py+0.35));c.stroke();
+        c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
+        c.fillText('~1 م²',w*(px+pw/2),h*(py+0.5));
+        c.fillStyle=dark?'#FCA5A5':'#DC2626';c.font=`${Math.round(h*0.022)}px Tajawal`;
+        c.fillText('سطح صغير!',w*(px+pw/2),h*(py+0.6));
+       }
+      },
+      {title:'مع خملات',surface:'~10 م²',col:'#F59E0B',x:0.36,y:0.17,w:0.27,h:0.7,
+       drawFn:function(c,px,py,pw,ph){
+        c.fillStyle=dark?'rgba(251,191,36,0.12)':'rgba(254,240,138,0.5)';
+        c.beginPath();c.roundRect(w*px,h*py,w*pw,h*ph,10);c.fill();
+        // خملات
+        const numV=10;
+        const baseY=h*(py+0.58),topY=h*(py+0.25);
+        for(let vi=0;vi<numV;vi++){
+          const vx=w*(px+0.03+vi*(pw-0.06)/(numV-1));
+          c.fillStyle=dark?'rgba(251,191,36,0.4)':'rgba(254,240,138,0.8)';
+          c.beginPath();c.moveTo(vx-w*0.012,baseY);c.lineTo(vx-w*0.006,topY);c.lineTo(vx+w*0.006,topY);c.lineTo(vx+w*0.012,baseY);c.fill();
+          c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=1.5;c.stroke();
+        }
+        c.fillStyle=dark?'#FCD34D':'#D97706';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
+        c.fillText('~10 م²',w*(px+pw/2),h*(py+0.72));
+       }
+      },
+      {title:'مع خملات وزغيبات',surface:'~250 م²',col:'#10B981',x:0.66,y:0.17,w:0.3,h:0.7,
+       drawFn:function(c,px,py,pw,ph){
+        c.fillStyle=dark?'rgba(74,222,128,0.12)':'rgba(187,247,208,0.5)';
+        c.beginPath();c.roundRect(w*px,h*py,w*pw,h*ph,10);c.fill();
+        // خملات مع زغيبات
+        const numV=8;
+        const baseY=h*(py+0.58),topY=h*(py+0.3);
+        for(let vi=0;vi<numV;vi++){
+          const vx=w*(px+0.03+vi*(pw-0.06)/(numV-1));
+          c.fillStyle=dark?'rgba(74,222,128,0.35)':'rgba(187,247,208,0.75)';
+          c.beginPath();c.moveTo(vx-w*0.013,baseY);c.lineTo(vx-w*0.007,topY);c.lineTo(vx+w*0.007,topY);c.lineTo(vx+w*0.013,baseY);c.fill();
+          c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=1.5;c.stroke();
+          // زغيبات
+          for(let z=-2;z<=2;z++){
+            const zx=vx+z*w*0.003;
+            c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=1;
+            c.beginPath();c.moveTo(zx,topY);c.lineTo(zx,topY-h*0.05);c.stroke();
+          }
+        }
+        c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='center';
+        c.fillText('~250 م² ✓',w*(px+pw/2),h*(py+0.72));
+        // نبض على الحد
+        const pulse2=0.5+Math.abs(Math.sin(simState.t*2))*0.4;
+        c.strokeStyle=`rgba(74,222,128,${pulse2})`;c.lineWidth=2.5;
+        c.beginPath();c.roundRect(w*px+2,h*py+2,w*pw-4,h*ph-4,10);c.stroke();
+       }
+      },
+    ];
+
+    panels.forEach(p=>{
+      c.strokeStyle=p.col;c.lineWidth=2;
+      c.beginPath();c.roundRect(w*p.x,h*p.y,w*p.w,h*p.h,10);c.stroke();
+      drawLabel(c,p.title,w*(p.x+p.w/2),h*(p.y-0.03),p.col,Math.round(h*0.026));
+      p.drawFn(c,p.x,p.y,p.w,p.h);
+    });
+
+    // مقارنة في الأسفل
+    c.fillStyle=dark?'rgba(74,222,128,0.15)':'rgba(187,247,208,0.4)';c.beginPath();c.roundRect(w*0.04,h*0.92,w*0.92,h*0.06,8);c.fill();
+    drawSmallLabel(c,'💡 الزغيبات تُضاعف السطح 250 مرة — مساحة ملعب تنس كامل في أمعاء طولها 5 أمتار!',w/2,h*0.96,dark?'#4ADE80':'#15803D',Math.round(h*0.023));
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57791,124 +58741,181 @@ function simG9Bio8N6b(){
 
 function simG9Bio8N6c(){
   cancelAnimationFrame(animFrame);
-  simState={t:0};
-  controls(bioInfoPanel([
-    '🩸 <strong>الشُّعيرات الدموية</strong> تمتص: الجلوكوز، الأحماض الأمينية، الماء، الأملاح، الفيتامينات',
-    '🌊 <strong>الوعاء اللمفاوي (الكيلوس)</strong> يمتص: الأحماض الدهنية والجليسرول',
-    '🔀 الدم يحمل الغذاء للكبد أولاً (الوريد البابي الكبدي) ثم لبقية الجسم',
-    '🌊 اللمف يصل الدم في الأوردة الكبيرة قرب القلب',
-  ],'🔀 ماذا يمتص كل وعاء؟'));
+  simState={t:0,selected:null};
+
+  controls(`<div class="ctrl-section">
+    <div class="ctrl-label">🔀 مسارات الامتصاص داخل الخملة</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">انقري على نوع الجزيء لتتبّع مساره</div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      ${[['glucose','🍬 جلوكوز','#3B82F6','دم → وريد بابي → كبد → جسم'],['aa','🔗 أحماض أمينية','#10B981','دم → كبد → خلايا الجسم'],['fat','💧 دهون','#F59E0B','لمف → قناة صدرية → دم → جسم']].map(([id,label,col,path])=>`
+      <button onclick="simState.selected='${id}'" style="padding:8px;border-radius:8px;border:2px solid ${col}44;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:13px;cursor:pointer;text-align:right">
+        <span style="color:${col};font-weight:700">${label}</span> <span style="color:var(--text-secondary);font-size:12px">← ${path}</span>
+      </button>`).join('')}
+    </div>
+    <div id="absorb_info" style="margin-top:8px;padding:10px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.8;min-height:60px">← انقري على نوع جزيء</div>
+  </div>`);
+
   const cv=document.getElementById('simCanvas');
+  const itemsData={
+    glucose:{col:'#3B82F6',label:'جلوكوز',via:'دموي',detail:'الجلوكوز وأيونات الأملاح تُمتص بالانتقال النشط. تدخل الشعيرات الدموية → الوريد البابي الكبدي → الكبد يعالجها → الدم → الخلايا'},
+    aa:{col:'#10B981',label:'أحماض أمينية',via:'دموي',detail:'الأحماض الأمينية أيضاً تُمتص بالانتقال النشط. تدخل الشعيرات الدموية مباشرة → الكبد → تُستخدم لبناء البروتينات أو مصدر طاقة'},
+    fat:{col:'#F59E0B',label:'دهون',via:'لمفاوي',detail:'الأحماض الدهنية والجليسرول تُمتص بالانتشار → تتحد لتكوين كيلوميكرونات (chylomicrons) → الوعاء اللمفاوي (كيلوس) → القناة الصدرية → الدم قرب القلب'},
+  };
+
+  let lastSel=null;
   function draw(){
     if(currentSim!=='g9bio8n6'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.014;
+    if(simState.selected!==lastSel){
+      lastSel=simState.selected;
+      const el=document.getElementById('absorb_info');
+      if(el&&simState.selected)el.innerHTML=`<strong style="color:${itemsData[simState.selected].col}">${itemsData[simState.selected].label} (مسار ${itemsData[simState.selected].via}):</strong><br>${itemsData[simState.selected].detail}`;
+    }
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-    c.fillText('مسارات الامتصاص داخل الخملة',w/2,h*0.08);
-    // خملة مبسّطة
-    const vcx=w*0.5,vtop2=h*0.18,vheight=h*0.5;
-    c.fillStyle=dark?'rgba(134,239,172,0.2)':'rgba(187,247,208,0.7)';
-    c.beginPath();c.roundRect(vcx-w*0.12,vtop2,w*0.24,vheight,20);c.fill();
+    drawLabel(c,'الامتصاص عبر الخملة — المسارات',w/2,h*0.08,bioTxt(),Math.round(h*0.035));
+
+    const vcx=w*0.5,vtop=h*0.15,vbot=h*0.78,vwTop=w*0.18,vwBot=w*0.24;
+    // خملة
+    c.fillStyle=dark?'rgba(134,239,172,0.18)':'rgba(187,247,208,0.65)';
+    c.beginPath();c.moveTo(vcx-vwBot/2,vbot);c.lineTo(vcx-vwTop/2,vtop+h*0.04);
+    c.quadraticCurveTo(vcx,vtop,vcx+vwTop/2,vtop+h*0.04);c.lineTo(vcx+vwBot/2,vbot);c.closePath();c.fill();
     c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2;c.stroke();
-    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.025)}px Tajawal`;c.textAlign='center';
-    c.fillText('خملة',vcx,vtop2+vheight+h*0.04);
+
+    // زغيبات
+    for(let zi=0;zi<10;zi++){
+      const zx=vcx+((-5+zi+0.5)/5)*vwTop/2;
+      c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=1.8;
+      c.beginPath();c.moveTo(zx,vtop+h*0.04);c.lineTo(zx,vtop-h*0.04);c.stroke();
+    }
+
     // شُعيرة دموية
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=4;
-    c.beginPath();c.moveTo(vcx-w*0.08,vtop2+vheight*0.3);c.bezierCurveTo(vcx-w*0.05,vtop2+vheight*0.7,vcx+w*0.05,vtop2+vheight*0.7,vcx+w*0.08,vtop2+vheight*0.3);c.stroke();
-    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='right';
-    c.fillText('دموية ←',vcx-w*0.14,vtop2+vheight*0.5);
+    c.strokeStyle='#EF4444';c.lineWidth=3;
+    c.beginPath();c.moveTo(vcx-vwTop*0.4,h*0.25);c.bezierCurveTo(vcx-vwTop*0.2,h*0.45,vcx+vwTop*0.2,h*0.45,vcx+vwTop*0.4,h*0.25);c.stroke();
+    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`${Math.round(h*0.019)}px Tajawal`;c.textAlign='left';
+    c.fillText('← شُعيرة دموية',vcx+vwBot/2+h*0.01,h*0.32);
+
     // وعاء لمفاوي
-    c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=4;
-    c.beginPath();c.moveTo(vcx,vtop2+vheight*0.15);c.lineTo(vcx,vtop2+vheight*0.85);c.stroke();
-    c.fillStyle=dark?'#FDE68A':'#D97706';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='left';
-    c.fillText('← لمفاوي',vcx+w*0.14,vtop2+vheight*0.5);
-    // جزيئات
-    const items=[
-      {name:'🍬 جلوكوز',col:dark?'#4ADE80':'#15803D',target:'blood',vy:-0.003},
-      {name:'🔗 أحماض أمينية',col:dark?'#60A5FA':'#2563EB',target:'blood',vy:-0.004},
-      {name:'💧 دهون',col:dark?'#FDE68A':'#D97706',target:'lymph',vy:-0.0035},
-    ];
-    items.forEach((item,i)=>{
-      const pos=((simState.t*0.3+i*0.33)%1);
-      const px=item.target==='blood'?vcx-w*0.04:vcx,py=vtop2+vheight*(0.8-pos*0.6);
-      c.fillStyle=item.col+'BB';c.beginPath();c.arc(px,py,h*0.018,0,Math.PI*2);c.fill();
+    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=4;
+    c.beginPath();c.moveTo(vcx,vtop+h*0.1);c.lineTo(vcx,vbot-h*0.06);c.stroke();
+    c.fillStyle=dark?'#FCD34D':'#D97706';c.font=`${Math.round(h*0.019)}px Tajawal`;c.textAlign='right';
+    c.fillText('وعاء لمفاوي ←',vcx-vwBot/2-h*0.01,h*0.58);
+
+    // جزيئات متحركة
+    const selected=simState.selected;
+    Object.entries(itemsData).forEach(([key,item])=>{
+      const isSelected=selected===key||!selected;
+      const alpha=isSelected?1:0.2;
+      for(let pi=0;pi<4;pi++){
+        const ptime=((simState.t*0.35+pi*0.25+Object.keys(itemsData).indexOf(key)*0.1)%1);
+        // من الجانب → داخل الخملة
+        const fromX=vcx-(vwBot/2+w*0.08)*(1-ptime),fromY=h*(0.3+Object.keys(itemsData).indexOf(key)*0.1);
+        c.fillStyle=item.col+(Math.round(alpha*200).toString(16).padStart(2,'0'));
+        c.beginPath();c.arc(fromX,fromY,h*0.016,0,Math.PI*2);c.fill();
+        if(ptime>0.6){
+          // يتجه نحو الوعاء المناسب
+          const targetX=item.via==='لمفاوي'?vcx:vcx-vwTop*0.2;
+          const targetY=fromY;
+          const progX=fromX+(targetX-fromX)*((ptime-0.6)/0.4);
+          c.fillStyle=item.col+(Math.round(alpha*150).toString(16).padStart(2,'0'));
+          c.beginPath();c.arc(progX,targetY,h*0.013,0,Math.PI*2);c.fill();
+        }
+      }
     });
-    // вниз стрелки
-    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.03)}px Arial`;c.textAlign='center';
-    c.fillText('↓',vcx-w*0.04,h*0.78);
-    c.fillStyle=dark?'#FDE68A':'#D97706';
-    c.fillText('↓',vcx,h*0.78);
-    // legends
-    const leg=[
-      {col:dark?'#F87171':'#DC2626',txt:'دم → كبد → جسم'},
-      {col:dark?'#FDE68A':'#D97706',txt:'لمف → الدم قرب القلب'},
-    ];
-    leg.forEach((l,i)=>{
-      c.fillStyle=l.col;c.beginPath();c.arc(w*0.18,h*(0.82+i*0.07),h*0.015,0,Math.PI*2);c.fill();
-      c.font=`${Math.round(h*0.024)}px Tajawal`;c.textAlign='right';c.fillText(l.txt,w*0.88,h*(0.825+i*0.07));
+
+    // مفتاح الألوان
+    const legend=[['glucose','🍬 جلوكوز','#3B82F6'],['aa','🔗 أ.أمينية','#10B981'],['fat','💧 دهون','#F59E0B']];
+    legend.forEach(([key,label,col],i)=>{
+      const lx=w*(0.1+i*0.3),ly=h*0.88;
+      c.fillStyle=col+(selected===key||!selected?'BB':'33');c.beginPath();c.arc(lx,ly,h*0.018,0,Math.PI*2);c.fill();
+      c.fillStyle=col+(selected===key||!selected?'':44);c.font=`${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillText(label,lx,ly+h*0.038);
     });
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-/* ════════ نشاط ٧-٨ · محاكاة الديلسة ════════ */
+/* ════════════════════════════════════════════════
+   نشاط ٧-٨ · محاكاة الديلسة
+════════════════════════════════════════════════ */
 function simG9Bio8N7a(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
-    '🔭 <strong>الديلسة (Dialysis)</strong>: انتقال المواد عبر غشاء شبه نافذ من تركيز عالٍ إلى منخفض',
-    '📏 الغشاء له مسام بحجم معيّن — تعبر منها جزيئات صغيرة فقط',
-    '🌾 النشا: جزيء ضخم (C₆H₁₀O₅)ₙ — لا يعبر الغشاء',
-    '🍬 الجلوكوز: جزيء صغير (C₆H₁₂O₆) — يعبر الغشاء',
-    '💡 هذا يُحاكي جدار الأمعاء الدقيقة: يسمح للجلوكوز بالعبور ويحجب النشا',
-  ],'🎓 مبدأ الديلسة'));
+    '🔭 <strong>الديلسة (Dialysis)</strong>: انتقال المواد عبر غشاء شبه نافذ من تركيز عالٍ → منخفض',
+    '📏 الغشاء له مسام بحجم معيّن — تعبر منه جزيئات صغيرة فقط',
+    '🌾 النشا: جزيء ضخم (C₆H₁₀O₅)ₙ — لا يعبر',
+    '🍬 الجلوكوز: جزيء صغير C₆H₁₂O₆ — يعبر',
+    '💡 هذا يُحاكي جدار الأمعاء الدقيقة تماماً',
+  ],'🎓 مبدأ الديلسة والغشاء شبه النافذ'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n7'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.015;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.038)}px Tajawal`;c.textAlign='center';
-    c.fillText('الديلسة — غشاء شبه نافذ',w/2,h*0.08);
+    drawLabel(c,'الغشاء شبه النافذ — من يعبر ومن لا يعبر؟',w/2,h*0.08,bioTxt(),Math.round(h*0.034));
+
     // غشاء وسطي
-    c.fillStyle=dark?'rgba(253,224,71,0.3)':'rgba(254,240,138,0.7)';
-    c.beginPath();c.roundRect(w*0.45,h*0.15,w*0.1,h*0.7,8);c.fill();
-    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2.5;
-    c.beginPath();c.roundRect(w*0.45,h*0.15,w*0.1,h*0.7,8);c.stroke();
-    // مسام
-    for(let i=0;i<6;i++){
-      const py=h*(0.22+i*0.1);
+    const gx=w*0.45,gy=h*0.14,gw=w*0.1,gh=h*0.73;
+    c.fillStyle=dark?'rgba(253,224,71,0.28)':'rgba(254,240,138,0.65)';
+    c.beginPath();c.roundRect(gx,gy,gw,gh,8);c.fill();
+    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2.5;c.stroke();
+    // مسام الغشاء
+    for(let pi=0;pi<7;pi++){
+      const py=h*(0.21+pi*0.09);
       c.fillStyle=bioBg();
-      c.beginPath();c.ellipse(w*0.5,py,w*0.012,h*0.018,0,0,Math.PI*2);c.fill();
+      c.beginPath();c.ellipse(gx+gw/2,py,gw*0.12,h*0.022,0,0,Math.PI*2);c.fill();
       c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=1;c.stroke();
+      // حجم المسم
+      c.fillStyle=dark?'#9CA3AF':'#6B7280';c.font=`${Math.round(h*0.015)}px Tajawal`;c.textAlign='center';c.fillText('مسام',gx+gw/2,py+h*0.013);
     }
-    c.fillStyle=dark?'#FCD34D':'#D97706';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('غشاء شبه نافذ',w*0.5,h*0.9);
-    // جزيئات نشا (كبيرة - يسار)
-    for(let i=0;i<6;i++){
-      const angle=(i/6)*Math.PI*2+simState.t*0.15;
-      c.fillStyle=dark?'rgba(253,224,71,0.55)':'rgba(254,240,138,0.85)';
-      c.beginPath();c.arc(w*0.25+Math.cos(angle)*w*0.13,h*0.45+Math.sin(angle)*h*0.2,h*0.038,0,Math.PI*2);c.fill();
+    c.fillStyle=dark?'#FCD34D':'#D97706';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillText('غشاء',gx+gw/2,gy+gh+h*0.04);
+
+    // جزيئات نشا (كبيرة — يسار، لا تعبر)
+    for(let ni=0;ni<5;ni++){
+      const nangle=(ni/5)*Math.PI*2+simState.t*0.15;
+      const nx=w*0.22+Math.cos(nangle)*w*0.16,ny=h*0.48+Math.sin(nangle)*h*0.28;
+      c.fillStyle=dark?'rgba(253,224,71,0.5)':'rgba(254,240,138,0.85)';
+      c.beginPath();c.arc(nx,ny,h*0.042,0,Math.PI*2);c.fill();
       c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=2;c.stroke();
-      c.font=`${Math.round(h*0.025)}px serif`;c.textAlign='center';c.fillText('🌾',w*0.25+Math.cos(angle)*w*0.13,h*0.46+Math.sin(angle)*h*0.2);
+      // خط ربط (سلسلة)
+      if(ni<4){
+        const nangle2=(ni+1)/5*Math.PI*2+simState.t*0.15;
+        const nx2=w*0.22+Math.cos(nangle2)*w*0.16,ny2=h*0.48+Math.sin(nangle2)*h*0.28;
+        c.strokeStyle=dark?'#FCD34D55':'#CA8A0444';c.lineWidth=3;c.beginPath();c.moveTo(nx,ny);c.lineTo(nx2,ny2);c.stroke();
+      }
     }
-    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('نشا (ضخم)',w*0.25,h*0.15);
-    c.fillStyle=dark?'#F87171':'#DC2626';c.font=`${Math.round(h*0.022)}px Tajawal`;
-    c.fillText('✗ لا يعبر',w*0.25,h*0.79);
-    // جلوكوز صغير (يمين)
-    for(let i=0;i<8;i++){
-      const angle=(i/8)*Math.PI*2+simState.t*0.3;
+    drawLabel(c,'نشا — جزيء ضخم',w*0.22,h*0.14,dark?'#FCD34D':'#92400E',Math.round(h*0.025));
+    // X لا يعبر
+    c.strokeStyle='#EF4444';c.lineWidth=3;
+    c.beginPath();c.moveTo(gx-h*0.03,h*0.5-h*0.02);c.lineTo(gx-h*0.01,h*0.5+h*0.02);c.stroke();
+    c.beginPath();c.moveTo(gx-h*0.03,h*0.5+h*0.02);c.lineTo(gx-h*0.01,h*0.5-h*0.02);c.stroke();
+    c.fillStyle='#EF4444';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillText('✗ لا يعبر',w*0.22,h*0.84);
+
+    // جزيئات جلوكوز (صغيرة — تعبر)
+    for(let gi=0;gi<9;gi++){
+      const gangle=(gi/9)*Math.PI*2*2+simState.t*0.4;
+      const grx=w*0.77+Math.cos(gangle)*w*0.15,gry=h*0.48+Math.sin(gangle)*h*0.27;
       c.fillStyle=dark?'rgba(134,239,172,0.6)':'rgba(187,247,208,0.85)';
-      c.beginPath();c.arc(w*0.75+Math.cos(angle)*w*0.12,h*0.45+Math.sin(angle)*h*0.18,h*0.018,0,Math.PI*2);c.fill();
+      c.beginPath();c.arc(grx,gry,h*0.018,0,Math.PI*2);c.fill();
       c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=1.5;c.stroke();
     }
-    c.fillStyle=dark?'#4ADE80':'#166534';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('جلوكوز (صغير)',w*0.75,h*0.15);
-    c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`${Math.round(h*0.022)}px Tajawal`;
-    c.fillText('✓ يعبر الغشاء',w*0.75,h*0.79);
+    // جلوكوز يعبر الغشاء
+    for(let gi=0;gi<3;gi++){
+      const cross=((simState.t*0.4+gi*0.33)%1);
+      const crossX=gx+gw*0.5+((cross-0.5)*gw*2);
+      if(Math.abs(cross-0.5)<0.35){
+        c.fillStyle=dark?'rgba(134,239,172,0.85)':'rgba(187,247,208,0.9)';
+        c.beginPath();c.arc(crossX,h*(0.35+gi*0.18),h*0.018,0,Math.PI*2);c.fill();
+      }
+    }
+    drawLabel(c,'جلوكوز — جزيء صغير',w*0.77,h*0.14,dark?'#4ADE80':'#15803D',Math.round(h*0.025));
+    c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillText('✓ يعبر الغشاء',w*0.77,h*0.84);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57916,64 +58923,104 @@ function simG9Bio8N7a(){
 
 function simG9Bio8N7b(){
   cancelAnimationFrame(animFrame);
-  simState={t:0,step:0,results:{starch_inside:null,starch_outside:null,glucose_inside:null,glucose_outside:null}};
+  simState={t:0,results:{starch_inside:'',starch_outside:'',glucose_inside:'',glucose_outside:''}};
+
   controls(`<div class="ctrl-section">
     <div class="ctrl-label">🧫 تجربة الديلسة — خطوة بخطوة</div>
-    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">محلول النشا والجلوكوز داخل أنبوبة الديلسة — ماء مقطَّر في الكأس</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-      <div style="padding:8px;background:var(--bg-card2);border-radius:8px;font-size:12px">
-        <div style="font-weight:700;margin-bottom:4px">اختبار النشا (يود)</div>
-        <div>داخل الأنبوبة: <select onchange="simState.results.starch_inside=this.value" style="font-family:Tajawal;font-size:12px;padding:3px;border-radius:4px;border:1px solid #ccc;background:var(--bg-ctrl-btn)"><option value="">اختر...</option><option value="blue">أزرق أسود (نشا ✓)</option><option value="none">لا تغيير (لا نشا)</option></select></div>
-        <div style="margin-top:4px">خارج الأنبوبة: <select onchange="simState.results.starch_outside=this.value" style="font-family:Tajawal;font-size:12px;padding:3px;border-radius:4px;border:1px solid #ccc;background:var(--bg-ctrl-btn)"><option value="">اختر...</option><option value="blue">أزرق أسود (نشا ✓)</option><option value="none">لا تغيير (لا نشا)</option></select></div>
+    <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:8px;line-height:1.7">محلول نشا + جلوكوز داخل أنبوبة الديلسة — ماء مقطَّر في الكأس</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+      <div style="padding:9px;background:var(--bg-card2);border-radius:9px;font-size:12px">
+        <div style="font-weight:800;margin-bottom:6px;color:#7C3AED">اختبار النشا (يود)</div>
+        <div style="margin-bottom:5px">داخل الأنبوبة:</div>
+        <select onchange="simState.results.starch_inside=this.value" style="width:100%;padding:5px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:12px;margin-bottom:5px">
+          <option value="">اختاري...</option><option value="blue">أزرق أسود (نشا موجود)</option><option value="none">لا تغيير (لا نشا)</option>
+        </select>
+        <div style="margin-bottom:5px">خارج الأنبوبة:</div>
+        <select onchange="simState.results.starch_outside=this.value" style="width:100%;padding:5px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:12px">
+          <option value="">اختاري...</option><option value="blue">أزرق أسود (نشا موجود)</option><option value="none">لا تغيير (لا نشا)</option>
+        </select>
       </div>
-      <div style="padding:8px;background:var(--bg-card2);border-radius:8px;font-size:12px">
-        <div style="font-weight:700;margin-bottom:4px">اختبار السكر (بنيديكت)</div>
-        <div>داخل الأنبوبة: <select onchange="simState.results.glucose_inside=this.value" style="font-family:Tajawal;font-size:12px;padding:3px;border-radius:4px;border:1px solid #ccc;background:var(--bg-ctrl-btn)"><option value="">اختر...</option><option value="orange">أحمر/برتقالي (سكر ✓)</option><option value="blue">يبقى أزرق (لا سكر)</option></select></div>
-        <div style="margin-top:4px">خارج الأنبوبة: <select onchange="simState.results.glucose_outside=this.value" style="font-family:Tajawal;font-size:12px;padding:3px;border-radius:4px;border:1px solid #ccc;background:var(--bg-ctrl-btn)"><option value="">اختر...</option><option value="orange">أحمر/برتقالي (سكر ✓)</option><option value="blue">يبقى أزرق (لا سكر)</option></select></div>
+      <div style="padding:9px;background:var(--bg-card2);border-radius:9px;font-size:12px">
+        <div style="font-weight:800;margin-bottom:6px;color:#D97706">اختبار الجلوكوز (بنيديكت)</div>
+        <div style="margin-bottom:5px">داخل الأنبوبة:</div>
+        <select onchange="simState.results.glucose_inside=this.value" style="width:100%;padding:5px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:12px;margin-bottom:5px">
+          <option value="">اختاري...</option><option value="orange">أحمر/برتقالي (سكر ✓)</option><option value="blue">يبقى أزرق (لا سكر)</option>
+        </select>
+        <div style="margin-bottom:5px">خارج الأنبوبة:</div>
+        <select onchange="simState.results.glucose_outside=this.value" style="width:100%;padding:5px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:12px">
+          <option value="">اختاري...</option><option value="orange">أحمر/برتقالي (سكر ✓)</option><option value="blue">يبقى أزرق (لا سكر)</option>
+        </select>
       </div>
     </div>
     <button onclick="window._b8n7check()" style="width:100%;padding:9px;margin-top:8px;border-radius:10px;background:#7C3AED;color:white;font-family:Tajawal;font-weight:700;font-size:14px;border:none;cursor:pointer">✅ تحقق من نتائجك</button>
-    <div id="b8n7_res" style="margin-top:8px;font-size:12px;padding:8px;border-radius:8px;background:var(--bg-card2)"></div>
+    <div id="b8n7_res" style="margin-top:6px;font-size:12.5px;padding:8px;border-radius:8px;background:var(--bg-card2);min-height:40px"></div>
   </div>`);
+
   window._b8n7check=()=>{
     const r=simState.results;
     const correct=r.starch_inside==='blue'&&r.starch_outside==='none'&&r.glucose_inside==='orange'&&r.glucose_outside==='orange';
     const el=document.getElementById('b8n7_res');
     if(el)el.innerHTML=correct?
-      '🎉 <strong>ممتاز!</strong> نتائجك صحيحة: النشا داخل فقط (لا يعبر) والجلوكوز داخل وخارج (يعبر الغشاء)!':
-      '⚠️ راجع: النشا يبقى داخل الأنبوبة فقط. الجلوكوز يعبر للخارج. اليود يُعطي أزرق أسود مع النشا وبنيديكت يُعطي برتقالي مع الجلوكوز.';
+      '🎉 <strong style="color:#10B981">ممتاز!</strong> النشا داخل فقط (لا يعبر الغشاء) والجلوكوز داخل وخارج (يعبر) — استنتاج: الغشاء انتقائي الشبه النفاذية':
+      '⚠️ <strong>راجعي:</strong> النشا يبقى داخل الأنبوبة فقط (كبير لا يعبر). الجلوكوز يظهر داخل وخارج (صغير يعبر). اليود أزرق مع نشا. بنيديكت برتقالي مع جلوكوز.';
   };
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n7'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.012;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-    c.fillText('تجربة الديلسة — إعداد التجربة',w/2,h*0.08);
-    // كأس
-    c.fillStyle=dark?'rgba(96,165,250,0.15)':'rgba(219,234,254,0.6)';
-    c.beginPath();c.moveTo(w*0.15,h*0.2);c.lineTo(w*0.1,h*0.82);c.lineTo(w*0.9,h*0.82);c.lineTo(w*0.85,h*0.2);c.closePath();c.fill();
-    c.strokeStyle=dark?'#60A5FA':'#2563EB';c.lineWidth=2;c.stroke();
-    c.fillStyle=dark?'#93C5FD':'#1E40AF';c.font=`${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('ماء مقطَّر في الكأس',w*0.5,h*0.9);
-    // أنبوبة ديلسة
-    c.fillStyle=dark?'rgba(253,224,71,0.25)':'rgba(254,240,138,0.7)';
-    c.beginPath();c.roundRect(w*0.35,h*0.15,w*0.3,h*0.6,16);c.fill();
-    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2.5;
-    c.beginPath();c.roundRect(w*0.35,h*0.15,w*0.3,h*0.6,16);c.stroke();
-    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='center';
-    c.fillText('أنبوبة الديلسة',w*0.5,h*0.13);
-    // محلول نشا+جلوكوز متحرك
-    for(let i=0;i<5;i++){
-      const angle=i/5*Math.PI*2+simState.t*0.4;
-      c.fillStyle=dark?'rgba(253,224,71,0.6)':'rgba(234,179,8,0.7)';
-      c.beginPath();c.arc(w*0.5+Math.cos(angle)*w*0.07,h*0.45+Math.sin(angle)*h*0.12,h*0.025,0,Math.PI*2);c.fill();
-      c.fillStyle=dark?'rgba(134,239,172,0.7)':'rgba(21,128,61,0.6)';
-      c.beginPath();c.arc(w*0.5+Math.cos(angle+Math.PI)*w*0.05,h*0.45+Math.sin(angle+Math.PI)*h*0.1,h*0.015,0,Math.PI*2);c.fill();
+    drawLabel(c,'إعداد تجربة الديلسة',w/2,h*0.08,bioTxt(),Math.round(h*0.035));
+
+    // كأس كبير
+    c.strokeStyle=dark?'#60A5FA':'#2563EB';c.lineWidth=3;c.lineCap='round';
+    c.beginPath();c.moveTo(w*0.1,h*0.18);c.lineTo(w*0.05,h*0.85);c.lineTo(w*0.95,h*0.85);c.lineTo(w*0.9,h*0.18);c.stroke();
+    // ماء في الكأس
+    c.fillStyle=dark?'rgba(96,165,250,0.12)':'rgba(219,234,254,0.5)';
+    c.beginPath();c.moveTo(w*0.07,h*0.35);c.lineTo(w*0.07,h*0.83);c.lineTo(w*0.93,h*0.83);c.lineTo(w*0.93,h*0.35);
+    // موجة ماء
+    for(let wi=0;wi<10;wi++)c.lineTo(w*(0.93-wi*0.086),h*(0.35+Math.sin(simState.t*2+wi*0.6)*0.01));
+    c.closePath();c.fill();
+    c.fillStyle=dark?'#93C5FD':'#1E40AF';c.font=`${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillText('ماء مقطَّر',w*0.2,h*0.55);
+
+    // أنبوبة الديلسة
+    const tx=w*0.35,ty=h*0.12,tw=w*0.3,th=h*0.65;
+    c.fillStyle=dark?'rgba(253,224,71,0.22)':'rgba(254,240,138,0.65)';
+    c.beginPath();c.roundRect(tx,ty,tw,th,tw*0.1);c.fill();
+    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=3;c.stroke();
+    // نوع الغشاء
+    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=1;c.setLineDash([4,3]);
+    c.beginPath();c.rect(tx+3,ty+3,tw-6,th-6);c.stroke();c.setLineDash([]);
+    drawLabel(c,'أنبوبة الديلسة',tx+tw/2,ty-h*0.02,dark?'#FCD34D':'#D97706',Math.round(h*0.023));
+
+    // محتوى (نشا + جلوكوز)
+    for(let mi=0;mi<8;mi++){
+      const angle=(mi/8)*Math.PI*2+simState.t*0.3;
+      const mx=tx+tw/2+Math.cos(angle)*tw*0.28,my=ty+th*0.4+Math.sin(angle)*th*0.22;
+      // نشا (كبير)
+      if(mi<4){
+        c.fillStyle=dark?'rgba(253,224,71,0.6)':'rgba(254,240,138,0.8)';
+        c.beginPath();c.arc(mx,my,tw*0.07,0,Math.PI*2);c.fill();
+        c.strokeStyle=dark?'#FCD34D':'#CA8A04';c.lineWidth=2;c.stroke();
+      } else {
+        // جلوكوز (صغير)
+        c.fillStyle=dark?'rgba(134,239,172,0.7)':'rgba(187,247,208,0.85)';
+        c.beginPath();c.arc(mx,my,tw*0.04,0,Math.PI*2);c.fill();
+        c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=1.5;c.stroke();
+      }
     }
-    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';
-    c.fillText('🌾 نشا + 🍬 جلوكوز',w*0.5,h*0.7);
+    // جلوكوز يتسرب للخارج
+    for(let gi=0;gi<4;gi++){
+      const gp=((simState.t*0.3+gi*0.25)%1);
+      if(gp>0.3&&gp<0.8){
+        const gx2=tx+tw+(gp-0.3)*w*0.2;
+        const gy2=ty+th*(0.3+gi*0.15);
+        c.fillStyle=dark?'rgba(134,239,172,0.7)':'rgba(187,247,208,0.8)';
+        c.beginPath();c.arc(gx2,gy2,tw*0.035,0,Math.PI*2);c.fill();
+      }
+    }
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -57982,109 +59029,126 @@ function simG9Bio8N7b(){
 function simG9Bio8N7c(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
-    '📊 <strong>تفسير النتائج المتوقعة:</strong>',
-    '✅ النشا داخل الأنبوبة فقط (اليود → أزرق أسود داخل، لا تغيير خارج)',
-    '✅ الجلوكوز داخل وخارج الأنبوبة (بنيديكت → برتقالي في كليهما)',
-    '💡 <strong>الاستنتاج</strong>: الغشاء يسمح للجلوكوز الصغير بالعبور ويحجب النشا الضخم',
-    '🔗 <strong>الربط بالهضم</strong>: جدار الأمعاء الدقيقة يعمل بنفس المبدأ — يمتص الجلوكوز المهضوم ويبقي النشا غير المهضوم',
+    '📊 <strong>تفسير النتائج:</strong>',
+    '✅ اليود (يودين) + نشا داخل الأنبوبة → أزرق أسود',
+    '✅ اليود + ماء خارج الأنبوبة → لا تغيير (لا نشا)',
+    '✅ بنيديكت + جلوكوز داخل → أحمر/برتقالي',
+    '✅ بنيديكت + ماء خارج → أحمر/برتقالي (الجلوكوز عبر!)',
+    '💡 <strong>الاستنتاج</strong>: الغشاء يسمح للجلوكوز ويحجب النشا — مثل جدار الأمعاء الدقيقة',
   ],'📊 تفسير نتائج الديلسة'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n7'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.014;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-    c.fillText('نتائج تجربة الديلسة',w/2,h*0.08);
+    drawLabel(c,'نتائج تجربة الديلسة وتفسيرها',w/2,h*0.08,bioTxt(),Math.round(h*0.035));
+
     const results=[
-      {label:'نشا داخل الأنبوبة',test:'يود',result:'أزرق أسود ✓',found:true,col:dark?'#3730A3':'#1E1B4B',tx:0.5,ty:0.22},
-      {label:'نشا خارج الأنبوبة',test:'يود',result:'لا تغيير ✗',found:false,col:dark?'#9CA3AF':'#6B7280',tx:0.5,ty:0.37},
-      {label:'جلوكوز داخل الأنبوبة',test:'بنيديكت',result:'أحمر/برتقالي ✓',found:true,col:dark?'#EA580C':'#C2410C',tx:0.5,ty:0.55},
-      {label:'جلوكوز خارج الأنبوبة',test:'بنيديكت',result:'أحمر/برتقالي ✓',found:true,col:dark?'#EA580C':'#C2410C',tx:0.5,ty:0.7},
+      {label:'نشا — داخل الأنبوبة',test:'يود',result:'أزرق أسود',color:'#1E1B4B',correct:true,x:0.5,y:0.2},
+      {label:'نشا — خارج الأنبوبة',test:'يود',result:'لا تغيير',color:dark?'#6B7280':'#9CA3AF',correct:false,x:0.5,y:0.35},
+      {label:'جلوكوز — داخل الأنبوبة',test:'بنيديكت',result:'أحمر/برتقالي',color:'#C2410C',correct:true,x:0.5,y:0.52},
+      {label:'جلوكوز — خارج الأنبوبة',test:'بنيديكت',result:'أحمر/برتقالي ✓',color:'#C2410C',correct:true,x:0.5,y:0.67},
     ];
-    results.forEach(r=>{
-      const ry=h*r.ty,rh=h*0.1;
-      c.fillStyle=(r.found?(dark?'rgba(74,222,128,0.15)':'rgba(187,247,208,0.7)'):(dark?'rgba(156,163,175,0.15)':'rgba(243,244,246,0.8)'));
-      c.beginPath();c.roundRect(w*0.04,ry,w*0.92,rh,10);c.fill();
-      c.strokeStyle=r.found?(dark?'#4ADE80':'#15803D'):(dark?'#6B7280':'#9CA3AF');c.lineWidth=1.5;c.stroke();
-      c.fillStyle=r.col;c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='right';
-      c.fillText(r.label,w*0.93,ry+rh*0.45);
-      c.fillStyle=bioMut();c.font=`${Math.round(h*0.022)}px Tajawal`;c.textAlign='right';
-      c.fillText(r.result,w*0.93,ry+rh*0.82);
+
+    results.forEach((r,i)=>{
+      const ry=h*r.y,rh=h*0.1;
+      const pulse=r.correct?0.85+Math.sin(simState.t*2+i)*0.1:1;
+      // بطاقة
+      c.fillStyle=r.correct?(dark?'rgba(74,222,128,0.12)':'rgba(187,247,208,0.6)'):(dark?'rgba(156,163,175,0.1)':'rgba(243,244,246,0.7)');
+      c.beginPath();c.roundRect(w*0.04,ry,w*0.92,rh*pulse,10);c.fill();
+      c.strokeStyle=r.correct?(dark?'#4ADE80':'#15803D'):(dark?'#4B5563':'#D1D5DB');c.lineWidth=r.correct?2:1;c.stroke();
+      // نتيجة (دائرة ملونة)
+      c.fillStyle=r.color;c.beginPath();c.arc(w*0.1,ry+rh/2,rh*0.3,0,Math.PI*2);c.fill();
+      // نص
+      c.fillStyle=r.correct?(dark?'#D1FAE5':'#065F46'):(dark?'#9CA3AF':'#6B7280');
+      c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='right';c.fillText(r.label,w*0.93,ry+rh*0.42);
+      c.fillStyle=r.color;c.font=`${Math.round(h*0.022)}px Tajawal`;c.textAlign='right';c.fillText(`${r.test}: ${r.result}`,w*0.93,ry+rh*0.78);
     });
-    c.fillStyle=dark?'#A78BFA':'#6D28D9';c.font=`bold ${Math.round(h*0.027)}px Tajawal`;c.textAlign='center';
-    c.fillText('💡 الجلوكوز يعبر الغشاء — النشا لا يعبر',w/2,h*0.85);
+
+    // استنتاج
+    c.fillStyle=dark?'rgba(109,40,217,0.15)':'rgba(237,233,254,0.7)';c.beginPath();c.roundRect(w*0.04,h*0.8,w*0.92,h*0.13,10);c.fill();
+    c.strokeStyle=dark?'#7C3AED':'#6D28D9';c.lineWidth=2;c.stroke();
+    drawLabel(c,'💡 الجلوكوز يعبر — النشا لا يعبر',w/2,h*0.855,dark?'#A78BFA':'#6D28D9',Math.round(h*0.027));
+    drawSmallLabel(c,'الغشاء الانتقائي النفاذية يُحاكي عمل جدار الأمعاء الدقيقة',w/2,h*0.9,dark?'#C4B5FD':'#7C3AED',Math.round(h*0.022));
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-/* ════════ نشاط ٨-٨ · التمثيل الغذائي ════════ */
+/* ════════════════════════════════════════════════
+   نشاط ٨-٨ · التمثيل الغذائي
+════════════════════════════════════════════════ */
 function simG9Bio8N8a(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
-    '🍬 <strong>الجلوكوز بعد الامتصاص</strong>: ينتقل في الدم للكبد أولاً',
-    '⚡ إذا ارتفع تركيزه → الكبد يُحوِّله إلى جليكوجين (تخزين)',
+    '🍬 <strong>الجلوكوز بعد الامتصاص</strong>: ينتقل عبر الوريد البابي إلى الكبد أولاً',
+    '⚡ إذا ارتفع التركيز → الكبد يُحوِّله إلى جليكوجين (تخزين)',
     '🔋 الخلايا تستخدمه في التنفس الخلوي لإنتاج ATP (طاقة)',
-    '🔄 <strong>التمثيل الغذائي (Assimilation)</strong>: تحويل الغذاء المُمتص لمواد خاصة بالجسم',
-  ],'🍬 مسار الجلوكوز في الجسم'));
+    '🔄 <strong>التمثيل الغذائي</strong>: تحويل الغذاء المُمتص لمواد مفيدة لخلايا الجسم',
+  ],'🍬 مسار الجلوكوز — من الأمعاء إلى الخلايا'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n8'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.015;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-    c.fillText('مسار الجلوكوز بعد الامتصاص',w/2,h*0.08);
-    // أمعاء دقيقة → دم
-    c.fillStyle=dark?'rgba(134,239,172,0.25)':'rgba(187,247,208,0.7)';
-    c.beginPath();c.roundRect(w*0.05,h*0.16,w*0.22,h*0.14,12);c.fill();
-    c.strokeStyle=dark?'#4ADE80':'#15803D';c.lineWidth=2;c.stroke();
-    c.font=`${Math.round(h*0.045)}px serif`;c.textAlign='center';c.fillText('🌿',w*0.16,h*0.25);
-    c.fillStyle=dark?'#4ADE80':'#15803D';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;
-    c.fillText('أمعاء دقيقة',w*0.16,h*0.33);
-    // سهم → كبد
-    const t2=simState.t;
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=3;
-    c.beginPath();c.moveTo(w*0.28,h*0.23);c.lineTo(w*0.4,h*0.23);c.stroke();
-    // كبد
-    c.fillStyle=dark?'rgba(248,113,113,0.25)':'rgba(254,226,226,0.75)';
-    c.beginPath();c.roundRect(w*0.41,h*0.15,w*0.22,h*0.16,12);c.fill();
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=2;c.stroke();
-    c.font=`${Math.round(h*0.045)}px serif`;c.textAlign='center';c.fillText('🏥',w*0.52,h*0.25);
-    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;
-    c.fillText('الكبد',w*0.52,h*0.335);
-    // كبد → تخزين
-    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2;c.setLineDash([5,3]);
-    c.beginPath();c.moveTo(w*0.52,h*0.31);c.lineTo(w*0.52,h*0.47);c.stroke();c.setLineDash([]);
-    c.fillStyle=dark?'rgba(253,224,71,0.25)':'rgba(254,240,138,0.75)';
-    c.beginPath();c.roundRect(w*0.39,h*0.47,w*0.26,h*0.12,10);c.fill();
-    c.strokeStyle=dark?'#FCD34D':'#D97706';c.lineWidth=2;c.stroke();
-    c.fillStyle=dark?'#FCD34D':'#92400E';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';
-    c.fillText('🏪 جليكوجين (تخزين)',w*0.52,h*0.545);
-    // كبد → دم → خلايا
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=3;
-    c.beginPath();c.moveTo(w*0.64,h*0.23);c.lineTo(w*0.75,h*0.23);c.stroke();
-    c.fillStyle=dark?'rgba(248,113,113,0.2)':'rgba(254,226,226,0.7)';
-    c.beginPath();c.roundRect(w*0.76,h*0.15,w*0.2,h*0.16,12);c.fill();
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=2;c.stroke();
-    c.font=`${Math.round(h*0.045)}px serif`;c.textAlign='center';c.fillText('🩸',w*0.86,h*0.245);
-    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.fillText('الدم',w*0.86,h*0.335);
-    // خلايا تستهلك
-    c.strokeStyle=dark?'#F87171':'#DC2626';c.lineWidth=2;
-    c.beginPath();c.moveTo(w*0.86,h*0.31);c.lineTo(w*0.86,h*0.47);c.stroke();
-    c.fillStyle=dark?'rgba(250,204,21,0.25)':'rgba(254,249,195,0.8)';
-    c.beginPath();c.roundRect(w*0.73,h*0.47,w*0.26,h*0.12,10);c.fill();
-    c.strokeStyle=dark?'#FDE68A':'#D97706';c.lineWidth=2;c.stroke();
-    c.fillStyle=dark?'#FDE68A':'#92400E';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';
-    c.fillText('⚡ طاقة ATP',w*0.86,h*0.545);
-    // جسيمات جلوكوز متحركة
-    const pos=((simState.t*0.4)%1);
-    const gx=w*(0.28+pos*0.36),gy=h*0.23;
-    c.fillStyle=dark?'rgba(253,224,71,0.9)':'rgba(234,179,8,0.9)';
-    c.beginPath();c.arc(gx,gy,h*0.018,0,Math.PI*2);c.fill();
+    drawLabel(c,'مسار الجلوكوز في الجسم بعد الامتصاص',w/2,h*0.08,bioTxt(),Math.round(h*0.034));
+
+    const nodes=[
+      {id:'intestine',label:'أمعاء دقيقة',col:'#10B981',x:0.12,y:0.35,r:0.065},
+      {id:'liver',label:'الكبد',col:'#EF4444',x:0.38,y:0.35,r:0.07},
+      {id:'store',label:'جليكوجين (تخزين)',col:'#F59E0B',x:0.38,y:0.62,r:0.055},
+      {id:'blood',label:'الدم',col:'#DC2626',x:0.67,y:0.35,r:0.06},
+      {id:'cell',label:'خلايا الجسم',col:'#8B5CF6',x:0.9,y:0.35,r:0.06},
+      {id:'energy',label:'طاقة ATP',col:'#FCD34D',x:0.9,y:0.62,r:0.055},
+    ];
+
+    // خطوط التدفق
+    const flows=[[0,1],[1,2],[1,3],[3,4],[4,5]];
+    flows.forEach(([a,b])=>{
+      const na=nodes[a],nb=nodes[b];
+      const dx=w*nb.x-w*na.x,dy=h*nb.y-h*na.y;
+      const len=Math.sqrt(dx*dx+dy*dy);
+      const startX=w*na.x+dx/len*h*na.r,startY=h*na.y+dy/len*h*na.r;
+      const endX=w*nb.x-dx/len*h*nb.r,endY=h*nb.y-dy/len*h*nb.r;
+      drawArrow(c,startX,startY,endX,endY,dark?'rgba(253,224,71,0.5)':'rgba(234,179,8,0.5)',2.5,10);
+    });
+
+    // عُقد
+    nodes.forEach(n=>{
+      const pulse=0.88+Math.sin(simState.t*1.8+nodes.indexOf(n)*0.6)*0.1;
+      c.fillStyle=n.col+'25';c.beginPath();c.arc(w*n.x,h*n.y,h*n.r*pulse,0,Math.PI*2);c.fill();
+      c.strokeStyle=n.col;c.lineWidth=2.5;c.stroke();
+      c.fillStyle=n.col;c.font=`bold ${Math.round(h*0.021)}px Tajawal`;c.textAlign='center';c.fillText(n.label,w*n.x,h*n.y+h*n.r+h*0.028);
+    });
+
+    // رموز العقد
+    const symbols=['🌿','🏥','🏪','🩸','🔬','⚡'];
+    nodes.forEach((n,i)=>{
+      c.font=`${Math.round(h*n.r*0.75)}px serif`;c.textAlign='center';c.fillText(symbols[i],w*n.x,h*n.y+h*n.r*0.3);
+    });
+
+    // جلوكوز يتحرك
+    const totalFlow=flows.length;
+    const flowProgress=((simState.t*0.3)%totalFlow);
+    const fIdx=Math.floor(flowProgress);
+    const fProg=flowProgress-fIdx;
+    if(fIdx<flows.length){
+      const na=nodes[flows[fIdx][0]],nb=nodes[flows[fIdx][1]];
+      const px=w*na.x+(w*nb.x-w*na.x)*fProg,py=h*na.y+(h*nb.y-h*na.y)*fProg;
+      c.fillStyle=dark?'rgba(253,224,71,0.95)':'rgba(234,179,8,0.95)';
+      c.beginPath();c.arc(px,py,h*0.02,0,Math.PI*2);c.fill();
+      c.fillStyle='#92400E';c.font=`bold ${Math.round(h*0.016)}px Tajawal`;c.textAlign='center';c.fillText('C₆H₁₂O₆',px,py-h*0.028);
+    }
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -58093,46 +59157,55 @@ function simG9Bio8N8a(){
 function simG9Bio8N8b(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
-    '🔗 <strong>الأحماض الأمينية بعد الامتصاص</strong>: تنتقل للكبد عبر الدم',
-    '🏗️ الكبد يستخدمها لبناء البروتينات الضرورية (أنزيمات، أجسام مضادة)',
-    '🔄 ما يزيد عن الحاجة → الكبد يُزيل النيتروجين منه (نزع الأمين Deamination)',
-    '💧 النيتروجين يتحول إلى يوريا → يُطرح عبر الكلى في البول',
-    '🔋 الجزء المتبقي يتحول لكربوهيدرات أو دهون للطاقة',
-  ],'🔗 مسار الأحماض الأمينية'));
+    '🔗 <strong>الأحماض الأمينية</strong>: بعد الامتصاص تنتقل للكبد عبر الوريد البابي',
+    '🏗️ الكبد يستخدمها لبناء: هرمونات، أنزيمات، بروتينات البلازما، أجسام مضادة',
+    '🔄 الزائد → <strong>نزع الأمين (Deamination)</strong>: إزالة مجموعة الأمين (NH₂)',
+    '💧 NH₂ تتحول → يوريا (CO(NH₂)₂) → تُطرح في البول عبر الكلى',
+    '🔋 الجزء المتبقي (كيتو حمض) → جلوكوز أو دهون → طاقة',
+  ],'🔗 مسار الأحماض الأمينية في الجسم'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n8'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.015;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.036)}px Tajawal`;c.textAlign='center';
-    c.fillText('مسار الأحماض الأمينية',w/2,h*0.08);
+    drawLabel(c,'مسار الأحماض الأمينية — التمثيل الغذائي',w/2,h*0.08,bioTxt(),Math.round(h*0.034));
+
     const nodes=[
-      {label:'أمعاء دقيقة',emoji:'🌿',col:dark?'#4ADE80':'#15803D',x:0.15,y:0.35},
-      {label:'الكبد',emoji:'🏥',col:dark?'#F87171':'#DC2626',x:0.45,y:0.35},
-      {label:'بناء بروتينات',emoji:'🏗️',col:dark?'#60A5FA':'#2563EB',x:0.75,y:0.22},
-      {label:'نزع الأمين',emoji:'⚗️',col:dark?'#FCD34D':'#D97706',x:0.75,y:0.5},
-      {label:'يوريا → بول',emoji:'💧',col:dark?'#C4B5FD':'#7C3AED',x:0.75,y:0.72},
+      {id:'intestine',label:'أمعاء',col:'#10B981',x:0.1,y:0.42,r:0.055},
+      {id:'liver',label:'الكبد',col:'#EF4444',x:0.38,y:0.42,r:0.075},
+      {id:'build',label:'بناء بروتينات',col:'#3B82F6',x:0.7,y:0.22,r:0.065},
+      {id:'deamin',label:'نزع الأمين',col:'#F59E0B',x:0.7,y:0.55,r:0.06},
+      {id:'urea',label:'يوريا → بول',col:'#8B5CF6',x:0.92,y:0.72,r:0.055},
+      {id:'energy2',label:'طاقة',col:'#FCD34D',x:0.92,y:0.38,r:0.05},
     ];
-    // خطوط
-    [[0,1],[1,2],[1,3],[3,4]].forEach(([a,b])=>{
+
+    const flows=[[0,1],[1,2],[1,3],[3,4],[3,5]];
+    flows.forEach(([a,b])=>{
       const na=nodes[a],nb=nodes[b];
-      c.strokeStyle=dark?'rgba(134,239,172,0.5)':'rgba(21,128,61,0.4)';c.lineWidth=2;c.setLineDash([5,3]);
-      c.beginPath();c.moveTo(w*na.x,h*na.y);c.lineTo(w*nb.x,h*nb.y);c.stroke();c.setLineDash([]);
+      const dx=w*nb.x-w*na.x,dy=h*nb.y-h*na.y;
+      const len=Math.sqrt(dx*dx+dy*dy);
+      drawArrow(c,w*na.x+dx/len*h*na.r,h*na.y+dy/len*h*na.r,w*nb.x-dx/len*h*nb.r,h*nb.y-dy/len*h*nb.r,dark?'rgba(96,165,250,0.5)':'rgba(37,99,235,0.4)',2.5,10);
     });
-    nodes.forEach((n,i)=>{
-      c.fillStyle=n.col+'33';c.beginPath();c.arc(w*n.x,h*n.y,h*0.07,0,Math.PI*2);c.fill();
-      c.strokeStyle=n.col;c.lineWidth=2;c.stroke();
-      c.font=`${Math.round(h*0.05)}px serif`;c.textAlign='center';c.fillText(n.emoji,w*n.x,h*n.y+h*0.02);
-      c.fillStyle=n.col;c.font=`bold ${Math.round(h*0.022)}px Tajawal`;
-      c.fillText(n.label,w*n.x,h*n.y+h*0.1);
+
+    nodes.forEach(n=>{
+      const pulse=0.9+Math.sin(simState.t*1.8+nodes.indexOf(n)*0.7)*0.08;
+      c.fillStyle=n.col+'25';c.beginPath();c.arc(w*n.x,h*n.y,h*n.r*pulse,0,Math.PI*2);c.fill();
+      c.strokeStyle=n.col;c.lineWidth=2.5;c.stroke();
+      c.fillStyle=n.col;c.font=`bold ${Math.round(h*0.021)}px Tajawal`;c.textAlign='center';c.fillText(n.label,w*n.x,h*n.y+h*n.r+h*0.028);
     });
-    // جسيمات متحركة
-    const p=((simState.t*0.35)%1);
-    const px2=w*(0.15+p*0.3),py2=h*0.35;
-    c.fillStyle=dark?'rgba(96,165,250,0.9)':'rgba(37,99,235,0.85)';
-    c.beginPath();c.arc(px2,py2,h*0.016,0,Math.PI*2);c.fill();
+    ['🌿','🏥','🏗️','⚗️','💧','⚡'].forEach((sym,i)=>{
+      c.font=`${Math.round(h*nodes[i].r*0.75)}px serif`;c.textAlign='center';c.fillText(sym,w*nodes[i].x,h*nodes[i].y+h*nodes[i].r*0.3);
+    });
+
+    // شرح نزع الأمين
+    c.fillStyle=dark?'rgba(245,158,11,0.12)':'rgba(254,240,138,0.4)';c.beginPath();c.roundRect(w*0.04,h*0.84,w*0.92,h*0.1,8);c.fill();
+    c.strokeStyle=dark?'#F59E0B':'#D97706';c.lineWidth=1.5;c.stroke();
+    drawSmallLabel(c,'نزع الأمين: NH₂ (أمين) + حمض أميني → يوريا + كيتو حمض (للطاقة)',w/2,h*0.895,dark?'#FCD34D':'#92400E',Math.round(h*0.022));
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -58141,40 +59214,56 @@ function simG9Bio8N8b(){
 function simG9Bio8N8c(){
   cancelAnimationFrame(animFrame);
   simState={t:0};
+
   controls(bioInfoPanel([
-    '💧 <strong>الأحماض الدهنية والجليسرول</strong>: تُمتص في الأوعية اللمفاوية داخل الخملات',
-    '🌊 اللمف يصل للدم قرب القلب',
-    '🏥 الكبد يستقبلها ويُعالجها: تخزين في الأنسجة الدهنية أو تحويل لطاقة',
-    '🔄 <strong>ملخص التمثيل الغذائي</strong>: الغذاء الممتص يُبنى منه بروتينات وأنزيمات وخلايا جديدة أو يُستخدم طاقة',
-  ],'🏥 مسار الدهون والكبد'));
+    '💧 <strong>الدهون بعد الامتصاص</strong>: الأحماض الدهنية + جليسرول → أوعية لمفاوية → الدم',
+    '🏥 الكبد يستقبلها ويُعالجها: تخزين في الأنسجة أو تحويل لطاقة',
+    '🔄 <strong>ملخص التمثيل الغذائي (Assimilation)</strong>:',
+    '🍬 الجلوكوز → طاقة ATP أو تُخزَّن كجليكوجين',
+    '🔗 أحماض أمينية → بروتينات أو طاقة (+ يوريا)',
+    '💧 دهون → تُخزَّن في الأنسجة الدهنية أو طاقة',
+  ],'🏥 مسار الدهون وملخص التمثيل الغذائي'));
+
   const cv=document.getElementById('simCanvas');
   function draw(){
     if(currentSim!=='g9bio8n8'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.012;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    c.fillStyle=bioTxt();c.font=`bold ${Math.round(h*0.034)}px Tajawal`;c.textAlign='center';
-    c.fillText('ملخص التمثيل الغذائي',w/2,h*0.07);
-    const summary=[
-      {label:'الجلوكوز',emoji:'🍬',dest:'⚡ طاقة / 🏪 تخزين جليكوجين',col:dark?'#FCD34D':'#D97706'},
-      {label:'أحماض أمينية',emoji:'🔗',dest:'🏗️ بناء بروتينات / ⚗️ يوريا',col:dark?'#60A5FA':'#2563EB'},
-      {label:'دهون',emoji:'💧',dest:'🏪 تخزين / ⚡ طاقة',col:dark?'#C4B5FD':'#7C3AED'},
+    drawLabel(c,'ملخص التمثيل الغذائي — مصير كل مغذٍّ',w/2,h*0.08,bioTxt(),Math.round(h*0.035));
+
+    const rows=[
+      {label:'جلوكوز',emoji:'🍬',col:'#F59E0B',paths:['⚡ طاقة ATP','🏪 جليكوجين (كبد + عضلات)']},
+      {label:'أحماض أمينية',emoji:'🔗',col:'#3B82F6',paths:['🏗️ بناء بروتينات وأنزيمات','💧 يوريا → كلى → بول']},
+      {label:'أحماض دهنية + جليسرول',emoji:'💧',col:'#8B5CF6',paths:['🏪 تخزين في أنسجة دهنية','⚡ طاقة عند الحاجة']},
     ];
-    summary.forEach((s,i)=>{
-      const sy=h*(0.2+i*0.23),sh=h*0.17,sw=w*0.9;
-      c.fillStyle=s.col+'22';c.beginPath();c.roundRect(w*0.05,sy,sw,sh,12);c.fill();
-      c.strokeStyle=s.col;c.lineWidth=2;c.stroke();
-      c.font=`${Math.round(sh*0.38)}px serif`;c.textAlign='center';c.fillText(s.emoji,w*0.12,sy+sh*0.62);
-      c.fillStyle=s.col;c.font=`bold ${Math.round(h*0.026)}px Tajawal`;c.textAlign='right';c.fillText(s.label,w*0.35,sy+sh*0.42);
-      c.fillStyle=dark?'#9CA3AF':'#374151';c.font=`${Math.round(h*0.0235)}px Tajawal`;
-      c.fillText('→ ' + s.dest,w*0.87,sy+sh*0.65);
+
+    rows.forEach((r,i)=>{
+      const ry=h*(0.18+i*0.25),rh=h*0.2;
+      // بطاقة
+      c.fillStyle=r.col+'18';c.beginPath();c.roundRect(w*0.03,ry,w*0.94,rh,12);c.fill();
+      c.strokeStyle=r.col;c.lineWidth=2;c.stroke();
+      // أيقونة + اسم
+      c.font=`${Math.round(rh*0.42)}px serif`;c.textAlign='center';c.fillText(r.emoji,w*0.1,ry+rh*0.62);
+      c.fillStyle=r.col;c.font=`bold ${Math.round(h*0.024)}px Tajawal`;c.textAlign='right';c.fillText(r.label,w*0.35,ry+rh*0.42);
+      // سهم
+      drawArrow(c,w*0.37,ry+rh*0.5,w*0.43,ry+rh*0.5,r.col,2.5,8);
+      // مسارات
+      r.paths.forEach((path,pi)=>{
+        const px=w*0.46,py2=ry+rh*(0.25+pi*0.46);
+        c.fillStyle=r.col+'33';c.beginPath();c.roundRect(px,py2-rh*0.17,w*0.5,rh*0.32,6);c.fill();
+        c.strokeStyle=r.col+'66';c.lineWidth=1.5;c.stroke();
+        c.fillStyle=r.col;c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='right';c.fillText(path,w*0.93,py2+rh*0.01);
+      });
     });
-    // كبد في المركز
-    const pulse=0.85+Math.sin(simState.t*2)*0.15;
-    c.font=`${Math.round(h*0.09*pulse)}px serif`;c.textAlign='center';
-    c.fillText('🏥',w*0.5,h*0.84);
-    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.026)}px Tajawal`;
-    c.fillText('الكبد — مركز التمثيل الغذائي',w*0.5,h*0.93);
+
+    // الكبد في المركز (ضابط)
+    const liveR=h*0.055*(0.88+Math.sin(simState.t*2)*0.1);
+    c.fillStyle='rgba(239,68,68,0.2)';c.beginPath();c.arc(w*0.1,h*0.92,liveR,0,Math.PI*2);c.fill();
+    c.strokeStyle='#EF4444';c.lineWidth=2;c.stroke();
+    c.font=`${Math.round(liveR*0.85)}px serif`;c.textAlign='center';c.fillText('🏥',w*0.1,h*0.925);
+    c.fillStyle=dark?'#F87171':'#B91C1C';c.font=`bold ${Math.round(h*0.021)}px Tajawal`;c.textAlign='center';c.fillText('الكبد: المركز',w*0.1,h*0.92+liveR+h*0.025);
+
     animFrame=requestAnimationFrame(draw);
   }
   draw();
