@@ -5083,6 +5083,15 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           </div>
         </div>
 
+        <div class="unit-card" onclick="openUnit('g9bio9', this)">
+          <div class="unit-num-badge c-teal">٩</div>
+          <div>
+            <div class="unit-title">النقل في النبات</div>
+            <div class="unit-topics">جهاز النقل · أوعية الخشب (Xylem) · أنابيب اللحاء (Phloem) · الشعيرات الجذرية · امتصاص الماء · عملية النتح · البوتومتر · الانتقال</div>
+            <div class="unit-pill avail">🌿 ٥ استقصاءات متاحة</div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ===== استقصاءات الوحدة السابعة — التغذية في النبات ===== -->
@@ -5289,9 +5298,68 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
 
     </div>
 
-  </div>
+      <!-- ===== استقصاءات الوحدة التاسعة — النقل في النبات ===== -->
+      <div id="sims-g9bio9" class="sims-wrap" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة ٩ — النقل في النبات</div>
+          <div class="sims-count">٥ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
 
-  </div><!-- /content-area -->
+          <div class="sim-card" onclick="openSim('g9bio9n1')">
+            <div class="sim-thumb t3">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١-٩ · جهاز النقل في النبات</div>
+              <div class="sim-name">الخشب واللحاء — الحزم الوعائية</div>
+              <div class="sim-desc">استكشف تركيب أوعية الخشب (Xylem) وأنابيب اللحاء (Phloem) وكيف تُشكِّلان معاً الحزمة الوعائية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio9n2')">
+            <div class="sim-thumb t6">💧</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٢-٩ · الشعيرات الجذرية وامتصاص الماء</div>
+              <div class="sim-name">رحلة الماء من التربة إلى الخشب</div>
+              <div class="sim-desc">تتبَّع مسار الماء عبر الشعيرات الجذرية وخلايا القشرة إلى أوعية الخشب عبر الأسموزية والنقل الجانبي</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio9n3')">
+            <div class="sim-thumb t5">🌫️</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٣-٩ · عملية النتح</div>
+              <div class="sim-name">النتح — فقدان بخار الماء عبر الثغور</div>
+              <div class="sim-desc">استكشف كيف يُسبِّب النتح تدفق الماء عبر النبات وتأثير درجة الحرارة والرطوبة على معدَّله</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio9n4')">
+            <div class="sim-thumb t8">📏</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٤-٩ · جهاز البوتومتر</div>
+              <div class="sim-name">قياس معدَّل النتح في ظروف مختلفة</div>
+              <div class="sim-desc">استخدم البوتومتر الافتراضي لقياس معدَّل امتصاص الماء وقارن بين الهواء المروَّح والظروف الهادئة والرطبة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio9n5')">
+            <div class="sim-thumb t2">🍬</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٥-٩ · الانتقال — نقل الغذاء في النبات</div>
+              <div class="sim-name">أنابيب اللحاء تنقل السكروز من المصدر إلى المصبّ</div>
+              <div class="sim-desc">استكشف كيف تنقل أنابيب اللحاء السكروز والأحماض الأمينية في أي اتجاه بين المصدر والمصبّ في النبات</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
 
 <!-- ===== SIM PANEL ===== -->
 <div id="sim-panel">
@@ -6122,7 +6190,8 @@ function openUnit(id, el) {
     g9phys15:'الوحدة الخامسة عشرة ⚡ — استكشف التيار الكهربائي وفرق الجهد والقوة الدافعة الكهربائية والقدرة.',
     g9phys16:'الوحدة السادسة عشرة 🔩 — اكتشف المقاومة الكهربائية وكيف تتأثر بطول السلك ومقطعه ونوع المادة.',
     g9bio7:'الوحدة السابعة 🌿 — النبات مصنع سكر يعمل بالشمس! الكلوروفيل يلتقط الضوء ويحوّل CO₂ وماء إلى جلوكوز.',
-    g9bio8:'الوحدة الثامنة 🍽️ — الطعام يمر برحلة طويلة قبل أن تستفيد منه خلاياك! استكشف الجهاز الهضمي خطوة بخطوة.'
+    g9bio8:'الوحدة الثامنة 🍽️ — الطعام يمر برحلة طويلة قبل أن تستفيد منه خلاياك! استكشف الجهاز الهضمي خطوة بخطوة.',
+    g9bio9:'الوحدة التاسعة 🌿💧 — الماء يرتفع من الجذور إلى أعلى الأوراق عبر أوعية الخشب! اكتشف كيف ينقل النبات الغذاء والماء.'
   };
   if(hints[id]) setTimeout(function(){ buddySay(hints[id], 6000); }, 400);
 }
@@ -6268,6 +6337,12 @@ const SIM_META = {
   g9bio8n6: { title: 'نشاط ٦-٨ · الخملات والامتصاص', badge: '🌿 أحياء ٩', tabs: ['تركيب الخملة 🔬', 'الزغيبات وتضاعف السطح 📐', 'ماذا يمتص كل وعاء؟ 🔀'] },
   g9bio8n7: { title: 'نشاط ١-٨ · محاكاة الديلسة', badge: '🔭 أحياء ٩', tabs: ['مبدأ الديلسة 🎓', 'تجربة النشا والجلوكوز 🧫', 'فسِّر النتائج 📊'] },
   g9bio8n8: { title: 'نشاط ٨-٨ · التمثيل الغذائي', badge: '⚡ أحياء ٩', tabs: ['مسار الجلوكوز في الجسم 🍬', 'مسار الأحماض الأمينية 🔗', 'مسار الدهون والكبد 🏥'] },
+  // ── الصف التاسع — أحياء الوحدة التاسعة: النقل في النبات ──
+  g9bio9n1: { title: 'نشاط ١-٩ · جهاز النقل في النبات', badge: '🔬 أحياء ٩', tabs: ['أوعية الخشب Xylem 🌿', 'أنابيب اللحاء Phloem 🧬', 'الحزمة الوعائية 🎯'] },
+  g9bio9n2: { title: 'نشاط ٢-٩ · الشعيرات الجذرية وامتصاص الماء', badge: '💧 أحياء ٩', tabs: ['الشعيرات الجذرية 🔬', 'مسار الماء عبر الجذر 🗺️', 'النقل الجانبي للماء 💦'] },
+  g9bio9n3: { title: 'نشاط ٣-٩ · عملية النتح', badge: '🌫️ أحياء ٩', tabs: ['ما هو النتح؟ 🌿', 'تيار النتح في النبات 💧', 'العوامل المؤثرة على النتح 🌡️'] },
+  g9bio9n4: { title: 'نشاط ٤-٩ · جهاز البوتومتر', badge: '📏 أحياء ٩', tabs: ['كيف يعمل البوتومتر؟ 🧪', 'قياس معدَّل النتح 📊', 'قارن الظروف المختلفة ⚖️'] },
+  g9bio9n5: { title: 'نشاط ٥-٩ · الانتقال في النبات', badge: '🍬 أحياء ٩', tabs: ['المصدر والمصبّ 🎯', 'حركة السكروز في اللحاء 🔄', 'تتبَّع انتقال المواد 🗺️'] },
   // ── الصف التاسع — الوحدة ٦: الأحماض والقواعد ──
   g9acidprop:   { title: 'نشاط 6-1 · خصائص الأحماض والقواعد', badge: '⚗️ 9', tabs: ['تصنيف المحاليل 🧪', 'الأحماض العضوية 🍋', 'القواعد والقلويات 🧴'] },
   g9indicator:  { title: 'نشاط 6-2 · الكواشف وتغيُّر اللون', badge: '🌺 9', tabs: ['ورق تبّاع الشمس 📄', 'الكاشف العام 🎨', 'الكاشف الطبيعي 🌸'] },
@@ -6905,6 +6980,12 @@ function openSim(type) {
     g9bio8n6: 'الخملات تُضاعف السطح الامتصاصي 🌿 — شُعيرات دموية ولمفاوية تنقل الغذاء!',
     g9bio8n7: 'الديلسة تُحاكي الامتصاص 🔭 — الجلوكوز يعبر الغشاء والنشا لا يعبر، لماذا؟',
     g9bio8n8: 'بعد الامتصاص يذهب الغذاء للكبد ⚡ — الجلوكوز للطاقة أو التخزين!',
+    // ── الصف التاسع — أحياء الوحدة التاسعة: النقل في النبات ──
+    g9bio9n1: 'الخشب ينقل الماء لأعلى واللحاء ينقل السكر في كل الاتجاهات 🌿 — استكشف الفرق بينهما!',
+    g9bio9n2: 'الشعيرات الجذرية صغيرة جداً لكنها تُضاعف مساحة الامتصاص 💧 — الأسموزية تقود الماء إلى الداخل!',
+    g9bio9n3: 'النتح يفقد الماء عبر الثغور 🌫️ — لكنه يخلق قوة سحب تدفع الماء لأعلى!',
+    g9bio9n4: 'البوتومتر يقيس سرعة حركة الماء في أنبوب الشعرية 📏 — جرِّب تغيير الظروف!',
+    g9bio9n5: 'المصدر يُنتج السكر والمصبّ يستهلكه 🍬 — أنابيب اللحاء تنقل في الاتجاهين!',
     // ── الصف التاسع — الوحدة ٦: الأحماض والقواعد ──
     g9acidprop:'الأحماض لها طعم حامض والقواعد ملمسها زلق 🍋 — صنِّفها من خصائصها!',
     g9indicator:'لون واحد يخبرك بكل شيء 🌺 — ورق تبّاع الشمس سيكشف السر!',
@@ -7218,6 +7299,12 @@ function startSim(type, tab) {
     g9bio8n6: [simG9Bio8N6a, simG9Bio8N6b, simG9Bio8N6c],
     g9bio8n7: [simG9Bio8N7a, simG9Bio8N7b, simG9Bio8N7c],
     g9bio8n8: [simG9Bio8N8a, simG9Bio8N8b, simG9Bio8N8c],
+    // ── أحياء الصف التاسع — الوحدة التاسعة: النقل في النبات ──
+    g9bio9n1: [simG9Bio9N1a, simG9Bio9N1b, simG9Bio9N1c],
+    g9bio9n2: [simG9Bio9N2a, simG9Bio9N2b, simG9Bio9N2c],
+    g9bio9n3: [simG9Bio9N3a, simG9Bio9N3b, simG9Bio9N3c],
+    g9bio9n4: [simG9Bio9N4a, simG9Bio9N4b, simG9Bio9N4c],
+    g9bio9n5: [simG9Bio9N5a, simG9Bio9N5b, simG9Bio9N5c],
     // ── الوحدة السابعة: معادلات التفاعلات ──
     g9wordeq:    [simG9WordEq1, simG9WordEq2, simG9WordEq3],
     g9balance:   [simG9Balance1, simG9Balance2, simG9Balance3],
