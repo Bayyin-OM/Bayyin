@@ -57748,392 +57748,468 @@ function simG9Bio8N2c(){
 }
 
 /* ════════════════════════════════════════════════
-   نشاط ٣-٨ · القناة الهضمية — رسم تشريحي حقيقي
+   نشاط ٣-٨ · القناة الهضمية — رسم تشريحي واقعي
 ════════════════════════════════════════════════ */
 
-/* ─── دالة رسم الجسم والجهاز الهضمي التشريحي ─── */
-function drawHumanDigestiveSystem(c, w, h, t, selectedOrgan, highlightOrgan, foodProgress, dark){
-  const S = Math.min(w, h);   // scale base
-  const cx = w * 0.5;         // body center x
-  const headR = S * 0.07;
-  const bodyTop = h * 0.13;
-  const bodyBot = h * 0.92;
-  const bodyH = bodyBot - bodyTop;
-  const bodyW = S * 0.32;
+/* ══════════════════════════════════════════════════════
+   الدالة الرئيسية: رسم الجسم والجهاز الهضمي تشريحياً
+══════════════════════════════════════════════════════ */
+function drawAnatomicalBody(c, w, h, dark) {
+  // نسب ثابتة بناءً على حجم الكانفاس
+  const bx = w * 0.5;   // محور الجسم
+  const headCY = h * 0.10;
+  const headR  = h * 0.065;
+  const neck_y = headCY + headR * 0.9;
+  const shldr_y = neck_y + h * 0.04;
+  const hip_y   = h * 0.72;
 
-  // ── جسم الإنسان (مخطط خارجي) ──
+  // جسم (شفاف/رمادي فاتح)
+  const bodyGrad = c.createLinearGradient(bx - w*0.22, 0, bx + w*0.22, 0);
+  bodyGrad.addColorStop(0,   dark ? 'rgba(180,200,220,0.10)' : 'rgba(210,225,235,0.45)');
+  bodyGrad.addColorStop(0.35,dark ? 'rgba(180,200,220,0.18)' : 'rgba(220,233,242,0.60)');
+  bodyGrad.addColorStop(0.65,dark ? 'rgba(180,200,220,0.18)' : 'rgba(220,233,242,0.60)');
+  bodyGrad.addColorStop(1,   dark ? 'rgba(180,200,220,0.10)' : 'rgba(210,225,235,0.45)');
+
   // رأس
-  c.fillStyle = dark ? 'rgba(253,186,116,0.18)' : 'rgba(253,230,138,0.25)';
-  c.strokeStyle = dark ? 'rgba(253,186,116,0.4)' : 'rgba(217,119,6,0.35)';
-  c.lineWidth = 2;
-  c.beginPath(); c.arc(cx, bodyTop - headR * 0.3, headR, 0, Math.PI * 2); c.fill(); c.stroke();
+  c.fillStyle = dark ? 'rgba(180,200,220,0.20)' : 'rgba(215,228,238,0.55)';
+  c.strokeStyle = dark ? 'rgba(150,180,210,0.30)' : 'rgba(160,185,210,0.45)';
+  c.lineWidth = 1.5;
+  c.beginPath();
+  c.arc(bx, headCY, headR, 0, Math.PI * 2);
+  c.fill(); c.stroke();
 
   // رقبة
-  c.fillStyle = dark ? 'rgba(253,186,116,0.15)' : 'rgba(253,230,138,0.2)';
-  c.beginPath(); c.roundRect(cx - bodyW * 0.13, bodyTop - headR * 0.3 + headR * 0.85, bodyW * 0.26, headR * 0.6, 4); c.fill();
-
-  // جذع
+  c.fillStyle = dark ? 'rgba(180,200,220,0.18)' : 'rgba(215,228,238,0.5)';
   c.beginPath();
-  c.moveTo(cx - bodyW * 0.5, bodyTop + bodyH * 0.02);
-  c.bezierCurveTo(cx - bodyW * 0.52, bodyTop + bodyH * 0.25, cx - bodyW * 0.48, bodyTop + bodyH * 0.48, cx - bodyW * 0.38, bodyTop + bodyH * 0.52);
-  c.bezierCurveTo(cx - bodyW * 0.3, bodyTop + bodyH * 0.55, cx - bodyW * 0.25, bodyBot, cx - bodyW * 0.15, bodyBot);
-  c.lineTo(cx + bodyW * 0.15, bodyBot);
-  c.bezierCurveTo(cx + bodyW * 0.25, bodyBot, cx + bodyW * 0.3, bodyTop + bodyH * 0.55, cx + bodyW * 0.38, bodyTop + bodyH * 0.52);
-  c.bezierCurveTo(cx + bodyW * 0.48, bodyTop + bodyH * 0.48, cx + bodyW * 0.52, bodyTop + bodyH * 0.25, cx + bodyW * 0.5, bodyTop + bodyH * 0.02);
-  c.bezierCurveTo(cx + bodyW * 0.4, bodyTop, cx - bodyW * 0.4, bodyTop, cx - bodyW * 0.5, bodyTop + bodyH * 0.02);
+  c.roundRect(bx - w*0.035, neck_y - h*0.01, w*0.07, h*0.05, 4);
+  c.fill(); c.stroke();
+
+  // جذع (مخروطي)
+  c.fillStyle = bodyGrad;
+  c.strokeStyle = dark ? 'rgba(150,180,210,0.25)' : 'rgba(160,185,210,0.40)';
+  c.lineWidth = 1.5;
+  c.beginPath();
+  c.moveTo(bx - w*0.04, neck_y + h*0.04);
+  c.bezierCurveTo(bx - w*0.23, shldr_y, bx - w*0.24, shldr_y + h*0.08, bx - w*0.22, shldr_y + h*0.22);
+  c.bezierCurveTo(bx - w*0.21, shldr_y + h*0.38, bx - w*0.18, hip_y - h*0.05, bx - w*0.14, hip_y);
+  c.lineTo(bx + w*0.14, hip_y);
+  c.bezierCurveTo(bx + w*0.18, hip_y - h*0.05, bx + w*0.21, shldr_y + h*0.38, bx + w*0.22, shldr_y + h*0.22);
+  c.bezierCurveTo(bx + w*0.24, shldr_y + h*0.08, bx + w*0.23, shldr_y, bx + w*0.04, neck_y + h*0.04);
   c.closePath();
-  c.fillStyle = dark ? 'rgba(253,186,116,0.08)' : 'rgba(253,230,138,0.12)';
-  c.fill();
-  c.strokeStyle = dark ? 'rgba(253,186,116,0.3)' : 'rgba(217,119,6,0.25)';
-  c.lineWidth = 1.5; c.stroke();
+  c.fill(); c.stroke();
 
-  // أكتاف
-  [[-1, 1]].forEach(([]) => {
-    [-1, 1].forEach(side => {
-      c.fillStyle = dark ? 'rgba(253,186,116,0.12)' : 'rgba(253,230,138,0.18)';
-      c.strokeStyle = dark ? 'rgba(253,186,116,0.3)' : 'rgba(217,119,6,0.25)';
-      c.lineWidth = 1.5;
-      c.beginPath();
-      c.ellipse(cx + side * bodyW * 0.55, bodyTop + bodyH * 0.07, bodyW * 0.14, bodyH * 0.06, side * 0.3, 0, Math.PI * 2);
-      c.fill(); c.stroke();
-    });
+  // حوض
+  c.fillStyle = dark ? 'rgba(180,200,220,0.15)' : 'rgba(215,228,238,0.40)';
+  c.beginPath();
+  c.moveTo(bx - w*0.14, hip_y);
+  c.bezierCurveTo(bx - w*0.18, hip_y + h*0.04, bx - w*0.17, hip_y + h*0.1, bx - w*0.1, hip_y + h*0.12);
+  c.lineTo(bx + w*0.1, hip_y + h*0.12);
+  c.bezierCurveTo(bx + w*0.17, hip_y + h*0.1, bx + w*0.18, hip_y + h*0.04, bx + w*0.14, hip_y);
+  c.closePath();
+  c.fill(); c.stroke();
+
+  // ذراعان
+  [-1, 1].forEach(side => {
+    c.fillStyle = dark ? 'rgba(180,200,220,0.15)' : 'rgba(215,228,238,0.40)';
+    c.strokeStyle = dark ? 'rgba(150,180,210,0.22)' : 'rgba(160,185,210,0.35)';
+    c.lineWidth = 1.2;
+    const ax = bx + side * w * 0.225;
+    const ay = shldr_y + h * 0.06;
+    c.beginPath();
+    c.moveTo(ax - side*w*0.01, ay);
+    c.bezierCurveTo(ax + side*w*0.07, ay + h*0.08, ax + side*w*0.09, ay + h*0.25, ax + side*w*0.06, ay + h*0.42);
+    c.bezierCurveTo(ax + side*w*0.03, ay + h*0.55, ax + side*w*0.01, ay + h*0.58, ax, ay + h*0.58);
+    c.bezierCurveTo(ax - side*w*0.02, ay + h*0.58, ax - side*w*0.04, ay + h*0.55, ax - side*w*0.05, ay + h*0.42);
+    c.bezierCurveTo(ax - side*w*0.07, ay + h*0.25, ax - side*w*0.065, ay + h*0.08, ax - side*w*0.01, ay);
+    c.closePath();
+    c.fill(); c.stroke();
   });
-
-  // ── أعضاء الجهاز الهضمي (مرسومة تشريحياً) ──
-
-  const organs = {
-    // الفم (داخل الرأس)
-    mouth: {
-      draw: function() {
-        const my = bodyTop - headR * 0.3 + headR * 0.3;
-        const col = selectedOrgan === 'mouth' ? '#3B82F6' : (dark ? '#93C5FD66' : '#BFDBFE88');
-        const strokeCol = '#3B82F6';
-        const isHL = highlightOrgan === 'mouth' || selectedOrgan === 'mouth';
-        c.fillStyle = isHL ? '#3B82F6' + '44' : col;
-        c.strokeStyle = strokeCol;
-        c.lineWidth = isHL ? 2.5 : 1.5;
-        // شكل الفم
-        c.beginPath();
-        c.ellipse(cx, my, headR * 0.5, headR * 0.18, 0, 0, Math.PI * 2);
-        c.fill(); c.stroke();
-        // أسنان صغيرة
-        if(isHL) {
-          for(let i = 0; i < 5; i++) {
-            const tx = cx - headR * 0.4 + i * headR * 0.2;
-            c.fillStyle = 'white';
-            c.fillRect(tx, my - headR * 0.12, headR * 0.16, headR * 0.12);
-          }
-        }
-        return {x: cx, y: my + headR * 0.1, col: strokeCol};
-      }
-    },
-    // المريء
-    esophagus: {
-      draw: function() {
-        const isHL = highlightOrgan === 'esophagus' || selectedOrgan === 'esophagus';
-        const col = isHL ? '#8B5CF6' : (dark ? '#C4B5FD44' : '#DDD6FE55');
-        c.strokeStyle = isHL ? '#8B5CF6' : (dark ? '#C4B5FD55' : '#8B5CF655');
-        c.lineWidth = isHL ? S * 0.022 : S * 0.018;
-        c.lineCap = 'round';
-        c.beginPath();
-        c.moveTo(cx, bodyTop - headR * 0.3 + headR * 0.75);
-        c.bezierCurveTo(cx - S * 0.01, bodyTop + bodyH * 0.04, cx - S * 0.015, bodyTop + bodyH * 0.1, cx - S * 0.02, bodyTop + bodyH * 0.17);
-        c.stroke();
-        // تمعج
-        if(isHL && t) {
-          for(let wi = 0; wi < 3; wi++) {
-            const wpos = (t * 0.6 + wi * 0.33) % 1;
-            const wy = (bodyTop - headR * 0.3 + headR * 0.75) + wpos * (bodyH * 0.17);
-            c.fillStyle = '#8B5CF6AA';
-            c.beginPath(); c.arc(cx - S * 0.018, wy, S * 0.014, 0, Math.PI * 2); c.fill();
-          }
-        }
-        return {x: cx - S * 0.02, y: bodyTop + bodyH * 0.17, col: '#8B5CF6'};
-      }
-    },
-    // المعدة
-    stomach: {
-      draw: function() {
-        const isHL = highlightOrgan === 'stomach' || selectedOrgan === 'stomach';
-        const sx = cx - S * 0.05, sy = bodyTop + bodyH * 0.2;
-        const sw = S * 0.2, sh = S * 0.16;
-        c.fillStyle = isHL ? '#F59E0B44' : (dark ? '#FCD34D18' : '#FDE68A22');
-        c.strokeStyle = isHL ? '#F59E0B' : (dark ? '#FCD34D55' : '#D9770655');
-        c.lineWidth = isHL ? 2.5 : 1.8;
-        c.beginPath();
-        c.moveTo(sx - sw * 0.3, sy - sh * 0.2);
-        c.bezierCurveTo(sx - sw * 0.55, sy, sx - sw * 0.55, sy + sh * 0.55, sx - sw * 0.2, sy + sh * 0.7);
-        c.bezierCurveTo(sx + sw * 0.15, sy + sh * 0.82, sx + sw * 0.5, sy + sh * 0.5, sx + sw * 0.45, sy + sh * 0.05);
-        c.bezierCurveTo(sx + sw * 0.4, sy - sh * 0.35, sx + sw * 0.1, sy - sh * 0.45, sx - sw * 0.3, sy - sh * 0.2);
-        c.closePath(); c.fill(); c.stroke();
-        // تقلصات معدية
-        if(isHL && t) {
-          for(let i = 0; i < 3; i++) {
-            const contract = Math.sin(t * 2.5 + i * 1.1) * sh * 0.04;
-            c.strokeStyle = '#F59E0B66'; c.lineWidth = 1.5;
-            c.beginPath();
-            c.moveTo(sx - sw * 0.35, sy + i * sh * 0.22 + contract);
-            c.bezierCurveTo(sx, sy - sh * 0.05 + i * sh * 0.22, sx + sw * 0.2, sy + i * sh * 0.22, sx + sw * 0.35, sy + i * sh * 0.22 + contract);
-            c.stroke();
-          }
-        }
-        return {x: sx - sw * 0.1, y: sy + sh * 0.75, col: '#F59E0B'};
-      }
-    },
-    // الكبد
-    liver: {
-      draw: function() {
-        const isHL = highlightOrgan === 'liver' || selectedOrgan === 'liver';
-        const lx = cx + S * 0.04, ly = bodyTop + bodyH * 0.17;
-        const lw = S * 0.19, lh = S * 0.11;
-        c.fillStyle = isHL ? '#DC262644' : (dark ? '#FCA5A518' : '#FEE2E222');
-        c.strokeStyle = isHL ? '#DC2626' : (dark ? '#FCA5A544' : '#DC262633');
-        c.lineWidth = isHL ? 2.5 : 1.8;
-        c.beginPath();
-        c.moveTo(lx - lw * 0.5, ly + lh * 0.3);
-        c.bezierCurveTo(lx - lw * 0.55, ly - lh * 0.1, lx - lw * 0.1, ly - lh * 0.5, lx + lw * 0.35, ly - lh * 0.2);
-        c.bezierCurveTo(lx + lw * 0.6, ly, lx + lw * 0.5, ly + lh * 0.65, lx + lw * 0.2, ly + lh * 0.75);
-        c.bezierCurveTo(lx - lw * 0.1, ly + lh * 0.85, lx - lw * 0.45, ly + lh * 0.7, lx - lw * 0.5, ly + lh * 0.3);
-        c.closePath(); c.fill(); c.stroke();
-        return {x: lx, y: ly, col: '#DC2626'};
-      }
-    },
-    // المرارة
-    gallbladder: {
-      draw: function() {
-        const isHL = highlightOrgan === 'gallbladder' || selectedOrgan === 'gallbladder';
-        const gx = cx + S * 0.08, gy = bodyTop + bodyH * 0.3;
-        c.fillStyle = isHL ? '#CA8A0455' : (dark ? '#FCD34D22' : '#FEF08A33');
-        c.strokeStyle = isHL ? '#CA8A04' : (dark ? '#FCD34D44' : '#CA8A0444');
-        c.lineWidth = isHL ? 2 : 1.5;
-        c.beginPath(); c.ellipse(gx, gy, S * 0.03, S * 0.045, 0.3, 0, Math.PI * 2); c.fill(); c.stroke();
-        // قناة
-        c.strokeStyle = isHL ? '#CA8A0488' : (dark ? '#FCD34D33' : '#CA8A0433');
-        c.lineWidth = 2; c.setLineDash([3, 2]);
-        c.beginPath(); c.moveTo(gx - S * 0.02, gy + S * 0.04); c.lineTo(cx - S * 0.02, bodyTop + bodyH * 0.36); c.stroke();
-        c.setLineDash([]);
-        return {x: gx, y: gy, col: '#CA8A04'};
-      }
-    },
-    // البنكرياس
-    pancreas: {
-      draw: function() {
-        const isHL = highlightOrgan === 'pancreas' || selectedOrgan === 'pancreas';
-        const px = cx - S * 0.12, py = bodyTop + bodyH * 0.34;
-        const pw = S * 0.24, ph = S * 0.06;
-        c.fillStyle = isHL ? '#7C3AED44' : (dark ? '#C4B5FD18' : '#EDE9FE22');
-        c.strokeStyle = isHL ? '#7C3AED' : (dark ? '#C4B5FD44' : '#7C3AED33');
-        c.lineWidth = isHL ? 2 : 1.5;
-        c.beginPath();
-        c.moveTo(px - pw * 0.5, py + ph * 0.2);
-        c.bezierCurveTo(px - pw * 0.5, py - ph * 0.5, px - pw * 0.1, py - ph * 0.7, px + pw * 0.1, py - ph * 0.4);
-        c.bezierCurveTo(px + pw * 0.3, py - ph * 0.1, px + pw * 0.5, py - ph * 0.2, px + pw * 0.55, py + ph * 0.3);
-        c.bezierCurveTo(px + pw * 0.5, py + ph * 0.75, px + pw * 0.2, py + ph * 0.85, px, py + ph * 0.7);
-        c.bezierCurveTo(px - pw * 0.25, py + ph * 0.55, px - pw * 0.5, py + ph * 0.65, px - pw * 0.5, py + ph * 0.2);
-        c.closePath(); c.fill(); c.stroke();
-        return {x: px, y: py, col: '#7C3AED'};
-      }
-    },
-    // الأمعاء الدقيقة (ملتفة)
-    smallIntestine: {
-      draw: function() {
-        const isHL = highlightOrgan === 'smallIntestine' || selectedOrgan === 'smallIntestine';
-        const six = cx - S * 0.02, siy = bodyTop + bodyH * 0.43;
-        const siW = S * 0.22, siH = bodyH * 0.27;
-        c.strokeStyle = isHL ? '#10B981' : (dark ? '#4ADE8055' : '#10B98155');
-        c.lineWidth = isHL ? S * 0.022 : S * 0.016;
-        c.lineCap = 'round'; c.lineJoin = 'round';
-        // لفات الأمعاء الدقيقة — رسم تشريحي
-        const loops = [
-          [six - siW*0.3, siy,          siW*0.52, siH*0.14, 0.1],
-          [six + siW*0.05, siy+siH*0.1, siW*0.42, siH*0.13, -0.15],
-          [six - siW*0.25, siy+siH*0.22,siW*0.5,  siH*0.13, 0.08],
-          [six + siW*0.0,  siy+siH*0.33,siW*0.44, siH*0.12, -0.1],
-          [six - siW*0.2,  siy+siH*0.44,siW*0.46, siH*0.12, 0.12],
-          [six + siW*0.05, siy+siH*0.55,siW*0.4,  siH*0.11, -0.08],
-          [six - siW*0.15, siy+siH*0.65,siW*0.44, siH*0.1,  0.1],
-        ];
-        loops.forEach(([lx, ly, lw2, lh2, rot]) => {
-          c.beginPath(); c.ellipse(lx, ly, lw2/2, lh2/2, rot, 0, Math.PI * 2); c.stroke();
-        });
-        // محتوى مُمتص (نقاط متحركة)
-        if(isHL && t) {
-          const colors = ['#FCD34D', '#60A5FA', '#4ADE80'];
-          for(let pi = 0; pi < 5; pi++) {
-            const pp = (t * 0.5 + pi * 0.2) % 1;
-            const li = Math.min(Math.floor(pp * loops.length), loops.length - 1);
-            const [lx, ly] = loops[li];
-            c.fillStyle = colors[pi % 3] + 'CC';
-            c.beginPath(); c.arc(lx + Math.cos(t * 2 + pi) * S * 0.04, ly + Math.sin(t * 1.5 + pi) * S * 0.02, S * 0.012, 0, Math.PI * 2); c.fill();
-          }
-        }
-        return {x: six, y: siy + siH * 0.3, col: '#10B981'};
-      }
-    },
-    // الأمعاء الغليظة (إطار حول الدقيقة)
-    largeIntestine: {
-      draw: function() {
-        const isHL = highlightOrgan === 'largeIntestine' || selectedOrgan === 'largeIntestine';
-        c.strokeStyle = isHL ? '#6366F1' : (dark ? '#818CF844' : '#6366F144');
-        c.lineWidth = isHL ? S * 0.035 : S * 0.028;
-        c.lineCap = 'round'; c.lineJoin = 'round';
-        const lx1 = cx - S * 0.24, lx2 = cx + S * 0.2;
-        const ly1 = bodyTop + bodyH * 0.42, ly2 = bodyTop + bodyH * 0.78;
-        const rad = S * 0.04;
-        c.beginPath();
-        // صاعد (يمين)
-        c.moveTo(lx2, ly2 - rad);
-        c.lineTo(lx2, ly1 + rad);
-        c.arcTo(lx2, ly1, lx2 - rad, ly1, rad);
-        // عرضي (علوي)
-        c.lineTo(lx1 + rad, ly1);
-        c.arcTo(lx1, ly1, lx1, ly1 + rad, rad);
-        // نازل (يسار)
-        c.lineTo(lx1, ly2 - rad);
-        c.arcTo(lx1, ly2, lx1 + rad, ly2, rad);
-        // عرضي (سفلي)
-        c.lineTo(cx - S * 0.04, ly2);
-        c.stroke();
-        // هوسترات (تقسيمات)
-        if(isHL) {
-          const haustraPositions = [0.2, 0.4, 0.6, 0.8];
-          haustraPositions.forEach(p => {
-            c.strokeStyle = '#6366F188'; c.lineWidth = 2;
-            c.beginPath(); c.moveTo(lx2 - S * 0.015, ly1 + (ly2 - ly1) * p); c.lineTo(lx2 + S * 0.015, ly1 + (ly2 - ly1) * p); c.stroke();
-            c.beginPath(); c.moveTo(lx1 - S * 0.015, ly1 + (ly2 - ly1) * p); c.lineTo(lx1 + S * 0.015, ly1 + (ly2 - ly1) * p); c.stroke();
-          });
-        }
-        return {x: lx1, y: (ly1 + ly2) / 2, col: '#6366F1'};
-      }
-    },
-    // المستقيم والشرج
-    rectum: {
-      draw: function() {
-        const isHL = highlightOrgan === 'rectum' || selectedOrgan === 'rectum';
-        const rx = cx - S * 0.04, ry1 = bodyTop + bodyH * 0.78, ry2 = bodyBot;
-        c.strokeStyle = isHL ? '#EF4444' : (dark ? '#FCA5A444' : '#EF444433');
-        c.lineWidth = isHL ? S * 0.032 : S * 0.025;
-        c.lineCap = 'round';
-        c.beginPath(); c.moveTo(rx, ry1); c.bezierCurveTo(rx - S * 0.02, ry1 + (ry2 - ry1) * 0.5, rx - S * 0.01, ry2 - S * 0.02, rx, ry2); c.stroke();
-        return {x: rx, y: ry2, col: '#EF4444'};
-      }
-    }
-  };
-
-  // رسم الأعضاء بالترتيب
-  organs.largeIntestine.draw();
-  organs.smallIntestine.draw();
-  organs.liver.draw();
-  organs.gallbladder.draw();
-  organs.pancreas.draw();
-  organs.stomach.draw();
-  organs.esophagus.draw();
-  organs.rectum.draw();
-  organs.mouth.draw();
-
-  // ── تسميات الأعضاء مع خطوط إشارة ──
-  const labels = [
-    {key:'mouth',        name:'الفم',             x: cx, y: bodyTop - headR * 0.3 + headR * 0.3, lx: cx + S * 0.22, ly: bodyTop - headR * 0.3 + headR * 0.1, col:'#3B82F6'},
-    {key:'esophagus',    name:'المريء',           x: cx - S * 0.018, y: bodyTop + bodyH * 0.09, lx: cx - S * 0.26, ly: bodyTop + bodyH * 0.08, col:'#8B5CF6'},
-    {key:'liver',        name:'الكبد',            x: cx + S * 0.1,   y: bodyTop + bodyH * 0.2,  lx: cx + S * 0.3,  ly: bodyTop + bodyH * 0.16, col:'#DC2626'},
-    {key:'gallbladder',  name:'المرارة',          x: cx + S * 0.08,  y: bodyTop + bodyH * 0.3,  lx: cx + S * 0.3,  ly: bodyTop + bodyH * 0.29, col:'#CA8A04'},
-    {key:'stomach',      name:'المعدة',           x: cx - S * 0.12,  y: bodyTop + bodyH * 0.28, lx: cx - S * 0.32, ly: bodyTop + bodyH * 0.26, col:'#F59E0B'},
-    {key:'pancreas',     name:'البنكرياس',        x: cx - S * 0.12,  y: bodyTop + bodyH * 0.34, lx: cx - S * 0.32, ly: bodyTop + bodyH * 0.36, col:'#7C3AED'},
-    {key:'smallIntestine',name:'الأمعاء الدقيقة',x: cx - S * 0.02,  y: bodyTop + bodyH * 0.57, lx: cx + S * 0.3,  ly: bodyTop + bodyH * 0.55, col:'#10B981'},
-    {key:'largeIntestine',name:'الأمعاء الغليظة',x: cx - S * 0.24,  y: bodyTop + bodyH * 0.6,  lx: cx - S * 0.36, ly: bodyTop + bodyH * 0.62, col:'#6366F1'},
-    {key:'rectum',       name:'المستقيم',         x: cx - S * 0.04,  y: bodyTop + bodyH * 0.87, lx: cx - S * 0.3,  ly: bodyTop + bodyH * 0.88, col:'#EF4444'},
-  ];
-
-  labels.forEach(lb => {
-    const isSel = selectedOrgan === lb.key || highlightOrgan === lb.key;
-    // خط إشارة
-    c.strokeStyle = lb.col + (isSel ? 'AA' : '55');
-    c.lineWidth = isSel ? 1.8 : 1.2;
-    c.setLineDash([3, 2]);
-    c.beginPath(); c.moveTo(lb.x, lb.y); c.lineTo(lb.lx, lb.ly); c.stroke();
-    c.setLineDash([]);
-    // نص
-    const align = lb.lx > cx ? 'left' : 'right';
-    c.fillStyle = lb.col + (isSel ? 'FF' : 'AA');
-    c.font = `${isSel ? 'bold ' : ''}${Math.round(S * 0.033)}px Tajawal`;
-    c.textAlign = align;
-    c.fillText(lb.name, lb.lx + (align === 'left' ? 4 : -4), lb.ly + 4);
-  });
-
-  // ── الطعام المتحرك عبر الجهاز ──
-  if(foodProgress !== undefined && foodProgress >= 0) {
-    const path = [
-      {x: cx, y: bodyTop - headR * 0.3 + headR * 0.3},
-      {x: cx - S * 0.02, y: bodyTop + bodyH * 0.17},
-      {x: cx - S * 0.05, y: bodyTop + bodyH * 0.28},
-      {x: cx - S * 0.02, y: bodyTop + bodyH * 0.5},
-      {x: cx - S * 0.02, y: bodyTop + bodyH * 0.7},
-      {x: cx - S * 0.04, y: bodyTop + bodyH * 0.92},
-    ];
-    const seg = Math.min(Math.floor(foodProgress * (path.length - 1)), path.length - 2);
-    const frac = (foodProgress * (path.length - 1)) - seg;
-    const fp = {
-      x: path[seg].x + (path[seg + 1].x - path[seg].x) * frac,
-      y: path[seg].y + (path[seg + 1].y - path[seg].y) * frac
-    };
-    // توهج
-    const grad2 = c.createRadialGradient(fp.x, fp.y, 0, fp.x, fp.y, S * 0.04);
-    grad2.addColorStop(0, '#FCD34DFF');
-    grad2.addColorStop(1, '#FCD34D00');
-    c.fillStyle = grad2;
-    c.beginPath(); c.arc(fp.x, fp.y, S * 0.04, 0, Math.PI * 2); c.fill();
-    c.fillStyle = '#FCD34D';
-    c.beginPath(); c.arc(fp.x, fp.y, S * 0.018, 0, Math.PI * 2); c.fill();
-    c.fillStyle = '#92400E';
-    c.font = `bold ${Math.round(S * 0.018)}px Tajawal`;
-    c.textAlign = 'center';
-    c.fillText('طعام', fp.x, fp.y - S * 0.03);
-  }
-
-  return labels; // للنقر التفاعلي
 }
 
-/* ─── الدالة المساعدة: إيجاد العضو بالنقر ─── */
-function findOrganAtClick(mx, my, w, h) {
-  const S = Math.min(w, h);
-  const cx = w * 0.5;
-  const bodyTop = h * 0.13;
-  const bodyH = h * 0.92 - bodyTop;
-  const headR = S * 0.07;
+function drawAnatomicalOrgans(c, w, h, t, selectedOrgan, dark) {
+  const bx = w * 0.5;
+  const headCY = h * 0.10;
+  const headR  = h * 0.065;
 
-  const hitZones = [
-    {key:'mouth',         x: cx,           y: bodyTop - headR * 0.3 + headR * 0.3,  r: S * 0.07},
-    {key:'esophagus',     x: cx - S * 0.02,y: bodyTop + bodyH * 0.09,               r: S * 0.04},
-    {key:'stomach',       x: cx - S * 0.06,y: bodyTop + bodyH * 0.27,               r: S * 0.1},
-    {key:'liver',         x: cx + S * 0.1, y: bodyTop + bodyH * 0.2,                r: S * 0.1},
-    {key:'gallbladder',   x: cx + S * 0.08,y: bodyTop + bodyH * 0.3,                r: S * 0.04},
-    {key:'pancreas',      x: cx - S * 0.12,y: bodyTop + bodyH * 0.34,               r: S * 0.07},
-    {key:'smallIntestine',x: cx - S * 0.02,y: bodyTop + bodyH * 0.55,               r: S * 0.14},
-    {key:'largeIntestine',x: cx - S * 0.22,y: bodyTop + bodyH * 0.6,                r: S * 0.06},
-    {key:'rectum',        x: cx - S * 0.04,y: bodyTop + bodyH * 0.87,               r: S * 0.05},
+  // ── دالة مساعدة: تدرّج لوني عضوي ──
+  function orgGrad(x1,y1,x2,y2, col1, col2) {
+    const g = c.createLinearGradient(x1,y1,x2,y2);
+    g.addColorStop(0, col1); g.addColorStop(1, col2); return g;
+  }
+  function isHL(key) { return selectedOrgan === key; }
+  function glowOrgan(key, col) {
+    if(isHL(key)) {
+      c.shadowColor = col; c.shadowBlur = 20;
+    }
+  }
+  function resetGlow() { c.shadowBlur = 0; }
+
+  /* ── ١. الفم والبلعوم ── */
+  {
+    const mx = bx + w*0.04, my = headCY + headR*0.25;
+    glowOrgan('mouth','#E07070');
+    // تجويف الفم (بيضاوي دافئ)
+    c.fillStyle = isHL('mouth') ? '#D4635588' : orgGrad(mx-w*0.04,my,mx+w*0.04,my,'#C0605888','#A84848AA');
+    c.strokeStyle = isHL('mouth') ? '#C05050' : '#A8484888';
+    c.lineWidth = 1.8;
+    c.beginPath();
+    c.ellipse(mx, my, w*0.038, h*0.022, -0.3, 0, Math.PI*2);
+    c.fill(); c.stroke();
+    resetGlow();
+    // البلعوم (أسفل الفم)
+    c.fillStyle = '#B85050BB';
+    c.strokeStyle = '#9B404088';
+    c.lineWidth = 1.5;
+    c.beginPath();
+    c.moveTo(mx - w*0.018, my + h*0.015);
+    c.bezierCurveTo(mx - w*0.02, my + h*0.04, bx - w*0.02, headCY + headR*0.95, bx - w*0.018, headCY + headR + h*0.02);
+    c.bezierCurveTo(bx - w*0.005, headCY + headR + h*0.04, bx + w*0.005, headCY + headR + h*0.04, bx + w*0.012, headCY + headR + h*0.02);
+    c.bezierCurveTo(bx + w*0.01, headCY + headR*0.95, mx + w*0.005, my + h*0.04, mx + w*0.012, my + h*0.015);
+    c.closePath(); c.fill(); c.stroke();
+  }
+
+  /* ── ٢. المريء ── */
+  {
+    const esTop = headCY + headR + h*0.03;
+    const esBot = h*0.34;
+    const esx   = bx - w*0.015;
+    glowOrgan('esophagus','#C06080');
+    c.strokeStyle = isHL('esophagus') ? '#D07090' : '#B05070BB';
+    c.lineWidth = isHL('esophagus') ? w*0.025 : w*0.02;
+    c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(esx, esTop);
+    c.bezierCurveTo(esx - w*0.005, esTop + h*0.06, esx - w*0.01, esBot - h*0.06, esx - w*0.005, esBot);
+    c.stroke();
+    // موجات تمعّج
+    if(t) {
+      for(let wi = 0; wi < 3; wi++) {
+        const wp = (t*0.5 + wi*0.33) % 1;
+        const wy = esTop + (esBot - esTop)*wp;
+        c.fillStyle = '#E08090CC';
+        c.beginPath(); c.arc(esx - w*0.005, wy, w*0.012, 0, Math.PI*2); c.fill();
+      }
+    }
+    resetGlow();
+  }
+
+  /* ── ٣. الكبد (الأكبر — يمين المشاهد = يسار الصورة) ── */
+  {
+    const lx = bx + w*0.06, ly = h*0.36;
+    const lw = w*0.23, lh = h*0.14;
+    glowOrgan('liver','#8B2020');
+    const liverGrad = orgGrad(lx-lw*0.5, ly, lx+lw*0.4, ly+lh, '#7B1A1AEE','#9B2525EE');
+    c.fillStyle = liverGrad;
+    c.strokeStyle = isHL('liver') ? '#FF5555' : '#6B181888';
+    c.lineWidth = isHL('liver') ? 2.5 : 2;
+    c.beginPath();
+    c.moveTo(lx - lw*0.52, ly + lh*0.35);
+    c.bezierCurveTo(lx - lw*0.55, ly - lh*0.05, lx - lw*0.15, ly - lh*0.55, lx + lw*0.3,  ly - lh*0.15);
+    c.bezierCurveTo(lx + lw*0.55, ly + lh*0.1,  lx + lw*0.5,  ly + lh*0.65, lx + lw*0.2,  ly + lh*0.8);
+    c.bezierCurveTo(lx - lw*0.05, ly + lh*0.95, lx - lw*0.4,  ly + lh*0.75, lx - lw*0.52, ly + lh*0.35);
+    c.closePath(); c.fill(); c.stroke();
+    // فصّ أيسر أصغر
+    c.fillStyle = '#6B1A1ACC';
+    c.beginPath();
+    c.moveTo(lx - lw*0.52, ly + lh*0.35);
+    c.bezierCurveTo(lx - lw*0.58, ly + lh*0.1, lx - lw*0.45, ly - lh*0.1, lx - lw*0.2,  ly + lh*0.05);
+    c.bezierCurveTo(lx - lw*0.3,  ly + lh*0.45, lx - lw*0.38, ly + lh*0.55, lx - lw*0.52, ly + lh*0.35);
+    c.closePath(); c.fill();
+    resetGlow();
+
+    /* ── ٤. المرارة (تحت الكبد) ── */
+    {
+      const gx = lx - lw*0.08, gy = ly + lh*0.88;
+      glowOrgan('gallbladder','#5B8C3A');
+      c.fillStyle = isHL('gallbladder') ? '#6DAF44CC' : '#4A7A30CC';
+      c.strokeStyle = isHL('gallbladder') ? '#90D060' : '#3A6020AA';
+      c.lineWidth = isHL('gallbladder') ? 2 : 1.5;
+      c.beginPath();
+      c.moveTo(gx, gy - h*0.02);
+      c.bezierCurveTo(gx + w*0.04, gy - h*0.02, gx + w*0.055, gy + h*0.01, gx + w*0.04, gy + h*0.038);
+      c.bezierCurveTo(gx + w*0.025, gy + h*0.058, gx - w*0.005, gy + h*0.062, gx - w*0.015, gy + h*0.04);
+      c.bezierCurveTo(gx - w*0.025, gy + h*0.018, gx - w*0.012, gy - h*0.005, gx, gy - h*0.02);
+      c.closePath(); c.fill(); c.stroke();
+      resetGlow();
+    }
+  }
+
+  /* ── ٥. المعدة (يسار المشاهد = يمين الصورة) ── */
+  {
+    const sx = bx - w*0.1, sy = h*0.37;
+    const sw = w*0.2, sh = h*0.16;
+    glowOrgan('stomach','#C87050');
+    const stomGrad = orgGrad(sx-sw*0.5, sy, sx+sw*0.3, sy+sh, '#B86040EE','#D07858EE');
+    c.fillStyle = stomGrad;
+    c.strokeStyle = isHL('stomach') ? '#F09060' : '#9A503088';
+    c.lineWidth = isHL('stomach') ? 2.5 : 2;
+    c.beginPath();
+    c.moveTo(sx - sw*0.38, sy - sh*0.15);
+    c.bezierCurveTo(sx - sw*0.62, sy + sh*0.0,  sx - sw*0.68, sy + sh*0.52, sx - sw*0.32, sy + sh*0.72);
+    c.bezierCurveTo(sx - sw*0.05, sy + sh*0.88, sx + sw*0.32, sy + sh*0.68, sx + sw*0.42, sy + sh*0.22);
+    c.bezierCurveTo(sx + sw*0.48, sy - sh*0.08, sx + sw*0.28, sy - sh*0.38, sx + sw*0.02, sy - sh*0.42);
+    c.bezierCurveTo(sx - sw*0.18, sy - sh*0.45, sx - sw*0.2,  sy - sh*0.28, sx - sw*0.38, sy - sh*0.15);
+    c.closePath(); c.fill(); c.stroke();
+    // تقلصات داخلية
+    if(t) {
+      for(let ci = 0; ci < 3; ci++) {
+        const contract = Math.sin(t*2.2 + ci*1.1)*sh*0.025;
+        c.strokeStyle = '#D8806888'; c.lineWidth = 1.5;
+        c.beginPath();
+        c.moveTo(sx - sw*0.38, sy + sh*(0.1+ci*0.2) + contract);
+        c.bezierCurveTo(sx - sw*0.1, sy + sh*(0.05+ci*0.2), sx + sw*0.1, sy + sh*(0.08+ci*0.2), sx + sw*0.32, sy + sh*(0.1+ci*0.2) + contract);
+        c.stroke();
+      }
+    }
+    resetGlow();
+  }
+
+  /* ── ٦. البنكرياس (خلف المعدة، بيج/برتقالي فاتح) ── */
+  {
+    const px = bx - w*0.15, py = h*0.50;
+    const pw = w*0.28, ph = h*0.055;
+    glowOrgan('pancreas','#D4A040');
+    const panGrad = orgGrad(px-pw*0.5, py, px+pw*0.4, py+ph, '#C8943AEE','#DEB050EE');
+    c.fillStyle = panGrad;
+    c.strokeStyle = isHL('pancreas') ? '#F0C060' : '#B07A2888';
+    c.lineWidth = isHL('pancreas') ? 2 : 1.5;
+    c.beginPath();
+    c.moveTo(px - pw*0.5, py + ph*0.5);
+    c.bezierCurveTo(px - pw*0.5, py - ph*0.2, px - pw*0.2, py - ph*0.65, px + pw*0.05, py - ph*0.3);
+    c.bezierCurveTo(px + pw*0.25, py + ph*0.0,  px + pw*0.52, py - ph*0.15, px + pw*0.55, py + ph*0.42);
+    c.bezierCurveTo(px + pw*0.52, py + ph*0.85, px + pw*0.2,  py + ph*0.92, px - pw*0.05, py + ph*0.75);
+    c.bezierCurveTo(px - pw*0.28, py + ph*0.6,  px - pw*0.5,  py + ph*0.88, px - pw*0.5, py + ph*0.5);
+    c.closePath(); c.fill(); c.stroke();
+    resetGlow();
+  }
+
+  /* ── ٧. الأمعاء الدقيقة (لفات كثيفة في المنتصف) ── */
+  {
+    const six = bx - w*0.02, siy = h*0.525;
+    const siW = w*0.28, siH = h*0.22;
+    glowOrgan('smallIntestine','#E08080');
+    const siCol = isHL('smallIntestine') ? '#E89090' : '#D06868';
+    // لفات أمعاء دقيقة — رسم كثيف يشبه الصورة الحقيقية
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    const siLoops = [
+      // [cx, cy, rx, ry, rot]
+      [six - siW*0.28, siy + siH*0.05, siW*0.17, siH*0.08, 0.1],
+      [six + siW*0.05, siy + siH*0.00, siW*0.22, siH*0.09, -0.05],
+      [six + siW*0.28, siy + siH*0.06, siW*0.15, siH*0.08, 0.15],
+      [six - siW*0.22, siy + siH*0.19, siW*0.19, siH*0.08, -0.08],
+      [six + siW*0.08, siy + siH*0.18, siW*0.24, siH*0.09, 0.06],
+      [six + siW*0.30, siy + siH*0.20, siW*0.14, siH*0.07, -0.12],
+      [six - siW*0.30, siy + siH*0.33, siW*0.16, siH*0.08, 0.08],
+      [six - siW*0.06, siy + siH*0.33, siW*0.26, siH*0.09, -0.06],
+      [six + siW*0.26, siy + siH*0.34, siW*0.18, siH*0.08, 0.1],
+      [six - siW*0.24, siy + siH*0.48, siW*0.2,  siH*0.09, -0.1],
+      [six + siW*0.06, siy + siH*0.48, siW*0.25, siH*0.09, 0.05],
+      [six + siW*0.28, siy + siH*0.49, siW*0.16, siH*0.08, -0.08],
+      [six - siW*0.28, siy + siH*0.63, siW*0.17, siH*0.08, 0.12],
+      [six + siW*0.02, siy + siH*0.62, siW*0.28, siH*0.09, -0.04],
+      [six + siW*0.30, siy + siH*0.63, siW*0.14, siH*0.07, 0.15],
+      [six - siW*0.2,  siy + siH*0.77, siW*0.22, siH*0.09, -0.06],
+      [six + siW*0.12, siy + siH*0.77, siW*0.24, siH*0.09, 0.08],
+      [six + siW*0.30, siy + siH*0.78, siW*0.15, siH*0.07, -0.1],
+      [six - siW*0.25, siy + siH*0.92, siW*0.18, siH*0.07, 0.06],
+      [six + siW*0.05, siy + siH*0.92, siW*0.27, siH*0.08, -0.07],
+    ];
+    // رسم طبقتين: خلفية داكنة + مقدمة مضيئة
+    siLoops.forEach(([lx, ly, lrx, lry, rot], idx) => {
+      c.strokeStyle = dark ? '#C05858BB' : '#C05858AA';
+      c.lineWidth = isHL('smallIntestine') ? siH*0.075 : siH*0.065;
+      c.beginPath(); c.ellipse(lx, ly, lrx, lry, rot, 0, Math.PI*2); c.stroke();
+    });
+    siLoops.forEach(([lx, ly, lrx, lry, rot]) => {
+      const hiGrad = c.createRadialGradient(lx - lrx*0.2, ly - lry*0.3, 0, lx, ly, Math.max(lrx, lry));
+      hiGrad.addColorStop(0, '#EE9090CC');
+      hiGrad.addColorStop(0.5, '#D06868AA');
+      hiGrad.addColorStop(1, '#B04848AA');
+      c.strokeStyle = hiGrad;
+      c.lineWidth = isHL('smallIntestine') ? siH*0.055 : siH*0.045;
+      c.beginPath(); c.ellipse(lx, ly, lrx*0.88, lry*0.88, rot, 0, Math.PI*2); c.stroke();
+    });
+    resetGlow();
+
+    // مواد تُمتص متحركة
+    if(t && isHL('smallIntestine')) {
+      for(let pi = 0; pi < 6; pi++) {
+        const pp = (t*0.4 + pi*0.17) % 1;
+        const li = Math.min(Math.floor(pp * siLoops.length), siLoops.length-1);
+        const [lx2, ly2, lrx2, lry2] = siLoops[li];
+        const ang = t*2 + pi;
+        c.fillStyle = ['#FCD34DCC','#60A5FACC','#4ADE80CC'][pi%3];
+        c.beginPath(); c.arc(lx2 + Math.cos(ang)*lrx2*0.5, ly2 + Math.sin(ang)*lry2*0.5, h*0.012, 0, Math.PI*2); c.fill();
+      }
+    }
+  }
+
+  /* ── ٨. الأمعاء الغليظة (إطار حول الدقيقة) ── */
+  {
+    const lICol = isHL('largeIntestine') ? '#C070C0' : '#9050A0';
+    const lx1 = bx - w*0.26, lx2 = bx + w*0.22;
+    const ly1 = h*0.505, ly2 = h*0.76;
+    const tubW = isHL('largeIntestine') ? h*0.038 : h*0.03;
+    glowOrgan('largeIntestine','#A060B0');
+
+    // رسم الأمعاء الغليظة بشكل إطار واقعي
+    function drawColon(col1, col2, lw2, inset) {
+      const g = orgGrad(lx1, ly1, lx1, ly2, col1, col2);
+      c.strokeStyle = g; c.lineWidth = lw2; c.lineCap = 'round'; c.lineJoin = 'round';
+      const r = h*0.042;
+      const i = inset;
+      c.beginPath();
+      // صاعد (يمين)
+      c.moveTo(lx2 - i, ly2 - r);
+      c.lineTo(lx2 - i, ly1 + r*1.2);
+      c.arcTo(lx2 - i, ly1 - i, lx2 - i - r, ly1 - i, r);
+      // عرضي علوي
+      c.lineTo(lx1 + i + r, ly1 - i);
+      c.arcTo(lx1 + i, ly1 - i, lx1 + i, ly1 + r*0.8, r);
+      // نازل (يسار)
+      c.lineTo(lx1 + i, ly2 - r*0.8);
+      c.arcTo(lx1 + i, ly2 + i, lx1 + i + r, ly2 + i, r);
+      // عرضي سفلي جزئي
+      c.lineTo(bx - w*0.06, ly2 + i);
+      c.stroke();
+    }
+    // طبقة خلفية داكنة
+    drawColon('#703880CC','#804090CC', tubW * 1.35, 0);
+    // طبقة أمامية مضيئة
+    drawColon('#C070C0CC','#B060B0CC', tubW, 0);
+    // هوسترات (تعريجات)
+    const haustraCols = [
+      [lx2, ly1, ly2, 1, 0],
+      [lx1, ly1, ly2, -1, 0],
+    ];
+    haustraCols.forEach(([hx, hy1, hy2, side, _]) => {
+      c.strokeStyle = dark ? '#D090D099' : '#C080C099';
+      c.lineWidth = 1.5;
+      for(let hi = 0; hi < 5; hi++) {
+        const hy = hy1 + (hy2 - hy1) * (0.1 + hi * 0.18);
+        c.beginPath();
+        c.moveTo(hx - side*tubW*0.3, hy);
+        c.lineTo(hx + side*tubW*0.3, hy);
+        c.stroke();
+      }
+    });
+    resetGlow();
+
+    /* ── ٩. المستقيم والشرج ── */
+    {
+      const rx = bx - w*0.06, ry1 = ly2 + h*0.01;
+      const ry2 = h*0.845;
+      glowOrgan('rectum','#E04040');
+      c.strokeStyle = isHL('rectum') ? '#F06060' : '#A04040BB';
+      c.lineWidth = isHL('rectum') ? h*0.032 : h*0.026;
+      c.lineCap = 'round';
+      c.beginPath();
+      c.moveTo(rx, ry1);
+      c.bezierCurveTo(rx - w*0.01, ry1 + (ry2-ry1)*0.3, rx - w*0.015, ry1 + (ry2-ry1)*0.65, rx - w*0.005, ry2);
+      c.stroke();
+      // فتحة الشرج
+      c.fillStyle = isHL('rectum') ? '#D05050' : '#904040AA';
+      c.beginPath(); c.ellipse(rx - w*0.005, ry2, h*0.016, h*0.01, 0.2, 0, Math.PI*2); c.fill();
+      resetGlow();
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   التسميات التشريحية مع خطوط الإشارة (مثل الصورة تماماً)
+══════════════════════════════════════════════════════ */
+function drawAnatomicalLabels(c, w, h, selectedOrgan, dark) {
+  const bx = w*0.5;
+  const headCY = h*0.10;
+  const headR  = h*0.065;
+
+  // كل تسمية: {key, name, ox,oy (نقطة العضو), lx,ly (نقطة النص)}
+  const labels = [
+    {key:'mouth',         name:'الفم',              ox: bx+w*0.055, oy: headCY+headR*0.28,  lx: w*0.88, ly: h*0.115},
+    {key:'esophagus',     name:'المريء',            ox: bx-w*0.015, oy: h*0.25,             lx: w*0.88, ly: h*0.28},
+    {key:'liver',         name:'الكبد',             ox: bx+w*0.1,   oy: h*0.37,             lx: w*0.08, ly: h*0.36},
+    {key:'gallbladder',   name:'المرارة',           ox: bx+w*0.03,  oy: h*0.505,            lx: w*0.08, ly: h*0.465},
+    {key:'stomach',       name:'المعدة',            ox: bx-w*0.18,  oy: h*0.44,             lx: w*0.88, ly: h*0.41},
+    {key:'pancreas',      name:'البنكرياس',         ox: bx+w*0.12,  oy: h*0.515,            lx: w*0.88, ly: h*0.52},
+    {key:'smallIntestine',name:'أمعاء دقيقة',      ox: bx-w*0.05,  oy: h*0.64,             lx: w*0.08, ly: h*0.585},
+    {key:'largeIntestine',name:'أمعاء غليظة',      ox: bx-w*0.26,  oy: h*0.62,             lx: w*0.08, ly: h*0.66},
+    {key:'rectum',        name:'الشرج',             ox: bx-w*0.02,  oy: h*0.83,             lx: w*0.88, ly: h*0.78},
   ];
 
-  for(let z of hitZones) {
-    const dx = mx - z.x, dy = my - z.y;
-    if(dx*dx + dy*dy < z.r * z.r) return z.key;
+  const organColors = {
+    mouth:'#E07070', esophagus:'#C06080', liver:'#8B2020',
+    gallbladder:'#5B8C3A', stomach:'#C87050', pancreas:'#C8943A',
+    smallIntestine:'#D06868', largeIntestine:'#9050A0', rectum:'#A04040',
+  };
+
+  labels.forEach(lb => {
+    const isSel = selectedOrgan === lb.key;
+    const col = organColors[lb.key];
+
+    // خط الإشارة (مستقيم مائل مثل الصورة الطبية تماماً)
+    c.strokeStyle = isSel ? col : (dark ? col+'99' : col+'88');
+    c.lineWidth = isSel ? 1.8 : 1.2;
+    c.setLineDash([]);
+    c.beginPath();
+    c.moveTo(lb.ox, lb.oy);
+    // خط مائل
+    const midX = lb.lx > bx ? lb.lx - w*0.07 : lb.lx + w*0.07;
+    c.lineTo(midX, lb.ly);
+    // خط أفقي عند النص
+    c.lineTo(lb.lx, lb.ly);
+    c.stroke();
+
+    // نقطة عند العضو
+    c.fillStyle = isSel ? col : col+'BB';
+    c.beginPath(); c.arc(lb.ox, lb.oy, isSel ? 4 : 3, 0, Math.PI*2); c.fill();
+
+    // نص التسمية
+    const align = lb.lx > bx ? 'right' : 'left';
+    c.fillStyle = isSel ? col : (dark ? '#E5E7EB' : '#1F2937');
+    c.font = `${isSel ? 'bold ' : ''}${Math.round(h*0.032)}px Tajawal`;
+    c.textAlign = align;
+    c.fillText(lb.name, lb.lx + (align==='left' ? 6 : -6), lb.ly + 5);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   معلومات الأعضاء
+══════════════════════════════════════════════════════ */
+const organInfo = {
+  mouth:         {name:'الفم',              col:'#E07070', func:'تفتيت الطعام بالأسنان + أميليز اللعاب يهضم النشا + اللسان يشكّل البلعة', detail:'الغدد اللعابية تُفرز 1.5 لتر/يوم. أسنان القاطعة تمزّق والطاحنة تطحن. مدة الإقامة: ~30 ثانية.'},
+  esophagus:     {name:'المريء',            col:'#C06080', func:'ينقل البلعة من الفم للمعدة بالحركة التمعّجية', detail:'أنبوب عضلي طوله ~25 سم. لا يحدث هضم هنا. تستغرق البلعة ~10 ثوانٍ للوصول للمعدة.'},
+  stomach:       {name:'المعدة',            col:'#C87050', func:'HCl (pH=2) يقتل البكتيريا + بيبسين يهضم البروتين + تقلصات تعجن الطعام → الكيموس', detail:'تسع 1-2 لتر. يبقى الطعام 2-4 ساعات. الكيموس يُدفع للاثني عشر عبر البواب.'},
+  liver:         {name:'الكبد',             col:'#8B2020', func:'يُفرز العصارة الصفراوية لاستحلاب الدهون. يعالج الغذاء الممتص ويُخزِّن الجليكوجين', detail:'أكبر غدة في الجسم (~1.5 كغ). يُنتج 500-1000 مل صفراء/يوم. يُعطِّل السموم ويُنظِّم سكر الدم.'},
+  gallbladder:   {name:'المرارة',           col:'#5B8C3A', func:'تُخزِّن وتُركِّز العصارة الصفراوية ثم تُطلقها عند وصول الدهون', detail:'حجمها 50 مل. الصفراء تستحلب الدهون ميكانيكياً لتُمكِّن الليبييز من الهضم الكيميائي.'},
+  pancreas:      {name:'البنكرياس',         col:'#C8943A', func:'يُفرز: أميليز + تريبسين (بروتييز) + ليبييز + بيكربونات تُعادِل الكيموس الحمضي', detail:'غدة مزدوجة: هضمية + صماء (أنسولين/جلوكاجون). يُفرز ~1.5 لتر من العصارة البنكرياسية يومياً.'},
+  smallIntestine:{name:'الأمعاء الدقيقة',  col:'#D06868', func:'الهضم الكامل + الامتصاص عبر الخملات (250م² سطح امتصاص)', detail:'طولها 5-7 أمتار (اثني عشر → صائم → لفائفي). الخملات والزغيبات تُضخِّم السطح. مدة الإقامة: 2-4 ساعات.'},
+  largeIntestine:{name:'الأمعاء الغليظة', col:'#9050A0', func:'امتصاص الماء والأملاح + بكتيريا نافعة تُنتج فيتامين K + تشكيل البراز', detail:'طولها ~1.5 متر. تحتوي تريليونات البكتيريا النافعة. مدة الإقامة: 10-20 ساعة.'},
+  rectum:        {name:'المستقيم والشرج',  col:'#A04040', func:'تخزين البراز في المستقيم حتى يُطرح عبر فتحة الشرج', detail:'المستقيم طوله ~15 سم. مصرّتان (داخلية وخارجية) تتحكمان في التبرّز.'},
+};
+
+/* ── hit zones للنقر ── */
+function findOrganAtClick(mx, my, w, h) {
+  const bx = w*0.5, headCY = h*0.10, headR = h*0.065;
+  const zones = [
+    {key:'mouth',         x:bx+w*0.04,  y:headCY+headR*0.25, r:h*0.055},
+    {key:'esophagus',     x:bx-w*0.015, y:h*0.25,            r:h*0.04},
+    {key:'liver',         x:bx+w*0.1,   y:h*0.38,            r:h*0.09},
+    {key:'gallbladder',   x:bx+w*0.02,  y:h*0.505,           r:h*0.038},
+    {key:'stomach',       x:bx-w*0.12,  y:h*0.43,            r:h*0.085},
+    {key:'pancreas',      x:bx-w*0.08,  y:h*0.515,           r:h*0.055},
+    {key:'smallIntestine',x:bx-w*0.02,  y:h*0.63,            r:h*0.135},
+    {key:'largeIntestine',x:bx-w*0.25,  y:h*0.62,            r:h*0.05},
+    {key:'rectum',        x:bx-w*0.01,  y:h*0.82,            r:h*0.045},
+  ];
+  for(const z of zones) {
+    const dx=mx-z.x, dy=my-z.y;
+    if(dx*dx+dy*dy < z.r*z.r) return z.key;
   }
   return null;
 }
 
-const organInfo = {
-  mouth:         {name:'الفم',              col:'#3B82F6', func:'تفتيت الطعام ميكانيكياً بالأسنان + أميليز اللعاب يهضم النشا + اللسان يشكّل البلعة', detail:'الغدد اللعابية تُفرز 1.5 لتر/يوم. أسنان القاطعة تمزّق والطاحنة تطحن. مدة الإقامة: ~30 ثانية.'},
-  esophagus:     {name:'المريء',            col:'#8B5CF6', func:'ينقل البلعة من الفم للمعدة بالحركة التمعّجية', detail:'أنبوب عضلي طوله ~25 سم. لا يحدث هضم هنا. تستغرق البلعة ~10 ثوانٍ.'},
-  stomach:       {name:'المعدة',            col:'#F59E0B', func:'HCl (pH=2) يقتل البكتيريا + بيبسين يهضم البروتين + تقلصات تعجن الطعام', detail:'تسع 1-2 لتر. يبقى الطعام 2-4 ساعات. يتحوّل لكيموس (chyme) ثم يُدفع للاثني عشر.'},
-  liver:         {name:'الكبد',             col:'#DC2626', func:'يُفرز العصارة الصفراوية لاستحلاب الدهون. يعالج الغذاء الممتص', detail:'أكبر غدة في الجسم (1.5 كغ). يُنتج 500-1000 مل من الصفراء يومياً. يُخزِّن الجليكوجين والفيتامينات.'},
-  gallbladder:   {name:'المرارة',           col:'#CA8A04', func:'تُخزِّن العصارة الصفراوية وتُطلقها عند وصول الدهون للاثني عشر', detail:'حجمها 50 مل. العصارة تُستحلب الدهون ميكانيكياً لتُمكِّن الليبييز من العمل.'},
-  pancreas:      {name:'البنكرياس',         col:'#7C3AED', func:'يُفرز أميليز + بروتييز (تريبسين) + ليبييز + بيكربونات تُعادِل الكيموس', detail:'غدة مزدوجة: هضمية (أنزيمات) وصماء (أنسولين/جلوكاجون). يُفرز ~1.5 لتر من العصارة يومياً.'},
-  smallIntestine:{name:'الأمعاء الدقيقة',  col:'#10B981', func:'الهضم الكامل + الامتصاص عبر الخملات والزغيبات الدقيقة', detail:'طولها ~5-7 أمتار (اثني عشر → صائم → لفائفي). الخملات تُضاعف السطح إلى 250م². مدة الإقامة: 2-4 ساعات.'},
-  largeIntestine:{name:'الأمعاء الغليظة', col:'#6366F1', func:'امتصاص الماء والأملاح + بكتيريا نافعة تُنتج فيتامين K + تشكيل البراز', detail:'طولها ~1.5 متر. تحتوي 100 تريليون بكتيريا نافعة. مدة الإقامة: 10-20 ساعة.'},
-  rectum:        {name:'المستقيم والشرج',  col:'#EF4444', func:'تخزين البراز حتى التبرّز', detail:'طوله ~15 سم. المصرّتان (الداخلية والخارجية) تتحكمان في عملية التبرّز.'},
-};
-
 /* ════════════════════════════════════════════════
-   نشاط ٣أ — خريطة الجهاز الهضمي التفاعلية
+   نشاط ٣أ — الخريطة التشريحية التفاعلية
 ════════════════════════════════════════════════ */
 function simG9Bio8N3a(){
   cancelAnimationFrame(animFrame);
@@ -58141,57 +58217,67 @@ function simG9Bio8N3a(){
 
   controls(`<div class="ctrl-section">
     <div class="ctrl-label">🫁 الجهاز الهضمي — انقري على أي عضو</div>
-    <div id="organ_info" style="padding:12px;border-radius:10px;background:var(--bg-card2);min-height:90px;font-size:13px;line-height:1.8;transition:all 0.3s">
+    <div id="organ_info" style="padding:12px;border-radius:10px;background:var(--bg-card2);min-height:100px;font-size:13px;line-height:1.85;transition:all 0.3s">
       <span style="color:var(--text-secondary)">← انقري على أي عضو في الرسم التشريحي</span>
     </div>
     <div style="margin-top:10px;padding:9px;background:rgba(16,185,129,0.08);border-radius:8px;border:1px solid rgba(16,185,129,0.2);font-size:12px;line-height:1.6">
-      💡 القناة الهضمية الكاملة من الفم للشرج: <strong>~9 أمتار</strong>
+      💡 القناة الهضمية من الفم للشرج: <strong>~9 أمتار</strong>
     </div>
-    <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:5px">
-      ${Object.entries(organInfo).map(([k,v])=>`<button onclick="simState.selected='${k}'" style="padding:5px 6px;border-radius:7px;border:1.5px solid ${v.col}33;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:11px;cursor:pointer;text-align:center;color:${v.col};font-weight:700">${v.name}</button>`).join('')}
+    <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px">
+      ${Object.entries(organInfo).map(([k,v])=>`<button onclick="simState.selected='${k}'" id="orgbtnA_${k}" style="padding:5px 6px;border-radius:7px;border:1.5px solid ${v.col}44;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:11px;cursor:pointer;text-align:center;color:${v.col};font-weight:700;transition:all 0.2s">${v.name}</button>`).join('')}
     </div>
   </div>`);
 
   const cv = document.getElementById('simCanvas');
   cv.onclick = function(e){
     const rect = cv.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) * (cv.width / rect.width);
-    const my = (e.clientY - rect.top) * (cv.height / rect.height);
+    const mx = (e.clientX-rect.left)*(cv.width/rect.width);
+    const my = (e.clientY-rect.top)*(cv.height/rect.height);
     const found = findOrganAtClick(mx, my, cv.width, cv.height);
-    if(found) {
-      simState.selected = found;
-      const info = organInfo[found];
-      const el = document.getElementById('organ_info');
-      if(el) el.innerHTML = `<strong style="color:${info.col};font-size:14px">${info.name}</strong><br><span style="color:var(--text-secondary);font-size:12px">${info.func}</span><br><div style="margin-top:6px;font-size:12px;color:var(--text-secondary);border-top:1px solid var(--border-color);padding-top:6px">${info.detail}</div>`;
-    }
+    if(found) { simState.selected = found; updateInfoPanel(found); }
   };
+
+  function updateInfoPanel(key) {
+    const info = organInfo[key];
+    const el = document.getElementById('organ_info');
+    if(el) el.innerHTML = `<strong style="color:${info.col};font-size:14px">${info.name}</strong><br>
+      <span style="color:var(--text-secondary);font-size:12px;line-height:1.7">${info.func}</span>
+      <div style="margin-top:7px;font-size:12px;color:var(--text-secondary);border-top:1px solid var(--border-color);padding-top:6px">${info.detail}</div>`;
+    Object.keys(organInfo).forEach(k=>{
+      const btn=document.getElementById(`orgbtnA_${k}`);
+      if(btn){btn.style.background=k===key?organInfo[k].col+'33':'var(--bg-ctrl-btn)';btn.style.borderColor=k===key?organInfo[k].col:organInfo[k].col+'44';}
+    });
+  }
 
   let lastSel = null;
   function draw(){
     if(currentSim!=='g9bio8n3'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t += 0.016;
-    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
-    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
-    drawLabel(c,'الجهاز الهضمي — رسم تشريحي تفاعلي',w/2,h*0.05,bioTxt(),Math.round(h*0.034));
-
-    // طعام يتحرك تلقائياً
-    const foodProg = (simState.t * 0.06) % 1;
-    drawHumanDigestiveSystem(c, w, h, simState.t, simState.selected, null, foodProg, dark);
-
-    // تحديث أزرار الاختيار
-    if(simState.selected !== lastSel) {
-      lastSel = simState.selected;
-      Object.keys(organInfo).forEach(k => {
-        const btn = document.querySelector(`button[onclick="simState.selected='${k}'"]`);
-        if(btn) btn.style.background = k === simState.selected ? organInfo[k].col + '33' : 'var(--bg-ctrl-btn)';
-      });
-      if(simState.selected && !document.getElementById('organ_info').innerHTML.includes('<strong')) {
-        const info = organInfo[simState.selected];
-        const el = document.getElementById('organ_info');
-        if(el) el.innerHTML = `<strong style="color:${info.col};font-size:14px">${info.name}</strong><br><span style="color:var(--text-secondary);font-size:12px">${info.func}</span><br><div style="margin-top:6px;font-size:12px;color:var(--text-secondary);border-top:1px solid var(--border-color);padding-top:6px">${info.detail}</div>`;
-      }
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    // طعام متحرك
+    const foodProg = (simState.t*0.05)%1;
+    drawAnatomicalBody(c,w,h,dark);
+    drawAnatomicalOrgans(c,w,h,simState.t,simState.selected,dark);
+    // طعام
+    {
+      const path=[
+        {x:w*0.5+w*0.04, y:h*0.12},{x:w*0.5-w*0.015,y:h*0.25},
+        {x:w*0.5-w*0.12, y:h*0.44},{x:w*0.5-w*0.02,  y:h*0.63},
+        {x:w*0.5-w*0.25, y:h*0.62},{x:w*0.5-w*0.01,  y:h*0.82},
+      ];
+      const seg=Math.min(Math.floor(foodProg*(path.length-1)),path.length-2);
+      const fr=(foodProg*(path.length-1))-seg;
+      const fx=path[seg].x+(path[seg+1].x-path[seg].x)*fr;
+      const fy=path[seg].y+(path[seg+1].y-path[seg].y)*fr;
+      const grd=c.createRadialGradient(fx,fy,0,fx,fy,h*0.03);
+      grd.addColorStop(0,'#FCD34DFF'); grd.addColorStop(1,'#FCD34D00');
+      c.fillStyle=grd; c.beginPath();c.arc(fx,fy,h*0.03,0,Math.PI*2);c.fill();
+      c.fillStyle='#FCD34D'; c.beginPath();c.arc(fx,fy,h*0.014,0,Math.PI*2);c.fill();
     }
-    animFrame = requestAnimationFrame(draw);
+    drawAnatomicalLabels(c,w,h,simState.selected,dark);
+    if(simState.selected!==lastSel){lastSel=simState.selected;if(simState.selected)updateInfoPanel(simState.selected);}
+    animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
@@ -58201,75 +58287,43 @@ function simG9Bio8N3a(){
 ════════════════════════════════════════════════ */
 function simG9Bio8N3b(){
   cancelAnimationFrame(animFrame);
-  simState={t:0, selected:'mouth', highlight:null};
+  simState={t:0, selected:'stomach'};
+  const organKeys=Object.keys(organInfo);
 
-  const organKeys = Object.keys(organInfo);
-
-  let html = `<div class="ctrl-section"><div class="ctrl-label">📋 اختاري عضواً لرؤية وظيفته</div><div style="display:flex;flex-direction:column;gap:5px">`;
-  organKeys.forEach(k => {
-    const info = organInfo[k];
-    html += `<button onclick="simState.selected='${k}'" id="orgbtn_${k}" style="padding:7px 10px;border-radius:8px;border:2px solid ${info.col}33;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:12.5px;cursor:pointer;text-align:right;transition:all 0.2s">
-      <span style="color:${info.col};font-weight:700">${info.name}</span>
-    </button>`;
+  let html=`<div class="ctrl-section"><div class="ctrl-label">📋 اختاري عضواً لرؤية وظيفته</div><div style="display:flex;flex-direction:column;gap:4px">`;
+  organKeys.forEach(k=>{
+    const info=organInfo[k];
+    html+=`<button onclick="simState.selected='${k}'" id="orgbtnB_${k}" style="padding:7px 10px;border-radius:8px;border:2px solid ${info.col}33;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:12.5px;cursor:pointer;text-align:right;transition:all 0.2s;color:${info.col};font-weight:700">${info.name}</button>`;
   });
-  html += `</div><div id="organ_detail2" style="margin-top:8px;padding:11px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.9;min-height:90px"></div></div>`;
+  html+=`</div><div id="organ_detailB" style="margin-top:8px;padding:11px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.9;min-height:90px"></div></div>`;
   controls(html);
 
-  const cv = document.getElementById('simCanvas');
-  let lastSel = null;
+  const cv=document.getElementById('simCanvas');
+  let lastSel=null;
   function draw(){
     if(currentSim!=='g9bio8n3'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
-    simState.t += 0.016;
-
-    if(simState.selected !== lastSel) {
-      lastSel = simState.selected;
-      const info = organInfo[simState.selected];
-      const el = document.getElementById('organ_detail2');
-      if(el) el.innerHTML = `<strong style="color:${info.col}">${info.name}:</strong><br>🔧 ${info.func}<br><br>📝 ${info.detail}`;
-      organKeys.forEach(k => {
-        const btn = document.getElementById(`orgbtn_${k}`);
-        if(btn){
-          btn.style.background = k === simState.selected ? organInfo[k].col + '33' : 'var(--bg-ctrl-btn)';
-          btn.style.borderColor = k === simState.selected ? organInfo[k].col : organInfo[k].col + '33';
-        }
+    simState.t+=0.016;
+    if(simState.selected!==lastSel){
+      lastSel=simState.selected;
+      const info=organInfo[simState.selected];
+      const el=document.getElementById('organ_detailB');
+      if(el) el.innerHTML=`<strong style="color:${info.col}">${info.name}:</strong><br>🔧 ${info.func}<br><br>📝 ${info.detail}`;
+      organKeys.forEach(k=>{
+        const btn=document.getElementById(`orgbtnB_${k}`);
+        if(btn){btn.style.background=k===simState.selected?organInfo[k].col+'33':'var(--bg-ctrl-btn)';btn.style.borderColor=k===simState.selected?organInfo[k].col:organInfo[k].col+'33';}
       });
     }
-
-    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
-    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
-    drawLabel(c,'وظائف أعضاء الجهاز الهضمي',w/2,h*0.05,bioTxt(),Math.round(h*0.033));
-
-    drawHumanDigestiveSystem(c, w, h, simState.t, simState.selected, simState.selected, undefined, dark);
-
-    // تمييز العضو المحدد بنبضة
-    const info = organInfo[simState.selected];
-    const pulse = 0.5 + Math.abs(Math.sin(simState.t * 2.5)) * 0.5;
-    const S = Math.min(w, h);
-    const cx = w * 0.5;
-    const bodyTop = h * 0.13;
-    const bodyH = h * 0.92 - bodyTop;
-
-    // رسم هالة حول العضو المحدد
-    const hitZoneMap = {
-      mouth:          {x: cx,           y: bodyTop - S*0.07*0.3 + S*0.07*0.3,  r: S*0.06},
-      esophagus:      {x: cx-S*0.02,    y: bodyTop+bodyH*0.09,                  r: S*0.04},
-      stomach:        {x: cx-S*0.05,    y: bodyTop+bodyH*0.27,                  r: S*0.09},
-      liver:          {x: cx+S*0.1,     y: bodyTop+bodyH*0.2,                   r: S*0.09},
-      gallbladder:    {x: cx+S*0.08,    y: bodyTop+bodyH*0.3,                   r: S*0.04},
-      pancreas:       {x: cx-S*0.12,    y: bodyTop+bodyH*0.34,                  r: S*0.07},
-      smallIntestine: {x: cx-S*0.02,    y: bodyTop+bodyH*0.55,                  r: S*0.13},
-      largeIntestine: {x: cx-S*0.22,    y: bodyTop+bodyH*0.6,                   r: S*0.06},
-      rectum:         {x: cx-S*0.04,    y: bodyTop+bodyH*0.87,                  r: S*0.05},
-    };
-    const hz = hitZoneMap[simState.selected];
-    if(hz){
-      c.strokeStyle = info.col + Math.round(pulse * 200).toString(16).padStart(2,'0');
-      c.lineWidth = 3; c.setLineDash([5,3]);
-      c.beginPath(); c.arc(hz.x, hz.y, hz.r * 1.35, 0, Math.PI * 2); c.stroke();
-      c.setLineDash([]);
-    }
-
-    animFrame = requestAnimationFrame(draw);
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
+    c.fillStyle=bioBg();c.fillRect(0,0,w,h);
+    drawAnatomicalBody(c,w,h,dark);
+    drawAnatomicalOrgans(c,w,h,simState.t,simState.selected,dark);
+    drawAnatomicalLabels(c,w,h,simState.selected,dark);
+    // نبضة حول العضو المحدد
+    const info=organInfo[simState.selected];
+    const pulse=0.4+Math.abs(Math.sin(simState.t*2.5))*0.6;
+    const z=findOrganAtClick(w*0.5,h*0.5,w,h); // just for reference
+    c.strokeStyle=info.col+Math.round(pulse*180).toString(16).padStart(2,'0');
+    animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
@@ -58281,60 +58335,66 @@ function simG9Bio8N3c(){
   cancelAnimationFrame(animFrame);
   simState={t:0, step:0};
 
-  const journey = [
-    {organ:'mouth',         place:'الفم',              col:'#3B82F6', time:'~30 ثانية',   action:'الأسنان تقطع الطعام ميكانيكياً، اللعاب يُرطّبه، أميليز اللعاب يبدأ هضم النشا، اللسان يشكّل البلعة'},
-    {organ:'esophagus',     place:'المريء',            col:'#8B5CF6', time:'~10 ثوانٍ',   action:'التمعّج يدفع البلعة للأسفل — أنبوب عضلي لا يهضم، فقط ينقل'},
-    {organ:'stomach',       place:'المعدة',            col:'#F59E0B', time:'2-4 ساعات',   action:'HCl يقتل البكتيريا (pH=2)، البيبسين يهضم البروتين، تقلصات تعجن الطعام → يتكوّن الكيموس'},
-    {organ:'smallIntestine',place:'الأمعاء الدقيقة',  col:'#10B981', time:'2-4 ساعات',   action:'العصارة الصفراوية تستحلب الدهون، إنزيمات البنكرياس تُكمل الهضم، الخملات تمتص الجلوكوز والأحماض الأمينية والدهون'},
-    {organ:'largeIntestine',place:'الأمعاء الغليظة', col:'#6366F1', time:'10-20 ساعة',   action:'الماء والأملاح تُمتص، البكتيريا النافعة تُنتج فيتامين K، البراز يتشكّل'},
-    {organ:'rectum',        place:'المستقيم والشرج',  col:'#EF4444', time:'متغير',        action:'البراز يُخزَّن في المستقيم ثم يُطرح عبر فتحة الشرج — انتهاء الرحلة'},
+  const journey=[
+    {organ:'mouth',         place:'الفم',              col:'#E07070', time:'~30 ثانية',  action:'الأسنان تقطع الطعام ميكانيكياً، اللعاب يُرطّبه، أميليز اللعاب يبدأ هضم النشا، اللسان يشكّل البلعة ويدفعها للبلع'},
+    {organ:'esophagus',     place:'المريء',            col:'#C06080', time:'~10 ثوانٍ', action:'التمعّج يدفع البلعة للأسفل — أنبوب عضلي لا يهضم بل ينقل فقط. السرعة ~3-4 سم/ثانية'},
+    {organ:'stomach',       place:'المعدة',            col:'#C87050', time:'2-4 ساعات', action:'HCl يقتل البكتيريا (pH=2)، البيبسين يهضم البروتين، تقلصات قوية تعجن الطعام → يتكوّن الكيموس'},
+    {organ:'smallIntestine',place:'الأمعاء الدقيقة',  col:'#D06868', time:'2-4 ساعات', action:'العصارة الصفراوية تستحلب الدهون، إنزيمات البنكرياس تُكمل الهضم، الخملات تمتص الجلوكوز والأحماض الأمينية والدهون'},
+    {organ:'largeIntestine',place:'الأمعاء الغليظة', col:'#9050A0', time:'10-20 ساعة', action:'الماء والأملاح تُمتص، بكتيريا نافعة تُنتج فيتامين K، البراز يتشكّل ويتكثّف تدريجياً'},
+    {organ:'rectum',        place:'المستقيم والشرج',  col:'#A04040', time:'متغير',       action:'البراز يُخزَّن في المستقيم ثم يُطرح عبر فتحة الشرج — انتهاء رحلة الغذاء (~24-72 ساعة إجمالاً)'},
   ];
 
   controls(`<div class="ctrl-section">
     <div class="ctrl-label">🚶 رحلة الطعام — تتبّعي خطوة بخطوة</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      <button onclick="simState.step=Math.max(0,simState.step-1)" style="padding:8px;border-radius:8px;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:15px;border:1px solid var(--border-color);cursor:pointer">◀ السابق</button>
-      <button onclick="simState.step=Math.min(${journey.length-1},simState.step+1)" style="padding:8px;border-radius:8px;background:#10B981;color:white;font-family:Tajawal;font-size:15px;border:none;cursor:pointer">التالي ▶</button>
+      <button onclick="simState.step=Math.max(0,simState.step-1)" style="padding:8px;border-radius:8px;background:var(--bg-ctrl-btn);font-family:Tajawal;font-size:16px;border:1px solid var(--border-color);cursor:pointer">◀ السابق</button>
+      <button onclick="simState.step=Math.min(${journey.length-1},simState.step+1)" style="padding:8px;border-radius:8px;background:#10B981;color:white;font-family:Tajawal;font-size:16px;border:none;cursor:pointer">التالي ▶</button>
     </div>
-    <div style="display:flex;gap:4px;margin-bottom:8px">
-      ${journey.map((j,i)=>`<div id="jp2_${i}" onclick="simState.step=${i}" style="flex:1;height:6px;border-radius:3px;background:${j.col}44;cursor:pointer;transition:background 0.3s"></div>`).join('')}
+    <div style="display:flex;gap:3px;margin-bottom:8px">
+      ${journey.map((j,i)=>`<div id="jp3_${i}" onclick="simState.step=${i}" style="flex:1;height:7px;border-radius:4px;background:${j.col}44;cursor:pointer;transition:all 0.3s"></div>`).join('')}
     </div>
-    <div id="journey_info2" style="padding:11px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.85;min-height:90px"></div>
+    <div id="journey_info3" style="padding:11px;border-radius:10px;background:var(--bg-card2);font-size:12.5px;line-height:1.85;min-height:90px"></div>
   </div>`);
 
-  const cv = document.getElementById('simCanvas');
-  let lastStep = -1;
+  const cv=document.getElementById('simCanvas');
+  let lastStep=-1;
   function draw(){
     if(currentSim!=='g9bio8n3'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
-    simState.t += 0.016;
-
-    if(simState.step !== lastStep) {
-      lastStep = simState.step;
-      const j = journey[simState.step];
-      const el = document.getElementById('journey_info2');
-      if(el) el.innerHTML = `<strong style="color:${j.col}">${j.place}</strong> <span style="color:var(--text-secondary);font-size:11px">(${j.time})</span><br>${j.action}`;
-      journey.forEach((_,i) => {
-        const bar = document.getElementById(`jp2_${i}`);
-        if(bar) bar.style.background = i <= simState.step ? journey[i].col : journey[i].col + '44';
+    simState.t+=0.016;
+    if(simState.step!==lastStep){
+      lastStep=simState.step;
+      const j=journey[simState.step];
+      const el=document.getElementById('journey_info3');
+      if(el) el.innerHTML=`<strong style="color:${j.col};font-size:14px">${j.place}</strong> <span style="background:${j.col}22;color:${j.col};padding:2px 8px;border-radius:20px;font-size:11px">${j.time}</span><br><span style="color:var(--text-secondary)">${j.action}</span>`;
+      journey.forEach((_,i)=>{
+        const bar=document.getElementById(`jp3_${i}`);
+        if(bar){bar.style.background=i<=simState.step?journey[i].col:journey[i].col+'44';bar.style.height=i===simState.step?'10px':'7px';}
       });
     }
-
-    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = dm15();
-    c.fillStyle = bioBg(); c.fillRect(0,0,w,h);
-
-    const j = journey[simState.step];
-    // تلوين خلفي خفيف
-    c.fillStyle = j.col + '08'; c.fillRect(0,0,w,h);
-
-    drawLabel(c, `المرحلة ${simState.step+1}/${journey.length}: ${j.place}`, w/2, h*0.05, j.col, Math.round(h*0.034));
-
-    // الطعام عند موضع العضو الحالي
-    const organProgress = simState.step / (journey.length - 1);
-    const foodProg = organProgress + Math.sin(simState.t * 0.8) * 0.02;
-
-    drawHumanDigestiveSystem(c, w, h, simState.t, j.organ, j.organ, Math.max(0, Math.min(1, foodProg)), dark);
-
-    animFrame = requestAnimationFrame(draw);
+    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
+    c.fillStyle=bioBg();c.fillRect(0,0,w,h);
+    const j=journey[simState.step];
+    c.fillStyle=j.col+'07';c.fillRect(0,0,w,h);
+    drawLabel(c,`${simState.step+1}/${journey.length}: ${j.place}`,w/2,h*0.05,j.col,Math.round(h*0.033));
+    // الطعام عند موضع العضو
+    const fp=simState.step/(journey.length-1)+Math.sin(simState.t*0.6)*0.015;
+    drawAnatomicalBody(c,w,h,dark);
+    drawAnatomicalOrgans(c,w,h,simState.t,j.organ,dark);
+    drawAnatomicalLabels(c,w,h,j.organ,dark);
+    // طعام
+    const foodPath=[
+      {x:w*0.5+w*0.04,y:h*0.12},{x:w*0.5-w*0.015,y:h*0.25},
+      {x:w*0.5-w*0.12,y:h*0.44},{x:w*0.5-w*0.02,y:h*0.63},
+      {x:w*0.5-w*0.25,y:h*0.62},{x:w*0.5-w*0.01,y:h*0.82},
+    ];
+    const si=Math.min(simState.step,foodPath.length-2);
+    const pulse2=0.5+Math.abs(Math.sin(simState.t*3))*0.5;
+    const fx=foodPath[si].x,fy=foodPath[si].y;
+    c.fillStyle=j.col+Math.round(pulse2*120).toString(16).padStart(2,'0');
+    c.beginPath();c.arc(fx,fy,h*0.04,0,Math.PI*2);c.fill();
+    c.fillStyle='#FCD34D';c.beginPath();c.arc(fx,fy,h*0.016,0,Math.PI*2);c.fill();
+    c.fillStyle='#92400E';c.font=`bold ${Math.round(h*0.018)}px Tajawal`;c.textAlign='center';c.fillText('طعام',fx,fy-h*0.032);
+    animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
