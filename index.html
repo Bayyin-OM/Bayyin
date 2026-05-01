@@ -59631,99 +59631,104 @@ function simG9Bio8N8a(){
     <div style="display:flex;flex-direction:column;gap:6px">
       <div style="padding:9px;background:rgba(253,224,71,0.12);border-radius:9px;border:1px solid rgba(253,224,71,0.3);font-size:12.5px;line-height:1.9">
         🌿 أمعاء دقيقة → يُمتص<br>
-        🏥 كبد (وريد بابي) → يُعالَج<br>
-        🏪 يُخزَّن كجليكوجين<br>
-        🩸 دم → يُوزَّع على الجسم<br>
+        🏥 كبد → يُعالَج / يُخزَّن<br>
+        ❤️ قلب → يُضخّ في الدم<br>
         ⚡ خلايا → طاقة ATP
       </div>
       <div style="padding:8px;background:rgba(239,68,68,0.1);border-radius:8px;border:1px solid rgba(239,68,68,0.2);font-size:12px">
-        💡 الأنسولين (من البنكرياس) يُنظِّم مستوى الجلوكوز في الدم
+        💡 الأنسولين يُنظِّم مستوى الجلوكوز في الدم
       </div>
     </div>
   </div>`);
 
   const cv=document.getElementById('simCanvas');
 
-  function drawOrganBadge(c,x,y,r,emoji,label,col,pulse){
-    // دائرة ملوّنة
-    c.fillStyle=col+'28';
-    c.beginPath();c.arc(x,y,r*pulse,0,Math.PI*2);c.fill();
-    c.strokeStyle=col;c.lineWidth=2.5;c.stroke();
-    // أيقونة
-    c.font=`${Math.round(r*0.9)}px serif`;c.textAlign='center';
-    c.fillText(emoji,x,y+r*0.32);
-    // تسمية أسفل
-    c.fillStyle=col;
-    c.font=`bold ${Math.round(r*0.52)}px Tajawal`;c.textAlign='center';
-    c.fillText(label,x,y+r*1.55);
-  }
+  // خطوات المسار
+  const steps=[
+    {label:'الأمعاء الدقيقة',sub:'يُمتص الجلوكوز عبر الخملات',col:'#D06868',organ:'smallIntestine',emoji:'🌿'},
+    {label:'الكبد',          sub:'يُعالَج ويُخزَّن كجليكوجين',col:'#8B2020',organ:'liver',         emoji:'🟤'},
+    {label:'القلب والدم',    sub:'يُضخّ إلى جميع أنحاء الجسم',col:'#EF4444',organ:'smallIntestine', emoji:'❤️'},
+    {label:'الخلايا',        sub:'تنفس خلوي → طاقة ATP',      col:'#10B981',organ:'smallIntestine', emoji:'⚡'},
+  ];
 
   function draw(){
     if(currentSim!=='g9bio8n8'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.016;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    drawLabel(c,'مسار الجلوكوز من الأمعاء إلى الخلايا',w/2,h*0.05,bioTxt(),Math.round(h*0.033));
+    drawLabel(c,'مسار الجلوكوز بعد الامتصاص',w/2,h*0.05,bioTxt(),Math.round(h*0.032));
 
-    drawAnatomicalBody(c,w,h,dark);
-    drawAnatomicalOrgans(c,w,h,simState.t,'smallIntestine',dark);
+    // ── الجسم التشريحي: يمين (55% من العرض) ──
+    const bodyAreaX = w*0.42;
+    const bodyScale = 0.55;
+    c.save();
+    c.translate(bodyAreaX - w*bodyScale*0.5 + w*bodyScale*0.5, (h - h*bodyScale)*0.45);
+    c.scale(bodyScale, bodyScale);
+    drawAnatomicalBody(c, w, h, dark);
+    // العضو المضيء يتغير مع الخطوة الحالية
+    const stepIdx = Math.floor((simState.t*0.4) % steps.length);
+    drawAnatomicalOrgans(c, w, h, simState.t, steps[stepIdx].organ, dark);
+    c.restore();
 
-    const bx=w*0.5;
-    const R=h*0.052; // نصف قطر البادجات
+    // ── مخطط التدفق: يسار ──
+    const flowX   = w*0.21;   // مركز أفقي للمخطط
+    const boxW    = w*0.36;
+    const boxH    = h*0.115;
+    const gap     = h*0.045;
+    const totalH  = steps.length*(boxH+gap) - gap;
+    const startY  = (h - totalH)*0.5 + h*0.03;
 
-    // نقاط المسار — مواضع منطقية على الجسم
-    const pts=[
-      // أمعاء دقيقة — مركز أسفل الجسم
-      {x:bx,      y:h*0.62, label:'أمعاء دقيقة', emoji:'🌿', col:'#D06868'},
-      // كبد — يمين وسط
-      {x:bx+w*0.12,y:h*0.40, label:'الكبد',       emoji:'🟤', col:'#8B2020'},
-      // قلب — وسط أعلى
-      {x:bx-w*0.04,y:h*0.24, label:'القلب',       emoji:'❤️', col:'#EF4444'},
-      // رئتان — يسار وسط
-      {x:bx-w*0.17,y:h*0.33, label:'الرئتان',     emoji:'🫁', col:'#60A5FA'},
-      // دماغ — أعلى الجسم (داخل الرأس)
-      {x:bx,       y:h*0.10, label:'الدماغ',      emoji:'🧠', col:'#8B5CF6'},
-    ];
+    steps.forEach((s,i)=>{
+      const by = startY + i*(boxH+gap);
+      const bx = flowX - boxW/2;
+      const isActive = i === stepIdx;
+      const pulse = isActive ? 1+Math.sin(simState.t*3)*0.025 : 1;
+      const bw2 = boxW*pulse, bh2 = boxH*pulse;
+      const bx2 = flowX - bw2/2, by2 = by + (boxH-bh2)/2;
 
-    // خطوط المسار
-    c.setLineDash([5,3]);c.lineWidth=2;
-    for(let i=0;i<pts.length-1;i++){
-      c.strokeStyle=pts[i].col+'55';
-      c.beginPath();c.moveTo(pts[i].x,pts[i].y);
-      c.bezierCurveTo(
-        pts[i].x+(pts[i+1].x-pts[i].x)*0.35, pts[i].y+(pts[i+1].y-pts[i].y)*0.1,
-        pts[i].x+(pts[i+1].x-pts[i].x)*0.65, pts[i+1].y-(pts[i+1].y-pts[i].y)*0.1,
-        pts[i+1].x, pts[i+1].y
-      );
-      c.stroke();
-    }
-    c.setLineDash([]);
+      // ظل للبطاقة النشطة
+      if(isActive){
+        c.shadowColor=s.col; c.shadowBlur=18;
+      }
 
-    // رسم البادجات
-    pts.forEach((pt,i)=>{
-      const pulse=0.92+Math.sin(simState.t*2.2+i*0.9)*0.08;
-      drawOrganBadge(c,pt.x,pt.y,R,pt.emoji,pt.label,pt.col,pulse);
+      // خلفية البطاقة
+      c.fillStyle = isActive ? s.col+'33' : (dark?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.7)');
+      c.beginPath(); c.roundRect(bx2,by2,bw2,bh2,10); c.fill();
+      c.strokeStyle = isActive ? s.col : s.col+'55';
+      c.lineWidth = isActive ? 2.5 : 1.5; c.stroke();
+      c.shadowBlur = 0;
+
+      // emoji
+      c.font=`${Math.round(bh2*0.38)}px serif`; c.textAlign='center';
+      c.fillText(s.emoji, bx2+bw2*0.10, by2+bh2*0.62);
+
+      // اسم العضو
+      c.fillStyle = isActive ? s.col : (dark?'#E5E7EB':'#1F2937');
+      c.font=`${isActive?'bold ':''} ${Math.round(bh2*0.26)}px Tajawal`; c.textAlign='right';
+      c.fillText(s.label, bx2+bw2*0.95, by2+bh2*0.38);
+
+      // وصف
+      c.fillStyle = dark?'#9CA3AF':'#6B7280';
+      c.font=`${Math.round(bh2*0.20)}px Tajawal`; c.textAlign='right';
+      c.fillText(s.sub, bx2+bw2*0.95, by2+bh2*0.68);
+
+      // سهم للأسفل (ليس بعد الأخير)
+      if(i<steps.length-1){
+        const ay1=by2+bh2+4, ay2=by2+bh2+gap-4;
+        drawArrow(c,flowX,ay1,flowX,ay2,dark?s.col+'99':s.col+'77',2,7);
+      }
     });
 
-    // جلوكوز متحرك
-    const totalSeg=pts.length-1;
-    const fp=((simState.t*0.28)%totalSeg);
-    const si=Math.min(Math.floor(fp),totalSeg-1);
+    // جلوكوز متحرك على المخطط
+    const fp=(simState.t*0.4)%steps.length;
+    const si=Math.min(Math.floor(fp),steps.length-1);
     const fr=fp-si;
-    const gx=pts[si].x+(pts[si+1].x-pts[si].x)*fr;
-    const gy=pts[si].y+(pts[si+1].y-pts[si].y)*fr;
-
-    // هالة
-    const grd=c.createRadialGradient(gx,gy,0,gx,gy,h*0.03);
-    grd.addColorStop(0,'#FCD34DCC');grd.addColorStop(1,'#FCD34D00');
-    c.fillStyle=grd;c.beginPath();c.arc(gx,gy,h*0.03,0,Math.PI*2);c.fill();
-    // نقطة
-    c.fillStyle='#F59E0B';c.beginPath();c.arc(gx,gy,h*0.014,0,Math.PI*2);c.fill();
+    const y1=startY+si*(boxH+gap)+boxH/2;
+    const y2=si<steps.length-1?startY+(si+1)*(boxH+gap)+boxH/2:y1;
+    const gy=y1+(y2-y1)*fr;
+    c.fillStyle='#FCD34D';
+    c.beginPath();c.arc(flowX-boxW/2-h*0.022,gy,h*0.016,0,Math.PI*2);c.fill();
     c.strokeStyle='#D97706';c.lineWidth=2;c.stroke();
-    // تسمية
-    c.fillStyle=dark?'#FCD34D':'#92400E';
-    c.font=`bold ${Math.round(h*0.016)}px Tajawal`;c.textAlign='center';
-    c.fillText('C₆H₁₂O₆',gx,gy-h*0.030);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -59738,7 +59743,7 @@ function simG9Bio8N8b(){
       <div style="padding:9px;background:rgba(96,165,250,0.12);border-radius:9px;border:1px solid rgba(96,165,250,0.3);font-size:12.5px;line-height:1.9">
         🌿 أمعاء دقيقة → تُمتص<br>
         🏥 كبد → يُعالجها<br>
-        🏗️ بناء بروتينات وأنزيمات وهرمونات<br>
+        🏗️ بناء بروتينات وأنزيمات<br>
         ⚗️ نزع الأمين → يوريا → كلى → بول<br>
         ⚡ الزائد → طاقة
       </div>
@@ -59746,57 +59751,75 @@ function simG9Bio8N8b(){
   </div>`);
 
   const cv=document.getElementById('simCanvas');
+
+  const steps=[
+    {label:'الأمعاء الدقيقة', sub:'امتصاص عبر الخملات → الدم',        col:'#D06868', organ:'smallIntestine', emoji:'🌿'},
+    {label:'الكبد',           sub:'معالجة وتوزيع الأحماض الأمينية',    col:'#8B2020', organ:'liver',          emoji:'🟤'},
+    {label:'بناء البروتينات', sub:'بروتينات + أنزيمات + هرمونات',      col:'#3B82F6', organ:'liver',          emoji:'🏗️'},
+    {label:'نزع الأمين',      sub:'NH₂ → يوريا → كلى → بول',          col:'#8B5CF6', organ:'smallIntestine',  emoji:'⚗️'},
+    {label:'إنتاج الطاقة',    sub:'الزائد → تنفس خلوي → ATP',          col:'#F59E0B', organ:'smallIntestine',  emoji:'⚡'},
+  ];
+
   function draw(){
     if(currentSim!=='g9bio8n8'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.016;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    drawLabel(c,'مسار الأحماض الأمينية في الجسم',w/2,h*0.05,bioTxt(),Math.round(h*0.033));
+    drawLabel(c,'مسار الأحماض الأمينية بعد الامتصاص',w/2,h*0.05,bioTxt(),Math.round(h*0.030));
 
+    // الجسم يمين
+    const bodyScale=0.52;
+    c.save();
+    c.translate(w*0.42-w*bodyScale*0.5+w*bodyScale*0.5,(h-h*bodyScale)*0.45);
+    c.scale(bodyScale,bodyScale);
     drawAnatomicalBody(c,w,h,dark);
-    drawAnatomicalOrgans(c,w,h,simState.t,'liver',dark);
-    drawAnatomicalLabels(c,w,h,'liver',dark);
+    const stepIdx=Math.floor((simState.t*0.35)%steps.length);
+    drawAnatomicalOrgans(c,w,h,simState.t,steps[stepIdx].organ,dark);
+    c.restore();
 
-    const bx=w*0.5;
-    const pts=[
-      {x:bx-w*0.02,y:h*0.64,label:'أمعاء دقيقة',col:'#D06868'},
-      {x:bx+w*0.1, y:h*0.38,label:'الكبد',       col:'#8B2020'},
-    ];
-    const branches=[
-      {x:bx+w*0.08,y:h*0.15,label:'بناء بروتينات',col:'#3B82F6'},
-      {x:bx-w*0.18,y:h*0.42,label:'كلى → يوريا',  col:'#8B5CF6'},
-      {x:bx+w*0.18,y:h*0.50,label:'طاقة ATP',     col:'#F59E0B'},
-    ];
+    // مخطط يسار
+    const flowX=w*0.20, boxW=w*0.35, boxH=h*0.095, gap=h*0.035;
+    const totalH=steps.length*(boxH+gap)-gap;
+    const startY=(h-totalH)*0.5+h*0.03;
 
-    c.setLineDash([4,3]);c.strokeStyle=dark?'rgba(96,165,250,0.45)':'rgba(37,99,235,0.35)';c.lineWidth=2.5;
-    c.beginPath();c.moveTo(pts[0].x,pts[0].y);c.bezierCurveTo(pts[0].x+w*0.04,pts[0].y-h*0.08,pts[1].x-w*0.04,pts[1].y+h*0.08,pts[1].x,pts[1].y);c.stroke();
-    branches.forEach(br=>{
-      c.strokeStyle=dark?br.col+'66':br.col+'55';c.lineWidth=2;
-      c.beginPath();c.moveTo(pts[1].x,pts[1].y);c.bezierCurveTo(pts[1].x+(br.x-pts[1].x)*0.4,pts[1].y,br.x,br.y+(br.y>pts[1].y?-h*0.04:h*0.04),br.x,br.y);c.stroke();
+    steps.forEach((s,i)=>{
+      const by=startY+i*(boxH+gap);
+      const isActive=i===stepIdx;
+      const pulse=isActive?1+Math.sin(simState.t*3)*0.02:1;
+      const bw2=boxW*pulse,bh2=boxH*pulse;
+      const bx2=flowX-bw2/2,by2=by+(boxH-bh2)/2;
+
+      if(isActive){c.shadowColor=s.col;c.shadowBlur=15;}
+      c.fillStyle=isActive?s.col+'30':(dark?'rgba(255,255,255,0.04)':'rgba(255,255,255,0.72)');
+      c.beginPath();c.roundRect(bx2,by2,bw2,bh2,9);c.fill();
+      c.strokeStyle=isActive?s.col:s.col+'50';c.lineWidth=isActive?2.5:1.5;c.stroke();
+      c.shadowBlur=0;
+
+      c.font=`${Math.round(bh2*0.36)}px serif`;c.textAlign='center';
+      c.fillText(s.emoji,bx2+bw2*0.10,by2+bh2*0.65);
+
+      c.fillStyle=isActive?s.col:(dark?'#E5E7EB':'#1F2937');
+      c.font=`${isActive?'bold ':''} ${Math.round(bh2*0.26)}px Tajawal`;c.textAlign='right';
+      c.fillText(s.label,bx2+bw2*0.95,by2+bh2*0.38);
+
+      c.fillStyle=dark?'#9CA3AF':'#6B7280';
+      c.font=`${Math.round(bh2*0.20)}px Tajawal`;c.textAlign='right';
+      c.fillText(s.sub,bx2+bw2*0.95,by2+bh2*0.68);
+
+      if(i<steps.length-1) drawArrow(c,flowX,by2+bh2+3,flowX,by2+bh2+gap-3,dark?s.col+'88':s.col+'66',2,6);
     });
-    c.setLineDash([]);
 
-    pts.forEach((pt,i)=>{
-      const p2=0.88+Math.sin(simState.t*2+i)*0.1;
-      c.fillStyle=pt.col+'33';c.beginPath();c.arc(pt.x,pt.y,h*0.038*p2,0,Math.PI*2);c.fill();
-      c.strokeStyle=pt.col;c.lineWidth=2;c.stroke();
-      c.fillStyle=pt.col;c.font=`bold ${Math.round(h*0.02)}px Tajawal`;c.textAlign='center';
-      c.fillText(pt.label,pt.x,pt.y+h*0.052);
-    });
-    branches.forEach((br,i)=>{
-      const p2=0.88+Math.sin(simState.t*2+i+2)*0.1;
-      c.fillStyle=br.col+'33';c.beginPath();c.arc(br.x,br.y,h*0.038*p2,0,Math.PI*2);c.fill();
-      c.strokeStyle=br.col;c.lineWidth=2;c.stroke();
-      c.fillStyle=br.col;c.font=`bold ${Math.round(h*0.019)}px Tajawal`;c.textAlign='center';
-      c.fillText(br.label,br.x,br.y+h*0.052);
-    });
-
-    const fp=((simState.t*0.35)%2);
-    let fx,fy;
-    if(fp<1){fx=pts[0].x+(pts[1].x-pts[0].x)*fp;fy=pts[0].y+(pts[1].y-pts[0].y)*fp;}
-    else{const br=branches[Math.floor((fp-1)*branches.length)%branches.length];const fr2=(fp-1)*branches.length%1;fx=pts[1].x+(br.x-pts[1].x)*fr2;fy=pts[1].y+(br.y-pts[1].y)*fr2;}
-    c.fillStyle='#60A5FA';c.beginPath();c.arc(fx,fy,h*0.013,0,Math.PI*2);c.fill();
-    c.fillStyle='#1D4ED8';c.font=`bold ${Math.round(h*0.015)}px Tajawal`;c.textAlign='center';c.fillText('NH₂',fx,fy-h*0.023);
+    // حمض أميني متحرك
+    const fp=(simState.t*0.35)%steps.length;
+    const si=Math.min(Math.floor(fp),steps.length-1);
+    const fr=fp-si;
+    const y1=startY+si*(boxH+gap)+boxH/2;
+    const y2=si<steps.length-1?startY+(si+1)*(boxH+gap)+boxH/2:y1;
+    c.fillStyle='#60A5FA';
+    c.beginPath();c.arc(flowX-boxW/2-h*0.022,y1+(y2-y1)*fr,h*0.015,0,Math.PI*2);c.fill();
+    c.strokeStyle='#2563EB';c.lineWidth=2;c.stroke();
+    c.fillStyle='#1D4ED8';c.font=`bold ${Math.round(h*0.013)}px Tajawal`;c.textAlign='center';
+    c.fillText('NH₂',flowX-boxW/2-h*0.022,y1+(y2-y1)*fr-h*0.024);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -59827,47 +59850,118 @@ function simG9Bio8N8c(){
   </div>`);
 
   const cv=document.getElementById('simCanvas');
+
+  const nutrients=[
+    {
+      name:'جلوكوز',emoji:'🍬',col:'#D97706',
+      paths:[
+        {icon:'⚡',text:'طاقة ATP — تنفس خلوي'},
+        {icon:'🏪',text:'جليكوجين — كبد وعضلات'},
+      ]
+    },
+    {
+      name:'أحماض أمينية',emoji:'🔗',col:'#2563EB',
+      paths:[
+        {icon:'🏗️',text:'بناء بروتينات وأنزيمات'},
+        {icon:'⚗️',text:'يوريا → كلى → بول'},
+      ]
+    },
+    {
+      name:'دهون',emoji:'🧈',col:'#7C3AED',
+      paths:[
+        {icon:'🏪',text:'تخزين في الأنسجة الدهنية'},
+        {icon:'⚡',text:'طاقة عند الحاجة'},
+      ]
+    },
+  ];
+
   function draw(){
     if(currentSim!=='g9bio8n8'||currentTab!==2){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.016;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    drawLabel(c,'مصير المغذيات بعد الامتصاص',w/2,h*0.05,bioTxt(),Math.round(h*0.033));
+    drawLabel(c,'مصير المغذيات بعد الامتصاص',w/2,h*0.055,bioTxt(),Math.round(h*0.034));
 
-    drawAnatomicalBody(c,w,h,dark);
-    drawAnatomicalOrgans(c,w,h,simState.t,null,dark);
+    const colW  = w*0.3;
+    const colH  = h*0.80;
+    const colY  = h*0.13;
+    const gapX  = w*0.02;
+    const totalW= nutrients.length*colW+(nutrients.length-1)*gapX;
+    const startX= (w-totalW)/2;
 
-    const bx=w*0.5;
-    const pathSets=[
-      {col:'#D97706',pts:[{x:bx-w*0.02,y:h*0.64},{x:bx+w*0.1,y:h*0.38},{x:bx+w*0.05,y:h*0.15},{x:bx-w*0.2,y:h*0.35}],label:'جلوكوز'},
-      {col:'#2563EB',pts:[{x:bx-w*0.02,y:h*0.64},{x:bx+w*0.1,y:h*0.38},{x:bx+w*0.17,y:h*0.48},{x:bx-w*0.16,y:h*0.46}],label:'أحماض أمينية'},
-      {col:'#7C3AED',pts:[{x:bx-w*0.02,y:h*0.64},{x:bx-w*0.02,y:h*0.49},{x:bx-w*0.24,y:h*0.55},{x:bx+w*0.18,y:h*0.62}],label:'دهون'},
-    ];
+    nutrients.forEach((n2,ni)=>{
+      const cx = startX + ni*(colW+gapX);
+      const pulse = 1+Math.sin(simState.t*1.5+ni*1.2)*0.015;
 
-    pathSets.forEach((ps,pi)=>{
-      c.strokeStyle=ps.col+'55';c.lineWidth=2.5;c.setLineDash([4,3]);
-      c.beginPath();
-      ps.pts.forEach((pt,i)=>{i===0?c.moveTo(pt.x,pt.y):c.lineTo(pt.x,pt.y);});
-      c.stroke();c.setLineDash([]);
+      // بطاقة رئيسية
+      c.fillStyle=n2.col+'18';
+      c.beginPath();c.roundRect(cx,colY,colW,colH,14);c.fill();
+      c.strokeStyle=n2.col+'77';c.lineWidth=2;c.stroke();
 
-      const fp=((simState.t*0.3+pi*0.33)%(ps.pts.length-1));
-      const si=Math.min(Math.floor(fp),ps.pts.length-2);
-      const fr2=fp-si;
-      const fx=ps.pts[si].x+(ps.pts[si+1].x-ps.pts[si].x)*fr2;
-      const fy=ps.pts[si].y+(ps.pts[si+1].y-ps.pts[si].y)*fr2;
-      c.fillStyle=ps.col+'EE';c.beginPath();c.arc(fx,fy,h*0.014,0,Math.PI*2);c.fill();
+      // رأس البطاقة
+      c.fillStyle=n2.col+'30';
+      c.beginPath();c.roundRect(cx,colY,colW,colH*0.22,14);c.fill();
+      c.strokeStyle='transparent';c.stroke();
 
-      const last=ps.pts[ps.pts.length-1];
-      c.fillStyle=ps.col;c.font=`bold ${Math.round(h*0.02)}px Tajawal`;c.textAlign='center';
-      c.fillText(ps.label,last.x,last.y-h*0.025);
-      c.fillStyle=ps.col+'BB';c.beginPath();c.arc(last.x,last.y,h*0.022+Math.sin(simState.t*2+pi)*h*0.005,0,Math.PI*2);c.fill();
-      c.strokeStyle=ps.col;c.lineWidth=2;c.stroke();
+      // Emoji كبير
+      c.font=`${Math.round(colH*0.12)}px serif`;c.textAlign='center';
+      c.fillText(n2.emoji,cx+colW/2,colY+colH*0.145);
+
+      // اسم المغذي
+      c.fillStyle=n2.col;
+      c.font=`bold ${Math.round(colH*0.065)}px Tajawal`;c.textAlign='center';
+      c.fillText(n2.name,cx+colW/2,colY+colH*0.27);
+
+      // خط فاصل
+      c.strokeStyle=n2.col+'44';c.lineWidth=1.5;
+      c.beginPath();c.moveTo(cx+colW*0.1,colY+colH*0.30);c.lineTo(cx+colW*0.9,colY+colH*0.30);c.stroke();
+
+      // سهم رئيسي
+      drawArrow(c,cx+colW/2,colY+colH*0.31,cx+colW/2,colY+colH*0.37,n2.col+'99',2,7);
+
+      // المسارات
+      n2.paths.forEach((p,pi)=>{
+        const py=colY+colH*(0.40+pi*0.28);
+        const ph=colH*0.22;
+        const pw=colW*0.86;
+        const px2=cx+(colW-pw)/2;
+
+        // بطاقة مسار
+        c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.80)';
+        c.beginPath();c.roundRect(px2,py,pw,ph,9);c.fill();
+        c.strokeStyle=n2.col+'44';c.lineWidth=1.5;c.stroke();
+
+        // أيقونة
+        c.font=`${Math.round(ph*0.45)}px serif`;c.textAlign='center';
+        c.fillText(p.icon,px2+pw*0.14,py+ph*0.65);
+
+        // نص
+        c.fillStyle=dark?'#D1D5DB':'#374151';
+        c.font=`${Math.round(ph*0.25)}px Tajawal`;c.textAlign='right';
+
+        // تقسيم النص إذا كان طويلاً
+        const words=p.text.split(' — ');
+        if(words.length>1){
+          c.fillText(words[0],px2+pw*0.95,py+ph*0.38);
+          c.fillStyle=n2.col;c.font=`bold ${Math.round(ph*0.22)}px Tajawal`;
+          c.fillText(words[1],px2+pw*0.95,py+ph*0.70);
+        } else {
+          c.fillText(p.text,px2+pw*0.95,py+ph*0.60);
+        }
+
+        // سهم بين المسارين
+        if(pi<n2.paths.length-1){
+          const ay=py+ph+3;
+          drawArrow(c,cx+colW/2,ay,cx+colW/2,ay+colH*0.06,n2.col+'66',1.5,5);
+        }
+      });
+
+      // نبضة متحركة أسفل البطاقة
+      const dotY=colY+colH*0.94;
+      const dotR=h*0.014*(0.85+Math.sin(simState.t*2.5+ni*1.5)*0.15);
+      c.fillStyle=n2.col+'CC';
+      c.beginPath();c.arc(cx+colW/2,dotY,dotR,0,Math.PI*2);c.fill();
     });
-
-    c.fillStyle=dark?'rgba(139,32,32,0.3)':'rgba(139,32,32,0.15)';
-    c.beginPath();c.arc(bx+w*0.1,h*0.38,h*0.06*(0.9+Math.sin(simState.t*2)*0.08),0,Math.PI*2);c.fill();
-    c.fillStyle=dark?'#F87171':'#8B2020';c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';
-    c.fillText('الكبد',bx+w*0.1,h*0.39);
 
     animFrame=requestAnimationFrame(draw);
   }
