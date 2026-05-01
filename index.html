@@ -59833,46 +59833,29 @@ function simG9Bio8N8c(){
     <div style="display:flex;flex-direction:column;gap:5px">
       <div style="padding:9px;background:rgba(253,224,71,0.12);border-radius:8px;border:1px solid rgba(253,224,71,0.25);font-size:12px;line-height:1.8">
         <strong style="color:#D97706">🍬 جلوكوز</strong><br>
-        → طاقة ATP (تنفس خلوي)<br>
-        → جليكوجين (كبد + عضلات)
+        → طاقة ATP<br>→ جليكوجين
       </div>
       <div style="padding:9px;background:rgba(96,165,250,0.12);border-radius:8px;border:1px solid rgba(96,165,250,0.25);font-size:12px;line-height:1.8">
         <strong style="color:#2563EB">🔗 أحماض أمينية</strong><br>
-        → بناء بروتينات وأنزيمات<br>
-        → يوريا → كلى → بول
+        → بناء بروتينات<br>→ يوريا → بول
       </div>
       <div style="padding:9px;background:rgba(196,181,253,0.12);border-radius:8px;border:1px solid rgba(196,181,253,0.25);font-size:12px;line-height:1.8">
         <strong style="color:#7C3AED">🧈 دهون</strong><br>
-        → تخزين في الأنسجة الدهنية<br>
-        → طاقة عند الحاجة
+        → تخزين<br>→ طاقة عند الحاجة
       </div>
     </div>
   </div>`);
 
   const cv=document.getElementById('simCanvas');
 
-  const nutrients=[
-    {
-      name:'جلوكوز',emoji:'🍬',col:'#D97706',
-      paths:[
-        {icon:'⚡',text:'طاقة ATP — تنفس خلوي'},
-        {icon:'🏪',text:'جليكوجين — كبد وعضلات'},
-      ]
-    },
-    {
-      name:'أحماض أمينية',emoji:'🔗',col:'#2563EB',
-      paths:[
-        {icon:'🏗️',text:'بناء بروتينات وأنزيمات'},
-        {icon:'⚗️',text:'يوريا → كلى → بول'},
-      ]
-    },
-    {
-      name:'دهون',emoji:'🧈',col:'#7C3AED',
-      paths:[
-        {icon:'🏪',text:'تخزين في الأنسجة الدهنية'},
-        {icon:'⚡',text:'طاقة عند الحاجة'},
-      ]
-    },
+  // بيانات مبسّطة — نصوص قصيرة
+  const cols=[
+    {name:'جلوكوز', emoji:'🍬', col:'#D97706',
+     paths:[{icon:'⚡',line1:'طاقة ATP',line2:'تنفس خلوي'},{icon:'🏪',line1:'جليكوجين',line2:'كبد + عضلات'}]},
+    {name:'أحماض أمينية', emoji:'🔗', col:'#2563EB',
+     paths:[{icon:'🏗️',line1:'بناء بروتينات',line2:'وأنزيمات'},{icon:'⚗️',line1:'يوريا',line2:'كلى → بول'}]},
+    {name:'دهون', emoji:'🧈', col:'#7C3AED',
+     paths:[{icon:'🏪',line1:'تخزين',line2:'أنسجة دهنية'},{icon:'⚡',line1:'طاقة',line2:'عند الحاجة'}]},
   ];
 
   function draw(){
@@ -59880,87 +59863,87 @@ function simG9Bio8N8c(){
     simState.t+=0.016;
     const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
     c.fillStyle=bioBg();c.fillRect(0,0,w,h);
-    drawLabel(c,'مصير المغذيات بعد الامتصاص',w/2,h*0.055,bioTxt(),Math.round(h*0.034));
+    drawLabel(c,'مصير المغذيات بعد الامتصاص',w/2,h*0.055,bioTxt(),Math.round(h*0.032));
 
-    const colW  = w*0.3;
-    const colH  = h*0.80;
-    const colY  = h*0.13;
-    const gapX  = w*0.02;
-    const totalW= nutrients.length*colW+(nutrients.length-1)*gapX;
-    const startX= (w-totalW)/2;
+    const margin = w*0.025;
+    const gapX   = w*0.018;
+    const colW   = (w - 2*margin - 2*gapX) / 3;
+    const colH   = h*0.78;
+    const colY   = h*0.13;
 
-    nutrients.forEach((n2,ni)=>{
-      const cx = startX + ni*(colW+gapX);
-      const pulse = 1+Math.sin(simState.t*1.5+ni*1.2)*0.015;
+    cols.forEach((col,ci)=>{
+      const cx = margin + ci*(colW+gapX);
+      const pulse = 1+Math.sin(simState.t*1.4+ci*1.3)*0.012;
 
-      // بطاقة رئيسية
-      c.fillStyle=n2.col+'18';
-      c.beginPath();c.roundRect(cx,colY,colW,colH,14);c.fill();
-      c.strokeStyle=n2.col+'77';c.lineWidth=2;c.stroke();
+      // ── بطاقة خارجية ──
+      c.fillStyle = col.col+'15';
+      c.beginPath();c.roundRect(cx,colY,colW,colH,12);c.fill();
+      c.strokeStyle = col.col+'66';c.lineWidth=2;c.stroke();
 
-      // رأس البطاقة
-      c.fillStyle=n2.col+'30';
-      c.beginPath();c.roundRect(cx,colY,colW,colH*0.22,14);c.fill();
-      c.strokeStyle='transparent';c.stroke();
+      // ── رأس ملوّن ──
+      const headH = colH*0.20;
+      c.fillStyle = col.col+'28';
+      c.beginPath();c.roundRect(cx,colY,colW,headH,12);c.fill();
 
-      // Emoji كبير
-      c.font=`${Math.round(colH*0.12)}px serif`;c.textAlign='center';
-      c.fillText(n2.emoji,cx+colW/2,colY+colH*0.145);
+      // Emoji
+      const emojiSz = Math.round(headH*0.52);
+      c.font=`${emojiSz}px serif`;c.textAlign='center';
+      c.fillText(col.emoji, cx+colW/2, colY+headH*0.68);
 
-      // اسم المغذي
-      c.fillStyle=n2.col;
-      c.font=`bold ${Math.round(colH*0.065)}px Tajawal`;c.textAlign='center';
-      c.fillText(n2.name,cx+colW/2,colY+colH*0.27);
-
-      // خط فاصل
-      c.strokeStyle=n2.col+'44';c.lineWidth=1.5;
-      c.beginPath();c.moveTo(cx+colW*0.1,colY+colH*0.30);c.lineTo(cx+colW*0.9,colY+colH*0.30);c.stroke();
+      // اسم
+      const nameSz = Math.round(Math.min(colW*0.12, h*0.030));
+      c.fillStyle=col.col;
+      c.font=`bold ${nameSz}px Tajawal`;c.textAlign='center';
+      c.fillText(col.name, cx+colW/2, colY+headH+nameSz*1.3);
 
       // سهم رئيسي
-      drawArrow(c,cx+colW/2,colY+colH*0.31,cx+colW/2,colY+colH*0.37,n2.col+'99',2,7);
+      const arrowTop = colY+headH+nameSz*2.4;
+      const arrowBot = arrowTop + h*0.030;
+      drawArrow(c,cx+colW/2,arrowTop,cx+colW/2,arrowBot,col.col+'88',1.8,6);
 
-      // المسارات
-      n2.paths.forEach((p,pi)=>{
-        const py=colY+colH*(0.40+pi*0.28);
-        const ph=colH*0.22;
-        const pw=colW*0.86;
-        const px2=cx+(colW-pw)/2;
+      // ── بطاقتا المسار ──
+      const cardH  = colH*0.22;
+      const cardW  = colW*0.88;
+      const cardX  = cx + (colW-cardW)/2;
+      const card1Y = arrowBot + h*0.008;
+      const card2Y = card1Y + cardH + h*0.025;
 
-        // بطاقة مسار
-        c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.80)';
-        c.beginPath();c.roundRect(px2,py,pw,ph,9);c.fill();
-        c.strokeStyle=n2.col+'44';c.lineWidth=1.5;c.stroke();
+      [card1Y, card2Y].forEach((cy2,pi)=>{
+        const p = col.paths[pi];
 
-        // أيقونة
-        c.font=`${Math.round(ph*0.45)}px serif`;c.textAlign='center';
-        c.fillText(p.icon,px2+pw*0.14,py+ph*0.65);
+        // خلفية البطاقة
+        c.fillStyle=dark?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.85)';
+        c.beginPath();c.roundRect(cardX,cy2,cardW,cardH,8);c.fill();
+        c.strokeStyle=col.col+'40';c.lineWidth=1.5;c.stroke();
 
-        // نص
-        c.fillStyle=dark?'#D1D5DB':'#374151';
-        c.font=`${Math.round(ph*0.25)}px Tajawal`;c.textAlign='right';
+        // أيقونة يسار (RTL: يمين الكانفاس)
+        const iconSz=Math.round(cardH*0.44);
+        c.font=`${iconSz}px serif`;c.textAlign='center';
+        c.fillText(p.icon, cardX+cardW*0.14, cy2+cardH*0.62);
 
-        // تقسيم النص إذا كان طويلاً
-        const words=p.text.split(' — ');
-        if(words.length>1){
-          c.fillText(words[0],px2+pw*0.95,py+ph*0.38);
-          c.fillStyle=n2.col;c.font=`bold ${Math.round(ph*0.22)}px Tajawal`;
-          c.fillText(words[1],px2+pw*0.95,py+ph*0.70);
-        } else {
-          c.fillText(p.text,px2+pw*0.95,py+ph*0.60);
-        }
+        // سطر 1
+        const txt1Sz=Math.round(Math.min(cardW*0.105, h*0.026));
+        c.fillStyle=col.col;
+        c.font=`bold ${txt1Sz}px Tajawal`;c.textAlign='right';
+        c.fillText(p.line1, cardX+cardW*0.94, cy2+cardH*0.40);
 
-        // سهم بين المسارين
-        if(pi<n2.paths.length-1){
-          const ay=py+ph+3;
-          drawArrow(c,cx+colW/2,ay,cx+colW/2,ay+colH*0.06,n2.col+'66',1.5,5);
+        // سطر 2
+        const txt2Sz=Math.round(txt1Sz*0.82);
+        c.fillStyle=dark?'#9CA3AF':'#6B7280';
+        c.font=`${txt2Sz}px Tajawal`;c.textAlign='right';
+        c.fillText(p.line2, cardX+cardW*0.94, cy2+cardH*0.72);
+
+        // سهم بين البطاقتين
+        if(pi===0){
+          const midY=cy2+cardH+h*0.012;
+          drawArrow(c,cx+colW/2,midY,cx+colW/2,midY+h*0.013,col.col+'66',1.5,5);
         }
       });
 
-      // نبضة متحركة أسفل البطاقة
-      const dotY=colY+colH*0.94;
-      const dotR=h*0.014*(0.85+Math.sin(simState.t*2.5+ni*1.5)*0.15);
-      c.fillStyle=n2.col+'CC';
-      c.beginPath();c.arc(cx+colW/2,dotY,dotR,0,Math.PI*2);c.fill();
+      // نبضة أسفل
+      const dotR=h*0.013*(0.88+Math.sin(simState.t*2.8+ci*1.8)*0.12);
+      c.fillStyle=col.col+'BB';
+      c.beginPath();c.arc(cx+colW/2,colY+colH*0.955,dotR,0,Math.PI*2);c.fill();
     });
 
     animFrame=requestAnimationFrame(draw);
