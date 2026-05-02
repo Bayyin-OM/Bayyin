@@ -5092,6 +5092,15 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           </div>
         </div>
 
+        <div class="unit-card" onclick="openUnit('g9bio10', this)">
+          <div class="unit-num-badge c-purple">١٠</div>
+          <div>
+            <div class="unit-title">التحكم والتنظيم في النبات</div>
+            <div class="unit-topics">الانتحاء · الانتحاء الضوئي · الانتحاء الأرضي · هرمون الأوكسين (IAA) · استجابة السيقان والجذور · دور القمة النامية · التجارب الكلاسيكية لـ Went</div>
+            <div class="unit-pill avail">🌿 ٤ استقصاءات متاحة</div>
+          </div>
+        </div>
+
       </div>
 
       <!-- ===== استقصاءات الوحدة السابعة — التغذية في النبات ===== -->
@@ -5289,6 +5298,57 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
               <div class="sim-num">نشاط ٨-٨ · التمثيل الغذائي</div>
               <div class="sim-name">مصير المواد الغذائية بعد الامتصاص</div>
               <div class="sim-desc">تتبّع مسار الجلوكوز والأحماض الأمينية والدهون بعد امتصاصها: الكبد، الدم، الخلايا — ما الذي يحدث لكل منها؟</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== استقصاءات الوحدة العاشرة — التحكم والتنظيم في النبات ===== -->
+      <div id="sims-g9bio10" class="sims-wrap" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة ١٠ — التحكم والتنظيم في النبات</div>
+          <div class="sims-count">٤ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9bio10n1')">
+            <div class="sim-thumb t1">🌿</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١-١٠ · استجابة السيقان للضوء</div>
+              <div class="sim-name">الانتحاء الضوئي — تجربة الأطباق الثلاثة</div>
+              <div class="sim-desc">استقصِ كيف يؤثر اتجاه الضوء على نمو البادرات في ثلاثة أطباق تجريبية مختلفة وسجّلي البيانات في جدول</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio10n2')">
+            <div class="sim-thumb t2">🌱</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٢-١٠ · استجابة الجذور للجاذبية</div>
+              <div class="sim-name">الانتحاء الأرضي — زراعة البذور بأوضاع مختلفة</div>
+              <div class="sim-desc">زَرعي بذور الفاصولياء في أوضاع مختلفة وراقبي اتجاه نمو الجذور والسيقان لاكتشاف الانتحاء الأرضي الموجب والسالب</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio10n3')">
+            <div class="sim-thumb t9">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٣-١٠ · تأثير الأوكسين على النمو</div>
+              <div class="sim-name">هرمون الأوكسين (IAA) ودوره في الانحناء</div>
+              <div class="sim-desc">استخدمي تجربة اللانولين الثلاثية لمعرفة دور الأوكسين في الانحناء نحو الضوء وفسّري كيف يتوزع بشكل غير متساوٍ</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio10n4')">
+            <div class="sim-thumb t6">📍</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٤-١٠ · منطقة الحساسية الضوئية</div>
+              <div class="sim-name">تحديد الجزء الحساس للضوء في الساق</div>
+              <div class="sim-desc">غطّي أجزاء مختلفة من السيقان وراقبي أيّها يُوقف الانحناء لتحديد منطقة استشعار الضوء وإنتاج الأوكسين</div>
             </div>
             <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
           </div>
@@ -6344,6 +6404,11 @@ const SIM_META = {
   g9bio9n3: { title: 'نشاط ٣-٩ · النتح وتيار النتح', badge: '🍃 أحياء ٩', tabs: ['عملية النتح والثغور 🌿', 'عوامل تؤثر على معدّل النتح 🌡️'] },
   g9bio9n4: { title: 'نشاط ٤-٩ · جهاز البوتومتر', badge: '📏 أحياء ٩', tabs: ['كيف يعمل البوتومتر؟ 🔬', 'قِس معدّل النتح في ظروف مختلفة 📊'] },
   g9bio9n5: { title: 'نشاط ٥-٩ · نقل الغذاء — الانتقال', badge: '🍬 أحياء ٩', tabs: ['المصدر والمصبّ (Source & Sink) 🌿', 'مسار السكروز في اللحاء 🔄'] },
+  // ── الصف التاسع — أحياء الوحدة العاشرة: التحكم والتنظيم في النبات ──
+  g9bio10n1: { title: 'نشاط ١-١٠ · استجابة السيقان للضوء', badge: '🌿 أحياء ٩', tabs: ['تجربة الأطباق الثلاثة 🌱', 'تحليل النتائج والأسئلة 🧠'] },
+  g9bio10n2: { title: 'نشاط ٢-١٠ · استجابة الجذور للجاذبية', badge: '🌱 أحياء ٩', tabs: ['زراعة بأوضاع مختلفة 🪴', 'الاستنتاجات والأسئلة 🧠'] },
+  g9bio10n3: { title: 'نشاط ٣-١٠ · تأثير الأوكسين على النمو', badge: '🔬 أحياء ٩', tabs: ['تجربة اللانولين الثلاثية 🧪', 'توزيع الأوكسين والأسئلة 🧠'] },
+  g9bio10n4: { title: 'نشاط ٤-١٠ · منطقة الحساسية الضوئية', badge: '📍 أحياء ٩', tabs: ['تجربة تغطية الأجزاء 🌿', 'الاستنتاجات والأسئلة 🧠'] },
   g9acidprop:   { title: 'نشاط 6-1 · خصائص الأحماض والقواعد', badge: '⚗️ 9', tabs: ['تصنيف المحاليل 🧪', 'الأحماض العضوية 🍋', 'القواعد والقلويات 🧴'] },
   g9indicator:  { title: 'نشاط 6-2 · الكواشف وتغيُّر اللون', badge: '🌺 9', tabs: ['ورق تبّاع الشمس 📄', 'الكاشف العام 🎨', 'الكاشف الطبيعي 🌸'] },
   g9phscale:    { title: 'نشاط 6-3 · مقياس pH', badge: '📊 9', tabs: ['سلّم pH 0-14 📏', 'اختبر محاليل يومية 🧪', 'التخفيف والتركيز 💧'] },
@@ -61599,4 +61664,4 @@ function simG9Bio9N5b(){
 
 
 </body>
-</html>
+</html>د
