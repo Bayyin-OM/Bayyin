@@ -60060,32 +60060,24 @@ function simG9Bio8N8c(){
 // Transport in Plants
 // ══════════════════════════════════════════════════════════
 
-// ─── مساعدات مشتركة ───────────────────────────────────
-function bio9Bg(){return dm15()?'#0D1A12':'#F0FAF4';}
-function bio9Txt(){return dm15()?'#D1FAE5':'#064E3B';}
-function bio9Accent(){return '#27AE60';}
-
-// ══ نشاط ١: تركيب وعاء الخشب (Xylem) ══
+// ══ نشاط ١ التبويب الأول: تركيب وعاء الخشب (Xylem) ══
 function simG9Bio9N1a(){
   cancelAnimationFrame(animFrame);
   simState={t:0,sel:null,hover:null};
   const cv=document.getElementById('simCanvas');
+  const dark=dm15();
 
   const parts=[
-    {id:'vessel',x:0.5,y:0.30,r:0.10,label:'وعاء الخشب الكامل',color:'#B45309',
-     desc:'خلايا ميتة مترابطة تكوِّن أنبوبًا مجوّفًا مفتوحًا — جدارها مقوّى باللجنين',icon:'🟤'},
-    {id:'lignin',x:0.25,y:0.55,r:0.09,label:'اللجنين (Lignin)',color:'#92400E',
-     desc:'مادة صلبة في جدران الخلية تمنع الانهيار وتسمح بمرور الماء عبر فجوات بينية',icon:'⬛'},
-    {id:'lumen',x:0.5,y:0.60,r:0.09,label:'التجويف الداخلي',color:'#1D4ED8',
-     desc:'فراغ مركزي خالٍ من السيتوبلازم — يسمح بتدفق الماء بسرعة وبدون عوائق',icon:'💧'},
-    {id:'pits',x:0.75,y:0.55,r:0.09,label:'الحُفَر الجدارية',color:'#065F46',
-     desc:'فتحات صغيرة في جدران الخلية تسمح بتحرك الماء بين الأوعية المجاورة',icon:'🔵'},
+    {id:'vessel', x:0.22, y:0.38, r:0.08, label:'وعاء الخشب',   color:'#B45309', icon:'🟤', desc:'خلايا ميتة مترابطة تكوِّن أنبوبًا مجوّفًا — جدارها مقوّى باللجنين لنقل الماء'},
+    {id:'lignin', x:0.22, y:0.65, r:0.08, label:'اللجنين',       color:'#92400E', icon:'⬛', desc:'مادة صلبة في جدران الخلية تمنع الانهيار وتسمح بمرور الماء عبر فجوات'},
+    {id:'lumen',  x:0.78, y:0.38, r:0.08, label:'التجويف',       color:'#1D4ED8', icon:'💧', desc:'فراغ مركزي خالٍ من السيتوبلازم — يسمح بتدفق الماء بسرعة'},
+    {id:'pits',   x:0.78, y:0.65, r:0.08, label:'الحُفَر الجدارية', color:'#065F46', icon:'🔵', desc:'فتحات صغيرة في الجدار تسمح بتحرك الماء بين الأوعية المجاورة'},
   ];
 
   controls(`
     <div class="info-box" style="margin-bottom:10px;font-size:14px;line-height:1.7">
-      <strong>📖 الدرس ١-٩</strong><br>
-      وعاء الخشب (Xylem vessel) = خلايا ميتة متصلة تكوّن أنبوبًا مجوّفًا لنقل الماء والأملاح من الجذور إلى الأوراق
+      <strong>📖 الدرس ١-٩ · وعاء الخشب (Xylem vessel)</strong><br>
+      خلايا ميتة متصلة تكوِّن أنبوبًا مجوّفًا لنقل الماء والأملاح من الجذور إلى الأوراق
     </div>
     <div id="bio9XyInfo" style="padding:12px;background:rgba(39,174,96,0.08);border-radius:10px;min-height:70px;font-size:14px;color:#065F46;line-height:1.7;text-align:center">
       👆 انقر على أي جزء لمعرفة وظيفته
@@ -60093,73 +60085,63 @@ function simG9Bio9N1a(){
     <div class="q-box" style="margin-top:10px">
       <strong>❓ أسئلة (ص٤٩-٥٠)</strong><br>
       ١- ما المواد التي تنقلها أوعية الخشب؟<br>
-      ٢- لماذا تُعتبَر أوعية الخشب خلايا ميتة؟<br>
+      ٢- لماذا تُعتبَر أوعية الخشب خلايا ميتة؟
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-      <div class="q-ans-panel">١- الماء والأملاح المعدنية الذائبة.<br>٢- لأن جدرانها مقوّاة باللجنين وخالية من السيتوبلازم والنواة، مما يُتيح تجويفًا حرًا للتدفق.</div>
+      <div class="q-ans-panel">١- الماء والأملاح المعدنية الذائبة.<br>٢- جدرانها مقوّاة باللجنين وخالية من السيتوبلازم والنواة، مما يُتيح تجويفًا حرًا للتدفق.</div>
     </div>`);
 
   function draw(){
     if(currentSim!=='g9bio9n1'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.018;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height,dark=dm15();
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
 
-    // ─── رسم وعاء خشب واقعي (مقطع طولي) ───
-    const vx=w*0.5,vy=h*0.18,vw=w*0.22,vh=h*0.35;
-    // جدار اللجنين (نمط حلزوني)
+    // عنوان
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.038)}px Tajawal`; c.textAlign='center';
+    c.fillText('وعاء الخشب — مقطع طولي', w/2, h*0.08);
+    c.fillStyle='#27AE60'; c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText('(Xylem Vessel)', w/2, h*0.115);
+
+    // رسم مقطع وعاء الخشب في المنتصف
+    const vx=w*0.5, vy=h*0.14, vw=w*0.18, vh=h*0.52;
+    // جدار اللجنين
     const grad=c.createLinearGradient(vx-vw/2,0,vx+vw/2,0);
-    grad.addColorStop(0,'#92400E');grad.addColorStop(0.4,'#B45309');grad.addColorStop(1,'#92400E');
+    grad.addColorStop(0,'#92400E'); grad.addColorStop(0.4,'#B45309'); grad.addColorStop(1,'#92400E');
     c.fillStyle=grad;
-    c.beginPath();c.roundRect(vx-vw/2,vy,vw,vh,8);c.fill();
-    // التجويف الداخلي
-    const cx2=vx,cy2=vy+vh*0.08,cw=vw*0.55,ch=vh*0.84;
-    c.fillStyle='#DBEAFE';
-    c.beginPath();c.roundRect(cx2-cw/2,cy2,cw,ch,4);c.fill();
-    // حلقات اللجنين على الجانبين
+    c.beginPath(); c.roundRect(vx-vw/2,vy,vw,vh,6); c.fill();
+    // التجويف
+    const cw=vw*0.52, ch=vh*0.86, cx2=vx, cy2=vy+vh*0.07;
+    c.fillStyle=dark?'rgba(59,130,246,0.25)':'#DBEAFE';
+    c.beginPath(); c.roundRect(cx2-cw/2,cy2,cw,ch,4); c.fill();
+    // حلقات اللجنين
     for(let i=0;i<5;i++){
-      const ty=vy+vh*0.1+i*(vh*0.17);
-      c.strokeStyle='#92400E';c.lineWidth=3;
-      c.beginPath();c.moveTo(vx-vw/2,ty);c.lineTo(vx-cw/2,ty);c.stroke();
-      c.beginPath();c.moveTo(vx+cw/2,ty);c.lineTo(vx+vw/2,ty);c.stroke();
+      const ty=vy+vh*0.1+i*(vh*0.16);
+      c.strokeStyle='#92400E'; c.lineWidth=2.5;
+      c.beginPath(); c.moveTo(vx-vw/2,ty); c.lineTo(vx-cw/2,ty); c.stroke();
+      c.beginPath(); c.moveTo(vx+cw/2,ty); c.lineTo(vx+vw/2,ty); c.stroke();
     }
     // جزيئات ماء متحركة
     for(let i=0;i<4;i++){
-      const wy=cy2+((simState.t*0.4+i*0.25)%1)*ch;
-      const wr=Math.min(cw*0.12,8);
-      c.fillStyle='rgba(59,130,246,0.7)';
-      c.beginPath();c.arc(cx2,wy,wr,0,Math.PI*2);c.fill();
+      const wy=cy2+((simState.t*0.35+i*0.25)%1)*ch;
+      c.fillStyle='rgba(59,130,246,0.75)';
+      c.beginPath(); c.arc(cx2,wy,5,0,Math.PI*2); c.fill();
       c.fillStyle='rgba(255,255,255,0.5)';
-      c.beginPath();c.arc(cx2-wr*0.3,wy-wr*0.3,wr*0.3,0,Math.PI*2);c.fill();
+      c.beginPath(); c.arc(cx2-1.5,wy-1.5,1.5,0,Math.PI*2); c.fill();
     }
 
-    // عنوان
-    drawLabel(c,'وعاء الخشب — مقطع طولي',w/2,h*0.06,bio9Txt(),Math.round(h*0.032));
-    drawLabel(c,'(Xylem Vessel)',w/2,h*0.095,'#27AE60',Math.round(h*0.022));
-
-    // تسميات الأجزاء
-    const ticks=[
-      {x:vx-vw*0.58,y:vy+vh*0.15,txt:'اللجنين',align:'right',col:'#92400E'},
-      {x:vx+vw*0.58,y:vy+vh*0.5,txt:'حُفَر جدارية',align:'left',col:'#065F46'},
-      {x:vx,y:vy+vh+h*0.04,txt:'التجويف المجوّف (Lumen)',align:'center',col:'#1D4ED8'},
-    ];
-    ticks.forEach(t=>{
-      c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign=t.align;
-      c.fillStyle=t.col;c.fillText(t.txt,t.x*1,t.y*1);
-    });
-
-    // دوائر قابلة للنقر
+    // دوائر التسمية الأربع
     parts.forEach((p,i)=>{
-      const px=p.x*w,py=p.y*h,pr=Math.min(p.r*Math.min(w,h),40);
-      const isSel=simState.sel===p.id,isHover=simState.hover===p.id;
+      const px=p.x*w, py=p.y*h, pr=Math.min(p.r*Math.min(w,h),42);
+      const isSel=simState.sel===p.id;
       const bob=Math.sin(simState.t+i)*3;
-      c.fillStyle=isSel?p.color:p.color+'BB';
-      c.shadowBlur=isSel?16:0;c.shadowColor=p.color;
-      c.beginPath();c.arc(px,py+bob,pr,0,Math.PI*2);c.fill();
+      c.fillStyle=isSel?p.color:p.color+'AA';
+      if(isSel){c.shadowBlur=16; c.shadowColor=p.color;}
+      c.beginPath(); c.arc(px,py+bob,pr,0,Math.PI*2); c.fill();
       c.shadowBlur=0;
-      c.font=`${Math.round(pr*0.7)}px serif`;c.textAlign='center';c.textBaseline='middle';
+      c.font=`${Math.round(pr*0.65)}px serif`; c.textAlign='center'; c.textBaseline='middle';
       c.fillText(p.icon,px,py+bob);
-      c.font=`bold ${Math.round(h*0.018)}px Tajawal`;c.textBaseline='top';
-      c.fillStyle=isSel?p.color:'#555';
+      c.font=`bold ${Math.round(h*0.019)}px Tajawal`; c.textBaseline='top';
+      c.fillStyle=isSel?p.color:bioTxt();
       c.fillText(p.label,px,py+bob+pr+4);
     });
 
@@ -60167,21 +60149,21 @@ function simG9Bio9N1a(){
   }
   cv.onclick=function(e){
     const r=cv.getBoundingClientRect();
-    const mx=(e.clientX-r.left)*cv.width/r.width,my=(e.clientY-r.top)*cv.height/r.height;
+    const mx=(e.clientX-r.left)*cv.width/r.width, my=(e.clientY-r.top)*cv.height/r.height;
     parts.forEach(p=>{
-      const px=p.x*cv.width,py=p.y*cv.height,pr=Math.min(p.r*Math.min(cv.width,cv.height),40);
-      if(Math.hypot(mx-px,my-py)<pr+8){
+      const pr=Math.min(p.r*Math.min(cv.width,cv.height),42);
+      if(Math.hypot(mx-p.x*cv.width,my-p.y*cv.height)<pr+10){
         simState.sel=p.id;
         const box=document.getElementById('bio9XyInfo');
-        if(box){box.innerHTML=`<strong style="font-size:16px">${p.icon} ${p.label}</strong><br><span style="color:#064E3B">${p.desc}</span>`;box.style.background='rgba(39,174,96,0.12)';}
+        if(box){box.innerHTML=`<strong style="font-size:15px">${p.icon} ${p.label}</strong><br><span style="color:#064E3B">${p.desc}</span>`;box.style.background='rgba(39,174,96,0.12)';}
       }
     });
   };
   cv.onmousemove=function(e){
     const r=cv.getBoundingClientRect();
-    const mx=(e.clientX-r.left)*cv.width/r.width,my=(e.clientY-r.top)*cv.height/r.height;
+    const mx=(e.clientX-r.left)*cv.width/r.width, my=(e.clientY-r.top)*cv.height/r.height;
     simState.hover=null;
-    parts.forEach(p=>{if(Math.hypot(mx-p.x*cv.width,my-p.y*cv.height)<Math.min(p.r*Math.min(cv.width,cv.height),40)+8)simState.hover=p.id;});
+    parts.forEach(p=>{if(Math.hypot(mx-p.x*cv.width,my-p.y*cv.height)<Math.min(p.r*Math.min(cv.width,cv.height),42)+10)simState.hover=p.id;});
     cv.style.cursor=simState.hover?'pointer':'default';
   };
   draw();
@@ -60193,101 +60175,88 @@ function simG9Bio9N1b(){
   simState={t:0,sel:null};
   const cv=document.getElementById('simCanvas');
 
+  const phlParts=[
+    {id:'sieve',x:0.22,y:0.38,r:0.08,label:'الخلية الغربالية',col:'#7C3AED',icon:'🔵',desc:'خلية حيّة تحتوي على سيتوبلازم — تفقد نواتها — جدارها العرضي صفيحة غربالية مثقّبة'},
+    {id:'plate',x:0.22,y:0.65,r:0.08,label:'الصفيحة الغربالية',col:'#4C1D95',icon:'🔶',desc:'جدار مثقّب بين خليتين متجاورتين يسمح بتدفق السكروز والأحماض الأمينية'},
+    {id:'companion',x:0.78,y:0.38,r:0.08,label:'الخلية المرافقة',col:'#1D4ED8',icon:'🟢',desc:'خلية حيّة تحتوي على نواة — تُزوِّد الخلية الغربالية بالطاقة والبروتينات'},
+    {id:'sugar',x:0.78,y:0.65,r:0.08,label:'السكروز المنتقل',col:'#D97706',icon:'🍬',desc:'السكروز والأحماض الأمينية تتدفق من الأوراق (مصدر) إلى الجذور والثمار (مصبّ)'},
+  ];
+
   controls(`
     <div class="info-box" style="margin-bottom:10px;font-size:14px;line-height:1.7">
       <strong>📖 أنابيب اللحاء (Phloem Tubes)</strong><br>
-      خلايا حيّة مترابطة عبر صفائح غربالية — تنقل السكروز والأحماض الأمينية بين أجزاء النبات
+      خلايا حيّة مترابطة عبر صفائح غربالية — تنقل السكروز والأحماض الأمينية في كلا الاتجاهين
     </div>
     <div id="bio9PhInfo" style="padding:12px;background:rgba(107,78,154,0.08);border-radius:10px;min-height:70px;font-size:14px;color:#4C1D95;line-height:1.7;text-align:center">
       👆 انقر على مكونات اللحاء
     </div>
     <div class="q-box" style="margin-top:10px">
       <strong>❓ المقارنة (ص٥٠)</strong><br>
-      ١- ما الفرق بين خلايا الخشب وأنابيب اللحاء من حيث الحياة؟<br>
+      ١- ما الفرق بين خلايا الخشب وأنابيب اللحاء؟<br>
       ٢- في أي الاتجاهين ينتقل السكروز؟
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-      <div class="q-ans-panel">١- الخشب خلايا ميتة، اللحاء خلايا حيّة تحتوي على سيتوبلازم (بدون نواة في الخلايا الغربالية).<br>٢- في الاتجاهين — من المصدر (الأوراق) إلى المصبّ (الجذور أو الثمار).</div>
+      <div class="q-ans-panel">١- الخشب خلايا ميتة، اللحاء خلايا حيّة (بدون نواة في الخلايا الغربالية).<br>٢- في الاتجاهين — من المصدر (الأوراق) إلى المصبّ (الجذور أو الثمار).</div>
     </div>`);
-
-  const phlParts=[
-    {id:'sieve',x:0.5,y:0.28,r:0.09,label:'الخلية الغربالية (Sieve cell)',col:'#7C3AED',
-     icon:'🔵',desc:'خلية حيّة تحتوي على سيتوبلازم وتفقد نواتها — جدارها العرضي صفيحة غربالية مثقّبة'},
-    {id:'plate',x:0.28,y:0.50,r:0.08,label:'الصفيحة الغربالية',col:'#4C1D95',
-     icon:'🔶',desc:'جدار مثقّب بين خليتين متجاورتين — يسمح بتدفق السكروز والأحماض الأمينية'},
-    {id:'companion',x:0.72,y:0.50,r:0.08,label:'الخلية المرافقة',col:'#1D4ED8',
-     icon:'🟢',desc:'خلية حيّة تحتوي على نواة — تُزوِّد الخلية الغربالية بالطاقة والبروتينات'},
-    {id:'sugar',x:0.5,y:0.70,r:0.08,label:'جزيئات السكروز المنتقلة',col:'#D97706',
-     icon:'🍬',desc:'السكروز والأحماض الأمينية تتدفق عبر الصفائح الغربالية من المصدر إلى المصبّ'},
-  ];
 
   function draw(){
     if(currentSim!=='g9bio9n1'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.018;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'أنابيب اللحاء — مقطع طولي',w/2,h*0.06,bio9Txt(),Math.round(h*0.032));
-    drawLabel(c,'(Phloem Tubes)',w/2,h*0.095,'#7C3AED',Math.round(h*0.022));
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.038)}px Tajawal`; c.textAlign='center';
+    c.fillText('أنابيب اللحاء — مقطع طولي', w/2, h*0.08);
+    c.fillStyle='#7C3AED'; c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText('(Phloem Tubes)', w/2, h*0.115);
 
-    // رسم أنبوب اللحاء
-    const tx=w*0.5,ty=h*0.13,tw=w*0.20,th=h*0.40;
-    c.fillStyle='rgba(167,139,250,0.2)';
-    c.beginPath();c.roundRect(tx-tw/2,ty,tw,th,8);c.fill();
-    c.strokeStyle='#7C3AED';c.lineWidth=2.5;
-    c.beginPath();c.roundRect(tx-tw/2,ty,tw,th,8);c.stroke();
+    // أنبوب اللحاء في المنتصف
+    const tx=w*0.5, ty=h*0.14, tw=w*0.16, th=h*0.52;
+    c.fillStyle=dark?'rgba(167,139,250,0.15)':'rgba(237,233,254,0.7)';
+    c.beginPath(); c.roundRect(tx-tw/2,ty,tw,th,6); c.fill();
+    c.strokeStyle='#7C3AED'; c.lineWidth=2.5;
+    c.beginPath(); c.roundRect(tx-tw/2,ty,tw,th,6); c.stroke();
 
     // صفيحتان غربالتيان
     for(let i=1;i<=2;i++){
       const sy=ty+th*(i/3);
-      c.strokeStyle='#4C1D95';c.lineWidth=3;
-      c.beginPath();c.moveTo(tx-tw/2,sy);c.lineTo(tx+tw/2,sy);c.stroke();
+      c.strokeStyle='#4C1D95'; c.lineWidth=3;
+      c.beginPath(); c.moveTo(tx-tw/2,sy); c.lineTo(tx+tw/2,sy); c.stroke();
       for(let j=0;j<5;j++){
-        const px=tx-tw/2+tw*(j+0.5)/5;
+        const px2=tx-tw/2+tw*(j+0.5)/5;
         c.fillStyle='#4C1D95';
-        c.beginPath();c.arc(px,sy,2.5,0,Math.PI*2);c.fill();
+        c.beginPath(); c.arc(px2,sy,2.5,0,Math.PI*2); c.fill();
       }
     }
-
     // جزيئات متحركة
     for(let i=0;i<3;i++){
-      const prog=((simState.t*0.3+i*0.33)%1);
-      const sy=ty+prog*th;
-      c.fillStyle='rgba(217,119,6,0.8)';
-      c.beginPath();c.arc(tx,sy,5,0,Math.PI*2);c.fill();
+      const prog=((simState.t*0.28+i*0.33)%1);
+      c.fillStyle='rgba(217,119,6,0.85)';
+      c.beginPath(); c.arc(tx,ty+prog*th,5,0,Math.PI*2); c.fill();
     }
-
-    // الخلية المرافقة على الجانب
-    c.fillStyle='rgba(29,78,216,0.15)';
-    c.strokeStyle='#1D4ED8';c.lineWidth=1.5;
-    c.beginPath();c.roundRect(tx+tw/2+4,ty+th*0.25,tw*0.7,th*0.5,6);
-    c.fill();c.stroke();
-    c.font=`${Math.round(h*0.018)}px Tajawal`;c.textAlign='center';c.fillStyle='#1D4ED8';
-    c.fillText('خلية',tx+tw/2+4+tw*0.35,ty+th*0.48);
-    c.fillText('مرافقة',tx+tw/2+4+tw*0.35,ty+th*0.55);
 
     // دوائر التسمية
     phlParts.forEach((p,i)=>{
-      const px=p.x*w,py=p.y*h,pr=Math.min(p.r*Math.min(w,h),38);
+      const px=p.x*w, py=p.y*h, pr=Math.min(p.r*Math.min(w,h),42);
       const bob=Math.sin(simState.t+i*1.2)*2.5;
       c.fillStyle=simState.sel===p.id?p.col:p.col+'99';
-      c.shadowBlur=simState.sel===p.id?14:0;c.shadowColor=p.col;
-      c.beginPath();c.arc(px,py+bob,pr,0,Math.PI*2);c.fill();
+      if(simState.sel===p.id){c.shadowBlur=14;c.shadowColor=p.col;}
+      c.beginPath(); c.arc(px,py+bob,pr,0,Math.PI*2); c.fill();
       c.shadowBlur=0;
-      c.font=`${Math.round(pr*0.65)}px serif`;c.textAlign='center';c.textBaseline='middle';
+      c.font=`${Math.round(pr*0.65)}px serif`; c.textAlign='center'; c.textBaseline='middle';
       c.fillText(p.icon,px,py+bob);
-      c.font=`bold ${Math.round(h*0.016)}px Tajawal`;c.textBaseline='top';
-      c.fillStyle=simState.sel===p.id?p.col:'#444';
-      c.fillText(p.label,px,py+bob+pr+3);
+      c.font=`bold ${Math.round(h*0.019)}px Tajawal`; c.textBaseline='top';
+      c.fillStyle=simState.sel===p.id?p.col:bioTxt();
+      c.fillText(p.label,px,py+bob+pr+4);
     });
     animFrame=requestAnimationFrame(draw);
   }
   cv.onclick=function(e){
     const r=cv.getBoundingClientRect();
-    const mx=(e.clientX-r.left)*cv.width/r.width,my=(e.clientY-r.top)*cv.height/r.height;
+    const mx=(e.clientX-r.left)*cv.width/r.width, my=(e.clientY-r.top)*cv.height/r.height;
     phlParts.forEach(p=>{
-      if(Math.hypot(mx-p.x*cv.width,my-p.y*cv.height)<Math.min(p.r*Math.min(cv.width,cv.height),38)+8){
+      if(Math.hypot(mx-p.x*cv.width,my-p.y*cv.height)<Math.min(p.r*Math.min(cv.width,cv.height),42)+10){
         simState.sel=p.id;
         const box=document.getElementById('bio9PhInfo');
-        if(box){box.innerHTML=`<strong style="font-size:16px">${p.icon} ${p.label}</strong><br><span style="color:#4C1D95">${p.desc}</span>`;box.style.background='rgba(107,78,154,0.12)';}
+        if(box){box.innerHTML=`<strong style="font-size:15px">${p.icon} ${p.label}</strong><br><span style="color:#4C1D95">${p.desc}</span>`;box.style.background='rgba(107,78,154,0.12)';}
       }
     });
   };
@@ -60298,96 +60267,89 @@ function simG9Bio9N1b(){
 function simG9Bio9N2a(){
   cancelAnimationFrame(animFrame);
   simState={t:0,phase:'idle',molecules:[]};
+  for(let i=0;i<8;i++) simState.molecules.push({x:0.72+Math.random()*0.2,y:0.28+Math.random()*0.44,inRoot:false});
   const cv=document.getElementById('simCanvas');
-
-  function spawnMols(){
-    simState.molecules=[];
-    for(let i=0;i<8;i++){
-      simState.molecules.push({x:Math.random()*0.3+0.03,y:Math.random()*0.4+0.3,vx:0,vy:0,inRoot:false,prog:0});
-    }
-  }
-  spawnMols();
 
   controls(`
     <div class="info-box" style="margin-bottom:8px;font-size:14px;line-height:1.7">
       <strong>💧 الأسموزية وامتصاص الماء</strong><br>
-      الماء يتحرك من محلول أقل تركيزًا (التربة) إلى محلول أكثر تركيزًا (داخل الشعيرة) عبر الغشاء شبه المنفذ
+      الماء يتحرك من محلول أقل تركيزًا (التربة) إلى محلول أكثر تركيزًا (الشعيرة) عبر الغشاء شبه المنفذ
     </div>
-    <div style="margin-bottom:8px">
-      <button onclick="if(window.simState)simState.phase='absorb'" style="background:#27AE60;color:#fff;border:none;padding:9px 18px;border-radius:10px;font-family:Tajawal;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:6px">💧 ابدأ الامتصاص بالأسموزية</button>
-      <button onclick="if(window.simState){simState.phase='idle';}" style="background:rgba(39,174,96,0.12);color:#065F46;border:1px solid rgba(39,174,96,0.3);padding:8px 16px;border-radius:10px;font-family:Tajawal;font-size:14px;cursor:pointer;width:100%">🔄 إعادة</button>
-    </div>
+    <button onclick="simState.phase='absorb';simState.molecules.forEach(m=>{m.x=0.72+Math.random()*0.2;m.y=0.28+Math.random()*0.44;m.inRoot=false;})" style="background:#27AE60;color:#fff;border:none;padding:9px 18px;border-radius:10px;font-family:Tajawal;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:6px">💧 ابدأ الامتصاص بالأسموزية</button>
+    <button onclick="simState.phase='idle';simState.molecules.forEach(m=>{m.x=0.72+Math.random()*0.2;m.y=0.28+Math.random()*0.44;m.inRoot=false;})" style="background:rgba(39,174,96,0.1);color:#065F46;border:1px solid rgba(39,174,96,0.3);padding:8px;border-radius:10px;font-family:Tajawal;font-size:14px;cursor:pointer;width:100%;margin-bottom:8px">🔄 إعادة</button>
     <div class="q-box">
       <strong>❓ (ص٥٢-٥٣)</strong><br>
       ١- ما الذي يدفع الماء للدخول للشعيرات الجذرية؟<br>
-      ٢- لماذا الشعيرات الجذرية صغيرة جدًا ولكن كثيرة العدد؟
+      ٢- لماذا الشعيرات الجذرية كثيرة العدد رغم صغر حجمها؟
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-      <div class="q-ans-panel">١- فرق التركيز: داخل الشعيرة أعلى تركيزًا من التربة، فالماء يدخل بالأسموزية.<br>٢- لتكبير مساحة السطح الكلية لامتصاص أكبر كمية ممكنة من الماء والأملاح.</div>
+      <div class="q-ans-panel">١- فرق التركيز — داخل الشعيرة أعلى تركيزًا، فالماء يدخل بالأسموزية.<br>٢- لتكبير مساحة السطح الكلية لامتصاص أكبر كمية ممكنة.</div>
     </div>`);
 
   function draw(){
     if(currentSim!=='g9bio9n2'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.016;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'الشعيرة الجذرية وامتصاص الماء',w/2,h*0.06,bio9Txt(),Math.round(h*0.030));
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.035)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشعيرة الجذرية وامتصاص الماء', w/2, h*0.08);
 
-    // تربة (اليمين)
-    const soilX=w*0.55,soilW=w*0.38;
-    c.fillStyle='rgba(180,120,60,0.18)';
-    c.beginPath();c.roundRect(soilX,h*0.15,soilW,h*0.65,8);c.fill();
-    c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillStyle='#92400E';
-    c.fillText('التربة — تركيز منخفض',soilX+soilW/2,h*0.13);
+    // الشعيرة (يسار)
+    const rx=w*0.08, ry=h*0.15, rw=w*0.42, rh=h*0.65;
+    c.fillStyle=dark?'rgba(39,174,96,0.12)':'rgba(209,250,229,0.7)';
+    c.beginPath(); c.roundRect(rx,ry,rw,rh,10); c.fill();
+    c.strokeStyle='#27AE60'; c.lineWidth=2.5;
+    c.beginPath(); c.roundRect(rx,ry,rw,rh,10); c.stroke();
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشعيرة الجذرية',rx+rw/2,ry-h*0.02);
+    c.fillStyle='#27AE60'; c.font=`${Math.round(h*0.018)}px Tajawal`;
+    c.fillText('تركيز عالٍ ✅',rx+rw/2,ry+h*0.06);
 
-    // الشعيرة الجذرية (اليسار)
-    const rootX=w*0.10,rootW=w*0.38,rootY=h*0.15,rootH=h*0.65;
-    c.fillStyle='rgba(39,174,96,0.15)';
-    c.beginPath();c.roundRect(rootX,rootY,rootW,rootH,12);c.fill();
-    c.strokeStyle='#27AE60';c.lineWidth=2.5;
-    c.beginPath();c.roundRect(rootX,rootY,rootW,rootH,12);c.stroke();
-    c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillStyle='#065F46';
-    c.fillText('الشعيرة الجذرية — تركيز عالٍ',rootX+rootW/2,h*0.13);
+    // التربة (يمين)
+    const sx=w*0.56, sy=h*0.15, sw=w*0.36, sh=h*0.65;
+    c.fillStyle=dark?'rgba(180,120,60,0.12)':'rgba(254,243,199,0.7)';
+    c.beginPath(); c.roundRect(sx,sy,sw,sh,10); c.fill();
+    c.strokeStyle='#B45309'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(sx,sy,sw,sh,10); c.stroke();
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+    c.fillText('التربة',sx+sw/2,sy-h*0.02);
+    c.fillStyle='#92400E'; c.font=`${Math.round(h*0.018)}px Tajawal`;
+    c.fillText('تركيز منخفض',sx+sw/2,sy+h*0.06);
 
-    // غشاء شبه منفذ (الحد بين المنطقتين)
-    const memX=soilX-3;
-    const memGrad=c.createLinearGradient(memX,h*0.15,memX,h*0.8);
-    memGrad.addColorStop(0,'rgba(107,78,154,0.8)');
-    memGrad.addColorStop(1,'rgba(107,78,154,0.4)');
-    c.strokeStyle=memGrad;c.lineWidth=5;
+    // غشاء شبه منفذ
+    const memX=sx-2;
+    c.strokeStyle='#6B4E9A'; c.lineWidth=4;
     c.setLineDash([8,5]);
-    c.beginPath();c.moveTo(memX,h*0.17);c.lineTo(memX,h*0.78);c.stroke();
+    c.beginPath(); c.moveTo(memX,sy+h*0.02); c.lineTo(memX,sy+sh-h*0.02); c.stroke();
     c.setLineDash([]);
-    c.font=`bold ${Math.round(h*0.019)}px Tajawal`;c.textAlign='center';c.fillStyle='#6B4E9A';
-    c.save();c.translate(memX,h*0.5);c.rotate(-Math.PI/2);
-    c.fillText('غشاء شبه منفذ',0,0);c.restore();
+    c.save(); c.translate(memX,h*0.5); c.rotate(-Math.PI/2);
+    c.fillStyle='#6B4E9A'; c.font=`bold ${Math.round(h*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('غشاء شبه منفذ',0,0); c.restore();
 
     // جزيئات الماء
     if(simState.phase==='absorb'){
       simState.molecules.forEach(m=>{
         if(!m.inRoot){
-          m.x-=0.004;
-          if(m.x<0.48){m.inRoot=true;m.vx=(Math.random()-0.5)*0.003;m.vy=(Math.random()-0.5)*0.003;}
-        }else{
-          m.x+=m.vx;m.y+=m.vy;
-          m.x=Math.max(0.12,Math.min(0.46,m.x));
-          m.y=Math.max(0.2,Math.min(0.75,m.y));
+          m.x-=0.005;
+          if(m.x<0.53) m.inRoot=true;
+        } else {
+          m.x=Math.max(0.10,Math.min(0.47,m.x+(Math.random()-0.5)*0.004));
+          m.y=Math.max(0.18,Math.min(0.75,m.y+(Math.random()-0.5)*0.004));
         }
       });
     }
     simState.molecules.forEach(m=>{
-      c.fillStyle=m.inRoot?'rgba(59,130,246,0.85)':'rgba(147,197,253,0.7)';
-      c.beginPath();c.arc(m.x*w,m.y*h,5,0,Math.PI*2);c.fill();
+      c.fillStyle=m.inRoot?'rgba(59,130,246,0.85)':'rgba(147,197,253,0.65)';
+      c.beginPath(); c.arc(m.x*w,m.y*h,5.5,0,Math.PI*2); c.fill();
       c.fillStyle='rgba(255,255,255,0.5)';
-      c.beginPath();c.arc(m.x*w-1.5,m.y*h-1.5,1.5,0,Math.PI*2);c.fill();
+      c.beginPath(); c.arc(m.x*w-1.5,m.y*h-1.5,1.5,0,Math.PI*2); c.fill();
     });
 
     // سهم الاتجاه
     if(simState.phase==='absorb'){
-      const ax=w*0.52,ay=h*0.5;
-      c.fillStyle='rgba(39,174,96,0.9)';
-      c.beginPath();c.moveTo(ax,ay);c.lineTo(ax-20,ay-10);c.lineTo(ax-20,ay+10);c.closePath();c.fill();
-      c.font=`${Math.round(h*0.02)}px Tajawal`;c.textAlign='center';c.fillStyle='#27AE60';
-      c.fillText('→ أسموزية',ax-30,ay-15);
+      c.fillStyle='rgba(39,174,96,0.9)'; c.font=`${Math.round(h*0.045)}px sans-serif`; c.textAlign='center';
+      c.fillText('←',w*0.53,h*0.5);
+      c.font=`bold ${Math.round(h*0.020)}px Tajawal`; c.fillStyle='#27AE60';
+      c.fillText('أسموزية',w*0.53,h*0.58);
     }
     animFrame=requestAnimationFrame(draw);
   }
@@ -60397,91 +60359,83 @@ function simG9Bio9N2a(){
 // ══ نشاط ٢ التبويب الثاني: المسار الجانبي ══
 function simG9Bio9N2b(){
   cancelAnimationFrame(animFrame);
-  simState={t:0,step:0,maxStep:4};
+  simState={t:0,step:0};
   const cv=document.getElementById('simCanvas');
+
+  const steps=[
+    'الماء يدخل من التربة إلى الشعيرة الجذرية بالأسموزية',
+    'الشعيرة الجذرية → خلايا القشرة (Cortex) جانبيًا',
+    'الماء ينتقل من خلية إلى أخرى بالأسموزية',
+    'الماء يصل إلى أوعية الخشب في مركز الجذر',
+    '✅ الماء يصعد عبر الخشب بتيار النتح!',
+  ];
 
   controls(`
     <div class="info-box" style="margin-bottom:8px;font-size:14px;line-height:1.7">
-      <strong>🌿 المسار الجانبي للماء</strong><br>
-      بعد دخول الماء للشعيرة الجذرية، يتحرك عبر خلايا القشرة (Cortex) حتى يصل لأوعية الخشب
+      <strong>🌿 المسار الجانبي للماء في الجذر</strong><br>
+      بعد الدخول للشعيرة، يتحرك الماء عبر خلايا القشرة حتى يصل لأوعية الخشب
     </div>
-    <div style="margin-bottom:8px">
-      <button onclick="if(window.simState&&simState.step<4)simState.step++" style="background:#1A8FA8;color:#fff;border:none;padding:9px 18px;border-radius:10px;font-family:Tajawal;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:6px">▶ الخطوة التالية</button>
-      <button onclick="if(window.simState)simState.step=0" style="background:rgba(26,143,168,0.1);color:#065F46;border:1px solid rgba(26,143,168,0.3);padding:8px 16px;border-radius:10px;font-family:Tajawal;font-size:14px;cursor:pointer;width:100%">🔄 من البداية</button>
-    </div>
-    <div id="bio9StepInfo" style="padding:10px;background:rgba(26,143,168,0.08);border-radius:8px;font-size:14px;color:#065F46;min-height:50px;line-height:1.6;text-align:center">اضغط "الخطوة التالية" لبدء الرحلة 👆</div>
+    <button onclick="if(simState.step<4)simState.step++" style="background:#1A8FA8;color:#fff;border:none;padding:9px 18px;border-radius:10px;font-family:Tajawal;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:6px">▶ الخطوة التالية</button>
+    <button onclick="simState.step=0" style="background:rgba(26,143,168,0.1);color:#065F46;border:1px solid rgba(26,143,168,0.3);padding:8px;border-radius:10px;font-family:Tajawal;font-size:14px;cursor:pointer;width:100%;margin-bottom:8px">🔄 من البداية</button>
+    <div id="bio9StepInfo" style="padding:10px;background:rgba(26,143,168,0.08);border-radius:8px;font-size:14px;color:#065F46;min-height:55px;line-height:1.6;text-align:center">اضغط "الخطوة التالية" لبدء الرحلة 👆</div>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ اشرح كيفية انتقال الماء إلى الشعيرات الجذرية</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
       <div class="q-ans-panel">الماء يدخل من التربة بالأسموزية → ينتقل جانبيًا عبر خلايا القشرة → يصل لأوعية الخشب → يُسحب للأعلى بتيار النتح.</div>
     </div>`);
 
-  const steps=[
-    {txt:'التربة → الشعيرة الجذرية بالأسموزية'},
-    {txt:'الشعيرة الجذرية → خلايا القشرة (Cortex) جانبيًا'},
-    {txt:'خلايا القشرة → خلية أخرى بالأسموزية'},
-    {txt:'وصول الماء إلى أوعية الخشب'},
-    {txt:'✅ الماء يصعد عبر أوعية الخشب بتيار النتح!'},
-  ];
-
   function draw(){
     if(currentSim!=='g9bio9n2'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.02;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'مسار الماء في الجذر — مقطع عرضي',w/2,h*0.06,bio9Txt(),Math.round(h*0.028));
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.034)}px Tajawal`; c.textAlign='center';
+    c.fillText('مقطع عرضي للجذر — مسار الماء', w/2, h*0.07);
 
-    // رسم مقطع عرضي للجذر (دوائر متحدة المركز)
-    const cx3=w*0.52,cy3=h*0.50;
-    const radii=[
-      {r:h*0.30,fill:'rgba(180,120,60,0.12)',stroke:'#92400E',lbl:'البشرة والشعيرات الجذرية'},
-      {r:h*0.22,fill:'rgba(39,174,96,0.10)',stroke:'#27AE60',lbl:'القشرة (Cortex)'},
-      {r:h*0.13,fill:'rgba(26,143,168,0.12)',stroke:'#1A8FA8',lbl:''},
-      {r:h*0.06,fill:'rgba(212,144,26,0.2)',stroke:'#D4901A',lbl:'أوعية الخشب'},
+    // دوائر متحدة المركز
+    const cx3=w*0.52, cy3=h*0.50;
+    const layers=[
+      {r:h*0.30,fill:dark?'rgba(180,120,60,0.12)':'rgba(254,243,199,0.5)',stroke:'#B45309',lbl:'البشرة والشعيرات الجذرية'},
+      {r:h*0.22,fill:dark?'rgba(39,174,96,0.10)':'rgba(209,250,229,0.5)',stroke:'#27AE60',lbl:'القشرة (Cortex)'},
+      {r:h*0.13,fill:dark?'rgba(26,143,168,0.12)':'rgba(207,250,254,0.5)',stroke:'#1A8FA8',lbl:''},
+      {r:h*0.06,fill:dark?'rgba(212,144,26,0.25)':'rgba(253,230,138,0.7)',stroke:'#D4901A',lbl:'أوعية الخشب'},
     ];
-    radii.forEach((r2,i)=>{
-      c.fillStyle=r2.fill;c.beginPath();c.arc(cx3,cy3,r2.r,0,Math.PI*2);c.fill();
-      c.strokeStyle=r2.stroke;c.lineWidth=2;c.beginPath();c.arc(cx3,cy3,r2.r,0,Math.PI*2);c.stroke();
-      if(r2.lbl){
-        c.font=`${Math.round(h*0.019)}px Tajawal`;c.textAlign='center';c.fillStyle=r2.stroke;
-        c.fillText(r2.lbl,cx3,cy3-r2.r-h*0.01);
+    layers.forEach((l,i)=>{
+      c.fillStyle=l.fill; c.beginPath(); c.arc(cx3,cy3,l.r,0,Math.PI*2); c.fill();
+      c.strokeStyle=l.stroke; c.lineWidth=2;
+      c.beginPath(); c.arc(cx3,cy3,l.r,0,Math.PI*2); c.stroke();
+      if(l.lbl){
+        c.font=`${Math.round(h*0.018)}px Tajawal`; c.textAlign='center'; c.fillStyle=l.stroke;
+        c.fillText(l.lbl,cx3,cy3-l.r-h*0.012);
       }
     });
 
-    // نقطة متحركة تتبع المسار
+    // نقطة متحركة
     if(simState.step>0){
-      const maxR=radii[0].r,minR=radii[3].r;
+      const maxR=layers[0].r, minR=layers[3].r;
       const targetR=simState.step>=4?minR:maxR-(maxR-minR)*(simState.step/4);
       const angle=-Math.PI/2+simState.t*0.5;
-      const px=cx3+targetR*Math.cos(angle),py=cy3+targetR*Math.sin(angle);
+      const px=cx3+targetR*Math.cos(angle), py=cy3+targetR*Math.sin(angle);
       c.fillStyle='rgba(59,130,246,0.9)';
-      c.shadowBlur=12;c.shadowColor='#3B82F6';
-      c.beginPath();c.arc(px,py,7,0,Math.PI*2);c.fill();
+      c.shadowBlur=12; c.shadowColor='#3B82F6';
+      c.beginPath(); c.arc(px,py,7,0,Math.PI*2); c.fill();
       c.shadowBlur=0;
     }
 
     // معلومة الخطوة
     const info=document.getElementById('bio9StepInfo');
-    if(info&&steps[simState.step])info.innerHTML='<strong>الخطوة '+(simState.step+1)+'/'+steps.length+':</strong><br>'+steps[simState.step].txt;
-
+    if(info&&steps[simState.step]) info.innerHTML=`<strong>الخطوة ${simState.step+1}/${steps.length}:</strong><br>${steps[simState.step]}`;
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
 
-// ══ نشاط ٣ التبويب الأول: عملية النتح ══
+// ══ نشاط ٣ التبويب الأول: عملية النتح والثغور ══
 function simG9Bio9N3a(){
   cancelAnimationFrame(animFrame);
   simState={t:0,stomata:'open',particles:[]};
+  for(let i=0;i<12;i++) simState.particles.push({x:0.5+(Math.random()-0.5)*0.04,y:0.55+Math.random()*0.03,vx:(Math.random()-0.5)*0.003,vy:-0.003-Math.random()*0.003,life:Math.random()});
   const cv=document.getElementById('simCanvas');
-
-  for(let i=0;i<12;i++){
-    simState.particles.push({
-      x:0.45+Math.random()*0.05,y:0.55+Math.random()*0.05,
-      vx:(Math.random()-0.5)*0.003,vy:-0.003-Math.random()*0.003,
-      life:Math.random()
-    });
-  }
 
   controls(`
     <div class="info-box" style="margin-bottom:8px;font-size:14px;line-height:1.7">
@@ -60489,8 +60443,8 @@ function simG9Bio9N3a(){
       فقدان بخار الماء من أوراق النبات عبر الثغور — يُسبِّب سحبًا يُحرِّك الماء من الجذور للأعلى
     </div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
-      <button onclick="if(window.simState)simState.stomata='open'" style="flex:1;background:#27AE60;color:#fff;border:none;padding:9px;border-radius:10px;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer">🔓 افتح الثغر</button>
-      <button onclick="if(window.simState)simState.stomata='closed'" style="flex:1;background:#C0392B;color:#fff;border:none;padding:9px;border-radius:10px;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer">🔒 أغلق الثغر</button>
+      <button onclick="simState.stomata='open'" style="flex:1;background:#27AE60;color:#fff;border:none;padding:9px;border-radius:10px;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer">🔓 افتح الثغر</button>
+      <button onclick="simState.stomata='closed'" style="flex:1;background:#C0392B;color:#fff;border:none;padding:9px;border-radius:10px;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer">🔒 أغلق الثغر</button>
     </div>
     <div id="bio9TransInfo" style="padding:10px;background:rgba(39,174,96,0.08);border-radius:8px;font-size:14px;color:#065F46;min-height:45px;line-height:1.6;text-align:center">
       الثغر مفتوح — يخرج بخار الماء 💨
@@ -60505,62 +60459,56 @@ function simG9Bio9N3a(){
   function draw(){
     if(currentSim!=='g9bio9n3'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.018;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'النتح عبر الثغور',w/2,h*0.06,bio9Txt(),Math.round(h*0.030));
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.035)}px Tajawal`; c.textAlign='center';
+    c.fillText('النتح عبر الثغور', w/2, h*0.08);
 
-    // ورقة نبات مبسّطة
-    const lx=w*0.5,ly=h*0.42,lw=w*0.50,lh=h*0.24;
+    // ورقة
+    const lx=w*0.5, ly=h*0.30, lw=w*0.50, lh=h*0.35;
     const leafGrad=c.createLinearGradient(lx-lw/2,0,lx+lw/2,0);
-    leafGrad.addColorStop(0,'rgba(39,174,96,0.6)');
-    leafGrad.addColorStop(0.5,'rgba(39,174,96,0.85)');
-    leafGrad.addColorStop(1,'rgba(39,174,96,0.6)');
+    leafGrad.addColorStop(0,'rgba(39,174,96,0.55)'); leafGrad.addColorStop(0.5,'rgba(39,174,96,0.8)'); leafGrad.addColorStop(1,'rgba(39,174,96,0.55)');
     c.fillStyle=leafGrad;
     c.beginPath();
     c.moveTo(lx-lw/2,ly+lh/2);
-    c.quadraticCurveTo(lx-lw*0.15,ly-lh*0.3,lx,ly-lh*0.1);
-    c.quadraticCurveTo(lx+lw*0.15,ly-lh*0.3,lx+lw/2,ly+lh/2);
+    c.quadraticCurveTo(lx-lw*0.1,ly-lh*0.3,lx,ly);
+    c.quadraticCurveTo(lx+lw*0.1,ly-lh*0.3,lx+lw/2,ly+lh/2);
     c.quadraticCurveTo(lx,ly+lh*1.1,lx-lw/2,ly+lh/2);
     c.fill();
-    // عرق رئيسي
-    c.strokeStyle='rgba(6,78,59,0.5)';c.lineWidth=2.5;
-    c.beginPath();c.moveTo(lx,ly-lh*0.1);c.lineTo(lx,ly+lh*0.9);c.stroke();
+    c.strokeStyle='rgba(6,78,59,0.4)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(lx,ly); c.lineTo(lx,ly+lh*0.9); c.stroke();
 
     // ثغر
-    const sx=lx,sy=ly+lh*0.6;
+    const ssx=lx, ssy=ly+lh*0.72;
     const isOpen=simState.stomata==='open';
-    const gap=isOpen?8:1;
+    const gap=isOpen?9:1;
     c.fillStyle='#065F46';
-    c.beginPath();c.ellipse(sx-10,sy,8,13,0.2,0,Math.PI*2);c.fill();
-    c.beginPath();c.ellipse(sx+10,sy,8,13,-0.2,0,Math.PI*2);c.fill();
+    c.beginPath(); c.ellipse(ssx-11,ssy,8,13,0.2,0,Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(ssx+11,ssy,8,13,-0.2,0,Math.PI*2); c.fill();
     c.fillStyle=isOpen?'rgba(147,197,253,0.4)':'rgba(100,100,100,0.3)';
-    c.beginPath();c.ellipse(sx,sy,gap,9,0,0,Math.PI*2);c.fill();
+    c.beginPath(); c.ellipse(ssx,ssy,gap,9,0,0,Math.PI*2); c.fill();
 
-    // معلومة الثغر
     const info=document.getElementById('bio9TransInfo');
-    if(info)info.innerHTML=isOpen?'🔓 الثغر مفتوح — بخار الماء يخرج للهواء 💨':'🔒 الثغر مغلق — النتح متوقف ✋';
+    if(info) info.innerHTML=isOpen?'🔓 الثغر مفتوح — بخار الماء يخرج 💨':'🔒 الثغر مغلق — النتح متوقف ✋';
 
-    // جزيئات بخار الماء
+    // جزيئات بخار
     if(isOpen){
       simState.particles.forEach(p=>{
-        p.y-=0.008;p.x+=p.vx;p.life+=0.008;
-        if(p.y<0.1||p.life>1){p.y=sy/h;p.x=sx/w;p.life=0;p.vx=(Math.random()-0.5)*0.004;}
-        const alpha=Math.min(0.7,1-p.life);
+        p.y-=0.007; p.x+=p.vx; p.life+=0.007;
+        if(p.y<0.12||p.life>1){p.y=ssy/h; p.x=ssx/w; p.life=0; p.vx=(Math.random()-0.5)*0.004;}
+        const alpha=Math.max(0,0.7*(1-p.life));
         c.fillStyle=`rgba(147,197,253,${alpha})`;
-        c.beginPath();c.arc(p.x*w,p.y*h,4,0,Math.PI*2);c.fill();
+        c.beginPath(); c.arc(p.x*w,p.y*h,4,0,Math.PI*2); c.fill();
       });
-      // سهم للأعلى
-      c.fillStyle='rgba(26,143,168,0.7)';
-      c.font=`${Math.round(h*0.04)}px sans-serif`;c.textAlign='center';
-      c.fillText('↑',sx,sy-h*0.12);
-      c.font=`${Math.round(h*0.019)}px Tajawal`;c.fillStyle='#1A8FA8';
-      c.fillText('بخار ماء',sx,sy-h*0.16);
+      c.font=`${Math.round(h*0.04)}px sans-serif`; c.textAlign='center'; c.fillStyle='rgba(26,143,168,0.7)';
+      c.fillText('↑',ssx,ssy-h*0.14);
+      c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.fillStyle='#1A8FA8';
+      c.fillText('بخار ماء',ssx,ssy-h*0.19);
     }
-
     // تسميات
-    c.font=`bold ${Math.round(h*0.019)}px Tajawal`;c.textAlign='right';c.fillStyle='#065F46';
-    c.fillText('خلية حارسة',sx-18,sy+20);
-    c.textAlign='left';c.fillText('خلية حارسة',sx+18,sy+20);
+    c.font=`${Math.round(h*0.019)}px Tajawal`; c.fillStyle='#065F46';
+    c.textAlign='right'; c.fillText('خلية حارسة',ssx-22,ssy+22);
+    c.textAlign='left'; c.fillText('خلية حارسة',ssx+22,ssy+22);
 
     animFrame=requestAnimationFrame(draw);
   }
@@ -60575,73 +60523,61 @@ function simG9Bio9N3b(){
 
   controls(`
     <div class="info-box" style="margin-bottom:8px;font-size:14px;line-height:1.6">
-      <strong>🌡️ عوامل مؤثرة على معدّل النتح</strong><br>
-      حرِّك المتغيرات وراقب تأثيرها
+      <strong>🌡️ عوامل مؤثرة على معدّل النتح</strong><br>حرِّك المتغيرات وراقب تأثيرها
     </div>
     <div style="margin-bottom:10px">
       <div style="font-size:14px;font-weight:700;color:#065F46;margin-bottom:4px">🌡️ درجة الحرارة: <span id="tmpVal">25</span>°م</div>
-      <input type="range" min="10" max="40" value="25" oninput="document.getElementById('tmpVal').textContent=this.value;if(window.simState)simState.temp=+this.value" style="width:100%">
+      <input type="range" min="10" max="40" value="25" oninput="document.getElementById('tmpVal').textContent=this.value;simState.temp=+this.value" style="width:100%">
       <div style="font-size:14px;font-weight:700;color:#065F46;margin:8px 0 4px">💧 الرطوبة: <span id="humVal">50</span>٪</div>
-      <input type="range" min="10" max="90" value="50" oninput="document.getElementById('humVal').textContent=this.value;if(window.simState)simState.humidity=+this.value" style="width:100%">
+      <input type="range" min="10" max="90" value="50" oninput="document.getElementById('humVal').textContent=this.value;simState.humidity=+this.value" style="width:100%">
       <div style="font-size:14px;font-weight:700;color:#065F46;margin:8px 0 4px">💨 سرعة الرياح: <span id="windVal">1</span></div>
-      <input type="range" min="0" max="5" value="1" step="0.5" oninput="document.getElementById('windVal').textContent=this.value;if(window.simState)simState.wind=+this.value" style="width:100%">
+      <input type="range" min="0" max="5" value="1" step="0.5" oninput="document.getElementById('windVal').textContent=this.value;simState.wind=+this.value" style="width:100%">
     </div>
-    <div id="bio9RateBox" style="padding:10px;background:rgba(39,174,96,0.1);border-radius:8px;font-size:14px;color:#065F46;text-align:center;font-weight:700">
-      معدّل النتح: متوسط 🌿
-    </div>
+    <div id="bio9RateBox" style="padding:10px;background:rgba(39,174,96,0.1);border-radius:8px;font-size:14px;color:#065F46;text-align:center;font-weight:700">معدّل النتح: متوسط 🌿</div>
     <div class="q-box" style="margin-top:8px">
-      <strong>❓ اشرح كيف تؤثر كل من:</strong><br>أ. درجة الحرارة<br>ب. الرطوبة<br>على معدّل النتح
+      <strong>❓ اشرح كيف تؤثر: أ. درجة الحرارة  ب. الرطوبة</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-      <div class="q-ans-panel">أ. درجة الحرارة المرتفعة = تزيد طاقة جزيئات الماء = تزيد التبخر = يزيد النتح.<br>ب. الرطوبة العالية = يقل التدرج بين الورقة والهواء = يقل النتح.</div>
+      <div class="q-ans-panel">أ. درجة الحرارة المرتفعة تزيد طاقة جزيئات الماء فيزيد النتح.<br>ب. الرطوبة العالية تقلل التدرج بين الورقة والهواء فيقل النتح.</div>
     </div>`);
-
-  function calcRate(){
-    const t=simState.temp,h2=simState.humidity,w2=simState.wind;
-    return Math.max(0.1, (t/40)*1.2 - (h2/100)*0.8 + (w2/5)*0.6);
-  }
 
   function draw(){
     if(currentSim!=='g9bio9n3'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.02;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'تأثير العوامل البيئية على النتح',w/2,h*0.06,bio9Txt(),Math.round(h*0.028));
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.033)}px Tajawal`; c.textAlign='center';
+    c.fillText('تأثير العوامل البيئية على النتح', w/2, h*0.07);
 
-    const rate=calcRate();
+    const rate=Math.max(0.1,(simState.temp/40)*1.2-(simState.humidity/100)*0.8+(simState.wind/5)*0.6);
 
-    // رسم نبات بسيط
-    const nx=w*0.5,ny=h*0.75;
-    // الساق
-    c.strokeStyle='#27AE60';c.lineWidth=8;
-    c.beginPath();c.moveTo(nx,ny);c.lineTo(nx,h*0.35);c.stroke();
-    // أوراق
+    // نبات بسيط
+    const nx=w*0.5, ny=h*0.75;
+    c.strokeStyle='#27AE60'; c.lineWidth=8;
+    c.beginPath(); c.moveTo(nx,ny); c.lineTo(nx,h*0.35); c.stroke();
     const leafCol=rate>1?'rgba(39,174,96,0.9)':'rgba(39,174,96,0.6)';
-    [[w*0.35,h*0.45],[w*0.65,h*0.52],[w*0.40,h*0.60]].forEach(([lx2,ly2])=>{
+    [[w*0.34,h*0.44],[w*0.66,h*0.51],[w*0.38,h*0.60]].forEach(([lx2,ly2])=>{
       c.fillStyle=leafCol;
-      c.beginPath();
-      c.ellipse(lx2,ly2,w*0.08,h*0.05,lx2<nx?0.4:-0.4,0,Math.PI*2);
-      c.fill();
+      c.beginPath(); c.ellipse(lx2,ly2,w*0.08,h*0.05,lx2<nx?0.4:-0.4,0,Math.PI*2); c.fill();
     });
 
-    // جزيئات تنتشر بمعدّل proportional للـ rate
-    const numMols=Math.round(rate*8);
+    // جزيئات
+    const numMols=Math.round(rate*7);
     for(let i=0;i<numMols;i++){
-      const phase=(simState.t*0.4+i*0.13)%1;
-      const startY=h*0.42,spread=w*0.15;
-      const px=nx+(Math.sin(i*2.1)*spread)*phase;
-      const py=startY-phase*h*0.25;
-      const alpha=1-phase;
-      c.fillStyle=`rgba(147,197,253,${alpha*0.7})`;
-      c.beginPath();c.arc(px,py,4,0,Math.PI*2);c.fill();
+      const phase=(simState.t*0.35+i*0.14)%1;
+      const px=nx+(Math.sin(i*2.1)*w*0.14)*phase;
+      const py=h*0.40-phase*h*0.22;
+      c.fillStyle=`rgba(147,197,253,${(1-phase)*0.7})`;
+      c.beginPath(); c.arc(px,py,4,0,Math.PI*2); c.fill();
     }
 
     // شريط معدل النتح
-    const barX=w*0.10,barY=h*0.85,barW=w*0.80,barH=h*0.045;
-    c.fillStyle='rgba(0,0,0,0.1)';c.beginPath();c.roundRect(barX,barY,barW,barH,8);c.fill();
-    const barFill=Math.min(rate/2,1)*barW;
+    const barX=w*0.10, barY=h*0.85, barW=w*0.80, barH=h*0.045;
+    c.fillStyle=dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)';
+    c.beginPath(); c.roundRect(barX,barY,barW,barH,8); c.fill();
     const rateCol=rate>1.5?'#C0392B':rate>0.8?'#D4901A':'#27AE60';
-    c.fillStyle=rateCol;c.beginPath();c.roundRect(barX,barY,barFill,barH,8);c.fill();
-    c.font=`bold ${Math.round(h*0.022)}px Tajawal`;c.textAlign='center';c.fillStyle=bio9Txt();
+    c.fillStyle=rateCol;
+    c.beginPath(); c.roundRect(barX,barY,Math.min(rate/2,1)*barW,barH,8); c.fill();
+    c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center'; c.fillStyle=bioTxt();
     c.fillText('معدّل النتح',w/2,barY-h*0.015);
 
     const rateBox=document.getElementById('bio9RateBox');
@@ -60650,7 +60586,6 @@ function simG9Bio9N3b(){
       rateBox.innerHTML=`معدّل النتح: <strong>${lbl}</strong>`;
       rateBox.style.background=rate>1.5?'rgba(192,57,43,0.1)':rate>0.9?'rgba(212,144,26,0.1)':'rgba(39,174,96,0.1)';
     }
-
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -60659,7 +60594,7 @@ function simG9Bio9N3b(){
 // ══ نشاط ٤ التبويب الأول: شرح جهاز البوتومتر ══
 function simG9Bio9N4a(){
   cancelAnimationFrame(animFrame);
-  simState={t:0,running:false,bubblePos:0.1};
+  simState={t:0,running:false,bubblePos:0.05};
   const cv=document.getElementById('simCanvas');
 
   controls(`
@@ -60668,8 +60603,8 @@ function simG9Bio9N4a(){
       يقيس معدّل امتصاص الماء كمقياس لمعدّل النتح — الفقاعة تتحرك بسرعة النتح
     </div>
     <div style="display:flex;gap:8px;margin-bottom:8px">
-      <button onclick="if(window.simState){simState.running=true;}" style="flex:1;background:#27AE60;color:#fff;border:none;padding:9px;border-radius:10px;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer">▶ شغِّل</button>
-      <button onclick="if(window.simState){simState.running=false;simState.bubblePos=0.1;}" style="flex:1;background:rgba(26,143,168,0.1);color:#065F46;border:1px solid rgba(26,143,168,0.3);padding:9px;border-radius:10px;font-family:Tajawal;font-size:14px;cursor:pointer">🔄 إعادة</button>
+      <button onclick="simState.running=true" style="flex:1;background:#27AE60;color:#fff;border:none;padding:9px;border-radius:10px;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer">▶ شغِّل</button>
+      <button onclick="simState.running=false;simState.bubblePos=0.05" style="flex:1;background:rgba(26,143,168,0.1);color:#065F46;border:1px solid rgba(26,143,168,0.3);padding:9px;border-radius:10px;font-family:Tajawal;font-size:14px;cursor:pointer">🔄 إعادة</button>
     </div>
     <div id="bio9PotInfo" style="padding:10px;background:rgba(26,143,168,0.08);border-radius:8px;font-size:14px;color:#065F46;min-height:45px;text-align:center;line-height:1.6">
       اضغط ▶ لبدء قياس معدّل النتح
@@ -60678,81 +60613,69 @@ function simG9Bio9N4a(){
       <strong>❓ (ص٥٦-٥٧)</strong><br>
       ما أهمية جهاز البوتومتر؟
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-      <div class="q-ans-panel">يُمكِّن من مقارنة معدّل النتح في ظروف بيئية مختلفة بشكل كمّي — مثلاً: مقارنة معدّل النتح في ضوء قوي مقابل ضوء ضعيف.</div>
+      <div class="q-ans-panel">يُمكِّن من مقارنة معدّل النتح في ظروف بيئية مختلفة بشكل كمّي — مثلاً: ضوء قوي مقابل ضوء ضعيف.</div>
     </div>`);
 
   function draw(){
     if(currentSim!=='g9bio9n4'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.016;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'جهاز البوتومتر التفاعلي',w/2,h*0.055,bio9Txt(),Math.round(h*0.030));
+    if(simState.running) simState.bubblePos=Math.min(0.90,simState.bubblePos+0.003);
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.034)}px Tajawal`; c.textAlign='center';
+    c.fillText('جهاز البوتومتر التفاعلي', w/2, h*0.07);
 
-    // الأنبوبة الشعرية الأفقية
-    const tubeX=w*0.12,tubeY=h*0.72,tubeW=w*0.62,tubeH=h*0.045;
-    c.fillStyle='rgba(147,197,253,0.3)';
-    c.beginPath();c.roundRect(tubeX,tubeY,tubeW,tubeH,tubeH/2);c.fill();
-    c.strokeStyle='#1D4ED8';c.lineWidth=2;
-    c.beginPath();c.roundRect(tubeX,tubeY,tubeW,tubeH,tubeH/2);c.stroke();
+    // أنبوبة شعرية
+    const tubeX=w*0.10, tubeY=h*0.68, tubeW=w*0.65, tubeH=h*0.048;
+    c.fillStyle=dark?'rgba(147,197,253,0.2)':'rgba(219,234,254,0.8)';
+    c.beginPath(); c.roundRect(tubeX,tubeY,tubeW,tubeH,tubeH/2); c.fill();
+    c.strokeStyle='#1D4ED8'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(tubeX,tubeY,tubeW,tubeH,tubeH/2); c.stroke();
 
-    // مقياس على الأنبوبة
+    // مقياس
     for(let i=0;i<=10;i++){
       const mx=tubeX+i*(tubeW/10);
-      c.strokeStyle='rgba(29,78,216,0.4)';c.lineWidth=1;
-      c.beginPath();c.moveTo(mx,tubeY+tubeH);c.lineTo(mx,tubeY+tubeH+6);c.stroke();
+      c.strokeStyle='rgba(29,78,216,0.35)'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(mx,tubeY+tubeH); c.lineTo(mx,tubeY+tubeH+6); c.stroke();
       if(i%2===0){
-        c.font=`${Math.round(h*0.018)}px Tajawal`;c.textAlign='center';c.fillStyle='#1D4ED8';
-        c.fillText(i,mx,tubeY+tubeH+h*0.025);
+        c.font=`${Math.round(h*0.018)}px Tajawal`; c.textAlign='center'; c.fillStyle='#1D4ED8';
+        c.fillText(i,mx,tubeY+tubeH+h*0.028);
       }
     }
-    c.font=`${Math.round(h*0.016)}px Tajawal`;c.textAlign='center';c.fillStyle='#444';
-    c.fillText('(mm)',tubeX+tubeW/2,tubeY+tubeH+h*0.045);
+    c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center'; c.fillStyle=bioMut();
+    c.fillText('(mm)',tubeX+tubeW/2,tubeY+tubeH+h*0.048);
 
-    // فقاعة هواء
-    if(simState.running) simState.bubblePos=Math.min(0.92,simState.bubblePos+0.003);
-    const bx=tubeX+simState.bubblePos*tubeW;
-    const by=tubeY+tubeH/2;
-    c.fillStyle='rgba(255,255,255,0.9)';
-    c.strokeStyle='#1D4ED8';c.lineWidth=2;
-    c.beginPath();c.arc(bx,by,tubeH*0.38,0,Math.PI*2);
-    c.fill();c.stroke();
-    c.fillStyle='rgba(147,197,253,0.5)';
-    c.beginPath();c.arc(bx-tubeH*0.1,by-tubeH*0.1,tubeH*0.15,0,Math.PI*2);c.fill();
+    // فقاعة
+    const bx=tubeX+simState.bubblePos*tubeW, by=tubeY+tubeH/2;
+    c.fillStyle='rgba(255,255,255,0.92)'; c.strokeStyle='#1D4ED8'; c.lineWidth=2;
+    c.beginPath(); c.arc(bx,by,tubeH*0.40,0,Math.PI*2); c.fill(); c.stroke();
+    c.fillStyle='rgba(147,197,253,0.4)';
+    c.beginPath(); c.arc(bx-tubeH*0.12,by-tubeH*0.12,tubeH*0.15,0,Math.PI*2); c.fill();
 
-    // المشبك (Capillary connector)
-    c.fillStyle='rgba(39,174,96,0.3)';c.strokeStyle='#27AE60';c.lineWidth=1.5;
-    c.beginPath();c.roundRect(tubeX+tubeW*0.65,tubeY-h*0.08,w*0.06,h*0.1,4);
-    c.fill();c.stroke();
-
-    // فرع النبات (رسم مبسّط)
-    const branchX=tubeX+tubeW*0.75,branchY=tubeY-h*0.38;
-    c.strokeStyle='#27AE60';c.lineWidth=5;
-    c.beginPath();c.moveTo(branchX,tubeY-h*0.04);c.lineTo(branchX,branchY);c.stroke();
-    // أوراق
-    c.fillStyle='rgba(39,174,96,0.8)';
-    [[branchX-w*0.07,branchY+h*0.06],[branchX+w*0.07,branchY+h*0.10],[branchX,branchY]].forEach(([lx,ly])=>{
-      c.beginPath();c.ellipse(lx,ly,w*0.06,h*0.04,lx<branchX?0.4:-0.4,0,Math.PI*2);c.fill();
+    // فرع النبات
+    const branchX=tubeX+tubeW*0.78, branchY=h*0.24;
+    c.strokeStyle='#27AE60'; c.lineWidth=5;
+    c.beginPath(); c.moveTo(branchX,tubeY); c.lineTo(branchX,branchY); c.stroke();
+    [[branchX-w*0.08,branchY+h*0.08],[branchX+w*0.07,branchY+h*0.12],[branchX,branchY]].forEach(([lx,ly])=>{
+      c.fillStyle='rgba(39,174,96,0.8)';
+      c.beginPath(); c.ellipse(lx,ly,w*0.065,h*0.045,lx<branchX?0.4:-0.4,0,Math.PI*2); c.fill();
     });
 
-    // خزان الماء (يمين)
-    c.fillStyle='rgba(147,197,253,0.3)';c.strokeStyle='#1D4ED8';c.lineWidth=1.5;
-    c.beginPath();c.roundRect(tubeX+tubeW+10,tubeY-h*0.08,w*0.1,h*0.18,6);
-    c.fill();c.stroke();
-    c.font=`${Math.round(h*0.018)}px Tajawal`;c.textAlign='center';c.fillStyle='#1D4ED8';
-    c.fillText('خزان',tubeX+tubeW+10+w*0.05,tubeY+h*0.04);
-    c.fillText('الماء',tubeX+tubeW+10+w*0.05,tubeY+h*0.07);
+    // خزان الماء
+    c.fillStyle=dark?'rgba(147,197,253,0.15)':'rgba(219,234,254,0.5)';
+    c.strokeStyle='#1D4ED8'; c.lineWidth=1.5;
+    c.beginPath(); c.roundRect(tubeX+tubeW+8,tubeY-h*0.08,w*0.10,h*0.18,6); c.fill(); c.stroke();
+    c.font=`${Math.round(h*0.018)}px Tajawal`; c.textAlign='center'; c.fillStyle='#1D4ED8';
+    c.fillText('خزان',tubeX+tubeW+8+w*0.05,tubeY+h*0.04);
+    c.fillText('الماء',tubeX+tubeW+8+w*0.05,tubeY+h*0.07);
 
-    // معلومة القياس
-    const posMM=(simState.bubblePos*10).toFixed(1);
+    // معلومة
     const potBox=document.getElementById('bio9PotInfo');
+    const posMM=(simState.bubblePos*10).toFixed(1);
     if(potBox){
-      if(simState.running&&simState.bubblePos<0.92){
-        potBox.innerHTML=`📏 موضع الفقاعة: <strong>${posMM} mm</strong> — الفقاعة تتحرك بمعدّل النتح ↔`;
-      } else if(simState.bubblePos>=0.92){
-        potBox.innerHTML='✅ اكتملت القراءة! قارن النتائج في ظروف مختلفة';
-      }
+      if(simState.running&&simState.bubblePos<0.90) potBox.innerHTML=`📏 موضع الفقاعة: <strong>${posMM} mm</strong> — تتحرك بمعدّل النتح →`;
+      else if(simState.bubblePos>=0.90) potBox.innerHTML='✅ اكتملت القراءة! قارن النتائج في ظروف مختلفة';
     }
-
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -60761,28 +60684,28 @@ function simG9Bio9N4a(){
 // ══ نشاط ٤ التبويب الثاني: قياس في ظروف مختلفة ══
 function simG9Bio9N4b(){
   cancelAnimationFrame(animFrame);
-  simState={t:0,cond:'normal',running:false,data:{normal:null,hot:null,wind:null,dark:null},bubblePos:0.05};
+  simState={t:0,cond:'normal',running:false,bubblePos:0.05,data:{}};
   const cv=document.getElementById('simCanvas');
 
   const conditions=[
     {id:'normal',label:'طبيعي 🌤️',rate:1.0,col:'#27AE60'},
-    {id:'hot',label:'حار ☀️',rate:1.8,col:'#C0392B'},
-    {id:'wind',label:'رياح 💨',rate:2.2,col:'#1A8FA8'},
-    {id:'dark',label:'ظلام 🌑',rate:0.3,col:'#6B4E9A'},
+    {id:'hot',   label:'حار ☀️',   rate:1.8,col:'#C0392B'},
+    {id:'wind',  label:'رياح 💨',  rate:2.2,col:'#1A8FA8'},
+    {id:'dark',  label:'ظلام 🌑',  rate:0.3,col:'#6B4E9A'},
   ];
 
   controls(`
     <div class="info-box" style="margin-bottom:8px;font-size:14px;line-height:1.6">
-      <strong>📊 قِس معدّل النتح في ظروف مختلفة</strong><br>
-      اختر ظرفًا وشغّل القياس — سجِّل النتائج في جدول الكتاب
+      <strong>📊 قِس معدّل النتح في ظروف مختلفة</strong>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-      ${conditions.map(cd=>`<button onclick="if(window.simState){simState.cond='${cd.id}';simState.bubblePos=0.05;simState.running=false;}" style="background:${cd.col}22;color:${cd.col};border:1.5px solid ${cd.col}44;padding:8px;border-radius:8px;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer">${cd.label}</button>`).join('')}
+      <button onclick="simState.cond='normal';simState.bubblePos=0.05;simState.running=false" style="background:rgba(39,174,96,0.12);color:#27AE60;border:1.5px solid rgba(39,174,96,0.35);padding:8px;border-radius:8px;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer">طبيعي 🌤️</button>
+      <button onclick="simState.cond='hot';simState.bubblePos=0.05;simState.running=false" style="background:rgba(192,57,43,0.1);color:#C0392B;border:1.5px solid rgba(192,57,43,0.35);padding:8px;border-radius:8px;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer">حار ☀️</button>
+      <button onclick="simState.cond='wind';simState.bubblePos=0.05;simState.running=false" style="background:rgba(26,143,168,0.1);color:#1A8FA8;border:1.5px solid rgba(26,143,168,0.35);padding:8px;border-radius:8px;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer">رياح 💨</button>
+      <button onclick="simState.cond='dark';simState.bubblePos=0.05;simState.running=false" style="background:rgba(107,78,154,0.1);color:#6B4E9A;border:1.5px solid rgba(107,78,154,0.35);padding:8px;border-radius:8px;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer">ظلام 🌑</button>
     </div>
-    <button onclick="if(window.simState)simState.running=true" style="background:#27AE60;color:#fff;border:none;padding:9px 18px;border-radius:10px;font-family:Tajawal;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:6px">▶ ابدأ القياس</button>
-    <div id="bio9DataBox" style="padding:10px;background:rgba(39,174,96,0.08);border-radius:8px;font-size:14px;color:#065F46;min-height:60px;text-align:center;line-height:1.7">
-      اختر ظرفًا وابدأ القياس
-    </div>
+    <button onclick="simState.running=true" style="background:#27AE60;color:#fff;border:none;padding:9px;border-radius:10px;font-family:Tajawal;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:6px">▶ ابدأ القياس</button>
+    <div id="bio9DataBox" style="padding:10px;background:rgba(39,174,96,0.08);border-radius:8px;font-size:14px;color:#065F46;min-height:50px;text-align:center;line-height:1.7">اختر ظرفًا وابدأ القياس</div>
     <div class="q-box" style="margin-top:8px">
       <strong>❓ أي الظروف يُعطي أعلى معدّل نتح؟ ولماذا؟</strong>
       <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
@@ -60792,62 +60715,59 @@ function simG9Bio9N4b(){
   function draw(){
     if(currentSim!=='g9bio9n4'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.016;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'قياس معدّل النتح في ظروف مختلفة',w/2,h*0.055,bio9Txt(),Math.round(h*0.028));
-
     const cond=conditions.find(x=>x.id===simState.cond)||conditions[0];
     if(simState.running) simState.bubblePos=Math.min(0.90,simState.bubblePos+cond.rate*0.003);
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText('قياس معدّل النتح في ظروف مختلفة', w/2, h*0.07);
 
     // أنبوبة
-    const tubeX=w*0.08,tubeY=h*0.60,tubeW=w*0.72,tubeH=h*0.05;
-    c.fillStyle='rgba(147,197,253,0.2)';
-    c.beginPath();c.roundRect(tubeX,tubeY,tubeW,tubeH,tubeH/2);c.fill();
-    c.strokeStyle=cond.col;c.lineWidth=2.5;
-    c.beginPath();c.roundRect(tubeX,tubeY,tubeW,tubeH,tubeH/2);c.stroke();
-
-    // مقياس
+    const tubeX=w*0.08, tubeY=h*0.58, tubeW=w*0.72, tubeH=h*0.05;
+    c.fillStyle=dark?'rgba(147,197,253,0.15)':'rgba(219,234,254,0.7)';
+    c.beginPath(); c.roundRect(tubeX,tubeY,tubeW,tubeH,tubeH/2); c.fill();
+    c.strokeStyle=cond.col; c.lineWidth=2.5;
+    c.beginPath(); c.roundRect(tubeX,tubeY,tubeW,tubeH,tubeH/2); c.stroke();
     for(let i=0;i<=10;i++){
       const mx=tubeX+i*(tubeW/10);
-      c.strokeStyle='rgba(0,0,0,0.2)';c.lineWidth=1;
-      c.beginPath();c.moveTo(mx,tubeY+tubeH);c.lineTo(mx,tubeY+tubeH+5);c.stroke();
-      c.font=`${Math.round(h*0.016)}px Tajawal`;c.textAlign='center';c.fillStyle='#444';
-      if(i%2===0)c.fillText(i,mx,tubeY+tubeH+h*0.024);
+      c.strokeStyle='rgba(0,0,0,0.15)'; c.lineWidth=1;
+      c.beginPath(); c.moveTo(mx,tubeY+tubeH); c.lineTo(mx,tubeY+tubeH+5); c.stroke();
+      if(i%2===0){c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center'; c.fillStyle=bioMut(); c.fillText(i,mx,tubeY+tubeH+h*0.024);}
     }
-
     // فقاعة
     const bx=tubeX+simState.bubblePos*tubeW;
-    c.fillStyle='white';c.strokeStyle=cond.col;c.lineWidth=2;
-    c.beginPath();c.arc(bx,tubeY+tubeH/2,tubeH*0.4,0,Math.PI*2);c.fill();c.stroke();
+    c.fillStyle='white'; c.strokeStyle=cond.col; c.lineWidth=2;
+    c.beginPath(); c.arc(bx,tubeY+tubeH/2,tubeH*0.42,0,Math.PI*2); c.fill(); c.stroke();
+
+    // الظرف الحالي
+    c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.fillStyle=cond.col;
+    c.fillText(`الظرف: ${cond.label}`,w/2,h*0.48);
 
     // بيانات
     const posMM=(simState.bubblePos*10).toFixed(1);
     const dataBox=document.getElementById('bio9DataBox');
     if(dataBox&&simState.running){
       if(simState.bubblePos>=0.90){
-        if(!simState.data[simState.cond]){
-          simState.data[simState.cond]=posMM;
-        }
-        dataBox.innerHTML=`✅ <strong>${cond.label}</strong>: الفقاعة تحركت <strong>${simState.data[simState.cond]} mm</strong><br>جرّب ظرفًا آخر!`;
-      }else{
-        dataBox.innerHTML=`🔬 الظرف: <strong>${cond.label}</strong><br>موضع الفقاعة: <strong>${posMM} mm</strong>`;
+        simState.data[simState.cond]=simState.data[simState.cond]||posMM;
+        dataBox.innerHTML=`✅ <strong>${cond.label}</strong>: <strong>${simState.data[simState.cond]} mm</strong><br>جرّب ظرفًا آخر!`;
+      } else {
+        dataBox.innerHTML=`🔬 موضع الفقاعة: <strong>${posMM} mm</strong>`;
       }
     }
 
-    // مخطط بياني مبسّط للنتائج المسجّلة
+    // مخطط النتائج المسجّلة
     const recorded=conditions.filter(x=>simState.data[x.id]);
     if(recorded.length>0){
-      const barStartX=w*0.08,barStartY=h*0.88,barHeight=h*0.07;
+      const bsX=w*0.08, bsY=h*0.88, bH=h*0.07;
       recorded.forEach((cd,i)=>{
-        const bx2=barStartX+(i*(w*0.70/4));
-        const bh=Math.min(parseFloat(simState.data[cd.id])/10,1)*barHeight;
-        c.fillStyle=cd.col+'99';
-        c.beginPath();c.roundRect(bx2,barStartY-bh,w*0.14,bh,4);c.fill();
-        c.font=`${Math.round(h*0.016)}px Tajawal`;c.textAlign='center';c.fillStyle=cd.col;
-        c.fillText(cd.label.split(' ')[0],bx2+w*0.07,barStartY+h*0.018);
+        const bx2=bsX+i*(w*0.70/4);
+        const bh=Math.min(parseFloat(simState.data[cd.id])/10,1)*bH;
+        c.fillStyle=cd.col+'88';
+        c.beginPath(); c.roundRect(bx2,bsY-bh,w*0.14,bh,3); c.fill();
+        c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center'; c.fillStyle=cd.col;
+        c.fillText(cd.label.split(' ')[0],bx2+w*0.07,bsY+h*0.018);
       });
     }
-
     animFrame=requestAnimationFrame(draw);
   }
   draw();
@@ -60860,14 +60780,10 @@ function simG9Bio9N5a(){
   const cv=document.getElementById('simCanvas');
 
   const nodes=[
-    {id:'leaf',x:0.50,y:0.20,label:'الأوراق (مصدر)',col:'#27AE60',icon:'🍃',
-     desc:'المصدر: تُنتج السكروز بالتمثيل الضوئي وتُرسله عبر اللحاء'},
-    {id:'root',x:0.25,y:0.78,label:'الجذور (مصبّ)',col:'#92400E',icon:'🌱',
-     desc:'المصبّ: تستهلك السكروز للنمو والتنفس والتخزين كنشا'},
-    {id:'fruit',x:0.75,y:0.70,label:'الثمار والبذور (مصبّ)',col:'#C0392B',icon:'🍎',
-     desc:'المصبّ: تحتاج كميات كبيرة من السكروز لبناء الخلايا الجديدة'},
-    {id:'shoot',x:0.50,y:0.50,label:'البراعم النامية (مصبّ)',col:'#D4901A',icon:'🌿',
-     desc:'المصبّ: أماكن النمو النشط تحتاج الغذاء باستمرار'},
+    {id:'leaf',  x:0.50,y:0.18,label:'الأوراق (مصدر)',   col:'#27AE60',icon:'🍃',desc:'المصدر: تُنتج السكروز بالتمثيل الضوئي وتُرسله عبر اللحاء'},
+    {id:'root',  x:0.25,y:0.78,label:'الجذور (مصبّ)',    col:'#92400E',icon:'🌱',desc:'المصبّ: تستهلك السكروز للنمو والتنفس والتخزين كنشا'},
+    {id:'fruit', x:0.75,y:0.70,label:'الثمار (مصبّ)',    col:'#C0392B',icon:'🍎',desc:'المصبّ: تحتاج كميات كبيرة من السكروز لبناء الخلايا الجديدة'},
+    {id:'shoot', x:0.50,y:0.48,label:'البراعم (مصبّ)',   col:'#D4901A',icon:'🌿',desc:'المصبّ: أماكن النمو النشط تحتاج الغذاء باستمرار'},
   ];
 
   controls(`
@@ -60890,158 +60806,148 @@ function simG9Bio9N5a(){
   function draw(){
     if(currentSim!=='g9bio9n5'||currentTab!==0){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.018;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'المصدر والمصبّ في النبات',w/2,h*0.055,bio9Txt(),Math.round(h*0.030));
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.034)}px Tajawal`; c.textAlign='center';
+    c.fillText('المصدر والمصبّ في النبات', w/2, h*0.07);
 
-    // ساق النبات (المحور)
-    c.strokeStyle='rgba(39,174,96,0.5)';c.lineWidth=10;
-    c.beginPath();c.moveTo(w*0.5,h*0.15);c.lineTo(w*0.5,h*0.85);c.stroke();
+    // ساق
+    c.strokeStyle='rgba(39,174,96,0.45)'; c.lineWidth=10;
+    c.beginPath(); c.moveTo(w*0.5,h*0.12); c.lineTo(w*0.5,h*0.88); c.stroke();
 
-    // خطوط السكروز المتدفق (للأسفل وللأعلى)
+    // خطوط متحركة
     [[nodes[0],nodes[1],'#27AE60'],[nodes[0],nodes[2],'#C0392B'],[nodes[0],nodes[3],'#D4901A']].forEach(([src,dst,col])=>{
-      const prog=(simState.t*0.3)%1;
-      const px=src.x*w+(dst.x-src.x)*w*prog;
-      const py=src.y*h+(dst.y-src.y)*h*prog;
-      c.fillStyle=col+'AA';
-      c.beginPath();c.arc(px,py,5,0,Math.PI*2);c.fill();
-      // خط الاتصال
-      c.strokeStyle=col+'33';c.lineWidth=1.5;
-      c.setLineDash([4,4]);
-      c.beginPath();c.moveTo(src.x*w,src.y*h);c.lineTo(dst.x*w,dst.y*h);c.stroke();
+      c.strokeStyle=col+'30'; c.lineWidth=1.5; c.setLineDash([4,4]);
+      c.beginPath(); c.moveTo(src.x*w,src.y*h); c.lineTo(dst.x*w,dst.y*h); c.stroke();
       c.setLineDash([]);
+      const prog=(simState.t*0.28)%1;
+      const px=src.x*w+(dst.x-src.x)*w*prog, py=src.y*h+(dst.y-src.y)*h*prog;
+      c.fillStyle=col+'AA'; c.beginPath(); c.arc(px,py,5,0,Math.PI*2); c.fill();
     });
 
-    // رسم العقد
+    // عقد
     nodes.forEach((n,i)=>{
-      const nx=n.x*w,ny=n.y*h;
-      const pr=Math.min(0.07*Math.min(w,h),48);
-      const isSel=simState.sel===n.id;
-      const bob=Math.sin(simState.t+i*1.3)*3;
+      const nx=n.x*w, ny=n.y*h, pr=Math.min(0.07*Math.min(w,h),46);
+      const isSel=simState.sel===n.id, bob=Math.sin(simState.t+i*1.3)*3;
       c.fillStyle=isSel?n.col:n.col+'BB';
-      c.shadowBlur=isSel?18:0;c.shadowColor=n.col;
-      c.beginPath();c.arc(nx,ny+bob,pr,0,Math.PI*2);c.fill();
+      if(isSel){c.shadowBlur=18;c.shadowColor=n.col;}
+      c.beginPath(); c.arc(nx,ny+bob,pr,0,Math.PI*2); c.fill();
       c.shadowBlur=0;
-      c.font=`${Math.round(pr*0.7)}px serif`;c.textAlign='center';c.textBaseline='middle';
+      c.font=`${Math.round(pr*0.65)}px serif`; c.textAlign='center'; c.textBaseline='middle';
       c.fillText(n.icon,nx,ny+bob);
-      c.font=`bold ${Math.round(h*0.019)}px Tajawal`;c.textBaseline='top';
-      c.fillStyle=isSel?n.col:'#444';
-      c.fillText(n.label,nx,ny+bob+pr+4);
+      c.font=`bold ${Math.round(h*0.019)}px Tajawal`; c.textBaseline='top';
+      c.fillStyle=isSel?n.col:bioTxt(); c.fillText(n.label,nx,ny+bob+pr+4);
     });
-
     animFrame=requestAnimationFrame(draw);
   }
   cv.onclick=function(e){
     const r=cv.getBoundingClientRect();
-    const mx=(e.clientX-r.left)*cv.width/r.width,my=(e.clientY-r.top)*cv.height/r.height;
+    const mx=(e.clientX-r.left)*cv.width/r.width, my=(e.clientY-r.top)*cv.height/r.height;
     nodes.forEach(n=>{
-      const pr=Math.min(0.07*Math.min(cv.width,cv.height),48);
-      if(Math.hypot(mx-n.x*cv.width,my-n.y*cv.height)<pr+8){
+      const pr=Math.min(0.07*Math.min(cv.width,cv.height),46);
+      if(Math.hypot(mx-n.x*cv.width,my-n.y*cv.height)<pr+10){
         simState.sel=n.id;
         const box=document.getElementById('bio9TranslInfo');
-        if(box)box.innerHTML=`<strong style="font-size:16px">${n.icon} ${n.label}</strong><br><span style="color:#064E3B">${n.desc}</span>`;
+        if(box) box.innerHTML=`<strong style="font-size:15px">${n.icon} ${n.label}</strong><br><span style="color:#064E3B">${n.desc}</span>`;
       }
     });
   };
   draw();
 }
 
-// ══ نشاط ٥ التبويب الثاني: مسار السكروز ══
+// ══ نشاط ٥ التبويب الثاني: مقطع عرضي للساق — الخشب واللحاء ══
 function simG9Bio9N5b(){
   cancelAnimationFrame(animFrame);
   simState={t:0,particles:[]};
+  for(let i=0;i<10;i++) simState.particles.push({prog:Math.random(),lane:i%2,speed:0.002+Math.random()*0.001});
   const cv=document.getElementById('simCanvas');
-
-  for(let i=0;i<10;i++){
-    simState.particles.push({prog:Math.random(),lane:i%2===0?0:1,speed:0.002+Math.random()*0.001});
-  }
 
   controls(`
     <div class="info-box" style="margin-bottom:8px;font-size:14px;line-height:1.7">
-      <strong>🔄 مسار السكروز في أنابيب اللحاء</strong><br>
-      السكروز ينتقل في كلا الاتجاهين: من الأوراق للجذور (للأسفل) أو للبراعم والثمار (للأعلى أو الجانب)
+      <strong>🔄 مقارنة: الخشب واللحاء</strong><br>
+      • <span style="color:#B45309">الخشب</span>: ماء + أملاح ← جذور → أوراق (اتجاه واحد)<br>
+      • <span style="color:#7C3AED">اللحاء</span>: سكروز ← أوراق → باقي أجزاء النبات (اتجاهان)
     </div>
-    <div class="q-box" style="margin-top:8px">
-      <strong>❓ ملخّص الوحدة (ص٥٨)</strong><br>
-      ١- ما الفرق بين الخشب واللحاء في اتجاه النقل؟<br>
-      ٢- لماذا لا يمكن أن يكون الخشب هو الناقل للسكروز؟
-      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
-      <div class="q-ans-panel">١- الخشب: اتجاه واحد فقط (من الجذور للأعلى). اللحاء: اتجاهان (من المصدر لأقرب مصبّ).<br>٢- لأن الخشب خلايا ميتة بلا سيتوبلازم ولا آلية لنقل السكروز النشط — اللحاء خلايا حيّة تُنجز هذا النقل.</div>
-    </div>
-    <div style="margin-top:10px;padding:10px;background:rgba(39,174,96,0.08);border-radius:8px;font-size:13px;color:#065F46;line-height:1.7">
+    <div style="margin-top:8px;padding:10px;background:rgba(39,174,96,0.08);border-radius:8px;font-size:13px;color:#065F46;line-height:1.8">
       <strong>📖 ملخّص الوحدة التاسعة:</strong><br>
       • الخشب: ماء + أملاح معدنية ← جذور → أوراق<br>
-      • اللحاء: سكروز + أحماض أمينية ← أوراق → باقي أجزاء النبات<br>
+      • اللحاء: سكروز + أحماض أمينية ← أوراق → باقي النبات<br>
       • النتح: يسحب الماء للأعلى (Transpiration pull)<br>
       • البوتومتر: يقيس معدّل النتح بقياس الفقاعة
+    </div>
+    <div class="q-box" style="margin-top:8px">
+      <strong>❓ ملخّص (ص٥٨)</strong><br>
+      ما الفرق في اتجاه النقل بين الخشب واللحاء؟
+      <button class="q-ans-btn" onclick="toggleAnswer(this)">💡 أظهر الإجابة</button>
+      <div class="q-ans-panel">الخشب: اتجاه واحد فقط (من الجذور للأعلى). اللحاء: اتجاهان (من المصدر لأقرب مصبّ سواء أعلى أو أسفل).</div>
     </div>`);
 
   function draw(){
     if(currentSim!=='g9bio9n5'||currentTab!==1){cancelAnimationFrame(animFrame);return;}
     simState.t+=0.016;
-    const c=cv.getContext('2d'),w=cv.width,h=cv.height;
-    c.fillStyle=bio9Bg();c.fillRect(0,0,w,h);
-    drawLabel(c,'مقارنة: الخشب واللحاء في الساق',w/2,h*0.055,bio9Txt(),Math.round(h*0.028));
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=dm15();
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    c.fillStyle=bioTxt(); c.font=`bold ${Math.round(h*0.034)}px Tajawal`; c.textAlign='center';
+    c.fillText('مقطع عرضي للساق — الحزم الوعائية', w/2, h*0.07);
 
-    // رسم تقطيع عرضي للساق
-    const cx4=w*0.5,cy4=h*0.45,R=h*0.30;
-
-    // البشرة
-    c.fillStyle='rgba(39,174,96,0.15)';c.strokeStyle='#27AE60';c.lineWidth=3;
-    c.beginPath();c.arc(cx4,cy4,R,0,Math.PI*2);c.fill();c.stroke();
-
-    // القشرة
-    c.fillStyle='rgba(39,174,96,0.08)';
-    c.beginPath();c.arc(cx4,cy4,R*0.8,0,Math.PI*2);c.fill();
-
-    // حزم وعائية (6 حزم)
+    const cx4=w*0.52, cy4=h*0.50, R=h*0.30;
     const numBundles=6;
+
+    // بشرة
+    c.fillStyle=dark?'rgba(39,174,96,0.12)':'rgba(209,250,229,0.5)';
+    c.strokeStyle='#27AE60'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(cx4,cy4,R,0,Math.PI*2); c.fill(); c.stroke();
+
+    // قشرة
+    c.fillStyle=dark?'rgba(39,174,96,0.07)':'rgba(209,250,229,0.3)';
+    c.beginPath(); c.arc(cx4,cy4,R*0.78,0,Math.PI*2); c.fill();
+
+    // حزم وعائية
     for(let i=0;i<numBundles;i++){
       const angle=(i/numBundles)*Math.PI*2-Math.PI/2;
-      const bx=cx4+R*0.6*Math.cos(angle),by=cy4+R*0.6*Math.sin(angle);
-      const br=R*0.11;
-
+      const bx=cx4+R*0.58*Math.cos(angle), by=cy4+R*0.58*Math.sin(angle);
+      const br=R*0.115;
       // لحاء (نصف خارجي)
-      c.fillStyle='rgba(107,78,154,0.6)';
-      c.beginPath();c.arc(bx,by,br,angle-Math.PI/2,angle+Math.PI/2,false);
-      c.lineTo(bx,by);c.closePath();c.fill();
-
+      c.fillStyle='rgba(124,58,237,0.65)';
+      c.beginPath(); c.arc(bx,by,br,angle-Math.PI/2,angle+Math.PI/2); c.lineTo(bx,by); c.closePath(); c.fill();
       // خشب (نصف داخلي)
-      c.fillStyle='rgba(180,120,60,0.7)';
-      c.beginPath();c.arc(bx,by,br,angle+Math.PI/2,angle+Math.PI*1.5,false);
-      c.lineTo(bx,by);c.closePath();c.fill();
-
-      c.strokeStyle='rgba(0,0,0,0.2)';c.lineWidth=1;
-      c.beginPath();c.arc(bx,by,br,0,Math.PI*2);c.stroke();
+      c.fillStyle='rgba(180,120,60,0.75)';
+      c.beginPath(); c.arc(bx,by,br,angle+Math.PI/2,angle+Math.PI*1.5); c.lineTo(bx,by); c.closePath(); c.fill();
+      c.strokeStyle=dark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.15)'; c.lineWidth=1;
+      c.beginPath(); c.arc(bx,by,br,0,Math.PI*2); c.stroke();
     }
-
-    // مفتاح الألوان
-    const keyY=h*0.82;
-    [[w*0.28,'#6B4E9A','اللحاء — سكروز'],[w*0.72,'#B45309','الخشب — ماء']].forEach(([kx,col,lbl])=>{
-      c.fillStyle=col+'CC';
-      c.beginPath();c.arc(kx-30,keyY,8,0,Math.PI*2);c.fill();
-      c.font=`bold ${Math.round(h*0.020)}px Tajawal`;c.textAlign='right';c.fillStyle=col;
-      c.fillText(lbl,kx,keyY+5);
-    });
 
     // جزيئات متحركة
     simState.particles.forEach(p=>{
       p.prog=(p.prog+p.speed)%1;
-      const i=Math.floor(p.prog*numBundles)%numBundles;
-      const angle=(i/numBundles)*Math.PI*2-Math.PI/2;
-      const bx=cx4+R*0.6*Math.cos(angle),by=cy4+R*0.6*Math.sin(angle);
-      const br=R*0.11;
-      const isPhloem=p.lane===0;
-      const subAngle=angle+(isPhloem?Math.PI*0.3:-Math.PI*0.3);
-      const px2=bx+br*0.5*Math.cos(subAngle),py2=by+br*0.5*Math.sin(subAngle);
-      c.fillStyle=isPhloem?'rgba(167,139,250,0.9)':'rgba(147,197,253,0.9)';
-      c.beginPath();c.arc(px2,py2,3,0,Math.PI*2);c.fill();
+      const bundleIdx=Math.floor(p.prog*numBundles)%numBundles;
+      const angle=(bundleIdx/numBundles)*Math.PI*2-Math.PI/2;
+      const bx=cx4+R*0.58*Math.cos(angle), by=cy4+R*0.58*Math.sin(angle);
+      const br=R*0.115;
+      const subA=angle+(p.lane===0?Math.PI*0.3:-Math.PI*0.3);
+      const px2=bx+br*0.55*Math.cos(subA), py2=by+br*0.55*Math.sin(subA);
+      c.fillStyle=p.lane===0?'rgba(167,139,250,0.9)':'rgba(147,197,253,0.9)';
+      c.beginPath(); c.arc(px2,py2,3,0,Math.PI*2); c.fill();
     });
+
+    // مفتاح
+    const keyY=h*0.84;
+    [[w*0.30,'#7C3AED','اللحاء — سكروز'],[w*0.70,'#B45309','الخشب — ماء']].forEach(([kx,col,lbl])=>{
+      c.fillStyle=col+'CC'; c.beginPath(); c.arc(kx-35,keyY,8,0,Math.PI*2); c.fill();
+      c.font=`bold ${Math.round(h*0.020)}px Tajawal`; c.textAlign='right'; c.fillStyle=col;
+      c.fillText(lbl,kx,keyY+5);
+    });
+
+    // تسميات الطبقات
+    c.font=`${Math.round(h*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillStyle='#27AE60'; c.fillText('البشرة',cx4,cy4-R-h*0.018);
+    c.fillStyle='#27AE60'; c.fillText('القشرة',cx4+R*0.58,cy4);
 
     animFrame=requestAnimationFrame(draw);
   }
   draw();
 }
+
 
 // ══════════════════════════════════════════════════════════
 // 🖊 السبورة التفاعلية — Interactive Whiteboard
