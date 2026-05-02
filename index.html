@@ -5305,7 +5305,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         <div class="sims-grid">
 
           <div class="sim-card" onclick="openSim('g9bio9n1')">
-            <div class="sim-thumb t1">🔬</div>
+            <div class="sim-thumb" style="background:linear-gradient(135deg,#27AE60,#1A8FA8);font-size:32px;display:flex;align-items:center;justify-content:center">🔬</div>
             <div class="sim-body">
               <div class="sim-num">نشاط ١-٩ · أوعية الخشب واللحاء</div>
               <div class="sim-name">تشريح الحزمة الوعائية — Xylem & Phloem</div>
@@ -5315,7 +5315,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           </div>
 
           <div class="sim-card" onclick="openSim('g9bio9n2')">
-            <div class="sim-thumb t2">💧</div>
+            <div class="sim-thumb" style="background:linear-gradient(135deg,#1A8FA8,#6B4E9A);font-size:32px;display:flex;align-items:center;justify-content:center">💧</div>
             <div class="sim-body">
               <div class="sim-num">نشاط ٢-٩ · الشعيرات الجذرية وامتصاص الماء</div>
               <div class="sim-name">رحلة الماء من التربة إلى الخشب</div>
@@ -5325,7 +5325,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           </div>
 
           <div class="sim-card" onclick="openSim('g9bio9n3')">
-            <div class="sim-thumb t7">🌿</div>
+            <div class="sim-thumb" style="background:linear-gradient(135deg,#D4901A,#C0392B);font-size:32px;display:flex;align-items:center;justify-content:center">🌿</div>
             <div class="sim-body">
               <div class="sim-num">نشاط ٣-٩ · النتح وتيار النتح</div>
               <div class="sim-name">كيف يتحرك الماء من الجذر إلى الأوراق؟</div>
@@ -5335,7 +5335,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           </div>
 
           <div class="sim-card" onclick="openSim('g9bio9n4')">
-            <div class="sim-thumb t6">📏</div>
+            <div class="sim-thumb" style="background:linear-gradient(135deg,#6B4E9A,#C0392B);font-size:32px;display:flex;align-items:center;justify-content:center">📏</div>
             <div class="sim-body">
               <div class="sim-num">نشاط ٤-٩ · جهاز البوتومتر</div>
               <div class="sim-name">قياس معدّل النتح في ظروف مختلفة</div>
@@ -5345,7 +5345,7 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
           </div>
 
           <div class="sim-card" onclick="openSim('g9bio9n5')">
-            <div class="sim-thumb t4">🍬</div>
+            <div class="sim-thumb" style="background:linear-gradient(135deg,#27AE60,#D4901A);font-size:32px;display:flex;align-items:center;justify-content:center">🍬</div>
             <div class="sim-body">
               <div class="sim-num">نشاط ٥-٩ · نقل الغذاء في اللحاء</div>
               <div class="sim-name">الانتقال — من المصدر إلى المصبّ</div>
@@ -60435,145 +60435,274 @@ function simG9Bio9N2b(){
 }
 
 // ══ نشاط ٣ التبويب الأول: عملية النتح والثغور ══
+// ── دالة رسم فرع واحد بشكل تعاودي ─────────────────────────
+function drawBranch(c,x1,y1,angle,length,depth,dark,windAmt,t){
+  if(depth===0||length<3) return;
+  const swing=Math.sin(t*0.45+depth*0.7)*windAmt*0.018*(4-depth);
+  const x2=x1+Math.cos(angle+swing)*length;
+  const y2=y1+Math.sin(angle+swing)*length;
+  c.strokeStyle=dark
+    ?(depth>2?'#3d2008':'#5c3318')
+    :(depth>2?'#5c3318':'#8b5e2a');
+  c.lineWidth=Math.max(1, depth*2.2-0.5);
+  c.lineCap='round';
+  c.beginPath(); c.moveTo(x1,y1); c.quadraticCurveTo(
+    (x1+x2)/2+Math.sin(t*0.3+depth)*windAmt*length*0.06, (y1+y2)/2,
+    x2,y2
+  ); c.stroke();
+  // رسم ورقة في نهاية الأفرع الصغيرة
+  if(depth===1){
+    drawSingleLeaf(c,x2,y2,length*1.8,angle+swing,dark,t+depth);
+  }
+  const spread=0.42+windAmt*0.04;
+  drawBranch(c,x2,y2,angle-spread,length*0.68,depth-1,dark,windAmt,t);
+  drawBranch(c,x2,y2,angle+spread*0.85,length*0.65,depth-1,dark,windAmt,t);
+  if(depth>=3) drawBranch(c,x2,y2,angle+0.05,length*0.55,depth-2,dark,windAmt,t);
+}
+
+// ── دالة رسم ورقة منفردة على طرف الفرع ─────────────────────
+function drawSingleLeaf(c,cx,cy,size,angle,dark,t){
+  const s=Math.max(6,size);
+  const swing=Math.sin(t*0.5)*0.12;
+  c.save(); c.translate(cx,cy); c.rotate(angle-Math.PI/2+swing);
+  // ظل
+  c.fillStyle='rgba(0,0,0,0.10)';
+  c.beginPath();
+  c.moveTo(0,s*0.55+3);
+  c.bezierCurveTo(-s*0.45,s*0.2+3, -s*0.52,-s*0.35+3, 0,-s*0.55+3);
+  c.bezierCurveTo( s*0.52,-s*0.35+3,  s*0.45,s*0.2+3, 0,s*0.55+3);
+  c.fill();
+  // تدرج ورقة
+  const lg=c.createLinearGradient(-s*0.3,-s*0.55, s*0.3,s*0.55);
+  if(dark){
+    lg.addColorStop(0,'#166534'); lg.addColorStop(0.4,'#15803d'); lg.addColorStop(1,'#14532d');
+  } else {
+    lg.addColorStop(0,'#86efac'); lg.addColorStop(0.35,'#4ade80'); lg.addColorStop(0.7,'#22c55e'); lg.addColorStop(1,'#15803d');
+  }
+  c.fillStyle=lg;
+  c.beginPath();
+  c.moveTo(0,s*0.55);
+  c.bezierCurveTo(-s*0.45,s*0.2, -s*0.52,-s*0.35, 0,-s*0.55);
+  c.bezierCurveTo( s*0.52,-s*0.35,  s*0.45,s*0.2,  0,s*0.55);
+  c.fill();
+  // عرق رئيسي
+  c.strokeStyle=dark?'rgba(20,83,45,0.7)':'rgba(20,83,45,0.45)';
+  c.lineWidth=Math.max(0.8,s*0.05); c.lineCap='round';
+  c.beginPath(); c.moveTo(0,-s*0.52); c.lineTo(0,s*0.52); c.stroke();
+  // عروق جانبية (٣ أزواج)
+  c.lineWidth=Math.max(0.4,s*0.025);
+  for(let i=0;i<3;i++){
+    const vy=-s*0.3+i*s*0.28;
+    const ex=s*(0.38-i*0.05);
+    c.beginPath(); c.moveTo(0,vy); c.quadraticCurveTo(ex*0.55,vy-s*0.06,ex,vy-s*0.1); c.stroke();
+    c.beginPath(); c.moveTo(0,vy); c.quadraticCurveTo(-ex*0.55,vy-s*0.06,-ex,vy-s*0.1); c.stroke();
+  }
+  // بريق
+  const shine=c.createRadialGradient(-s*0.12,-s*0.28,0,-s*0.08,-s*0.18,s*0.32);
+  shine.addColorStop(0,'rgba(255,255,255,0.28)'); shine.addColorStop(1,'rgba(255,255,255,0)');
+  c.fillStyle=shine;
+  c.beginPath();
+  c.moveTo(0,s*0.55);
+  c.bezierCurveTo(-s*0.45,s*0.2,-s*0.52,-s*0.35,0,-s*0.55);
+  c.bezierCurveTo(s*0.52,-s*0.35,s*0.45,s*0.2,0,s*0.55);
+  c.fill();
+  c.restore();
+}
+
 // ── دالة رسم شجرة واقعية مشتركة ──────────────────────────
 function drawRealisticTree(c,w,h,dark,windAmt,t){
-  // سماء أو خلفية بيئية
-  const skyG=c.createLinearGradient(0,0,0,h*0.72);
-  if(dark){skyG.addColorStop(0,'#0a1628');skyG.addColorStop(1,'#1a2a1a');}
-  else{skyG.addColorStop(0,'#dbeafe');skyG.addColorStop(0.6,'#bbf7d0');skyG.addColorStop(1,'#d1fae5');}
-  c.fillStyle=skyG;c.fillRect(0,0,w,h*0.72);
+  // ── سماء ──
+  const skyG=c.createLinearGradient(0,0,0,h*0.70);
+  if(dark){skyG.addColorStop(0,'#0c1a2e');skyG.addColorStop(0.5,'#0f2318');skyG.addColorStop(1,'#0d1c10');}
+  else{skyG.addColorStop(0,'#bae6fd');skyG.addColorStop(0.55,'#d1fae5');skyG.addColorStop(1,'#bbf7d0');}
+  c.fillStyle=skyG; c.fillRect(0,0,w,h*0.70);
 
-  // أرض
-  const gndG=c.createLinearGradient(0,h*0.72,0,h);
-  if(dark){gndG.addColorStop(0,'#1a2e10');gndG.addColorStop(1,'#0d1a08');}
-  else{gndG.addColorStop(0,'#4ade80');gndG.addColorStop(0.3,'#16a34a');gndG.addColorStop(1,'#14532d');}
-  c.fillStyle=gndG;c.fillRect(0,h*0.72,w,h*0.28);
+  // غيوم بسيطة (وضع نهاري فقط)
+  if(!dark){
+    [[0.18,0.12,0.09],[0.72,0.09,0.07],[0.45,0.17,0.06]].forEach(([cx2,cy2,r2])=>{
+      const cg=c.createRadialGradient(cx2*w,cy2*h,0,cx2*w,cy2*h,r2*w);
+      cg.addColorStop(0,'rgba(255,255,255,0.85)'); cg.addColorStop(1,'rgba(255,255,255,0)');
+      c.fillStyle=cg; c.beginPath(); c.ellipse(cx2*w,cy2*h,r2*w*1.8,r2*h*1.1,0,0,Math.PI*2); c.fill();
+    });
+  }
 
-  // جذور ظاهرة
-  const tx=w*0.50, baseY=h*0.72;
-  c.strokeStyle=dark?'#5c3d1a':'#7c4a1a'; c.lineWidth=4; c.lineCap='round';
-  [[-0.10,0.85],[-0.06,0.90],[0.06,0.90],[0.10,0.85],[-0.04,0.95],[0.04,0.95]].forEach(([dx,dy])=>{
-    c.beginPath();c.moveTo(tx,baseY);
-    c.quadraticCurveTo(tx+dx*w*0.6,baseY+h*0.04,tx+dx*w*0.8,baseY+dy*(h-baseY)*1.1);
+  // ── أرض ──
+  const gndY=h*0.70;
+  const gndG=c.createLinearGradient(0,gndY,0,h);
+  if(dark){gndG.addColorStop(0,'#1a3010');gndG.addColorStop(0.4,'#142208');gndG.addColorStop(1,'#0a1205');}
+  else{gndG.addColorStop(0,'#86efac');gndG.addColorStop(0.25,'#22c55e');gndG.addColorStop(0.6,'#16a34a');gndG.addColorStop(1,'#14532d');}
+  c.fillStyle=gndG; c.fillRect(0,gndY,w,h-gndY);
+
+  // تضاريس الأرض (حدة منحنية)
+  c.fillStyle=dark?'#1a3010':'#4ade80';
+  c.beginPath(); c.moveTo(0,gndY);
+  c.bezierCurveTo(w*0.2,gndY-h*0.025, w*0.4,gndY+h*0.015, w*0.6,gndY-h*0.018);
+  c.bezierCurveTo(w*0.75,gndY-h*0.03, w*0.88,gndY+h*0.01, w,gndY-h*0.005);
+  c.lineTo(w,gndY); c.lineTo(0,gndY); c.fill();
+
+  const tx=w*0.50, baseY=gndY;
+
+  // ── جذور ظاهرة ──
+  const rootSegs=[
+    {ang:Math.PI*0.55, len:0.13, bend:-0.04},
+    {ang:Math.PI*0.65, len:0.10, bend: 0.03},
+    {ang:Math.PI*0.80, len:0.09, bend:-0.02},
+    {ang:Math.PI*1.20, len:0.09, bend: 0.02},
+    {ang:Math.PI*1.35, len:0.10, bend:-0.03},
+    {ang:Math.PI*1.45, len:0.13, bend: 0.04},
+  ];
+  rootSegs.forEach(r=>{
+    const ex=tx+Math.cos(r.ang)*r.len*w;
+    const ey=baseY+Math.abs(Math.sin(r.ang))*r.len*h*0.8;
+    const mx=tx+Math.cos(r.ang+r.bend)*r.len*w*0.5;
+    const my=baseY+Math.abs(Math.sin(r.ang))*r.len*h*0.3;
+    c.strokeStyle=dark?'#4a2c0a':'#6b3a10';
+    c.lineWidth=3.5; c.lineCap='round';
+    c.beginPath(); c.moveTo(tx,baseY); c.quadraticCurveTo(mx,my,ex,ey); c.stroke();
+    // فرع جذري صغير
+    c.lineWidth=1.8;
+    c.beginPath(); c.moveTo((tx+ex)/2,(baseY+ey)/2);
+    c.lineTo(ex+Math.cos(r.ang+0.6)*w*0.04, ey+h*0.03);
     c.stroke();
   });
 
-  // جذع الشجرة الرئيسي (مخروطي)
-  const trunkH=h*0.38, trunkTopW=w*0.025, trunkBotW=w*0.055;
+  // ── جذع الشجرة ──
+  const trunkH=h*0.36, trunkBotW=w*0.052, trunkTopW=w*0.022;
+  const trunkSwing=Math.sin(t*0.4)*windAmt*0.008*w;
+  // طبقة لون داكن (حواف)
+  c.fillStyle=dark?'#1e0e04':'#3a1e08';
+  c.beginPath();
+  c.moveTo(tx-trunkBotW-4, baseY);
+  c.bezierCurveTo(tx-trunkBotW-3,baseY-trunkH*0.35, tx-trunkTopW-3,baseY-trunkH*0.72, tx-trunkTopW+trunkSwing-3,baseY-trunkH);
+  c.lineTo(tx+trunkTopW+trunkSwing+3,baseY-trunkH);
+  c.bezierCurveTo(tx+trunkTopW+3,baseY-trunkH*0.72, tx+trunkBotW+3,baseY-trunkH*0.35, tx+trunkBotW+4,baseY);
+  c.closePath(); c.fill();
+  // تدرج الجذع الرئيسي
   const trunkG=c.createLinearGradient(tx-trunkBotW,0,tx+trunkBotW,0);
-  if(dark){trunkG.addColorStop(0,'#2d1a08');trunkG.addColorStop(0.35,'#6b3f1a');trunkG.addColorStop(0.65,'#8b5e2a');trunkG.addColorStop(1,'#2d1a08');}
-  else{trunkG.addColorStop(0,'#4a2c0a');trunkG.addColorStop(0.35,'#8b5e2a');trunkG.addColorStop(0.65,'#c4853a');trunkG.addColorStop(1,'#4a2c0a');}
+  if(dark){
+    trunkG.addColorStop(0,'#2d1508'); trunkG.addColorStop(0.2,'#5c2e10');
+    trunkG.addColorStop(0.5,'#7a4520'); trunkG.addColorStop(0.8,'#5c2e10'); trunkG.addColorStop(1,'#2d1508');
+  } else {
+    trunkG.addColorStop(0,'#4a2008'); trunkG.addColorStop(0.18,'#7a4018');
+    trunkG.addColorStop(0.5,'#b06030'); trunkG.addColorStop(0.82,'#7a4018'); trunkG.addColorStop(1,'#4a2008');
+  }
   c.fillStyle=trunkG;
   c.beginPath();
   c.moveTo(tx-trunkBotW,baseY);
-  c.bezierCurveTo(tx-trunkBotW,baseY-trunkH*0.3,tx-trunkTopW,baseY-trunkH*0.7,tx-trunkTopW+Math.sin(t*0.4)*w*0.005,baseY-trunkH);
-  c.lineTo(tx+trunkTopW+Math.sin(t*0.4)*w*0.005,baseY-trunkH);
-  c.bezierCurveTo(tx+trunkTopW,baseY-trunkH*0.7,tx+trunkBotW,baseY-trunkH*0.3,tx+trunkBotW,baseY);
-  c.closePath();c.fill();
-  // تفاصيل لحاء
-  c.strokeStyle=dark?'rgba(0,0,0,0.3)':'rgba(0,0,0,0.15)'; c.lineWidth=1;
-  for(let i=0;i<5;i++){
-    const ly2=baseY-trunkH*(0.15+i*0.17);
-    const wid=trunkBotW-(trunkBotW-trunkTopW)*(0.15+i*0.17);
-    c.beginPath();c.moveTo(tx-wid*0.6,ly2);c.quadraticCurveTo(tx,ly2+h*0.008,tx+wid*0.6,ly2-h*0.004);c.stroke();
+  c.bezierCurveTo(tx-trunkBotW,baseY-trunkH*0.35, tx-trunkTopW,baseY-trunkH*0.72, tx-trunkTopW+trunkSwing,baseY-trunkH);
+  c.lineTo(tx+trunkTopW+trunkSwing,baseY-trunkH);
+  c.bezierCurveTo(tx+trunkTopW,baseY-trunkH*0.72, tx+trunkBotW,baseY-trunkH*0.35, tx+trunkBotW,baseY);
+  c.closePath(); c.fill();
+  // تفاصيل لحاء (خطوط عمودية وأفقية)
+  c.strokeStyle=dark?'rgba(0,0,0,0.35)':'rgba(60,30,10,0.18)';
+  for(let i=0;i<6;i++){
+    const ly=baseY-trunkH*(0.1+i*0.15);
+    const wf=trunkBotW-(trunkBotW-trunkTopW)*(0.1+i*0.15);
+    c.lineWidth=0.8;
+    c.beginPath(); c.moveTo(tx-wf*0.7,ly); c.quadraticCurveTo(tx,ly+h*0.006,tx+wf*0.7,ly-h*0.004); c.stroke();
+  }
+  // خطوط عمودية طولانية (نسيج اللحاء)
+  c.lineWidth=0.6;
+  for(let v=-1;v<=1;v+=0.5){
+    const vx=tx+v*trunkBotW*0.55;
+    c.beginPath(); c.moveTo(vx,baseY-h*0.02); c.lineTo(vx+trunkSwing*0.5,baseY-trunkH*0.85); c.stroke();
   }
 
-  // أفرع رئيسية
+  // ── أفرع الشجرة (رسم تعاودي) ──
   const crownBase=baseY-trunkH;
-  const branches=[
-    {dx:-0.12,dy:-0.10,len:0.14,ang:-0.6},
-    {dx:0.10,dy:-0.08,len:0.12,ang:0.5},
-    {dx:-0.07,dy:-0.18,len:0.10,ang:-0.3},
-    {dx:0.08,dy:-0.20,len:0.10,ang:0.4},
-  ];
-  branches.forEach(b=>{
-    const swing=Math.sin(t*0.5+b.ang)*windAmt*0.04;
-    const ex=tx+b.dx*w+swing*w, ey=crownBase+b.dy*h;
-    c.strokeStyle=dark?'#3d2008':'#6b3f1a'; c.lineWidth=3+b.len*10; c.lineCap='round';
-    c.beginPath();c.moveTo(tx,crownBase);c.quadraticCurveTo(tx+b.dx*w*0.5,crownBase+b.dy*h*0.5,ex,ey);c.stroke();
-  });
+  c.save();
+  const branchLen=h*0.155;
+  drawBranch(c,tx,crownBase,-Math.PI/2,         branchLen,    5,dark,windAmt,t);
+  drawBranch(c,tx,crownBase,-Math.PI/2-0.38,    branchLen*0.9,4,dark,windAmt,t);
+  drawBranch(c,tx,crownBase,-Math.PI/2+0.35,    branchLen*0.9,4,dark,windAmt,t);
+  drawBranch(c,tx,crownBase,-Math.PI/2-0.72,    branchLen*0.75,3,dark,windAmt,t);
+  drawBranch(c,tx,crownBase,-Math.PI/2+0.68,    branchLen*0.75,3,dark,windAmt,t);
+  c.restore();
 
-  // تاج الشجرة — طبقات من الأوراق الواقعية
-  const swing0=Math.sin(t*0.5)*windAmt*0.03;
-  const crowns=[
-    {cx:tx+swing0*w,cy:crownBase-h*0.03, rx:w*0.22, ry:h*0.20, col1:'#15803d',col2:'#166534',col3:'#14532d'},
-    {cx:tx-w*0.12+swing0*w*0.8,cy:crownBase+h*0.05,rx:w*0.16,ry:h*0.15,col1:'#16a34a',col2:'#15803d',col3:'#166534'},
-    {cx:tx+w*0.11+swing0*w*0.8,cy:crownBase+h*0.06,rx:w*0.15,ry:h*0.14,col1:'#22c55e',col2:'#16a34a',col3:'#15803d'},
-    {cx:tx+swing0*w*1.1,cy:crownBase-h*0.17,rx:w*0.15,ry:h*0.13,col1:'#4ade80',col2:'#22c55e',col3:'#16a34a'},
-  ];
-  crowns.forEach(cr=>{
-    // ظل أسفل
-    c.fillStyle='rgba(0,0,0,0.08)';
-    c.beginPath();c.ellipse(cr.cx+w*0.015,cr.cy+h*0.015,cr.rx,cr.ry,0,0,Math.PI*2);c.fill();
-    // تدرج رئيسي
-    const cg=c.createRadialGradient(cr.cx-cr.rx*0.2,cr.cy-cr.ry*0.2,cr.rx*0.1,cr.cx,cr.cy,cr.rx*1.0);
-    cg.addColorStop(0,cr.col1+'EE');cg.addColorStop(0.5,cr.col2+'CC');cg.addColorStop(1,cr.col3+'99');
-    c.fillStyle=cg;
-    c.beginPath();c.ellipse(cr.cx,cr.cy,cr.rx,cr.ry,0,0,Math.PI*2);c.fill();
-    // أوراق منفردة على الحافة
-    for(let i=0;i<8;i++){
-      const a=(i/8)*Math.PI*2+t*0.1;
-      const lx2=cr.cx+Math.cos(a)*cr.rx*0.85, ly2=cr.cy+Math.sin(a)*cr.ry*0.85;
-      c.fillStyle=i%2===0?cr.col1+'CC':cr.col2+'BB';
-      c.save();c.translate(lx2,ly2);c.rotate(a+Math.PI/2+swing0*0.5);
-      c.beginPath();c.ellipse(0,0,cr.rx*0.12,cr.ry*0.08,0,0,Math.PI*2);c.fill();
-      c.restore();
-    }
-  });
-
-  // انعكاس الضوء على التاج
-  const shineG=c.createRadialGradient(tx-w*0.05+swing0*w,crownBase-h*0.15,0,tx+swing0*w,crownBase-h*0.05,w*0.18);
-  shineG.addColorStop(0,'rgba(255,255,255,0.12)');shineG.addColorStop(1,'rgba(255,255,255,0)');
-  c.fillStyle=shineG;
-  c.beginPath();c.ellipse(tx+swing0*w,crownBase-h*0.05,w*0.22,h*0.20,0,0,Math.PI*2);c.fill();
+  // ── ظل الشجرة على الأرض ──
+  const shadowG=c.createRadialGradient(tx+w*0.03,gndY+h*0.015,0,tx+w*0.02,gndY+h*0.01,w*0.18);
+  shadowG.addColorStop(0,'rgba(0,0,0,0.18)'); shadowG.addColorStop(1,'rgba(0,0,0,0)');
+  c.fillStyle=shadowG;
+  c.beginPath(); c.ellipse(tx+w*0.03,gndY+h*0.012,w*0.18,h*0.028,0,0,Math.PI*2); c.fill();
 }
 
-// ── دالة رسم ورقة نبات واقعية ─────────────────────────────
+// ── دالة رسم ورقة نبات واقعية (للاستخدام المفرد كمقطع مكبَّر) ─────────────────────────────
 function drawRealisticLeaf(c,cx,cy,w,h,t,scale){
   scale=scale||1;
-  const lw=w*0.28*scale, lh=h*0.22*scale;
-  const swing=Math.sin(t*0.6)*0.04;
-  c.save();c.translate(cx,cy);c.rotate(swing);
+  const lw=w*0.22*scale, lh=h*0.30*scale;
+  const swing=Math.sin(t*0.55)*0.05;
+  c.save(); c.translate(cx,cy); c.rotate(swing);
 
   // ظل
-  c.fillStyle='rgba(0,0,0,0.08)';
+  c.fillStyle='rgba(0,0,0,0.10)';
   c.beginPath();
-  c.moveTo(0,lh*0.5+4);
-  c.bezierCurveTo(-lw*0.55,lh*0.25+4,-lw*0.7,-lh*0.2+4,0,-lh*0.5+4);
-  c.bezierCurveTo(lw*0.7,-lh*0.2+4,lw*0.55,lh*0.25+4,0,lh*0.5+4);
+  c.moveTo(0, lh*0.52+5);
+  c.bezierCurveTo(-lw*0.62, lh*0.22+5, -lw*0.72,-lh*0.28+5, 0,-lh*0.52+5);
+  c.bezierCurveTo( lw*0.72,-lh*0.28+5,  lw*0.62, lh*0.22+5, 0, lh*0.52+5);
   c.fill();
 
-  // جسم الورقة بتدرج واقعي
-  const lg=c.createLinearGradient(-lw*0.3,-lh*0.5,lw*0.3,lh*0.5);
-  lg.addColorStop(0,'#4ade80');lg.addColorStop(0.3,'#22c55e');lg.addColorStop(0.6,'#16a34a');lg.addColorStop(1,'#166534');
+  // جسم الورقة — تدرج واقعي متعدد الألوان
+  const dark=dm15();
+  const lg=c.createLinearGradient(-lw*0.4,-lh*0.52, lw*0.4,lh*0.52);
+  if(dark){
+    lg.addColorStop(0,'#4ade80'); lg.addColorStop(0.25,'#22c55e');
+    lg.addColorStop(0.6,'#16a34a'); lg.addColorStop(1,'#14532d');
+  } else {
+    lg.addColorStop(0,'#bbf7d0'); lg.addColorStop(0.2,'#86efac');
+    lg.addColorStop(0.45,'#4ade80'); lg.addColorStop(0.72,'#22c55e'); lg.addColorStop(1,'#15803d');
+  }
   c.fillStyle=lg;
   c.beginPath();
-  c.moveTo(0,lh*0.5);
-  c.bezierCurveTo(-lw*0.55,lh*0.25,-lw*0.7,-lh*0.2,0,-lh*0.5);
-  c.bezierCurveTo(lw*0.7,-lh*0.2,lw*0.55,lh*0.25,0,lh*0.5);
+  c.moveTo(0, lh*0.52);
+  c.bezierCurveTo(-lw*0.62, lh*0.22, -lw*0.72,-lh*0.28, 0,-lh*0.52);
+  c.bezierCurveTo( lw*0.72,-lh*0.28,  lw*0.62, lh*0.22, 0, lh*0.52);
   c.fill();
 
-  // عروق
-  c.strokeStyle='rgba(6,78,59,0.5)';c.lineWidth=1.5;c.lineCap='round';
+  // حدود الورقة
+  c.strokeStyle=dark?'rgba(20,83,45,0.5)':'rgba(20,83,45,0.25)';
+  c.lineWidth=1.2;
+  c.beginPath();
+  c.moveTo(0,lh*0.52);
+  c.bezierCurveTo(-lw*0.62,lh*0.22,-lw*0.72,-lh*0.28,0,-lh*0.52);
+  c.bezierCurveTo(lw*0.72,-lh*0.28,lw*0.62,lh*0.22,0,lh*0.52);
+  c.stroke();
+
   // عرق رئيسي
-  c.beginPath();c.moveTo(0,-lh*0.5);c.lineTo(0,lh*0.5);c.stroke();
-  // عروق جانبية
-  c.lineWidth=0.8;
-  for(let i=1;i<=4;i++){
-    const vy=-lh*0.4+i*(lh*0.22);
-    const ex=lw*0.55*(1-Math.abs(vy)/(lh*0.6));
-    c.beginPath();c.moveTo(0,vy);c.quadraticCurveTo(ex*0.5,vy-lh*0.04,ex,vy-lh*0.06);c.stroke();
-    c.beginPath();c.moveTo(0,vy);c.quadraticCurveTo(-ex*0.5,vy-lh*0.04,-ex,vy-lh*0.06);c.stroke();
+  c.strokeStyle=dark?'rgba(20,83,45,0.75)':'rgba(20,83,45,0.55)';
+  c.lineWidth=lw*0.05; c.lineCap='round';
+  c.beginPath(); c.moveTo(0,-lh*0.50); c.lineTo(0,lh*0.50); c.stroke();
+
+  // عروق جانبية (٥ أزواج)
+  c.lineWidth=lw*0.022;
+  for(let i=0;i<5;i++){
+    const vy=-lh*0.42+i*(lh*0.205);
+    const taper=1-Math.pow(Math.abs(vy)/lh,1.2)*0.7;
+    const ex=lw*0.62*taper;
+    c.beginPath(); c.moveTo(0,vy); c.quadraticCurveTo(ex*0.5,vy-lh*0.035,ex,vy-lh*0.065); c.stroke();
+    c.beginPath(); c.moveTo(0,vy); c.quadraticCurveTo(-ex*0.5,vy-lh*0.035,-ex,vy-lh*0.065); c.stroke();
   }
-  // بريق
-  const shine=c.createRadialGradient(-lw*0.15,-lh*0.25,0,-lw*0.1,-lh*0.15,lw*0.3);
-  shine.addColorStop(0,'rgba(255,255,255,0.22)');shine.addColorStop(1,'rgba(255,255,255,0)');
+
+  // عروق ثانوية رفيعة
+  c.lineWidth=lw*0.010;
+  c.strokeStyle=dark?'rgba(20,83,45,0.40)':'rgba(20,83,45,0.28)';
+  for(let i=0;i<4;i++){
+    const vy=-lh*0.35+i*(lh*0.22);
+    const ex=lw*0.55*(1-Math.abs(vy)/(lh*0.9));
+    for(let s of[-1,1]){
+      c.beginPath(); c.moveTo(s*ex*0.35,vy-lh*0.04); c.lineTo(s*ex*0.72,vy-lh*0.085); c.stroke();
+    }
+  }
+
+  // بريق سطح الورقة
+  const shine=c.createRadialGradient(-lw*0.18,-lh*0.30,0,-lw*0.10,-lh*0.16,lw*0.42);
+  shine.addColorStop(0,'rgba(255,255,255,0.32)'); shine.addColorStop(1,'rgba(255,255,255,0)');
   c.fillStyle=shine;
   c.beginPath();
-  c.moveTo(0,lh*0.5);
-  c.bezierCurveTo(-lw*0.55,lh*0.25,-lw*0.7,-lh*0.2,0,-lh*0.5);
-  c.bezierCurveTo(lw*0.7,-lh*0.2,lw*0.55,lh*0.25,0,lh*0.5);
+  c.moveTo(0,lh*0.52);
+  c.bezierCurveTo(-lw*0.62,lh*0.22,-lw*0.72,-lh*0.28,0,-lh*0.52);
+  c.bezierCurveTo(lw*0.72,-lh*0.28,lw*0.62,lh*0.22,0,lh*0.52);
   c.fill();
+
   c.restore();
 }
 
