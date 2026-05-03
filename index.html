@@ -61469,69 +61469,262 @@ function _drawPot10(c,cx,potY,w,h,dark){
   return {pw,ph};
 }
 
-// ─── مساعد: رسم نبتة بانحناء ───
+// ─── مساعد: رسم نبتة واقعية بانحناء ───
 function _drawPlant10(c,cx,potY,w,h,dark,bendX,growthFrac,showLeaves){
   if(growthFrac<=0) return;
+  c.save();
+
   const stemH = h*0.30 * growthFrac;
   const tipX = cx + bendX*growthFrac;
   const tipY = potY - stemH;
-  // stem
-  c.strokeStyle=dark?'#66BB6A':'#2E7D32';
+  const ctrl1X=cx+bendX*0.18, ctrl1Y=potY-stemH*0.38;
+  const ctrl2X=cx+bendX*0.62, ctrl2Y=potY-stemH*0.72;
+
+  // ── Shadow of stem on ground ──
+  c.save();
+  c.globalAlpha=0.08;
+  c.strokeStyle='#000';
+  c.lineWidth=10;
+  c.lineCap='round';
+  c.beginPath();
+  c.moveTo(cx+2,potY+2);
+  c.bezierCurveTo(ctrl1X+2,ctrl1Y+2,ctrl2X+2,ctrl2Y+2,tipX+2,tipY+2);
+  c.stroke();
+  c.restore();
+
+  // ── Stem base (thick, slightly lighter = bark-like texture) ──
+  // Outer darker edge
+  c.strokeStyle=dark?'#1B5E20':'#1a4a0f';
+  c.lineWidth=9; c.lineCap='round';
+  c.beginPath();
+  c.moveTo(cx,potY);
+  c.bezierCurveTo(ctrl1X,ctrl1Y,ctrl2X,ctrl2Y,tipX,tipY);
+  c.stroke();
+
+  // Main stem body
+  c.strokeStyle=dark?'#388E3C':'#2E7D32';
   c.lineWidth=7; c.lineCap='round';
   c.beginPath();
   c.moveTo(cx,potY);
-  c.bezierCurveTo(cx+bendX*0.25,potY-stemH*0.4, cx+bendX*0.7,potY-stemH*0.7, tipX,tipY);
+  c.bezierCurveTo(ctrl1X,ctrl1Y,ctrl2X,ctrl2Y,tipX,tipY);
   c.stroke();
-  // highlight
-  c.strokeStyle=dark?'#81C784':'#4CAF50';
-  c.lineWidth=3; c.globalAlpha=0.4;
+
+  // Lit highlight (left side of stem — simulating light from upper right)
+  const hlGrad=c.createLinearGradient(cx-6,potY,cx+6,potY);
+  hlGrad.addColorStop(0,'rgba(255,255,200,0)');
+  hlGrad.addColorStop(0.4,'rgba(144,238,100,0.55)');
+  hlGrad.addColorStop(1,'rgba(255,255,255,0)');
+  c.strokeStyle=hlGrad;
+  c.lineWidth=3; c.lineCap='round';
   c.beginPath();
-  c.moveTo(cx-2,potY);
-  c.bezierCurveTo(cx+bendX*0.25-2,potY-stemH*0.4, cx+bendX*0.7-2,tipY+stemH*0.3, tipX-2,tipY);
+  c.moveTo(cx-1.5,potY);
+  c.bezierCurveTo(ctrl1X-1.5,ctrl1Y,ctrl2X-1.5,ctrl2Y,tipX-1.5,tipY);
   c.stroke();
-  c.globalAlpha=1;
+
   if(showLeaves){
-    // tip bud
-    c.fillStyle=dark?'#388E3C':'#1B5E20';
-    c.beginPath(); c.ellipse(tipX,tipY-h*0.038,h*0.038,h*0.028,0.2,0,Math.PI*2); c.fill();
-    c.fillStyle=dark?'#66BB6A':'#4CAF50';
-    c.beginPath(); c.ellipse(tipX,tipY-h*0.038,h*0.032,h*0.022,0.2,0,Math.PI*2); c.fill();
-    // leaves
-    c.fillStyle=dark?'#81C784':'#66BB6A';
-    c.beginPath(); c.ellipse(tipX-h*0.06,tipY-h*0.01,h*0.055,h*0.024,-0.5,0,Math.PI*2); c.fill();
-    c.beginPath(); c.ellipse(tipX+h*0.06,tipY-h*0.01,h*0.055,h*0.024,0.5,0,Math.PI*2); c.fill();
+    // Helper: draw a realistic single leaf with veins and light interaction
+    function _leaf(lx,ly,rx,ry,rot,lightSide,colorBase,colorDark){
+      c.save();
+      c.translate(lx,ly);
+      c.rotate(rot);
+
+      // ── Leaf shape using quadratic curves (asymmetric for realism) ──
+      const lw=rx, lh=ry;
+      c.beginPath();
+      c.moveTo(0,0);
+      // Upper edge
+      c.quadraticCurveTo(-lw*0.25,-lh*1.1, -lw*0.52,-lh*0.12);
+      // Tip
+      c.quadraticCurveTo(-lw*0.62,lh*0.18, 0,lh*0.12);
+      // Lower right
+      c.quadraticCurveTo(lw*0.32,lh*0.18, lw*0.46,-lh*0.12);
+      // Back to base
+      c.quadraticCurveTo(lw*0.22,-lh*1.0, 0,0);
+      c.closePath();
+
+      // Fill with gradient simulating light
+      const leafGrad=c.createLinearGradient(-lw*0.3,-lh*0.8, lw*0.3,lh*0.2);
+      leafGrad.addColorStop(0,lightSide?'#A5D6A7':colorBase);
+      leafGrad.addColorStop(0.35,colorBase);
+      leafGrad.addColorStop(0.75,colorDark);
+      leafGrad.addColorStop(1,dark?'#1B5E20':'#1a4a0f');
+      c.fillStyle=leafGrad;
+      c.fill();
+
+      // Leaf edge stroke (slightly darker)
+      c.strokeStyle=dark?'#1B5E20':'#1B5E20';
+      c.lineWidth=0.8;
+      c.stroke();
+
+      // ── Midrib vein ──
+      c.beginPath();
+      c.moveTo(0,0);
+      c.quadraticCurveTo(-lw*0.08,-lh*0.5,-lw*0.48,-lh*0.08);
+      c.strokeStyle=dark?'rgba(27,94,32,0.7)':'rgba(20,70,15,0.5)';
+      c.lineWidth=0.9;
+      c.stroke();
+
+      // ── Secondary veins (3 pairs) ──
+      c.strokeStyle=dark?'rgba(56,142,60,0.35)':'rgba(30,100,20,0.28)';
+      c.lineWidth=0.55;
+      [[-0.18,-0.22],[-0.28,-0.48],[-0.38,-0.72]].forEach(([vx,vy])=>{
+        const baseX=vx*(lw), baseY=vy*(lh);
+        // left vein
+        c.beginPath(); c.moveTo(baseX,baseY);
+        c.quadraticCurveTo(baseX-lw*0.2,baseY+lh*0.12,baseX-lw*0.38,baseY+lh*0.06);
+        c.stroke();
+        // right vein
+        c.beginPath(); c.moveTo(baseX,baseY);
+        c.quadraticCurveTo(baseX+lw*0.12,baseY+lh*0.12,baseX+lw*0.22,baseY+lh*0.04);
+        c.stroke();
+      });
+
+      c.restore();
+    }
+
+    // ── Compute positions along the bezier for leaf attachment ──
+    function bezierPt(t){
+      const mt=1-t;
+      return {
+        x: mt*mt*mt*cx + 3*mt*mt*t*ctrl1X + 3*mt*t*t*ctrl2X + t*t*t*tipX,
+        y: mt*mt*mt*potY + 3*mt*mt*t*ctrl1Y + 3*mt*t*t*ctrl2Y + t*t*t*tipY
+      };
+    }
+
+    // Leaf 1 — lower left, large, in shadow
+    const p1=bezierPt(0.35);
+    _leaf(p1.x, p1.y, h*0.085, h*0.065, -0.35, false,
+      dark?'#2E7D32':'#388E3C', dark?'#1B5E20':'#1a4a12');
+
+    // Leaf 2 — lower right, large, lit side
+    const p2=bezierPt(0.38);
+    _leaf(p2.x, p2.y, h*0.08, h*0.062, 0.95, true,
+      dark?'#43A047':'#4CAF50', dark?'#2E7D32':'#388E3C');
+
+    // Leaf 3 — mid left, medium
+    const p3=bezierPt(0.62);
+    _leaf(p3.x, p3.y, h*0.07, h*0.055, -0.45, false,
+      dark?'#388E3C':'#43A047', dark?'#1B5E20':'#2E7D32');
+
+    // Leaf 4 — mid right, lit
+    const p4=bezierPt(0.64);
+    _leaf(p4.x, p4.y, h*0.065, h*0.052, 1.05, true,
+      dark?'#4CAF50':'#66BB6A', dark?'#388E3C':'#43A047');
+
+    // ── Apical bud (growing tip) ──
+    // Bud outer layer (sepals / closed bud)
+    c.save();
+    c.translate(tipX, tipY);
+
+    // Small young leaf on left of tip
+    c.fillStyle=dark?'#388E3C':'#43A047';
+    c.beginPath();
+    c.moveTo(0,0);
+    c.quadraticCurveTo(-h*0.035,-h*0.04,-h*0.055,-h*0.015);
+    c.quadraticCurveTo(-h*0.035,h*0.005,0,0);
+    c.fill();
+
+    // Small young leaf on right of tip
+    c.fillStyle=dark?'#4CAF50':'#66BB6A';
+    c.beginPath();
+    c.moveTo(0,0);
+    c.quadraticCurveTo(h*0.028,-h*0.035, h*0.048,-h*0.01);
+    c.quadraticCurveTo(h*0.025,h*0.006,0,0);
+    c.fill();
+
+    // Meristem dome (actual tip)
+    const budGrad=c.createRadialGradient(-h*0.005,-h*0.018,0, 0,0,h*0.022);
+    budGrad.addColorStop(0,'#A5D6A7');
+    budGrad.addColorStop(0.5,dark?'#4CAF50':'#2E7D32');
+    budGrad.addColorStop(1,dark?'#1B5E20':'#1B5E20');
+    c.fillStyle=budGrad;
+    c.beginPath(); c.ellipse(0,-h*0.022,h*0.015,h*0.022,0,0,Math.PI*2); c.fill();
+
+    c.restore();
   }
+  c.restore();
 }
 
-// ─── مساعد: شمس ───
+// ─── مساعد: شمس واقعية ───
 function _drawSun10(c,x,y,r,dir,h){
-  // Minimal light indicator: small disc + direction arrows only
   c.save();
-  c.fillStyle='#F9C822';
-  c.beginPath(); c.arc(x,y,r*0.7,0,Math.PI*2); c.fill();
-  // 3 arrow lines pointing in light direction
-  c.strokeStyle='#E8A800'; c.lineWidth=Math.max(1.5,r*0.15); c.lineCap='round';
-  const gap=r*0.5;
-  for(let i=-1;i<=1;i++){
-    let ax1,ay1,ax2,ay2;
-    if(dir==='left'){
-      ax1=x-r*0.8; ay1=y+i*gap; ax2=x-r*1.8; ay2=y+i*gap;
-    } else if(dir==='right'){
-      ax1=x+r*0.8; ay1=y+i*gap; ax2=x+r*1.8; ay2=y+i*gap;
-    } else {
-      ax1=x+i*gap; ay1=y+r*0.8; ax2=x+i*gap; ay2=y+r*1.8;
-    }
-    c.beginPath(); c.moveTo(ax1,ay1); c.lineTo(ax2,ay2); c.stroke();
-    // arrowhead
-    const dx=ax2-ax1, dy=ay2-ay1, len=Math.sqrt(dx*dx+dy*dy);
-    const ux=dx/len, uy=dy/len;
-    const ah=r*0.3;
+
+  // ── Outer atmospheric halo (very soft, wide) ──
+  const halo=c.createRadialGradient(x,y,r*0.5,x,y,r*4.5);
+  halo.addColorStop(0,'rgba(255,230,120,0.22)');
+  halo.addColorStop(0.4,'rgba(255,210,80,0.08)');
+  halo.addColorStop(1,'rgba(255,200,60,0)');
+  c.fillStyle=halo;
+  c.beginPath(); c.arc(x,y,r*4.5,0,Math.PI*2); c.fill();
+
+  // ── Mid corona glow ──
+  const corona=c.createRadialGradient(x,y,r*0.6,x,y,r*2.2);
+  corona.addColorStop(0,'rgba(255,240,160,0.45)');
+  corona.addColorStop(0.5,'rgba(255,220,80,0.15)');
+  corona.addColorStop(1,'rgba(255,200,60,0)');
+  c.fillStyle=corona;
+  c.beginPath(); c.arc(x,y,r*2.2,0,Math.PI*2); c.fill();
+
+  // ── Sun disc with realistic radial gradient ──
+  const disc=c.createRadialGradient(x-r*0.22,y-r*0.22,r*0.05, x,y,r*1.05);
+  disc.addColorStop(0,'#FFFDE7');   // bright white-yellow centre
+  disc.addColorStop(0.25,'#FFF176');
+  disc.addColorStop(0.55,'#FFD740');
+  disc.addColorStop(0.82,'#FFAB00');
+  disc.addColorStop(1,'#FF8F00');   // darker warm limb
+  c.fillStyle=disc;
+  c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+
+  // ── Subtle limb darkening ring ──
+  const limb=c.createRadialGradient(x,y,r*0.6,x,y,r);
+  limb.addColorStop(0,'rgba(0,0,0,0)');
+  limb.addColorStop(1,'rgba(180,60,0,0.18)');
+  c.fillStyle=limb;
+  c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+
+  // ── Soft ray streaks (natural, non-cartoon) ──
+  c.globalAlpha=0.22;
+  c.strokeStyle='#FFD54F';
+  c.lineWidth=Math.max(1,r*0.18);
+  c.lineCap='round';
+  const rayAngles=[-0.42,0,0.42,0.85,1.28,1.71,2.14,2.57,3.0,3.43,3.86,4.29,4.72,5.15,5.58];
+  rayAngles.forEach(a=>{
+    const inner=r*1.18, outer=r*(1.55+Math.random()*0.25);
     c.beginPath();
-    c.moveTo(ax2,ay2);
-    c.lineTo(ax2-ux*ah-uy*ah*0.5, ay2-uy*ah+ux*ah*0.5);
-    c.lineTo(ax2-ux*ah+uy*ah*0.5, ay2-uy*ah-ux*ah*0.5);
-    c.closePath(); c.fillStyle='#E8A800'; c.fill();
+    c.moveTo(x+Math.cos(a)*inner, y+Math.sin(a)*inner);
+    c.lineTo(x+Math.cos(a)*outer, y+Math.sin(a)*outer);
+    c.stroke();
+  });
+  c.globalAlpha=1;
+
+  // ── Directional light beam rays showing light direction ──
+  // These are semi-transparent gradient beams
+  const beamCount=3;
+  const beamSpread=r*0.55;
+  let bx=0,by=0; // beam direction unit vector
+  if(dir==='left'){  bx=-1; by=0; }
+  else if(dir==='right'){ bx=1; by=0; }
+  else { bx=0; by=1; }
+
+  for(let i=-1;i<=1;i++){
+    const perpX= -by, perpY= bx; // perpendicular
+    const startX=x+bx*r*1.1 + perpX*i*beamSpread;
+    const startY=y+by*r*1.1 + perpY*i*beamSpread;
+    const endX=startX+bx*r*2.8;
+    const endY=startY+by*r*2.8;
+    const beamGrad=c.createLinearGradient(startX,startY,endX,endY);
+    beamGrad.addColorStop(0,'rgba(255,230,100,0.35)');
+    beamGrad.addColorStop(0.6,'rgba(255,220,80,0.10)');
+    beamGrad.addColorStop(1,'rgba(255,210,60,0)');
+    c.strokeStyle=beamGrad;
+    c.lineWidth=Math.max(2,r*0.32);
+    c.lineCap='round';
+    c.beginPath();
+    c.moveTo(startX,startY);
+    c.lineTo(endX,endY);
+    c.stroke();
   }
+
   c.restore();
 }
 
@@ -61773,18 +61966,13 @@ function simG9Bio10N1c(){
   c.textAlign='center';
   c.fillText('تحليل النتائج — آلية الانتحاء الضوئي',w/2,h*0.07);
 
-  // Stem
+  // Stem — realistic curved stem with realistic leaves reusing _drawPlant10 helper
   const stemX=w*0.52, stemBot=h*0.88, stemTop=h*0.15;
-  c.strokeStyle=dark?'#388E3C':'#1B5E20'; c.lineWidth=16; c.lineCap='round';
-  c.beginPath(); c.moveTo(stemX,stemBot); c.bezierCurveTo(stemX+w*0.035,stemBot-h*0.25,stemX+w*0.09,stemBot-h*0.5,stemX+w*0.12,stemTop+h*0.05); c.stroke();
-  c.strokeStyle=dark?'#66BB6A':'#4CAF50'; c.lineWidth=6; c.globalAlpha=0.4;
-  c.beginPath(); c.moveTo(stemX-3,stemBot); c.bezierCurveTo(stemX+w*0.035-3,stemBot-h*0.25,stemX+w*0.09-3,stemBot-h*0.5,stemX+w*0.12-3,stemTop+h*0.05); c.stroke();
-  c.globalAlpha=1;
+  // Use _drawPlant10 with a controlled bend (leftward since light from right)
+  _drawPlant10(c, stemX, stemBot, w, h, dark, w*0.12, 1.0, true);
 
-  // Tip bud
   const tipX=stemX+w*0.12, tipY=stemTop+h*0.04;
-  c.fillStyle='#2E7D32'; c.beginPath(); c.ellipse(tipX,tipY,h*0.045,h*0.032,0.3,0,Math.PI*2); c.fill();
-  c.fillStyle='#4CAF50'; c.beginPath(); c.ellipse(tipX,tipY,h*0.034,h*0.024,0.3,0,Math.PI*2); c.fill();
+  // Label for apical tip
   c.fillStyle='white'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
   c.fillText('قمة',tipX,tipY+5);
 
