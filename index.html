@@ -61561,7 +61561,7 @@ function simG9Bio10N1a(){
   let step=0;
 
   const infos=[
-    '🌱 <strong>الإعداد:</strong> ضعي كمية متساوية من بذور الفاصولياء في الثلاثة أطباق. غطّي كل طبق بقطن مبلّل.',
+    '🌱 <strong>الإعداد:</strong> ضع كمية متساوية من بذور الفاصولياء في الثلاثة أطباق. غطِّ كل طبق بقطن مبلّل.',
     '📅 <strong>اليوم الأول:</strong> بدأت البادرات بالإنبات. الأطباق في مكانها — الطبق (أ) في صندوق بنافذة جانبية.',
     '✅ <strong>اليوم السابع:</strong> الطبق (أ) انحنى نحو الضوء (الانتحاء الضوئي الموجب). الطبق (ب) نما مستقيماً لأن الضوء جاء من كل الجهات. الطبق (ج) نما مستقيماً بدون انحناء.'
   ];
@@ -61575,7 +61575,7 @@ function simG9Bio10N1a(){
         <button onclick="window._b10n1s(2)" id="btn10n1s2" style="padding:10px 14px;border-radius:9px;border:2px solid #ddd;background:${dark?'rgba(255,255,255,0.05)':'white'};color:${dark?'#ccc':'#555'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">🌿 اليوم السابع</button>
       </div>
       <div id="bio10n1info" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;background:${dark?'rgba(39,174,96,0.08)':'#F0FBF4'};border-radius:10px;padding:13px;border:1px solid ${dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.15)'};">
-        🌱 <strong>الإعداد:</strong> ضعي كمية متساوية من بذور الفاصولياء في الثلاثة أطباق. غطّي كل طبق بقطن مبلّل.
+        🌱 <strong>الإعداد:</strong> ضع كمية متساوية من بذور الفاصولياء في الثلاثة أطباق. غطِّ كل طبق بقطن مبلّل.
       </div>
       <div style="margin-top:16px;padding:10px;background:${dark?'rgba(26,143,168,0.1)':'rgba(26,143,168,0.06)'};border-radius:8px;border:1px solid ${dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.15)'};">
         <div style="font-size:12px;font-weight:700;color:${dark?'#4DD0E1':'#0E6B80'};margin-bottom:4px;">🔑 المفهوم</div>
@@ -61676,7 +61676,7 @@ function simG9Bio10N1b(){
       <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📊 قراءة الجدول</div>
       <div style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;">
         <p style="margin-bottom:10px;">يُظهر الجدول <strong>طول البادرة</strong> في كل طبق عبر الأيام.</p>
-        <p style="margin-bottom:10px;"><strong>لاحظي:</strong> الطبق (أ) نما أقل لكنه انحنى، بينما (ب) نما أسرع مستقيماً.</p>
+        <p style="margin-bottom:10px;"><strong>لاحظ:</strong> الطبق (أ) نما أقل لكنه انحنى، بينما (ب) نما أسرع مستقيماً.</p>
       </div>
       <div style="margin-top:12px;background:${dark?'rgba(39,174,96,0.08)':'#F0FBF4'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.15)'};">
         <div style="font-size:12px;font-weight:700;color:${dark?'#81C784':'#27AE60'};margin-bottom:6px;">💡 استنتاج</div>
@@ -61835,15 +61835,15 @@ function simG9Bio10N2a(){
     const labels=['↑ للأعلى','↓ للأسفل','← أفقي','↗ مائل'];
     _ctrlPanel(`
       <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🌱 اختاري وضع البذرة</div>
+        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🌱 اختر وضع البذرة</div>
         <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
           ${labels.map((lb,i)=>`
             <button onclick="window._g2pos(${i})" id="g2btn${i}" style="padding:10px 14px;border-radius:9px;border:2px solid ${i===seedPos?'#1A8FA8':'#ddd'};background:${i===seedPos?'#1A8FA8':(dark?'rgba(255,255,255,0.05)':'white')};color:${i===seedPos?'white':(dark?'#ccc':'#555')};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">${lb}</button>`).join('')}
         </div>
-        <button onclick="window._g2grow()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#1A8FA8;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">▶ شاهدي النمو</button>
+        <button onclick="window._g2grow()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#1A8FA8;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">▶ شاهد النمو</button>
         <button onclick="window._g2reset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;">↺ إعادة</button>
         <div id="g2res" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(26,143,168,0.08)':'rgba(26,143,168,0.06)'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.15)'};">
-          اختاري وضع البذرة ثم اضغطي "شاهدي النمو"
+          اختر وضع البذرة ثم اضغط "شاهد النمو"
         </div>
       </div>`);
   }
@@ -62133,7 +62133,7 @@ function simG9Bio10N3a(){
           </div>
           <input type="range" min="10" max="100" value="${auxinLevel}" oninput="window._n3aAuxin(this.value)" style="width:100%;accent-color:#E65100;">
         </div>
-        <button onclick="window._n3aRun()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#D4901A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">▶ شاهدي الانحناء</button>
+        <button onclick="window._n3aRun()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#D4901A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">▶ شاهد الانحناء</button>
         <div style="margin-top:12px;background:${dark?'rgba(212,144,26,0.08)':'#FFF8E1'};border-radius:8px;padding:10px;border:1px solid ${dark?'rgba(212,144,26,0.2)':'rgba(212,144,26,0.2)'};">
           <div style="font-size:12px;color:${dark?'#FFD54F':'#8A5A00'};line-height:1.7;">الأوكسين يتجمّع في الجانب الظليل → يستطيل أسرع → ينحني الساق نحو الضوء</div>
         </div>
@@ -62255,7 +62255,7 @@ function simG9Bio10N3b(){
       <button onclick="window._n3bShow()" id="n3bShowBtn" style="width:100%;padding:11px;border-radius:9px;border:none;background:#D4901A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">▶ أظهري النتيجة بعد يومين</button>
       <button onclick="window._n3bReset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;">↺ إعادة</button>
       <div id="n3bRes" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(212,144,26,0.08)':'#FFF8E1'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(212,144,26,0.2)':'rgba(212,144,26,0.2)'};">
-        انقري الزر لمشاهدة نتيجة كل بادرة بعد يومين من التجربة
+        انقر الزر لمشاهدة نتيجة كل بادرة بعد يومين من التجربة
       </div>
     </div>`);
 
@@ -62263,7 +62263,7 @@ function simG9Bio10N3b(){
     const el=document.getElementById('n3bRes');
     if(el) el.innerHTML='<strong style="color:#27AE60">(ج)</strong> انحنت نحو الضوء ✓ | <strong style="color:#D4901A">(ب)</strong> نمت مستقيمة (اللانولين منع الأوكسين) | <strong style="color:var(--red,#C0392B)">(أ)</strong> لم تنحنِ (القمة مفقودة)';
   };
-  window._n3bReset=function(){ showResult=false; draw(); const el=document.getElementById('n3bRes'); if(el) el.textContent='انقري الزر لمشاهدة نتيجة كل بادرة بعد يومين من التجربة'; };
+  window._n3bReset=function(){ showResult=false; draw(); const el=document.getElementById('n3bRes'); if(el) el.textContent='انقر الزر لمشاهدة نتيجة كل بادرة بعد يومين من التجربة'; };
 
   function drawBadge(cx,y,text,color){
     c.fillStyle=color;
@@ -62371,7 +62371,7 @@ function simG9Bio10N3c(){
       <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🧠 أسئلة التحليل</div>
       ${[
         {q:'ما سبب مسح القمم باللانولين في البادرة (ب)؟',opts:['لتغذية القمة','اللانولين يمنع انتشار الأوكسين من القمة للأسفل','لحماية القمة من الحرارة'],ans:1},
-        {q:'لماذا لم تنحنِ البادرة (أ) رغم تعرّضها للضوء؟',opts:['لأن الضوء كان ضعيفاً','لأن القمة مفقودة — لا يوجد مصدر للأوكسين','لأن التربة كانت جافة'],ans:1},
+        {q:'لماذا لم تنحنِ البادرة (أ) رغم تعرّضها للضوء؟',opts:['لأن الضوء كان ضعفاً','لأن القمة مفقودة — لا يوجد مصدر للأوكسين','لأن التربة كانت جافة'],ans:1},
         {q:'أيّ بادرة هي التجربة الضابطة؟',opts:['البادرة (أ)','البادرة (ب)','البادرة (ج) — بادرة كاملة طبيعية'],ans:2},
       ].map((q,qi)=>`
         <div style="background:${dark?'rgba(255,255,255,0.04)':'#F9F6F2'};border-radius:10px;padding:12px;margin-bottom:10px;" id="qcard${qi}">
@@ -62412,7 +62412,7 @@ function simG9Bio10N3c(){
   c.fillText('أسئلة التحليل — نشاط الأصيصات الثلاثية',w/2,h*0.5);
   c.fillStyle=dark?'#90A4AE':'#78909C';
   c.font=`${Math.round(h*0.028)}px Tajawal`;
-  c.fillText('أجيبي عن الأسئلة في لوحة التحكم →',w/2,h*0.6);
+  c.fillText('أجب عن الأسئلة في لوحة التحكم →',w/2,h*0.6);
 }
 
 // ══════════════════════════════════════════════════
@@ -62431,7 +62431,7 @@ function simG9Bio10N4a(){
   function renderCtrl(){
     _ctrlPanel(`
       <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🌿 حدّدي منطقة الاستشعار</div>
+        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🌿 حدّد منطقة الاستشعار</div>
         ${[0,1,2].map(pi=>`
           <div style="margin-bottom:12px;background:${dark?'rgba(255,255,255,0.03)':'#F9F6F2'};border-radius:10px;padding:10px;">
             <div style="font-size:13px;font-weight:700;color:${dark?'#eee':'#2C3A4A'};margin-bottom:7px;">الأصيص ${pi+1}</div>
@@ -62442,7 +62442,7 @@ function simG9Bio10N4a(){
         <button onclick="window._n4aRun()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#6B4E9A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">▶ أظهري النتائج بعد يومين</button>
         <button onclick="window._n4aReset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;">↺ إعادة</button>
         <div id="n4aFb" style="font-size:12px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(107,78,154,0.1)':'rgba(107,78,154,0.06)'};border-radius:9px;padding:10px;border:1px solid ${dark?'rgba(107,78,154,0.2)':'rgba(107,78,154,0.2)'};">
-          اختاري إعداداً مختلفاً لكل أصيص ثم شاهدي النتيجة
+          اختر إعداداً مختلفاً لكل أصيص ثم شاهد النتيجة
         </div>
       </div>`);
   }
@@ -62453,7 +62453,7 @@ function simG9Bio10N4a(){
     const el=document.getElementById('n4aFb');
     if(el) el.innerHTML=hasTipCover
       ?'💡 <strong>ملاحظة مهمة!</strong> عندما تُغطى القمة لا تنحني الساق رغم وجود الضوء — هذا يُثبت أن <strong>القمة هي الجزء الحساس للضوء</strong> وليس الساق!'
-      :'🌿 جرّبي تغطية القمة في أحد الأصيصات لترى الفرق المهم!';
+      :'🌿 جرّب تغطية القمة في أحد الأصيصات لترى الفرق المهم!';
   };
   window._n4aReset=function(){ covers=[null,null,null]; showResult=false; renderCtrl(); draw(); };
 
