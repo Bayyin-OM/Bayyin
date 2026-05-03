@@ -61450,138 +61450,207 @@ function simG9Bio9N5b(){
 // ══════════════════════════════════════════════════════════
 
 // ─── نشاط ١٠-١: استجابة السيقان للضوء (Phototropism) — التبويب أ ───
+// ══════════════════════════════════════════════════
+// الوحدة ١٠ — التحكم والتنظيم في النبات
+// ══════════════════════════════════════════════════
+
+// ─── مساعد: رسم أصيص ───
+function _drawPot10(c,cx,potY,w,h,dark){
+  const pw=w*0.13, ph=h*0.18;
+  c.fillStyle=dark?'#6D4C41':'#8B6914';
+  c.beginPath(); c.roundRect(cx-pw/2,potY,pw,ph,6); c.fill();
+  c.fillStyle=dark?'#7D5A2A':'#A07820';
+  c.fillRect(cx-pw/2-6,potY-8,pw+12,10);
+  c.fillStyle=dark?'#4A2F00':'#5D4037';
+  c.fillRect(cx-pw/2+3,potY+4,pw-6,ph*0.38);
+  // seed
+  c.fillStyle='#D4A017';
+  c.beginPath(); c.ellipse(cx,potY+8,8,4,0,0,Math.PI*2); c.fill();
+  return {pw,ph};
+}
+
+// ─── مساعد: رسم نبتة بانحناء ───
+function _drawPlant10(c,cx,potY,w,h,dark,bendX,growthFrac,showLeaves){
+  if(growthFrac<=0) return;
+  const stemH = h*0.30 * growthFrac;
+  const tipX = cx + bendX*growthFrac;
+  const tipY = potY - stemH;
+  // stem
+  c.strokeStyle=dark?'#66BB6A':'#2E7D32';
+  c.lineWidth=7; c.lineCap='round';
+  c.beginPath();
+  c.moveTo(cx,potY);
+  c.bezierCurveTo(cx+bendX*0.25,potY-stemH*0.4, cx+bendX*0.7,potY-stemH*0.7, tipX,tipY);
+  c.stroke();
+  // highlight
+  c.strokeStyle=dark?'#81C784':'#4CAF50';
+  c.lineWidth=3; c.globalAlpha=0.4;
+  c.beginPath();
+  c.moveTo(cx-2,potY);
+  c.bezierCurveTo(cx+bendX*0.25-2,potY-stemH*0.4, cx+bendX*0.7-2,tipY+stemH*0.3, tipX-2,tipY);
+  c.stroke();
+  c.globalAlpha=1;
+  if(showLeaves){
+    // tip bud
+    c.fillStyle=dark?'#388E3C':'#1B5E20';
+    c.beginPath(); c.ellipse(tipX,tipY-h*0.038,h*0.038,h*0.028,0.2,0,Math.PI*2); c.fill();
+    c.fillStyle=dark?'#66BB6A':'#4CAF50';
+    c.beginPath(); c.ellipse(tipX,tipY-h*0.038,h*0.032,h*0.022,0.2,0,Math.PI*2); c.fill();
+    // leaves
+    c.fillStyle=dark?'#81C784':'#66BB6A';
+    c.beginPath(); c.ellipse(tipX-h*0.06,tipY-h*0.01,h*0.055,h*0.024,-0.5,0,Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(tipX+h*0.06,tipY-h*0.01,h*0.055,h*0.024,0.5,0,Math.PI*2); c.fill();
+  }
+}
+
+// ─── مساعد: شمس ───
+function _drawSun10(c,x,y,r,dir,h){
+  // glow
+  const grd=c.createRadialGradient(x,y,r*0.3,x,y,r*2);
+  grd.addColorStop(0,'rgba(255,220,0,0.5)');
+  grd.addColorStop(1,'rgba(255,220,0,0)');
+  c.fillStyle=grd; c.beginPath(); c.arc(x,y,r*2,0,Math.PI*2); c.fill();
+  // sun disc
+  c.fillStyle='#FFD700';
+  c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
+  // rays
+  c.strokeStyle='#FFD700'; c.lineWidth=2.5; c.lineCap='round';
+  const rayCount=5;
+  for(let i=0;i<rayCount;i++){
+    let rx1,ry1,rx2,ry2;
+    if(dir==='left'){
+      rx1=x-r*1.3; ry1=y+(i-(rayCount-1)/2)*h*0.016;
+      rx2=x-r*2.2; ry2=y+(i-(rayCount-1)/2)*h*0.016;
+    } else if(dir==='right'){
+      rx1=x+r*1.3; ry1=y+(i-(rayCount-1)/2)*h*0.016;
+      rx2=x+r*2.2; ry2=y+(i-(rayCount-1)/2)*h*0.016;
+    } else {
+      const ang=Math.PI/2 + (i-(rayCount-1)/2)*0.3;
+      rx1=x+Math.cos(ang)*r*1.3; ry1=y+Math.sin(ang)*r*1.3;
+      rx2=x+Math.cos(ang)*r*2.2; ry2=y+Math.sin(ang)*r*2.2;
+    }
+    c.beginPath(); c.moveTo(rx1,ry1); c.lineTo(rx2,ry2); c.stroke();
+  }
+}
+
+// ─── مساعد: لوحة تحكم نظيفة ───
+function _ctrlPanel(html){
+  const cp=document.getElementById('simControlsPanel');
+  if(cp) cp.innerHTML=html;
+}
+
+function _ctrlBtn(label,onclick,active,color){
+  color=color||'#27AE60';
+  const bg=active?color:'white';
+  const col=active?'white':(document.documentElement.classList.contains('dark-mode')?'#ddd':'#444');
+  const brd=active?color:'#ddd';
+  return `<button onclick="${onclick}" style="padding:9px 14px;border-radius:9px;border:2px solid ${brd};background:${bg};color:${col};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;">${label}</button>`;
+}
+
+// ══════════════════════════════════════════════════
+// نشاط ١٠-١أ — الأطباق الثلاثة (الانتحاء الضوئي)
+// ══════════════════════════════════════════════════
 function simG9Bio10N1a(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
-  let step=0; // 0=setup, 1=day1, 2=day7
-  let animFrame;
+  cancelAnimationFrame(window._animF);
+  let step=0;
 
-  cancelAnimationFrame(animFrame);
-  c.clearRect(0,0,w,h);
+  const infos=[
+    '🌱 <strong>الإعداد:</strong> ضعي كمية متساوية من بذور الفاصولياء في الثلاثة أطباق. غطّي كل طبق بقطن مبلّل.',
+    '📅 <strong>اليوم الأول:</strong> بدأت البادرات بالإنبات. الأطباق في مكانها — الطبق (أ) في صندوق بنافذة جانبية.',
+    '✅ <strong>اليوم السابع:</strong> الطبق (أ) انحنى نحو الضوء (الانتحاء الضوئي الموجب). الطبق (ب) نما مستقيماً لأن الضوء جاء من كل الجهات. الطبق (ج) نما مستقيماً بدون انحناء.'
+  ];
 
-  // Controls
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`
-    <div style="padding:16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:12px;">⚙️ خطوات الاستقصاء</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
-        <button onclick="window._bio10n1Step(0)" style="padding:8px 14px;border-radius:8px;border:2px solid #27AE60;background:#27AE60;color:white;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">🌱 الإعداد</button>
-        <button onclick="window._bio10n1Step(1)" style="padding:8px 14px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#666;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">📅 اليوم الأول</button>
-        <button onclick="window._bio10n1Step(2)" style="padding:8px 14px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#666;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">🌿 اليوم السابع</button>
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">⚙️ خطوات الاستقصاء</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <button onclick="window._b10n1s(0)" id="btn10n1s0" style="padding:10px 14px;border-radius:9px;border:2px solid #27AE60;background:#27AE60;color:white;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">🌱 الإعداد</button>
+        <button onclick="window._b10n1s(1)" id="btn10n1s1" style="padding:10px 14px;border-radius:9px;border:2px solid #ddd;background:${dark?'rgba(255,255,255,0.05)':'white'};color:${dark?'#ccc':'#555'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">📅 اليوم الأول</button>
+        <button onclick="window._b10n1s(2)" id="btn10n1s2" style="padding:10px 14px;border-radius:9px;border:2px solid #ddd;background:${dark?'rgba(255,255,255,0.05)':'white'};color:${dark?'#ccc':'#555'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">🌿 اليوم السابع</button>
       </div>
-      <div id="bio10n1info" style="font-size:13px;color:${dark?'#aaa':'#546E7A'};line-height:1.8;background:${dark?'rgba(255,255,255,0.05)':'#F4F1EC'};border-radius:10px;padding:12px;">
-        ضعي البذور في ثلاثة أطباق بنفس الكمية. هيِّئي البيئة المناسبة لكل طبق.
+      <div id="bio10n1info" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;background:${dark?'rgba(39,174,96,0.08)':'#F0FBF4'};border-radius:10px;padding:13px;border:1px solid ${dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.15)'};">
+        🌱 <strong>الإعداد:</strong> ضعي كمية متساوية من بذور الفاصولياء في الثلاثة أطباق. غطّي كل طبق بقطن مبلّل.
       </div>
-    </div>`;
+      <div style="margin-top:16px;padding:10px;background:${dark?'rgba(26,143,168,0.1)':'rgba(26,143,168,0.06)'};border-radius:8px;border:1px solid ${dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.15)'};">
+        <div style="font-size:12px;font-weight:700;color:${dark?'#4DD0E1':'#0E6B80'};margin-bottom:4px;">🔑 المفهوم</div>
+        <div style="font-size:12px;color:${dark?'#90CAD4':'#1A7A92'};line-height:1.7;">الانتحاء الضوئي هو استجابة نمو السيقان باتجاه مصدر الضوء بسبب توزيع الأوكسين</div>
+      </div>
+    </div>`);
 
-  window._bio10n1Step = function(s){ step=s; draw(); };
-
-  function drawPot(cx,potY,label,labelSub,lightDir,bendAmt){
-    const ph=h*0.22, pw=h*0.16;
-    // Pot body
-    c.fillStyle=dark?'#6D4C41':'#8B6914';
-    c.beginPath(); c.roundRect(cx-pw/2,potY,pw,ph,6); c.fill();
-    c.fillStyle=dark?'#795548':'#A07820';
-    c.fillRect(cx-pw/2-6,potY-8,pw+12,10);
-    // Soil
-    c.fillStyle=dark?'#4A2F00':'#5D4037';
-    c.fillRect(cx-pw/2+2,potY+4,pw-4,ph*0.35);
-    // Seed
-    c.fillStyle='#D4A017';
-    c.beginPath(); c.ellipse(cx,potY+8,7,4,0,0,Math.PI*2); c.fill();
-    // Stem if step>0
-    if(step>0){
-      const stemH=step===1?h*0.14:h*0.26;
-      const topX=cx+(bendAmt||0);
-      const topY=potY-stemH;
-      c.strokeStyle=dark?'#66BB6A':'#2E7D32';
-      c.lineWidth=step===2?7:5;
-      c.lineCap='round';
-      c.beginPath();
-      c.moveTo(cx,potY);
-      c.bezierCurveTo(cx+(bendAmt||0)*0.3,potY-stemH*0.4, cx+(bendAmt||0)*0.7,potY-stemH*0.7, topX,topY);
-      c.stroke();
-      // Tip
-      if(step===2){
-        c.fillStyle='#66BB6A';
-        c.beginPath(); c.ellipse(topX,topY-h*0.04,h*0.04,h*0.03,0,0,Math.PI*2); c.fill();
-        // Leaves
-        c.fillStyle='#81C784';
-        c.beginPath(); c.ellipse(topX-h*0.055,topY-h*0.015,h*0.048,h*0.022,(bendAmt<0?-0.5:0.4),0,Math.PI*2); c.fill();
-        c.beginPath(); c.ellipse(topX+h*0.055,topY-h*0.015,h*0.048,h*0.022,(bendAmt<0?0.4:-0.5),0,Math.PI*2); c.fill();
-      }
-    }
-    // Label
-    c.fillStyle=dark?'#ccc':'#37474F';
-    c.font=`bold ${Math.round(h*0.028)}px Tajawal`;
-    c.textAlign='center';
-    c.fillText(label,cx,potY+ph+h*0.045);
-    c.font=`${Math.round(h*0.022)}px Tajawal`;
-    c.fillStyle=dark?'#aaa':'#78909C';
-    c.fillText(labelSub,cx,potY+ph+h*0.075);
-  }
-
-  function drawSun(x,y,rays,dir){
-    c.fillStyle='#FFD700';
-    c.beginPath(); c.arc(x,y,h*0.04,0,Math.PI*2); c.fill();
-    // Rays
-    if(dir==='right') for(let i=0;i<5;i++){
-      c.strokeStyle='#FFD700'; c.lineWidth=2;
-      c.beginPath(); c.moveTo(x-h*0.05,y+i*h*0.014-h*0.028); c.lineTo(x-h*0.12,y+i*h*0.014-h*0.028); c.stroke();
-    }
-    if(dir==='down') for(let i=-2;i<=2;i++){
-      c.strokeStyle='#FFD700'; c.lineWidth=2;
-      c.beginPath(); c.moveTo(x+i*h*0.025,y+h*0.045); c.lineTo(x+i*h*0.02,y+h*0.08); c.stroke();
-    }
-  }
+  window._b10n1s=function(s){
+    step=s;
+    document.querySelectorAll('[id^="btn10n1s"]').forEach((b,i)=>{
+      b.style.background=i===s?'#27AE60':(dark?'rgba(255,255,255,0.05)':'white');
+      b.style.borderColor=i===s?'#27AE60':'#ddd';
+      b.style.color=i===s?'white':(dark?'#ccc':'#555');
+    });
+    const infoEl=document.getElementById('bio10n1info');
+    if(infoEl) infoEl.innerHTML=infos[s];
+    draw();
+  };
 
   function draw(){
     c.clearRect(0,0,w,h);
-    // Sky
-    const skyGrad=c.createLinearGradient(0,0,0,h*0.55);
-    skyGrad.addColorStop(0,dark?'#1A2A3A':'#E8F5E9');
-    skyGrad.addColorStop(1,dark?'#0D1F2D':'#F0FBF4');
-    c.fillStyle=skyGrad; c.fillRect(0,0,w,h);
-
-    // Ground
-    c.fillStyle=dark?'rgba(39,174,96,0.15)':'rgba(200,230,201,0.4)';
-    c.fillRect(0,h*0.55,w,h*0.45);
-
-    const potY=h*0.46;
-    const pots=[
-      {cx:w*0.18, label:'الطبق (أ)', sub:'ضوء من جانب', light:'right', bend:step===2?h*0.09:0},
-      {cx:w*0.50, label:'الطبق (ب)', sub:'قرص دوّار', light:'down', bend:0},
-      {cx:w*0.82, label:'الطبق (ج)', sub:'بدون ضوء', light:'none', bend:0},
-    ];
-
-    pots.forEach(p=>{
-      drawPot(p.cx,potY,p.label,p.sub,p.light,p.bend);
-      if(step>0 && p.light==='right') drawSun(p.cx+h*0.18,potY-h*0.25,5,'right');
-      if(step>0 && p.light==='down') drawSun(p.cx,potY-h*0.30,5,'down');
-    });
-
-    // Info caption
-    const captions=['⚙️ ضعي البذور وهيِّئي البيئة المناسبة لكل طبق','📅 اليوم الأول — بدأت البادرات بالإنبات','🌿 اليوم السابع — لاحظي الانحناء في الطبق (أ)!'];
-    const infoEl=document.getElementById('bio10n1info');
-    const infos=[
-      'ضعي البذور في ثلاثة أطباق بنفس الكمية. هيِّئي البيئة المناسبة لكل طبق.',
-      'مرّ يوم واحد — البادرات بدأت تنمو. أتركي الأطباق في أماكنها.',
-      '✅ اليوم السابع — الطبق (أ) انحنى نحو الضوء (الانتحاء الضوئي الموجب)، الطبق (ب) نما مستقيماً لأن الضوء جاء من كل الجهات، الطبق (ج) نما مستقيماً بدون انحناء.'
-    ];
-    if(infoEl) infoEl.textContent=infos[step];
+    // background
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,dark?'#1A2A3A':'#E8F5E9');
+    bg.addColorStop(0.62,dark?'#1A2A3A':'#F0FBF4');
+    bg.addColorStop(0.62,dark?'#2A1A0A':'#D7CCC8');
+    bg.addColorStop(1,dark?'#1A0F00':'#BCAAA4');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
     // Title
-    c.fillStyle=dark?'#fff':'#1B5E20';
-    c.font=`bold ${Math.round(h*0.035)}px Tajawal`;
+    c.fillStyle=dark?'#81C784':'#1B5E20';
+    c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
     c.textAlign='center';
-    c.fillText('نشاط ١٠-١: استجابة السيقان للضوء (Phototropism)',w/2,h*0.06);
+    c.fillText('نشاط ١٠-١: استجابة السيقان للضوء (Phototropism)',w/2,h*0.065);
+
+    const pots=[
+      {cx:w*0.2,  label:'الطبق (أ)', sub:'ضوء من جانب', lightDir:'right', bend:step===2?w*0.065:0, growF:step===0?0:step===1?0.45:1},
+      {cx:w*0.5,  label:'الطبق (ب)', sub:'قرص دوّار',   lightDir:'down',  bend:0,                  growF:step===0?0:step===1?0.45:1},
+      {cx:w*0.8,  label:'الطبق (ج)', sub:'بدون ضوء',    lightDir:'none',  bend:0,                  growF:step===0?0:step===1?0.35:0.75},
+    ];
+
+    const potBaseY=h*0.72;
+
+    pots.forEach(p=>{
+      // light source
+      if(step>0){
+        if(p.lightDir==='right') _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.33,h*0.045,'left',h);
+        if(p.lightDir==='down')  _drawSun10(c,p.cx,potBaseY-h*0.45,h*0.04,'down',h);
+      }
+      // plant
+      _drawPlant10(c,p.cx,potBaseY,w,h,dark,p.bend,p.growF,step===2);
+      // pot
+      const {pw,ph}=_drawPot10(c,p.cx,potBaseY,w,h,dark);
+      // labels
+      c.fillStyle=dark?'#eee':'#2C3A4A';
+      c.font=`bold ${Math.round(h*0.03)}px Tajawal`;
+      c.textAlign='center';
+      c.fillText(p.label,p.cx,potBaseY+ph+h*0.045);
+      c.fillStyle=dark?'#90A4AE':'#78909C';
+      c.font=`${Math.round(h*0.024)}px Tajawal`;
+      c.fillText(p.sub,p.cx,potBaseY+ph+h*0.078);
+    });
+
+    // spinning disc indicator for pot B
+    if(step>0){
+      c.strokeStyle=dark?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.18)';
+      c.lineWidth=2; c.setLineDash([5,4]);
+      c.beginPath(); c.ellipse(w*0.5,potBaseY+6,w*0.07,h*0.012,0,0,Math.PI*2); c.stroke();
+      c.setLineDash([]);
+    }
   }
   draw();
 }
 
-// ─── نشاط ١٠-١: التبويب ب — جدول البيانات ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-١ب — جدول البيانات
+// ══════════════════════════════════════════════════
 function simG9Bio10N1b(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
@@ -61589,751 +61658,1017 @@ function simG9Bio10N1b(){
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
   c.clearRect(0,0,w,h);
-  const bg=dark?'#1E2D3A':'#F4F1EC';
+
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📊 قراءة الجدول</div>
+      <div style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;">
+        <p style="margin-bottom:10px;">يُظهر الجدول <strong>طول البادرة</strong> في كل طبق عبر الأيام.</p>
+        <p style="margin-bottom:10px;"><strong>لاحظي:</strong> الطبق (أ) نما أقل لكنه انحنى، بينما (ب) نما أسرع مستقيماً.</p>
+      </div>
+      <div style="margin-top:12px;background:${dark?'rgba(39,174,96,0.08)':'#F0FBF4'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.15)'};">
+        <div style="font-size:12px;font-weight:700;color:${dark?'#81C784':'#27AE60'};margin-bottom:6px;">💡 استنتاج</div>
+        <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.7;">الانحناء لا يعني نمو الساق أكثر — بل يعني أن الجانب الظليل استطال أسرع من الجانب المضيء</div>
+      </div>
+    </div>`);
+
+  const bg=dark?'#1E2D3A':'#FAFAF8';
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
+  c.fillStyle=dark?'#81C784':'#1B5E20';
+  c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
+  c.textAlign='center';
+  c.fillText('جدول البيانات — طول البادرة (مم) واتجاه النمو',w/2,h*0.07);
+
   const data=[
-    {label:'الطبق (أ) — ضوء من جانب',d2:'18 مم',d5:'52 مم',d7:'74 مم',dir:'نحو الضوء ← (انتحاء ضوئي موجب)',color:'#27AE60'},
-    {label:'الطبق (ب) — قرص دوّار',d2:'20 مم',d5:'59 مم',d7:'83 مم',dir:'مستقيمة للأعلى ↑',color:'#1A8FA8'},
-    {label:'الطبق (ج) — بدون ضوء',d2:'11 مم',d5:'35 مم',d7:'51 مم',dir:'مستقيمة (بدون انحناء)',color:'#78909C'},
+    {label:'الطبق (أ) — ضوء من جانب', d2:'18 مم', d5:'52 مم', d7:'74 مم', dir:'نحو الضوء ← (انتحاء ضوئي موجب)', color:'#27AE60'},
+    {label:'الطبق (ب) — قرص دوّار',   d2:'20 مم', d5:'59 مم', d7:'83 مم', dir:'مستقيمة للأعلى ↑',                color:'#1A8FA8'},
+    {label:'الطبق (ج) — بدون ضوء',    d2:'11 مم', d5:'35 مم', d7:'51 مم', dir:'مستقيمة (بدون انحناء)',           color:'#78909C'},
   ];
 
-  c.fillStyle=dark?'#fff':'#1B5E20';
-  c.font=`bold ${Math.round(h*0.04)}px Tajawal`;
-  c.textAlign='center';
-  c.fillText('جدول البيانات — طول البادرة (مم) واتجاه النمو',w/2,h*0.08);
+  const tableX=w*0.02, tableW=w*0.96;
+  const cols=[{label:'الطبق والظروف',frac:0.34},{label:'اليوم ٢',frac:0.11},{label:'اليوم ٥',frac:0.11},{label:'اليوم ٧',frac:0.11},{label:'اتجاه النمو',frac:0.33}];
+  let cx=tableX;
+  cols.forEach(col=>{ col.x=cx; col.w=tableW*col.frac; cx+=col.w; });
 
-  const cols=['الطبق والظروف','اليوم ٢','اليوم ٥','اليوم ٧','اتجاه النمو'];
-  const colW=[w*0.32,w*0.12,w*0.12,w*0.12,w*0.28];
-  const colX=[0, w*0.32, w*0.44, w*0.56, w*0.68];
-  const rowH=h*0.14, startY=h*0.15;
+  const hdrH=h*0.1, startY=h*0.12, rowH=h*0.16;
 
   // Header
-  c.fillStyle=dark?'rgba(39,174,96,0.25)':'rgba(39,174,96,0.12)';
-  c.fillRect(w*0.02,startY,w*0.96,rowH*0.7);
-  cols.forEach((col,i)=>{
+  c.fillStyle=dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.1)';
+  c.beginPath(); c.roundRect(tableX,startY,tableW,hdrH,6); c.fill();
+  cols.forEach(col=>{
     c.fillStyle=dark?'#81C784':'#1B5E20';
-    c.font=`bold ${Math.round(h*0.03)}px Tajawal`;
+    c.font=`bold ${Math.round(h*0.032)}px Tajawal`;
     c.textAlign='center';
-    c.fillText(col,w*0.02+colX[i]+colW[i]/2,startY+rowH*0.45);
+    c.fillText(col.label,col.x+col.w/2,startY+hdrH*0.65);
+    c.strokeStyle=dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.07)';
+    c.lineWidth=1; c.beginPath(); c.moveTo(col.x+col.w,startY); c.lineTo(col.x+col.w,startY+hdrH); c.stroke();
   });
 
   data.forEach((row,ri)=>{
-    const ry=startY+rowH*0.7+(ri+1)*rowH*0.8;
-    c.fillStyle=dark?`rgba(255,255,255,${ri%2===0?0.04:0.02})`:`rgba(0,0,0,${ri%2===0?0.02:0.01})`;
-    c.fillRect(w*0.02,ry-rowH*0.65,w*0.96,rowH*0.75);
+    const ry=startY+hdrH+(ri)*rowH;
+    c.fillStyle=dark?`rgba(255,255,255,${ri%2===0?0.04:0.02})`:`rgba(0,0,0,${ri%2===0?0.025:0})`;
+    c.fillRect(tableX,ry,tableW,rowH);
+    // colour bar
+    c.fillStyle=row.color;
+    c.fillRect(tableX,ry,5,rowH);
     const vals=[row.label,row.d2,row.d5,row.d7,row.dir];
     vals.forEach((v,ci)=>{
       c.fillStyle=ci===0?row.color:(dark?'#ddd':'#37474F');
-      c.font=`${ci===0?'bold ':''} ${Math.round(h*0.026)}px Tajawal`;
+      c.font=`${ci===0?'bold ':''} ${Math.round(h*0.028)}px Tajawal`;
       c.textAlign='center';
-      c.fillText(v,w*0.02+colX[ci]+colW[ci]/2,ry);
+      c.fillText(v,cols[ci].x+cols[ci].w/2,ry+rowH*0.58);
     });
-    c.strokeStyle=dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)';
-    c.lineWidth=1;
-    c.strokeRect(w*0.02,ry-rowH*0.65,w*0.96,rowH*0.75);
+    c.strokeStyle=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)';
+    c.lineWidth=1; c.strokeRect(tableX,ry,tableW,rowH);
   });
 
-  c.fillStyle=dark?'#aaa':'#546E7A';
-  c.font=`${Math.round(h*0.026)}px Tajawal`;
+  c.fillStyle=dark?'rgba(39,174,96,0.15)':'rgba(39,174,96,0.08)';
+  c.beginPath(); c.roundRect(tableX,startY+hdrH+data.length*rowH+h*0.02,tableW,h*0.1,6); c.fill();
+  c.fillStyle=dark?'#81C784':'#1B5E20';
+  c.font=`bold ${Math.round(h*0.03)}px Tajawal`;
   c.textAlign='center';
-  c.fillText('💡 الاستنتاج: السيقان تستجيب للضوء باستطالة الجانب الظليل أكثر — مما يُسبب الانحناء نحو الضوء',w/2,h*0.92);
+  c.fillText('💡 السيقان تستجيب للضوء باستطالة الجانب الظليل أكثر — مما يُسبب الانحناء نحو الضوء',w/2,startY+hdrH+data.length*rowH+h*0.065);
 }
 
-// ─── نشاط ١٠-١: التبويب ج — التحليل ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-١ج — آلية الانتحاء الضوئي (تحليل)
+// ══════════════════════════════════════════════════
 function simG9Bio10N1c(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
-  const bg=dark?'#1E2D3A':'#F4F1EC';
+
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🔬 آلية الانتحاء الضوئي</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${['١. الضوء يسقط من جانب واحد على القمة النامية','٢. الأوكسين (IAA) ينتقل من الجانب المضيء إلى الجانب الظليل','٣. خلايا الجانب الظليل تستطيل أكثر → تنمو أسرع','٤. الساق ينحني نحو الضوء (انتحاء ضوئي موجب)'].map((s,i)=>`
+          <div style="display:flex;align-items:flex-start;gap:8px;background:${dark?'rgba(255,255,255,0.04)':'#F9F6F2'};border-radius:8px;padding:9px 10px;">
+            <div style="width:22px;height:22px;border-radius:50%;background:${['#27AE60','#E65100','#1A8FA8','#D4901A'][i]};color:white;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+            <div style="font-size:12px;color:${dark?'#ccc':'#37474F'};line-height:1.6;">${s}</div>
+          </div>`).join('')}
+      </div>
+    </div>`);
+
+  const bg=dark?'#1E2D3A':'#FAFAF8';
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
   c.fillStyle=dark?'#81C784':'#1B5E20';
-  c.font=`bold ${Math.round(h*0.038)}px Tajawal`;
+  c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
   c.textAlign='center';
   c.fillText('تحليل النتائج — آلية الانتحاء الضوئي',w/2,h*0.07);
 
-  // Draw mechanism diagram
-  const stemX=w*0.5, stemTop=h*0.15, stemBot=h*0.72;
-  // Light arrow
-  c.strokeStyle='#FFD700'; c.lineWidth=3;
-  c.beginPath(); c.moveTo(w*0.85,h*0.3); c.lineTo(w*0.62,h*0.3); c.stroke();
-  c.fillStyle='#FFD700';
-  c.font=`bold ${Math.round(h*0.028)}px Tajawal`;
-  c.textAlign='center';
-  c.fillText('☀️ الضوء',w*0.85,h*0.25);
+  // Stem
+  const stemX=w*0.52, stemBot=h*0.88, stemTop=h*0.15;
+  c.strokeStyle=dark?'#388E3C':'#1B5E20'; c.lineWidth=16; c.lineCap='round';
+  c.beginPath(); c.moveTo(stemX,stemBot); c.bezierCurveTo(stemX+w*0.035,stemBot-h*0.25,stemX+w*0.09,stemBot-h*0.5,stemX+w*0.12,stemTop+h*0.05); c.stroke();
+  c.strokeStyle=dark?'#66BB6A':'#4CAF50'; c.lineWidth=6; c.globalAlpha=0.4;
+  c.beginPath(); c.moveTo(stemX-3,stemBot); c.bezierCurveTo(stemX+w*0.035-3,stemBot-h*0.25,stemX+w*0.09-3,stemBot-h*0.5,stemX+w*0.12-3,stemTop+h*0.05); c.stroke();
+  c.globalAlpha=1;
 
-  // Stem (bent toward light/right)
-  c.strokeStyle=dark?'#4CAF50':'#2E7D32'; c.lineWidth=14; c.lineCap='round';
-  c.beginPath(); c.moveTo(stemX,stemBot); c.bezierCurveTo(stemX+w*0.04,stemBot-h*0.2, stemX+w*0.08,stemBot-h*0.4, stemX+w*0.12,stemTop+h*0.05); c.stroke();
+  // Tip bud
+  const tipX=stemX+w*0.12, tipY=stemTop+h*0.04;
+  c.fillStyle='#2E7D32'; c.beginPath(); c.ellipse(tipX,tipY,h*0.045,h*0.032,0.3,0,Math.PI*2); c.fill();
+  c.fillStyle='#4CAF50'; c.beginPath(); c.ellipse(tipX,tipY,h*0.034,h*0.024,0.3,0,Math.PI*2); c.fill();
+  c.fillStyle='white'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+  c.fillText('قمة',tipX,tipY+5);
 
-  // Auxin dots left side (more = longer = bends right)
-  for(let i=0;i<6;i++){
-    const dy=h*0.1+i*h*0.09;
-    c.fillStyle='rgba(255,152,0,0.85)';
+  // Light arrow from right
+  _drawSun10(c,w*0.9,h*0.32,h*0.048,'left',h);
+  c.strokeStyle='rgba(255,200,0,0.6)'; c.lineWidth=2; c.setLineDash([6,4]);
+  c.beginPath(); c.moveTo(w*0.84,h*0.32); c.lineTo(tipX+h*0.05,tipY); c.stroke();
+  c.setLineDash([]);
+
+  // Auxin dots — more on shadow side (left)
+  for(let i=0;i<7;i++){
+    const dy=h*0.14+i*h*0.1;
+    if(dy>stemBot) break;
+    // shadow side (left of stem) — large dots
+    c.fillStyle='rgba(255,152,0,0.88)';
     c.beginPath(); c.arc(stemX-w*0.055,dy,h*0.018,0,Math.PI*2); c.fill();
-    c.fillStyle='rgba(255,152,0,0.3)';
-    c.beginPath(); c.arc(stemX+w*0.02+i*2,dy,h*0.01,0,Math.PI*2); c.fill();
+    // light side (right of stem) — small dots
+    c.fillStyle='rgba(255,152,0,0.28)';
+    c.beginPath(); c.arc(stemX+w*0.025,dy,h*0.01,0,Math.PI*2); c.fill();
   }
-  c.fillStyle='#E65100';
-  c.font=`bold ${Math.round(h*0.026)}px Tajawal`;
+
+  // Labels
+  c.fillStyle='#E65100'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+  c.fillText('أوكسين أكثر',stemX-w*0.14,h*0.52);
+  c.fillText('(جانب ظليل)',stemX-w*0.14,h*0.57);
+  c.fillStyle=dark?'#90A4AE':'#78909C'; c.font=`${Math.round(h*0.024)}px Tajawal`;
+  c.fillText('أوكسين أقل',stemX+w*0.14,h*0.52);
+  c.fillText('(جانب مضيء)',stemX+w*0.14,h*0.57);
+
+  // Bend arrow
+  c.fillStyle=dark?'#81C784':'#27AE60'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`;
   c.textAlign='center';
-  c.fillText('أوكسين أكثر',stemX-w*0.14,h*0.5);
-  c.fillText('(جانب ظليل)',stemX-w*0.14,h*0.54);
-  c.fillStyle='#90A4AE';
-  c.fillText('أوكسين أقل',stemX+w*0.14,h*0.5);
-  c.fillText('(جانب مضيء)',stemX+w*0.14,h*0.54);
-
-  // Tip
-  c.fillStyle='#388E3C';
-  c.beginPath(); c.ellipse(stemX+w*0.12,stemTop,h*0.045,h*0.032,0.3,0,Math.PI*2); c.fill();
-  c.fillStyle='#fff';
-  c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
-  c.fillText('قمة',stemX+w*0.12,stemTop+5);
-
-  // Steps text
-  const steps2=[
-    '١. الضوء يسقط من جانب واحد على القمة النامية',
-    '٢. الأوكسين (IAA) ينتقل من الجانب المضيء إلى الجانب الظليل',
-    '٣. خلايا الجانب الظليل تستطيل أكثر → تنمو أسرع',
-    '٤. الساق ينحني نحو الضوء (انتحاء ضوئي موجب)'
-  ];
-  steps2.forEach((s,i)=>{
-    c.fillStyle=dark?'#ddd':'#37474F';
-    c.font=`${Math.round(h*0.027)}px Tajawal`;
-    c.textAlign='right';
-    c.fillText(s,w*0.97,h*0.79+i*h*0.054);
-  });
+  c.fillText('← ينحني نحو الضوء',stemX+w*0.06,h*0.1);
 }
 
-// ─── نشاط ١٠-٢: استجابة الجذور للجاذبية — التبويب أ ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٢أ — الجاذبية الأرضية (تفاعلي)
+// ══════════════════════════════════════════════════
 function simG9Bio10N2a(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
-
   let seedPos=0, showGrowth=false;
-  const positions=[
-    {label:'↑ رأساً للأعلى', rootAngle:Math.PI/2},
-    {label:'↓ رأساً للأسفل', rootAngle:Math.PI/2},
-    {label:'→ أفقياً', rootAngle:Math.PI/2},
-    {label:'↗ مائلاً ٤٥°', rootAngle:Math.PI/2}
-  ];
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="padding:16px;font-family:Tajawal,sans-serif;direction:rtl;">
-    <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:12px;">🌱 اختاري وضع البذرة</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-      <button onclick="window._g2pos(0)" style="padding:8px 12px;border-radius:8px;border:1.5px solid #27AE60;background:#27AE60;color:white;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">↑ للأعلى</button>
-      <button onclick="window._g2pos(1)" style="padding:8px 12px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#666;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">↓ للأسفل</button>
-      <button onclick="window._g2pos(2)" style="padding:8px 12px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#666;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">← أفقي</button>
-      <button onclick="window._g2pos(3)" style="padding:8px 12px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#666;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">↗ مائل</button>
-    </div>
-    <button onclick="window._g2grow()" style="padding:9px 18px;border-radius:8px;border:none;background:#1A8FA8;color:white;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">▶ شاهدي النمو</button>
-    <div id="g2res" style="font-size:13px;color:${dark?'#aaa':'#546E7A'};line-height:1.8;margin-top:8px;background:${dark?'rgba(255,255,255,0.05)':'#F4F1EC'};border-radius:10px;padding:12px;">
-      اختاري وضع البذرة ثم اضغطي "شاهدي النمو"
-    </div>`;
+  function renderCtrl(){
+    const labels=['↑ للأعلى','↓ للأسفل','← أفقي','↗ مائل'];
+    _ctrlPanel(`
+      <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🌱 اختاري وضع البذرة</div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
+          ${labels.map((lb,i)=>`
+            <button onclick="window._g2pos(${i})" id="g2btn${i}" style="padding:10px 14px;border-radius:9px;border:2px solid ${i===seedPos?'#1A8FA8':'#ddd'};background:${i===seedPos?'#1A8FA8':(dark?'rgba(255,255,255,0.05)':'white')};color:${i===seedPos?'white':(dark?'#ccc':'#555')};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">${lb}</button>`).join('')}
+        </div>
+        <button onclick="window._g2grow()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#1A8FA8;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">▶ شاهدي النمو</button>
+        <button onclick="window._g2reset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;">↺ إعادة</button>
+        <div id="g2res" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(26,143,168,0.08)':'rgba(26,143,168,0.06)'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.15)'};">
+          اختاري وضع البذرة ثم اضغطي "شاهدي النمو"
+        </div>
+      </div>`);
+  }
 
-  window._g2pos=function(p){ seedPos=p; showGrowth=false; draw(); };
-  window._g2grow=function(){ showGrowth=true; draw();
-    const el=document.getElementById('g2res');
-    if(el) el.innerHTML='✅ <strong>النتيجة:</strong> الجذر نما نحو الأسفل دائماً (انتحاء أرضي موجب)، والساق نما نحو الأعلى دائماً (انتحاء أرضي سالب) — بغضّ النظر عن وضع البذرة!';
+  window._g2pos=function(p){
+    seedPos=p; showGrowth=false; renderCtrl(); draw();
   };
+  window._g2grow=function(){
+    showGrowth=true; draw();
+    const el=document.getElementById('g2res');
+    if(el) el.innerHTML='✅ <strong>النتيجة:</strong> الجذر نما نحو <strong style="color:#1A8FA8">الأسفل دائماً</strong> (انتحاء أرضي موجب)، والساق نما نحو <strong style="color:#27AE60">الأعلى دائماً</strong> (انتحاء أرضي سالب) — بغضّ النظر عن وضع البذرة!';
+  };
+  window._g2reset=function(){ showGrowth=false; renderCtrl(); draw(); };
 
+  // seed orientation angles (for visual only — growth always same direction)
   const seedAngles=[-Math.PI/2, Math.PI/2, 0, -Math.PI/4];
 
   function draw(){
     c.clearRect(0,0,w,h);
-    const bgG=c.createLinearGradient(0,0,0,h);
-    bgG.addColorStop(0,dark?'#1A2A3A':'#E8F5E9');
-    bgG.addColorStop(0.6,dark?'#1A2A3A':'#E8F5E9');
-    bgG.addColorStop(0.6,dark?'#3E2723':'#D7CCC8');
-    bgG.addColorStop(1,dark?'#1A120A':'#BCAAA4');
-    c.fillStyle=bgG; c.fillRect(0,0,w,h);
+    // background split
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,dark?'#1A2A3A':'#E8F5E9');
+    bg.addColorStop(0.58,dark?'#1A2A3A':'#F0FBF4');
+    bg.addColorStop(0.58,dark?'#2C1A0A':'#D7CCC8');
+    bg.addColorStop(1,dark?'#180E00':'#BCAAA4');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    // Soil line
-    c.strokeStyle=dark?'#795548':'#8D6E63'; c.lineWidth=2;
-    c.setLineDash([8,4]);
-    c.beginPath(); c.moveTo(0,h*0.6); c.lineTo(w,h*0.6); c.stroke();
+    // soil line
+    c.strokeStyle=dark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.12)';
+    c.lineWidth=2; c.setLineDash([10,6]);
+    c.beginPath(); c.moveTo(0,h*0.58); c.lineTo(w,h*0.58); c.stroke();
     c.setLineDash([]);
 
-    // Gravity arrow
-    c.strokeStyle=dark?'#78909C':'#546E7A'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(w*0.06,h*0.1); c.lineTo(w*0.06,h*0.22); c.stroke();
-    c.fillStyle=dark?'#78909C':'#546E7A';
-    c.beginPath(); c.moveTo(w*0.06,h*0.22); c.lineTo(w*0.04,h*0.18); c.lineTo(w*0.08,h*0.18); c.closePath(); c.fill();
-    c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
-    c.fillStyle=dark?'#90A4AE':'#546E7A';
-    c.fillText('جاذبية',w*0.06,h*0.09);
+    // Title
+    const posLabels=['↑ البذرة للأعلى','↓ البذرة للأسفل','← البذرة أفقياً','↗ البذرة مائلة'];
+    c.fillStyle=dark?'#fff':'#1B5E20';
+    c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
+    c.textAlign='center';
+    c.fillText('نشاط ١٠-٢: استجابة الجذور للجاذبية الأرضية',w/2,h*0.07);
 
-    // Seed center
-    const cx=w*0.5, cy=h*0.6;
+    // Gravity arrow
+    c.strokeStyle=dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.25)';
+    c.lineWidth=2.5; c.lineCap='round';
+    c.beginPath(); c.moveTo(w*0.08,h*0.12); c.lineTo(w*0.08,h*0.25); c.stroke();
+    c.fillStyle=dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.25)';
+    c.beginPath(); c.moveTo(w*0.08,h*0.26); c.lineTo(w*0.065,h*0.22); c.lineTo(w*0.095,h*0.22); c.closePath(); c.fill();
+    c.fillStyle=dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.25)';
+    c.font=`${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('جاذبية',w*0.08,h*0.11);
+
+    const cx=w*0.52, cy=h*0.58;
     const sAng=seedAngles[seedPos];
-    // Seed
+
+    // Seed (oriented by angle)
     c.save(); c.translate(cx,cy); c.rotate(sAng);
     c.fillStyle='#D4A017';
     c.beginPath(); c.ellipse(0,0,h*0.055,h*0.03,0,0,Math.PI*2); c.fill();
+    // embryo line
+    c.strokeStyle='rgba(100,60,0,0.5)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(-h*0.03,0); c.lineTo(h*0.03,0); c.stroke();
     c.restore();
 
     if(showGrowth){
-      // Root always goes DOWN
-      c.strokeStyle=dark?'#A1887F':'#795548'; c.lineWidth=6; c.lineCap='round';
+      // ROOT — always down regardless of seed angle
+      c.strokeStyle=dark?'#A1887F':'#795548'; c.lineWidth=7; c.lineCap='round';
       c.beginPath(); c.moveTo(cx,cy);
-      c.bezierCurveTo(cx+w*0.03,cy+h*0.08, cx-w*0.01,cy+h*0.14, cx+w*0.01,cy+h*0.22); c.stroke();
-      // Root hairs
-      for(let i=0;i<5;i++){
-        c.strokeStyle=dark?'#8D6E63':'#A1887F'; c.lineWidth=1.5;
+      c.bezierCurveTo(cx+w*0.02,cy+h*0.07, cx-w*0.015,cy+h*0.14, cx+w*0.01,cy+h*0.22); c.stroke();
+      // root cap
+      c.fillStyle=dark?'#8D6E63':'#6D4C41';
+      c.beginPath(); c.ellipse(cx+w*0.01,cy+h*0.23,h*0.018,h*0.012,0.2,0,Math.PI*2); c.fill();
+      // root hairs
+      c.strokeStyle=dark?'#8D6E63':'#A1887F'; c.lineWidth=1.5;
+      for(let i=0;i<6;i++){
         c.beginPath();
-        c.moveTo(cx+(i-2)*8,cy+h*0.12+i*h*0.018);
-        c.lineTo(cx+(i-2)*8+(i%2===0?10:-10),cy+h*0.13+i*h*0.018);
+        c.moveTo(cx+(i-2.5)*9,cy+h*0.11+i*h*0.018);
+        c.lineTo(cx+(i-2.5)*9+(i%2===0?11:-11),cy+h*0.12+i*h*0.018);
         c.stroke();
       }
-      c.fillStyle=dark?'#A1887F':'#5D4037';
-      c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='right';
-      c.fillText('الجذر ↓ نحو الأسفل دائماً',w*0.75,cy+h*0.2);
+      // ROOT label
+      c.fillStyle=dark?'#FFAB91':'#5D4037';
+      c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='right';
+      c.fillText('الجذر ↓ نحو الأسفل دائماً',w*0.78,cy+h*0.2);
 
-      // Shoot always goes UP
-      c.strokeStyle=dark?'#66BB6A':'#2E7D32'; c.lineWidth=7; c.lineCap='round';
+      // SHOOT — always up
+      c.strokeStyle=dark?'#66BB6A':'#2E7D32'; c.lineWidth=8; c.lineCap='round';
       c.beginPath(); c.moveTo(cx,cy);
-      c.bezierCurveTo(cx-w*0.02,cy-h*0.1, cx+w*0.015,cy-h*0.18, cx,cy-h*0.28); c.stroke();
-      // Leaf
-      c.fillStyle='#66BB6A';
-      c.beginPath(); c.ellipse(cx,cy-h*0.3,h*0.04,h*0.028,0,0,Math.PI*2); c.fill();
+      c.bezierCurveTo(cx-w*0.025,cy-h*0.1, cx+w*0.015,cy-h*0.2, cx,cy-h*0.3); c.stroke();
+      // leaves
+      c.fillStyle=dark?'#388E3C':'#1B5E20';
+      c.beginPath(); c.ellipse(cx,cy-h*0.32,h*0.042,h*0.03,0,0,Math.PI*2); c.fill();
+      c.fillStyle=dark?'#81C784':'#4CAF50';
+      c.beginPath(); c.ellipse(cx,cy-h*0.32,h*0.034,h*0.022,0,0,Math.PI*2); c.fill();
       c.fillStyle=dark?'#81C784':'#1B5E20';
-      c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='left';
-      c.fillText('الساق ↑ نحو الأعلى دائماً',w*0.26,cy-h*0.26);
+      c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='left';
+      c.fillText('الساق ↑ نحو الأعلى دائماً',w*0.25,cy-h*0.27);
     }
 
-    // Pos label
-    const labels=['↑ البذرة للأعلى','↓ البذرة للأسفل','← البذرة أفقياً','↗ البذرة مائلة'];
-    c.fillStyle=dark?'#fff':'#1B5E20';
-    c.font=`bold ${Math.round(h*0.038)}px Tajawal`;
+    // Current pos label
+    c.fillStyle=dark?'#90CAD4':'#0E6B80';
+    c.font=`bold ${Math.round(h*0.032)}px Tajawal`;
     c.textAlign='center';
-    c.fillText(labels[seedPos],w*0.5,h*0.06);
+    c.fillText(posLabels[seedPos],w*0.52,h*0.88);
   }
-  draw();
+
+  renderCtrl(); draw();
 }
 
-// ─── نشاط ١٠-٢: التبويب ب ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٢ب — مقارنة الأوضاع الأربعة
+// ══════════════════════════════════════════════════
 function simG9Bio10N2b(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
-  const bg=dark?'#1E2D3A':'#F4F1EC';
+
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📋 نتيجة الأوضاع الأربعة</div>
+      <div style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;margin-bottom:12px;">
+        في كل وضع من الأوضاع الأربعة: <strong style="color:${dark?'#A1887F':'#795548'}">الجذر ينمو للأسفل</strong> و<strong style="color:${dark?'#81C784':'#27AE60'}">الساق ينمو للأعلى</strong>.
+      </div>
+      <div style="background:${dark?'rgba(26,143,168,0.1)':'rgba(26,143,168,0.06)'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.15)'};">
+        <div style="font-size:12px;font-weight:700;color:${dark?'#4DD0E1':'#0E6B80'};margin-bottom:6px;">🧬 لماذا؟</div>
+        <div style="font-size:12px;color:${dark?'#90CAD4':'#1A7A92'};line-height:1.7;">الأوكسين (IAA) يُعاد توزيعه استجابةً للجاذبية — يتجمّع في الجانب السفلي من الجذر فيُبطئ نموه، مما يجعله ينحني للأسفل</div>
+      </div>
+    </div>`);
+
+  const bg=dark?'#1E2D3A':'#FAFAF8';
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-  // Draw 4 seedlings side by side
   c.fillStyle=dark?'#fff':'#1B5E20';
-  c.font=`bold ${Math.round(h*0.038)}px Tajawal`;
+  c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
   c.textAlign='center';
   c.fillText('نتيجة الجذور في الأوضاع الأربعة',w/2,h*0.07);
 
+  // 4 different seed starting orientations
   const configs=[
-    {label:'للأعلى', sx:0, sy:-1},
-    {label:'للأسفل', sx:0, sy:1},
-    {label:'أفقياً', sx:1, sy:0},
-    {label:'مائلاً', sx:0.7, sy:-0.7},
+    {label:'زراعة للأعلى',  seedAngle:-Math.PI/2, seedColor:'#D4A017'},
+    {label:'زراعة للأسفل', seedAngle: Math.PI/2,  seedColor:'#E6890A'},
+    {label:'زراعة أفقياً', seedAngle: 0,           seedColor:'#C88A10'},
+    {label:'زراعة مائلة',  seedAngle:-Math.PI/4,   seedColor:'#D4A017'},
   ];
-  const xs=[w*0.15,w*0.38,w*0.62,w*0.85];
-  const cy=h*0.55;
+  const xs=[w*0.14,w*0.38,w*0.62,w*0.86];
+  const midY=h*0.55;
 
   configs.forEach((cfg,i)=>{
     const cx=xs[i];
-    // Seed
-    c.fillStyle='#D4A017';
-    c.save(); c.translate(cx,cy); c.rotate(Math.atan2(-cfg.sy,-cfg.sx));
-    c.beginPath(); c.ellipse(0,0,h*0.04,h*0.022,0,0,Math.PI*2); c.fill(); c.restore();
 
-    // Root always goes DOWN
+    // Seed (visually oriented)
+    c.save(); c.translate(cx,midY); c.rotate(cfg.seedAngle);
+    c.fillStyle=cfg.seedColor;
+    c.beginPath(); c.ellipse(0,0,h*0.04,h*0.022,0,0,Math.PI*2); c.fill();
+    c.restore();
+
+    // Root — always goes DOWN
     c.strokeStyle=dark?'#A1887F':'#795548'; c.lineWidth=5; c.lineCap='round';
-    c.beginPath(); c.moveTo(cx,cy);
-    c.bezierCurveTo(cx+5,cy+h*0.06, cx-3,cy+h*0.12, cx+2,cy+h*0.19); c.stroke();
-    c.fillStyle=dark?'#A1887F':'#5D4037';
-    c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText('↓ جذر',cx,cy+h*0.24);
+    c.beginPath(); c.moveTo(cx,midY);
+    c.bezierCurveTo(cx+6,midY+h*0.05, cx-4,midY+h*0.1, cx+3,midY+h*0.17); c.stroke();
+    // root cap
+    c.fillStyle=dark?'#8D6E63':'#6D4C41';
+    c.beginPath(); c.ellipse(cx+3,midY+h*0.19,h*0.014,h*0.01,0.1,0,Math.PI*2); c.fill();
 
-    // Shoot always goes UP
+    c.fillStyle=dark?'#FFAB91':'#5D4037';
+    c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('↓ جذر',cx,midY+h*0.24);
+
+    // Shoot — always goes UP
     c.strokeStyle=dark?'#66BB6A':'#2E7D32'; c.lineWidth=5; c.lineCap='round';
-    c.beginPath(); c.moveTo(cx,cy); c.bezierCurveTo(cx-3,cy-h*0.08, cx+3,cy-h*0.15, cx,cy-h*0.22); c.stroke();
-    c.fillStyle='#66BB6A';
-    c.beginPath(); c.ellipse(cx,cy-h*0.24,h*0.03,h*0.022,0,0,Math.PI*2); c.fill();
+    c.beginPath(); c.moveTo(cx,midY);
+    c.bezierCurveTo(cx-5,midY-h*0.07, cx+4,midY-h*0.14, cx,midY-h*0.21); c.stroke();
+    c.fillStyle=dark?'#388E3C':'#1B5E20';
+    c.beginPath(); c.ellipse(cx,midY-h*0.23,h*0.032,h*0.023,0,0,Math.PI*2); c.fill();
+    c.fillStyle=dark?'#4CAF50':'#2E7D32';
+    c.beginPath(); c.ellipse(cx,midY-h*0.23,h*0.026,h*0.017,0,0,Math.PI*2); c.fill();
+
     c.fillStyle=dark?'#81C784':'#1B5E20';
     c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
-    c.fillText('↑ ساق',cx,cy-h*0.28);
+    c.fillText('↑ ساق',cx,midY-h*0.27);
 
-    c.fillStyle=dark?'#ddd':'#37474F';
-    c.font=`${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
-    c.fillText(cfg.label,cx,h*0.88);
+    c.fillStyle=dark?'#bbb':'#546E7A';
+    c.font=`${Math.round(h*0.025)}px Tajawal`;
+    c.fillText(cfg.label,cx,h*0.9);
   });
 
-  c.fillStyle=dark?'#81C784':'#27AE60';
-  c.font=`bold ${Math.round(h*0.03)}px Tajawal`;
-  c.textAlign='center';
-  c.fillText('✅ الاستنتاج: الجذر دائماً للأسفل — الساق دائماً للأعلى — بغضّ النظر عن وضع البذرة',w/2,h*0.95);
+  // Conclusion
+  c.fillStyle=dark?'rgba(39,174,96,0.15)':'rgba(39,174,96,0.1)';
+  c.beginPath(); c.roundRect(w*0.04,h*0.93,w*0.92,h*0.06,6); c.fill();
+  c.fillStyle=dark?'#81C784':'#1B5E20';
+  c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+  c.fillText('✅ الاستنتاج: الجذر دائماً للأسفل — الساق دائماً للأعلى — بغضّ النظر عن وضع البذرة',w/2,h*0.965);
 }
 
-// ─── نشاط ١٠-٢: التبويب ج ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٢ج — جدول المقارنة
+// ══════════════════════════════════════════════════
 function simG9Bio10N2c(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
-  const bg=dark?'#1E2D3A':'#F4F1EC';
+
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">⚖️ مقارنة الانتحاءات</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:${dark?'rgba(39,174,96,0.08)':'#F0FBF4'};border-radius:8px;padding:10px;border-right:3px solid #27AE60;">
+          <div style="font-size:12px;font-weight:700;color:#27AE60;margin-bottom:4px;">🌿 Phototropism</div>
+          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">السيقان: موجب (نحو الضوء) · الجذور: سالب</div>
+        </div>
+        <div style="background:${dark?'rgba(26,143,168,0.08)':'#E1F5FE'};border-radius:8px;padding:10px;border-right:3px solid #1A8FA8;">
+          <div style="font-size:12px;font-weight:700;color:#1A8FA8;margin-bottom:4px;">🌍 Gravitropism</div>
+          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">الجذور: موجب (للأسفل) · السيقان: سالب (للأعلى)</div>
+        </div>
+        <div style="background:${dark?'rgba(212,144,26,0.08)':'#FFF8E1'};border-radius:8px;padding:10px;border-right:3px solid #D4901A;">
+          <div style="font-size:12px;font-weight:700;color:#D4901A;margin-bottom:4px;">🧬 الهرمون</div>
+          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">كلاهما يعتمد على الأوكسين (IAA) لكن بتأثيرات مختلفة</div>
+        </div>
+      </div>
+    </div>`);
+
+  const bg=dark?'#1E2D3A':'#FAFAF8';
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-  c.fillStyle=dark?'#fff':'#1A8FA8';
-  c.font=`bold ${Math.round(h*0.04)}px Tajawal`;
+  c.fillStyle=dark?'#4DD0E1':'#1A8FA8';
+  c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
   c.textAlign='center';
   c.fillText('مقارنة: الانتحاء الضوئي مقابل الانتحاء الأرضي',w/2,h*0.07);
 
   const rows=[
-    ['الاسم العلمي','Phototropism (ضوئي)','Gravitropism (أرضي)'],
+    ['الخاصية','Phototropism (ضوئي)','Gravitropism (أرضي)'],
     ['المُنبّه','الضوء','الجاذبية الأرضية'],
-    ['السيقان','موجب (نحو الضوء)','سالب (نحو الأعلى)'],
-    ['الجذور','سالب (بعيداً عن الضوء)','موجب (نحو الأسفل)'],
-    ['الهرمون المسؤول','الأوكسين (IAA)','الأوكسين (IAA)'],
-    ['الفائدة للنبات','أوراق للضوء لتمثيل ضوئي','جذور للتربة لامتصاص الماء'],
+    ['السيقان','موجب ← نحو الضوء','سالب ↑ نحو الأعلى'],
+    ['الجذور','سالب ← بعيداً عن الضوء','موجب ↓ نحو الأسفل'],
+    ['الهرمون','الأوكسين (IAA)','الأوكسين (IAA)'],
+    ['الفائدة','أوراق تمتص الضوء','جذور تمتص الماء'],
   ];
 
-  const colX=[w*0.02,w*0.3,w*0.65];
-  const colW=[w*0.27,w*0.34,w*0.33];
-  const rowH=h*0.125, startY=h*0.13;
+  const tX=w*0.02, tW=w*0.96;
+  const colFs=[0.28,0.36,0.36];
+  let cx2=tX;
+  const colsC=colFs.map(f=>{ const o={x:cx2,w:tW*f}; cx2+=tW*f; return o; });
+  const rH=h*0.118, sY=h*0.12;
 
   rows.forEach((row,ri)=>{
-    const ry=startY+ri*rowH;
-    const isHeader=ri===0;
+    const ry=sY+ri*rH;
+    const isH=ri===0;
     row.forEach((cell,ci)=>{
-      c.fillStyle=isHeader?(dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.1)'):(dark?`rgba(255,255,255,${ri%2===0?0.04:0.02})`:`rgba(0,0,0,${ri%2===0?0.02:0})`);
-      c.fillRect(colX[ci],ry,colW[ci],rowH);
-      c.strokeStyle=dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)';
-      c.lineWidth=1; c.strokeRect(colX[ci],ry,colW[ci],rowH);
-      c.fillStyle=isHeader?(dark?'#81C784':'#1B5E20'):(dark?'#ddd':'#37474F');
-      c.font=`${isHeader?'bold ':''}${Math.round(h*0.028)}px Tajawal`;
+      c.fillStyle=isH?(dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.1)'):(dark?`rgba(255,255,255,${ri%2===0?0.04:0.01})`:`rgba(0,0,0,${ri%2===0?0.02:0})`);
+      c.fillRect(colsC[ci].x,ry,colsC[ci].w,rH);
+      c.strokeStyle=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
+      c.lineWidth=1; c.strokeRect(colsC[ci].x,ry,colsC[ci].w,rH);
+      c.fillStyle=isH?(dark?'#4DD0E1':'#0E6B80'):(dark?'#ddd':'#37474F');
+      c.font=`${isH?'bold ':''} ${Math.round(h*0.029)}px Tajawal`;
       c.textAlign='center';
-      c.fillText(cell,colX[ci]+colW[ci]/2,ry+rowH*0.6);
+      c.fillText(cell,colsC[ci].x+colsC[ci].w/2,ry+rH*0.62);
     });
   });
 }
 
-// ─── نشاط ١٠-٣: هرمون الأوكسين — التبويب أ ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٣أ — توزيع الأوكسين وانحناء الساق
+// ══════════════════════════════════════════════════
 function simG9Bio10N3a(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
+  let lightDir='even', auxinLevel=60, bendAngle=0, animating=false;
 
-  let lightDir='even', bendAngle=0, animating=false;
+  function renderCtrl(){
+    _ctrlPanel(`
+      <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">☀️ توزيع الأوكسين</div>
+        <div style="font-size:13px;font-weight:700;color:${dark?'#bbb':'#546E7A'};margin-bottom:8px;">اتجاه الضوء:</div>
+        <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
+          ${[['right','☀️ من اليمين'],['left','☀️ من اليسار'],['even','☀️ ضوء متساوٍ']].map(([d,lb])=>`
+            <button onclick="window._n3aLight('${d}')" id="n3a_${d}" style="padding:9px 14px;border-radius:9px;border:2px solid ${lightDir===d?'#D4901A':'#ddd'};background:${lightDir===d?'#D4901A':(dark?'rgba(255,255,255,0.05)':'white')};color:${lightDir===d?'white':(dark?'#ccc':'#555')};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">${lb}</button>`).join('')}
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:13px;font-weight:700;color:${dark?'#bbb':'#546E7A'};">كثافة الأوكسين:</span>
+            <span id="auxValLbl" style="font-size:13px;font-weight:700;color:#E65100;">${auxinLevel}%</span>
+          </div>
+          <input type="range" min="10" max="100" value="${auxinLevel}" oninput="window._n3aAuxin(this.value)" style="width:100%;accent-color:#E65100;">
+        </div>
+        <button onclick="window._n3aRun()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#D4901A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">▶ شاهدي الانحناء</button>
+        <div style="margin-top:12px;background:${dark?'rgba(212,144,26,0.08)':'#FFF8E1'};border-radius:8px;padding:10px;border:1px solid ${dark?'rgba(212,144,26,0.2)':'rgba(212,144,26,0.2)'};">
+          <div style="font-size:12px;color:${dark?'#FFD54F':'#8A5A00'};line-height:1.7;">الأوكسين يتجمّع في الجانب الظليل → يستطيل أسرع → ينحني الساق نحو الضوء</div>
+        </div>
+      </div>`);
+  }
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="padding:16px;font-family:Tajawal,sans-serif;direction:rtl;">
-    <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:12px;">☀️ تحكمي في اتجاه الضوء</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-      <button onclick="window._auxLight('right')" style="padding:8px 14px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#666;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">☀️ من اليمين</button>
-      <button onclick="window._auxLight('left')" style="padding:8px 14px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#666;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">☀️ من اليسار</button>
-      <button onclick="window._auxLight('even')" style="padding:8px 14px;border-radius:8px;border:1.5px solid #FFD700;background:#FFFDE7;color:#E65100;font-family:Tajawal;font-size:13px;font-weight:700;cursor:pointer;">☀️ ضوء متساوٍ</button>
-    </div>
-    <button onclick="window._auxAnimate()" style="padding:9px 18px;border-radius:8px;border:none;background:#D4901A;color:white;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;">▶ شاهدي الانحناء</button>
-    <div id="auxinfo" style="font-size:13px;color:${dark?'#aaa':'#546E7A'};line-height:1.8;margin-top:12px;background:${dark?'rgba(255,255,255,0.05)':'#FFF9C4'};border-radius:10px;padding:12px;border:1px solid rgba(212,144,26,0.2);">
-      اختاري اتجاه الضوء لترى توزيع الأوكسين على جانبي الساق
-    </div>`;
-
-  window._auxLight=function(d){ lightDir=d; bendAngle=0; draw(); };
-  window._auxAnimate=function(){
+  window._n3aLight=function(d){ lightDir=d; bendAngle=0; renderCtrl(); draw(0); };
+  window._n3aAuxin=function(v){ auxinLevel=parseInt(v); const el=document.getElementById('auxValLbl'); if(el) el.textContent=v+'%'; draw(bendAngle); };
+  window._n3aRun=function(){
+    if(animating) return;
     const target=lightDir==='right'?-22:lightDir==='left'?22:0;
-    let frame=0,total=40;
-    function step(){ frame++; bendAngle=target*(1-Math.pow(1-frame/total,3)); draw(); if(frame<total) requestAnimationFrame(step); }
-    step();
-    const el=document.getElementById('auxinfo');
-    if(el){
-      const msgs={right:'الأوكسين تجمّع في الجانب الأيسر (الظليل) → نما أسرع → انحنى الساق نحو اليمين (مصدر الضوء) ✅',
-        left:'الأوكسين تجمّع في الجانب الأيمن (الظليل) → نما أسرع → انحنى الساق نحو اليسار (مصدر الضوء) ✅',
-        even:'الأوكسين موزّع بالتساوي على الجانبين → نمو متساوٍ → الساق ينمو مستقيماً ✅'};
-      el.textContent=msgs[lightDir];
-    }
+    let fr=0; const tot=45; animating=true;
+    function anim(){ fr++; bendAngle=target*(1-Math.pow(1-fr/tot,3)); draw(bendAngle); if(fr<tot) requestAnimationFrame(anim); else animating=false; }
+    anim();
   };
 
-  function draw(){
+  function draw(bend){
     c.clearRect(0,0,w,h);
-    const sky=c.createLinearGradient(0,0,0,h*0.65);
-    sky.addColorStop(0,dark?'#1E2D1A':'#FFFDE7');
-    sky.addColorStop(1,dark?'#1A2D1A':'#E8F5E9');
-    c.fillStyle=sky; c.fillRect(0,0,w,h);
-    c.fillStyle=dark?'#2D1B0A':'#D7CCC8';
-    c.fillRect(0,h*0.65,w,h*0.35);
+    // bg
+    const bg=c.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,dark?'#1E2A38':'#FFFDE7');
+    bg.addColorStop(0.55,dark?'#1E2A38':'#FFF9C4');
+    bg.addColorStop(0.55,dark?'#2A1A0A':'#C8E6C9');
+    bg.addColorStop(1,dark?'#150E00':'#A5D6A7');
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    const cx=w*0.5,baseY=h*0.65;
-    const stemH=h*0.5;
-    const rad=bendAngle*Math.PI/180;
-    const topX=cx+Math.sin(rad)*stemH*0.8;
-    const topY=baseY-stemH;
+    c.fillStyle=dark?'#FFD54F':'#E65100';
+    c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
+    c.textAlign='center';
+    c.fillText('توزيع الأوكسين وانحناء الساق',w/2,h*0.07);
 
-    // Sun
-    if(lightDir==='right'||lightDir==='left'){
-      const sx=lightDir==='right'?w*0.85:w*0.15;
-      c.fillStyle='#FFD700';
-      c.beginPath(); c.arc(sx,h*0.2,h*0.05,0,Math.PI*2); c.fill();
-      for(let i=0;i<5;i++){
-        c.strokeStyle='#FFD700'; c.lineWidth=2;
-        const dy=h*0.16+i*h*0.02;
-        c.beginPath(); c.moveTo(lightDir==='right'?sx-h*0.07:sx+h*0.07,dy); c.lineTo(lightDir==='right'?sx-h*0.14:sx+h*0.14,dy); c.stroke();
-      }
-    } else {
-      c.fillStyle='#FFD700'; c.beginPath(); c.arc(cx,h*0.06,h*0.04,0,Math.PI*2); c.fill();
-    }
+    const stemX=w*0.5, stemBot=h*0.72;
+    const endX=stemX+Math.sin(bend*Math.PI/180)*h*0.4;
+    const endY=stemBot-h*0.4;
 
-    // Auxin cells
-    for(let i=0;i<7;i++){
-      const cy2=baseY-h*0.07-i*h*0.065;
-      let lc=0.5,rc=0.5;
-      if(lightDir==='right'){ lc=0.75; rc=0.25; }
-      else if(lightDir==='left'){ lc=0.25; rc=0.75; }
-      c.fillStyle=`rgba(255,152,0,${lc})`; c.beginPath(); c.roundRect(cx-h*0.11,cy2-h*0.028,h*0.1,h*0.05,4); c.fill();
-      c.fillStyle=`rgba(255,152,0,${rc})`; c.beginPath(); c.roundRect(cx+h*0.01,cy2-h*0.028,h*0.1,h*0.05,4); c.fill();
+    // Light source
+    if(lightDir==='right') _drawSun10(c,w*0.85,h*0.25,h*0.048,'left',h);
+    else if(lightDir==='left') _drawSun10(c,w*0.15,h*0.25,h*0.048,'right',h);
+    else _drawSun10(c,w*0.5,h*0.08,h*0.045,'down',h);
+
+    // Auxin dots in cells
+    const aR=auxinLevel/100;
+    for(let i=0;i<8;i++){
+      const dy=h*0.13+i*h*0.073;
+      if(dy>stemBot-h*0.05) break;
+      let lC=0.5*aR, rC=0.5*aR;
+      if(lightDir==='right'){ lC=0.75*aR; rC=0.25*aR; }
+      else if(lightDir==='left'){ lC=0.25*aR; rC=0.75*aR; }
+      // Left cell
+      c.fillStyle=`rgba(255,152,0,${lC})`;
+      c.beginPath(); c.roundRect(stemX-w*0.12,dy-h*0.028,w*0.09,h*0.048,5); c.fill();
+      c.strokeStyle=`rgba(200,100,0,${lC*0.5})`; c.lineWidth=1;
+      c.strokeRect(stemX-w*0.12,dy-h*0.028,w*0.09,h*0.048);
+      // Right cell
+      c.fillStyle=`rgba(255,152,0,${rC})`;
+      c.beginPath(); c.roundRect(stemX+w*0.03,dy-h*0.028,w*0.09,h*0.048,5); c.fill();
+      c.strokeStyle=`rgba(200,100,0,${rC*0.5})`; c.lineWidth=1;
+      c.strokeRect(stemX+w*0.03,dy-h*0.028,w*0.09,h*0.048);
     }
 
     // Stem
-    c.strokeStyle=dark?'#388E3C':'#1B5E20'; c.lineWidth=12; c.lineCap='round';
-    c.beginPath(); c.moveTo(cx,baseY); c.bezierCurveTo(cx+topX*0.1,baseY-stemH*0.4,cx+topX*0.2,baseY-stemH*0.7,topX,topY); c.stroke();
-    c.fillStyle='#388E3C'; c.beginPath(); c.ellipse(topX,topY-h*0.03,h*0.04,h*0.03,rad,0,Math.PI*2); c.fill();
+    c.strokeStyle=dark?'#388E3C':'#1B5E20'; c.lineWidth=14; c.lineCap='round';
+    c.beginPath(); c.moveTo(stemX,stemBot); c.bezierCurveTo(stemX+Math.sin(bend*Math.PI/180)*h*0.12,stemBot-h*0.15,endX+Math.sin(bend*Math.PI/180)*h*0.05,endY+h*0.1,endX,endY); c.stroke();
+    c.strokeStyle=dark?'#66BB6A':'#4CAF50'; c.lineWidth=5; c.globalAlpha=0.45;
+    c.beginPath(); c.moveTo(stemX-3,stemBot); c.bezierCurveTo(stemX+Math.sin(bend*Math.PI/180)*h*0.12-3,stemBot-h*0.15,endX+Math.sin(bend*Math.PI/180)*h*0.05-3,endY+h*0.1,endX-3,endY); c.stroke();
+    c.globalAlpha=1;
+
+    // Tip
+    c.fillStyle='#2E7D32'; c.beginPath(); c.ellipse(endX,endY-h*0.03,h*0.04,h*0.028,bend*0.02,0,Math.PI*2); c.fill();
+    c.fillStyle='#4CAF50'; c.beginPath(); c.ellipse(endX,endY-h*0.03,h*0.03,h*0.02,bend*0.02,0,Math.PI*2); c.fill();
 
     // Pot
-    c.fillStyle=dark?'#6D4C41':'#8B6914'; c.fillRect(cx-h*0.09,baseY,h*0.18,h*0.14);
-    c.fillStyle=dark?'#795548':'#A07820'; c.fillRect(cx-h*0.11,baseY-h*0.02,h*0.22,h*0.03);
+    const {pw,ph}=_drawPot10(c,stemX,stemBot,w,h,dark);
 
     // Labels
     if(lightDir!=='even'){
-      const sx=lightDir==='right'?cx-h*0.2:cx+h*0.1;
-      c.fillStyle='#E65100'; c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
-      c.fillText('أوكسين أكثر',sx,h*0.45);
-      const ox=lightDir==='right'?cx+h*0.14:cx-h*0.18;
-      c.fillStyle='#90A4AE'; c.fillText('أوكسين أقل',ox,h*0.45);
+      const shX=lightDir==='right'?stemX-w*0.2:stemX+w*0.2;
+      const ltX=lightDir==='right'?stemX+w*0.2:stemX-w*0.2;
+      c.fillStyle='#E65100'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+      c.fillText('أوكسين أكثر',shX,h*0.5);
+      c.fillText('(جانب ظليل)',shX,h*0.545);
+      c.fillStyle=dark?'#90A4AE':'#90A4AE'; c.font=`${Math.round(h*0.022)}px Tajawal`;
+      c.fillText('أوكسين أقل',ltX,h*0.5);
+      c.fillText('(جانب مضيء)',ltX,h*0.545);
     }
+
+    // Legend
+    c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.8)';
+    c.beginPath(); c.roundRect(w*0.74,h*0.74,w*0.24,h*0.18,8); c.fill();
+    c.fillStyle=dark?'#FFD54F':'#8A5A00'; c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='right';
+    c.fillText('الأوكسين (IAA)',w*0.96,h*0.77);
+    c.fillStyle='rgba(255,152,0,0.85)'; c.beginPath(); c.roundRect(w*0.76,h*0.79,w*0.07,h*0.04,4); c.fill();
+    c.fillStyle=dark?'#ddd':'#444'; c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='right';
+    c.fillText('مرتفع',w*0.96,h*0.815);
+    c.fillStyle='rgba(255,152,0,0.2)'; c.beginPath(); c.roundRect(w*0.76,h*0.84,w*0.07,h*0.04,4); c.fill();
+    c.fillText('منخفض',w*0.96,h*0.866);
   }
-  draw();
+
+  renderCtrl(); draw(0);
 }
 
-// ─── نشاط ١٠-٣: التبويب ب — تجربة الأصيصات ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٣ب — تجربة الأصيصات الثلاثية
+// ══════════════════════════════════════════════════
 function simG9Bio10N3b(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
-  let revealed=false;
+  let showResult=false;
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="padding:16px;font-family:Tajawal,sans-serif;direction:rtl;">
-    <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:12px;">🧪 تجربة الأصيصات الثلاثية (١٩١٣)</div>
-    <div style="font-size:13px;color:${dark?'#aaa':'#546E7A'};line-height:1.9;margin-bottom:12px;">
-      ثلاث بادرات تتعرض لضوء من جانب واحد. في كل بادرة تم إجراء تعديل مختلف على قمة الساق.
-    </div>
-    <button onclick="window._revealPots()" style="padding:9px 18px;border-radius:8px;border:none;background:#D4901A;color:white;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;">▶ أظهري النتيجة بعد يومين</button>
-    <div id="potres" style="font-size:13px;line-height:1.8;margin-top:12px;display:none;background:${dark?'rgba(39,174,96,0.1)':'rgba(39,174,96,0.07)'};border-radius:10px;padding:12px;border:1px solid rgba(39,174,96,0.2);">
-      <strong style="color:#27AE60">✅ النتائج:</strong><br>
-      (أ) لم ينحنِ — القمة مفقودة، لا أوكسين<br>
-      (ب) نما مستقيماً — اللانولين منع انتقال الأوكسين<br>
-      (ج) انحنى نحو الضوء — بادرة طبيعية كاملة
-    </div>`;
-  window._revealPots=function(){ revealed=true; draw(); const el=document.getElementById('potres'); if(el)el.style.display='block'; };
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🧪 تجربة الأصيصات الثلاثية (١٩١٣)</div>
+      <div style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;margin-bottom:12px;">
+        ثلاث بادرات تتعرّض لضوء من جانب واحد. في كل بادرة تم إجراء تعديل مختلف على قمة الساق.
+      </div>
+      <button onclick="window._n3bShow()" id="n3bShowBtn" style="width:100%;padding:11px;border-radius:9px;border:none;background:#D4901A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">▶ أظهري النتيجة بعد يومين</button>
+      <button onclick="window._n3bReset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;">↺ إعادة</button>
+      <div id="n3bRes" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(212,144,26,0.08)':'#FFF8E1'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(212,144,26,0.2)':'rgba(212,144,26,0.2)'};">
+        انقري الزر لمشاهدة نتيجة كل بادرة بعد يومين من التجربة
+      </div>
+    </div>`);
 
-  function drawPotSim(cx,potY,tipState,result,label,subLabel){
-    const ph=h*0.18,pw=h*0.14;
-    c.fillStyle=dark?'#6D4C41':'#8B6914';
-    c.beginPath(); c.roundRect(cx-pw/2,potY,pw,ph,5); c.fill();
-    c.fillStyle=dark?'#795548':'#A07820';
-    c.fillRect(cx-pw/2-5,potY-7,pw+10,9);
-    c.fillStyle=dark?'#4A2F00':'#5D4037';
-    c.fillRect(cx-pw/2+2,potY+3,pw-4,ph*0.3);
+  window._n3bShow=function(){ showResult=true; draw();
+    const el=document.getElementById('n3bRes');
+    if(el) el.innerHTML='<strong style="color:#27AE60">(ج)</strong> انحنت نحو الضوء ✓ | <strong style="color:#D4901A">(ب)</strong> نمت مستقيمة (اللانولين منع الأوكسين) | <strong style="color:var(--red,#C0392B)">(أ)</strong> لم تنحنِ (القمة مفقودة)';
+  };
+  window._n3bReset=function(){ showResult=false; draw(); const el=document.getElementById('n3bRes'); if(el) el.textContent='انقري الزر لمشاهدة نتيجة كل بادرة بعد يومين من التجربة'; };
 
-    // Stem
-    let bend=0;
-    if(revealed && tipState==='full') bend=h*0.07;
-    const stemH=h*0.28;
-    c.strokeStyle=dark?'#66BB6A':'#2E7D32'; c.lineWidth=6; c.lineCap='round';
-    c.beginPath(); c.moveTo(cx,potY);
-    c.bezierCurveTo(cx+bend*0.3,potY-stemH*0.4, cx+bend*0.7,potY-stemH*0.7, cx+bend,potY-stemH); c.stroke();
-
-    // Tip state
-    if(tipState==='cut'){
-      c.strokeStyle=dark?'#EF5350':'#C62828'; c.lineWidth=2.5; c.setLineDash([4,2]);
-      c.beginPath(); c.arc(cx,potY-stemH,h*0.035,0,Math.PI*2); c.stroke(); c.setLineDash([]);
-      c.fillStyle=dark?'#EF5350':'#C62828'; c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
-      c.fillText('قُطعت',cx,potY-stemH+5);
-    } else if(tipState==='lanolin'){
-      c.fillStyle='rgba(180,180,100,0.7)';
-      c.beginPath(); c.roundRect(cx-h*0.04,potY-stemH-h*0.032,h*0.08,h*0.04,3); c.fill();
-      c.fillStyle=dark?'#ddd':'#555'; c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
-      c.fillText('لانولين',cx,potY-stemH-h*0.01);
-    } else {
-      c.fillStyle='#388E3C';
-      c.beginPath(); c.ellipse(cx+bend,potY-stemH-h*0.025,h*0.035,h*0.025,0,0,Math.PI*2); c.fill();
-    }
-
-    // Sun
-    c.fillStyle='#FFD700';
-    c.beginPath(); c.arc(cx+h*0.18,potY-h*0.15,h*0.03,0,Math.PI*2); c.fill();
-    for(let i=0;i<4;i++){
-      c.strokeStyle='#FFD700'; c.lineWidth=1.5;
-      const dy=potY-h*0.18+i*h*0.014;
-      c.beginPath(); c.moveTo(cx+h*0.15,dy); c.lineTo(cx+h*0.09,dy); c.stroke();
-    }
-
-    // Labels
-    c.fillStyle=dark?'#fff':'#1B5E20'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
-    c.fillText(label,cx,potY+ph+h*0.04);
-    c.fillStyle=dark?'#aaa':'#78909C'; c.font=`${Math.round(h*0.022)}px Tajawal`;
-    c.fillText(subLabel,cx,potY+ph+h*0.07);
-
-    if(revealed){
-      c.fillStyle=tipState==='full'?'#27AE60':tipState==='cut'?'#C62828':'#D4901A';
-      c.font=`bold ${Math.round(h*0.025)}px Tajawal`;
-      c.fillText(result,cx,potY+ph+h*0.105);
-    }
+  function drawBadge(cx,y,text,color){
+    c.fillStyle=color;
+    c.beginPath(); c.roundRect(cx-w*0.065,y,w*0.13,h*0.048,20); c.fill();
+    c.fillStyle='white'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText(text,cx,y+h*0.032);
   }
 
   function draw(){
     c.clearRect(0,0,w,h);
-    c.fillStyle=dark?'#1E2D1A':'#F0FBF4'; c.fillRect(0,0,w,h);
-    c.fillStyle=dark?'#fff':'#1B5E20'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
+    const bg=dark?'#1E2D3A':'#F0FBF4';
+    c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+    c.fillStyle=dark?'#FFD54F':'#E65100';
+    c.font=`bold ${Math.round(h*0.04)}px Tajawal`;
+    c.textAlign='center';
     c.fillText('تجربة الأصيصات الثلاثية — دور الأوكسين',w/2,h*0.07);
 
-    const potY=h*0.32;
-    drawPotSim(w*0.2, potY,'cut','لم ينحنِ ✗','البادرة (أ)','قمة مفقودة');
-    drawPotSim(w*0.5, potY,'lanolin','نمت مستقيمة','البادرة (ب)','لانولين على القمة');
-    drawPotSim(w*0.8, potY,'full','انحنى للضوء ✓','البادرة (ج)','بادرة كاملة');
+    const plants=[
+      {cx:w*0.2, label:'البادرة (أ)', sub:'قمة مفقودة', bend:0, hasTip:false, hasLanoln:false, resultBend:false},
+      {cx:w*0.5, label:'البادرة (ب)', sub:'لانولين على القمة', bend:0, hasTip:true, hasLanoln:true, resultBend:false},
+      {cx:w*0.8, label:'البادرة (ج)', sub:'بادرة كاملة', bend:showResult?w*0.065:0, hasTip:true, hasLanoln:false, resultBend:true},
+    ];
+
+    plants.forEach(p=>{
+      const potBaseY=h*0.75;
+      // light
+      _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.38,h*0.04,'left',h);
+
+      // stem
+      c.strokeStyle=dark?'#388E3C':'#2E7D32'; c.lineWidth=8; c.lineCap='round';
+      const endX=p.cx+p.bend, endY=potBaseY-h*0.33;
+      c.beginPath(); c.moveTo(p.cx,potBaseY);
+      c.bezierCurveTo(p.cx+p.bend*0.25,potBaseY-h*0.12, endX+p.bend*0.1,endY+h*0.1, endX,endY); c.stroke();
+
+      if(p.hasTip){
+        if(p.hasLanoln){
+          // Lanolin block
+          c.fillStyle='rgba(240,220,150,0.85)';
+          c.beginPath(); c.roundRect(endX-w*0.04,endY-h*0.055,w*0.08,h*0.045,5); c.fill();
+          c.strokeStyle='rgba(180,150,80,0.6)'; c.lineWidth=1.5; c.setLineDash([3,3]);
+          c.strokeRect(endX-w*0.04,endY-h*0.055,w*0.08,h*0.045);
+          c.setLineDash([]);
+          c.fillStyle=dark?'#FFD54F':'#8A5A00'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+          c.fillText('لانولين',endX,endY-h*0.022);
+        } else {
+          // Normal tip
+          c.fillStyle='#2E7D32'; c.beginPath(); c.ellipse(endX,endY-h*0.038,h*0.038,h*0.028,0,0,Math.PI*2); c.fill();
+          c.fillStyle='#4CAF50'; c.beginPath(); c.ellipse(endX,endY-h*0.038,h*0.03,h*0.02,0,0,Math.PI*2); c.fill();
+          if(showResult && p.resultBend){
+            c.fillStyle=dark?'#81C784':'#1B5E20';
+            c.beginPath(); c.ellipse(endX-h*0.055,endY-h*0.005,h*0.05,h*0.022,-0.5,0,Math.PI*2); c.fill();
+            c.beginPath(); c.ellipse(endX+h*0.055,endY-h*0.005,h*0.05,h*0.022,0.5,0,Math.PI*2); c.fill();
+          }
+        }
+      } else {
+        // Cut tip indicator
+        c.strokeStyle='#C0392B'; c.lineWidth=2; c.setLineDash([3,3]);
+        c.beginPath(); c.arc(endX,endY-h*0.03,h*0.038,0,Math.PI*2); c.stroke();
+        c.setLineDash([]);
+        c.strokeStyle='#C0392B'; c.lineWidth=3;
+        c.beginPath(); c.moveTo(endX-h*0.025,endY-h*0.056); c.lineTo(endX+h*0.025,endY-h*0.005); c.stroke();
+        c.beginPath(); c.moveTo(endX+h*0.025,endY-h*0.056); c.lineTo(endX-h*0.025,endY-h*0.005); c.stroke();
+      }
+
+      // pot
+      _drawPot10(c,p.cx,potBaseY,w,h,dark);
+
+      // Labels
+      c.fillStyle=dark?'#eee':'#2C3A4A';
+      c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+      c.fillText(p.label,p.cx,h*0.87);
+      c.fillStyle=dark?'#90A4AE':'#78909C';
+      c.font=`${Math.round(h*0.024)}px Tajawal`;
+      c.fillText(p.sub,p.cx,h*0.91);
+
+      if(showResult){
+        const colors=['#C0392B','#D4901A','#27AE60'];
+        const results=['لم تنحنِ ✗','مستقيمة (لانولين)','انحنت نحو الضوء ✓'];
+        const idx=plants.indexOf(p);
+        c.fillStyle=colors[idx];
+        c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+        c.fillText(results[idx],p.cx,h*0.96);
+      }
+    });
   }
   draw();
 }
 
-// ─── نشاط ١٠-٣: التبويب ج ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٣ج — أسئلة التحليل
+// ══════════════════════════════════════════════════
 function simG9Bio10N3c(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
-  const bg=dark?'#1E2D3A':'#F4F1EC'; c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-  c.fillStyle=dark?'#fff':'#D4901A'; c.font=`bold ${Math.round(h*0.038)}px Tajawal`; c.textAlign='center';
-  c.fillText('خلاصة: دور الأوكسين في الانحناء',w/2,h*0.07);
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🧠 أسئلة التحليل</div>
+      ${[
+        {q:'ما سبب مسح القمم باللانولين في البادرة (ب)؟',opts:['لتغذية القمة','اللانولين يمنع انتشار الأوكسين من القمة للأسفل','لحماية القمة من الحرارة'],ans:1},
+        {q:'لماذا لم تنحنِ البادرة (أ) رغم تعرّضها للضوء؟',opts:['لأن الضوء كان ضعيفاً','لأن القمة مفقودة — لا يوجد مصدر للأوكسين','لأن التربة كانت جافة'],ans:1},
+        {q:'أيّ بادرة هي التجربة الضابطة؟',opts:['البادرة (أ)','البادرة (ب)','البادرة (ج) — بادرة كاملة طبيعية'],ans:2},
+      ].map((q,qi)=>`
+        <div style="background:${dark?'rgba(255,255,255,0.04)':'#F9F6F2'};border-radius:10px;padding:12px;margin-bottom:10px;" id="qcard${qi}">
+          <div style="font-size:13px;font-weight:700;color:${dark?'#eee':'#2C3A4A'};margin-bottom:8px;line-height:1.6;">${qi+1}. ${q.q}</div>
+          ${q.opts.map((opt,oi)=>`
+            <button onclick="window._n3cAns(${qi},${oi},${q.ans})" class="n3copt_${qi}" style="display:block;width:100%;text-align:right;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.03)':'#F4F1EC'};color:${dark?'#ccc':'#444'};font-family:Tajawal,sans-serif;font-size:12px;font-weight:500;cursor:pointer;margin-bottom:5px;">${opt}</button>`).join('')}
+          <div id="qfb${qi}" style="font-size:12px;margin-top:6px;padding:7px 10px;border-radius:7px;display:none;"></div>
+        </div>`).join('')}
+    </div>`);
 
-  const points=[
-    {icon:'🌿',text:'الأوكسين (IAA) يُنتَج في قمة الساق النامية'},
-    {icon:'☀️',text:'الضوء من جهة واحدة → الأوكسين ينتقل للجانب الظليل'},
-    {icon:'📐',text:'الجانب الظليل: أوكسين أكثر → خلايا أطول → ينمو أسرع'},
-    {icon:'🔄',text:'الجانب المضيء: أوكسين أقل → خلايا أقصر → ينمو أبطأ'},
-    {icon:'✅',text:'النتيجة: الساق ينحني نحو الضوء (انتحاء ضوئي موجب)'},
-    {icon:'🌱',text:'الجذور: تستجيب عكساً — الأوكسين يُثبّط نموها'},
-  ];
-  points.forEach((p,i)=>{
-    const x=w*0.08, y=h*0.15+i*h*0.127;
-    c.fillStyle=dark?'rgba(255,255,255,0.05)':'rgba(212,144,26,0.06)';
-    c.beginPath(); c.roundRect(x,y,w*0.84,h*0.1,8); c.fill();
-    c.strokeStyle=dark?'rgba(212,144,26,0.2)':'rgba(212,144,26,0.3)'; c.lineWidth=1;
-    c.strokeRect(x,y,w*0.84,h*0.1);
-    c.font=`${Math.round(h*0.042)}px Tajawal`; c.textAlign='center';
-    c.fillStyle=dark?'#FFD700':'#D4901A';
-    c.fillText(p.icon,x+h*0.04,y+h*0.065);
-    c.fillStyle=dark?'#ddd':'#37474F'; c.font=`${Math.round(h*0.028)}px Tajawal`; c.textAlign='right';
-    c.fillText(p.text,x+w*0.82,y+h*0.064);
-  });
+  window._n3cAns=function(qi,oi,ans){
+    const correct=oi===ans;
+    const fbs=[
+      {c:'✅ صحيح! اللانولين مادة دهنية عازلة تمنع انتقال الأوكسين من القمة للأسفل.',w:'❌ اللانولين مادة عازلة دهنية — وظيفتها منع انتشار الأوكسين.'},
+      {c:'✅ بدون قمة لا يوجد إنتاج للأوكسين — وبدون الأوكسين لا توجد استطالة تفاضلية ولا انحناء.',w:'❌ السبب الرئيسي هو غياب القمة (مصنع الأوكسين).'},
+      {c:'✅ البادرة (ج) الكاملة هي الضابطة — تُمثّل السلوك الطبيعي للمقارنة.',w:'❌ الضابطة هي النبتة الطبيعية بدون أي تعديل (البادرة ج).'},
+    ];
+    document.querySelectorAll(`.n3copt_${qi}`).forEach((b,i)=>{
+      b.disabled=true;
+      if(i===oi) b.style.background=correct?(dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.12)'):(dark?'rgba(192,57,43,0.2)':'rgba(192,57,43,0.08)');
+      if(!correct && i===ans) b.style.background=dark?'rgba(39,174,96,0.15)':'rgba(39,174,96,0.08)';
+      b.style.borderColor=i===ans?'#27AE60':(i===oi&&!correct?'#C0392B':'#ddd');
+    });
+    const fb=document.getElementById(`qfb${qi}`);
+    if(fb){
+      fb.style.display='block';
+      fb.style.background=correct?(dark?'rgba(39,174,96,0.15)':'rgba(39,174,96,0.1)'):(dark?'rgba(192,57,43,0.12)':'rgba(192,57,43,0.06)');
+      fb.style.color=correct?'#1A7A40':'#A02010';
+      fb.style.border=`1px solid ${correct?'rgba(39,174,96,0.3)':'rgba(192,57,43,0.2)'}`;
+      fb.textContent=correct?fbs[qi].c:fbs[qi].w;
+    }
+  };
+
+  const bg=dark?'#1E2D3A':'#FAFAF8';
+  c.fillStyle=bg; c.fillRect(0,0,w,h);
+  c.fillStyle=dark?'#FFD54F':'#D4901A';
+  c.font=`bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign='center';
+  c.fillText('أسئلة التحليل — نشاط الأصيصات الثلاثية',w/2,h*0.5);
+  c.fillStyle=dark?'#90A4AE':'#78909C';
+  c.font=`${Math.round(h*0.028)}px Tajawal`;
+  c.fillText('أجيبي عن الأسئلة في لوحة التحكم →',w/2,h*0.6);
 }
 
-// ─── نشاط ١٠-٤: منطقة الحساسية — التبويب أ ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٤أ — تغطية أجزاء الساق
+// ══════════════════════════════════════════════════
 function simG9Bio10N4a(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
+  let covers=[null,null,null], showResult=false;
+  const coverOpts=['tip','base',null];
+  const coverLabels=['تغطية القمة','تغطية القاعدة','بدون غطاء'];
 
-  let covers=[null,null,null]; // null, 'tip', 'base'
-  let revealed=false;
+  function renderCtrl(){
+    _ctrlPanel(`
+      <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🌿 حدّدي منطقة الاستشعار</div>
+        ${[0,1,2].map(pi=>`
+          <div style="margin-bottom:12px;background:${dark?'rgba(255,255,255,0.03)':'#F9F6F2'};border-radius:10px;padding:10px;">
+            <div style="font-size:13px;font-weight:700;color:${dark?'#eee':'#2C3A4A'};margin-bottom:7px;">الأصيص ${pi+1}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${coverLabels.map((lb,ci)=>`<button onclick="window._n4aCover(${pi},${ci})" style="padding:7px 10px;border-radius:8px;border:2px solid ${covers[pi]===coverOpts[ci]?'#6B4E9A':'#ddd'};background:${covers[pi]===coverOpts[ci]?'#6B4E9A':(dark?'rgba(255,255,255,0.04)':'white')};color:${covers[pi]===coverOpts[ci]?'white':(dark?'#ccc':'#555')};font-family:Tajawal,sans-serif;font-size:11px;font-weight:700;cursor:pointer;">${lb}</button>`).join('')}
+            </div>
+          </div>`).join('')}
+        <button onclick="window._n4aRun()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#6B4E9A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">▶ أظهري النتائج بعد يومين</button>
+        <button onclick="window._n4aReset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;">↺ إعادة</button>
+        <div id="n4aFb" style="font-size:12px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(107,78,154,0.1)':'rgba(107,78,154,0.06)'};border-radius:9px;padding:10px;border:1px solid ${dark?'rgba(107,78,154,0.2)':'rgba(107,78,154,0.2)'};">
+          اختاري إعداداً مختلفاً لكل أصيص ثم شاهدي النتيجة
+        </div>
+      </div>`);
+  }
 
-  const cp=document.getElementById('simControlsPanel');
-  cp.innerHTML=`<div style="padding:16px;font-family:Tajawal,sans-serif;direction:rtl;">
-    <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:12px;">📍 اختاري ما تريدين تغطيته</div>
-    ${[1,2,3].map(i=>`
-    <div style="margin-bottom:10px;background:${dark?'rgba(255,255,255,0.05)':'#F9F6F2'};border-radius:10px;padding:10px;border:1px solid rgba(0,0,0,0.07);">
-      <div style="font-weight:700;font-size:13px;color:${dark?'#fff':'#37474F'};margin-bottom:6px;">الأصيص ${['١','٢','٣'][i-1]}</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button onclick="window._setCv(${i},'tip')" style="padding:6px 10px;border-radius:7px;border:1.5px solid #D4901A;background:#FFF9C4;color:#8A5A00;font-family:Tajawal;font-size:12px;font-weight:700;cursor:pointer;">غطِّي القمة</button>
-        <button onclick="window._setCv(${i},'base')" style="padding:6px 10px;border-radius:7px;border:1.5px solid #1A8FA8;background:#E0F7FA;color:#006064;font-family:Tajawal;font-size:12px;font-weight:700;cursor:pointer;">غطِّي القاعدة</button>
-        <button onclick="window._setCv(${i},null)" style="padding:6px 10px;border-radius:7px;border:1.5px solid #ddd;background:white;color:#666;font-family:Tajawal;font-size:12px;font-weight:700;cursor:pointer;">بدون غطاء</button>
-      </div>
-      <div id="cv${i}st" style="font-size:11px;font-weight:700;color:#78909C;margin-top:5px;">بدون غطاء</div>
-    </div>`).join('')}
-    <button onclick="window._revealSens()" style="padding:9px 18px;border-radius:8px;border:none;background:#6B4E9A;color:white;font-family:Tajawal;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px;">▶ أظهري النتائج بعد يومين</button>`;
-
-  window._setCv=function(pot,type){
-    covers[pot-1]=type;
-    const el=document.getElementById(`cv${pot}st`);
-    if(el) el.textContent={tip:'✅ القمة مغطاة',base:'✅ القاعدة مغطاة',null:'بدون غطاء'}[type]||'بدون غطاء';
-    revealed=false; draw();
+  window._n4aCover=function(pi,ci){ covers[pi]=coverOpts[ci]; showResult=false; renderCtrl(); draw(); };
+  window._n4aRun=function(){ showResult=true; draw();
+    const hasTipCover=covers.some(c=>c==='tip');
+    const el=document.getElementById('n4aFb');
+    if(el) el.innerHTML=hasTipCover
+      ?'💡 <strong>ملاحظة مهمة!</strong> عندما تُغطى القمة لا تنحني الساق رغم وجود الضوء — هذا يُثبت أن <strong>القمة هي الجزء الحساس للضوء</strong> وليس الساق!'
+      :'🌿 جرّبي تغطية القمة في أحد الأصيصات لترى الفرق المهم!';
   };
-  window._revealSens=function(){ revealed=true; draw(); };
+  window._n4aReset=function(){ covers=[null,null,null]; showResult=false; renderCtrl(); draw(); };
 
   function draw(){
     c.clearRect(0,0,w,h);
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,dark?'#1E2D1A':'#E8F5E9');
-    bg.addColorStop(0.65,dark?'#1E2D1A':'#E8F5E9');
-    bg.addColorStop(0.65,dark?'#2D1B0A':'#D7CCC8');
-    bg.addColorStop(1,dark?'#1A120A':'#BCAAA4');
+    const bg=dark?'#1E2D3A':'#F0F4FF';
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-    c.fillStyle=dark?'#fff':'#4A148C'; c.font=`bold ${Math.round(h*0.038)}px Tajawal`; c.textAlign='center';
-    c.fillText('أيّ جزء من الساق يستشعر الضوء؟',w/2,h*0.07);
+    c.fillStyle=dark?'#CE93D8':'#6B4E9A';
+    c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
+    c.textAlign='center';
+    c.fillText('نشاط ١٠-٤: منطقة الحساسية الضوئية في الساق',w/2,h*0.07);
 
-    const potYBase=h*0.62, stemH=h*0.38;
-    const cxs=[w*0.22,w*0.5,w*0.78];
+    const pots=[
+      {cx:w*0.2, label:'الأصيص ١'},
+      {cx:w*0.5, label:'الأصيص ٢'},
+      {cx:w*0.8, label:'الأصيص ٣'},
+    ];
 
-    cxs.forEach((cx,i)=>{
-      const cover=covers[i];
-      // Stem
-      let bend=0;
-      if(revealed){
-        if(cover==='tip') bend=0;
-        else bend=h*0.065;
-      }
-      c.strokeStyle=dark?'#66BB6A':'#2E7D32'; c.lineWidth=7; c.lineCap='round';
-      c.beginPath(); c.moveTo(cx,potYBase);
-      c.bezierCurveTo(cx+bend*0.3,potYBase-stemH*0.4, cx+bend*0.7,potYBase-stemH*0.7, cx+bend,potYBase-stemH);
-      c.stroke();
+    pots.forEach((p,pi)=>{
+      const potBaseY=h*0.78;
+      // Light source
+      _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.38,h*0.038,'left',h);
 
-      // Tip
-      const tipY=potYBase-stemH, tipX=cx+bend;
+      const cover=covers[pi];
+      const tipY=potBaseY-h*0.35;
+      const baseY=potBaseY-h*0.18;
+
+      // result bend
+      const bendX=showResult&&cover!=='tip'?w*0.06:0;
+
+      // stem
+      c.strokeStyle=dark?'#388E3C':'#2E7D32'; c.lineWidth=7; c.lineCap='round';
+      const endX=p.cx+bendX, endY=tipY;
+      c.beginPath(); c.moveTo(p.cx,potBaseY);
+      c.bezierCurveTo(p.cx+bendX*0.3,potBaseY-h*0.1, endX,endY+h*0.1, endX,endY); c.stroke();
+
+      // tip
+      c.fillStyle='#2E7D32'; c.beginPath(); c.ellipse(endX,endY-h*0.03,h*0.036,h*0.026,0,0,Math.PI*2); c.fill();
+      c.fillStyle='#4CAF50'; c.beginPath(); c.ellipse(endX,endY-h*0.03,h*0.028,h*0.018,0,0,Math.PI*2); c.fill();
+
+      // Cover overlay
       if(cover==='tip'){
-        // Cover box over tip
-        c.fillStyle='rgba(144,164,174,0.85)';
-        c.beginPath(); c.roundRect(tipX-h*0.045,tipY-h*0.04,h*0.09,h*0.07,5); c.fill();
-        c.fillStyle='white'; c.font=`${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
-        c.fillText('مُغطّاة',tipX,tipY+h*0.005);
-      } else {
-        c.fillStyle='#388E3C'; c.beginPath(); c.ellipse(tipX,tipY,h*0.04,h*0.028,0,0,Math.PI*2); c.fill();
+        c.fillStyle='rgba(144,164,174,0.88)';
+        c.beginPath(); c.roundRect(endX-w*0.045,endY-h*0.065,w*0.09,h*0.055,5); c.fill();
+        c.fillStyle='white'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+        c.fillText('مغطاة',endX,endY-h*0.028);
+      } else if(cover==='base'){
+        c.fillStyle='rgba(144,164,174,0.88)';
+        c.beginPath(); c.roundRect(p.cx-w*0.045,baseY-h*0.03,w*0.09,h*0.055,5); c.fill();
+        c.fillStyle='white'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+        c.fillText('مغطاة',p.cx,baseY+h*0.01);
       }
 
-      // Base cover
-      if(cover==='base'){
-        c.fillStyle='rgba(144,164,174,0.7)';
-        c.beginPath(); c.roundRect(cx-h*0.04,potYBase-h*0.1,h*0.08,h*0.08,5); c.fill();
-        c.fillStyle='white'; c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
-        c.fillText('مُغطّاة',cx,potYBase-h*0.064);
-      }
+      // pot
+      _drawPot10(c,p.cx,potBaseY,w,h,dark);
 
-      // Pot
-      c.fillStyle=dark?'#6D4C41':'#8B6914';
-      c.beginPath(); c.roundRect(cx-h*0.07,potYBase,h*0.14,h*0.14,5); c.fill();
-      c.fillStyle=dark?'#795548':'#A07820'; c.fillRect(cx-h*0.09,potYBase-h*0.018,h*0.18,h*0.02);
+      c.fillStyle=dark?'#eee':'#2C3A4A';
+      c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+      c.fillText(p.label,p.cx,h*0.88);
 
-      // Sun arrow
-      c.fillStyle='#FFD700'; c.beginPath(); c.arc(cx+h*0.17,potYBase-h*0.22,h*0.028,0,Math.PI*2); c.fill();
-      c.strokeStyle='#FFD700'; c.lineWidth=1.5;
-      for(let r=0;r<4;r++){
-        c.beginPath(); c.moveTo(cx+h*0.14,potYBase-h*0.24+r*h*0.015); c.lineTo(cx+h*0.08,potYBase-h*0.24+r*h*0.015); c.stroke();
-      }
+      const covLbl=['القمة مغطاة','القاعدة مغطاة','بدون غطاء'];
+      const covIdx=cover==='tip'?0:cover==='base'?1:2;
+      c.fillStyle=cover==='tip'?'#78909C':cover==='base'?'#1A8FA8':'#27AE60';
+      c.font=`${Math.round(h*0.023)}px Tajawal`;
+      c.fillText(covLbl[covIdx],p.cx,h*0.915);
 
-      // Label
-      c.fillStyle=dark?'#fff':'#1B5E20'; c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
-      c.fillText(`الأصيص ${['١','٢','٣'][i]}`,cx,potYBase+h*0.155);
-
-      // Result
-      if(revealed){
+      if(showResult){
         const bent=cover!=='tip';
-        c.fillStyle=bent?'#27AE60':'#C62828';
-        c.font=`bold ${Math.round(h*0.024)}px Tajawal`;
-        c.fillText(bent?'انحنى ✓':'لم ينحنِ ✗',cx,potYBase+h*0.195);
+        c.fillStyle=bent?'#27AE60':'#C0392B';
+        c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+        c.fillText(bent?'انحنت ✓':'لم تنحنِ ✗',p.cx,h*0.96);
       }
     });
   }
-  draw();
+  renderCtrl(); draw();
 }
 
-// ─── نشاط ١٠-٤: التبويب ب ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٤ب — مقارنة النتائج
+// ══════════════════════════════════════════════════
 function simG9Bio10N4b(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
-  const bg=dark?'#1E2D3A':'#F4F1EC'; c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-  c.fillStyle=dark?'#fff':'#4A148C'; c.font=`bold ${Math.round(h*0.038)}px Tajawal`; c.textAlign='center';
-  c.fillText('مقارنة النتائج — مكان الغطاء وأثره على الانحناء',w/2,h*0.07);
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📊 قراءة النتائج</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:${dark?'rgba(192,57,43,0.1)':'rgba(192,57,43,0.06)'};border-radius:8px;padding:10px;border-right:3px solid #C0392B;">
+          <div style="font-size:12px;font-weight:700;color:#C0392B;margin-bottom:4px;">القمة مغطاة ✗</div>
+          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">الساق لا تنحني — القمة لا تستشعر الضوء → لا أوكسين → لا انحناء</div>
+        </div>
+        <div style="background:${dark?'rgba(39,174,96,0.1)':'rgba(39,174,96,0.06)'};border-radius:8px;padding:10px;border-right:3px solid #27AE60;">
+          <div style="font-size:12px;font-weight:700;color:#27AE60;margin-bottom:4px;">القاعدة مغطاة ✓</div>
+          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">الساق تنحني — القمة مكشوفة تستشعر الضوء وتُنتج الأوكسين</div>
+        </div>
+        <div style="background:${dark?'rgba(39,174,96,0.1)':'rgba(39,174,96,0.06)'};border-radius:8px;padding:10px;border-right:3px solid #27AE60;">
+          <div style="font-size:12px;font-weight:700;color:#27AE60;margin-bottom:4px;">بدون غطاء ✓</div>
+          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">الساق تنحني بشكل طبيعي — القمة تستشعر وتُنتج الأوكسين بشكل طبيعي</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;background:${dark?'rgba(107,78,154,0.1)':'rgba(107,78,154,0.07)'};border-radius:8px;padding:10px;border:1px solid ${dark?'rgba(107,78,154,0.25)':'rgba(107,78,154,0.2)'};">
+        <div style="font-size:12px;font-weight:700;color:${dark?'#CE93D8':'#6B4E9A'};margin-bottom:4px;">🔑 الاستنتاج</div>
+        <div style="font-size:12px;color:${dark?'#ccc':'#37474F'};line-height:1.7;"><strong>القمة النامية</strong> هي المنطقة الحساسة للضوء في الساق — تستشعر الضوء وتُنتج الأوكسين الذي ينتقل للأسفل</div>
+      </div>
+    </div>`);
 
-  const rows=[
-    ['الأصيص','الغطاء مكانه','هل انحنى؟','السبب'],
-    ['١','القمة مغطاة','لا ✗','القمة لا تستشعر الضوء → لا أوكسين غير متساوٍ'],
-    ['٢','القاعدة مغطاة','نعم ✓','القمة مكشوفة → تُنتج الأوكسين → ينتشر للأسفل'],
-    ['٣','بدون غطاء','نعم ✓','قمة كاملة مكشوفة → استجابة طبيعية للضوء'],
-  ];
-
-  const colX=[w*0.02,w*0.14,w*0.32,w*0.46];
-  const colW=[w*0.11,w*0.17,w*0.13,w*0.48];
-  const rowH=h*0.17, startY=h*0.14;
-
-  rows.forEach((row,ri)=>{
-    const ry=startY+ri*rowH;
-    const isH=ri===0;
-    row.forEach((cell,ci)=>{
-      c.fillStyle=isH?(dark?'rgba(107,78,154,0.2)':'rgba(107,78,154,0.1)'):(dark?`rgba(255,255,255,${ri%2===0?0.04:0.02})`:`rgba(0,0,0,0.02)`);
-      c.fillRect(colX[ci],ry,colW[ci],rowH);
-      c.strokeStyle=dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'; c.lineWidth=1; c.strokeRect(colX[ci],ry,colW[ci],rowH);
-      c.fillStyle=isH?(dark?'#CE93D8':'#6B4E9A'):
-        (cell.includes('✓')?'#27AE60':cell.includes('✗')?'#C62828':(dark?'#ddd':'#37474F'));
-      c.font=`${isH?'bold ':''} ${Math.round(h*0.027)}px Tajawal`;
-      c.textAlign='center';
-      c.fillText(cell,colX[ci]+colW[ci]/2,ry+rowH*0.58);
-    });
-  });
+  const bg=dark?'#1E2D3A':'#FAFAF8';
+  c.fillStyle=bg; c.fillRect(0,0,w,h);
 
   c.fillStyle=dark?'#CE93D8':'#6B4E9A';
-  c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
-  c.fillText('✅ الاستنتاج: قمة الساق = منطقة استشعار الضوء وإنتاج الأوكسين',w/2,h*0.9);
+  c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
+  c.textAlign='center';
+  c.fillText('مقارنة نتائج تجربة منطقة الحساسية',w/2,h*0.07);
+
+  // 3 result columns
+  const results=[
+    {cx:w*0.2, label:'القمة مغطاة', result:'لم تنحنِ ✗', color:'#C0392B', bend:0, cover:'tip'},
+    {cx:w*0.5, label:'القاعدة مغطاة', result:'انحنت نحو الضوء ✓', color:'#27AE60', bend:w*0.06, cover:'base'},
+    {cx:w*0.8, label:'بدون غطاء', result:'انحنت نحو الضوء ✓', color:'#27AE60', bend:w*0.06, cover:null},
+  ];
+
+  results.forEach(p=>{
+    const potBaseY=h*0.75;
+    _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.38,h*0.038,'left',h);
+
+    const endX=p.cx+p.bend, endY=potBaseY-h*0.33;
+    c.strokeStyle=dark?'#388E3C':'#2E7D32'; c.lineWidth=7; c.lineCap='round';
+    c.beginPath(); c.moveTo(p.cx,potBaseY);
+    c.bezierCurveTo(p.cx+p.bend*0.3,potBaseY-h*0.1, endX,endY+h*0.1, endX,endY); c.stroke();
+
+    // tip
+    if(p.cover!=='tip'){
+      c.fillStyle='#2E7D32'; c.beginPath(); c.ellipse(endX,endY-h*0.03,h*0.036,h*0.026,0,0,Math.PI*2); c.fill();
+      c.fillStyle='#4CAF50'; c.beginPath(); c.ellipse(endX,endY-h*0.03,h*0.028,h*0.018,0,0,Math.PI*2); c.fill();
+      if(p.bend>0){
+        c.fillStyle=dark?'#81C784':'#66BB6A';
+        c.beginPath(); c.ellipse(endX-h*0.05,endY,h*0.048,h*0.02,-0.5,0,Math.PI*2); c.fill();
+        c.beginPath(); c.ellipse(endX+h*0.05,endY,h*0.048,h*0.02,0.5,0,Math.PI*2); c.fill();
+      }
+    } else {
+      // grey cap
+      c.fillStyle='rgba(120,144,156,0.85)';
+      c.beginPath(); c.roundRect(endX-w*0.045,endY-h*0.065,w*0.09,h*0.06,5); c.fill();
+      c.fillStyle='white'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+      c.fillText('مغطاة',endX,endY-h*0.025);
+    }
+    if(p.cover==='base'){
+      c.fillStyle='rgba(120,144,156,0.75)';
+      c.beginPath(); c.roundRect(p.cx-w*0.045,potBaseY-h*0.22,w*0.09,h*0.05,5); c.fill();
+      c.fillStyle='white'; c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+      c.fillText('مغطاة',p.cx,potBaseY-h*0.19);
+    }
+
+    _drawPot10(c,p.cx,potBaseY,w,h,dark);
+
+    c.fillStyle=dark?'#eee':'#2C3A4A'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText(p.label,p.cx,h*0.87);
+    c.fillStyle=p.color; c.font=`bold ${Math.round(h*0.027)}px Tajawal`;
+    c.fillText(p.result,p.cx,h*0.94);
+  });
 }
 
-// ─── نشاط ١٠-٤: التبويب ج — ملخص الوحدة ───
+// ══════════════════════════════════════════════════
+// نشاط ١٠-٤ج — ملخص الوحدة العاشرة
+// ══════════════════════════════════════════════════
 function simG9Bio10N4c(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
   const dark=document.documentElement.classList.contains('dark-mode');
   cancelAnimationFrame(window._animF);
-  const bg=dark?'#1E2D3A':'#F4F1EC'; c.fillStyle=bg; c.fillRect(0,0,w,h);
 
-  c.fillStyle=dark?'#CE93D8':'#6B4E9A'; c.font=`bold ${Math.round(h*0.04)}px Tajawal`; c.textAlign='center';
-  c.fillText('📚 ملخص الوحدة العاشرة — التحكم والتنظيم في النبات',w/2,h*0.06);
+  _ctrlPanel(`
+    <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
+      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📚 ملخص الوحدة العاشرة</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${[
+          ['#27AE60','المُنبّه Stimulus','تغيّر في البيئة يستشعره الكائن — كالضوء والجاذبية'],
+          ['#1A8FA8','الانتحاء Tropism','استجابة نمو النبات نحو المُنبّه (موجب) أو بعيداً (سالب)'],
+          ['#D4901A','Phototropism','السيقان موجبة (نحو الضوء) · الجذور سالبة'],
+          ['#6B4E9A','Gravitropism','الجذور موجبة (للأسفل) · السيقان سالبة (للأعلى)'],
+          ['#E65100','الأوكسين IAA','هرمون يُنتج في قمة الساق — يحفّز استطالة خلايا الجانب الظليل'],
+        ].map(([col,term,def])=>`
+          <div style="background:${dark?'rgba(255,255,255,0.04)':'white'};border-radius:9px;padding:10px 12px;border-right:4px solid ${col};box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            <div style="font-size:13px;font-weight:800;color:${col};margin-bottom:3px;">${term}</div>
+            <div style="font-size:12px;color:${dark?'#bbb':'#546E7A'};line-height:1.6;">${def}</div>
+          </div>`).join('')}
+      </div>
+    </div>`);
+
+  const bg=dark?'#1E2D3A':'#FAFAF8';
+  c.fillStyle=bg; c.fillRect(0,0,w,h);
+
+  c.fillStyle=dark?'#CE93D8':'#6B4E9A';
+  c.font=`bold ${Math.round(h*0.042)}px Tajawal`;
+  c.textAlign='center';
+  c.fillText('📚 ملخص الوحدة العاشرة — التحكم والتنظيم في النبات',w/2,h*0.08);
 
   const concepts=[
-    {term:'المُنبّه Stimulus',def:'أي تغيّر في البيئة يستشعره الكائن الحي (الضوء، الجاذبية، الحرارة)',color:'#27AE60'},
-    {term:'الانتحاء Tropism',def:'استجابة نمو النبات أو جزء منه باتجاه المُنبّه (موجب) أو بعيداً عنه (سالب)',color:'#1A8FA8'},
+    {term:'المُنبّه Stimulus',def:'تغيّر في البيئة يستشعره الكائن الحي (الضوء، الجاذبية، الحرارة)',color:'#27AE60'},
+    {term:'الانتحاء Tropism',def:'استجابة نمو النبات أو جزء منه باتجاه المُنبّه أو بعيداً عنه',color:'#1A8FA8'},
     {term:'Phototropism الانتحاء الضوئي',def:'السيقان: موجبة (نحو الضوء) · الجذور: سالبة (بعيداً عن الضوء)',color:'#D4901A'},
     {term:'Gravitropism الانتحاء الأرضي',def:'الجذور: موجبة (نحو الأسفل) · السيقان: سالبة (نحو الأعلى)',color:'#6B4E9A'},
     {term:'الأوكسين Auxin (IAA)',def:'هرمون نباتي يُنتجه قمة الساق — يُحفّز استطالة الخلايا في الجانب الظليل',color:'#E65100'},
   ];
 
   concepts.forEach((con,i)=>{
-    const x=w*0.04, y=h*0.12+i*h*0.155;
+    const y=h*0.15+i*h*0.15;
+    // card bg
     c.fillStyle=dark?'rgba(255,255,255,0.04)':'white';
-    c.beginPath(); c.roundRect(x,y,w*0.92,h*0.135,8); c.fill();
-    c.strokeStyle=con.color+'44'; c.lineWidth=2; c.strokeRect(x,y,w*0.92,h*0.135);
-    // Color bar
+    c.beginPath(); c.roundRect(w*0.04,y,w*0.92,h*0.13,8); c.fill();
+    c.strokeStyle=con.color+'55'; c.lineWidth=1.5;
+    c.strokeRect(w*0.04,y,w*0.92,h*0.13);
+    // color bar
     c.fillStyle=con.color;
-    c.beginPath(); c.roundRect(x,y,w*0.008,h*0.135,4); c.fill();
-    c.fillStyle=con.color; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='right';
-    c.fillText(con.term,x+w*0.9,y+h*0.048);
-    c.fillStyle=dark?'#ccc':'#546E7A'; c.font=`${Math.round(h*0.026)}px Tajawal`;
-    c.fillText(con.def,x+w*0.9,y+h*0.1);
+    c.beginPath(); c.roundRect(w*0.04,y,w*0.007,h*0.13,4); c.fill();
+    // term
+    c.fillStyle=con.color; c.font=`bold ${Math.round(h*0.03)}px Tajawal`;
+    c.textAlign='right'; c.fillText(con.term,w*0.94,y+h*0.048);
+    // def
+    c.fillStyle=dark?'#bbb':'#546E7A'; c.font=`${Math.round(h*0.026)}px Tajawal`;
+    c.fillText(con.def,w*0.94,y+h*0.097);
   });
 }
+
 
 
 
