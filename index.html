@@ -61505,32 +61505,26 @@ function _drawPlant10(c,cx,potY,w,h,dark,bendX,growthFrac,showLeaves){
 
 // ─── مساعد: شمس ───
 function _drawSun10(c,x,y,r,dir,h){
-  // glow
-  const grd=c.createRadialGradient(x,y,r*0.3,x,y,r*2);
-  grd.addColorStop(0,'rgba(255,220,0,0.5)');
-  grd.addColorStop(1,'rgba(255,220,0,0)');
-  c.fillStyle=grd; c.beginPath(); c.arc(x,y,r*2,0,Math.PI*2); c.fill();
-  // sun disc
-  c.fillStyle='#FFD700';
+  // Simple clean sun — disc only, no glow, minimal rays
+  c.fillStyle='#F9C822';
   c.beginPath(); c.arc(x,y,r,0,Math.PI*2); c.fill();
-  // rays
-  c.strokeStyle='#FFD700'; c.lineWidth=2.5; c.lineCap='round';
-  const rayCount=5;
-  for(let i=0;i<rayCount;i++){
-    let rx1,ry1,rx2,ry2;
+  // directional rays only (3 lines, one direction)
+  c.save();
+  c.strokeStyle='#F0B800'; c.lineWidth=Math.max(1.5, r*0.18); c.lineCap='round';
+  const spacing=r*0.55;
+  for(let i=-1;i<=1;i++){
+    let x1,y1,x2,y2;
     if(dir==='left'){
-      rx1=x-r*1.3; ry1=y+(i-(rayCount-1)/2)*h*0.016;
-      rx2=x-r*2.2; ry2=y+(i-(rayCount-1)/2)*h*0.016;
+      x1=x-r*1.2; y1=y+i*spacing; x2=x-r*1.85; y2=y+i*spacing;
     } else if(dir==='right'){
-      rx1=x+r*1.3; ry1=y+(i-(rayCount-1)/2)*h*0.016;
-      rx2=x+r*2.2; ry2=y+(i-(rayCount-1)/2)*h*0.016;
+      x1=x+r*1.2; y1=y+i*spacing; x2=x+r*1.85; y2=y+i*spacing;
     } else {
-      const ang=Math.PI/2 + (i-(rayCount-1)/2)*0.3;
-      rx1=x+Math.cos(ang)*r*1.3; ry1=y+Math.sin(ang)*r*1.3;
-      rx2=x+Math.cos(ang)*r*2.2; ry2=y+Math.sin(ang)*r*2.2;
+      // down rays
+      x1=x+i*spacing; y1=y+r*1.2; x2=x+i*spacing; y2=y+r*1.85;
     }
-    c.beginPath(); c.moveTo(rx1,ry1); c.lineTo(rx2,ry2); c.stroke();
+    c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
   }
+  c.restore();
 }
 
 // ─── مساعد: لوحة تحكم نظيفة ───
@@ -61615,26 +61609,36 @@ function simG9Bio10N1a(){
       {cx:w*0.8,  label:'الطبق (ج)', sub:'بدون ضوء',    lightDir:'none',  bend:0,                  growF:step===0?0:step===1?0.35:0.75},
     ];
 
-    const potBaseY=h*0.72;
+    const potBaseY=h*0.64;
 
     pots.forEach(p=>{
-      // light source
+      // light source — only for directional light (A = right side)
       if(step>0){
-        if(p.lightDir==='right') _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.33,h*0.045,'left',h);
-        if(p.lightDir==='down')  _drawSun10(c,p.cx,potBaseY-h*0.45,h*0.04,'down',h);
+        if(p.lightDir==='right'){
+          _drawSun10(c,p.cx+w*0.17,potBaseY-h*0.28,h*0.032,'left',h);
+        }
+        if(p.lightDir==='down'){
+          // Rotating disc indicator only — no sun icon
+          c.save();
+          c.strokeStyle='rgba(180,180,180,0.5)'; c.lineWidth=1.5; c.setLineDash([4,4]);
+          c.beginPath(); c.ellipse(p.cx,potBaseY+6,w*0.065,h*0.01,0,0,Math.PI*2); c.stroke();
+          c.setLineDash([]); c.restore();
+          c.fillStyle='rgba(120,120,120,0.7)'; c.font=`${Math.round(h*0.022)}px Tajawal`;
+          c.textAlign='center'; c.fillText('↻ دوّار',p.cx,potBaseY+h*0.05);
+        }
       }
       // plant
       _drawPlant10(c,p.cx,potBaseY,w,h,dark,p.bend,p.growF,step===2);
       // pot
       const {pw,ph}=_drawPot10(c,p.cx,potBaseY,w,h,dark);
-      // labels
+      // labels anchored to pot
       c.fillStyle=dark?'#eee':'#2C3A4A';
-      c.font=`bold ${Math.round(h*0.03)}px Tajawal`;
+      c.font=`bold ${Math.round(h*0.028)}px Tajawal`;
       c.textAlign='center';
-      c.fillText(p.label,p.cx,potBaseY+ph+h*0.045);
+      c.fillText(p.label,p.cx,potBaseY+ph+h*0.038);
       c.fillStyle=dark?'#90A4AE':'#78909C';
-      c.font=`${Math.round(h*0.024)}px Tajawal`;
-      c.fillText(p.sub,p.cx,potBaseY+ph+h*0.078);
+      c.font=`${Math.round(h*0.022)}px Tajawal`;
+      c.fillText(p.sub,p.cx,potBaseY+ph+h*0.065);
     });
 
     // spinning disc indicator for pot B
@@ -61777,7 +61781,7 @@ function simG9Bio10N1c(){
   c.fillText('قمة',tipX,tipY+5);
 
   // Light arrow from right
-  _drawSun10(c,w*0.9,h*0.32,h*0.048,'left',h);
+  _drawSun10(c,w*0.88,h*0.3,h*0.03,'left',h);
   c.strokeStyle='rgba(255,200,0,0.6)'; c.lineWidth=2; c.setLineDash([6,4]);
   c.beginPath(); c.moveTo(w*0.84,h*0.32); c.lineTo(tipX+h*0.05,tipY); c.stroke();
   c.setLineDash([]);
@@ -62023,7 +62027,7 @@ function simG9Bio10N2b(){
   c.beginPath(); c.roundRect(w*0.04,h*0.93,w*0.92,h*0.06,6); c.fill();
   c.fillStyle=dark?'#81C784':'#1B5E20';
   c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
-  c.fillText('✅ الاستنتاج: الجذر دائماً للأسفل — الساق دائماً للأعلى — بغضّ النظر عن وضع البذرة',w/2,h*0.965);
+  c.fillText('✅ الاستنتاج: الجذر دائماً للأسفل — الساق دائماً للأعلى — بغضّ النظر عن وضع البذرة',w/2,h*0.97);
 }
 
 // ══════════════════════════════════════════════════
@@ -62158,9 +62162,9 @@ function simG9Bio10N3a(){
     const endY=stemBot-h*0.4;
 
     // Light source
-    if(lightDir==='right') _drawSun10(c,w*0.85,h*0.25,h*0.048,'left',h);
-    else if(lightDir==='left') _drawSun10(c,w*0.15,h*0.25,h*0.048,'right',h);
-    else _drawSun10(c,w*0.5,h*0.08,h*0.045,'down',h);
+    if(lightDir==='right') _drawSun10(c,w*0.86,h*0.22,h*0.03,'left',h);
+    else if(lightDir==='left') _drawSun10(c,w*0.14,h*0.22,h*0.03,'right',h);
+    else _drawSun10(c,w*0.5,h*0.09,h*0.03,'down',h);
 
     // Auxin dots in cells
     const aR=auxinLevel/100;
@@ -62277,9 +62281,9 @@ function simG9Bio10N3b(){
     ];
 
     plants.forEach(p=>{
-      const potBaseY=h*0.75;
+      const potBaseY=h*0.64;
       // light
-      _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.38,h*0.04,'left',h);
+      _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.32,h*0.028,'left',h);
 
       // stem
       c.strokeStyle=dark?'#388E3C':'#2E7D32'; c.lineWidth=8; c.lineCap='round';
@@ -62320,21 +62324,24 @@ function simG9Bio10N3b(){
       // pot
       _drawPot10(c,p.cx,potBaseY,w,h,dark);
 
-      // Labels
+      // Labels — anchored to pot bottom
+      const ph3b=h*0.18;
       c.fillStyle=dark?'#eee':'#2C3A4A';
-      c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
-      c.fillText(p.label,p.cx,h*0.87);
+      c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+      c.fillText(p.label,p.cx,potBaseY+ph3b+h*0.038);
       c.fillStyle=dark?'#90A4AE':'#78909C';
-      c.font=`${Math.round(h*0.024)}px Tajawal`;
-      c.fillText(p.sub,p.cx,h*0.91);
+      c.font=`${Math.round(h*0.022)}px Tajawal`;
+      c.fillText(p.sub,p.cx,potBaseY+ph3b+h*0.07);
 
       if(showResult){
         const colors=['#C0392B','#D4901A','#27AE60'];
         const results=['لم تنحنِ ✗','مستقيمة (لانولين)','انحنت نحو الضوء ✓'];
         const idx=plants.indexOf(p);
+        c.fillStyle=colors[idx]+'22';
+        c.beginPath(); c.roundRect(p.cx-w*0.1,potBaseY+ph3b+h*0.08,w*0.2,h*0.055,5); c.fill();
         c.fillStyle=colors[idx];
-        c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
-        c.fillText(results[idx],p.cx,h*0.96);
+        c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+        c.fillText(results[idx],p.cx,potBaseY+ph3b+h*0.115);
       }
     });
   }
@@ -62459,9 +62466,9 @@ function simG9Bio10N4a(){
     ];
 
     pots.forEach((p,pi)=>{
-      const potBaseY=h*0.78;
+      const potBaseY=h*0.65;
       // Light source
-      _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.38,h*0.038,'left',h);
+      _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.32,h*0.028,'left',h);
 
       const cover=covers[pi];
       const tipY=potBaseY-h*0.35;
@@ -62496,21 +62503,22 @@ function simG9Bio10N4a(){
       // pot
       _drawPot10(c,p.cx,potBaseY,w,h,dark);
 
+      const potH=h*0.18; // approx pot height
       c.fillStyle=dark?'#eee':'#2C3A4A';
-      c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
-      c.fillText(p.label,p.cx,h*0.88);
+      c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+      c.fillText(p.label,p.cx,potBaseY+potH+h*0.04);
 
       const covLbl=['القمة مغطاة','القاعدة مغطاة','بدون غطاء'];
       const covIdx=cover==='tip'?0:cover==='base'?1:2;
       c.fillStyle=cover==='tip'?'#78909C':cover==='base'?'#1A8FA8':'#27AE60';
-      c.font=`${Math.round(h*0.023)}px Tajawal`;
-      c.fillText(covLbl[covIdx],p.cx,h*0.915);
+      c.font=`${Math.round(h*0.022)}px Tajawal`;
+      c.fillText(covLbl[covIdx],p.cx,potBaseY+potH+h*0.074);
 
       if(showResult){
         const bent=cover!=='tip';
         c.fillStyle=bent?'#27AE60':'#C0392B';
-        c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
-        c.fillText(bent?'انحنت ✓':'لم تنحنِ ✗',p.cx,h*0.96);
+        c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+        c.fillText(bent?'انحنت ✓':'لم تنحنِ ✗',p.cx,potBaseY+potH+h*0.112);
       }
     });
   }
@@ -62566,10 +62574,10 @@ function simG9Bio10N4b(){
   ];
 
   results.forEach(p=>{
-    const potBaseY=h*0.75;
-    _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.38,h*0.038,'left',h);
+    const potBaseY=h*0.63;
+    _drawSun10(c,p.cx+w*0.14,potBaseY-h*0.30,h*0.028,'left',h);
 
-    const endX=p.cx+p.bend, endY=potBaseY-h*0.33;
+    const endX=p.cx+p.bend, endY=potBaseY-h*0.28;
     c.strokeStyle=dark?'#388E3C':'#2E7D32'; c.lineWidth=7; c.lineCap='round';
     c.beginPath(); c.moveTo(p.cx,potBaseY);
     c.bezierCurveTo(p.cx+p.bend*0.3,potBaseY-h*0.1, endX,endY+h*0.1, endX,endY); c.stroke();
@@ -62599,10 +62607,15 @@ function simG9Bio10N4b(){
 
     _drawPot10(c,p.cx,potBaseY,w,h,dark);
 
-    c.fillStyle=dark?'#eee':'#2C3A4A'; c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
-    c.fillText(p.label,p.cx,h*0.87);
-    c.fillStyle=p.color; c.font=`bold ${Math.round(h*0.027)}px Tajawal`;
-    c.fillText(p.result,p.cx,h*0.94);
+    const ph4b=h*0.18;
+    c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)';
+    c.beginPath(); c.roundRect(p.cx-w*0.1,potBaseY+ph4b+h*0.01,w*0.2,h*0.058,5); c.fill();
+    c.fillStyle=dark?'#eee':'#2C3A4A'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText(p.label,p.cx,potBaseY+ph4b+h*0.047);
+    c.fillStyle=p.color+'22';
+    c.beginPath(); c.roundRect(p.cx-w*0.1,potBaseY+ph4b+h*0.075,w*0.2,h*0.055,5); c.fill();
+    c.fillStyle=p.color; c.font=`bold ${Math.round(h*0.025)}px Tajawal`; c.textAlign='center';
+    c.fillText(p.result,p.cx,potBaseY+ph4b+h*0.112);
   });
 }
 
