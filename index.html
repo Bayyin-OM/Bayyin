@@ -293,6 +293,16 @@ html.dark-mode .topbar-logo h2 { color: var(--text-heading); }
 html.dark-mode .topbar-tab { color: var(--text-secondary); }
 html.dark-mode .topbar-tab:hover { color: var(--text-heading); background: rgba(255,255,255,0.05); }
 html.dark-mode .topbar-tab.active { color: #4DC4E0; background: rgba(26,143,168,0.15); }
+
+/* ── Semester picker dark mode ── */
+html.dark-mode #semester-picker,
+html.dark-mode #grade-picker { background: var(--bg-page, #0F1419); }
+html.dark-mode #semester-picker [onclick*="pickSemester"],
+html.dark-mode #grade-picker [onclick*="pickGrade"],
+html.dark-mode #grade-buttons-list button { background: var(--bg-card, #1A2230) !important; color: var(--text-heading, #E8EDF2) !important; }
+html.dark-mode #grade-picker-banner { background: rgba(26,143,168,0.08) !important; border-color: rgba(26,143,168,0.22) !important; }
+/* ── App breadcrumb dark mode ── */
+html.dark-mode #app-breadcrumb { background: var(--bg-topbar, #1A2230); border-bottom-color: rgba(255,255,255,0.06); }
 html.dark-mode .topbar-home {
   color: #4DC4E0 !important;
   background: rgba(26,143,168,0.1);
@@ -2992,79 +3002,144 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
 </div>
 
 <!-- ===== GRADE PICKER SCREEN ===== -->
-<div id="grade-picker" style="display:none;min-height:100vh;flex-direction:column">
+<!-- ══════════════════════════════════════════════════════════
+     SEMESTER PICKER — Layer 1: choose Semester 1 or Semester 2
+     ══════════════════════════════════════════════════════════ -->
+<div id="semester-picker" style="display:none;min-height:100vh;flex-direction:column">
+
+  <!-- Topbar -->
   <div class="topbar" style="justify-content:space-between">
-    <div class="topbar-logo" onclick="goHomePicker()" style="cursor:pointer">
+    <div class="topbar-logo" onclick="goToLanding()" style="cursor:pointer">
       <div class="brand-logo">ب</div>
       <h2>بيّن</h2>
     </div>
-    <button class="topbar-home" onclick="goHomePicker()">⬅ الرئيسية</button>
+    <div style="font-size:13px;color:var(--text-secondary,#7A8A98);display:flex;align-items:center;gap:6px;">
+      <span style="opacity:0.5">🏠 الرئيسية</span>
+      <span style="opacity:0.4">›</span>
+      <span style="font-weight:700;color:var(--teal,#1A8FA8)">اختيار الفصل</span>
+    </div>
+    <button class="topbar-home" onclick="goToLanding()">⬅ الرئيسية</button>
   </div>
+
+  <!-- Body -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:0">
+
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(26,143,168,0.07);border:1.5px solid rgba(26,143,168,0.15);border-radius:20px;padding:6px 16px;font-size:13px;color:#1A8FA8;font-weight:600;margin-bottom:18px">
+        🇴🇲 مناهج سلطنة عُمان · العلوم
+      </div>
+    </div>
+
+    <div class="panel-title" style="text-align:center;margin-bottom:6px;font-size:clamp(22px,4vw,34px)">اختَر الفصل الدراسي</div>
+    <div class="panel-sub" style="text-align:center;margin-bottom:40px">حدِّد الفصل الدراسي للوصول إلى استقصاءاتك التفاعلية</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;width:100%;max-width:720px">
+
+      <!-- Semester 1 -->
+      <div onclick="pickSemester(1)" style="
+        padding:32px 28px;border-radius:20px;
+        border:2px solid rgba(212,144,26,0.2);
+        background:var(--bg-card,#fff);
+        font-family:Tajawal;cursor:pointer;
+        box-shadow:0 2px 12px rgba(0,0,0,0.06);
+        transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
+        position:relative;overflow:hidden;text-align:right;"
+        onmouseover="this.style.boxShadow='0 8px 28px rgba(212,144,26,0.18)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(212,144,26,0.5)'"
+        onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)';this.style.transform='';this.style.borderColor='rgba(212,144,26,0.2)'">
+        <!-- Top accent stripe -->
+        <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#D4901A,#F5C842);border-radius:20px 20px 0 0"></div>
+        <div style="font-size:44px;margin-bottom:14px;line-height:1">🌅</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الأول</div>
+        <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">سبتمبر — يناير · وحدات الفصل الأول لجميع الصفوف</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,144,26,0.08);border:1px solid rgba(212,144,26,0.2);border-radius:8px;padding:5px 10px;font-size:12px;color:#B8780A;font-weight:600">
+            🔒 قريباً
+          </div>
+          <div style="font-size:22px;color:rgba(212,144,26,0.35)">←</div>
+        </div>
+      </div>
+
+      <!-- Semester 2 -->
+      <div onclick="pickSemester(2)" style="
+        padding:32px 28px;border-radius:20px;
+        border:2px solid rgba(26,143,168,0.25);
+        background:var(--bg-card,#fff);
+        font-family:Tajawal;cursor:pointer;
+        box-shadow:0 2px 12px rgba(26,143,168,0.08);
+        transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
+        position:relative;overflow:hidden;text-align:right;"
+        onmouseover="this.style.boxShadow='0 8px 28px rgba(26,143,168,0.2)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(26,143,168,0.55)'"
+        onmouseout="this.style.boxShadow='0 2px 12px rgba(26,143,168,0.08)';this.style.transform='';this.style.borderColor='rgba(26,143,168,0.25)'">
+        <!-- Top accent stripe -->
+        <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#1A8FA8,#27AE60);border-radius:20px 20px 0 0"></div>
+        <!-- Active badge -->
+        <div style="position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#27AE60,#1A8FA8);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:Tajawal">● نشط الآن</div>
+        <div style="font-size:44px;margin-bottom:14px;line-height:1">🌿</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الثاني</div>
+        <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">فبراير — يونيو · وحدات الفصل الثاني — الصف التاسع متاح بالكامل</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);border-radius:8px;padding:5px 10px;font-size:12px;color:#1E8A50;font-weight:600">
+            🔓 متاح الآن
+          </div>
+          <div style="font-size:22px;color:rgba(26,143,168,0.5)">←</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Note -->
+    <div style="margin-top:32px;text-align:center;font-size:13px;color:var(--text-secondary,#7A8A98);max-width:480px;line-height:1.8">
+      💡 سيتم إتاحة محتوى الفصل الأول تدريجياً — تابع التحديثات
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     GRADE PICKER — Layer 2: choose Grade inside a semester
+     ══════════════════════════════════════════════════════════ -->
+<div id="grade-picker" style="display:none;min-height:100vh;flex-direction:column">
+
+  <!-- Topbar with breadcrumb -->
+  <div class="topbar" style="justify-content:space-between">
+    <div class="topbar-logo" onclick="goToLanding()" style="cursor:pointer">
+      <div class="brand-logo">ب</div>
+      <h2>بيّن</h2>
+    </div>
+    <!-- Breadcrumb -->
+    <div id="grade-picker-breadcrumb" style="font-size:13px;color:var(--text-secondary,#7A8A98);display:flex;align-items:center;gap:6px;flex:1;justify-content:center;flex-wrap:wrap">
+      <span onclick="goToLanding()" style="cursor:pointer;transition:color 0.15s" onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">🏠 الرئيسية</span>
+      <span style="opacity:0.4">›</span>
+      <span id="gp-bc-sem" onclick="backToSemesterPicker()" style="cursor:pointer;transition:color 0.15s" onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">الفصل الثاني</span>
+      <span style="opacity:0.4">›</span>
+      <span style="font-weight:700;color:var(--teal,#1A8FA8)">اختيار الصف</span>
+    </div>
+    <button class="topbar-home" onclick="backToSemesterPicker()">⬅ الفصول</button>
+  </div>
+
+  <!-- Body -->
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px">
-    <div class="panel-title" style="text-align:center;margin-bottom:6px">اختر صفّك</div>
-    <div class="panel-sub" style="text-align:center;margin-bottom:32px">للوصول إلى استقصاءاتك التفاعلية</div>
-    <div style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px">
 
-      <button onclick="pickGrade(5)" style="width:100%;padding:22px 28px;border-radius:16px;
-        border:2px solid rgba(0,0,0,0.08);background:var(--bg-card,#fff);
-        font-family:Tajawal;font-size:20px;font-weight:700;color:var(--text-heading,#1A2330);
-        cursor:pointer;text-align:right;display:flex;align-items:center;gap:14px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s,transform 0.2s"
-        onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)';this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';this.style.transform=''">
-        <span style="font-size:30px">🔭</span>
-        <span>الصف الخامس</span>
-        <span style="margin-right:auto;font-size:13px;color:#888;font-weight:400">١٣ استقصاء</span>
-      </button>
+    <!-- Semester context banner -->
+    <div id="grade-picker-banner" style="
+      display:flex;align-items:center;gap:12px;
+      background:rgba(26,143,168,0.06);
+      border:1.5px solid rgba(26,143,168,0.15);
+      border-radius:14px;padding:12px 20px;
+      margin-bottom:28px;width:100%;max-width:520px;
+      font-family:Tajawal;direction:rtl">
+      <span id="gp-sem-icon" style="font-size:26px">🌿</span>
+      <div>
+        <div id="gp-sem-label" style="font-size:15px;font-weight:800;color:var(--text-heading,#1A2330)">الفصل الدراسي الثاني</div>
+        <div id="gp-sem-sub" style="font-size:12px;color:var(--text-secondary,#7A8A98);margin-top:2px">فبراير — يونيو · اختَر صفّك</div>
+      </div>
+    </div>
 
-      <button onclick="pickGrade(6)" style="width:100%;padding:22px 28px;border-radius:16px;
-        border:2px solid rgba(0,0,0,0.08);background:var(--bg-card,#fff);
-        font-family:Tajawal;font-size:20px;font-weight:700;color:var(--text-heading,#1A2330);
-        cursor:pointer;text-align:right;display:flex;align-items:center;gap:14px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s,transform 0.2s"
-        onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)';this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';this.style.transform=''">
-        <span style="font-size:30px">📗</span>
-        <span>الصف السادس</span>
-        <span style="margin-right:auto;font-size:13px;color:#888;font-weight:400">١١ استقصاء</span>
-      </button>
-
-      <button onclick="pickGrade(7)" style="width:100%;padding:22px 28px;border-radius:16px;
-        border:2px solid rgba(0,0,0,0.08);background:var(--bg-card,#fff);
-        font-family:Tajawal;font-size:20px;font-weight:700;color:var(--text-heading,#1A2330);
-        cursor:pointer;text-align:right;display:flex;align-items:center;gap:14px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s,transform 0.2s"
-        onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)';this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';this.style.transform=''">
-        <span style="font-size:30px">📚</span>
-        <span>الصف السابع</span>
-        <span style="margin-right:auto;font-size:13px;color:#888;font-weight:400">٣٠+ استقصاء</span>
-      </button>
-
-      <button onclick="pickGrade(8)" style="width:100%;padding:22px 28px;border-radius:16px;
-        border:2px solid rgba(0,0,0,0.08);background:var(--bg-card,#fff);
-        font-family:Tajawal;font-size:20px;font-weight:700;color:var(--text-heading,#1A2330);
-        cursor:pointer;text-align:right;display:flex;align-items:center;gap:14px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s,transform 0.2s"
-        onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)';this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';this.style.transform=''">
-        <span style="font-size:30px">📖</span>
-        <span>الصف الثامن</span>
-        <span style="margin-right:auto;font-size:13px;color:#888;font-weight:400">١٠+ استقصاءات</span>
-      </button>
-
-      <button onclick="pickGrade(9)" style="width:100%;padding:22px 28px;border-radius:16px;
-        border:2px solid rgba(0,0,0,0.08);background:var(--bg-card,#fff);
-        font-family:Tajawal;font-size:20px;font-weight:700;color:var(--text-heading,#1A2330);
-        cursor:pointer;text-align:right;display:flex;align-items:center;gap:14px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:box-shadow 0.2s,transform 0.2s"
-        onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)';this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.06)';this.style.transform=''">
-        <span style="font-size:30px">📕</span>
-        <span>الصف التاسع</span>
-        <span style="margin-right:auto;font-size:13px;color:#888;font-weight:400">٢٠+ استقصاء</span>
-      </button>
-
+    <div class="panel-title" style="text-align:center;margin-bottom:6px">اختَر صفّك</div>
+    <div class="panel-sub" style="text-align:center;margin-bottom:28px">للوصول إلى استقصاءاتك التفاعلية</div>
+    <div id="grade-buttons-list" style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px">
+      <!-- Populated dynamically by renderGradeButtons() -->
     </div>
   </div>
 </div>
@@ -3101,6 +3176,27 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
         🏠 الرئيسية
       </button>
     </div>
+  </div>
+
+  <!-- ── Breadcrumb bar ── -->
+  <div id="app-breadcrumb" style="
+    background:var(--bg-topbar,#fff);
+    border-bottom:1px solid var(--border-color,rgba(0,0,0,0.07));
+    padding:8px 28px;
+    font-family:Tajawal;font-size:13px;
+    color:var(--text-secondary,#7A8A98);
+    display:flex;align-items:center;gap:8px;
+    direction:rtl;flex-wrap:wrap">
+    <span onclick="goToLanding()" style="cursor:pointer;transition:color 0.15s;display:flex;align-items:center;gap:4px"
+      onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">🏠 الرئيسية</span>
+    <span style="opacity:0.35;font-size:15px">›</span>
+    <span id="bc-semester" onclick="goHome()" style="cursor:pointer;transition:color 0.15s"
+      onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">الفصل الثاني</span>
+    <span style="opacity:0.35;font-size:15px">›</span>
+    <span id="bc-grade" onclick="goHome()" style="cursor:pointer;transition:color 0.15s"
+      onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">الصفوف</span>
+    <span id="bc-grade-arrow" style="opacity:0.35;font-size:15px;display:none">›</span>
+    <span id="bc-unit" style="font-weight:700;color:var(--teal,#1A8FA8);display:none"></span>
   </div>
 
   <div id="content-area">
@@ -5911,12 +6007,147 @@ function openApp() {
   picker.style.display = 'flex';
   setTimeout(_updateFooterVisibility, 50);
 }
-function goHomePicker() {
-  document.getElementById('grade-picker').style.display = 'none';
+// ══════════════════════════════════════════════════════════
+// NAV STATE — tracks which semester is active
+// ══════════════════════════════════════════════════════════
+window._activeSemester = 2; // default: Semester 2
+
+// ── Semester config: what grades are available per semester ──
+var _semesterConfig = {
+  1: {
+    label: 'الفصل الدراسي الأول',
+    icon: '🌅',
+    sub: 'سبتمبر — يناير',
+    accentColor: '#D4901A',
+    grades: [
+      { g:5, icon:'🔭', label:'الصف الخامس',  count:'قريباً',     available: false },
+      { g:6, icon:'📗', label:'الصف السادس',  count:'قريباً',     available: false },
+      { g:7, icon:'📚', label:'الصف السابع',  count:'قريباً',     available: false },
+      { g:8, icon:'📖', label:'الصف الثامن',  count:'قريباً',     available: false },
+      { g:9, icon:'📕', label:'الصف التاسع',  count:'قريباً',     available: false },
+    ]
+  },
+  2: {
+    label: 'الفصل الدراسي الثاني',
+    icon: '🌿',
+    sub: 'فبراير — يونيو',
+    accentColor: '#1A8FA8',
+    grades: [
+      { g:5, icon:'🔭', label:'الصف الخامس',  count:'١٣ استقصاء',  available: true },
+      { g:6, icon:'📗', label:'الصف السادس',  count:'١١ استقصاء',  available: true },
+      { g:7, icon:'📚', label:'الصف السابع',  count:'٣٠+ استقصاء', available: true },
+      { g:8, icon:'📖', label:'الصف الثامن',  count:'١٠+ استقصاء', available: true },
+      { g:9, icon:'📕', label:'الصف التاسع',  count:'٢٠+ استقصاء', available: true },
+    ]
+  }
+};
+
+var _gradeLabels = { 5:'الصف الخامس', 6:'الصف السادس', 7:'الصف السابع', 8:'الصف الثامن', 9:'الصف التاسع' };
+
+// ── Render grade buttons inside grade-picker based on active semester ──
+function renderGradeButtons(sem) {
+  var cfg = _semesterConfig[sem];
+  if (!cfg) return;
+  var list = document.getElementById('grade-buttons-list');
+  if (!list) return;
+  list.innerHTML = '';
+  cfg.grades.forEach(function(g) {
+    var avail = g.available;
+    var btn = document.createElement('button');
+    btn.style.cssText = 'width:100%;padding:20px 24px;border-radius:16px;' +
+      'border:2px solid ' + (avail ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.05)') + ';' +
+      'background:var(--bg-card,#fff);font-family:Tajawal;font-size:19px;font-weight:700;' +
+      'color:' + (avail ? 'var(--text-heading,#1A2330)' : '#B0BAC5') + ';' +
+      'cursor:' + (avail ? 'pointer' : 'not-allowed') + ';' +
+      'text-align:right;display:flex;align-items:center;gap:14px;' +
+      'box-shadow:0 2px 8px rgba(0,0,0,0.05);' +
+      'transition:box-shadow 0.2s,transform 0.2s;' +
+      'opacity:' + (avail ? '1' : '0.55') + ';';
+    btn.innerHTML =
+      '<span style="font-size:28px">' + g.icon + '</span>' +
+      '<span>' + g.label + '</span>' +
+      '<span style="margin-right:auto;font-size:13px;color:' + (avail ? '#888' : '#B0BAC5') + ';font-weight:400;display:flex;align-items:center;gap:6px">' +
+        (avail ? '' : '<span style="font-size:10px;background:rgba(0,0,0,0.06);padding:2px 8px;border-radius:10px;">🔒</span>') +
+        g.count +
+      '</span>';
+    if (avail) {
+      btn.onmouseover = function() { this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)'; this.style.transform='translateY(-2px)'; };
+      btn.onmouseout  = function() { this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'; this.style.transform=''; };
+      btn.onclick = function() { pickGrade(g.g); };
+    } else {
+      btn.onclick = function() {
+        buddySay && buddySay('⏳ هذا الصف قريباً! تابع التحديثات على منصة بيّن.', 4000);
+      };
+    }
+    list.appendChild(btn);
+  });
+}
+
+// ── Update grade-picker banner to reflect active semester ──
+function _updateGradePickerBanner(sem) {
+  var cfg = _semesterConfig[sem];
+  if (!cfg) return;
+  var icon = document.getElementById('gp-sem-icon');
+  var label = document.getElementById('gp-sem-label');
+  var sub = document.getElementById('gp-sem-sub');
+  var bc = document.getElementById('gp-bc-sem');
+  var banner = document.getElementById('grade-picker-banner');
+  if (icon)   icon.textContent   = cfg.icon;
+  if (label)  label.textContent  = cfg.label;
+  if (sub)    sub.textContent    = cfg.sub + ' · اختَر صفّك';
+  if (bc)     bc.textContent     = cfg.label;
+  if (banner) {
+    var c = sem === 1 ? 'rgba(212,144,26,' : 'rgba(26,143,168,';
+    banner.style.background = c + '0.06)';
+    banner.style.borderColor = c + '0.18)';
+  }
+  // Color the accent stripe of the semester-picker cards
+  renderGradeButtons(sem);
+}
+
+// ── Update app breadcrumb ──
+function _updateAppBreadcrumb(gradeNum) {
+  var sem = window._activeSemester;
+  var cfg = _semesterConfig[sem] || _semesterConfig[2];
+  var bcSem = document.getElementById('bc-semester');
+  var bcGrade = document.getElementById('bc-grade');
+  if (bcSem) bcSem.textContent = cfg.label;
+  if (bcGrade) bcGrade.textContent = _gradeLabels[gradeNum] || 'الصف';
+}
+
+// ══ MAIN NAVIGATION FUNCTIONS ══
+
+function openApp() {
   var landing = document.getElementById('landing');
-  landing.style.removeProperty('display');
+  var semPicker = document.getElementById('semester-picker');
+  landing.style.setProperty('display', 'none', 'important');
+  semPicker.style.display = 'flex';
   setTimeout(_updateFooterVisibility, 50);
 }
+
+function pickSemester(sem) {
+  window._activeSemester = sem;
+  var semPicker = document.getElementById('semester-picker');
+  var gradePicker = document.getElementById('grade-picker');
+  semPicker.style.display = 'none';
+  _updateGradePickerBanner(sem);
+  gradePicker.style.display = 'flex';
+  setTimeout(_updateFooterVisibility, 50);
+}
+
+function backToSemesterPicker() {
+  var gradePicker = document.getElementById('grade-picker');
+  var semPicker = document.getElementById('semester-picker');
+  gradePicker.style.display = 'none';
+  semPicker.style.display = 'flex';
+  setTimeout(_updateFooterVisibility, 50);
+}
+
+function goHomePicker() {
+  // Legacy alias — now goes back to semester picker
+  backToSemesterPicker();
+}
+
 function pickGrade(g) {
   document.getElementById('grade-picker').style.display = 'none';
   const app = document.getElementById('app');
@@ -5924,6 +6155,7 @@ function pickGrade(g) {
   app.classList.add('open');
   document.body.classList.add('app-mode');
   switchGrade(g);
+  _updateAppBreadcrumb(g);
   var ca = document.getElementById('content-area');
   if (ca) ca.scrollTop = 0;
   var _bw = document.getElementById('buddy-wrap');
@@ -5931,21 +6163,24 @@ function pickGrade(g) {
   var _bh = ''; try{_bh=localStorage.getItem('bayyin-buddy-hidden');}catch(e){}
   if(_bh !== '1'){ if(_bw){_bw.classList.add('visible');_bw.classList.remove('hidden');} }
   else { if(_br) _br.classList.add('show'); }
-  setTimeout(function(){ buddySay('أهلاً بك في بيّن! 🚀 اختر وحدة وسأعطيك تلميحاً عنها!', 5000); }, 600);
+  setTimeout(function(){ buddySay && buddySay('أهلاً بك في بيّن! 🚀 اختر وحدة وسأعطيك تلميحاً عنها!', 5000); }, 600);
   setTimeout(_updateFooterVisibility, 80);
 }
+
 function goHome() {
+  // From app → back to grade picker (within same semester)
   closeSim();
   const app = document.getElementById('app');
   app.style.display = 'none';
   app.classList.remove('open');
   document.body.classList.remove('app-mode');
+  _updateGradePickerBanner(window._activeSemester || 2);
   document.getElementById('grade-picker').style.display = 'flex';
   var _bw = document.getElementById('buddy-wrap');
   var _br = document.getElementById('buddy-restore-btn');
   if(_bw){_bw.classList.remove('visible');_bw.classList.add('hidden');}
   if(_br) _br.classList.remove('show');
-  hideBubble();
+  hideBubble && hideBubble();
   setTimeout(_updateFooterVisibility, 50);
 }
 
@@ -5957,13 +6192,14 @@ function goToLanding() {
   app.classList.remove('open');
   document.body.classList.remove('app-mode');
   document.getElementById('grade-picker').style.display = 'none';
+  document.getElementById('semester-picker').style.display = 'none';
   var landing = document.getElementById('landing');
   landing.style.removeProperty('display');
   var _bw = document.getElementById('buddy-wrap');
   var _br = document.getElementById('buddy-restore-btn');
   if(_bw){_bw.classList.remove('visible');_bw.classList.add('hidden');}
   if(_br) _br.classList.remove('show');
-  hideBubble();
+  hideBubble && hideBubble();
   setTimeout(_updateFooterVisibility, 50);
 }
 
@@ -6134,6 +6370,13 @@ function switchGrade(g) {
     }
     ca.scrollTop = 0;
   }
+  // Update breadcrumb grade label
+  _updateAppBreadcrumb(g);
+  // Hide unit breadcrumb when switching grade
+  var bcArrow = document.getElementById('bc-grade-arrow');
+  var bcUnit  = document.getElementById('bc-unit');
+  if(bcArrow) bcArrow.style.display = 'none';
+  if(bcUnit)  bcUnit.style.display  = 'none';
   // When switching to grade 9, init subject tabs
   if(g === 9) {
     switchG9Subject(window._g9ActiveSubject || 'chem');
@@ -6256,7 +6499,16 @@ function openUnit(id, el) {
     g9bio9:'الوحدة التاسعة 🌱 — الماء يتحرك من الجذر للأوراق! اكتشف أوعية الخشب واللحاء والنتح.',
     g9bio10:'الوحدة العاشرة 🌿 — النبات لا يملك عيناً لكنه يرى الضوء! اكتشف الأوكسين وسر انحناء السيقان.'
   };
-  if(hints[id]) setTimeout(function(){ buddySay(hints[id], 6000); }, 400);
+  if(hints[id]) setTimeout(function(){ buddySay && buddySay(hints[id], 6000); }, 400);
+  // Update breadcrumb unit segment
+  var bcArrow = document.getElementById('bc-grade-arrow');
+  var bcUnit  = document.getElementById('bc-unit');
+  var unitTitleEl = el && el.querySelector('.unit-title');
+  if(bcArrow && bcUnit && unitTitleEl) {
+    bcUnit.textContent = unitTitleEl.textContent.trim();
+    bcArrow.style.display = '';
+    bcUnit.style.display  = '';
+  }
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
