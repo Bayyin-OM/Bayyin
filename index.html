@@ -3005,142 +3005,289 @@ html.dark-mode .footer-bottom { background: rgba(0,0,0,0.25); }
 <!-- ══════════════════════════════════════════════════════════
      SEMESTER PICKER — Layer 1: choose Semester 1 or Semester 2
      ══════════════════════════════════════════════════════════ -->
-<div id="semester-picker" style="display:none;min-height:100vh;flex-direction:column">
+<div id="semester-picker" style="display:none;min-height:100vh;flex-direction:column;background:var(--bg-landing,#F7F3EE)">
 
-  <!-- Topbar -->
-  <div class="topbar" style="justify-content:space-between">
+  <!-- ── Topbar ── -->
+  <div class="topbar" style="justify-content:space-between;background:var(--bg-topbar,#fff);border-bottom:1px solid var(--border-topbar,rgba(0,0,0,0.08))">
     <div class="topbar-logo" onclick="goToLanding()" style="cursor:pointer">
       <div class="brand-logo">ب</div>
       <h2>بيّن</h2>
     </div>
-    <div style="font-size:13px;color:var(--text-secondary,#7A8A98);display:flex;align-items:center;gap:6px;">
-      <span style="opacity:0.5">🏠 الرئيسية</span>
-      <span style="opacity:0.4">›</span>
-      <span style="font-weight:700;color:var(--teal,#1A8FA8)">اختيار الفصل</span>
-    </div>
-    <button class="topbar-home" onclick="goToLanding()">⬅ الرئيسية</button>
+    <!-- breadcrumb -->
+    <nav style="font-family:Tajawal;font-size:13px;color:var(--text-secondary,#7A8A98);display:flex;align-items:center;gap:7px">
+      <span onclick="goToLanding()" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:color .15s"
+        onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">
+        <!-- Home icon -->
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        الرئيسية
+      </span>
+      <span style="opacity:.35;font-size:16px">›</span>
+      <span style="font-weight:700;color:var(--teal,#1A8FA8)">اختيار الفصل الدراسي</span>
+    </nav>
+    <button class="topbar-home" onclick="goToLanding()" style="display:inline-flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      الرئيسية
+    </button>
   </div>
 
-  <!-- Body -->
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:0">
+  <!-- ── Page body ── -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 24px 72px">
 
-    <div style="text-align:center;margin-bottom:8px">
-      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(26,143,168,0.07);border:1.5px solid rgba(26,143,168,0.15);border-radius:20px;padding:6px 16px;font-size:13px;color:#1A8FA8;font-weight:600;margin-bottom:18px">
-        🇴🇲 مناهج سلطنة عُمان · العلوم
-      </div>
+    <!-- Eyebrow label -->
+    <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:20px">
+      <!-- Oman flag SVG (mini) -->
+      <svg width="22" height="15" viewBox="0 0 22 15" xmlns="http://www.w3.org/2000/svg" style="border-radius:2px;flex-shrink:0">
+        <rect width="22" height="5" fill="#DB3A2F"/>
+        <rect y="5" width="22" height="5" fill="#fff"/>
+        <rect y="10" width="22" height="5" fill="#007A3D"/>
+        <rect width="6" height="15" fill="#DB3A2F"/>
+        <rect x="1" y="2" width="4" height="11" fill="white" rx=".5"/>
+      </svg>
+      <span style="font-family:Tajawal;font-size:13px;font-weight:600;color:var(--text-secondary,#7A8A98);letter-spacing:.3px">مناهج سلطنة عُمان &nbsp;·&nbsp; العلوم التفاعلية</span>
     </div>
 
-    <div class="panel-title" style="text-align:center;margin-bottom:6px;font-size:clamp(22px,4vw,34px)">اختَر الفصل الدراسي</div>
-    <div class="panel-sub" style="text-align:center;margin-bottom:40px">حدِّد الفصل الدراسي للوصول إلى استقصاءاتك التفاعلية</div>
+    <!-- Title block -->
+    <h1 style="font-family:Tajawal;font-size:clamp(28px,4.5vw,42px);font-weight:800;color:var(--text-heading,#1A2330);text-align:center;margin:0 0 10px;line-height:1.2">
+      اختَر الفصل الدراسي
+    </h1>
+    <p style="font-family:Tajawal;font-size:clamp(14px,1.8vw,17px);color:var(--text-secondary,#7A8A98);text-align:center;margin:0 0 52px;max-width:420px;line-height:1.7">
+      حدِّد الفصل للوصول إلى استقصاءاتك التفاعلية
+    </p>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;width:100%;max-width:720px">
+    <!-- Cards grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;width:100%;max-width:740px">
 
-      <!-- Semester 1 -->
-      <div onclick="pickSemester(1)" style="
-        padding:32px 28px;border-radius:20px;
-        border:2px solid rgba(212,144,26,0.2);
-        background:var(--bg-card,#fff);
-        font-family:Tajawal;cursor:pointer;
-        box-shadow:0 2px 12px rgba(0,0,0,0.06);
-        transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
-        position:relative;overflow:hidden;text-align:right;"
-        onmouseover="this.style.boxShadow='0 8px 28px rgba(212,144,26,0.18)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(212,144,26,0.5)'"
-        onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)';this.style.transform='';this.style.borderColor='rgba(212,144,26,0.2)'">
-        <!-- Top accent stripe -->
-        <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#D4901A,#F5C842);border-radius:20px 20px 0 0"></div>
-        <div style="font-size:44px;margin-bottom:14px;line-height:1">🌅</div>
-        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الأول</div>
-        <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">سبتمبر — يناير · وحدات الفصل الأول لجميع الصفوف</div>
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,144,26,0.08);border:1px solid rgba(212,144,26,0.2);border-radius:8px;padding:5px 10px;font-size:12px;color:#B8780A;font-weight:600">
-            🔒 قريباً
+      <!-- ══ Semester 2 — ACTIVE (shown first / right in RTL) ══ -->
+      <div onclick="pickSemester(2)"
+        id="sem-card-2"
+        style="
+          position:relative;overflow:hidden;
+          background:#fff;
+          border-radius:18px;
+          border:2px solid #1A8FA8;
+          box-shadow:0 4px 24px rgba(26,143,168,0.13);
+          padding:36px 32px 28px;
+          cursor:pointer;
+          font-family:Tajawal;
+          text-align:right;
+          transition:transform .2s,box-shadow .2s;"
+        onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 36px rgba(26,143,168,0.22)'"
+        onmouseout="this.style.transform='';this.style.boxShadow='0 4px 24px rgba(26,143,168,0.13)'">
+
+        <!-- Active pill — top left -->
+        <div style="position:absolute;top:20px;left:20px;background:#1A8FA8;color:#fff;font-family:Tajawal;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.4px;display:flex;align-items:center;gap:5px">
+          <span style="width:6px;height:6px;background:#fff;border-radius:50%;display:inline-block;animation:_semPulse 1.8s infinite"></span>
+          نشط الآن
+        </div>
+
+        <!-- Icon -->
+        <div style="width:60px;height:60px;background:rgba(26,143,168,0.08);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+          <!-- Book-open / semester 2 SVG -->
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1A8FA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+        </div>
+
+        <!-- Text -->
+        <div style="font-size:22px;font-weight:800;color:#1A2330;margin-bottom:6px;line-height:1.2">الفصل الدراسي الثاني</div>
+        <div style="font-size:13px;color:#7A8A98;margin-bottom:6px;font-weight:600;letter-spacing:.2px">فبراير — يونيو</div>
+        <div style="font-size:14px;color:#546E7A;line-height:1.75;margin-bottom:24px">وحدات الفصل الثاني متاحة · الصف التاسع مكتمل بالكامل</div>
+
+        <!-- Stats row -->
+        <div style="display:flex;gap:16px;margin-bottom:26px;padding-bottom:20px;border-bottom:1px solid rgba(0,0,0,0.07)">
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#1A8FA8">٢٠+</div>
+            <div style="font-size:11px;color:#90A4AE;font-weight:600;margin-top:2px">استقصاء متاح</div>
           </div>
-          <div style="font-size:22px;color:rgba(212,144,26,0.35)">←</div>
+          <div style="width:1px;background:rgba(0,0,0,0.08)"></div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#27AE60">٥</div>
+            <div style="font-size:11px;color:#90A4AE;font-weight:600;margin-top:2px">صفوف دراسية</div>
+          </div>
+          <div style="width:1px;background:rgba(0,0,0,0.08)"></div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#D4901A">١٠٠٪</div>
+            <div style="font-size:11px;color:#90A4AE;font-weight:600;margin-top:2px">بالعربية</div>
+          </div>
+        </div>
+
+        <!-- CTA button -->
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="background:#1A8FA8;color:#fff;font-family:Tajawal;font-size:14px;font-weight:700;padding:10px 20px;border-radius:10px;display:inline-flex;align-items:center;gap:8px">
+            ابدأ الآن
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </div>
+          <!-- Lock-open icon -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A8FA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity=".5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+          </svg>
         </div>
       </div>
 
-      <!-- Semester 2 -->
-      <div onclick="pickSemester(2)" style="
-        padding:32px 28px;border-radius:20px;
-        border:2px solid rgba(26,143,168,0.25);
-        background:var(--bg-card,#fff);
-        font-family:Tajawal;cursor:pointer;
-        box-shadow:0 2px 12px rgba(26,143,168,0.08);
-        transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
-        position:relative;overflow:hidden;text-align:right;"
-        onmouseover="this.style.boxShadow='0 8px 28px rgba(26,143,168,0.2)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(26,143,168,0.55)'"
-        onmouseout="this.style.boxShadow='0 2px 12px rgba(26,143,168,0.08)';this.style.transform='';this.style.borderColor='rgba(26,143,168,0.25)'">
-        <!-- Top accent stripe -->
-        <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#1A8FA8,#27AE60);border-radius:20px 20px 0 0"></div>
-        <!-- Active badge -->
-        <div style="position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#27AE60,#1A8FA8);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:Tajawal">● نشط الآن</div>
-        <div style="font-size:44px;margin-bottom:14px;line-height:1">🌿</div>
-        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الثاني</div>
-        <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">فبراير — يونيو · وحدات الفصل الثاني — الصف التاسع متاح بالكامل</div>
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);border-radius:8px;padding:5px 10px;font-size:12px;color:#1E8A50;font-weight:600">
-            🔓 متاح الآن
+      <!-- ══ Semester 1 — COMING SOON ══ -->
+      <div onclick="pickSemester(1)"
+        id="sem-card-1"
+        style="
+          position:relative;overflow:hidden;
+          background:#fff;
+          border-radius:18px;
+          border:2px solid rgba(0,0,0,0.09);
+          box-shadow:0 2px 12px rgba(0,0,0,0.05);
+          padding:36px 32px 28px;
+          cursor:pointer;
+          font-family:Tajawal;
+          text-align:right;
+          opacity:.82;
+          transition:transform .2s,box-shadow .2s,opacity .2s;"
+        onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 28px rgba(0,0,0,0.1)';this.style.opacity='1'"
+        onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.05)';this.style.opacity='.82'">
+
+        <!-- Coming soon pill -->
+        <div style="position:absolute;top:20px;left:20px;background:rgba(0,0,0,0.05);color:#7A8A98;font-family:Tajawal;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.4px;display:flex;align-items:center;gap:5px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          قريباً
+        </div>
+
+        <!-- Icon -->
+        <div style="width:60px;height:60px;background:rgba(0,0,0,0.04);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+          <!-- Calendar / semester 1 SVG -->
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#B0BAC5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+
+        <!-- Text -->
+        <div style="font-size:22px;font-weight:800;color:#A0AAB4;margin-bottom:6px;line-height:1.2">الفصل الدراسي الأول</div>
+        <div style="font-size:13px;color:#B0BAC5;margin-bottom:6px;font-weight:600;letter-spacing:.2px">سبتمبر — يناير</div>
+        <div style="font-size:14px;color:#B0BAC5;line-height:1.75;margin-bottom:24px">وحدات الفصل الأول لجميع الصفوف — سيُتاح قريباً</div>
+
+        <!-- Placeholder stats row -->
+        <div style="display:flex;gap:16px;margin-bottom:26px;padding-bottom:20px;border-bottom:1px solid rgba(0,0,0,0.06)">
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#C8D0D8">—</div>
+            <div style="font-size:11px;color:#C8D0D8;font-weight:600;margin-top:2px">استقصاء</div>
           </div>
-          <div style="font-size:22px;color:rgba(26,143,168,0.5)">←</div>
+          <div style="width:1px;background:rgba(0,0,0,0.06)"></div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#C8D0D8">٥</div>
+            <div style="font-size:11px;color:#C8D0D8;font-weight:600;margin-top:2px">صفوف دراسية</div>
+          </div>
+          <div style="width:1px;background:rgba(0,0,0,0.06)"></div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:800;color:#C8D0D8">١٠٠٪</div>
+            <div style="font-size:11px;color:#C8D0D8;font-weight:600;margin-top:2px">بالعربية</div>
+          </div>
+        </div>
+
+        <!-- Muted CTA -->
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="background:rgba(0,0,0,0.06);color:#A0AAB4;font-family:Tajawal;font-size:14px;font-weight:700;padding:10px 20px;border-radius:10px;display:inline-flex;align-items:center;gap:8px">
+            قريباً
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </div>
+          <!-- Lock icon -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C8D0D8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
         </div>
       </div>
 
+    </div><!-- /cards grid -->
+
+    <!-- Footer note -->
+    <div style="margin-top:40px;display:flex;align-items:center;gap:8px;font-family:Tajawal;font-size:13px;color:var(--text-secondary,#90A4AE)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      سيُتاح محتوى الفصل الأول تدريجياً — تابع التحديثات
     </div>
 
-    <!-- Note -->
-    <div style="margin-top:32px;text-align:center;font-size:13px;color:var(--text-secondary,#7A8A98);max-width:480px;line-height:1.8">
-      💡 سيتم إتاحة محتوى الفصل الأول تدريجياً — تابع التحديثات
-    </div>
+  </div><!-- /body -->
 
-  </div>
+  <!-- Pulse keyframe for active pill dot -->
+  <style>
+    @keyframes _semPulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.45; transform:scale(.7); }
+    }
+    /* Dark mode overrides for semester picker */
+    html.dark-mode #semester-picker { background: var(--bg-landing,#0F1419); }
+    html.dark-mode #sem-card-2 { background:var(--bg-card,#1A2230); border-color:#1A8FA8; }
+    html.dark-mode #sem-card-1 { background:var(--bg-card,#1A2230); border-color:rgba(255,255,255,0.08); }
+    html.dark-mode #sem-card-2 .sem-title { color:#E8EDF2; }
+  </style>
 </div>
 
 
 <!-- ══════════════════════════════════════════════════════════
      GRADE PICKER — Layer 2: choose Grade inside a semester
      ══════════════════════════════════════════════════════════ -->
-<div id="grade-picker" style="display:none;min-height:100vh;flex-direction:column">
+<div id="grade-picker" style="display:none;min-height:100vh;flex-direction:column;background:var(--bg-landing,#F7F3EE)">
 
   <!-- Topbar with breadcrumb -->
-  <div class="topbar" style="justify-content:space-between">
+  <div class="topbar" style="justify-content:space-between;background:var(--bg-topbar,#fff);border-bottom:1px solid var(--border-topbar,rgba(0,0,0,0.08))">
     <div class="topbar-logo" onclick="goToLanding()" style="cursor:pointer">
       <div class="brand-logo">ب</div>
       <h2>بيّن</h2>
     </div>
     <!-- Breadcrumb -->
-    <div id="grade-picker-breadcrumb" style="font-size:13px;color:var(--text-secondary,#7A8A98);display:flex;align-items:center;gap:6px;flex:1;justify-content:center;flex-wrap:wrap">
-      <span onclick="goToLanding()" style="cursor:pointer;transition:color 0.15s" onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">🏠 الرئيسية</span>
-      <span style="opacity:0.4">›</span>
-      <span id="gp-bc-sem" onclick="backToSemesterPicker()" style="cursor:pointer;transition:color 0.15s" onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">الفصل الثاني</span>
-      <span style="opacity:0.4">›</span>
+    <nav id="grade-picker-breadcrumb" style="font-family:Tajawal;font-size:13px;color:var(--text-secondary,#7A8A98);display:flex;align-items:center;gap:7px;flex:1;justify-content:center;flex-wrap:wrap">
+      <span onclick="goToLanding()" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:color .15s"
+        onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        الرئيسية
+      </span>
+      <span style="opacity:.35;font-size:16px">›</span>
+      <span id="gp-bc-sem" onclick="backToSemesterPicker()" style="cursor:pointer;transition:color .15s"
+        onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">الفصل الثاني</span>
+      <span style="opacity:.35;font-size:16px">›</span>
       <span style="font-weight:700;color:var(--teal,#1A8FA8)">اختيار الصف</span>
-    </div>
-    <button class="topbar-home" onclick="backToSemesterPicker()">⬅ الفصول</button>
+    </nav>
+    <button class="topbar-home" onclick="backToSemesterPicker()" style="display:inline-flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      الفصول
+    </button>
   </div>
 
   <!-- Body -->
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:48px 24px 72px">
 
     <!-- Semester context banner -->
     <div id="grade-picker-banner" style="
-      display:flex;align-items:center;gap:12px;
-      background:rgba(26,143,168,0.06);
-      border:1.5px solid rgba(26,143,168,0.15);
-      border-radius:14px;padding:12px 20px;
-      margin-bottom:28px;width:100%;max-width:520px;
-      font-family:Tajawal;direction:rtl">
-      <span id="gp-sem-icon" style="font-size:26px">🌿</span>
+      display:flex;align-items:center;gap:14px;
+      background:#fff;
+      border:1.5px solid rgba(26,143,168,0.2);
+      border-radius:14px;padding:14px 22px;
+      margin-bottom:36px;width:100%;max-width:600px;
+      font-family:Tajawal;direction:rtl;
+      box-shadow:0 2px 10px rgba(26,143,168,0.07)">
+      <!-- Dynamic icon container (SVG injected by JS) -->
+      <div id="gp-sem-icon-wrap" style="width:42px;height:42px;background:rgba(26,143,168,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A8FA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </div>
       <div>
         <div id="gp-sem-label" style="font-size:15px;font-weight:800;color:var(--text-heading,#1A2330)">الفصل الدراسي الثاني</div>
-        <div id="gp-sem-sub" style="font-size:12px;color:var(--text-secondary,#7A8A98);margin-top:2px">فبراير — يونيو · اختَر صفّك</div>
+        <div id="gp-sem-sub" style="font-size:12px;color:var(--text-secondary,#7A8A98);margin-top:3px">فبراير — يونيو · اختَر صفّك للمتابعة</div>
       </div>
+      <!-- right arrow -->
+      <svg style="margin-right:auto;flex-shrink:0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8D5DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     </div>
 
-    <div class="panel-title" style="text-align:center;margin-bottom:6px">اختَر صفّك</div>
-    <div class="panel-sub" style="text-align:center;margin-bottom:28px">للوصول إلى استقصاءاتك التفاعلية</div>
-    <div id="grade-buttons-list" style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px">
+    <!-- Title -->
+    <h2 style="font-family:Tajawal;font-size:clamp(22px,3.5vw,32px);font-weight:800;color:var(--text-heading,#1A2330);text-align:center;margin:0 0 6px">اختَر صفّك الدراسي</h2>
+    <p style="font-family:Tajawal;font-size:15px;color:var(--text-secondary,#7A8A98);text-align:center;margin:0 0 32px">للوصول إلى استقصاءاتك التفاعلية</p>
+
+    <!-- Grade buttons — rendered by JS -->
+    <div id="grade-buttons-list" style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:600px">
       <!-- Populated dynamically by renderGradeButtons() -->
     </div>
+
   </div>
 </div>
 
@@ -6044,6 +6191,15 @@ var _semesterConfig = {
 
 var _gradeLabels = { 5:'الصف الخامس', 6:'الصف السادس', 7:'الصف السابع', 8:'الصف الثامن', 9:'الصف التاسع' };
 
+// ── Grade SVG icons (one per grade) ──
+var _gradeSVG = {
+  5: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  6: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+  7: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  8: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>',
+  9: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+};
+
 // ── Render grade buttons inside grade-picker based on active semester ──
 function renderGradeButtons(sem) {
   var cfg = _semesterConfig[sem];
@@ -6051,35 +6207,61 @@ function renderGradeButtons(sem) {
   var list = document.getElementById('grade-buttons-list');
   if (!list) return;
   list.innerHTML = '';
+
   cfg.grades.forEach(function(g) {
     var avail = g.available;
-    var btn = document.createElement('button');
-    btn.style.cssText = 'width:100%;padding:20px 24px;border-radius:16px;' +
-      'border:2px solid ' + (avail ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.05)') + ';' +
-      'background:var(--bg-card,#fff);font-family:Tajawal;font-size:19px;font-weight:700;' +
-      'color:' + (avail ? 'var(--text-heading,#1A2330)' : '#B0BAC5') + ';' +
-      'cursor:' + (avail ? 'pointer' : 'not-allowed') + ';' +
-      'text-align:right;display:flex;align-items:center;gap:14px;' +
-      'box-shadow:0 2px 8px rgba(0,0,0,0.05);' +
-      'transition:box-shadow 0.2s,transform 0.2s;' +
-      'opacity:' + (avail ? '1' : '0.55') + ';';
-    btn.innerHTML =
-      '<span style="font-size:28px">' + g.icon + '</span>' +
-      '<span>' + g.label + '</span>' +
-      '<span style="margin-right:auto;font-size:13px;color:' + (avail ? '#888' : '#B0BAC5') + ';font-weight:400;display:flex;align-items:center;gap:6px">' +
-        (avail ? '' : '<span style="font-size:10px;background:rgba(0,0,0,0.06);padding:2px 8px;border-radius:10px;">🔒</span>') +
-        g.count +
-      '</span>';
+    var accentColor = avail ? (sem === 1 ? '#D4901A' : '#1A8FA8') : '#B0BAC5';
+    var iconColor   = avail ? accentColor : '#C8D0D8';
+    var iconBg      = avail ? (sem === 1 ? 'rgba(212,144,26,0.09)' : 'rgba(26,143,168,0.09)') : 'rgba(0,0,0,0.04)';
+
+    var row = document.createElement('div');
+    row.style.cssText =
+      'display:flex;align-items:center;gap:16px;' +
+      'background:#fff;' +
+      'border-radius:14px;' +
+      'border:1.5px solid ' + (avail ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.05)') + ';' +
+      'padding:16px 20px;' +
+      'cursor:' + (avail ? 'pointer' : 'default') + ';' +
+      'font-family:Tajawal;direction:rtl;' +
+      'box-shadow:0 1px 6px rgba(0,0,0,0.04);' +
+      'opacity:' + (avail ? '1' : '0.55') + ';' +
+      'transition:transform .18s,box-shadow .18s,border-color .18s;';
+
     if (avail) {
-      btn.onmouseover = function() { this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)'; this.style.transform='translateY(-2px)'; };
-      btn.onmouseout  = function() { this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'; this.style.transform=''; };
-      btn.onclick = function() { pickGrade(g.g); };
+      row.onmouseover = function() {
+        this.style.transform = 'translateX(-3px)';
+        this.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)';
+        this.style.borderColor = accentColor;
+      };
+      row.onmouseout = function() {
+        this.style.transform = '';
+        this.style.boxShadow = '0 1px 6px rgba(0,0,0,0.04)';
+        this.style.borderColor = 'rgba(0,0,0,0.08)';
+      };
+      row.onclick = function() { pickGrade(g.g); };
     } else {
-      btn.onclick = function() {
-        buddySay && buddySay('⏳ هذا الصف قريباً! تابع التحديثات على منصة بيّن.', 4000);
+      row.onclick = function() {
+        if (typeof buddySay === 'function') buddySay('⏳ هذا الصف قريباً! تابع التحديثات على منصة بيّن.', 4000);
       };
     }
-    list.appendChild(btn);
+
+    row.innerHTML =
+      // Icon box
+      '<div style="width:44px;height:44px;background:' + iconBg + ';border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + iconColor + '">' +
+        _gradeSVG[g.g] +
+      '</div>' +
+      // Text
+      '<div style="flex:1">' +
+        '<div style="font-size:17px;font-weight:800;color:' + (avail ? 'var(--text-heading,#1A2330)' : '#B0BAC5') + ';line-height:1.2">' + g.label + '</div>' +
+        '<div style="font-size:12px;color:#90A4AE;margin-top:3px;font-weight:500">' + g.count + '</div>' +
+      '</div>' +
+      // Right side: badge or arrow
+      (avail
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity=".6"><polyline points="15 18 9 12 15 6"/></svg>'
+        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8D0D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+      );
+
+    list.appendChild(row);
   });
 }
 
@@ -6087,21 +6269,26 @@ function renderGradeButtons(sem) {
 function _updateGradePickerBanner(sem) {
   var cfg = _semesterConfig[sem];
   if (!cfg) return;
-  var icon = document.getElementById('gp-sem-icon');
-  var label = document.getElementById('gp-sem-label');
-  var sub = document.getElementById('gp-sem-sub');
-  var bc = document.getElementById('gp-bc-sem');
+  var label  = document.getElementById('gp-sem-label');
+  var sub    = document.getElementById('gp-sem-sub');
+  var bc     = document.getElementById('gp-bc-sem');
   var banner = document.getElementById('grade-picker-banner');
-  if (icon)   icon.textContent   = cfg.icon;
+  var iconWrap = document.getElementById('gp-sem-icon-wrap');
   if (label)  label.textContent  = cfg.label;
-  if (sub)    sub.textContent    = cfg.sub + ' · اختَر صفّك';
+  if (sub)    sub.textContent    = cfg.sub + ' · اختَر صفّك للمتابعة';
   if (bc)     bc.textContent     = cfg.label;
-  if (banner) {
-    var c = sem === 1 ? 'rgba(212,144,26,' : 'rgba(26,143,168,';
-    banner.style.background = c + '0.06)';
-    banner.style.borderColor = c + '0.18)';
+  // Swap icon and accent colour in banner
+  if (iconWrap) {
+    var c = sem === 1 ? '#D4901A' : '#1A8FA8';
+    var bg = sem === 1 ? 'rgba(212,144,26,0.09)' : 'rgba(26,143,168,0.09)';
+    iconWrap.style.background = bg;
+    var svgEl = iconWrap.querySelector('svg');
+    if (svgEl) svgEl.setAttribute('stroke', c);
   }
-  // Color the accent stripe of the semester-picker cards
+  if (banner) {
+    var bc2 = sem === 1 ? 'rgba(212,144,26,0.2)' : 'rgba(26,143,168,0.2)';
+    banner.style.borderColor = bc2;
+  }
   renderGradeButtons(sem);
 }
 
