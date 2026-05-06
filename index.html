@@ -64178,7 +64178,7 @@ async function _aiCall(userMsg) {
   var messages = _ai.history.slice(-10).concat([{role:'user', content: userMsg}]);
   
   try {
-    var GEMINI_KEY = 'AIzaSyAcf9P73eA0ViCeTmgbqVPHbLt7Dzy9xAE';
+    var GEMINI_KEY = 'AIzaSyCbj6CShSyX1qqBz_Q_fXVDcNRX7-0sqm4';
     var geminiMsgs = messages.map(function(m){
       return { role: m.role==='assistant'?'model':'user', parts:[{text:m.content}] };
     });
