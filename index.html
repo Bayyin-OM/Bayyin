@@ -64178,7 +64178,7 @@ async function _aiCall(userMsg) {
   var messages = _ai.history.slice(-10).concat([{role:'user', content: userMsg}]);
   
   try {
-    var GEMINI_KEY = 'AIzaSyCbj6CShSyX1qqBz_Q_fXVDcNRX7-0sqm4';
+    var GEMINI_KEY = 'AIzaSyCsAZGxt1uJ3zELrAg_4cWPHxlipuBsQIU';
     var geminiMsgs = messages
       .filter(function(m){ return m.content && m.content.trim(); })
       .map(function(m){
@@ -64186,7 +64186,7 @@ async function _aiCall(userMsg) {
       });
     if(!geminiMsgs.length) geminiMsgs = [{role:'user', parts:[{text:userMsg}]}];
     var response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
       {
         method: 'POST',
         headers: {'Content-Type':'application/json', 'x-goog-api-key': GEMINI_KEY},
