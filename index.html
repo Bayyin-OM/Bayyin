@@ -2541,6 +2541,123 @@ html.dark-mode .sr-grade-badge { background: rgba(26,143,168,0.14); color: #3DC0
   #search-box { border-radius: 14px; max-height: 80vh; }
 }
 
+
+/* ===== AI ASSISTANT ===== */
+#ai-fab {
+  position: fixed; bottom: 24px; left: 24px; z-index: 8000;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #6B4E9A, #9B6FD4);
+  border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(107,78,154,0.45);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; transition: all 0.2s; color: #fff;
+}
+#ai-fab:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(107,78,154,0.55); }
+#ai-fab.active { background: linear-gradient(135deg, #4A3470, #7A4FB0); }
+
+#ai-panel {
+  position: fixed; bottom: 88px; left: 24px; z-index: 8000;
+  width: 340px; max-height: 520px;
+  background: var(--bg-card, #fff);
+  border-radius: 18px; border: 1px solid var(--border-color, rgba(0,0,0,0.09));
+  box-shadow: 0 16px 48px rgba(0,0,0,0.18);
+  display: none; flex-direction: column; direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  animation: aiPanelIn 0.22s ease;
+  overflow: hidden;
+}
+@keyframes aiPanelIn { from{opacity:0;transform:translateY(12px) scale(0.97)} to{opacity:1;transform:none} }
+#ai-panel.show { display: flex; }
+
+#ai-header {
+  padding: 13px 16px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border-color, rgba(0,0,0,0.07));
+  background: linear-gradient(135deg, rgba(107,78,154,0.07), rgba(107,78,154,0.03));
+  flex-shrink: 0;
+}
+#ai-avatar { font-size: 22px; }
+#ai-header-text { flex: 1; }
+#ai-header-name { font-size: 14px; font-weight: 800; color: #6B4E9A; }
+html.dark-mode #ai-header-name { color: #B899E0; }
+#ai-header-sub { font-size: 11px; color: var(--text-secondary,#7A8A98); }
+#ai-context-pill {
+  font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+  background: rgba(107,78,154,0.1); color: #6B4E9A;
+  border: 1px solid rgba(107,78,154,0.2); max-width: 90px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+html.dark-mode #ai-context-pill { background: rgba(107,78,154,0.2); color: #B899E0; border-color: rgba(107,78,154,0.35); }
+
+#ai-messages {
+  flex: 1; overflow-y: auto; padding: 14px 14px 8px;
+  display: flex; flex-direction: column; gap: 10px;
+  scroll-behavior: smooth;
+}
+
+.ai-msg { display: flex; gap: 8px; align-items: flex-end; }
+.ai-msg.user { flex-direction: row-reverse; }
+.ai-bubble {
+  max-width: 82%; padding: 9px 13px; border-radius: 14px;
+  font-size: 13.5px; line-height: 1.65; font-weight: 500;
+}
+.ai-msg.bot .ai-bubble {
+  background: var(--bg-card2,#F9F6F2);
+  border: 1px solid var(--border-color,rgba(0,0,0,0.07));
+  color: var(--text-primary,#2C3A4A);
+  border-bottom-right-radius: 4px;
+}
+.ai-msg.user .ai-bubble {
+  background: linear-gradient(135deg, #6B4E9A, #8B6FC4);
+  color: #fff; border-bottom-left-radius: 4px;
+}
+html.dark-mode .ai-msg.bot .ai-bubble { background: var(--bg-ctrl-btn,#1E2A38); border-color: rgba(255,255,255,0.07); }
+.ai-msg-icon { font-size: 18px; flex-shrink: 0; margin-bottom: 2px; }
+
+.ai-typing { display: flex; gap: 4px; align-items: center; padding: 10px 13px; }
+.ai-typing span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-secondary,#7A8A98); opacity: 0.5;
+  animation: aiDot 1.2s infinite;
+}
+.ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+.ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes aiDot { 0%,80%,100%{opacity:0.3;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+#ai-suggestions { padding: 6px 12px 4px; display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0; }
+.ai-sug {
+  font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 20px;
+  background: rgba(107,78,154,0.07); border: 1px solid rgba(107,78,154,0.18);
+  color: #6B4E9A; cursor: pointer; transition: all 0.15s; font-family: 'Tajawal', sans-serif;
+}
+.ai-sug:hover { background: rgba(107,78,154,0.14); }
+html.dark-mode .ai-sug { background: rgba(107,78,154,0.15); color: #B899E0; border-color: rgba(107,78,154,0.3); }
+
+#ai-input-wrap {
+  display: flex; gap: 8px; padding: 10px 12px;
+  border-top: 1px solid var(--border-color,rgba(0,0,0,0.07)); flex-shrink: 0;
+}
+#ai-input {
+  flex: 1; border: 1.5px solid var(--border-color,rgba(0,0,0,0.1));
+  border-radius: 10px; padding: 8px 12px; outline: none;
+  font-family: 'Tajawal', sans-serif; font-size: 14px;
+  background: var(--bg-page,#F4F1EC); color: var(--text-primary,#2C3A4A);
+  direction: rtl; resize: none; max-height: 80px; overflow-y: auto;
+  transition: border-color 0.15s;
+}
+#ai-input:focus { border-color: rgba(107,78,154,0.4); }
+#ai-send {
+  width: 38px; height: 38px; border-radius: 10px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #6B4E9A, #8B6FC4); color: #fff;
+  font-size: 16px; transition: all 0.15s; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+#ai-send:hover { transform: scale(1.08); }
+#ai-send:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+@media (max-width: 480px) {
+  #ai-panel { width: calc(100vw - 32px); left: 16px; bottom: 80px; }
+  #ai-fab { bottom: 16px; left: 16px; }
+}
+
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -63898,6 +64015,223 @@ document.addEventListener('keydown',function(e){
   }
 });
 // ===== END QUICK SEARCH =====
+
+</script>
+
+
+<!-- ===== AI ASSISTANT ===== -->
+<button id="ai-fab" onclick="aiToggle()" title="المساعد العلمي الذكي">🤖</button>
+
+<div id="ai-panel">
+  <div id="ai-header">
+    <div id="ai-avatar">🧪</div>
+    <div id="ai-header-text">
+      <div id="ai-header-name">بيّن AI</div>
+      <div id="ai-header-sub">مساعدك العلمي الذكي</div>
+    </div>
+    <div id="ai-context-pill">عام</div>
+  </div>
+  <div id="ai-messages"></div>
+  <div id="ai-suggestions"></div>
+  <div id="ai-input-wrap">
+    <button id="ai-send" onclick="aiSend()" title="إرسال">↑</button>
+    <textarea id="ai-input" placeholder="اسأل عن أي مفهوم علمي..." rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"
+      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+  </div>
+</div>
+
+<script>
+
+// ===== AI ASSISTANT ENGINE =====
+var _ai = { open: false, history: [], loading: false };
+
+var _aiSuggestions = {
+  default: ['ما الفرق بين الضوء والصوت؟','ما أهمية الخلية في الكائنات؟','كيف تعمل الكهرباء؟'],
+  g5: ['لماذا نرى ألوان قوس قزح؟','كيف تنعكس الأشعة على المرايا؟','لماذا يختلف طول الظل؟'],
+  g6: ['ما أنواع القوى في الطبيعة؟','كيف يعمل الدائرة الكهربائية؟','ما الفرق بين الناقل والعازل؟'],
+  g7: ['ما الفرق بين الفلزات واللافلزات؟','كيف تعمل سلاسل الغذاء؟','ما مفهوم التكيّف عند الحيوانات؟'],
+  g8: ['كيف يعمل الجهاز الدوري؟','ما أهمية التنفس الخلوي؟','ما دور الجينات في الوراثة؟'],
+  g9bio: ['كيف يؤثر الأوكسين على نمو النباتات؟','ما الفرق بين الانتحاء والهرمون؟','كيف تتكيف النباتات مع الضوء؟'],
+  g9chem: ['ما الفرق بين الحمض والقاعدة؟','كيف تتكون الأملاح؟','ما خاصية pH ؟'],
+  g9phys: ['ما قانون أوم؟','كيف تعمل العدسات؟','ما مبدأ انعكاس الضوء الكلي؟']
+};
+
+function _aiGetContext() {
+  var sim = typeof currentSim !== 'undefined' ? currentSim : null;
+  var grade = window._activeGrade || 7;
+  var title = '';
+  var titleEl = document.getElementById('simPanelTitle');
+  if(titleEl) title = titleEl.textContent || '';
+  return { sim: sim, grade: grade, title: title };
+}
+
+function _aiGetSuggestions() {
+  var ctx = _aiGetContext();
+  var g = ctx.grade;
+  var sim = ctx.sim || '';
+  if(sim.startsWith('g9bio') || sim.includes('plant') || sim.includes('auxin')) return _aiSuggestions.g9bio;
+  if(sim.startsWith('g9') && (sim.includes('acid')||sim.includes('salt')||sim.includes('ph')||sim.includes('ion'))) return _aiSuggestions.g9chem;
+  if(sim.startsWith('g9')) return _aiSuggestions.g9phys;
+  if(g===5) return _aiSuggestions.g5;
+  if(g===6) return _aiSuggestions.g6;
+  if(g===7) return _aiSuggestions.g7;
+  if(g===8) return _aiSuggestions.g8;
+  return _aiSuggestions.default;
+}
+
+function _aiSystemPrompt() {
+  var ctx = _aiGetContext();
+  var gradeNames = {5:'الخامس',6:'السادس',7:'السابع',8:'الثامن',9:'التاسع'};
+  var base = 'أنت مساعد علمي ذكي داخل منصة بيّن التعليمية التفاعلية للعلوم، مخصصة لطلاب الصف ' 
+    + (gradeNames[ctx.grade]||'السابع') + ' في عُمان وفق المنهج العُماني/كامبريدج. '
+    + 'أجب بالعربية الفصحى البسيطة المناسبة للطالب. '
+    + 'اجعل إجاباتك موجزة (٣-٥ جمل عادةً)، واستخدم أمثلة من الحياة اليومية. '
+    + 'لا تخرج عن نطاق العلوم والمنهج. ';
+  if(ctx.sim && ctx.title) {
+    base += 'الطالب يعمل الآن على استقصاء: «' + ctx.title + '» (رمز: ' + ctx.sim + '). '
+      + 'ركّز إجاباتك على المفاهيم المرتبطة بهذا الاستقصاء وربطها بالتجربة أمامه. ';
+  }
+  return base;
+}
+
+function aiToggle() {
+  _ai.open = !_ai.open;
+  var panel = document.getElementById('ai-panel');
+  var fab = document.getElementById('ai-fab');
+  if(_ai.open) {
+    panel.classList.add('show');
+    fab.classList.add('active');
+    fab.textContent = '✕';
+    _aiUpdateContext();
+    if(_ai.history.length === 0) _aiWelcome();
+    document.getElementById('ai-input').focus();
+  } else {
+    panel.classList.remove('show');
+    fab.classList.remove('active');
+    fab.textContent = '🤖';
+  }
+}
+
+function _aiUpdateContext() {
+  var ctx = _aiGetContext();
+  var pill = document.getElementById('ai-context-pill');
+  var titleEl = document.getElementById('simPanelTitle');
+  var title = titleEl ? titleEl.textContent : '';
+  pill.textContent = title ? title.slice(0,14) + (title.length>14?'…':'') : 'عام';
+  pill.title = title || 'وضع عام';
+  // Update suggestions
+  var sugs = _aiGetSuggestions();
+  var sugBox = document.getElementById('ai-suggestions');
+  sugBox.innerHTML = '';
+  sugs.slice(0,3).forEach(function(s){
+    var btn = document.createElement('button');
+    btn.className = 'ai-sug';
+    btn.textContent = s;
+    btn.onclick = function(){ aiSendText(s); };
+    sugBox.appendChild(btn);
+  });
+}
+
+function _aiWelcome() {
+  var ctx = _aiGetContext();
+  var msg;
+  if(ctx.sim && ctx.title) {
+    msg = 'مرحباً! 👋 أنا مساعدك في استقصاء «' + ctx.title + '». اسألني عن أي مفهوم أو ظاهرة ترى فيه!';
+  } else {
+    msg = 'مرحباً! 👋 أنا بيّن AI، مساعدك العلمي. افتح أي استقصاء وسأساعدك على فهمه، أو اسألني عن أي مفهوم علمي!';
+  }
+  _aiAddMsg('bot', msg);
+}
+
+function _aiAddMsg(role, text) {
+  var msgs = document.getElementById('ai-messages');
+  var div = document.createElement('div');
+  div.className = 'ai-msg ' + (role==='user'?'user':'bot');
+  var icon = role==='user' ? '👤' : '🧪';
+  div.innerHTML = '<div class="ai-msg-icon">'+icon+'</div><div class="ai-bubble">'+text.replace(/\n/g,'<br>')+'</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  _ai.history.push({role: role==='user'?'user':'assistant', content: text});
+  if(_ai.history.length > 20) _ai.history = _ai.history.slice(-20);
+}
+
+function _aiShowTyping() {
+  var msgs = document.getElementById('ai-messages');
+  var div = document.createElement('div');
+  div.className = 'ai-msg bot'; div.id = 'ai-typing-indicator';
+  div.innerHTML = '<div class="ai-msg-icon">🧪</div><div class="ai-bubble"><div class="ai-typing"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function _aiRemoveTyping() {
+  var t = document.getElementById('ai-typing-indicator');
+  if(t) t.remove();
+}
+
+async function _aiCall(userMsg) {
+  _ai.loading = true;
+  document.getElementById('ai-send').disabled = true;
+  _aiShowTyping();
+  
+  var messages = _ai.history.slice(-10).concat([{role:'user', content: userMsg}]);
+  
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: _aiSystemPrompt(),
+        messages: messages
+      })
+    });
+    var data = await response.json();
+    _aiRemoveTyping();
+    var reply = data.content && data.content[0] ? data.content[0].text : 'عذراً، حدث خطأ. حاول مجدداً.';
+    _aiAddMsg('bot', reply);
+  } catch(e) {
+    _aiRemoveTyping();
+    _aiAddMsg('bot', 'عذراً، لا يمكن الاتصال بالمساعد الآن. تحقق من الإنترنت وحاول مجدداً.');
+  }
+  
+  _ai.loading = false;
+  document.getElementById('ai-send').disabled = false;
+  document.getElementById('ai-input').focus();
+}
+
+function aiSend() {
+  if(_ai.loading) return;
+  var input = document.getElementById('ai-input');
+  var text = input.value.trim();
+  if(!text) return;
+  input.value = ''; input.style.height = 'auto';
+  _aiAddMsg('user', text);
+  _aiCall(text);
+}
+
+function aiSendText(text) {
+  if(_ai.loading) return;
+  _aiAddMsg('user', text);
+  _aiCall(text);
+}
+
+// Update AI context when sim opens
+var _origOpenSim = typeof openSim === 'function' ? openSim : null;
+document.addEventListener('DOMContentLoaded', function(){
+  var origOpen = window.openSim;
+  if(origOpen) {
+    window.openSim = function(type) {
+      origOpen(type);
+      setTimeout(function(){
+        if(_ai.open) _aiUpdateContext();
+      }, 300);
+    };
+  }
+});
+// ===== END AI ASSISTANT =====
 
 </script>
 </body>
