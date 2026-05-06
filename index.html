@@ -64179,9 +64179,12 @@ async function _aiCall(userMsg) {
   
   try {
     var GEMINI_KEY = 'AIzaSyCbj6CShSyX1qqBz_Q_fXVDcNRX7-0sqm4';
-    var geminiMsgs = messages.map(function(m){
-      return { role: m.role==='assistant'?'model':'user', parts:[{text:m.content}] };
-    });
+    var geminiMsgs = messages
+      .filter(function(m){ return m.content && m.content.trim(); })
+      .map(function(m){
+        return { role: m.role==='assistant'?'model':'user', parts:[{text:m.content}] };
+      });
+    if(!geminiMsgs.length) geminiMsgs = [{role:'user', parts:[{text:userMsg}]}];
     var response = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
       {
