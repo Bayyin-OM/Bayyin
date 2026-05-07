@@ -64084,11 +64084,13 @@ function _aiGetSuggestions() {
 function _aiSystemPrompt() {
   var ctx = _aiGetContext();
   var gradeNames = {5:'الخامس',6:'السادس',7:'السابع',8:'الثامن',9:'التاسع'};
-  var base = 'أنت مساعد علمي ذكي داخل منصة بيّن التعليمية التفاعلية للعلوم، مخصصة لطلاب الصف ' 
-    + (gradeNames[ctx.grade]||'السابع') + ' في عُمان وفق المنهج العُماني/كامبريدج. '
-    + 'أجب بالعربية الفصحى البسيطة المناسبة للطالب. '
-    + 'اجعل إجاباتك موجزة (٣-٥ جمل عادةً)، واستخدم أمثلة من الحياة اليومية. '
-    + 'لا تخرج عن نطاق العلوم والمنهج. ';
+  var base = 'أنت مساعد علمي متخصص في منصة بيّن التعليمية لطلاب الصف '
+    + (gradeNames[ctx.grade]||'السابع') + ' في عُمان. '
+    + 'قواعد صارمة: (١) أجب بالعربية الفصحى فقط بدون أي كلام ترحيب أو مقدمات. '
+    + '(٢) اجعل إجابتك مباشرة وموجزة (٣-٤ جمل). '
+    + '(٣) استخدم أمثلة بسيطة من الحياة اليومية. '
+    + '(٤) لا تبدأ بـ "بالطبع" أو "أهلاً" أو أي تحية. ابدأ مباشرة بالإجابة. '
+    + '(٥) لا تخرج عن نطاق العلوم. ';
   if(ctx.sim && ctx.title) {
     base += 'الطالب يعمل الآن على استقصاء: «' + ctx.title + '» (رمز: ' + ctx.sim + '). '
       + 'ركّز إجاباتك على المفاهيم المرتبطة بهذا الاستقصاء وربطها بالتجربة أمامه. ';
@@ -64192,7 +64194,7 @@ async function _aiCall(userMsg) {
         'X-Title': 'Bayyin AI'
       },
       body: JSON.stringify({
-        model: 'openrouter/auto',
+        model: 'qwen/qwen3-8b:free',
         messages: orMsgs,
         max_tokens: 800,
         stream: true
@@ -64205,9 +64207,15 @@ async function _aiCall(userMsg) {
     var msgs = document.getElementById('ai-messages');
     var bubble = document.createElement('div');
     bubble.className = 'ai-msg bot';
-    bubble.innerHTML = '<div class="ai-msg-icon">\U0001F9EA</div><div class="ai-bubble" id="ai-stream-bubble"></div>';
+    var iconEl = document.createElement('div');
+    iconEl.className = 'ai-msg-icon';
+    iconEl.textContent = '🧪';
+    var streamEl = document.createElement('div');
+    streamEl.className = 'ai-bubble';
+    streamEl.id = 'ai-stream-bubble';
+    bubble.appendChild(iconEl);
+    bubble.appendChild(streamEl);
     msgs.appendChild(bubble);
-    var streamEl = document.getElementById('ai-stream-bubble');
 
     var fullText = '';
     var reader = response.body.getReader();
