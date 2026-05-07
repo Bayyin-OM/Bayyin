@@ -64247,7 +64247,8 @@ async function _aiCall(userMsg) {
   _ai.loading = false;
   document.getElementById('ai-send').disabled = false;
   document.getElementById('ai-input').focus();
-}nction aiSend() {
+}
+function aiSend() {
   if(_ai.loading) return;
   var input = document.getElementById('ai-input');
   var text = input.value.trim();
