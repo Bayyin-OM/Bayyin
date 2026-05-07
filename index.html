@@ -2660,6 +2660,7 @@ html.dark-mode .ai-sug { background: rgba(107,78,154,0.15); color: #B899E0; bord
 
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
+<script src="config.js"></script>
 </head>
 <body>
 
@@ -64178,7 +64179,7 @@ async function _aiCall(userMsg) {
   var messages = _ai.history.slice(-10).concat([{role:'user', content: userMsg}]);
   
   try {
-    var OR_KEY = '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';
+    var OR_KEY = (window.BAYYIN_CONFIG && window.BAYYIN_CONFIG.orKey) || '';
     var orMsgs = [{role:'system', content: _aiSystemPrompt()}].concat(
       messages.filter(function(m){ return m.content && m.content.trim(); })
     );
@@ -64191,7 +64192,7 @@ async function _aiCall(userMsg) {
         'X-Title': 'Bayyin AI'
       },
       body: JSON.stringify({
-        model: 'mistralai/mistral-small-3.1-24b-instruct:free',
+        model: 'openrouter/auto',
         messages: orMsgs,
         max_tokens: 800
       })
