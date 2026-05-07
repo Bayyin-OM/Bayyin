@@ -64191,7 +64191,7 @@ async function _aiCall(userMsg) {
         'X-Title': 'Bayyin AI'
       },
       body: JSON.stringify({
-        model: 'openrouter/auto',
+        model: 'mistralai/mistral-small-3.1-24b-instruct:free',
         messages: orMsgs,
         max_tokens: 800
       })
@@ -64218,12 +64218,14 @@ function aiSend() {
   var text = input.value.trim();
   if(!text) return;
   input.value = ''; input.style.height = 'auto';
+  document.getElementById('ai-suggestions').style.display = 'none';
   _aiAddMsg('user', text);
   _aiCall(text);
 }
 
 function aiSendText(text) {
   if(_ai.loading) return;
+  document.getElementById('ai-suggestions').style.display = 'none';
   _aiAddMsg('user', text);
   _aiCall(text);
 }
