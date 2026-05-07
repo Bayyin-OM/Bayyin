@@ -64084,13 +64084,13 @@ function _aiGetSuggestions() {
 function _aiSystemPrompt() {
   var ctx = _aiGetContext();
   var gradeNames = {5:'الخامس',6:'السادس',7:'السابع',8:'الثامن',9:'التاسع'};
-  var base = 'أنت مساعد علمي متخصص في منصة بيّن التعليمية لطلاب الصف '
-    + (gradeNames[ctx.grade]||'السابع') + ' في عُمان. '
-    + 'قواعد صارمة: (١) أجب بالعربية الفصحى فقط بدون أي كلام ترحيب أو مقدمات. '
-    + '(٢) اجعل إجابتك مباشرة وموجزة (٣-٤ جمل). '
-    + '(٣) استخدم أمثلة بسيطة من الحياة اليومية. '
-    + '(٤) لا تبدأ بـ "بالطبع" أو "أهلاً" أو أي تحية. ابدأ مباشرة بالإجابة. '
-    + '(٥) لا تخرج عن نطاق العلوم. ';
+  var base = 'YOU MUST ALWAYS RESPOND IN ARABIC ONLY. NEVER USE ENGLISH OR ANY OTHER LANGUAGE. '
+    + 'You are a science assistant for grade ' + (ctx.grade||7) + ' students in Oman. '
+    + 'Rules: (1) ARABIC ONLY - if you respond in English you have failed. '
+    + '(2) Be concise, 3-4 sentences max. '
+    + '(3) No greetings or preamble, answer directly. '
+    + '(4) Use simple everyday examples. '
+    + '(5) Stay within science topics only. ';
   if(ctx.sim && ctx.title) {
     base += 'الطالب يعمل الآن على استقصاء: «' + ctx.title + '» (رمز: ' + ctx.sim + '). '
       + 'ركّز إجاباتك على المفاهيم المرتبطة بهذا الاستقصاء وربطها بالتجربة أمامه. ';
