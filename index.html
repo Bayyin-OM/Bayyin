@@ -64194,26 +64194,60 @@ async function _aiCall(userMsg) {
       body: JSON.stringify({
         model: 'openrouter/auto',
         messages: orMsgs,
-        max_tokens: 800
+        max_tokens: 800,
+        stream: true
       })
     });
-    var data = await response.json();
+
     _aiRemoveTyping();
-    var reply = (data.choices&&data.choices[0])
-      ? data.choices[0].message.content
-      : 'خطأ: ' + JSON.stringify(data).slice(0,200);
-    _aiAddMsg('bot', reply);
+
+    // Streaming bubble
+    var msgs = document.getElementById('ai-messages');
+    var bubble = document.createElement('div');
+    bubble.className = 'ai-msg bot';
+    bubble.innerHTML = '<div class="ai-msg-icon">\U0001F9EA</div><div class="ai-bubble" id="ai-stream-bubble"></div>';
+    msgs.appendChild(bubble);
+    var streamEl = document.getElementById('ai-stream-bubble');
+
+    var fullText = '';
+    var reader = response.body.getReader();
+    var decoder = new TextDecoder();
+
+    while(true) {
+      var res = await reader.read();
+      if(res.done) break;
+      var chunk = decoder.decode(res.value, {stream: true});
+      var lines = chunk.split('\n');
+      for(var li = 0; li < lines.length; li++) {
+        var line = lines[li].trim();
+        if(!line || line === 'data: [DONE]') continue;
+        if(line.startsWith('data: ')) {
+          try {
+            var json = JSON.parse(line.slice(6));
+            var delta = json.choices && json.choices[0] && json.choices[0].delta && json.choices[0].delta.content;
+            if(delta) {
+              fullText += delta;
+              streamEl.innerHTML = fullText.replace(/\n/g, '<br>');
+              msgs.scrollTop = msgs.scrollHeight;
+            }
+          } catch(parseErr) {}
+        }
+      }
+    }
+
+    _ai.history.push({role: 'assistant', content: fullText});
+    if(_ai.history.length > 20) _ai.history = _ai.history.slice(-20);
+    streamEl.id = '';
+
   } catch(e) {
     _aiRemoveTyping();
-    _aiAddMsg('bot', 'خطأ: ' + (e && e.message ? e.message : JSON.stringify(e)));
+    _aiAddMsg('bot', '\u062e\u0637\u0623: ' + (e && e.message ? e.message : String(e)));
   }
   
   _ai.loading = false;
   document.getElementById('ai-send').disabled = false;
   document.getElementById('ai-input').focus();
-}
-
-function aiSend() {
+}nction aiSend() {
   if(_ai.loading) return;
   var input = document.getElementById('ai-input');
   var text = input.value.trim();
