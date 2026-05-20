@@ -1,0 +1,3507 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>بيّن | منصة العلوم التفاعلية</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<!-- بيّن — Styles -->
+<link rel="stylesheet" href="/css/styles.css">
+<!-- Dark mode must initialize before body renders to prevent flash -->
+<script src="/js/core/dark-mode-init.js"></script>
+<!-- Supabase credentials (replace with your project values) -->
+<script src="/config.js"></script>
+</head>
+<body>
+<body>
+
+<!-- ═══ Auth Overlay ═══ -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">🔬</div>
+    <h2 class="auth-title">منصة بيّن</h2>
+
+    <!-- ── عداد الزوار في بطاقة الدخول ── -->
+    <div id="auth-visitor-bar" style="
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      background: linear-gradient(135deg, rgba(107,78,154,0.10), rgba(26,143,168,0.08));
+      border: 1.5px solid rgba(107,78,154,0.22);
+      border-radius: 14px; padding: 10px 18px; margin: 0 0 18px;
+      font-family:'Tajawal',sans-serif; direction:rtl;
+    ">
+      <span style="font-size:22px; line-height:1;">👥</span>
+      <div style="text-align:right; line-height:1.35;">
+        <div style="font-size:11px; color:#7A8A98; font-weight:500; margin-bottom:2px;">انضم إليهم اليوم</div>
+        <div style="display:flex; align-items:baseline; gap:5px;">
+          <span id="auth-visit-count" style="font-size:26px; font-weight:900; color:#6B4E9A; letter-spacing:-0.5px; line-height:1;">٠</span>
+          <span style="font-size:13px; color:#6B4E9A; font-weight:700;">زيارة على المنصة</span>
+        </div>
+      </div>
+      <span style="
+        background: linear-gradient(135deg,#6B4E9A,#1A8FA8);
+        color:white; font-size:10px; font-weight:800;
+        padding:3px 8px; border-radius:20px; white-space:nowrap; margin-right:auto;
+      ">🔥 نشط</span>
+    </div>
+
+    <p class="auth-sub">سجّل دخولك للوصول إلى المختبرات التفاعلية</p>
+
+    <input type="email" id="auth-email" class="auth-input"
+           placeholder="البريد الإلكتروني" autocomplete="email">
+    <input type="password" id="auth-pass" class="auth-input"
+           placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="current-password">
+
+    <div id="auth-status"></div>
+
+    <button class="auth-btn" id="auth-submit-btn" onclick="handleLogin()">
+      تسجيل دخول / إنشاء حساب
+    </button>
+
+    <!-- يظهر فقط إذا ما عنده اشتراك نشط -->
+    <div id="payment-section">
+      <div style="border-top:1.5px solid #F0F0F0;margin-top:16px;padding-top:18px;">
+        <div style="background:linear-gradient(135deg,rgba(192,57,43,0.07),rgba(212,144,26,0.05));border:1.5px solid rgba(192,57,43,0.18);border-radius:14px;padding:16px 18px;margin-bottom:14px;text-align:right">
+          <div style="font-size:15px;font-weight:800;color:#C0392B;margin-bottom:6px">⚠️ لا يوجد اشتراك نشط</div>
+          <div style="font-size:12px;color:#7A8A98;line-height:1.7">
+            للوصول إلى جميع الاستقصاءات التفاعلية<br>يرجى الاشتراك أولاً
+          </div>
+        </div>
+        <a id="pay-link"
+          href="https://bayyin.lemonsqueezy.com/checkout/buy/28dfca90-bacc-4361-bd3e-536fd6c47389"
+          target="_blank"
+          rel="noopener"
+          style="display:block;width:100%;padding:14px;border:none;border-radius:12px;
+            background:linear-gradient(135deg,#27AE60,#1e8c4c);color:#fff;
+            font-family:'Tajawal',sans-serif;font-size:16px;font-weight:800;
+            cursor:pointer;text-align:center;text-decoration:none;
+            box-shadow:0 4px 16px rgba(39,174,96,0.35);
+            transition:transform 0.15s,box-shadow 0.15s;box-sizing:border-box;"
+          onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 22px rgba(39,174,96,0.45)'"
+          onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(39,174,96,0.35)'">
+          💳 اشترك الآن
+        </a>
+        <p class="pay-note" style="font-size:12px;color:#888;text-align:center;margin:10px 0 0">
+          ✅ يُفعَّل حسابك تلقائياً بعد الدفع خلال ثوانٍ
+        </p>
+
+        <!-- زر إعادة التحقق بعد الدفع -->
+        <button onclick="_checkSubscription()"
+          style="display:block;width:100%;padding:11px;border:2px solid #1A8FA8;border-radius:12px;
+            background:transparent;color:#1A8FA8;
+            font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;
+            cursor:pointer;text-align:center;margin-top:10px;
+            transition:background 0.15s,color 0.15s;box-sizing:border-box;"
+          onmouseover="this.style.background='rgba(26,143,168,0.08)'"
+          onmouseout="this.style.background='transparent'">
+          🔄 دفعت بالفعل — أعد التحقق
+        </button>
+
+        <!-- زر تسجيل الخروج لتغيير الحساب -->
+        <button onclick="(async()=>{ if(_db) await _db.auth.signOut(); location.reload(); })()"
+          style="display:block;width:100%;padding:9px;border:none;border-radius:10px;
+            background:transparent;color:#AAA;
+            font-family:'Tajawal',sans-serif;font-size:12px;font-weight:600;
+            cursor:pointer;text-align:center;margin-top:6px;
+            transition:color 0.15s;box-sizing:border-box;"
+          onmouseover="this.style.color='#C0392B'"
+          onmouseout="this.style.color='#AAA'">
+          ↩ تسجيل الخروج وتغيير الحساب
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ===== LANDING ===== -->
+<div id="landing">
+  <div class="land-bg" id="px-bg"></div>
+  <div class="stars"></div>
+
+  <!-- Oman flag stripe at top -->
+  <div class="oman-flag-stripe">
+    <div class="flag-red"></div>
+    <div class="flag-white"></div>
+    <div class="flag-green"></div>
+  </div>
+
+  <nav class="land-nav">
+    <div class="brand">
+      <div class="brand-logo">ب</div>
+      <div>
+        <div class="brand-name">بيّن</div>
+        <div class="brand-sub">منصة العلوم التفاعلية · سلطنة عُمان</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button id="dm-toggle" onclick="toggleDarkMode()" title="التبديل إلى الوضع الداكن" aria-pressed="false">
+        <!-- Moon icon (light mode) -->
+        <svg class="dm-icon dm-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <!-- Sun icon (dark mode, hidden by default) -->
+        <svg class="dm-icon dm-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <span class="dm-label">داكن</span>
+      </button>
+      <button onclick="(async()=>{ if(_db) await _db.auth.signOut(); location.reload(); })()"
+        title="تسجيل الخروج"
+        style="background:transparent;border:1.5px solid rgba(0,0,0,0.12);border-radius:10px;
+          padding:7px 14px;font-family:Tajawal;font-size:13px;font-weight:600;
+          color:var(--hero-desc-color,#5A6A7A);cursor:pointer;
+          transition:border-color 0.15s,color 0.15s;"
+        onmouseover="this.style.borderColor='#C0392B';this.style.color='#C0392B'"
+        onmouseout="this.style.borderColor='rgba(0,0,0,0.12)';this.style.color='var(--hero-desc-color,#5A6A7A)'">
+        ↩ تسجيل الخروج
+      </button>
+      <button class="nav-btn" onclick="openApp()">ابدأ الآن ←</button>
+    </div>
+  </nav>
+
+  <!-- Hero layout: text left, students illustration right -->
+  <div class="hero-layout">
+    <!-- Left: text content -->
+    <div class="hero-text">
+      <div class="hero-badge">🇴🇲 مناهج سلطنة عُمان</div>
+      <h1 class="hero-title">
+        <span class="glow">بيّن</span> العلوم<br>
+        بطريقة <span class="accent">مختلفة</span>
+      </h1>
+      <p class="hero-desc">منصة تفاعلية مصمَّمة للطالب العُماني — تُجسّد أنشطة الكتاب المدرسي بشكل حي ومُتحرِّك في الفصل الدراسي</p>
+
+      <!-- Quran verse on landing -->
+      <div class="hero-quran">
+        ﴿ قُلْ سِيرُوا فِي الْأَرْضِ فَانظُرُوا كَيْفَ بَدَأَ الْخَلْقَ ﴾
+        <span>سورة العنكبوت · ٢٠</span>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn-launch" onclick="openApp()">🔬 ابدأ الاستكشاف</button>
+      </div>
+      <div class="hero-cards">
+        <div class="hero-feat"><div class="num">+١٠٠</div><div class="lbl">استقصاء تفاعلي</div></div>
+        <div class="hero-feat"><div class="num">١٠٠٪</div><div class="lbl">بالعربية</div></div>
+        <div class="hero-feat"><div class="num">🇴🇲</div><div class="lbl">بيئة عُمانية</div></div>
+      </div>
+    </div>
+
+    <!-- Right: Omani Astronauts illustration -->
+    <div class="hero-illustration">
+      <svg viewBox="0 0 420 500" xmlns="http://www.w3.org/2000/svg" class="students-svg">
+        <defs>
+          <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#F4EEE6"/>
+            <stop offset="100%" stop-color="#EAE0D4"/>
+          </linearGradient>
+        </defs>
+
+        <rect x="0" y="0" width="420" height="500" fill="url(#bgGrad)"/>
+
+        <!-- Fort silhouette -->
+        <g opacity="0.09" fill="#6A3820">
+          <rect x="22" y="228" width="58" height="112"/>
+          <rect x="14" y="218" width="74" height="16" rx="2"/>
+          <rect x="14" y="204" width="11" height="16"/>
+          <rect x="29" y="204" width="11" height="16"/>
+          <rect x="44" y="204" width="11" height="16"/>
+          <rect x="59" y="204" width="11" height="16"/>
+          <rect x="74" y="204" width="11" height="16"/>
+          <rect x="88" y="264" width="95" height="76"/>
+          <rect x="84" y="255" width="103" height="13"/>
+          <rect x="335" y="248" width="48" height="92"/>
+          <rect x="328" y="240" width="62" height="12"/>
+          <rect x="328" y="226" width="10" height="15"/>
+          <rect x="342" y="226" width="10" height="15"/>
+          <rect x="356" y="226" width="10" height="15"/>
+          <rect x="370" y="226" width="10" height="15"/>
+        </g>
+
+        <!-- Desert dunes -->
+        <ellipse cx="90"  cy="492" rx="170" ry="36" fill="#D4C4AE" opacity="0.55"/>
+        <ellipse cx="340" cy="496" rx="140" ry="30" fill="#C8B89E" opacity="0.45"/>
+
+        <!-- Palm trees left -->
+        <g opacity="0.20" fill="#3A5020">
+          <rect x="54" y="355" width="6" height="75"/>
+          <path d="M57,355 Q32,326 20,306 Q42,320 57,353Z"/>
+          <path d="M57,355 Q83,324 92,304 Q73,320 57,353Z"/>
+          <path d="M57,355 Q30,345 16,337 Q37,343 57,353Z"/>
+          <path d="M57,355 Q84,344 96,337 Q77,343 57,353Z"/>
+        </g>
+        <!-- Palm trees right -->
+        <g opacity="0.16" fill="#3A5020">
+          <rect x="368" y="362" width="6" height="68"/>
+          <path d="M371,362 Q349,338 340,320 Q359,333 371,360Z"/>
+          <path d="M371,362 Q394,336 402,318 Q385,333 371,360Z"/>
+          <path d="M371,362 Q347,354 336,346 Q355,352 371,360Z"/>
+          <path d="M371,362 Q396,350 408,344 Q388,350 371,360Z"/>
+        </g>
+
+        <!-- Ground -->
+        <ellipse cx="210" cy="484" rx="188" ry="16" fill="#C4B49A" opacity="0.6"/>
+
+        <!-- Science floaters -->
+        <text x="46"  y="185" font-size="20" opacity="0.28">⚗️</text>
+        <text x="358" y="215" font-size="18" opacity="0.28">🔬</text>
+        <text x="192" y="72"  font-size="16" opacity="0.25">🧬</text>
+        <text x="305" y="408" font-size="16" opacity="0.24">🌍</text>
+
+        <!-- ═══ GIRL — LEFT | Suit: warm white, panel: Omani red ═══ -->
+        <g transform="translate(18, 80)">
+          <ellipse cx="92" cy="408" rx="42" ry="7" fill="rgba(0,0,0,0.09)"/>
+          <!-- Legs -->
+          <rect x="66" y="318" width="23" height="54" rx="11" fill="#E0D6CA"/>
+          <rect x="94" y="318" width="23" height="54" rx="11" fill="#E0D6CA"/>
+          <!-- Boots -->
+          <ellipse cx="77"  cy="371" rx="18" ry="8" fill="#2C1A10"/>
+          <ellipse cx="105" cy="371" rx="18" ry="8" fill="#2C1A10"/>
+          <ellipse cx="71"  cy="367" rx="7"  ry="3" fill="rgba(255,255,255,0.11)"/>
+          <ellipse cx="99"  cy="367" rx="7"  ry="3" fill="rgba(255,255,255,0.11)"/>
+          <line x1="66" y1="367" x2="89"  y2="367" stroke="#C8BEB0" stroke-width="1" opacity="0.5"/>
+          <line x1="94" y1="367" x2="117" y2="367" stroke="#C8BEB0" stroke-width="1" opacity="0.5"/>
+          <!-- Body -->
+          <rect x="52" y="188" width="80" height="138" rx="20" fill="#F0EAE0" stroke="#D8CEC0" stroke-width="1.8"/>
+          <!-- Red chest panel -->
+          <rect x="64" y="202" width="56" height="40" rx="10" fill="#C0392B" opacity="0.90"/>
+          <path d="M78,212 Q82,222 78,232 Q82,238 78,244" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M76,214 Q78,211 80,214" stroke="rgba(255,255,255,0.45)" stroke-width="1" fill="none"/>
+          <circle cx="92"  cy="215" r="5" fill="#008000" opacity="0.85"/>
+          <circle cx="103" cy="215" r="5" fill="#C8900A" opacity="0.85"/>
+          <rect x="86" y="226" width="26" height="4" rx="2" fill="rgba(255,255,255,0.22)"/>
+          <ellipse cx="66" cy="216" rx="9" ry="16" fill="rgba(255,255,255,0.11)" transform="rotate(-15,66,216)"/>
+          <ellipse cx="92" cy="315" rx="29" ry="11" fill="#E0D6CA" stroke="#D0C6BA" stroke-width="1.2"/>
+          <ellipse cx="92" cy="188" rx="24" ry="8.5" fill="#D8CEC0" stroke="#C8C0B0" stroke-width="1.5"/>
+          <ellipse cx="92" cy="188" rx="19" ry="6"   fill="#EDE8DF"/>
+          <rect x="52"  y="228" width="7" height="58" rx="3.5" fill="#C0392B" opacity="0.28"/>
+          <rect x="125" y="228" width="7" height="58" rx="3.5" fill="#C0392B" opacity="0.20"/>
+          <!-- Arms -->
+          <path d="M52,198 Q24,176 22,130"   stroke="#E8E2D8" stroke-width="22" fill="none" stroke-linecap="round"/>
+          <path d="M52,198 Q24,176 22,130"   stroke="#D0C8BC" stroke-width="22" fill="none" stroke-linecap="round" opacity="0.38"/>
+          <circle cx="21" cy="127" r="13" fill="#2C1A10"/>
+          <ellipse cx="16" cy="122" rx="5" ry="3.5" fill="rgba(255,255,255,0.11)"/>
+          <path d="M53,204 Q26,182 24,140"   stroke="#C0392B" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.45"/>
+          <path d="M132,198 Q155,212 153,254" stroke="#E8E2D8" stroke-width="22" fill="none" stroke-linecap="round"/>
+          <path d="M132,198 Q155,212 153,254" stroke="#D0C8BC" stroke-width="22" fill="none" stroke-linecap="round" opacity="0.38"/>
+          <circle cx="153" cy="257" r="13" fill="#2C1A10"/>
+          <!-- Tablet -->
+          <rect x="137" y="251" width="32" height="42" rx="5" fill="#1A2030" stroke="#2A3040" stroke-width="1.5"/>
+          <rect x="140" y="255" width="26" height="32" rx="3" fill="#1A6A80" opacity="0.8"/>
+          <rect x="143" y="259" width="20" height="3" rx="1" fill="rgba(255,255,255,0.5)"/>
+          <rect x="143" y="265" width="14" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+          <rect x="143" y="270" width="18" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+          <path d="M131,204 Q153,217 151,247" stroke="#C0392B" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.45"/>
+          <!-- Helmet -->
+          <circle cx="92" cy="108" r="68" fill="#EDE7DF" stroke="#D4CABE" stroke-width="2.5"/>
+          <ellipse cx="76" cy="68" rx="18" ry="12" fill="rgba(255,255,255,0.26)" transform="rotate(-20,76,68)"/>
+          <ellipse cx="92" cy="112" rx="44" ry="42" fill="#201410" opacity="0.88"/>
+          <ellipse cx="74" cy="90"  rx="13" ry="9"  fill="rgba(255,255,255,0.17)" transform="rotate(-30,74,90)"/>
+          <!-- Face -->
+          <ellipse cx="92" cy="114" rx="30" ry="30" fill="#E8A87C"/>
+          <ellipse cx="80" cy="110" rx="8"  ry="9"  fill="white"/>
+          <ellipse cx="104" cy="110" rx="8" ry="9"  fill="white"/>
+          <circle  cx="81" cy="112" r="5.5" fill="#201410"/>
+          <circle  cx="105" cy="112" r="5.5" fill="#201410"/>
+          <circle  cx="83" cy="109" r="2.2" fill="white"/>
+          <circle  cx="107" cy="109" r="2.2" fill="white"/>
+          <path d="M72,102 Q76,98 80,101"    stroke="#1E100A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M75,100 Q80,96 84,100"    stroke="#1E100A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M96,100 Q100,96 104,100"  stroke="#1E100A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M100,102 Q104,98 108,102" stroke="#1E100A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M72,104 Q80,99 88,103"    stroke="#2A1408" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M96,103 Q104,99 112,104"  stroke="#2A1408" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M79,126 Q92,138 105,126"  stroke="#B06030" stroke-width="3"   fill="none" stroke-linecap="round"/>
+          <path d="M82,128 Q92,136 102,128"  fill="rgba(255,255,255,0.4)" stroke="none"/>
+          <ellipse cx="68"  cy="118" rx="9" ry="6" fill="rgba(220,100,70,0.20)"/>
+          <ellipse cx="116" cy="118" rx="9" ry="6" fill="rgba(220,100,70,0.20)"/>
+          <!-- Hair + braid -->
+          <path d="M36,88 Q38,48 92,38 Q146,48 148,88 Q136,58 92,50 Q48,58 36,88Z" fill="#1E100A"/>
+          <path d="M148,75 Q165,70 168,92 Q165,112 150,106" stroke="#1E100A" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <path d="M146,58 Q154,50 158,60 Q154,56 146,58Z" fill="#C0392B"/>
+          <path d="M158,60 Q166,50 170,60 Q166,56 158,60Z" fill="#C0392B"/>
+          <circle cx="158" cy="60" r="4" fill="#E05050"/>
+          <!-- Bolts -->
+          <circle cx="24"  cy="108" r="6" fill="#D8CEC0" stroke="#C4BAB0" stroke-width="1.5"/>
+          <circle cx="160" cy="108" r="6" fill="#D8CEC0" stroke="#C4BAB0" stroke-width="1.5"/>
+          <!-- Antenna: heart -->
+          <line x1="108" y1="40" x2="118" y2="52" stroke="#C4BAB0" stroke-width="3" stroke-linecap="round"/>
+          <path d="M116,38 Q121,33 124,38 Q127,33 132,38 Q132,44 124,51 Q116,44 116,38Z" fill="#C0392B"/>
+        </g>
+
+        <!-- ═══ BOY — RIGHT | Suit: warm white, panel: Omani green ═══ -->
+        <g transform="translate(228, 102)">
+          <ellipse cx="85" cy="388" rx="40" ry="7" fill="rgba(0,0,0,0.09)"/>
+          <!-- Legs -->
+          <rect x="58" y="304" width="23" height="52" rx="11" fill="#E0D6CA"/>
+          <rect x="85" y="304" width="23" height="52" rx="11" fill="#E0D6CA"/>
+          <!-- Boots -->
+          <ellipse cx="69"  cy="355" rx="18" ry="8" fill="#2C1A10"/>
+          <ellipse cx="96"  cy="355" rx="18" ry="8" fill="#2C1A10"/>
+          <ellipse cx="63"  cy="351" rx="7"  ry="3" fill="rgba(255,255,255,0.11)"/>
+          <ellipse cx="90"  cy="351" rx="7"  ry="3" fill="rgba(255,255,255,0.11)"/>
+          <line x1="58" y1="351" x2="81"  y2="351" stroke="#C8BEB0" stroke-width="1" opacity="0.5"/>
+          <line x1="85" y1="351" x2="108" y2="351" stroke="#C8BEB0" stroke-width="1" opacity="0.5"/>
+          <!-- Body -->
+          <rect x="45" y="172" width="80" height="138" rx="20" fill="#F0EAE0" stroke="#D8CEC0" stroke-width="1.8"/>
+          <!-- Green chest panel -->
+          <rect x="57" y="186" width="56" height="40" rx="10" fill="#006040" opacity="0.90"/>
+          <path d="M73,196 Q77,206 73,216 Q77,222 73,228" stroke="rgba(255,255,255,0.55)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M71,198 Q73,195 75,198" stroke="rgba(255,255,255,0.45)" stroke-width="1" fill="none"/>
+          <circle cx="87" cy="198" r="5" fill="#DB161B" opacity="0.88"/>
+          <circle cx="98" cy="198" r="5" fill="#C8900A" opacity="0.88"/>
+          <rect x="80" y="210" width="26" height="4" rx="2" fill="rgba(255,255,255,0.22)"/>
+          <ellipse cx="59" cy="200" rx="9" ry="16" fill="rgba(255,255,255,0.12)" transform="rotate(-15,59,200)"/>
+          <ellipse cx="85" cy="299" rx="29" ry="11" fill="#E0D6CA" stroke="#D0C6BA" stroke-width="1.2"/>
+          <ellipse cx="85" cy="172" rx="24" ry="8.5" fill="#D8CEC0" stroke="#C8C0B0" stroke-width="1.5"/>
+          <ellipse cx="85" cy="172" rx="19" ry="6"   fill="#EDE8DF"/>
+          <rect x="45"  y="222" width="7" height="58" rx="3.5" fill="#006040" opacity="0.28"/>
+          <rect x="118" y="222" width="7" height="58" rx="3.5" fill="#006040" opacity="0.20"/>
+          <!-- Arms -->
+          <path d="M45,182 Q22,196 20,238"   stroke="#E8E2D8" stroke-width="22" fill="none" stroke-linecap="round"/>
+          <path d="M45,182 Q22,196 20,238"   stroke="#D0C8BC" stroke-width="22" fill="none" stroke-linecap="round" opacity="0.38"/>
+          <circle cx="19" cy="241" r="13" fill="#2C1A10"/>
+          <ellipse cx="14" cy="236" rx="5" ry="3.5" fill="rgba(255,255,255,0.11)"/>
+          <path d="M46,188 Q24,202 22,242"   stroke="#006040" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.45"/>
+          <path d="M125,182 Q150,155 148,108" stroke="#E8E2D8" stroke-width="22" fill="none" stroke-linecap="round"/>
+          <path d="M125,182 Q150,155 148,108" stroke="#D0C8BC" stroke-width="22" fill="none" stroke-linecap="round" opacity="0.38"/>
+          <circle cx="148" cy="105" r="13" fill="#2C1A10"/>
+          <ellipse cx="143" cy="100" rx="5" ry="3.5" fill="rgba(255,255,255,0.11)"/>
+          <path d="M124,188 Q148,161 146,118" stroke="#006040" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.45"/>
+          <!-- Helmet -->
+          <circle cx="85" cy="96" r="66" fill="#EDE7DF" stroke="#D4CABE" stroke-width="2.5"/>
+          <ellipse cx="70" cy="58" rx="17" ry="11" fill="rgba(255,255,255,0.26)" transform="rotate(-20,70,58)"/>
+          <ellipse cx="85" cy="100" rx="43" ry="41" fill="#201410" opacity="0.88"/>
+          <ellipse cx="68" cy="80"  rx="12" ry="8"  fill="rgba(255,255,255,0.17)" transform="rotate(-30,68,80)"/>
+          <!-- Face -->
+          <ellipse cx="85" cy="102" rx="29" ry="29" fill="#E8A87C"/>
+          <ellipse cx="74" cy="98"  rx="7"  ry="8"  fill="white"/>
+          <ellipse cx="96" cy="98"  rx="7"  ry="8"  fill="white"/>
+          <circle  cx="75" cy="100" r="5"   fill="#201410"/>
+          <circle  cx="97" cy="100" r="5"   fill="#201410"/>
+          <circle  cx="77" cy="97"  r="2"   fill="white"/>
+          <circle  cx="99" cy="97"  r="2"   fill="white"/>
+          <path d="M67,92 Q74,89 81,92"   stroke="#2A1408" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <path d="M89,92 Q96,89 103,92"  stroke="#2A1408" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+          <path d="M72,114 Q85,125 98,114" stroke="#B06030" stroke-width="3"   fill="none" stroke-linecap="round"/>
+          <path d="M75,116 Q85,124 95,116" fill="rgba(255,255,255,0.38)" stroke="none"/>
+          <ellipse cx="62"  cy="106" rx="9" ry="6" fill="rgba(220,100,70,0.18)"/>
+          <ellipse cx="108" cy="106" rx="9" ry="6" fill="rgba(220,100,70,0.18)"/>
+          <!-- Hair -->
+          <path d="M19,85 Q21,46 85,35 Q149,46 151,85 Q138,55 85,48 Q32,55 19,85Z" fill="#1A0C08"/>
+          <!-- Bolts -->
+          <circle cx="19"  cy="96" r="6" fill="#D8CEC0" stroke="#C4BAB0" stroke-width="1.5"/>
+          <circle cx="151" cy="96" r="6" fill="#D8CEC0" stroke="#C4BAB0" stroke-width="1.5"/>
+          <!-- Antenna: green -->
+          <line x1="85" y1="30" x2="85" y2="42" stroke="#C4BAB0" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="85" cy="27" r="6.5" fill="#006040"/>
+          <circle cx="85" cy="27" r="4"   fill="#008050"/>
+          <circle cx="85" cy="27" r="2"   fill="rgba(255,255,255,0.6)"/>
+          <!-- Kummah pattern hint -->
+          <path d="M55,46 Q60,40 65,46 Q70,40 75,46"   stroke="#C8A050" stroke-width="1.5" fill="none" opacity="0.35" stroke-linecap="round"/>
+          <path d="M95,46 Q100,40 105,46 Q110,40 115,46" stroke="#C8A050" stroke-width="1.5" fill="none" opacity="0.35" stroke-linecap="round"/>
+        </g>
+
+      </svg>
+    </div>
+  </div>
+
+  <!-- Omani landscape — seamlessly integrated scene -->
+  <div class="omani-scene" id="px-scene">
+    <!--
+      viewBox: 0 0 1440 340
+      Sky starts at y=0 (top), ground ends at y=340 (bottom)
+      All elements fully inside viewBox — nothing clipped
+    -->
+    <svg viewBox="0 0 1440 340" preserveAspectRatio="xMidYMax meet"
+         xmlns="http://www.w3.org/2000/svg"
+         style="width:100%;display:block;margin-top:-2px">
+      <defs>
+        <!-- Sky-to-sand gradient matching landing background -->
+        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#F0E5D0"/>
+          <stop offset="30%"  stop-color="#F0E0C0"/>
+          <stop offset="60%"  stop-color="#EDD8A8"/>
+          <stop offset="100%" stop-color="#DBBE80"/>
+        </linearGradient>
+        <!-- Dune layers -->
+        <linearGradient id="dune1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#E8CE84"/>
+          <stop offset="100%" stop-color="#D4B46A"/>
+        </linearGradient>
+        <linearGradient id="dune2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#D8BC70"/>
+          <stop offset="100%" stop-color="#C2A254"/>
+        </linearGradient>
+        <linearGradient id="dune3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#C8A858"/>
+          <stop offset="100%" stop-color="#B09040"/>
+        </linearGradient>
+        <!-- Castle gradient -->
+        <linearGradient id="castleG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#D4B87A"/>
+          <stop offset="100%" stop-color="#A08040"/>
+        </linearGradient>
+        <linearGradient id="towerG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#DCC084"/>
+          <stop offset="100%" stop-color="#AA8848"/>
+        </linearGradient>
+        <!-- Palm trunk -->
+        <linearGradient id="trunkG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#7A5C28"/>
+          <stop offset="50%"  stop-color="#9A7A3A"/>
+          <stop offset="100%" stop-color="#7A5C28"/>
+        </linearGradient>
+        <!-- Fade-out left and right for blending -->
+        <linearGradient id="fadeLeft" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#F0E5D0" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#F0E5D0" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="fadeRight" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stop-color="#F0E5D0" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#F0E5D0" stop-opacity="1"/>
+        </linearGradient>
+      </defs>
+
+      <!-- ── Sky background ── -->
+      <rect width="1440" height="340" fill="url(#skyGrad)"/>
+
+      <!-- ── Sun (fully visible, in sky) ── -->
+      <circle cx="1280" cy="80"  r="90" fill="rgba(255,210,80,0.10)"/>
+      <circle cx="1280" cy="80"  r="58" fill="rgba(255,220,90,0.18)"/>
+      <circle cx="1280" cy="80"  r="34" fill="rgba(255,230,100,0.38)"/>
+      <circle cx="1280" cy="80"  r="20" fill="rgba(255,240,120,0.75)"/>
+      <circle cx="1280" cy="80"  r="11" fill="rgba(255,248,160,0.95)"/>
+
+      <!-- ── Distant mountains / hills silhouette ── -->
+      <path d="M0,210 C60,185 130,195 200,180 C270,165 320,185 390,172
+               C460,158 510,178 590,165 C670,152 720,170 800,160
+               C880,150 930,168 1010,155 C1090,142 1150,162 1230,150
+               C1310,138 1370,155 1440,148 L1440,220 L0,220Z"
+            fill="rgba(210,185,130,0.35)"/>
+
+      <!-- ── PALM TREES GROUP (left side — all fully in frame) ── -->
+
+      <!-- Palm 1 — tallest, y=80..280 -->
+      <g transform="translate(108, 0)">
+        <!-- Trunk: from y=278 up to y=82 -->
+        <path d="M0,278 C1,250 3,220 2,190 C1,162 -1,135 1,100 C2,82 3,68 4,55"
+              stroke="url(#trunkG)" stroke-width="11" fill="none" stroke-linecap="round"/>
+        <!-- Trunk rings -->
+        <path d="M1,258 Q5,255 1,252" stroke="rgba(0,0,0,0.12)" stroke-width="2.5" fill="none"/>
+        <path d="M1,235 Q5,232 1,229" stroke="rgba(0,0,0,0.12)" stroke-width="2.5" fill="none"/>
+        <path d="M1,210 Q5,207 1,204" stroke="rgba(0,0,0,0.12)" stroke-width="2.5" fill="none"/>
+        <path d="M2,180 Q6,177 2,174" stroke="rgba(0,0,0,0.10)" stroke-width="2" fill="none"/>
+        <path d="M2,150 Q6,147 2,144" stroke="rgba(0,0,0,0.10)" stroke-width="2" fill="none"/>
+        <path d="M2,120 Q6,117 2,114" stroke="rgba(0,0,0,0.09)" stroke-width="2" fill="none"/>
+        <!-- Fronds from crown at (4,55) -->
+        <path d="M4,55 C1,35 -3,18 -9,5"    stroke="#4A7A20" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M4,55 C7,35 11,18 17,5"    stroke="#4A7A20" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M4,58 C-12,50 -28,42 -46,36" stroke="#4A7A20" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+        <path d="M4,58 C20,50 36,42 54,36"   stroke="#4A7A20" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+        <path d="M4,60 C-10,42 -20,28 -30,12" stroke="#3A6A18" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M4,60 C18,42 28,28 38,12"   stroke="#3A6A18" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M4,62 C-16,66 -34,75 -50,88" stroke="#568C22" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M4,62 C24,66 42,75 58,88"   stroke="#568C22" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <!-- Leaflets -->
+        <path d="M-24,44 C-26,36 -22,32 -20,36" stroke="#5A9228" stroke-width="2" fill="none"/>
+        <path d="M-38,38 C-40,30 -36,26 -34,30" stroke="#5A9228" stroke-width="2" fill="none"/>
+        <path d="M26,44  C28,36  24,32  22,36"  stroke="#5A9228" stroke-width="2" fill="none"/>
+        <path d="M42,38  C44,30  40,26  38,30"  stroke="#5A9228" stroke-width="2" fill="none"/>
+        <!-- Dates -->
+        <circle cx="-2" cy="66" r="6" fill="#C8780A" opacity="0.88"/>
+        <circle cx="8"  cy="70" r="5" fill="#D48818" opacity="0.88"/>
+        <circle cx="-8" cy="72" r="5" fill="#B86A08" opacity="0.88"/>
+      </g>
+
+      <!-- Palm 2 — medium, y=95..270 -->
+      <g transform="translate(175, 0)" opacity="0.92">
+        <path d="M0,270 C1,245 2,215 1,188 C0,163 -1,138 1,108 C2,90 3,76 3,62"
+              stroke="url(#trunkG)" stroke-width="9" fill="none" stroke-linecap="round"/>
+        <path d="M1,248 Q4,246 1,243" stroke="rgba(0,0,0,0.11)" stroke-width="2" fill="none"/>
+        <path d="M1,222 Q4,220 1,217" stroke="rgba(0,0,0,0.11)" stroke-width="2" fill="none"/>
+        <path d="M1,195 Q4,193 1,190" stroke="rgba(0,0,0,0.09)" stroke-width="2" fill="none"/>
+        <path d="M3,62 C1,44 -2,28 -7,15"    stroke="#4A7A20" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M3,62 C5,44 8,28 13,15"     stroke="#4A7A20" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M3,65 C-10,57 -24,49 -40,43" stroke="#4A7A20" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M3,65 C16,57 30,49 46,43"   stroke="#4A7A20" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M3,67 C-8,50 -18,36 -26,20"  stroke="#3A6A18" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M3,67 C14,50 24,36 32,20"    stroke="#3A6A18" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M3,69 C-14,72 -30,80 -44,93" stroke="#558825" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M3,69 C20,72 36,80 50,93"   stroke="#558825" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <!-- Palm 3 — short background, y=120..265 -->
+      <g transform="translate(65, 0)" opacity="0.65">
+        <path d="M0,265 C0,242 0,218 0,194 C0,170 -1,148 1,125 C1,112 2,100 2,88"
+              stroke="#8A6530" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path d="M2,88 C0,72 -2,58 -6,46"    stroke="#3A6018" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M2,88 C4,72 6,58 10,46"     stroke="#3A6018" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M2,90 C-8,83 -20,76 -34,70"  stroke="#3A6018" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M2,90 C12,83 24,76 38,70"    stroke="#3A6018" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M2,92 C-10,95 -24,102 -36,112" stroke="#4A7020" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M2,92 C14,95 28,102 40,112"    stroke="#4A7020" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <!-- ── CASTLE / FORT (القلعة) — positioned so base sits on dune ── -->
+      <g transform="translate(285, 95)">
+        <!-- Castle shadow -->
+        <ellipse cx="110" cy="185" rx="120" ry="9" fill="rgba(0,0,0,0.10)"/>
+        <!-- Main wall -->
+        <rect x="10" y="95" width="200" height="90" rx="2" fill="url(#castleG)"/>
+        <rect x="10" y="145" width="200" height="40" rx="2" fill="rgba(0,0,0,0.09)"/>
+        <rect x="10" y="95" width="200" height="6"  fill="rgba(255,255,255,0.18)"/>
+        <!-- Battlements on main wall -->
+        <g fill="url(#castleG)">
+          <rect x="10"  y="78" width="18" height="20" rx="1"/>
+          <rect x="32"  y="78" width="18" height="20" rx="1"/>
+          <rect x="54"  y="78" width="18" height="20" rx="1"/>
+          <rect x="76"  y="78" width="18" height="20" rx="1"/>
+          <rect x="98"  y="78" width="18" height="20" rx="1"/>
+          <rect x="120" y="78" width="18" height="20" rx="1"/>
+          <rect x="142" y="78" width="18" height="20" rx="1"/>
+          <rect x="164" y="78" width="18" height="20" rx="1"/>
+          <rect x="186" y="78" width="18" height="20" rx="1"/>
+        </g>
+        <!-- Gap fill -->
+        <rect x="10" y="78" width="200" height="20" fill="rgba(0,0,0,0.07)"/>
+        <g fill="url(#castleG)">
+          <rect x="10"  y="78" width="18" height="20" rx="1"/>
+          <rect x="32"  y="78" width="18" height="20" rx="1"/>
+          <rect x="54"  y="78" width="18" height="20" rx="1"/>
+          <rect x="76"  y="78" width="18" height="20" rx="1"/>
+          <rect x="98"  y="78" width="18" height="20" rx="1"/>
+          <rect x="120" y="78" width="18" height="20" rx="1"/>
+          <rect x="142" y="78" width="18" height="20" rx="1"/>
+          <rect x="164" y="78" width="18" height="20" rx="1"/>
+          <rect x="186" y="78" width="18" height="20" rx="1"/>
+        </g>
+        <!-- Left tower -->
+        <rect x="0" y="52" width="38" height="133" rx="2" fill="url(#towerG)"/>
+        <rect x="0" y="52" width="38" height="6"   fill="rgba(255,255,255,0.18)"/>
+        <g fill="url(#towerG)">
+          <rect x="0"  y="36" width="9" height="18" rx="1"/>
+          <rect x="11" y="36" width="9" height="18" rx="1"/>
+          <rect x="22" y="36" width="9" height="18" rx="1"/>
+          <rect x="33" y="36" width="9" height="18" rx="1"/>
+        </g>
+        <path d="M9,95 L9,120 Q19,130 29,120 L29,95Z" fill="rgba(0,0,0,0.32)"/>
+        <rect x="16" y="140" width="6" height="18" rx="3" fill="rgba(0,0,0,0.28)"/>
+        <!-- Right tower -->
+        <rect x="182" y="52" width="38" height="133" rx="2" fill="url(#towerG)"/>
+        <rect x="182" y="52" width="38" height="6"   fill="rgba(255,255,255,0.18)"/>
+        <g fill="url(#towerG)">
+          <rect x="182" y="36" width="9" height="18" rx="1"/>
+          <rect x="193" y="36" width="9" height="18" rx="1"/>
+          <rect x="204" y="36" width="9" height="18" rx="1"/>
+          <rect x="215" y="36" width="9" height="18" rx="1"/>
+        </g>
+        <path d="M191,95 L191,120 Q201,130 211,120 L211,95Z" fill="rgba(0,0,0,0.32)"/>
+        <rect x="202" y="140" width="6" height="18" rx="3" fill="rgba(0,0,0,0.28)"/>
+        <!-- Gate arch -->
+        <path d="M82,185 L82,132 Q82,104 110,100 Q138,104 138,132 L138,185Z" fill="rgba(0,0,0,0.42)"/>
+        <path d="M80,185 L80,132 Q80,100 110,96 Q140,100 140,132 L140,185" fill="none" stroke="rgba(255,220,140,0.35)" stroke-width="3"/>
+        <rect x="88" y="145" width="44" height="40" fill="#6A4820"/>
+        <rect x="88" y="145" width="44" height="4"  fill="rgba(255,255,255,0.13)"/>
+        <line x1="110" y1="145" x2="110" y2="185" stroke="rgba(0,0,0,0.18)" stroke-width="2"/>
+        <line x1="88"  y1="160" x2="132" y2="160" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>
+        <line x1="88"  y1="173" x2="132" y2="173" stroke="rgba(0,0,0,0.18)" stroke-width="1.5"/>
+        <circle cx="110" cy="162" r="3.5" fill="#C8A050"/>
+        <!-- Windows -->
+        <rect x="52" y="115" width="12" height="20" rx="2" fill="rgba(0,0,0,0.26)"/>
+        <path d="M52,115 Q58,109 64,115Z" fill="rgba(0,0,0,0.26)"/>
+        <rect x="152" y="115" width="12" height="20" rx="2" fill="rgba(0,0,0,0.26)"/>
+        <path d="M152,115 Q158,109 164,115Z" fill="rgba(0,0,0,0.26)"/>
+        <!-- Flag -->
+        <line x1="219" y1="36" x2="219" y2="10" stroke="#8B6A30" stroke-width="2.5"/>
+        <path d="M219,10 L242,18 L219,26Z" fill="#C0392B" opacity="0.85"/>
+      </g>
+
+      <!-- ── SMALL ROCK formation (right side detail) ── -->
+      <g transform="translate(950, 195)" opacity="0.6">
+        <path d="M0,70 C5,50 15,40 28,38 C40,36 52,42 58,55 C64,68 62,70 50,72 L0,70Z" fill="#C8A85A"/>
+        <path d="M8,70 C12,55 20,47 30,46"  stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none"/>
+      </g>
+      <g transform="translate(1000, 210)" opacity="0.45">
+        <path d="M0,55 C4,40 12,32 22,30 C32,28 42,34 46,45 C50,56 48,58 38,60 L0,55Z" fill="#C0A050"/>
+      </g>
+
+      <!-- ── SAND DUNES (layered, fully covering lower portion) ── -->
+      <!-- Dune layer 1 — furthest back, lightest -->
+      <path d="M0,200 C100,172 220,205 380,185
+               C540,165 640,200 800,182
+               C960,164 1070,198 1230,180
+               C1340,168 1400,185 1440,178
+               L1440,340 L0,340Z"
+            fill="url(#dune1)" opacity="0.6"/>
+
+      <!-- Dune layer 2 — mid -->
+      <path d="M0,220 C120,198 250,228 410,210
+               C570,192 665,222 830,208
+               C995,194 1105,220 1260,205
+               C1360,194 1410,210 1440,205
+               L1440,340 L0,340Z"
+            fill="url(#dune2)"/>
+
+      <!-- Dune layer 3 — foreground, darkest -->
+      <path d="M0,248 C150,230 285,258 450,244
+               C615,230 710,252 880,240
+               C1050,228 1155,250 1310,238
+               C1390,232 1430,244 1440,240
+               L1440,340 L0,340Z"
+            fill="url(#dune3)"/>
+
+      <!-- Sand ripple highlights -->
+      <path d="M180,238 C290,230 400,244 510,236" stroke="rgba(255,255,255,0.28)" stroke-width="1.5" fill="none"/>
+      <path d="M620,226 C730,218 840,232 950,224"  stroke="rgba(255,255,255,0.22)" stroke-width="1.5" fill="none"/>
+      <path d="M1060,215 C1160,208 1280,220 1380,213" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none"/>
+
+      <!-- ── Edge fade overlays for seamless left/right blend ── -->
+      <rect x="0"    y="0" width="40"  height="340" fill="url(#fadeLeft)"/>
+      <rect x="1400" y="0" width="40"  height="340" fill="url(#fadeRight)"/>
+
+    </svg>
+  </div>
+</div>
+
+<!-- ===== MOBILE BOTTOM NAV ===== -->
+</div>
+
+<!-- ===== GRADE PICKER SCREEN ===== -->
+<!-- ══════════════════════════════════════════════════════════
+     SEMESTER PICKER — Layer 1: choose Semester 1 or Semester 2
+     ══════════════════════════════════════════════════════════ -->
+<div id="semester-picker" style="display:none;min-height:100vh;flex-direction:column">
+
+  <!-- Topbar -->
+  <div class="topbar" style="justify-content:space-between">
+    <div class="topbar-logo" onclick="goToLanding()" style="cursor:pointer">
+      <div class="brand-logo">ب</div>
+      <h2>بيّن</h2>
+    </div>
+    <div style="font-size:13px;color:var(--text-secondary,#7A8A98);display:flex;align-items:center;gap:6px;">
+      <span style="opacity:0.5">🏠 الرئيسية</span>
+      <span style="opacity:0.4">›</span>
+      <span style="font-weight:700;color:var(--teal,#1A8FA8)">اختيار الفصل</span>
+    </div>
+    <button class="topbar-home" onclick="goToLanding()">⬅ الرئيسية</button>
+  </div>
+
+  <!-- Body -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:0">
+
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(26,143,168,0.07);border:1.5px solid rgba(26,143,168,0.15);border-radius:20px;padding:6px 16px;font-size:13px;color:#1A8FA8;font-weight:600;margin-bottom:18px">
+        🇴🇲 مناهج سلطنة عُمان · العلوم
+      </div>
+    </div>
+
+    <div class="panel-title" style="text-align:center;margin-bottom:6px;font-size:clamp(22px,4vw,34px)">اختَر الفصل الدراسي</div>
+    <div class="panel-sub" style="text-align:center;margin-bottom:40px">حدِّد الفصل الدراسي للوصول إلى استقصاءاتك التفاعلية</div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;width:100%;max-width:720px">
+
+      <!-- Semester 1 -->
+      <div onclick="pickSemester(1)" style="
+        padding:32px 28px;border-radius:20px;
+        border:2px solid rgba(212,144,26,0.2);
+        background:var(--bg-card,#fff);
+        font-family:Tajawal;cursor:pointer;
+        box-shadow:0 2px 12px rgba(0,0,0,0.06);
+        transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
+        position:relative;overflow:hidden;text-align:right;"
+        onmouseover="this.style.boxShadow='0 8px 28px rgba(212,144,26,0.18)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(212,144,26,0.5)'"
+        onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)';this.style.transform='';this.style.borderColor='rgba(212,144,26,0.2)'">
+        <!-- Top accent stripe -->
+        <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#D4901A,#F5C842);border-radius:20px 20px 0 0"></div>
+        <div style="font-size:44px;margin-bottom:14px;line-height:1">🌅</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الأول</div>
+        <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">سبتمبر — يناير · وحدات الفصل الأول لجميع الصفوف</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,144,26,0.08);border:1px solid rgba(212,144,26,0.2);border-radius:8px;padding:5px 10px;font-size:12px;color:#B8780A;font-weight:600">
+            🔒 قريباً
+          </div>
+          <div style="font-size:22px;color:rgba(212,144,26,0.35)">←</div>
+        </div>
+      </div>
+
+      <!-- Semester 2 -->
+      <div onclick="pickSemester(2)" style="
+        padding:32px 28px;border-radius:20px;
+        border:2px solid rgba(26,143,168,0.25);
+        background:var(--bg-card,#fff);
+        font-family:Tajawal;cursor:pointer;
+        box-shadow:0 2px 12px rgba(26,143,168,0.08);
+        transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
+        position:relative;overflow:hidden;text-align:right;"
+        onmouseover="this.style.boxShadow='0 8px 28px rgba(26,143,168,0.2)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(26,143,168,0.55)'"
+        onmouseout="this.style.boxShadow='0 2px 12px rgba(26,143,168,0.08)';this.style.transform='';this.style.borderColor='rgba(26,143,168,0.25)'">
+        <!-- Top accent stripe -->
+        <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#1A8FA8,#27AE60);border-radius:20px 20px 0 0"></div>
+        <!-- Active badge -->
+        <div style="position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#27AE60,#1A8FA8);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:Tajawal">● نشط الآن</div>
+        <div style="font-size:44px;margin-bottom:14px;line-height:1">🌿</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الثاني</div>
+        <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">فبراير — يونيو · وحدات الفصل الثاني — الصف التاسع متاح بالكامل</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);border-radius:8px;padding:5px 10px;font-size:12px;color:#1E8A50;font-weight:600">
+            🔓 متاح الآن
+          </div>
+          <div style="font-size:22px;color:rgba(26,143,168,0.5)">←</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Note -->
+    <div style="margin-top:32px;text-align:center;font-size:13px;color:var(--text-secondary,#7A8A98);max-width:480px;line-height:1.8">
+      💡 سيتم إتاحة محتوى الفصل الأول تدريجياً — تابع التحديثات
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     GRADE PICKER — Layer 2: choose Grade inside a semester
+     ══════════════════════════════════════════════════════════ -->
+<div id="grade-picker" style="display:none;min-height:100vh;flex-direction:column">
+
+  <!-- Topbar with breadcrumb -->
+  <div class="topbar" style="justify-content:space-between">
+    <div class="topbar-logo" onclick="goToLanding()" style="cursor:pointer">
+      <div class="brand-logo">ب</div>
+      <h2>بيّن</h2>
+    </div>
+    <!-- Breadcrumb -->
+    <div id="grade-picker-breadcrumb" style="font-size:13px;color:var(--text-secondary,#7A8A98);display:flex;align-items:center;gap:6px;flex:1;justify-content:center;flex-wrap:wrap">
+      <span onclick="goToLanding()" style="cursor:pointer;transition:color 0.15s" onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">🏠 الرئيسية</span>
+      <span style="opacity:0.4">›</span>
+      <span id="gp-bc-sem" onclick="backToSemesterPicker()" style="cursor:pointer;transition:color 0.15s" onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">الفصل الثاني</span>
+      <span style="opacity:0.4">›</span>
+      <span style="font-weight:700;color:var(--teal,#1A8FA8)">اختيار الصف</span>
+    </div>
+    <button class="topbar-home" onclick="backToSemesterPicker()">⬅ الفصول</button>
+  </div>
+
+  <!-- Body -->
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px">
+
+    <!-- Semester context banner -->
+    <div id="grade-picker-banner" style="
+      display:flex;align-items:center;gap:12px;
+      background:rgba(26,143,168,0.06);
+      border:1.5px solid rgba(26,143,168,0.15);
+      border-radius:14px;padding:12px 20px;
+      margin-bottom:28px;width:100%;max-width:520px;
+      font-family:Tajawal;direction:rtl">
+      <span id="gp-sem-icon" style="font-size:26px">🌿</span>
+      <div>
+        <div id="gp-sem-label" style="font-size:15px;font-weight:800;color:var(--text-heading,#1A2330)">الفصل الدراسي الثاني</div>
+        <div id="gp-sem-sub" style="font-size:12px;color:var(--text-secondary,#7A8A98);margin-top:2px">فبراير — يونيو · اختَر صفّك</div>
+      </div>
+    </div>
+
+    <div class="panel-title" style="text-align:center;margin-bottom:6px">اختَر صفّك</div>
+    <div class="panel-sub" style="text-align:center;margin-bottom:28px">للوصول إلى استقصاءاتك التفاعلية</div>
+    <div id="grade-buttons-list" style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px">
+      <!-- Populated dynamically by renderGradeButtons() -->
+    </div>
+  </div>
+</div>
+
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo" onclick="goHome()">
+      <div class="brand-logo">ب</div>
+      <h2>بيّن</h2>
+    </div>
+    <div class="topbar-tabs">
+      <button class="topbar-tab" id="tab-5" onclick="switchGrade(5)">🔭 الصف الخامس</button>
+      <button class="topbar-tab" id="tab-6" onclick="switchGrade(6)">📗 الصف السادس</button>
+      <button class="topbar-tab active" id="tab-7" onclick="switchGrade(7)">📚 الصف السابع</button>
+      <button class="topbar-tab" id="tab-8" onclick="switchGrade(8)">📖 الصف الثامن</button>
+      <button class="topbar-tab" id="tab-9" onclick="switchGrade(9)">📕 الصف التاسع</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
+      <!-- subscription remaining badge -->
+      <span id="sub-badge" class="sub-ok"></span>
+      <!-- visitor counter -->
+      <span id="visitor-counter" title="إجمالي زوار المنصة">
+        <span style="font-size:15px">👁️</span>
+        <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2">
+          <span id="visit-count" style="font-size:15px;font-weight:800;letter-spacing:0.5px">٠</span>
+          <span style="font-size:9px;font-weight:500;opacity:0.75">زيارة</span>
+        </span>
+      </span>
+      <!-- search button -->
+      <button id="search-btn" onclick="openSearch()" title="بحث سريع (Ctrl+K)">🔍 بحث</button>
+      <!-- review mode button -->
+      <button id="rv-open-btn" onclick="openReview()" title="وضع المراجعة السريعة">🏁 مراجعة</button>
+      <!-- whiteboard button -->
+      <button id="wb-open-btn" onclick="wbOpen()" title="افتح السبورة التفاعلية">✏️ سبورة</button>
+      <!-- home button -->
+      <button id="topbar-home-btn" onclick="goToLanding()" title="العودة للصفحة الرئيسية">
+        🏠 الرئيسية
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Breadcrumb bar ── -->
+  <div id="app-breadcrumb" style="
+    background:var(--bg-topbar,#fff);
+    border-bottom:1px solid var(--border-color,rgba(0,0,0,0.07));
+    padding:8px 28px;
+    font-family:Tajawal;font-size:13px;
+    color:var(--text-secondary,#7A8A98);
+    display:flex;align-items:center;gap:8px;
+    direction:rtl;flex-wrap:wrap">
+    <span onclick="goToLanding()" style="cursor:pointer;transition:color 0.15s;display:flex;align-items:center;gap:4px"
+      onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">🏠 الرئيسية</span>
+    <span style="opacity:0.35;font-size:15px">›</span>
+    <span id="bc-semester" onclick="goHome()" style="cursor:pointer;transition:color 0.15s"
+      onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">الفصل الثاني</span>
+    <span style="opacity:0.35;font-size:15px">›</span>
+    <span id="bc-grade" onclick="goHome()" style="cursor:pointer;transition:color 0.15s"
+      onmouseover="this.style.color='#1A8FA8'" onmouseout="this.style.color=''">الصفوف</span>
+    <span id="bc-grade-arrow" style="opacity:0.35;font-size:15px;display:none">›</span>
+    <span id="bc-unit" style="font-weight:700;color:var(--teal,#1A8FA8);display:none"></span>
+  </div>
+
+  <div id="content-area">
+  <!-- Grade 5 -->
+  <div id="panel-5" class="main-content" style="display:none">
+    <div class="quran-banner">
+      <div class="quran-text">﴿ وَهُوَ الَّذِي خَلَقَ اللَّيْلَ وَالنَّهَارَ وَالشَّمْسَ وَالْقَمَرَ ﴾</div>
+      <div class="quran-ref">سورة الأنبياء · الآية ٣٣</div>
+    </div>
+    <div class="panel-title">وحدات الصف الخامس</div>
+    <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي الثاني</div>
+    <div class="units-grid" id="grade5-units">
+
+      <div class="unit-card" onclick="openUnit('u5light', this)">
+        <div class="unit-num-badge c-gold">٤</div>
+        <div>
+          <div class="unit-title">الطريقة التي نرى بها الأشياء</div>
+          <div class="unit-topics">انتقال الضوء · المرايا · رؤية ما خلفك · انعكاس الضوء · تغيير اتجاه الضوء</div>
+          <div class="unit-pill avail">💡 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u5shadow', this)">
+        <div class="unit-num-badge c-teal">٥</div>
+        <div>
+          <div class="unit-title">الظلال</div>
+          <div class="unit-topics">انتقال الضوء في خطوط مستقيمة · المواد والضوء · الصور الظلية · حجم الظل · قياس شدة الضوء</div>
+          <div class="unit-pill avail">🌑 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u5earth', this)">
+        <div class="unit-num-badge c-purple">٦</div>
+        <div>
+          <div class="unit-title">حركات الأرض</div>
+          <div class="unit-topics">الشمس والأرض والقمر · دوران الأرض حول محورها · شروق الشمس وغروبها · الفصول · النجوم</div>
+          <div class="unit-pill avail">🌍 ٣ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== الوحدة ٤ — الطريقة التي نرى بها الأشياء ===== -->
+    <div id="sims-u5light" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٤ — الطريقة التي نرى بها الأشياء</div>
+        <div class="sims-count">٦ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g5lighttravel')">
+          <div class="sim-thumb t8">💡</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ١-٤ · انتقال الضوء من مصدر</div>
+            <div class="sim-name">مختبر الضوء التفاعلي</div>
+            <div class="sim-desc">استكشف كيف ينتقل الضوء من مصادر مختلفة وكيف نرى الأجسام</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5mirror')">
+          <div class="sim-thumb t1">🪞</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٢-٤ · المرايا</div>
+            <div class="sim-name">انعكاس الضوء على المرايا</div>
+            <div class="sim-desc">جرّب المرايا المستوية والمقعّرة والمحدّبة وشاهد انعكاس الأشعة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5behindyou')">
+          <div class="sim-thumb t3">🔍</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٣-٤ · رؤية ما خلفك</div>
+            <div class="sim-name">كيف تعمل المرايا المتعددة؟</div>
+            <div class="sim-desc">استكشف كيف تستخدم المتاجر والسيارات المرايا لرؤية زوايا مختلفة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5reflection')">
+          <div class="sim-thumb t2">✨</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٤-٤ · الأسطح العاكسة</div>
+            <div class="sim-name">ما الأسطح التي تعكس الضوء أفضل؟</div>
+            <div class="sim-desc">قارن انعكاس الضوء على أسطح مختلفة: لامعة، خشنة، ملوّنة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5lightdir')">
+          <div class="sim-thumb t5">🔦</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٥-٤ · تغيير اتجاه الضوء</div>
+            <div class="sim-name">هندسة مسار الضوء</div>
+            <div class="sim-desc">استخدم مرايا متعددة لتوجيه شعاع الضوء نحو الهدف</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== الوحدة ٥ — الظلال ===== -->
+    <div id="sims-u5shadow" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٥ — الظلال</div>
+        <div class="sims-count">٥ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g5shadowsize')">
+          <div class="sim-thumb t6">🌑</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ١-٥ · كيف يتشكّل الظل</div>
+            <div class="sim-name">مختبر الظلال التفاعلي</div>
+            <div class="sim-desc">حرّك مصدر الضوء والجسم وشاهد كيف يتغيّر شكل الظل وحجمه</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5transparent')">
+          <div class="sim-thumb t7">🔬</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٢-٥ · المواد والضوء</div>
+            <div class="sim-name">شفاف، شبه شفاف، أم معتم؟</div>
+            <div class="sim-desc">اختبر مواد مختلفة واكتشف أيها يسمح بمرور الضوء</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+
+
+        <div class="sim-card" onclick="openSim('g5shadowfactor')">
+          <div class="sim-thumb t3">📐</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٤-٥ · ما الذي يؤثر على حجم الظل؟</div>
+            <div class="sim-name">استقصاء أطوال الظلال</div>
+            <div class="sim-desc">غيّر المسافة والزاوية وحجم الجسم وشاهد تأثيرها على الظل</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5sundial')">
+          <div class="sim-thumb t4">🌞</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٥-٥ · العصا الشمسية</div>
+            <div class="sim-name">العصا الشمسية والزمن ☀️</div>
+            <div class="sim-desc">شاهد كيف تتحرك الشمس عبر السماء وكيف يتغيّر ظل العصا خلال اليوم</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5lightintensity')">
+          <div class="sim-thumb t5">☀️</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٦-٥ · قياس شدة الضوء</div>
+            <div class="sim-name">قياس الإضاءة</div>
+            <div class="sim-desc">اختر بيئة وشاهد الفرق في شدة الضوء بين الشمس والظل والغرفة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5rainbow')">
+          <div class="sim-thumb t2">🌈</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٧-٥ · قوس المطر والمنشور</div>
+            <div class="sim-name">كيف يتكوّن قوس المطر؟</div>
+            <div class="sim-desc">شاهد كيف ينكسر الضوء الأبيض في المنشور وقطرات المطر ليكوّن ألوان قوس المطر</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== الوحدة ٦ — حركات الأرض ===== -->
+    <div id="sims-u5earth" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٦ — حركات الأرض</div>
+        <div class="sims-count">٦ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g5earthsun')">
+          <div class="sim-thumb t3">🌍</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ١-٦ · الشمس والأرض والقمر</div>
+            <div class="sim-name">النظام الشمسي المصغّر</div>
+            <div class="sim-desc">شاهد حركة الأرض حول الشمس والقمر حول الأرض بالتزامن</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5sunseeming')">
+          <div class="sim-thumb t3">☀️</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٢-٦ · هل تتحرك الشمس؟</div>
+            <div class="sim-name">الشمس ثابتة — دوران الأرض يغيّر منظورك</div>
+            <div class="sim-desc">اكتشف أن الشمس ثابتة تماماً، وأن دوران الأرض هو ما يغيّر زاوية رؤيتك ويخلق وهم الشروق والغروب</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5rotation')">
+          <div class="sim-thumb t1">🔄</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٣-٦ · دوران الأرض حول محورها</div>
+            <div class="sim-name">الليل والنهار والفصول</div>
+            <div class="sim-desc">استكشف كيف يُسبّب دوران الأرض الليل والنهار وكيف يُسبّب مدارها الفصول</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5sunrise')">
+          <div class="sim-thumb t3">🌅</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٤-٦ · الشروق والغروب</div>
+            <div class="sim-name">ألوان السماء والشروق والغروب</div>
+            <div class="sim-desc">شاهد كيف تتغير ألوان السماء من الليل إلى الفجر إلى الشروق والغروب بسبب دوران الأرض</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5earthorbit')">
+          <div class="sim-thumb t2">🌍</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٦-٥ · دوران الأرض حول الشمس</div>
+            <div class="sim-name">الفصول الأربعة</div>
+            <div class="sim-desc">شاهد كيف يُسبّب ميل محور الأرض تغيّر الفصول خلال دورانها حول الشمس</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5stars')">
+          <div class="sim-thumb t2">⭐</div>
+          <div class="sim-body">
+            <div class="sim-num">درس ٧-٦ · استكشاف النجوم</div>
+            <div class="sim-name">خريطة السماء الليلية</div>
+            <div class="sim-desc">تعرّف على أبرز النجوم والكوكبات وتعلّم كيف يجد البشر اتجاههم بالنجوم</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  <!-- Grade 6 -->
+  <div id="panel-6" class="main-content" style="display:none">
+    <div class="quran-banner">
+      <div class="quran-text">﴿ وَسَخَّرَ لَكُم مَّا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ جَمِيعًا ﴾</div>
+      <div class="quran-ref">سورة الجاثية · الآية ١٣</div>
+    </div>
+    <div class="panel-title">وحدات الصف السادس</div>
+    <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+    <div class="units-grid" id="grade6-units">
+      <div class="unit-card" onclick="openUnit('u6f', this)">
+        <div class="unit-num-badge">١</div>
+        <div>
+          <div class="unit-title">القوى والحركة</div>
+          <div class="unit-topics">الكتلة والوزن · مخطط القوى · القوى المتوازنة وغير المتوازنة · الاحتكاك · استقصاء الاحتكاك · مقاومة الهواء</div>
+          <div class="unit-pill avail">🧪 ٧ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u6e', this)">
+        <div class="unit-num-badge">٢</div>
+        <div>
+          <div class="unit-title">المواد الموصِّلة والعازلة للكهرباء</div>
+          <div class="unit-topics">الموصلات والعوازل · الماء والكهرباء · المعادن · الدوائر الكهربائية · الجهد والمقاومة</div>
+          <div class="unit-pill avail">⚡ ٧ استقصاءات متاحة</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sims-u6f" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات القوى والحركة — الصف السادس</div>
+        <div class="sims-count">٦ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g6gravity')">
+          <div class="sim-thumb t1">⚖️</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-١ · الكتلة والوزن</div>
+            <div class="sim-name">الكتلة والوزن</div>
+            <div class="sim-desc">الفرق بين الكتلة والوزن وتأثير الجاذبية</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6forces2')">
+          <div class="sim-thumb t2">🏹</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-٢ · مخطط القوى</div>
+            <div class="sim-name">مخطط القوى</div>
+            <div class="sim-desc">ارسم سهام القوى وادرس حالات التوازن وعدمه</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6forces1')">
+          <div class="sim-thumb t3">💪</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-٣ · القوى المتوازنة وغير المتوازنة</div>
+            <div class="sim-name">القوى المتوازنة وغير المتوازنة</div>
+            <div class="sim-desc">استكشف الدفع والسحب والشد وتأثيرها على الحركة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6friction')">
+          <div class="sim-thumb t4">🔥</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-٤ · الاحتكاك</div>
+            <div class="sim-name">الاحتكاك</div>
+            <div class="sim-desc">اكتشف قوة الاحتكاك وكيف تُبطّئ الحركة في حياتنا اليومية</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6frictionInquiry')">
+          <div class="sim-thumb t5">🔬</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-٥ · استقصاء الاحتكاك</div>
+            <div class="sim-name">استقصاء الاحتكاك</div>
+            <div class="sim-desc">استقصِ تأثير الوزن والخشونة والمساحة على قوة الاحتكاك — واكتشف الاحتكاك الجزيئي!</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6airresist')">
+          <div class="sim-thumb t6">🪂</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-٦ · مقاومة الهواء</div>
+            <div class="sim-name">مقاومة الهواء</div>
+            <div class="sim-desc">كيف تؤثر مقاومة الهواء على السقوط الحر</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6work')">
+          <div class="sim-thumb t1">⚽</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-٥ · القوى والطاقة</div>
+            <div class="sim-name">استقصاء الشغل المبذول</div>
+            <div class="sim-desc">هل الكرة تتحرك؟ احسب الشغل المبذول من القوة والمسافة في ملعب كرة القدم</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== وحدة الكهرباء — الصف السادس ===== -->
+    <div id="sims-u6e" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٢ — المواد الموصِّلة والعازلة للكهرباء</div>
+        <div class="sims-count">٧ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g6conductors')">
+          <div class="sim-thumb t2">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">5-1 · ما المواد الموصِّلة؟</div>
+            <div class="sim-name">مختبر الموصِّلات والعوازل</div>
+            <div class="sim-desc">اختبر مواد مختلفة واكتشف أيها يوصّل الكهرباء</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6waterconductor')">
+          <div class="sim-thumb t7">💧</div>
+          <div class="sim-body">
+            <div class="sim-num">5-2 · هل الماء يوصِّل الكهرباء؟</div>
+            <div class="sim-name">الماء النقي والماء المالح</div>
+            <div class="sim-desc">استقصِ الفرق بين الماء المقطّر والماء المالح</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6bodyconductor')">
+          <div class="sim-thumb t9">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">5-2b · هل أجسامنا توصّل الكهرباء؟</div>
+            <div class="sim-name">خطر الصعقة الكهربائية ⚠️</div>
+            <div class="sim-desc">اكتشف لماذا لمس الكهرباء المكشوفة خطير جداً على الإنسان</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6metalconductor')">
+          <div class="sim-thumb t4">🔩</div>
+          <div class="sim-body">
+            <div class="sim-num">5-3 · المعادن والكهرباء</div>
+            <div class="sim-name">أي المعادن أفضل موصِّلاً؟</div>
+            <div class="sim-desc">قارن بين النحاس والحديد والألومنيوم بالأميتر</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6circuit')">
+          <div class="sim-thumb t1">🔌</div>
+          <div class="sim-body">
+            <div class="sim-num">5-5 · بناء الدوائر الكهربائية</div>
+            <div class="sim-name">مختبر الدوائر التفاعلي 🔬</div>
+            <div class="sim-desc">ابنِ دوائر كهربائية حقيقية بخلايا ومصابيح ومفاتيح</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6circuitchange')">
+          <div class="sim-thumb t3">💡</div>
+          <div class="sim-body">
+            <div class="sim-num">5-6 · تغيير مكونات الدائرة</div>
+            <div class="sim-name">كيف يتغيّر سطوع المصباح؟</div>
+            <div class="sim-desc">أضف خلايا ومصابيح وراقب تأثير التغييرات</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6voltage')">
+          <div class="sim-thumb t4">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">5-7 · الجهد الكهربائي</div>
+            <div class="sim-name">لماذا لا يعمل الطنان ببطارية واحدة؟</div>
+            <div class="sim-desc">اكتشف كيف يؤثر الجهد على تشغيل الأجهزة المختلفة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6wirelength')">
+          <div class="sim-thumb t6">📏</div>
+          <div class="sim-body">
+            <div class="sim-num">5-8 · طول وسُمك السلك</div>
+            <div class="sim-name">السلك والمقاومة الكهربائية</div>
+            <div class="sim-desc">كيف يؤثر طول السلك وسُمكه في شدة التيار؟</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6battery')">
+          <div class="sim-thumb t5">🔋</div>
+          <div class="sim-body">
+            <div class="sim-num">5-9 · كيف اخترع العلماء البطاريات؟</div>
+            <div class="sim-name">رحلة زمنية: من بغداد إلى فولتا 🕰️</div>
+            <div class="sim-desc">سافر عبر الزمن واكتشف قصة اختراع البطارية مع جلفاني وفولتا</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  <div id="panel-7" class="main-content">
+
+    <!-- Quran verse banner -->
+    <div class="quran-banner">
+      <div class="quran-text">﴿ قُلْ هَلْ يَسْتَوِي الَّذِينَ يَعْلَمُونَ وَالَّذِينَ لَا يَعْلَمُونَ ﴾</div>
+      <div class="quran-ref">سورة الزُّمَر · الآية ٩</div>
+    </div>
+
+    <div class="panel-title">وحدات الصف السابع</div>
+    <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+
+    <div class="units-grid" id="grade7-units">
+
+      <div class="unit-card" onclick="openUnit('u7', this)">
+        <div class="unit-num-badge c-red">٧</div>
+        <div>
+          <div class="unit-title">الكائنات الحيّة في بيئتها</div>
+          <div class="unit-topics">التكيُّف · السلاسل الغذائية · الشبكات الغذائية · التلوُّث · الأوزون · الحفاظ على البيئة</div>
+          <div class="unit-pill avail">🧪 ٨ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u8', this)">
+        <div class="unit-num-badge c-gold">٨</div>
+        <div>
+          <div class="unit-title">خصائص المادّة</div>
+          <div class="unit-topics">الفلزّات · اللافلزّات · المقارنة · المواد في الحياة اليومية</div>
+          <div class="unit-pill avail">🧪 ٤ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u9', this)">
+        <div class="unit-num-badge c-teal">٩</div>
+        <div>
+          <div class="unit-title">القُوى والحركة</div>
+          <div class="unit-topics">القُوى · القوى الكبيرة والصغيرة · الوزن والجاذبية · الاحتكاك · مقاومة الهواء</div>
+          <div class="unit-pill avail">🧪 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u10', this)">
+        <div class="unit-num-badge c-purple">١٠</div>
+        <div>
+          <div class="unit-title">التبايُن والتصنيف</div>
+          <div class="unit-topics">تصنيف النباتات · تصنيف الفقاريات · اللافقاريات · الوراثة · الأسئلة المفتاحية</div>
+          <div class="unit-pill avail">🧪 ٦ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" onclick="openUnit('u11', this)">
+        <div class="unit-num-badge c-green">١١</div>
+        <div>
+          <div class="unit-title">تغيُّرات المادّة</div>
+          <div class="unit-topics">الأحماض والقلويّات · التمييز · مقياس pH · التعادُل · تطبيقات التعادُل · الاستقصاء</div>
+          <div class="unit-pill avail">🧪 ٦ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+    </div>
+
+      <!-- Unit 8 sims — خصائص المادّة -->
+      <div class="sims-wrap" id="sims-u8" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة الثامنة — خصائص المادّة</div>
+          <div class="sims-count">٤ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('metals')">
+            <div class="sim-thumb t2">⚙️</div>
+            <div class="sim-body">
+              <div class="sim-num">8-1 · الفلزّات</div>
+              <div class="sim-name">اكتشف خصائص الفلزّات</div>
+              <div class="sim-desc">اختبر اللمعة، التوصيل، القابلية للطرق والسحب</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('nonmetals')">
+            <div class="sim-thumb t3">🫧</div>
+            <div class="sim-body">
+              <div class="sim-num">8-2 · اللافلزّات</div>
+              <div class="sim-name">استكشف اللافلزّات وخصائصها</div>
+              <div class="sim-desc">الكلور، الهيليوم، الأكسجين، الكبريت، السيليكون</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('metalcompare')">
+            <div class="sim-thumb t4">⚖️</div>
+            <div class="sim-body">
+              <div class="sim-num">8-3 · المقارنة</div>
+              <div class="sim-name">قارن بين الفلزّات واللافلزّات</div>
+              <div class="sim-desc">جدول مقارنة تفاعلي بين الخصائص المختلفة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('materials')">
+            <div class="sim-thumb t5">🏠</div>
+            <div class="sim-body">
+              <div class="sim-num">8-4 · المواد</div>
+              <div class="sim-name">المواد في حياتنا اليومية</div>
+              <div class="sim-desc">زجاج · بلاستيك · خزفيات · ألياف طبيعية وصناعية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Unit 9 sims — القوى والحركة -->
+      <div class="sims-wrap" id="sims-u9" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة التاسعة — القُوى والحركة</div>
+          <div class="sims-count">٥ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('forces')">
+            <div class="sim-thumb t2">💪</div>
+            <div class="sim-body">
+              <div class="sim-num">9-1 · القُوى</div>
+              <div class="sim-name">دفع، سحب، شد، تدوير</div>
+              <div class="sim-desc">اكتشف أنواع القوى وأثرها على الأجسام من حولك</div>
+
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('forcemeter')">
+            <div class="sim-thumb t1">⚖️</div>
+            <div class="sim-body">
+              <div class="sim-num">9-2 · القوى الكبيرة والصغيرة</div>
+              <div class="sim-name">قياس القوى بالميزان الزنبركي</div>
+              <div class="sim-desc">استخدم الميزان الزنبركي لقياس القوى بوحدة النيوتن</div>
+
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('gravity')">
+            <div class="sim-thumb t3">🌍</div>
+            <div class="sim-body">
+              <div class="sim-num">9-3 · الوزن والجاذبية</div>
+              <div class="sim-name">الفرق بين الكتلة والوزن</div>
+              <div class="sim-desc">اكتشف العلاقة بين الكتلة والوزن وتأثير الجاذبية</div>
+
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('friction')">
+            <div class="sim-thumb t4">🔥</div>
+            <div class="sim-body">
+              <div class="sim-num">9-4 · الاحتكاك</div>
+              <div class="sim-name">استقصاء قوة الاحتكاك</div>
+              <div class="sim-desc">اكتشف العوامل المؤثرة في قوة الاحتكاك وكيفية قياسها</div>
+
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('airresist')">
+            <div class="sim-thumb t7">🪂</div>
+            <div class="sim-body">
+              <div class="sim-num">9-5 · مقاومة الهواء</div>
+              <div class="sim-name">مقاومة الهواء</div>
+              <div class="sim-desc">راقب تأثير مقاومة الهواء على الأجسام الساقطة</div>
+
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+      <!-- Unit 11 sims — تغيُّرات المادّة -->
+      <div class="sims-wrap" id="sims-u11" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة الحادية عشرة — تغيُّرات المادّة</div>
+          <div class="sims-count">٦ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('acidbase')">
+            <div class="sim-thumb t9">🧪</div>
+            <div class="sim-body">
+              <div class="sim-num">11-1 · الأحماض والقلويّات</div>
+              <div class="sim-name">الأحماض في كلّ مكان</div>
+              <div class="sim-desc">اكتشف الفرق بين الأحماض والقلويّات وتعرّف على خصائصها ومخاطرها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('indicator')">
+            <div class="sim-thumb t9">🌸</div>
+            <div class="sim-body">
+              <div class="sim-num">11-2 · حمض أم قلويّ؟</div>
+              <div class="sim-name">الكواشف الكيميائيّة</div>
+              <div class="sim-desc">استخدم ورق تبّاع الشمس والكاشف الكيميائي لتمييز المواد الحمضيّة والقلويّة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('phscale')">
+            <div class="sim-thumb t7">📊</div>
+            <div class="sim-body">
+              <div class="sim-num">11-3 · مقياس الرقم الهيدروجينيّ</div>
+              <div class="sim-name">مقياس pH التفاعلي</div>
+              <div class="sim-desc">استكشف مقياس pH من 0 إلى 14 وتعلّم كيف يُصنَّف كلّ محلول باستخدام الكاشف العام</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('neutralisation')">
+            <div class="sim-thumb t4">⚗️</div>
+            <div class="sim-body">
+              <div class="sim-num">11-4 · التعادُل</div>
+              <div class="sim-name">مزج الحمض مع القلويّ</div>
+              <div class="sim-desc">راقب تفاعل التعادُل عند خلط الحمض مع القلويّ وتتبّع تغيّر الرقم الهيدروجينيّ</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('neutralapp')">
+            <div class="sim-thumb t1">🌿</div>
+            <div class="sim-body">
+              <div class="sim-num">11-5 · تطبيقات التعادُل</div>
+              <div class="sim-name">التعادُل في حياتنا</div>
+              <div class="sim-desc">اكتشف كيف يُستخدم التعادُل في علاج عُسر الهضم ومعالجة تربة المزارع وتنقية مياه البحيرات</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('acidinquiry')">
+            <div class="sim-thumb t6">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">11-6 · استقصاء الأحماض والقلويّات</div>
+              <div class="sim-name">أيّ مسحوق أفضل لتعادُل الحمض؟</div>
+              <div class="sim-desc">صمِّم تجربة عادلة لمقارنة ثلاثة مساحيق وحدِّد أيّها أفضل لمعادلة حمض الهيدروكلوريك</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unit 10 sims — التبايُن والتصنيف -->
+      <div class="sims-wrap" id="sims-u10" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة العاشرة — التبايُن والتصنيف</div>
+          <div class="sims-count">٦ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('variation')">
+            <div class="sim-thumb t10">🌸</div>
+            <div class="sim-body">
+              <div class="sim-num">10-2 · التبايُن في النوع</div>
+              <div class="sim-name">مخططات التكرار والتباين</div>
+              <div class="sim-desc">استقصِ التباين بين أفراد النوع الواحد وارسم مخططات التكرار</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('plantclass')">
+            <div class="sim-thumb t1">🌿</div>
+            <div class="sim-body">
+              <div class="sim-num">10-4 · تصنيف النباتات</div>
+              <div class="sim-name">مملكة النباتات الأربع</div>
+              <div class="sim-desc">صنِّف النباتات إلى حزازيّات وسرخسيّات ومخروطيّات وزهريّات</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('vertebrates')">
+            <div class="sim-thumb t2">🐟</div>
+            <div class="sim-body">
+              <div class="sim-num">10-5 · تصنيف الفقاريّات</div>
+              <div class="sim-name">الفئات الخمس للفقاريّات</div>
+              <div class="sim-desc">تعرَّف على الأسماك والبرمائيات والزواحف والطيور والثدييات</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('invertebrates')">
+            <div class="sim-thumb t4">🦀</div>
+            <div class="sim-body">
+              <div class="sim-num">10-6 · اللافقاريّات</div>
+              <div class="sim-name">الرخويّات والحلقيّات ومفصليّات الأرجل</div>
+              <div class="sim-desc">استكشف مجموعات اللافقاريات وخصائصها المميّزة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('dichotomous')">
+            <div class="sim-thumb t3">🔑</div>
+            <div class="sim-body">
+              <div class="sim-num">10-7 · الأسئلة المفتاحيّة</div>
+              <div class="sim-name">بنِ سؤالك المفتاحي</div>
+              <div class="sim-desc">صمِّم أسئلة ثنائية لتصنيف الكائنات الحيّة خطوة بخطوة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('genetics')">
+            <div class="sim-thumb t9">🧬</div>
+            <div class="sim-body">
+              <div class="sim-num">10-8 · الوراثة</div>
+              <div class="sim-name">الجينات والكروموسومات</div>
+              <div class="sim-desc">اكتشف كيف تنتقل الصفات من الآباء إلى الأبناء عبر الجينات</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unit 7 sims -->
+      <div class="sims-wrap" id="sims-u7">
+        <div class="sims-header" style="margin-top:28px">
+          <div class="sims-title">استقصاءات الوحدة السابعة</div>
+          <div class="sims-count">٨ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('adaptation')">
+            <div class="sim-thumb t1">🦊</div>
+            <div class="sim-body">
+              <div class="sim-num">7-1 · التكيُّف</div>
+              <div class="sim-name">كيف تتكيّف الكائنات مع بيئتها؟</div>
+              <div class="sim-desc">قارن بين تكيُّفات الثعلب والجمل والنباتات في بيئات عُمان المختلفة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('foodchain')">
+            <div class="sim-thumb t2">🌿</div>
+            <div class="sim-body">
+              <div class="sim-num">7-2 · السلاسل الغذائية</div>
+              <div class="sim-name">بناء سلسلة غذائية</div>
+              <div class="sim-desc">ابنِ سلسلة غذائية وتتبّع انتقال الطاقة من الشمس حتى المستهلك الأعلى</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('foodweb')">
+            <div class="sim-thumb t3">🕸️</div>
+            <div class="sim-body">
+              <div class="sim-num">7-3 · الشبكات الغذائية</div>
+              <div class="sim-name">ماذا يحدث عند إزالة نوع؟</div>
+              <div class="sim-desc">احذف كائناً من الشبكة الغذائية وراقب التأثير على باقي الكائنات</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('decomposer')">
+            <div class="sim-thumb t4">🍄</div>
+            <div class="sim-body">
+              <div class="sim-num">7-4 · الكائنات المُحلِّلة</div>
+              <div class="sim-name">مشاهدة عملية التحلل</div>
+              <div class="sim-desc">راقب تحلل الورقة بواسطة الفطريات والبكتيريا وإعادة المواد للتربة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('human')">
+            <div class="sim-thumb t5">🧑‍🌾</div>
+            <div class="sim-body">
+              <div class="sim-num">7-5 · الإنسان والسلاسل الغذائية</div>
+              <div class="sim-name">تأثير الإنسان على السلاسل الغذائية</div>
+              <div class="sim-desc">اكتشف كيف يؤثر الصيد والزراعة على التوازن البيئي</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('pollution')">
+            <div class="sim-thumb t6">🏭</div>
+            <div class="sim-body">
+              <div class="sim-num">7-6 · التلوُّث</div>
+              <div class="sim-name">قياس مستوى التلوث</div>
+              <div class="sim-desc">تحكم في مصادر التلوث وراقب تأثيرها على الكائنات الحية في الماء والهواء</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('ozone')">
+            <div class="sim-thumb t7">🌐</div>
+            <div class="sim-body">
+              <div class="sim-num">7-7 · طبقة الأوزون</div>
+              <div class="sim-name">تآكل طبقة الأوزون</div>
+              <div class="sim-desc">تابع كيف تُتلف مركبات CFC طبقة الأوزون وتزيد الأشعة فوق البنفسجية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('conservation')">
+            <div class="sim-thumb t8">🌱</div>
+            <div class="sim-body">
+              <div class="sim-num">7-8 · الحفاظ على البيئة</div>
+              <div class="sim-name">الحفاظ على التنوع البيولوجي</div>
+              <div class="sim-desc">اتخذ قرارات لحماية الأنواع المهددة بالانقراض في عُمان</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grade 8 — المغناطيسيّة والكهرباء -->
+  <div id="panel-8" class="main-content" style="display:none">
+    <div class="quran-banner">
+      <div class="quran-text">﴿ وَمِن كُلِّ شَيْءٍ خَلَقْنَا زَوْجَيْنِ لَعَلَّكُمْ تَذَكَّرُونَ ﴾</div>
+      <div class="quran-ref">سورة الذاريات · الآية ٤٩</div>
+    </div>
+    <div class="panel-title">وحدات الصف الثامن</div>
+    <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+    <div class="units-grid">
+      <div class="unit-card" onclick="openUnit('u8circ', this)">
+        <div class="unit-num-badge c-red">٧</div>
+        <div>
+          <div class="unit-title">الجهاز الدوري وتبادل الغازات</div>
+          <div class="unit-topics">الجهاز الدوري · القلب · الدم · الأوعية الدموية · الجهاز التنفسي · تبادل الغازات · التنفس الهوائي · اللياقة البدنية</div>
+          <div class="unit-pill avail">❤️ ٧ استقصاء متاح</div>
+        </div>
+      </div>
+      <div class="unit-card" onclick="openUnit('u8salts', this)">
+        <div class="unit-num-badge c-gold">٨</div>
+        <div>
+          <div class="unit-title">الأملاح</div>
+          <div class="unit-topics">ما الملح؟ · الأحماض والأملاح · تحضير ملح باستخدام فلز وحمض · أكسيد الفلز · كربونات الفلزات والأحماض</div>
+          <div class="unit-pill avail">🧪 ٤ استقصاءات متاحة</div>
+        </div>
+      </div>
+      <div class="unit-card" onclick="openUnit('u8sound', this)">
+        <div class="unit-num-badge c-teal">٩</div>
+        <div>
+          <div class="unit-title">الصوت</div>
+          <div class="unit-topics">تغيير الأصوات · شدة وحدة الصوت · الاهتزازات · السعة والتردد · كيف ينتقل الصوت؟ · جهاز رسم الذبذبات</div>
+          <div class="unit-pill avail">🔊 ٤ استقصاءات متاحة</div>
+        </div>
+      </div>
+      <div class="unit-card" onclick="openUnit('u8repro', this)">
+        <div class="unit-num-badge c-purple">١٠</div>
+        <div>
+          <div class="unit-title">التكاثر والتطوّر</div>
+          <div class="unit-topics">الأمشاج · الكروموسومات · الإخصاب · الجهاز التناسلي · الحمل والجنين · النمو والتطور · المراهقة · نمط الحياة والصحة</div>
+          <div class="unit-pill avail">🧬 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+      <div class="unit-card" onclick="openUnit('u8mag', this)">
+        <div class="unit-num-badge c-green">١١</div>
+        <div>
+          <div class="unit-title">المغناطيسيّة والكهرباء</div>
+          <div class="unit-topics">المغناطيس وأقطابه · المجال المغناطيسي · الكهرومغناطيس · الكهرباء الساكنة · الشحنات · التيار الكهربائي · الدوائر</div>
+          <div class="unit-pill avail">🧲 ١٢ استقصاء متاح</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sims-wrap" id="sims-u8circ" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٧ — الجهاز الدوري وتبادل الغازات</div>
+        <div class="sims-count">٧ استقصاء</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('circsystem')">
+          <div class="sim-thumb t2">❤️</div>
+          <div class="sim-body">
+            <div class="sim-num">7-1 · الجهاز الدوري</div>
+            <div class="sim-name">رحلة الدم في الجسم</div>
+            <div class="sim-desc">تتبّع مسار الدم من القلب إلى الرئتين وباقي أجزاء الجسم وعُد مجدداً</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('heart8')">
+          <div class="sim-thumb t1">🫀</div>
+          <div class="sim-body">
+            <div class="sim-num">7-2 · القلب</div>
+            <div class="sim-name">كيف يعمل القلب؟</div>
+            <div class="sim-desc">شاهد الحجرات الأربعة والصمّامات وكيف ينقبض القلب لضخّ الدم</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('blood8')">
+          <div class="sim-thumb t3">🩸</div>
+          <div class="sim-body">
+            <div class="sim-num">7-3 · الدم</div>
+            <div class="sim-name">مكوّنات الدم</div>
+            <div class="sim-desc">اكتشف البلازما وخلايا الدم الحمراء والبيضاء والصفائح الدموية ووظيفة كل منها</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('vessels8')">
+          <div class="sim-thumb t4">🔬</div>
+          <div class="sim-body">
+            <div class="sim-num">7-4 · الأوعية الدموية</div>
+            <div class="sim-name">شرايين وأوردة وشعيرات</div>
+            <div class="sim-desc">قارن تركيب الشرايين والأوردة والشعيرات الدموية واكتشف وظيفة كلٍّ منها</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('lungs8')">
+          <div class="sim-thumb t5">🫁</div>
+          <div class="sim-body">
+            <div class="sim-num">7-5 · الجهاز التنفسي</div>
+            <div class="sim-name">مسار الهواء في الرئتين</div>
+            <div class="sim-desc">تتبّع مسار الهواء من الأنف حتى الحويصلات — الشهيق والزفير بصرياً</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('gasex8')">
+          <div class="sim-thumb t5">💨</div>
+          <div class="sim-body">
+            <div class="sim-num">7-6 · تبادل الغازات</div>
+            <div class="sim-name">الحويصلات الهوائية</div>
+            <div class="sim-desc">شاهد كيف ينتشر الأكسجين من الهواء إلى الدم وثاني أكسيد الكربون في الاتجاه المعاكس</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('respiration8')">
+          <div class="sim-thumb t6">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">7-7 · التنفس الهوائي</div>
+            <div class="sim-name">جلوكوز + أكسجين = طاقة</div>
+            <div class="sim-desc">تتبّع تفاعل التنفس الخلوي واكتشف كيف تحصل خلاياك على الطاقة من الغذاء</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('fitness8')">
+          <div class="sim-thumb t8">🏃</div>
+          <div class="sim-body">
+            <div class="sim-num">7-8 · اللياقة البدنية</div>
+            <div class="sim-name">معدّل النبض والتمارين</div>
+            <div class="sim-desc">اكتشف كيف تؤثر التمارين الرياضية على معدّل النبض وتدفّق الدم للعضلات</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('smoking8')">
+          <div class="sim-thumb" style="background:linear-gradient(135deg,#7f8c8d,#566573);font-size:28px;display:flex;align-items:center;justify-content:center">🚭</div>
+          <div class="sim-body">
+            <div class="sim-num">7-9 · السجائر والصحة</div>
+            <div class="sim-name">أضرار التدخين على الجسم</div>
+            <div class="sim-desc">اكتشف تأثير النيكوتين والقطران وأول أكسيد الكربون على القلب والرئتين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sims-wrap" id="sims-u8mag" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ١١ — المغناطيسيّة والكهرباء</div>
+        <div class="sims-count">١٢ استقصاء</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('magnets')">
+          <div class="sim-thumb t1">🧲</div>
+          <div class="sim-body">
+            <div class="sim-num">11-1 · المغناطيس وأقطابه</div>
+            <div class="sim-name">الجذب والتنافر</div>
+            <div class="sim-desc">اكتشف قاعدة القطبين — المتشابهان يتنافران والمختلفان يتجاذبان</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('magcompare')">
+          <div class="sim-thumb t4">📏</div>
+          <div class="sim-body">
+            <div class="sim-num">11-2 · مقارنة أنواع المغناطيس</div>
+            <div class="sim-name">أيّها الأقوى؟</div>
+            <div class="sim-desc">قارن بين أنواع مغناطيسات مختلفة وقِس قوة كلٍّ منها بعدد المشابك</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('magfield')">
+          <div class="sim-thumb t5">🔮</div>
+          <div class="sim-body">
+            <div class="sim-num">11-3 · المجال المغناطيسيّ</div>
+            <div class="sim-name">خطوط المجال</div>
+            <div class="sim-desc">شاهد خطوط المجال المغناطيسي واستخدم البوصلة لاكتشاف الاتجاهات</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('electromagnet')">
+          <div class="sim-thumb t3">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">11-4 · الكهرومغناطيس</div>
+            <div class="sim-name">مغناطيس كهربائي</div>
+            <div class="sim-desc">اصنع كهرومغناطيساً وغيّر قوّته بتغيير اللفّات والتيار</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('emstronger')">
+          <div class="sim-thumb t3">💪</div>
+          <div class="sim-body">
+            <div class="sim-num">11-5 · تحسين الكهرومغناطيس</div>
+            <div class="sim-name">اجعله أقوى!</div>
+            <div class="sim-desc">غيّر عدد اللفّات وشدة التيار — واكتشف أثر كل متغيّر على القوة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('staticelec')">
+          <div class="sim-thumb t6">⚡</div>
+          <div class="sim-body">
+            <div class="sim-num">11-6 · الكهرباء الساكنة</div>
+            <div class="sim-name">الشحنات الكهربائية</div>
+            <div class="sim-desc">احتكِ بالشعر واكتشف قواعد التجاذب والتنافر بين الشحنات</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('charges')">
+          <div class="sim-thumb t6">⊕</div>
+          <div class="sim-body">
+            <div class="sim-num">11-7 · الشحنة الموجبة والسالبة</div>
+            <div class="sim-name">نوع الشحنة</div>
+            <div class="sim-desc">اكتشف نوع الشحنة الكهربائية باستخدام جهاز القياس — موجبة أم سالبة؟</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('electrons')">
+          <div class="sim-thumb t1">⚛️</div>
+          <div class="sim-body">
+            <div class="sim-num">11-8 · حركة الإلكترونات</div>
+            <div class="sim-name">الإلكترونات والشحن</div>
+            <div class="sim-desc">شاهد كيف تنتقل الإلكترونات بين المواد عند الدلك وتُنشئ الشحنة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('circuit8')">
+          <div class="sim-thumb t2">🔌</div>
+          <div class="sim-body">
+            <div class="sim-num">11-9 · الدائرة الكهربائية</div>
+            <div class="sim-name">على التوالي وعلى التوازي</div>
+            <div class="sim-desc">ابنِ دوائر وافصل المصابيح — واكتشف الفرق بين النوعين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('cellvoltage')">
+          <div class="sim-thumb t2">🔋</div>
+          <div class="sim-body">
+            <div class="sim-num">11-10 · توصيل الخلايا</div>
+            <div class="sim-name">الجهد الإجمالي</div>
+            <div class="sim-desc">صِل خلايا على التوالي وشاهد كيف يتضاعف الجهد ويزيد التيار</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('resistance')">
+          <div class="sim-thumb t5">〰️</div>
+          <div class="sim-body">
+            <div class="sim-num">11-11 · المقاومة الكهربائية</div>
+            <div class="sim-name">التحكم في التيار</div>
+            <div class="sim-desc">غيّر المقاومة وشاهد أثرها على شدة التيار وسطوع المصباح</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('parallel12')">
+          <div class="sim-thumb t3">🔀</div>
+          <div class="sim-body">
+            <div class="sim-num">11-12 · التوصيل على التوازي</div>
+            <div class="sim-name">الدوائر المتوازية</div>
+            <div class="sim-desc">كل مصباح على فرع مستقل — افصل واحداً وشاهد ماذا يحدث للباقين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         الوحدة ٨ — الأملاح
+    ═══════════════════════════════════════════════════════ -->
+    <div class="sims-wrap" id="sims-u8salts" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٨ — الأملاح</div>
+        <div class="sims-count">٤ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('salts_what')">
+          <div class="sim-thumb t7">🧂</div>
+          <div class="sim-body">
+            <div class="sim-num">8-1 · ما الملح؟</div>
+            <div class="sim-name">تنوّع الأملاح واستخداماتها</div>
+            <div class="sim-desc">اكتشف أنواع الأملاح المختلفة — كلوريد الصوديوم وكبريتات النحاس ونترات البوتاسيوم — وتطبيقاتها في الحياة</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('salts_metal')">
+          <div class="sim-thumb t4">⚗️</div>
+          <div class="sim-body">
+            <div class="sim-num">8-2 · فلز + حمض</div>
+            <div class="sim-name">تحضير ملح كبريتات الخارصين</div>
+            <div class="sim-desc">جرّب تفاعل الفلزات مع الأحماض المخففة وشاهد كيف يتكوّن الملح ويُطلق الهيدروجين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('salts_oxide')">
+          <div class="sim-thumb t1">🔬</div>
+          <div class="sim-body">
+            <div class="sim-num">8-2ب · أكسيد الفلز + حمض</div>
+            <div class="sim-name">تكوين ملح كبريتات النحاس</div>
+            <div class="sim-desc">الفلزات غير النشطة لا تتفاعل مباشرة مع الأحماض — استخدم أكسيدها بدلاً منها وشاهد اللون الأزرق يظهر</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('salts_carbonate')">
+          <div class="sim-thumb t6">🫧</div>
+          <div class="sim-body">
+            <div class="sim-num">8-3 · كربونات + حمض</div>
+            <div class="sim-name">كربونات الفلزات والأحماض</div>
+            <div class="sim-desc">شاهد فوران ثاني أكسيد الكربون عند تفاعل الكربونات مع الحمض — واكتشف ملح كلوريد النحاس الناتج</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         الوحدة ٩ — الصوت
+    ═══════════════════════════════════════════════════════ -->
+    <div class="sims-wrap" id="sims-u8sound" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ٩ — الصوت</div>
+        <div class="sims-count">٤ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('sound_pitch')">
+          <div class="sim-thumb t7">🎵</div>
+          <div class="sim-body">
+            <div class="sim-num">9-1 · تغيير الأصوات</div>
+            <div class="sim-name">شدة الصوت وحِدّته</div>
+            <div class="sim-desc">غيّر شدة الصوت وحدّته في الآلات الموسيقية — واكتشف الفرق بين الصوت القوي والضعيف والرفيع والغليظ</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('sound_vibration')">
+          <div class="sim-thumb t4">〰️</div>
+          <div class="sim-body">
+            <div class="sim-num">9-2 · الاهتزازات</div>
+            <div class="sim-name">السعة والتردد</div>
+            <div class="sim-desc">شاهد اهتزاز المسطرة وتغيير طولها — وتعلّم كيف يؤثر كل متغيّر على تردد الاهتزاز وسعته</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('sound_travel')">
+          <div class="sim-thumb t1">📡</div>
+          <div class="sim-body">
+            <div class="sim-num">9-3 · كيف ينتقل الصوت؟</div>
+            <div class="sim-name">الموجة الصوتية والفراغ</div>
+            <div class="sim-desc">اكتشف كيف تدفع الجزيئات بعضها بعضاً لنقل الصوت — وتحقّق لماذا لا ينتقل الصوت في الفراغ</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('sound_oscilloscope')">
+          <div class="sim-thumb t6">📊</div>
+          <div class="sim-body">
+            <div class="sim-num">9-4 · جهاز رسم الذبذبات</div>
+            <div class="sim-name">الموجة الصوتية على الشاشة</div>
+            <div class="sim-desc">شاهد كيف تتغير صورة الموجة على شاشة جهاز رسم الذبذبات عند تغيير شدة الصوت أو حدّته</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         الوحدة ١٠ — التكاثر والتطوّر
+    ═══════════════════════════════════════════════════════ -->
+    <div class="sims-wrap" id="sims-u8repro" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ١٠ — التكاثر والتطوّر</div>
+        <div class="sims-count">٥ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('repro_gametes')">
+          <div class="sim-thumb t3">🧬</div>
+          <div class="sim-body">
+            <div class="sim-num">10-1 · الأمشاج</div>
+            <div class="sim-name">البويضة والحيوان المنوي</div>
+            <div class="sim-desc">قارن بين البويضة والحيوان المنوي من حيث الحجم والشكل والكروموسومات — واكتشف لماذا يحتوي كلٌّ منهما على 23 كروموسوماً فقط</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('repro_fertilisation')">
+          <div class="sim-thumb t9">❤️</div>
+          <div class="sim-body">
+            <div class="sim-num">10-2 · الإخصاب والحمل</div>
+            <div class="sim-name">من الإخصاب إلى الجنين</div>
+            <div class="sim-desc">تتبّع رحلة البويضة من الإباضة حتى انغراسها في الرحم — وشاهد تحوّلها من خلية واحدة إلى جنين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('repro_development')">
+          <div class="sim-thumb t1">🤰</div>
+          <div class="sim-body">
+            <div class="sim-num">10-3 · نمو الجنين</div>
+            <div class="sim-name">من جنين إلى طفل وليد</div>
+            <div class="sim-desc">شاهد مراحل نمو الجنين أسبوعاً بأسبوع — والمشيمة والحبل السرّي والسائل الأمنيوني وكيف تحمي الجنين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('repro_growth')">
+          <div class="sim-thumb t4">📈</div>
+          <div class="sim-body">
+            <div class="sim-num">10-4 · النمو والتطوّر</div>
+            <div class="sim-name">مراحل حياة الإنسان</div>
+            <div class="sim-desc">استكشف كيف تنقسم الخلايا وتنمو — وتتبّع المراحل من الرضيع إلى الطفل إلى المراهق إلى الراشد</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('repro_lifestyle')">
+          <div class="sim-thumb t2">💊</div>
+          <div class="sim-body">
+            <div class="sim-num">10-5 · نمط الحياة والصحة</div>
+            <div class="sim-name">النيكوتين وتأثيراته</div>
+            <div class="sim-desc">اكتشف كيف يؤثر التدخين والتغذية والعقاقير على النمو والصحة — وشاهد تأثير النيكوتين على وزن المولود</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Grade 9 -->
+  <div id="panel-9" class="main-content" style="display:none">
+
+    <!-- Subject selector tabs -->
+    <div id="g9-subject-bar" style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap">
+      <button id="g9-tab-chem" onclick="switchG9Subject('chem')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(192,57,43,0.3);
+          background:rgba(192,57,43,0.08);color:#C0392B;font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">⚗️</span> الكيمياء
+      </button>
+      <button id="g9-tab-phys" onclick="switchG9Subject('phys')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(26,143,168,0.25);
+          background:var(--bg-card2);color:var(--text-secondary);font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">⚡</span> الفيزياء
+      </button>
+      <button id="g9-tab-bio" onclick="switchG9Subject('bio')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(39,174,96,0.25);
+          background:var(--bg-card2);color:var(--text-secondary);font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">🧬</span> الأحياء
+      </button>
+    </div>
+
+    <!-- ═══ CHEMISTRY ═══ -->
+    <div id="g9-chem" class="g9-subject-panel">
+      <div class="panel-title">كتاب الكيمياء — الصف التاسع</div>
+      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" style="margin-top:16px">
+
+        <div class="unit-card" onclick="openUnit('g9chem6', this)">
+          <div class="unit-num-badge">٦</div>
+          <div>
+            <div class="unit-title">الأحماض والقواعد</div>
+            <div class="unit-topics">خصائص الأحماض والقواعد · الكواشف وتغيُّر اللون · مقياس pH · أيونات الهيدروجين والهيدروكسيد · أكاسيد الفلزات واللافلزات</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9chem7', this)">
+          <div class="unit-num-badge c-teal">٧</div>
+          <div>
+            <div class="unit-title">معادلات التفاعلات الكيميائية</div>
+            <div class="unit-topics">المعادلات اللفظية · المعادلات الرمزية · موازنة المعادلات · رموز الحالة الفيزيائية · المعادلات الأيونية</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9chem8', this)">
+          <div class="unit-num-badge c-green">٨</div>
+          <div>
+            <div class="unit-title">تكوين الأملاح</div>
+            <div class="unit-topics">تفاعلات تكوين الأملاح · الأحماض مع القواعد والفلزات والكربونات · تحضير الأملاح الذائبة وغير الذائبة · المعايرة والترسيب</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9chem9', this)">
+          <div class="unit-num-badge c-purple">٩</div>
+          <div>
+            <div class="unit-title">التحليل الكيميائي</div>
+            <div class="unit-topics">الكشف عن الماء والغازات · الكواشف اللامائية · الكشف عن الكاتيونات بالترسيب ولهب البنسن · الكشف عن الأنيونات بالأيونات الفضية والباريوم والكربونات</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9chem10', this)">
+          <div class="unit-num-badge c-teal">١٠</div>
+          <div>
+            <div class="unit-title">الأرض والغلاف الجوّي</div>
+            <div class="unit-topics">مكوّنات الهواء · الغازات النبيلة · مصادر التلوّث · الاحتراق الكامل وغير الكامل · المطر الحمضي · تأثير الدفيئة · التفكك الحراري للحجر الجيري · معالجة التربة</div>
+            <div class="unit-pill avail">🌍 ٥ استقصاءات متاحة</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ sims: g9chem6 ══ -->
+      <div class="sims-wrap" id="sims-g9chem6" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة السادسة — الأحماض والقواعد</div>
+          <div class="sims-count">٥ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9acidprop')">
+            <div class="sim-thumb t2">🍋</div>
+            <div class="sim-body">
+              <div class="sim-num">٦-١ · خصائص الأحماض والقواعد</div>
+              <div class="sim-name">ما الفرق بين الحمض والقاعدة؟</div>
+              <div class="sim-desc">استكشف خصائص الأحماض والقلويات وصنِّف محاليل يومية من حولك</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9indicator')">
+            <div class="sim-thumb t9">🌺</div>
+            <div class="sim-body">
+              <div class="sim-num">٦-٢ · الكواشف وتغيُّر اللون</div>
+              <div class="sim-name">ورق تبّاع الشمس والكاشف العام</div>
+              <div class="sim-desc">استخدم الكواشف لتحديد طبيعة المحاليل وراقب تغيُّر اللون عند إضافتها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9phscale')">
+            <div class="sim-thumb t7">📊</div>
+            <div class="sim-body">
+              <div class="sim-num">٦-٣ · مقياس الرقم الهيدروجيني pH</div>
+              <div class="sim-name">سلّم pH من 0 إلى 14</div>
+              <div class="sim-desc">تعلّم كيف يقيس مقياس pH شدّة حموضة المحلول أو قلويّته وتعرّف على المواد اليومية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9ions')">
+            <div class="sim-thumb t4">⚛️</div>
+            <div class="sim-body">
+              <div class="sim-num">٦-٤ · أيونات الهيدروجين والهيدروكسيد</div>
+              <div class="sim-name">H⁺ و OH⁻ في المحاليل</div>
+              <div class="sim-desc">اكتشف العلاقة بين أيونات H⁺ و OH⁻ وكيف تُحدّد طبيعة المحلول وقيمة pH</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9oxides')">
+            <div class="sim-thumb t6">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">٦-٥ · أكاسيد الفلزات واللافلزات</div>
+              <div class="sim-name">الأكاسيد الحمضية والقاعدية والمتذبذبة</div>
+              <div class="sim-desc">صنِّف أكاسيد العناصر المختلفة وحدِّد طبيعتها الكيميائية عند إذابتها في الماء</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g9chem7 ══ -->
+      <div class="sims-wrap" id="sims-g9chem7" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة السابعة — معادلات التفاعلات الكيميائية</div>
+          <div class="sims-count">٣ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9wordeq')">
+            <div class="sim-thumb t2">📝</div>
+            <div class="sim-body">
+              <div class="sim-num">٧-١ · المعادلات اللفظية</div>
+              <div class="sim-name">صِف التفاعل بالكلمات</div>
+              <div class="sim-desc">تعلَّم كيف تُعبِّر عن تفاعل كيميائي بلغة الكلمات وحدِّد المواد المتفاعلة والناتجة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9balance')">
+            <div class="sim-thumb t9">⚖️</div>
+            <div class="sim-body">
+              <div class="sim-num">٧-٢ · موازنة المعادلات الرمزية</div>
+              <div class="sim-name">حفظ الذرات في التفاعل</div>
+              <div class="sim-desc">وازن المعادلات الرمزية خطوة بخطوة وتحقق من أن عدد الذرات متساوٍ على الطرفين</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9statesym')">
+            <div class="sim-thumb t7">🏷️</div>
+            <div class="sim-body">
+              <div class="sim-num">٧-٣ · رموز الحالة الفيزيائية والمعادلات الأيونية</div>
+              <div class="sim-name">من (s) إلى (aq) — رموز الحالة</div>
+              <div class="sim-desc">أضِف رموز الحالة الفيزيائية للمعادلات واكتشف المعادلات الأيونية الصافية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g9chem9 ══ -->
+      <div class="sims-wrap" id="sims-g9chem9" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة التاسعة — التحليل الكيميائي</div>
+          <div class="sims-count">٥ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9watergas')">
+            <div class="sim-thumb t6">💧</div>
+            <div class="sim-body">
+              <div class="sim-num">٩-١ · الكشف عن الماء والغازات</div>
+              <div class="sim-name">كيف نعرف وجود الماء والغازات؟</div>
+              <div class="sim-desc">استكشف اختبارات الكشف عن الماء بالكواشف اللامائية، وتعرّف على كيفية الكشف عن غازات O₂ و H₂ و NH₃ و CO₂ و Cl₂</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9flametest')">
+            <div class="sim-thumb t4">🔥</div>
+            <div class="sim-body">
+              <div class="sim-num">٩-٢ · اختبار اللهب — الكاتيونات</div>
+              <div class="sim-name">الكاتيون يعطي اللهب لونه المميز</div>
+              <div class="sim-desc">أجرِ اختبار اللهب على عينات مجهولة وحدِّد أيون الفلز من لون اللهب — Li⁺ أحمر قرمزي، Na⁺ أصفر، K⁺ أرجواني، Cu²⁺ أخضر أزرق</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9cationppt')">
+            <div class="sim-thumb t9">🧪</div>
+            <div class="sim-body">
+              <div class="sim-num">٩-٣ · اختبار الترسيب — الكاتيونات</div>
+              <div class="sim-name">هيدروكسيد الصوديوم والأمونيا كاشفان</div>
+              <div class="sim-desc">أضِف هيدروكسيد الصوديوم أو الأمونيا لمحاليل الكاتيونات وراقب الراسب الملوّن الناتج لتحديد Fe²⁺ و Fe³⁺ و Cu²⁺ و Ca²⁺ و Zn²⁺</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9aniontest')">
+            <div class="sim-thumb t2">⚗️</div>
+            <div class="sim-body">
+              <div class="sim-num">٩-٤ · اختبار الأنيونات</div>
+              <div class="sim-name">الفضة والباريوم والكربون كواشف الأنيونات</div>
+              <div class="sim-desc">استخدم نترات الفضة والباريوم وحمض الهيدروكلوريك للكشف عن Cl⁻ و Br⁻ و SO₄²⁻ و CO₃²⁻ و NO₃⁻</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9chemlab')">
+            <div class="sim-thumb t7">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">٩-٥ · مختبر التحليل الكيميائي المتكامل</div>
+              <div class="sim-name">مجهول المحتوى — ما هذه المادة؟</div>
+              <div class="sim-desc">استخدم جميع اختبارات التحليل النوعي لتحديد مادة مجهولة تحتوي على كاتيون وأنيون — فكِّر كيميائياً!</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g9chem8 ══ -->
+      <div class="sims-wrap" id="sims-g9chem8" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة الثامنة — تكوين الأملاح</div>
+          <div class="sims-count">٤ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9saltacid')">
+            <div class="sim-thumb t9">🧪</div>
+            <div class="sim-body">
+              <div class="sim-num">٨-١ · الأحماض مع القواعد والأكاسيد</div>
+              <div class="sim-name">حمض + قاعدة → ملح + ماء</div>
+              <div class="sim-desc">استكشف تفاعل التعادُل وتكوين الأملاح عبر مفاعلة الأحماض مع القواعد والأكاسيد الفلزية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9saltmetal')">
+            <div class="sim-thumb t4">⚗️</div>
+            <div class="sim-body">
+              <div class="sim-num">٨-٢ · الأحماض مع الفلزات والكربونات</div>
+              <div class="sim-name">الفلز + الحمض → ملح + H₂</div>
+              <div class="sim-desc">راقب تفاعل الفلزات النشيطة مع الأحماض وتفاعل الكربونات لإنتاج غاز ثاني أكسيد الكربون</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9saltmake')">
+            <div class="sim-thumb t6">💎</div>
+            <div class="sim-body">
+              <div class="sim-num">٨-٣ · تحضير الأملاح الذائبة في المختبر</div>
+              <div class="sim-name">بخِّر وبرِّد واحصل على البلورات</div>
+              <div class="sim-desc">اتبع خطوات تحضير الملح الذائب بإضافة الفائض + الترشيح + التبخير + التبلور</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9salttitra')">
+            <div class="sim-thumb t9">🌡️</div>
+            <div class="sim-body">
+              <div class="sim-num">٨-٤ · المعايرة والترسيب</div>
+              <div class="sim-name">قطرة بقطرة حتى نقطة النهاية</div>
+              <div class="sim-desc">أجرِ تجربة المعايرة لتحضير ملح نقي واكتشف كيف يُنتَج الراسب من تفاعل محلولين</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g9chem10 ══ -->
+      <div class="sims-wrap" id="sims-g9chem10" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة العاشرة — الأرض والغلاف الجوّي</div>
+          <div class="sims-count">٥ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9aircomp')">
+            <div class="sim-thumb t5">🌬️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-١ · مكوّنات الهواء والغازات النبيلة</div>
+              <div class="sim-name">ما الذي يملأ كل شهقة هواء؟</div>
+              <div class="sim-desc">استكشف تركيب الغلاف الجوّي، نسب الغازات، وخصائص الغازات النبيلة واستخداماتها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9combustion')">
+            <div class="sim-thumb t3">🔥</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-٢ · الاحتراق الكامل وغير الكامل</div>
+              <div class="sim-name">الوقود + الأكسجين = ماذا؟</div>
+              <div class="sim-desc">قارن بين احتراق الميثان الكامل وغير الكامل وشاهد فرق المنتجات: CO₂ أم CO الخطير؟</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9acidrain')">
+            <div class="sim-thumb t8">🌧️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-٣ · المطر الحمضي وتأثيره</div>
+              <div class="sim-name">الغازات + السحاب = مطر مدمِّر!</div>
+              <div class="sim-desc">تعرَّف على كيف يتكوَّن المطر الحمضي من SO₂ وNOₓ وتأثيره على الأبنية والتربة والكائنات</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9greenhouse')">
+            <div class="sim-thumb t6">🌡️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-٤ · تأثير الدفيئة والاحترار العالمي</div>
+              <div class="sim-name">الأرض تحت الغطاء الغازي!</div>
+              <div class="sim-desc">استكشف آلية تأثير الدفيئة وغازاته وكيف تُسبِّب الأنشطة البشرية الاحترار العالمي وتغيُّر المناخ</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9limestone')">
+            <div class="sim-thumb t2">🪨</div>
+            <div class="sim-body">
+              <div class="sim-num">١٠-٥ · الحجر الجيري والتفكك الحراري</div>
+              <div class="sim-name">من الصخرة إلى الجير الحيّ!</div>
+              <div class="sim-desc">تابع التفكك الحراري لكربونات الكالسيوم، وتحضير الجير الحيّ، ومعالجة التربة الحمضية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- end g9-chem -->
+
+    <!-- ═══ PHYSICS ═══ -->
+    <div id="g9-phys" class="g9-subject-panel" style="display:none">
+      <div class="panel-title">كتاب الفيزياء — الصف التاسع</div>
+      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" style="margin-top:16px">
+        <div class="unit-card" onclick="openUnit('g9phys11', this)">
+          <div class="unit-num-badge c-green">١١</div>
+          <div>
+            <div class="unit-title">مصادر الطاقة</div>
+            <div class="unit-topics">مصادر الطاقة · المتجددة وغير المتجددة · الكفاءة · القدرة</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys12', this)">
+          <div class="unit-num-badge c-teal">١٢</div>
+          <div>
+            <div class="unit-title">انعكاس الضوء</div>
+            <div class="unit-topics">قانون الانعكاس · العمود المقام · مخطط الأشعة</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys13', this)">
+          <div class="unit-num-badge c-purple">١٣</div>
+          <div>
+            <div class="unit-title">انكسار الضوء</div>
+            <div class="unit-topics">الانتقال بين الأوساط · قانون سنيل · الزاوية الحرجة</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys14', this)">
+          <div class="unit-num-badge c-gold">١٤</div>
+          <div>
+            <div class="unit-title">العدسات وتكوُّن الصور</div>
+            <div class="unit-topics">عدسة محدبة ومقعرة · صورة حقيقية وتقديرية · البعد البؤري</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys15', this)">
+          <div class="unit-num-badge c-green">١٥</div>
+          <div>
+            <div class="unit-title">التيار وفرق الجهد والقوة الدافعة الكهربائية</div>
+            <div class="unit-topics">التيار الكهربائي · الشحنة الكهربائية · فرق الجهد · القوة الدافعة · القدرة</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+        <div class="unit-card" onclick="openUnit('g9phys16', this)">
+          <div class="unit-num-badge c-teal">١٦</div>
+          <div>
+            <div class="unit-title">المقاومة الكهربائية</div>
+            <div class="unit-topics">حساب المقاومة · قانون أوم · عوامل المقاومة السلكية · خاصية I–V</div>
+            <div class="unit-pill avail">🔓 متاح</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys11 ══ -->
+      <div class="sims-wrap" id="sims-g9phys11" style="margin-top:28px">
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9energymix')">
+            <div class="sim-thumb t7">⚡</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-١ · تصنيف مصادر الطاقة</div>
+              <div class="sim-name">متجددة أم غير متجددة؟</div>
+              <div class="sim-desc">اسحب المصادر إلى التصنيف الصحيح، ثم استكشف مزيج الطاقة الأنسب للبيئة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9solar')">
+            <div class="sim-thumb t6">☀️</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٢ · الطاقة الشمسية</div>
+              <div class="sim-name">شدة الإشعاع والخلايا الشمسية</div>
+              <div class="sim-desc">غيّر زاوية اللوح وشدة الإشعاع ولاحظ أثر ذلك على القدرة والكفاءة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9wind')">
+            <div class="sim-thumb t2">💨</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٣ · طاقة الرياح</div>
+              <div class="sim-name">سرعة الرياح والتوربينات</div>
+              <div class="sim-desc">اختبر تأثير سرعة الرياح وعدد التوربينات على الإنتاج الكهربائي</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9hydro')">
+            <div class="sim-thumb t8">🌊</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٤ · المائية والمدّ والجزر</div>
+              <div class="sim-name">منسوب الماء والطاقة الناتجة</div>
+              <div class="sim-desc">شاهد كيف يؤثر فرق الارتفاع وتدفّق الماء والمدّ والجزر على القدرة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9fossil')">
+            <div class="sim-thumb t3">🛢️</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٥ · الوقود الأحفوري والنووي</div>
+              <div class="sim-name">الطاقة مقابل الأثر البيئي</div>
+              <div class="sim-desc">قارن كثافة الطاقة والانبعاثات والمخاطر بين المصادر غير المتجددة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9efficiency')">
+            <div class="sim-thumb t5">📈</div>
+            <div class="sim-body">
+              <div class="sim-num">١١-٦ · كفاءة الطاقة</div>
+              <div class="sim-name">Ein و Eout والقدرة</div>
+              <div class="sim-desc">احسب الكفاءة والطاقة المهدرة والقدرة، ثم حسّن أداء النظام</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys12 ══ -->
+      <div class="sims-wrap" id="sims-g9phys12" style="margin-top:28px">
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('g9refl')">
+            <div class="sim-thumb t6">🪞</div>
+            <div class="sim-body">
+              <div class="sim-num">١٢-١ · قانون الانعكاس</div>
+              <div class="sim-name">زاوية السقوط = زاوية الانعكاس</div>
+              <div class="sim-desc">حرّك الشعاع على المرآة وشاهد كيف تتغير الزوايا، ثم ارسم مخطط الأشعة (Ray diagram)</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9mirror')">
+            <div class="sim-thumb t1">🕯️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٢-٢ · صورة المرآة المستوية</div>
+              <div class="sim-name">اكتشف خصائص الصورة</div>
+              <div class="sim-desc">حرّك الجسم أمام المرآة وشاهد خصائص الصورة: حجمها وبُعدها واتجاهها وهل هي حقيقية أم تقديرية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9rayrefl')">
+            <div class="sim-thumb t7">✏️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٢-٣ · نشاط ١-١٢</div>
+              <div class="sim-name">ارسم مخطط الأشعة خطوة بخطوة</div>
+              <div class="sim-desc">ارسم شعاعَين من رأس الجسم لتحديد موقع الصورة خلف المرآة، كما في مثال الكتاب</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9refltype')">
+            <div class="sim-thumb t5">🌊</div>
+            <div class="sim-body">
+              <div class="sim-num">١٢-٤ · أنواع الانعكاس</div>
+              <div class="sim-name">منتظم مقابل متشتت</div>
+              <div class="sim-desc">قارن الانعكاس على الأسطح اللامعة والخشنة وشاهد الفرق بين الانعكاس المنتظم والمتشتت</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys13 ══ -->
+      <div class="sims-wrap" id="sims-g9phys13" style="margin-top:28px">
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('g9refract')">
+            <div class="sim-thumb t6">🔎</div>
+            <div class="sim-body">
+              <div class="sim-num">١٣-١ · انكسار الضوء</div>
+              <div class="sim-name">من الهواء إلى الزجاج</div>
+              <div class="sim-desc">غيّر زاوية السقوط ومعامل الانكسار وشاهد زاوية الانكسار حسب قانون سنيل</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9refractN')">
+            <div class="sim-thumb t7">💎</div>
+            <div class="sim-body">
+              <div class="sim-num">١٣-٢ · معامل الانكسار</div>
+              <div class="sim-name">قِس سرعة الضوء في المادة</div>
+              <div class="sim-desc">قارن معاملات الانكسار لمواد مختلفة واحسب سرعة الضوء داخلها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9tir')">
+            <div class="sim-thumb t1">🌈</div>
+            <div class="sim-body">
+              <div class="sim-num">١٣-٣ · نشاط ٢-١٣</div>
+              <div class="sim-name">الانعكاس الكلي الداخلي</div>
+              <div class="sim-desc">استكشف الزاوية الحرجة وظاهرة الانعكاس الكلي الداخلي خطوةً بخطوة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9fiber')">
+            <div class="sim-thumb t5">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">١٣-٤ · الألياف البصرية</div>
+              <div class="sim-name">كيف يسافر الضوء في الليف؟</div>
+              <div class="sim-desc">راقب كيف يسافر الضوء داخل الألياف البصرية بالانعكاس الكلي المتكرر</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys14 ══ -->
+      <div class="sims-wrap" id="sims-g9phys14" style="margin-top:28px">
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('g9lens')">
+            <div class="sim-thumb t7">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">١٤-١ · العدسات والصور</div>
+              <div class="sim-name">حرّك الجسم وشاهد الصورة</div>
+              <div class="sim-desc">استكشف تأثير نوع العدسة وبعد الجسم على نوع الصورة وحجمها وموقعها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9raydiagram')">
+            <div class="sim-thumb t6">✏️</div>
+            <div class="sim-body">
+              <div class="sim-num">١٤-٢ · نشاط ١-١٤</div>
+              <div class="sim-name">ارسم مخطط الأشعة</div>
+              <div class="sim-desc">ارسم الشعاعَين على الشاشة خطوةً بخطوة وحدّد موقع الصورة الحقيقية أو التقديرية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys15 ══ -->
+      <div class="sims-wrap" id="sims-g9phys15" style="margin-top:28px">
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('g9current')">
+            <div class="sim-thumb t2">⚡</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١-١٥ · قياس التيار الكهربائي</div>
+              <div class="sim-name">بنِ الدائرة وقِس التيار</div>
+              <div class="sim-desc">اضبط جهد البطارية ونوع التوصيل وشاهد حركة الإلكترونات وقراءة الأميتر والشحنة المتدفقة بمرور الزمن</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9voltage')">
+            <div class="sim-thumb t7">🔋</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٢-١٥ · فرق الجهد والقوة الدافعة</div>
+              <div class="sim-name">الجهد يدفع الإلكترونات</div>
+              <div class="sim-desc">قارن فرق الجهد بين نقطتين وقياس القوة الدافعة الكهربائية (e.m.f.) وشاهد كيف تعتمد الطاقة المنقولة على كمية الشحنة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9ohm')">
+            <div class="sim-thumb t8">📐</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٣-١٥ · قانون أوم والمقاومة</div>
+              <div class="sim-name">العلاقة بين V و I و R</div>
+              <div class="sim-desc">غيّر الجهد والمقاومة وارسم منحنى I–V وشاهد ميل المنحنى وصفة المقاوم الأومي مقابل المصباح</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9power15')">
+            <div class="sim-thumb t5">💡</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٤-١٥ · القدرة الكهربائية والطاقة</div>
+              <div class="sim-name">P = IV وحساب الطاقة</div>
+              <div class="sim-desc">احسب القدرة والطاقة المستهلكة لأجهزة مختلفة، وشاهد ما يؤثر على فاتورة الكهرباء</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ sims: g9phys16 ══ -->
+      <div class="sims-wrap" id="sims-g9phys16" style="margin-top:28px">
+        <div class="sims-grid">
+          <div class="sim-card" onclick="openSim('g9ohmslaw')">
+            <div class="sim-thumb t2">🔩</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١-١٦ · قياس المقاومة</div>
+              <div class="sim-name">R = V ÷ I بشكل حيّ</div>
+              <div class="sim-desc">اضبط الجهد وشاهد قراءة الأميتر والفولتميتر، ثم احسب المقاومة من R = V/I وتحقق من قانون أوم</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9wireres')">
+            <div class="sim-thumb t7">〰️</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٢-١٦ · عوامل المقاومة السلكية</div>
+              <div class="sim-name">الطول · المقطع · المادة</div>
+              <div class="sim-desc">غيّر طول السلك ومساحة مقطعه ونوع المادة وشاهد كيف تتأثر المقاومة — تجربة نشاط ١-١٦ من الكتاب</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+          <div class="sim-card" onclick="openSim('g9ivchar')">
+            <div class="sim-thumb t8">📈</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٣-١٦ · خاصية I–V</div>
+              <div class="sim-name">أومي vs غير أومي</div>
+              <div class="sim-desc">ارسم منحنى I–V للمقاوم الأومي والمصباح وقارن الفرق — متى يثبت R ومتى يتغير؟</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end g9-phys -->
+
+    <!-- ═══ BIOLOGY ═══ -->
+    <div id="g9-bio" class="g9-subject-panel" style="display:none">
+      <div class="panel-title">كتاب الأحياء — الصف التاسع</div>
+      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" style="margin-top:16px">
+
+        <div class="unit-card" onclick="openUnit('g9bio7', this)">
+          <div class="unit-num-badge c-teal">٧</div>
+          <div>
+            <div class="unit-title">التغذية في النبات</div>
+            <div class="unit-topics">أنواع التغذية · التمثيل الضوئي · الكلوروفيل · تركيب ورقة النبات · تكيُّف الأوراق · ثاني أكسيد الكربون والماء والضوء · الأملاح المعدنية · نقل السكروز</div>
+            <div class="unit-pill avail">🌿 ١٠ استقصاءات متاحة</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9bio8', this)">
+          <div class="unit-num-badge c-red">٨</div>
+          <div>
+            <div class="unit-title">الهضم في الإنسان</div>
+            <div class="unit-topics">مراحل الهضم · القناة الهضمية · الهضم الميكانيكي والكيميائي · الأنزيمات · الاستحلاب · الخملات · الامتصاص · التمثيل الغذائي</div>
+            <div class="unit-pill avail">🍽️ ٨ استقصاءات متاحة</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9bio9', this)">
+          <div class="unit-num-badge c-green">٩</div>
+          <div>
+            <div class="unit-title">النقل في النبات</div>
+            <div class="unit-topics">جهاز النقل في النبات · أوعية الخشب واللحاء · الحزم الوعائية · امتصاص الماء · الشعيرات الجذرية · النتح · البوتومتر · نقل الغذاء</div>
+            <div class="unit-pill avail">🌱 ٥ استقصاءات متاحة</div>
+          </div>
+        </div>
+
+        <div class="unit-card" onclick="openUnit('g9bio10', this)">
+          <div class="unit-num-badge c-purple">١٠</div>
+          <div>
+            <div class="unit-title">التحكم والتنظيم في النبات</div>
+            <div class="unit-topics">استجابة النبات للمنبّهات · الانتحاء الضوئي · الانتحاء الأرضي · هرمون الأوكسين IAA · استطالة الخلايا · قمة الساق والحساسية للضوء</div>
+            <div class="unit-pill avail">🌿 ٤ استقصاءات متاحة</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===== استقصاءات الوحدة السابعة — التغذية في النبات ===== -->
+      <div id="sims-g9bio7" class="sims-wrap" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة ٧ — التغذية في النبات</div>
+          <div class="sims-count">١٠ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9bio7n1')">
+            <div class="sim-thumb t1">🌱</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١-٧ · أنواع التغذية</div>
+              <div class="sim-name">التغذية الذاتية والغيرية</div>
+              <div class="sim-desc">فرِّق بين المواد العضوية وغير العضوية وصنِّف الكائنات: مَن يصنع غذاءه ومَن يحصل عليه؟</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n2')">
+            <div class="sim-thumb t4">☀️</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٢-٧ · التمثيل الضوئي</div>
+              <div class="sim-name">معادلة التمثيل الضوئي والكلوروفيل</div>
+              <div class="sim-desc">اكتشف معادلة التمثيل الضوئي الموزونة ودور الكلوروفيل في تحويل الطاقة الضوئية إلى كيميائية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n3')">
+            <div class="sim-thumb t7">🍃</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٣-٧ · تركيب ورقة النبات</div>
+              <div class="sim-name">طبقات الورقة والثغور تحت المجهر</div>
+              <div class="sim-desc">استكشف البشرة والنسيج الوسطي العمودي والإسفنجي والأوعية الوعائية والثغور والخلايا الحارسة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n4')">
+            <div class="sim-thumb t3">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٤-٧ · تكيُّف أوراق النبات</div>
+              <div class="sim-name">تكيُّف الأوراق لعملية التمثيل الضوئي</div>
+              <div class="sim-desc">استقصِ كيف يساعد تكيُّف ورقة النبات — من السطح الواسع إلى الثغور — على أقصى كفاءة للتمثيل الضوئي</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n5')">
+            <div class="sim-thumb t9">🧪</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٥-٧ · الكشف عن النشا</div>
+              <div class="sim-name">اختبار اليود — الكشف عن وجود النشا</div>
+              <div class="sim-desc">طبِّق خطوات التجربة المخبرية: تسخين الورقة، الكحول الإيثيلي، اليود — وفسِّر تغيُّر اللون</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n6')">
+            <div class="sim-thumb t6">💧</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٦-٧ · التمثيل الضوئي في نبات مائي</div>
+              <div class="sim-name">فقاعات الأكسجين وشدة الضوء في إيلوديا</div>
+              <div class="sim-desc">عُدَّ فقاعات الأكسجين الناتجة وسجِّل البيانات في الجدول وارسم البيان واستنتج العلاقة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n7')">
+            <div class="sim-thumb t8">💡</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٧-٧ · تأثير شدة الضوء</div>
+              <div class="sim-name">شدة الضوء ومعدَّل التمثيل — منحنى التشبع</div>
+              <div class="sim-desc">استقصِ كيف تؤثر شدة الضوء على معدَّل التمثيل الضوئي وارسم منحنى التشبع الضوئي بيانيًّا</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n8')">
+            <div class="sim-thumb t5">🌡️</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٨-٧ · تأثير درجة الحرارة</div>
+              <div class="sim-name">درجة الحرارة ومعدَّل التمثيل الضوئي</div>
+              <div class="sim-desc">استقصِ أثر درجة الحرارة على التمثيل الضوئي من ١٠°م إلى ٨٠°م ووجِّه استنتاجك بالدليل</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n9')">
+            <div class="sim-thumb t10">🌿</div>
+            <div class="sim-body">
+              <div class="sim-num">موضوع ٤-٧ · الأملاح المعدنية</div>
+              <div class="sim-name">النيترات والماغنيسيوم — أيونات ضرورية للنبات</div>
+              <div class="sim-desc">استكشف حاجة النبات إلى أيونات النترات لصنع البروتين وأيونات الماغنيسيوم لصنع الكلوروفيل</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio7n10')">
+            <div class="sim-thumb t2">🍬</div>
+            <div class="sim-body">
+              <div class="sim-num">موضوع ٤-٧ · نقل السكروز</div>
+              <div class="sim-name">تحويل الجلوكوز إلى سكروز ونقله عبر اللحاء</div>
+              <div class="sim-desc">تعرَّف على سبب تحويل الجلوكوز إلى سكروز وكيف تنقله أنابيب اللحاء إلى أجزاء النبات المختلفة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== استقصاءات الوحدة الثامنة — الهضم في الإنسان ===== -->
+      <div id="sims-g9bio8" class="sims-wrap" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة ٨ — الهضم في الإنسان</div>
+          <div class="sims-count">٨ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9bio8n1')">
+            <div class="sim-thumb t1">🍽️</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١-٨ · مراحل الهضم</div>
+              <div class="sim-name">الابتلاع، الهضم، الامتصاص، التبرّز</div>
+              <div class="sim-desc">استكشف المراحل الأربع للهضم وتتبّع رحلة الطعام من الفم إلى فتحة الشرج في الحيوانات الثديية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio8n2')">
+            <div class="sim-thumb t4">⚙️</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٢-٨ · الهضم الميكانيكي والكيميائي</div>
+              <div class="sim-name">تفكيك الطعام ميكانيكياً وكيميائياً</div>
+              <div class="sim-desc">قارن بين الهضم الميكانيكي (تقطيع الأسنان) والهضم الكيميائي (أنزيمات التحويل) واستكشف الفرق بينهما</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio8n3')">
+            <div class="sim-thumb t2">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٣-٨ · القناة الهضمية</div>
+              <div class="sim-name">تركيب القناة الهضمية ووظائف أجزائها</div>
+              <div class="sim-desc">تعرَّف على أجزاء القناة الهضمية من الفم حتى الشرج وتحدَّد وظيفة كل جزء في هضم الطعام</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio8n4')">
+            <div class="sim-thumb t9">🧪</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٤-٨ · الأنزيمات الهضمية</div>
+              <div class="sim-name">الأميليز، البروتييز، الليبييز — أين وكيف؟</div>
+              <div class="sim-desc">استكشف وظائف الأنزيمات الثلاثة الرئيسية وأماكن إفرازها وما تحوِّله من مواد غذائية كبيرة إلى صغيرة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio8n5')">
+            <div class="sim-thumb t5">💧</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٥-٨ · العُصارة الصفراوية والاستحلاب</div>
+              <div class="sim-name">استحلاب الدهون بالعُصارة الصفراوية</div>
+              <div class="sim-desc">اكتشف كيف تستحلب العُصارة الصفراوية قطرات الدهون الكبيرة إلى قطرات صغيرة جداً لتسهيل عمل الليبييز</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio8n6')">
+            <div class="sim-thumb t7">🌿</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٦-٨ · الخملات والامتصاص</div>
+              <div class="sim-name">تركيب الخملة ووظيفتها في الامتصاص</div>
+              <div class="sim-desc">استكشف تركيب الخملة من الزغيبات والشُّعيرات الدموية والأوعية اللمفاوية وكيف تُضاعف السطح للامتصاص</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio8n7')">
+            <div class="sim-thumb t8">🔭</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١-٨ · نموذج الاتصاص عبر الديلسة</div>
+              <div class="sim-name">محاكاة الامتصاص عبر جدار القناة الهضمية</div>
+              <div class="sim-desc">جرِّب تجربة الديلسة: اختبر انتقال النشا والجلوكوز عبر الغشاء وفسِّر لماذا النشا لا يعبر والجلوكوز يعبر</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio8n8')">
+            <div class="sim-thumb t6">⚡</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٨-٨ · التمثيل الغذائي</div>
+              <div class="sim-name">مصير المواد الغذائية بعد الامتصاص</div>
+              <div class="sim-desc">تتبّع مسار الجلوكوز والأحماض الأمينية والدهون بعد امتصاصها: الكبد، الدم، الخلايا — ما الذي يحدث لكل منها؟</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== استقصاءات الوحدة التاسعة — النقل في النبات ===== -->
+      <div id="sims-g9bio9" class="sims-wrap" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة ٩ — النقل في النبات</div>
+          <div class="sims-count">٥ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9bio9n1')">
+            <div class="sim-thumb t1">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١-٩ · أوعية الخشب واللحاء</div>
+              <div class="sim-name">تشريح الحزمة الوعائية — Xylem & Phloem</div>
+              <div class="sim-desc">استكشف تركيب أوعية الخشب وأنابيب اللحاء تحت المجهر الإلكتروني وصنِّف خصائص كلٍّ منهما</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio9n2')">
+            <div class="sim-thumb t2">💧</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٢-٩ · الشعيرات الجذرية وامتصاص الماء</div>
+              <div class="sim-name">رحلة الماء من التربة إلى الخشب</div>
+              <div class="sim-desc">تتبَّع مسار الماء من الشعيرات الجذرية عبر خلايا القشرة حتى يصل إلى أوعية الخشب بالأسموزية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio9n3')">
+            <div class="sim-thumb t8">🌿</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٣-٩ · النتح وتيار النتح</div>
+              <div class="sim-name">كيف يتحرك الماء من الجذر إلى الأوراق؟</div>
+              <div class="sim-desc">شاهد عملية النتح عبر الثغور وتأثير درجة الحرارة والرطوبة وسرعة الرياح على معدّلها</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio9n4')">
+            <div class="sim-thumb t6">📏</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٤-٩ · جهاز البوتومتر</div>
+              <div class="sim-name">قياس معدّل النتح في ظروف مختلفة</div>
+              <div class="sim-desc">استخدم البوتومتر الافتراضي لقياس معدّل امتصاص الماء في ظروف بيئية مختلفة وسجِّل البيانات في جدول</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio9n5')">
+            <div class="sim-thumb t4">🍬</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ٥-٩ · نقل الغذاء في اللحاء</div>
+              <div class="sim-name">الانتقال — من المصدر إلى المصبّ</div>
+              <div class="sim-desc">اكتشف كيف تنقل أنابيب اللحاء السكروز والأحماض الأمينية من أوراق النبات إلى باقي أجزائه</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== استقصاءات الوحدة العاشرة — التحكم والتنظيم في النبات ===== -->
+      <div id="sims-g9bio10" class="sims-wrap" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة ١٠ — التحكم والتنظيم في النبات</div>
+          <div class="sims-count">٤ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g9bio10n1')">
+            <div class="sim-thumb t6">🌿</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١٠-١ · استجابة السيقان للضوء</div>
+              <div class="sim-name">الانتحاء الضوئي — Phototropism</div>
+              <div class="sim-desc">استقصِ كيف يؤثر اتجاه الضوء على نمو البادرات باستخدام ثلاثة أطباق تجريبية وسجِّل البيانات في الجدول</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio10n2')">
+            <div class="sim-thumb t1">🌱</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١٠-٢ · استجابة الجذور للجاذبية</div>
+              <div class="sim-name">الانتحاء الأرضي — Gravitropism</div>
+              <div class="sim-desc">ازرعي البذرة في أربعة أوضاع مختلفة وشاهدي كيف تنمو الجذور دائماً نحو الأسفل بغضّ النظر عن الاتجاه</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio10n3')">
+            <div class="sim-thumb t8">🔬</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١٠-٣ · تأثير الأوكسين على النمو</div>
+              <div class="sim-name">هرمون الأوكسين IAA وانحناء الساق</div>
+              <div class="sim-desc">تحكّمي في اتجاه الضوء وشاهدي توزيع الأوكسين على جانبَي الساق — ومحاكاة تجربة الأصيصات الثلاثية التاريخية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g9bio10n4')">
+            <div class="sim-thumb t3">📍</div>
+            <div class="sim-body">
+              <div class="sim-num">نشاط ١٠-٤ · منطقة الحساسية الضوئية</div>
+              <div class="sim-name">أيّ جزء من الساق يستشعر الضوء؟</div>
+              <div class="sim-desc">غطِّي أجزاء مختلفة من الساق وقارني النتائج لتحددي أن القمة النامية هي المنطقة الحساسة للضوء</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  </div><!-- /content-area -->
+
+<!-- ===== SIM PANEL ===== -->
+<div id="sim-panel">
+  <div class="sim-panel-bar">
+    <button class="sim-close-btn" onclick="closeSim()">← رجوع</button>
+    <div class="sim-panel-title" id="simPanelTitle">المحاكاة</div>
+    <div class="sim-panel-badge" id="simPanelBadge">الوحدة ٧</div>
+    <button id="wb-open-btn-sim" onclick="wbOpen()" title="افتح السبورة التفاعلية">✏️ سبورة</button>
+  </div>
+  <div class="sim-tabs-row" id="simTabsRow"></div>
+  <div class="sim-body-wrap">
+    <div class="sim-canvas-wrap">
+      <canvas id="simCanvas"></canvas>
+      <div class="data-display" id="dataDisplay" style="display:none"></div>
+      <div class="q-drawer" id="qDrawer">
+        <div class="q-drawer-title" id="qTitle"></div>
+        <div class="q-options" id="qOptions"></div>
+        <div class="q-feedback" id="qFeedback"></div>
+        <button onclick="toggleQuestion()" style="margin-top:8px;background:none;border:1px solid #ccc;border-radius:8px;padding:7px 16px;font-family:Tajawal;font-size:14px;cursor:pointer;color:#888">▼ إخفاء</button>
+      </div>
+    </div>
+    <div class="sim-controls-panel" id="simControlsPanel"></div>
+  </div>
+  <!-- زر "ماذا نستنتج" — خارج الكانفاس في شريط ثابت -->
+  <div class="q-toggle-bar" id="qToggleBar" style="display:none">
+    <button class="q-toggle-btn" id="qToggleBtn" onclick="toggleQuestion()">
+      💡 ماذا نستنتج؟
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ===== BUDDY CHARACTER v2 ===== -->
+<div id="buddy-wrap">
+  <!-- Drag handle -->
+  <div id="buddy-drag-handle" title="اسحب لتحريك المساعد">⠿</div>
+
+  <!-- Speech Bubble -->
+  <div id="buddy-bubble">
+    <div id="buddy-bubble-avatar">🔬</div>
+    <button id="buddy-close-bubble" onclick="hideBubble()" title="إغلاق">✕</button>
+    <p id="buddy-text">أهلاً! أنا زيد مساعدك العلمي 👋 اضغط على وحدة لأعطيك تلميحاً!</p>
+  </div>
+
+  <!-- Character SVG — Astronaut -->
+  <div id="buddy-char" onclick="toggleBubble()" title="اضغط لفتح/إغلاق الفقاعة">
+    <svg viewBox="0 0 90 112" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Shadow -->
+      <ellipse cx="45" cy="110" rx="18" ry="3.5" fill="rgba(0,0,0,0.13)"/>
+
+      <!-- ── LEGS ── -->
+      <rect x="29" y="88" width="13" height="18" rx="6" fill="#C8D8EC"/>
+      <rect x="48" y="88" width="13" height="18" rx="6" fill="#C8D8EC"/>
+      <!-- Boot left -->
+      <ellipse cx="35" cy="106" rx="10" ry="5" fill="#2A3A5A"/>
+      <!-- Boot right -->
+      <ellipse cx="54" cy="106" rx="10" ry="5" fill="#2A3A5A"/>
+      <!-- Boot highlight -->
+      <ellipse cx="32" cy="104" rx="4" ry="1.8" fill="rgba(255,255,255,0.15)"/>
+      <ellipse cx="51" cy="104" rx="4" ry="1.8" fill="rgba(255,255,255,0.15)"/>
+
+      <!-- ── BODY / Space suit ── -->
+      <rect x="20" y="50" width="50" height="44" rx="14" fill="#DCE8F4" stroke="#B0C4D8" stroke-width="1.5"/>
+      <!-- Suit chest panel -->
+      <rect x="30" y="57" width="30" height="20" rx="7" fill="#1A8FA8" opacity="0.9"/>
+      <!-- Panel details -->
+      <rect x="33" y="61" width="8"  height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+      <rect x="44" y="61" width="4"  height="4" rx="2" fill="#27AE60"/>
+      <rect x="51" y="61" width="4"  height="4" rx="2" fill="#D4901A"/>
+      <rect x="33" y="68" width="22" height="3" rx="1.5" fill="rgba(255,255,255,0.2)"/>
+      <!-- Suit collar ring -->
+      <ellipse cx="45" cy="50" rx="14" ry="5" fill="#B0C4D8" stroke="#90A8C0" stroke-width="1.2"/>
+      <ellipse cx="45" cy="50" rx="11" ry="3.5" fill="#C8D8EC"/>
+      <!-- Suit belly -->
+      <ellipse cx="45" cy="86" rx="16" ry="7" fill="#C8D8EC" stroke="#B0C4D8" stroke-width="1"/>
+      <!-- Suit shine -->
+      <ellipse cx="33" cy="62" rx="5" ry="8" fill="rgba(255,255,255,0.12)" transform="rotate(-15,33,62)"/>
+
+      <!-- ── ARMS ── -->
+      <!-- Left arm -->
+      <path d="M20,58 Q6,65 8,80" stroke="#C8D8EC" stroke-width="13" fill="none" stroke-linecap="round"/>
+      <path d="M20,58 Q6,65 8,80" stroke="#B0C4D8" stroke-width="13" fill="none" stroke-linecap="round" opacity="0.4"/>
+      <!-- Left glove -->
+      <circle cx="8"  cy="81" r="7" fill="#2A3A5A"/>
+      <ellipse cx="6" cy="79" rx="3" ry="2" fill="rgba(255,255,255,0.15)"/>
+      <!-- Right arm — waving up! -->
+      <path d="M70,58 Q84,48 82,34" stroke="#C8D8EC" stroke-width="13" fill="none" stroke-linecap="round"/>
+      <path d="M70,58 Q84,48 82,34" stroke="#B0C4D8" stroke-width="13" fill="none" stroke-linecap="round" opacity="0.4"/>
+      <!-- Right glove -->
+      <circle cx="82" cy="33" r="7" fill="#2A3A5A"/>
+      <ellipse cx="80" cy="31" rx="3" ry="2" fill="rgba(255,255,255,0.15)"/>
+      <!-- Arm stripe -->
+      <path d="M22,62 Q10,68 11,76" stroke="#1A8FA8" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+      <path d="M68,61 Q80,52 79,40" stroke="#1A8FA8" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
+
+      <!-- ── HELMET ── -->
+      <!-- Outer helmet -->
+      <circle cx="45" cy="30" r="26" fill="#E8F0F8" stroke="#C0D0E0" stroke-width="2"/>
+      <!-- Helmet shine top -->
+      <ellipse cx="38" cy="14" rx="9" ry="6" fill="rgba(255,255,255,0.35)" transform="rotate(-20,38,14)"/>
+      <!-- Visor -->
+      <ellipse cx="45" cy="31" rx="17" ry="16" fill="#1A3A5A" opacity="0.88"/>
+      <!-- Visor shine -->
+      <ellipse cx="37" cy="22" rx="5"  ry="3.5" fill="rgba(255,255,255,0.25)" transform="rotate(-30,37,22)"/>
+      <ellipse cx="52" cy="20" rx="2.5" ry="2"  fill="rgba(255,255,255,0.18)"/>
+
+      <!-- ── FACE inside visor ── -->
+      <!-- Skin -->
+      <ellipse cx="45" cy="32" rx="12" ry="12" fill="#E8A87C"/>
+      <!-- Eyes -->
+      <ellipse cx="40" cy="30" rx="3.5" ry="4" fill="white"/>
+      <ellipse cx="50" cy="30" rx="3.5" ry="4" fill="white"/>
+      <circle  cx="41" cy="31" r="2.3" fill="#1A3050"/>
+      <circle  cx="51" cy="31" r="2.3" fill="#1A3050"/>
+      <circle  cx="41.8" cy="29.5" r="1" fill="white"/>
+      <circle  cx="51.8" cy="29.5" r="1" fill="white"/>
+      <!-- Eyebrows -->
+      <path d="M37,26 Q40,24 43,25.5" stroke="#2A1408" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M47,25.5 Q50,24 53,26" stroke="#2A1408" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <!-- Smile -->
+      <path d="M39,37 Q45,43 51,37" stroke="#B06030" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M41,38 Q45,42 49,38" fill="rgba(255,255,255,0.4)" stroke="none"/>
+      <!-- Cheeks -->
+      <ellipse cx="35" cy="34" rx="4.5" ry="3" fill="rgba(220,100,70,0.18)"/>
+      <ellipse cx="55" cy="34" rx="4.5" ry="3" fill="rgba(220,100,70,0.18)"/>
+
+      <!-- Helmet side bolts -->
+      <circle cx="19" cy="30" r="3" fill="#B0C4D8" stroke="#90A8C0" stroke-width="1"/>
+      <circle cx="71" cy="30" r="3" fill="#B0C4D8" stroke="#90A8C0" stroke-width="1"/>
+      <!-- Antenna -->
+      <line x1="45" y1="4" x2="45" y2="12" stroke="#90A8C0" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="45" cy="3.5" r="3" fill="#1A8FA8"/>
+      <circle cx="45" cy="3.5" r="1.5" fill="rgba(255,255,255,0.6)"/>
+
+      <!-- Stars floating around -->
+      <circle cx="10" cy="15" r="1.2" fill="#D4901A" opacity="0.7"/>
+      <circle cx="78" cy="18" r="1"   fill="#D4901A" opacity="0.6"/>
+      <circle cx="14" cy="45" r="0.9" fill="#D4901A" opacity="0.5"/>
+      <circle cx="75" cy="8"  r="1.4" fill="white"   opacity="0.5"/>
+      <circle cx="6"  cy="30" r="0.8" fill="white"   opacity="0.4"/>
+    </svg>
+    <div id="buddy-ping"></div>
+  </div>
+
+  <button id="buddy-hide-btn" onclick="hideBuddy()" title="إخفاء المساعد">← إخفاء</button>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     BAYYIN FOOTER — يظهر في جميع الواجهات الرئيسية
+═══════════════════════════════════════ -->
+<footer id="bayyin-footer" role="contentinfo" aria-label="تذييل الصفحة">
+  <div class="footer-inner">
+
+    <!-- Top row: brand + contacts -->
+    <div class="footer-top">
+
+      <!-- Brand -->
+      <div class="footer-brand">
+        <div class="footer-logo-circle">ب</div>
+        <div class="footer-brand-text">
+          <h3>بيّن</h3>
+          <p>منصة العلوم التفاعلية</p>
+        </div>
+      </div>
+
+      <!-- Contact items -->
+      <div class="footer-contacts">
+
+        <a class="footer-contact-item fc-phone"
+           href="tel:+96890972965"
+           title="اتصل بنا">
+          <span class="fc-icon">📞</span>
+          <span>9097&nbsp;2965</span>
+        </a>
+
+        <a class="footer-contact-item fc-email" href="mailto:bayyin.demo@gmail.com" title="راسلنا بالبريد الإلكتروني">
+          <span class="fc-icon">✉️</span>
+          <span>bayyin.demo@gmail.com</span>
+        </a>
+
+        <a class="footer-contact-item fc-insta"
+           href="https://instagram.com/bayyin.om"
+           target="_blank"
+           rel="noopener noreferrer"
+           title="تابعنا على إنستغرام">
+          <span class="fc-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </span>
+          <span>bayyin.om@</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Feedback button row -->
+    <div style="padding: 14px 24px 6px; width:100%; box-sizing:border-box; display:flex; justify-content:center;">
+      <button class="footer-feedback-btn" onclick="openFeedbackModal()" aria-label="قيّم تجربتك مع منصة بيّن">
+        <span class="fb-pulse"></span>
+        ⭐ رأيك يهمنا — قيّم تجربتك
+      </button>
+    </div>
+
+    <!-- Bottom copyright bar -->
+    <div class="footer-bottom">
+      جميع الحقوق محفوظة © بيّن ٢٠٢٥ &nbsp;·&nbsp; للتواصل والملاحظات والاقتراحات يُسعدنا سماعكم 💙
+    </div>
+
+</footer>
+
+<!-- ══════════════════════════════════════
+     FEEDBACK MODAL
+══════════════════════════════════════ -->
+<div id="feedback-overlay" role="dialog" aria-modal="true" aria-labelledby="fb-modal-title">
+  <div id="feedback-modal">
+
+    <button id="feedback-close" onclick="closeFeedbackModal()" aria-label="إغلاق نافذة التقييم">✕</button>
+
+    <div id="fb-form-content">
+
+      <div class="fb-header">
+        <div class="fb-icon-wrap">💬</div>
+        <p class="fb-title" id="fb-modal-title">ما مدى رضاك عن منصة بيّن؟</p>
+        <p class="fb-subtitle">تقييمك يساعدنا على التطوير المستمر</p>
+      </div>
+
+      <div class="fb-emoji-row" role="group" aria-label="اختر تقييمك">
+        <button class="fb-emoji-btn" data-val="happy" onclick="selectFeedbackRating(this)" aria-label="راضٍ جداً">
+          <span class="fb-em">😍</span>
+          <span class="fb-label">راضٍ جداً</span>
+        </button>
+        <button class="fb-emoji-btn" data-val="neutral" onclick="selectFeedbackRating(this)" aria-label="محايد">
+          <span class="fb-em">😐</span>
+          <span class="fb-label">محايد</span>
+        </button>
+        <button class="fb-emoji-btn" data-val="sad" onclick="selectFeedbackRating(this)" aria-label="غير راضٍ">
+          <span class="fb-em">🙁</span>
+          <span class="fb-label">غير راضٍ</span>
+        </button>
+      </div>
+
+      <div class="fb-textarea-wrap">
+        <label class="fb-textarea-label" for="feedback-text">
+          💡 مقترح أو ملاحظة <span style="font-weight:400;opacity:0.7">(اختياري)</span>
+        </label>
+        <textarea id="feedback-text" placeholder="شاركنا أي ملاحظة أو اقتراح تطوير..." maxlength="500"></textarea>
+      </div>
+
+      <button id="feedback-submit" onclick="submitFeedback()" disabled>إرسال التقييم ✉️</button>
+
+    </div>
+
+    <div id="fb-thankyou-content" class="fb-thankyou" style="display:none;">
+      <span class="ty-icon">🎉</span>
+      <p class="ty-title">شكراً لك!</p>
+      <p class="ty-sub">وصلنا تقييمك وسنأخذه بعين الاعتبار 💙<br>نسعى دائماً لتحسين تجربتك.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Restore button -->
+<button id="buddy-restore-btn" onclick="restoreBuddy()" title="إظهار زيد مجدداً">🔬</button>
+
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     بيّن — JavaScript Modules
+     Load order matters: core utilities first, then simulations
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- Core: Main app logic (navigation, sim engine, quiz, U9Sound, Grade 5-8 sims) -->
+<script src="/js/sims/sims-main.js"></script>
+
+<!-- Core: Buddy character (زيد) -->
+<script src="/js/core/buddy.js"></script>
+
+<!-- Core: Landing page parallax animation -->
+<script src="/js/core/parallax.js"></script>
+
+<!-- Simulations: Grade 8 — Magnetism & Electricity -->
+<script src="/js/sims/sims-grade8-magnetics.js"></script>
+
+<!-- Core: Nature sounds engine -->
+<script src="/js/core/nature-sounds.js"></script>
+
+<!-- Simulations: Auth system + Grade 6/7/8/9 simulations -->
+<script src="/js/sims/sims-auth-grade.js"></script>
+
+<!-- Simulations: Grade 9 Chemistry (analysis units) + Interactive Whiteboard -->
+<script src="/js/sims/sims-grade9-chem.js"></script>
+
+<!-- Core: Review mode engine -->
+<script src="/js/core/review-mode.js"></script>
+
+<!-- Core: Quick search engine -->
+<script src="/js/core/quick-search.js"></script>
+
+<!-- Core: AI assistant -->
+<script src="/js/core/ai-assistant.js"></script>
+
+</body>
+</html>
