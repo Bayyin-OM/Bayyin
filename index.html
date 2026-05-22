@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>بيّن | منصة العلوم التفاعلية</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -14,17 +14,21 @@
 <link rel="stylesheet" href="/css/styles.css">
 <!-- Dark mode must initialize before body renders to prevent flash -->
 <script src="/js/core/dark-mode-init.js"></script>
+<!-- i18n: Translation files (load before i18n engine) -->
+<script src="/js/i18n/ar.js"></script>
+<script src="/js/i18n/en.js"></script>
+<!-- i18n: Engine (auto-initializes from localStorage) -->
+<script src="/js/i18n/i18n.js"></script>
 <!-- Supabase credentials (replace with your project values) -->
 <script src="/config.js"></script>
 </head>
-<body>
 <body>
 
 <!-- ═══ Auth Overlay ═══ -->
 <div id="auth-overlay">
   <div class="auth-card">
     <div class="auth-logo">🔬</div>
-    <h2 class="auth-title">منصة بيّن</h2>
+    <h2 class="auth-title" data-i18n="auth.title">منصة بيّن</h2>
 
     <!-- ── عداد الزوار في بطاقة الدخول ── -->
     <div id="auth-visitor-bar" style="
@@ -49,12 +53,12 @@
       ">🔥 نشط</span>
     </div>
 
-    <p class="auth-sub">سجّل دخولك للوصول إلى المختبرات التفاعلية</p>
+    <p class="auth-sub" data-i18n="auth.sub">سجّل دخولك للوصول إلى المختبرات التفاعلية</p>
 
     <input type="email" id="auth-email" class="auth-input"
-           placeholder="البريد الإلكتروني" autocomplete="email">
+           placeholder="البريد الإلكتروني" autocomplete="email" data-i18n-placeholder="auth.email">
     <input type="password" id="auth-pass" class="auth-input"
-           placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="current-password">
+           placeholder="كلمة المرور (6 أحرف على الأقل)" autocomplete="current-password" data-i18n-placeholder="auth.password">
 
     <div id="auth-status"></div>
 
@@ -98,7 +102,7 @@
             transition:background 0.15s,color 0.15s;box-sizing:border-box;"
           onmouseover="this.style.background='rgba(26,143,168,0.08)'"
           onmouseout="this.style.background='transparent'">
-          🔄 دفعت بالفعل — أعد التحقق
+          <span data-i18n="auth.pay.recheck">🔄 دفعت بالفعل — أعد التحقق</span>
         </button>
 
         <!-- زر تسجيل الخروج لتغيير الحساب -->
@@ -141,6 +145,8 @@
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
+      <!-- Language Toggle -->
+      <button id="lang-toggle-btn" onclick="i18n.toggleLanguage(); _onLangChange();" title="Switch to English" data-i18n-title="lang.toggle.title">عربي</button>
       <button id="dm-toggle" onclick="toggleDarkMode()" title="التبديل إلى الوضع الداكن" aria-pressed="false">
         <!-- Moon icon (light mode) -->
         <svg class="dm-icon dm-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -150,7 +156,7 @@
         <svg class="dm-icon dm-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
           <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
-        <span class="dm-label">داكن</span>
+        <span class="dm-label" data-i18n="dm.dark">داكن</span>
       </button>
       <button onclick="(async()=>{ if(_db) await _db.auth.signOut(); location.reload(); })()"
         title="تسجيل الخروج"
@@ -162,7 +168,7 @@
         onmouseout="this.style.borderColor='rgba(0,0,0,0.12)';this.style.color='var(--hero-desc-color,#5A6A7A)'">
         ↩ تسجيل الخروج
       </button>
-      <button class="nav-btn" onclick="openApp()">ابدأ الآن ←</button>
+      <button class="nav-btn" onclick="openApp()" data-i18n="landing.start">ابدأ الآن ←</button>
     </div>
   </nav>
 
@@ -170,7 +176,7 @@
   <div class="hero-layout">
     <!-- Left: text content -->
     <div class="hero-text">
-      <div class="hero-badge">🇴🇲 مناهج سلطنة عُمان</div>
+      <div class="hero-badge" data-i18n="landing.badge">🇴🇲 مناهج سلطنة عُمان</div>
       <h1 class="hero-title">
         <span class="glow">بيّن</span> العلوم<br>
         بطريقة <span class="accent">مختلفة</span>
@@ -184,7 +190,7 @@
       </div>
 
       <div class="hero-actions">
-        <button class="btn-launch" onclick="openApp()">🔬 ابدأ الاستكشاف</button>
+        <button class="btn-launch" onclick="openApp()" data-i18n="landing.cta">🔬 ابدأ الاستكشاف</button>
       </div>
       <div class="hero-cards">
         <div class="hero-feat"><div class="num">+١٠٠</div><div class="lbl">استقصاء تفاعلي</div></div>
@@ -702,8 +708,8 @@
       </div>
     </div>
 
-    <div class="panel-title" style="text-align:center;margin-bottom:6px;font-size:clamp(22px,4vw,34px)">اختَر الفصل الدراسي</div>
-    <div class="panel-sub" style="text-align:center;margin-bottom:40px">حدِّد الفصل الدراسي للوصول إلى استقصاءاتك التفاعلية</div>
+    <div class="panel-title" style="text-align:center;margin-bottom:6px;font-size:clamp(22px,4vw,34px)" data-i18n="sem.title">اختَر الفصل الدراسي</div>
+    <div class="panel-sub" style="text-align:center;margin-bottom:40px" data-i18n="sem.sub">حدِّد الفصل الدراسي للوصول إلى استقصاءاتك التفاعلية</div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;width:100%;max-width:720px">
 
@@ -721,7 +727,7 @@
         <!-- Top accent stripe -->
         <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#D4901A,#F5C842);border-radius:20px 20px 0 0"></div>
         <div style="font-size:44px;margin-bottom:14px;line-height:1">🌅</div>
-        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الأول</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px" data-i18n="sem.1.title">الفصل الدراسي الأول</div>
         <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">سبتمبر — يناير · وحدات الفصل الأول لجميع الصفوف</div>
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,144,26,0.08);border:1px solid rgba(212,144,26,0.2);border-radius:8px;padding:5px 10px;font-size:12px;color:#B8780A;font-weight:600">
@@ -745,9 +751,9 @@
         <!-- Top accent stripe -->
         <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#1A8FA8,#27AE60);border-radius:20px 20px 0 0"></div>
         <!-- Active badge -->
-        <div style="position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#27AE60,#1A8FA8);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:Tajawal">● نشط الآن</div>
+        <div style="position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#27AE60,#1A8FA8);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:Tajawal" data-i18n="sem.2.badge">● نشط الآن</div>
         <div style="font-size:44px;margin-bottom:14px;line-height:1">🌿</div>
-        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الثاني</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px" data-i18n="sem.2.title">الفصل الدراسي الثاني</div>
         <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">فبراير — يونيو · وحدات الفصل الثاني — الصف التاسع متاح بالكامل</div>
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);border-radius:8px;padding:5px 10px;font-size:12px;color:#1E8A50;font-weight:600">
@@ -761,7 +767,7 @@
 
     <!-- Note -->
     <div style="margin-top:32px;text-align:center;font-size:13px;color:var(--text-secondary,#7A8A98);max-width:480px;line-height:1.8">
-      💡 سيتم إتاحة محتوى الفصل الأول تدريجياً — تابع التحديثات
+      <span data-i18n="sem.note">💡 سيتم إتاحة محتوى الفصل الأول تدريجياً — تابع التحديثات</span>
     </div>
 
   </div>
@@ -808,8 +814,8 @@
       </div>
     </div>
 
-    <div class="panel-title" style="text-align:center;margin-bottom:6px">اختَر صفّك</div>
-    <div class="panel-sub" style="text-align:center;margin-bottom:28px">للوصول إلى استقصاءاتك التفاعلية</div>
+    <div class="panel-title" style="text-align:center;margin-bottom:6px" data-i18n="grade.title">اختَر صفّك</div>
+    <div class="panel-sub" style="text-align:center;margin-bottom:28px" data-i18n="grade.sub">للوصول إلى استقصاءاتك التفاعلية</div>
     <div id="grade-buttons-list" style="display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px">
       <!-- Populated dynamically by renderGradeButtons() -->
     </div>
@@ -842,7 +848,8 @@
         </span>
       </span>
       <!-- search button -->
-      <button id="search-btn" onclick="openSearch()" title="بحث سريع (Ctrl+K)">🔍 بحث</button>
+      <button id="app-lang-toggle-btn" onclick="i18n.toggleLanguage(); _onLangChange();" style="background:var(--dm-btn-bg,rgba(0,0,0,0.06));border:1.5px solid var(--dm-btn-border,rgba(0,0,0,0.12));border-radius:8px;padding:6px 12px;font-family:Tajawal,Inter,sans-serif;font-size:12px;font-weight:700;color:var(--dm-btn-color,#2C3A4A);cursor:pointer;transition:all 0.18s;white-space:nowrap">EN</button>
+      <button id="search-btn" onclick="openSearch()" title="بحث سريع (Ctrl+K)"><span data-i18n-html="nav.search">🔍</span> <span data-i18n="search.title" style="display:none"></span>بحث</button>
       <!-- review mode button -->
       <button id="rv-open-btn" onclick="openReview()" title="وضع المراجعة السريعة">🏁 مراجعة</button>
       <!-- whiteboard button -->
@@ -3447,16 +3454,16 @@
         <label class="fb-textarea-label" for="feedback-text">
           💡 مقترح أو ملاحظة <span style="font-weight:400;opacity:0.7">(اختياري)</span>
         </label>
-        <textarea id="feedback-text" placeholder="شاركنا أي ملاحظة أو اقتراح تطوير..." maxlength="500"></textarea>
+        <textarea id="feedback-text" placeholder="شاركنا أي ملاحظة أو اقتراح تطوير..." maxlength="500" data-i18n-placeholder="feedback.placeholder"></textarea>
       </div>
 
-      <button id="feedback-submit" onclick="submitFeedback()" disabled>إرسال التقييم ✉️</button>
+      <button id="feedback-submit" onclick="submitFeedback()" disabled data-i18n="feedback.submit">إرسال التقييم ✉️</button>
 
     </div>
 
     <div id="fb-thankyou-content" class="fb-thankyou" style="display:none;">
       <span class="ty-icon">🎉</span>
-      <p class="ty-title">شكراً لك!</p>
+      <p class="ty-title" data-i18n="feedback.thanks.title">شكراً لك!</p>
       <p class="ty-sub">وصلنا تقييمك وسنأخذه بعين الاعتبار 💙<br>نسعى دائماً لتحسين تجربتك.</p>
     </div>
 
@@ -3464,7 +3471,7 @@
 </div>
 
 <!-- Restore button -->
-<button id="buddy-restore-btn" onclick="restoreBuddy()" title="إظهار زيد مجدداً">🔬</button>
+<button id="buddy-restore-btn" onclick="restoreBuddy()" title="إظهار زيد مجدداً" data-i18n-title="buddy.restore.title">🔬</button>
 
 
 
@@ -3502,6 +3509,89 @@
 
 <!-- Core: AI assistant -->
 <script src="/js/core/ai-assistant.js"></script>
+
+
+<!-- ── Quick Search Overlay (injected by quick-search.js) ── -->
+<div id="search-overlay" onclick="srClose(event)" role="dialog" aria-modal="true" aria-label="البحث السريع" style="
+  display:none;position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);
+  align-items:flex-start;justify-content:center;padding-top:80px;">
+  <div style="width:min(680px,92vw);background:var(--bg-card,#fff);border-radius:20px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.25);overflow:hidden;font-family:Tajawal,Inter,sans-serif;direction:rtl;">
+    <!-- Search header -->
+    <div style="display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border-color,rgba(0,0,0,0.08));">
+      <span style="font-size:20px;opacity:0.5">🔍</span>
+      <input id="search-input" type="text"
+        placeholder="ابحث عن استقصاء..."
+        data-i18n-placeholder="search.placeholder"
+        oninput="srQuery(this.value)"
+        onkeydown="srKey(event)"
+        style="flex:1;border:none;outline:none;font-size:16px;font-family:Tajawal,Inter,sans-serif;
+          background:transparent;color:var(--text,#2C3A4A);direction:inherit;"
+        autocomplete="off" spellcheck="false" aria-label="بحث"/>
+      <button id="search-clear" onclick="srClear()" style="
+        display:none;background:rgba(0,0,0,0.06);border:none;border-radius:8px;
+        padding:4px 10px;cursor:pointer;font-size:13px;color:#888;">✕</button>
+    </div>
+    <!-- Results -->
+    <div id="search-results" style="max-height:420px;overflow-y:auto;padding:8px 0;"></div>
+    <!-- Footer -->
+    <div style="padding:10px 18px;border-top:1px solid var(--border-color,rgba(0,0,0,0.06));
+      display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-secondary,#7A8A98);">
+      <span><span id="sr-count">٠</span> نتيجة</span>
+      <span style="display:flex;gap:10px;align-items:center">
+        <kbd style="background:rgba(0,0,0,0.07);border-radius:5px;padding:2px 6px;font-size:11px">↑↓</kbd> للتنقل
+        <kbd style="background:rgba(0,0,0,0.07);border-radius:5px;padding:2px 6px;font-size:11px">Enter</kbd> للفتح
+        <kbd style="background:rgba(0,0,0,0.07);border-radius:5px;padding:2px 6px;font-size:11px">Esc</kbd> للإغلاق
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- ── AI Assistant Panel + FAB ── -->
+<button id="ai-fab" onclick="aiToggle()" title="المساعد الذكي" aria-label="فتح المساعد الذكي" style="
+  position:fixed;bottom:24px;left:24px;z-index:8500;
+  width:52px;height:52px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,#1A8FA8,#6B4E9A);
+  color:#fff;font-size:22px;cursor:pointer;
+  box-shadow:0 4px 18px rgba(26,143,168,0.45);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.2s,box-shadow 0.2s;">🤖</button>
+
+<div id="ai-panel" style="
+  position:fixed;bottom:86px;left:24px;z-index:8499;
+  width:min(360px,92vw);max-height:70vh;
+  background:var(--bg-card,#fff);border-radius:18px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.18);
+  display:none;flex-direction:column;overflow:hidden;
+  font-family:Tajawal,Inter,sans-serif;direction:rtl;">
+  <!-- Header -->
+  <div style="padding:14px 16px;border-bottom:1px solid var(--border-color,rgba(0,0,0,0.07));
+    display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-weight:800;font-size:15px;color:var(--text-heading,#1A2330)">
+      <span data-i18n="ai.title">المساعد الذكي 🤖</span>
+    </span>
+    <button onclick="aiToggle()" style="background:none;border:none;cursor:pointer;font-size:16px;color:#888;padding:2px 6px;">✕</button>
+  </div>
+  <!-- Messages -->
+  <div id="ai-messages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:120px;max-height:320px;"></div>
+  <!-- Input -->
+  <div style="padding:10px 12px;border-top:1px solid var(--border-color,rgba(0,0,0,0.07));display:flex;gap:8px;align-items:center;">
+    <input id="ai-input" type="text"
+      placeholder="اسألني عن العلوم..."
+      data-i18n-placeholder="ai.placeholder"
+      onkeydown="if(event.key==='Enter')aiSend()"
+      style="flex:1;border:1.5px solid var(--border-color,rgba(0,0,0,0.12));border-radius:10px;
+        padding:8px 12px;font-family:Tajawal,Inter,sans-serif;font-size:14px;
+        background:var(--bg,#F4F1EC);color:var(--text,#2C3A4A);outline:none;direction:inherit;"
+      autocomplete="off"/>
+    <button onclick="aiSend()" style="
+      background:linear-gradient(135deg,#1A8FA8,#6B4E9A);color:#fff;
+      border:none;border-radius:10px;padding:8px 14px;cursor:pointer;
+      font-family:Tajawal,Inter,sans-serif;font-size:13px;font-weight:700;white-space:nowrap;"
+      data-i18n="ai.send">إرسال</button>
+  </div>
+</div>
 
 </body>
 </html>
