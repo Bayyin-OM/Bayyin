@@ -93,11 +93,16 @@ function _aiUpdateContext() {
 
 function _aiWelcome() {
   var ctx = _aiGetContext();
+  var isEn = (typeof i18n !== 'undefined') && i18n.getCurrentLanguage() === 'en';
   var msg;
   if(ctx.sim && ctx.title) {
-    msg = 'مرحباً! 👋 أنا مساعدك في استقصاء «' + ctx.title + '». اسألني عن أي مفهوم أو ظاهرة ترى فيه!';
+    msg = isEn
+      ? 'Hello! 👋 I\'m your assistant for the «' + ctx.title + '» inquiry. Ask me about any concept you see!'
+      : 'مرحباً! 👋 أنا مساعدك في استقصاء «' + ctx.title + '». اسألني عن أي مفهوم أو ظاهرة ترى فيه!';
   } else {
-    msg = 'مرحباً! 👋 أنا بيّن AI، مساعدك العلمي. افتح أي استقصاء وسأساعدك على فهمه، أو اسألني عن أي مفهوم علمي!';
+    msg = isEn
+      ? 'Hello! 👋 I\'m Bayyin AI, your science assistant. Open any inquiry and I\'ll help you understand it, or ask me any science question!'
+      : 'مرحباً! 👋 أنا بيّن AI، مساعدك العلمي. افتح أي استقصاء وسأساعدك على فهمه، أو اسألني عن أي مفهوم علمي!';
   }
   _aiAddMsg('bot', msg);
 }

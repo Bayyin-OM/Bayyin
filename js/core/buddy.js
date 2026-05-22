@@ -43,7 +43,7 @@ function restoreBuddy() {
   if(w){w.classList.remove('hidden');w.classList.add('visible');}
   if(r) r.classList.remove('show');
   try{localStorage.setItem('bayyin-buddy-hidden','0');}catch(e){}
-  setTimeout(function(){ buddySay('مرحباً مجدداً! 👋 أنا هنا إذا احتجت مساعدة.', 4000); }, 350);
+  setTimeout(function(){ buddySay((typeof i18n !== 'undefined' && i18n.getCurrentLanguage() !== 'ar') ? 'Welcome back! 👋 I\'m here if you need help.' : 'مرحباً مجدداً! 👋 أنا هنا إذا احتجت مساعدة.', 4000); }, 350);
 }
 
 /* ── Buddy Draggable ── */
