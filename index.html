@@ -14,11 +14,819 @@
 <link rel="stylesheet" href="/css/styles.css">
 <!-- Dark mode must initialize before body renders to prevent flash -->
 <script src="/js/core/dark-mode-init.js"></script>
-<!-- i18n: Translation files (load before i18n engine) -->
-<script src="/js/i18n/ar.js"></script>
-<script src="/js/i18n/en.js"></script>
-<!-- i18n: Engine (auto-initializes from localStorage) -->
-<script src="/js/i18n/i18n.js"></script>
+<!-- i18n: Inlined for reliability (no 404 risk) -->
+<script>
+// ═══════════════════════════════════════════════════════════
+// بيّن — Arabic Translations (ar)
+// ═══════════════════════════════════════════════════════════
+var _TRANSLATIONS_AR = {
+
+  // ── Meta ──
+  "meta.title": "بيّن | منصة العلوم التفاعلية",
+  "meta.lang": "ar",
+  "meta.dir": "rtl",
+
+  // ── Brand ──
+  "brand.name": "بيّن",
+  "brand.sub": "منصة العلوم التفاعلية · سلطنة عُمان",
+  "brand.logo": "ب",
+
+  // ── Auth ──
+  "auth.title": "منصة بيّن",
+  "auth.sub": "سجّل دخولك للوصول إلى المختبرات التفاعلية",
+  "auth.email": "البريد الإلكتروني",
+  "auth.password": "كلمة المرور (6 أحرف على الأقل)",
+  "auth.submit": "تسجيل دخول / إنشاء حساب",
+  "auth.logout": "تسجيل الخروج",
+  "auth.logout.change": "↩ تسجيل الخروج وتغيير الحساب",
+  "auth.visitor.join": "انضم إليهم اليوم",
+  "auth.visitor.count": "زيارة على المنصة",
+  "auth.visitor.active": "🔥 نشط",
+  "auth.pay.no_sub": "⚠️ لا يوجد اشتراك نشط",
+  "auth.pay.no_sub.desc": "للوصول إلى جميع الاستقصاءات التفاعلية\nيرجى الاشتراك أولاً",
+  "auth.pay.subscribe": "💳 اشترك الآن",
+  "auth.pay.note": "✅ يُفعَّل حسابك تلقائياً بعد الدفع خلال ثوانٍ",
+  "auth.pay.recheck": "🔄 دفعت بالفعل — أعد التحقق",
+
+  // ── Dark Mode ──
+  "dm.dark": "داكن",
+  "dm.light": "فاتح",
+  "dm.toggle.dark": "التبديل إلى الوضع الداكن",
+  "dm.toggle.light": "التبديل إلى الوضع الفاتح",
+
+  // ── Landing ──
+  "landing.badge": "🇴🇲 مناهج سلطنة عُمان",
+  "landing.title1": "بيّن",
+  "landing.title2": "العلوم",
+  "landing.title3": "بطريقة",
+  "landing.title4": "مختلفة",
+  "landing.desc": "منصة تفاعلية مصمَّمة للطالب العُماني — تُجسّد أنشطة الكتاب المدرسي بشكل حي ومُتحرِّك في الفصل الدراسي",
+  "landing.quran": "﴿ قُلْ سِيرُوا فِي الْأَرْضِ فَانظُرُوا كَيْفَ بَدَأَ الْخَلْقَ ﴾",
+  "landing.quran.ref": "سورة العنكبوت · ٢٠",
+  "landing.cta": "🔬 ابدأ الاستكشاف",
+  "landing.stat1.num": "+١٠٠",
+  "landing.stat1.lbl": "استقصاء تفاعلي",
+  "landing.stat2.num": "١٠٠٪",
+  "landing.stat2.lbl": "بالعربية",
+  "landing.stat3.num": "🇴🇲",
+  "landing.stat3.lbl": "بيئة عُمانية",
+  "landing.start": "ابدأ الآن ←",
+  "landing.logout": "↩ تسجيل الخروج",
+
+  // ── Language Toggle ──
+  "lang.toggle": "English",
+  "lang.toggle.title": "Switch to English",
+
+  // ── Semester Picker ──
+  "sem.home": "🏠 الرئيسية",
+  "sem.choose": "اختيار الفصل",
+  "sem.home.btn": "⬅ الرئيسية",
+  "sem.badge": "🇴🇲 مناهج سلطنة عُمان · العلوم",
+  "sem.title": "اختَر الفصل الدراسي",
+  "sem.sub": "حدِّد الفصل الدراسي للوصول إلى استقصاءاتك التفاعلية",
+  "sem.1.title": "الفصل الدراسي الأول",
+  "sem.1.sub": "سبتمبر — يناير · وحدات الفصل الأول لجميع الصفوف",
+  "sem.1.status": "🔒 قريباً",
+  "sem.2.title": "الفصل الدراسي الثاني",
+  "sem.2.sub": "فبراير — يونيو · وحدات الفصل الثاني — الصف التاسع متاح بالكامل",
+  "sem.2.status": "🔓 متاح الآن",
+  "sem.2.badge": "● نشط الآن",
+  "sem.note": "💡 سيتم إتاحة محتوى الفصل الأول تدريجياً — تابع التحديثات",
+
+  // ── Grade Picker ──
+  "grade.home.btn": "⬅ الفصول",
+  "grade.choose": "اختيار الصف",
+  "grade.title": "اختَر صفّك",
+  "grade.sub": "للوصول إلى استقصاءاتك التفاعلية",
+  "grade.5": "الصف الخامس",
+  "grade.6": "الصف السادس",
+  "grade.7": "الصف السابع",
+  "grade.8": "الصف الثامن",
+  "grade.9": "الصف التاسع",
+  "grade.sem1.sub": "سبتمبر — يناير · اختَر صفّك",
+  "grade.sem2.sub": "فبراير — يونيو · اختَر صفّك",
+  "grade.coming_soon": "قريباً",
+  "grade.coming_soon.lock": "🔒",
+  "grade.soon.buddy": "⏳ هذا الصف قريباً! تابع التحديثات على منصة بيّن.",
+  "grade.5.count": "١٣ استقصاء",
+  "grade.6.count": "١١ استقصاء",
+  "grade.7.count": "٣٠+ استقصاء",
+  "grade.8.count": "١٠+ استقصاء",
+  "grade.9.count": "٢٠+ استقصاء",
+
+  // ── App Breadcrumb ──
+  "bc.home": "🏠 الرئيسية",
+  "bc.sem1": "الفصل الأول",
+  "bc.sem2": "الفصل الثاني",
+  "bc.grade": "الصف",
+
+  // ── App Nav/Topbar ──
+  "nav.home": "🏠 الرئيسية",
+  "nav.home.btn": "↩ الرئيسية",
+  "nav.search": "🔍",
+  "nav.search.title": "البحث السريع",
+  "nav.ai": "🤖",
+  "nav.ai.title": "المساعد الذكي",
+  "nav.feedback": "⭐",
+  "nav.feedback.title": "التقييم",
+
+  // ── Grade 5 Units ──
+  "g5.unit5": "الوحدة ٥ · الضوء",
+  "g5.unit6": "الوحدة ٦ · الأرض والفضاء",
+
+  // ── Grade 6 Units ──
+  "g6.unit4": "الوحدة ٤ · القوى",
+  "g6.unit5": "الوحدة ٥ · الكهرباء",
+
+  // ── Grade 7 Units ──
+  "g7.unit7": "الوحدة ٧ · البيئة والتنوع",
+  "g7.unit8": "الوحدة ٨ · المواد والمادة",
+  "g7.unit9": "الوحدة ٩ · القوى والحركة",
+  "g7.unit10": "الوحدة ١٠ · الكائنات الحية",
+  "g7.unit11": "الوحدة ١١ · الكهرومغناطيسية",
+  "g7.unit8b": "الوحدة ٨ب · الأملاح والتفاعلات",
+  "g7.unit9b": "الوحدة ٩ب · الصوت",
+
+  // ── Grade 8 Units ──
+  "g8.unit7": "الوحدة ٧ · الجسم والصحة",
+  "g8.unit10": "الوحدة ١٠ · التكاثر والنمو",
+  "g8.unit11b": "الوحدة ١١ · الكهرباء",
+
+  // ── Grade 9 ──
+  "g9.tab.chem": "🧪 كيمياء",
+  "g9.tab.phys": "⚡ فيزياء",
+  "g9.tab.bio": "🌱 أحياء",
+  "g9.unit6": "الوحدة ٦ · الأحماض والقلويات",
+  "g9.unit7": "الوحدة ٧ · التفاعلات الكيميائية",
+  "g9.unit8": "الوحدة ٨ · تحضير الأملاح",
+  "g9.unit9": "الوحدة ٩ · التحليل الكيميائي",
+  "g9.unit10": "الوحدة ١٠ · الهواء والغلاف الجوي",
+  "g9.unit11": "الوحدة ١١ · الطاقة",
+  "g9.unit12": "الوحدة ١٢ · الضوء والانعكاس",
+  "g9.unit13": "الوحدة ١٣ · انكسار الضوء",
+  "g9.unit14": "الوحدة ١٤ · العدسات",
+  "g9.unit15": "الوحدة ١٥ · الكهرباء",
+  "g9.unit16": "الوحدة ١٦ · المقاومة",
+  "g9.unit7b": "الوحدة ٧ · التغذية والتمثيل الضوئي",
+  "g9.unit8b": "الوحدة ٨ · الهضم والامتصاص",
+  "g9.unit9b": "الوحدة ٩ · النقل في النبات",
+  "g9.unit10b": "الوحدة ١٠ · الاستجابة عند النبات",
+
+  // ── Quiz / Questions ──
+  "quiz.title": "سؤال تحقق",
+  "quiz.toggle.show": "🧠 سؤال",
+  "quiz.toggle.hide": "✕ إخفاء",
+  "quiz.correct": "✅ إجابة صحيحة!",
+  "quiz.wrong": "❌ حاول مجدداً",
+  "quiz.explanation": "التفسير:",
+
+  // ── Sim Panel ──
+  "sim.close": "✕ إغلاق",
+  "sim.tab1": "الوضع ١",
+  "sim.tab2": "الوضع ٢",
+  "sim.tab3": "الوضع ٣",
+  "sim.loading": "⏳ جارٍ التحميل...",
+  "sim.unknown": "استقصاء غير معروف",
+
+  // ── Review Mode ──
+  "review.title": "🎯 وضع المراجعة",
+  "review.start": "بدء المراجعة",
+  "review.stop": "إيقاف المراجعة",
+  "review.next": "التالي",
+  "review.prev": "السابق",
+  "review.score": "النتيجة",
+  "review.finish": "إنهاء",
+
+  // ── Quick Search ──
+  "search.placeholder": "ابحث عن استقصاء...",
+  "search.no_results": "لا توجد نتائج",
+  "search.grade": "الصف",
+  "search.close": "✕",
+
+  // ── AI Assistant ──
+  "ai.title": "المساعد الذكي 🤖",
+  "ai.placeholder": "اسألني عن العلوم...",
+  "ai.send": "إرسال",
+  "ai.close": "✕",
+  "ai.thinking": "جارٍ التفكير...",
+  "ai.error": "حدث خطأ، حاول مجدداً",
+  "ai.suggestions.title": "اقتراحات:",
+
+  // ── Feedback ──
+  "feedback.title": "قيِّم تجربتك 🌟",
+  "feedback.placeholder": "شاركنا أي ملاحظة أو اقتراح تطوير...",
+  "feedback.submit": "إرسال التقييم ✉️",
+  "feedback.submitting": "جارٍ الإرسال...",
+  "feedback.thanks.title": "شكراً لك!",
+  "feedback.thanks.sub": "وصلنا تقييمك وسنأخذه بعين الاعتبار 💙\nنسعى دائماً لتحسين تجربتك.",
+  "feedback.thanks.icon": "🎉",
+  "feedback.close": "✕",
+
+  // ── Buddy (Zaid) ──
+  "buddy.hide": "إخفاء زيد",
+  "buddy.restore": "إظهار زيد مجدداً",
+  "buddy.restore.title": "إظهار زيد مجدداً",
+  "buddy.welcome": "أهلاً بك في بيّن! 🚀 اختر وحدة وسأعطيك تلميحاً عنها!",
+
+  // ── Footer ──
+  "footer.copy": "© 2025 بيّن — منصة العلوم التفاعلية لسلطنة عُمان",
+  "footer.made": "صُنع بـ 💙 للطالب العُماني",
+
+  // ── Subscription Badge ──
+  "sub.days": "يوم متبقٍ",
+  "sub.expires_soon": "ينتهي قريباً",
+  "sub.expired": "انتهى الاشتراك",
+  "sub.active": "اشتراك نشط",
+
+  // ── Visitor Counter ──
+  "visitor.label": "زيارة",
+
+  // ── Toast ──
+  "toast.copied": "تم النسخ!",
+  "toast.saved": "تم الحفظ!",
+  "toast.error": "حدث خطأ",
+
+  // ── Nature Sounds ──
+  "sounds.title": "أصوات الطبيعة",
+  "sounds.off": "إيقاف",
+  "sounds.rain": "مطر",
+  "sounds.ocean": "بحر",
+  "sounds.forest": "غابة",
+  "sounds.wind": "رياح",
+
+  // ── Whiteboard ──
+  "wb.title": "السبورة التفاعلية",
+  "wb.pen": "قلم",
+  "wb.eraser": "ممحاة",
+  "wb.clear": "مسح الكل",
+  "wb.color": "اللون",
+  "wb.size": "الحجم",
+  "wb.undo": "تراجع",
+  "wb.redo": "إعادة",
+  "wb.save": "حفظ",
+  "wb.close": "إغلاق",
+
+  // ── General UI ──
+  "btn.start": "ابدأ",
+  "btn.stop": "إيقاف",
+  "btn.reset": "إعادة تعيين",
+  "btn.next": "التالي",
+  "btn.prev": "السابق",
+  "btn.close": "إغلاق",
+  "btn.open": "فتح",
+  "btn.save": "حفظ",
+  "btn.cancel": "إلغاء",
+  "btn.confirm": "تأكيد",
+  "btn.back": "رجوع",
+  "btn.home": "الرئيسية",
+  "btn.explore": "استكشف",
+  "btn.run": "تشغيل",
+  "btn.pause": "إيقاف مؤقت",
+  "lbl.on": "تشغيل",
+  "lbl.off": "إيقاف",
+  "lbl.yes": "نعم",
+  "lbl.no": "لا",
+  "lbl.true": "صحيح",
+  "lbl.false": "خاطئ",
+  "lbl.unit.n": "نيوتن",
+  "lbl.unit.kg": "كيلوغرام",
+  "lbl.unit.m": "متر",
+  "lbl.unit.cm": "سنتيمتر",
+  "lbl.unit.s": "ثانية",
+  "lbl.unit.v": "فولت",
+  "lbl.unit.a": "أمبير",
+  "lbl.unit.ohm": "أوم",
+  "lbl.unit.j": "جول",
+  "lbl.unit.w": "واط",
+  "lbl.unit.hz": "هرتز",
+  "lbl.unit.c": "درجة مئوية",
+  "lbl.unit.ph": "الرقم الهيدروجيني",
+  "lbl.unit.nm": "نانومتر",
+  "lbl.unit.deg": "درجة",
+};
+
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// بيّن — English Translations (en)
+// ═══════════════════════════════════════════════════════════
+var _TRANSLATIONS_EN = {
+
+  // ── Meta ──
+  "meta.title": "Bayyin | Interactive Science Platform",
+  "meta.lang": "en",
+  "meta.dir": "ltr",
+
+  // ── Brand ──
+  "brand.name": "Bayyin",
+  "brand.sub": "Interactive Science Platform · Sultanate of Oman",
+  "brand.logo": "ب",
+
+  // ── Auth ──
+  "auth.title": "Bayyin Platform",
+  "auth.sub": "Sign in to access the interactive labs",
+  "auth.email": "Email address",
+  "auth.password": "Password (at least 6 characters)",
+  "auth.submit": "Sign In / Create Account",
+  "auth.logout": "Sign Out",
+  "auth.logout.change": "↩ Sign Out & Change Account",
+  "auth.visitor.join": "Join them today",
+  "auth.visitor.count": "visits on the platform",
+  "auth.visitor.active": "🔥 Active",
+  "auth.pay.no_sub": "⚠️ No Active Subscription",
+  "auth.pay.no_sub.desc": "To access all interactive inquiries\nplease subscribe first",
+  "auth.pay.subscribe": "💳 Subscribe Now",
+  "auth.pay.note": "✅ Your account activates automatically after payment within seconds",
+  "auth.pay.recheck": "🔄 Already paid — Re-verify",
+
+  // ── Dark Mode ──
+  "dm.dark": "Dark",
+  "dm.light": "Light",
+  "dm.toggle.dark": "Switch to Dark Mode",
+  "dm.toggle.light": "Switch to Light Mode",
+
+  // ── Landing ──
+  "landing.badge": "🇴🇲 Oman National Curriculum",
+  "landing.title1": "Bayyin",
+  "landing.title2": "Science",
+  "landing.title3": "in a",
+  "landing.title4": "Different Way",
+  "landing.desc": "An interactive platform designed for Omani students — bringing textbook activities to life in the classroom",
+  "landing.quran": "﴿ Say: Travel through the earth and observe how He began creation ﴾",
+  "landing.quran.ref": "Surah Al-Ankabut · 20",
+  "landing.cta": "🔬 Start Exploring",
+  "landing.stat1.num": "+100",
+  "landing.stat1.lbl": "Interactive Inquiries",
+  "landing.stat2.num": "100%",
+  "landing.stat2.lbl": "Bilingual",
+  "landing.stat3.num": "🇴🇲",
+  "landing.stat3.lbl": "Omani Environment",
+  "landing.start": "Start Now →",
+  "landing.logout": "↩ Sign Out",
+
+  // ── Language Toggle ──
+  "lang.toggle": "عربي",
+  "lang.toggle.title": "التبديل إلى العربية",
+
+  // ── Semester Picker ──
+  "sem.home": "🏠 Home",
+  "sem.choose": "Choose Semester",
+  "sem.home.btn": "⬅ Home",
+  "sem.badge": "🇴🇲 Oman National Curriculum · Science",
+  "sem.title": "Choose Your Semester",
+  "sem.sub": "Select a semester to access your interactive inquiries",
+  "sem.1.title": "First Semester",
+  "sem.1.sub": "September — January · First semester units for all grades",
+  "sem.1.status": "🔒 Coming Soon",
+  "sem.2.title": "Second Semester",
+  "sem.2.sub": "February — June · Second semester units — Grade 9 fully available",
+  "sem.2.status": "🔓 Available Now",
+  "sem.2.badge": "● Active Now",
+  "sem.note": "💡 First semester content will be released gradually — stay tuned",
+
+  // ── Grade Picker ──
+  "grade.home.btn": "⬅ Semesters",
+  "grade.choose": "Choose Grade",
+  "grade.title": "Choose Your Grade",
+  "grade.sub": "To access your interactive inquiries",
+  "grade.5": "Grade 5",
+  "grade.6": "Grade 6",
+  "grade.7": "Grade 7",
+  "grade.8": "Grade 8",
+  "grade.9": "Grade 9",
+  "grade.sem1.sub": "September — January · Choose your grade",
+  "grade.sem2.sub": "February — June · Choose your grade",
+  "grade.coming_soon": "Coming Soon",
+  "grade.coming_soon.lock": "🔒",
+  "grade.soon.buddy": "⏳ This grade is coming soon! Stay tuned for updates on Bayyin.",
+  "grade.5.count": "13 Inquiries",
+  "grade.6.count": "11 Inquiries",
+  "grade.7.count": "30+ Inquiries",
+  "grade.8.count": "10+ Inquiries",
+  "grade.9.count": "20+ Inquiries",
+
+  // ── App Breadcrumb ──
+  "bc.home": "🏠 Home",
+  "bc.sem1": "Semester 1",
+  "bc.sem2": "Semester 2",
+  "bc.grade": "Grade",
+
+  // ── App Nav/Topbar ──
+  "nav.home": "🏠 Home",
+  "nav.home.btn": "↩ Home",
+  "nav.search": "🔍",
+  "nav.search.title": "Quick Search",
+  "nav.ai": "🤖",
+  "nav.ai.title": "AI Assistant",
+  "nav.feedback": "⭐",
+  "nav.feedback.title": "Rate Us",
+
+  // ── Grade 5 Units ──
+  "g5.unit5": "Unit 5 · Light",
+  "g5.unit6": "Unit 6 · Earth & Space",
+
+  // ── Grade 6 Units ──
+  "g6.unit4": "Unit 4 · Forces",
+  "g6.unit5": "Unit 5 · Electricity",
+
+  // ── Grade 7 Units ──
+  "g7.unit7": "Unit 7 · Environment & Diversity",
+  "g7.unit8": "Unit 8 · Matter & Materials",
+  "g7.unit9": "Unit 9 · Forces & Motion",
+  "g7.unit10": "Unit 10 · Living Things",
+  "g7.unit11": "Unit 11 · Electromagnetism",
+  "g7.unit8b": "Unit 8b · Salts & Reactions",
+  "g7.unit9b": "Unit 9b · Sound",
+
+  // ── Grade 8 Units ──
+  "g8.unit7": "Unit 7 · Body & Health",
+  "g8.unit10": "Unit 10 · Reproduction & Growth",
+  "g8.unit11b": "Unit 11 · Electricity",
+
+  // ── Grade 9 ──
+  "g9.tab.chem": "🧪 Chemistry",
+  "g9.tab.phys": "⚡ Physics",
+  "g9.tab.bio": "🌱 Biology",
+  "g9.unit6": "Unit 6 · Acids & Alkalis",
+  "g9.unit7": "Unit 7 · Chemical Reactions",
+  "g9.unit8": "Unit 8 · Salt Preparation",
+  "g9.unit9": "Unit 9 · Chemical Analysis",
+  "g9.unit10": "Unit 10 · Air & Atmosphere",
+  "g9.unit11": "Unit 11 · Energy",
+  "g9.unit12": "Unit 12 · Light & Reflection",
+  "g9.unit13": "Unit 13 · Refraction of Light",
+  "g9.unit14": "Unit 14 · Lenses",
+  "g9.unit15": "Unit 15 · Electricity",
+  "g9.unit16": "Unit 16 · Resistance",
+  "g9.unit7b": "Unit 7 · Nutrition & Photosynthesis",
+  "g9.unit8b": "Unit 8 · Digestion & Absorption",
+  "g9.unit9b": "Unit 9 · Transport in Plants",
+  "g9.unit10b": "Unit 10 · Plant Responses",
+
+  // ── Quiz / Questions ──
+  "quiz.title": "Check Your Understanding",
+  "quiz.toggle.show": "🧠 Question",
+  "quiz.toggle.hide": "✕ Hide",
+  "quiz.correct": "✅ Correct answer!",
+  "quiz.wrong": "❌ Try again",
+  "quiz.explanation": "Explanation:",
+
+  // ── Sim Panel ──
+  "sim.close": "✕ Close",
+  "sim.tab1": "Mode 1",
+  "sim.tab2": "Mode 2",
+  "sim.tab3": "Mode 3",
+  "sim.loading": "⏳ Loading...",
+  "sim.unknown": "Unknown inquiry",
+
+  // ── Review Mode ──
+  "review.title": "🎯 Review Mode",
+  "review.start": "Start Review",
+  "review.stop": "Stop Review",
+  "review.next": "Next",
+  "review.prev": "Previous",
+  "review.score": "Score",
+  "review.finish": "Finish",
+
+  // ── Quick Search ──
+  "search.placeholder": "Search for an inquiry...",
+  "search.no_results": "No results found",
+  "search.grade": "Grade",
+  "search.close": "✕",
+
+  // ── AI Assistant ──
+  "ai.title": "AI Assistant 🤖",
+  "ai.placeholder": "Ask me about science...",
+  "ai.send": "Send",
+  "ai.close": "✕",
+  "ai.thinking": "Thinking...",
+  "ai.error": "An error occurred, please try again",
+  "ai.suggestions.title": "Suggestions:",
+
+  // ── Feedback ──
+  "feedback.title": "Rate Your Experience 🌟",
+  "feedback.placeholder": "Share any feedback or improvement suggestions...",
+  "feedback.submit": "Submit Rating ✉️",
+  "feedback.submitting": "Submitting...",
+  "feedback.thanks.title": "Thank You!",
+  "feedback.thanks.sub": "We received your rating and will take it into account 💙\nWe always strive to improve your experience.",
+  "feedback.thanks.icon": "🎉",
+  "feedback.close": "✕",
+
+  // ── Buddy (Zaid) ──
+  "buddy.hide": "Hide Zaid",
+  "buddy.restore": "Show Zaid Again",
+  "buddy.restore.title": "Show Zaid Again",
+  "buddy.welcome": "Welcome to Bayyin! 🚀 Choose a unit and I'll give you a hint!",
+
+  // ── Footer ──
+  "footer.copy": "© 2025 Bayyin — Interactive Science Platform for the Sultanate of Oman",
+  "footer.made": "Made with 💙 for Omani Students",
+
+  // ── Subscription Badge ──
+  "sub.days": "days remaining",
+  "sub.expires_soon": "Expires soon",
+  "sub.expired": "Subscription expired",
+  "sub.active": "Active subscription",
+
+  // ── Visitor Counter ──
+  "visitor.label": "visits",
+
+  // ── Toast ──
+  "toast.copied": "Copied!",
+  "toast.saved": "Saved!",
+  "toast.error": "An error occurred",
+
+  // ── Nature Sounds ──
+  "sounds.title": "Nature Sounds",
+  "sounds.off": "Off",
+  "sounds.rain": "Rain",
+  "sounds.ocean": "Ocean",
+  "sounds.forest": "Forest",
+  "sounds.wind": "Wind",
+
+  // ── Whiteboard ──
+  "wb.title": "Interactive Whiteboard",
+  "wb.pen": "Pen",
+  "wb.eraser": "Eraser",
+  "wb.clear": "Clear All",
+  "wb.color": "Color",
+  "wb.size": "Size",
+  "wb.undo": "Undo",
+  "wb.redo": "Redo",
+  "wb.save": "Save",
+  "wb.close": "Close",
+
+  // ── General UI ──
+  "btn.start": "Start",
+  "btn.stop": "Stop",
+  "btn.reset": "Reset",
+  "btn.next": "Next",
+  "btn.prev": "Previous",
+  "btn.close": "Close",
+  "btn.open": "Open",
+  "btn.save": "Save",
+  "btn.cancel": "Cancel",
+  "btn.confirm": "Confirm",
+  "btn.back": "Back",
+  "btn.home": "Home",
+  "btn.explore": "Explore",
+  "btn.run": "Run",
+  "btn.pause": "Pause",
+  "lbl.on": "On",
+  "lbl.off": "Off",
+  "lbl.yes": "Yes",
+  "lbl.no": "No",
+  "lbl.true": "True",
+  "lbl.false": "False",
+  "lbl.unit.n": "Newtons",
+  "lbl.unit.kg": "kg",
+  "lbl.unit.m": "m",
+  "lbl.unit.cm": "cm",
+  "lbl.unit.s": "s",
+  "lbl.unit.v": "V",
+  "lbl.unit.a": "A",
+  "lbl.unit.ohm": "Ω",
+  "lbl.unit.j": "J",
+  "lbl.unit.w": "W",
+  "lbl.unit.hz": "Hz",
+  "lbl.unit.c": "°C",
+  "lbl.unit.ph": "pH",
+  "lbl.unit.nm": "nm",
+  "lbl.unit.deg": "°",
+};
+
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// بيّن — i18n Engine (i18n.js)
+// Centralized multilingual system. Add new languages by
+// creating a new translation file and registering it here.
+// ═══════════════════════════════════════════════════════════
+
+(function() {
+  'use strict';
+
+  // ── Constants ──────────────────────────────────────────
+  var STORAGE_KEY = 'bayyin-language';
+  var DEFAULT_LANG = 'ar';
+
+  // ── Language Registry ──────────────────────────────────
+  // To add a new language: add its translations file in /js/i18n/
+  // then register it here.
+  var _registry = {
+    ar: null, // populated from _TRANSLATIONS_AR (ar.js)
+    en: null, // populated from _TRANSLATIONS_EN (en.js)
+    // fr: null, // French — future
+    // tr: null, // Turkish — future
+    // ur: null, // Urdu — future
+  };
+
+  var _currentLang = DEFAULT_LANG;
+  var _listeners = [];
+
+  // ── Initialize registry from global translation objects ──
+  function _initRegistry() {
+    if (typeof _TRANSLATIONS_AR !== 'undefined') _registry.ar = _TRANSLATIONS_AR;
+    if (typeof _TRANSLATIONS_EN !== 'undefined') _registry.en = _TRANSLATIONS_EN;
+    // Future: if (typeof _TRANSLATIONS_FR !== 'undefined') _registry.fr = _TRANSLATIONS_FR;
+  }
+
+  // ── Core: translate a key ──────────────────────────────
+  function translate(key, lang) {
+    lang = lang || _currentLang;
+    var dict = _registry[lang];
+    if (!dict) {
+      console.warn('[i18n] No dictionary for language:', lang);
+      return key;
+    }
+    var val = dict[key];
+    if (val === undefined) {
+      // Fallback to Arabic
+      if (lang !== 'ar' && _registry.ar) {
+        val = _registry.ar[key];
+      }
+      if (val === undefined) {
+        // Key not found — return key as-is (developer sees the missing key)
+        console.warn('[i18n] Missing key:', key, 'for lang:', lang);
+        return key;
+      }
+    }
+    return val;
+  }
+
+  // ── Set active language ────────────────────────────────
+  function setLanguage(lang) {
+    if (!_registry[lang] && lang !== 'ar' && lang !== 'en') {
+      console.warn('[i18n] Unknown language:', lang);
+      lang = DEFAULT_LANG;
+    }
+    _currentLang = lang;
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch(e) {}
+    applyDirection(lang);
+    applyFontFamily(lang);
+    updateDocumentLang(lang);
+    _notifyListeners(lang);
+    _applyDataI18n();
+    _applyTitle();
+  }
+
+  // ── Get current language ───────────────────────────────
+  function getCurrentLanguage() {
+    return _currentLang;
+  }
+
+  // ── Apply RTL/LTR direction ────────────────────────────
+  function applyDirection(lang) {
+    var dict = _registry[lang] || _registry[DEFAULT_LANG];
+    var dir = dict ? (dict['meta.dir'] || 'rtl') : 'rtl';
+    document.documentElement.setAttribute('dir', dir);
+    document.documentElement.setAttribute('lang', lang);
+    document.body && (document.body.style.direction = dir);
+  }
+
+  // ── Apply font-family for language ────────────────────
+  function applyFontFamily(lang) {
+    var root = document.documentElement;
+    if (lang === 'en') {
+      root.classList.add('lang-en');
+      root.classList.remove('lang-ar');
+    } else {
+      root.classList.add('lang-ar');
+      root.classList.remove('lang-en');
+    }
+  }
+
+  // ── Update <html lang="..."> ───────────────────────────
+  function updateDocumentLang(lang) {
+    document.documentElement.lang = lang;
+    var metaLang = document.querySelector('meta[name="language"]');
+    if (metaLang) metaLang.content = lang;
+  }
+
+  // ── Apply translations to DOM elements with data-i18n ──
+  // Elements: data-i18n="key" → sets textContent
+  //           data-i18n-placeholder="key" → sets placeholder
+  //           data-i18n-title="key" → sets title attr
+  //           data-i18n-html="key" → sets innerHTML
+  function _applyDataI18n() {
+    // Text content
+    var els = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      var key = el.getAttribute('data-i18n');
+      if (key) el.textContent = translate(key);
+    }
+    // Placeholder
+    var phEls = document.querySelectorAll('[data-i18n-placeholder]');
+    for (var j = 0; j < phEls.length; j++) {
+      var phEl = phEls[j];
+      var phKey = phEl.getAttribute('data-i18n-placeholder');
+      if (phKey) phEl.placeholder = translate(phKey);
+    }
+    // Title attribute
+    var titleEls = document.querySelectorAll('[data-i18n-title]');
+    for (var k = 0; k < titleEls.length; k++) {
+      var tEl = titleEls[k];
+      var tKey = tEl.getAttribute('data-i18n-title');
+      if (tKey) tEl.title = translate(tKey);
+    }
+    // HTML content
+    var htmlEls = document.querySelectorAll('[data-i18n-html]');
+    for (var m = 0; m < htmlEls.length; m++) {
+      var hEl = htmlEls[m];
+      var hKey = hEl.getAttribute('data-i18n-html');
+      if (hKey) hEl.innerHTML = translate(hKey);
+    }
+  }
+
+  // ── Update page title ─────────────────────────────────
+  function _applyTitle() {
+    document.title = translate('meta.title');
+  }
+
+  // ── Observer pattern for language changes ──────────────
+  function onLanguageChange(fn) {
+    if (typeof fn === 'function') _listeners.push(fn);
+  }
+
+  function _notifyListeners(lang) {
+    for (var i = 0; i < _listeners.length; i++) {
+      try { _listeners[i](lang); } catch(e) { console.warn('[i18n] Listener error:', e); }
+    }
+  }
+
+  // ── Detect and restore saved preference ───────────────
+  function init() {
+    _initRegistry();
+    var saved = '';
+    try { saved = localStorage.getItem(STORAGE_KEY) || ''; } catch(e) {}
+    var lang = (saved && _registry[saved]) ? saved : DEFAULT_LANG;
+    _currentLang = lang;
+    applyDirection(lang);
+    applyFontFamily(lang);
+    updateDocumentLang(lang);
+    // Apply data-i18n after DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        _applyDataI18n();
+        _applyTitle();
+        _notifyListeners(lang);
+      });
+    } else {
+      _applyDataI18n();
+      _applyTitle();
+      _notifyListeners(lang);
+    }
+  }
+
+  // ── Toggle helper (for the toggle button) ─────────────
+  function toggleLanguage() {
+    var next = _currentLang === 'ar' ? 'en' : 'ar';
+    setLanguage(next);
+    _updateLangToggleBtn();
+    return next;
+  }
+
+  function _updateLangToggleBtn() {
+    var btn = document.getElementById('lang-toggle-btn');
+    if (btn) {
+      btn.textContent = translate('lang.toggle');
+      btn.title = translate('lang.toggle.title');
+    }
+  }
+
+  // ── Register new language (extensibility) ─────────────
+  function registerLanguage(code, translationObj) {
+    if (typeof code === 'string' && typeof translationObj === 'object') {
+      _registry[code] = translationObj;
+    }
+  }
+
+  // ── Expose public API on window ────────────────────────
+  window.i18n = {
+    t: translate,
+    translate: translate,
+    setLanguage: setLanguage,
+    getCurrentLanguage: getCurrentLanguage,
+    applyDirection: applyDirection,
+    toggleLanguage: toggleLanguage,
+    onLanguageChange: onLanguageChange,
+    registerLanguage: registerLanguage,
+    init: init,
+    apply: _applyDataI18n,
+  };
+
+  // ── Convenience shorthand ──────────────────────────────
+  window.t = translate;
+
+  // ── Auto-initialize ────────────────────────────────────
+  // Called after translation files are loaded (they are loaded first via <script> tags)
+  init();
+
+})();
+
+</script>
 <!-- Supabase credentials (replace with your project values) -->
 <script src="/config.js"></script>
 </head>
@@ -146,7 +954,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <!-- Language Toggle -->
-      <button id="lang-toggle-btn" onclick="i18n.toggleLanguage(); _onLangChange();" title="Switch to English" data-i18n-title="lang.toggle.title">عربي</button>
+      <button id="lang-toggle-btn" onclick="if(typeof i18n!=='undefined'){i18n.toggleLanguage();} if(typeof _onLangChange!=='undefined'){_onLangChange();}" title="Switch to English" data-i18n-title="lang.toggle.title">عربي</button>
       <button id="dm-toggle" onclick="toggleDarkMode()" title="التبديل إلى الوضع الداكن" aria-pressed="false">
         <!-- Moon icon (light mode) -->
         <svg class="dm-icon dm-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -848,7 +1656,7 @@
         </span>
       </span>
       <!-- search button -->
-      <button id="app-lang-toggle-btn" onclick="i18n.toggleLanguage(); _onLangChange();" style="background:var(--dm-btn-bg,rgba(0,0,0,0.06));border:1.5px solid var(--dm-btn-border,rgba(0,0,0,0.12));border-radius:8px;padding:6px 12px;font-family:Tajawal,Inter,sans-serif;font-size:12px;font-weight:700;color:var(--dm-btn-color,#2C3A4A);cursor:pointer;transition:all 0.18s;white-space:nowrap">EN</button>
+      <button id="app-lang-toggle-btn" onclick="if(typeof i18n!=='undefined'){i18n.toggleLanguage();} if(typeof _onLangChange!=='undefined'){_onLangChange();}" style="background:var(--dm-btn-bg,rgba(0,0,0,0.06));border:1.5px solid var(--dm-btn-border,rgba(0,0,0,0.12));border-radius:8px;padding:6px 12px;font-family:Tajawal,Inter,sans-serif;font-size:12px;font-weight:700;color:var(--dm-btn-color,#2C3A4A);cursor:pointer;transition:all 0.18s;white-space:nowrap">EN</button>
       <button id="search-btn" onclick="openSearch()" title="بحث سريع (Ctrl+K)"><span data-i18n-html="nav.search">🔍</span> <span data-i18n="search.title" style="display:none"></span>بحث</button>
       <!-- review mode button -->
       <button id="rv-open-btn" onclick="openReview()" title="وضع المراجعة السريعة">🏁 مراجعة</button>
