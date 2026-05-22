@@ -1,100 +1,6 @@
 
 
 // ═══════════════════════════════════════
-// i18n LANGUAGE CHANGE HANDLER
-// Called whenever the user switches language
-// ═══════════════════════════════════════
-function _onLangChange() {
-  var lang = (typeof i18n !== 'undefined') ? i18n.getCurrentLanguage() : 'ar';
-  var isAr = lang === 'ar';
-
-  // Update landing toggle button text
-  var btn = document.getElementById('lang-toggle-btn');
-  if (btn) btn.textContent = isAr ? 'عربي' : 'English';
-  var appBtn = document.getElementById('app-lang-toggle-btn');
-  if (appBtn) appBtn.textContent = isAr ? 'عربي' : 'EN';
-
-  // Update dark-mode button label
-  var dmLabel = document.querySelector('#dm-toggle .dm-label');
-  if (dmLabel) {
-    var isDark = document.documentElement.classList.contains('dark-mode');
-    dmLabel.textContent = isDark ? (isAr ? 'فاتح' : 'Light') : (isAr ? 'داكن' : 'Dark');
-  }
-
-  // Update search input placeholder and direction
-  var searchInput = document.getElementById('search-input');
-  if (searchInput) {
-    searchInput.placeholder = isAr ? 'ابحث عن استقصاء...' : 'Search for an inquiry...';
-    searchInput.style.direction = isAr ? 'rtl' : 'ltr';
-  }
-
-  // Update AI input placeholder and direction
-  var aiInput = document.getElementById('ai-input');
-  if (aiInput) {
-    aiInput.placeholder = isAr ? 'اسألني عن العلوم...' : 'Ask me about science...';
-    aiInput.style.direction = isAr ? 'rtl' : 'ltr';
-  }
-
-  // Update search overlay direction
-  var searchOverlay = document.getElementById('search-overlay');
-  if (searchOverlay) {
-    searchOverlay.querySelector('div').style.direction = isAr ? 'rtl' : 'ltr';
-  }
-
-  // Update AI panel direction
-  var aiPanel = document.getElementById('ai-panel');
-  if (aiPanel) {
-    aiPanel.style.direction = isAr ? 'rtl' : 'ltr';
-    // Flip FAB position for LTR
-    var aiFab = document.getElementById('ai-fab');
-    if (aiFab) {
-      aiFab.style.left = isAr ? '24px' : '';
-      aiFab.style.right = isAr ? '' : '24px';
-      aiPanel.style.left = isAr ? '24px' : '';
-      aiPanel.style.right = isAr ? '' : '24px';
-    }
-  }
-
-  // Update topbar home button
-  var homeBtn = document.getElementById('topbar-home-btn');
-  if (homeBtn) homeBtn.innerHTML = isAr ? '🏠 الرئيسية' : '🏠 Home';
-
-  // Update search button
-  var searchBtn = document.getElementById('search-btn');
-  if (searchBtn) searchBtn.innerHTML = isAr ? '🔍 بحث' : '🔍 Search';
-
-  // Update semester breadcrumb & banners dynamically
-  if (typeof _updateGradePickerBanner !== 'undefined' && window._activeSemester) {
-    _updateGradePickerBanner(window._activeSemester);
-  }
-  if (typeof renderGradeButtons !== 'undefined' && window._activeSemester) {
-    renderGradeButtons(window._activeSemester);
-  }
-
-  // Update breadcrumb in app
-  if (window._activeGrade && typeof _updateAppBreadcrumb !== 'undefined') {
-    _updateAppBreadcrumb(window._activeGrade);
-  }
-
-  // Update page title
-  document.title = isAr ? 'بيّن | منصة العلوم التفاعلية' : 'Bayyin | Interactive Science Platform';
-
-  // Fire i18n.apply() to update all data-i18n elements
-  if (typeof i18n !== 'undefined' && typeof i18n.apply === 'function') {
-    i18n.apply();
-  }
-}
-
-// Register the handler with i18n engine (fires on each language change)
-document.addEventListener('DOMContentLoaded', function() {
-  if (typeof i18n !== 'undefined' && typeof i18n.onLanguageChange === 'function') {
-    i18n.onLanguageChange(_onLangChange);
-  }
-  // Set initial button text
-  _onLangChange();
-});
-
-// ═══════════════════════════════════════
 // ═══════════════════════════════════════
 // FEEDBACK MODAL
 // ═══════════════════════════════════════
@@ -300,109 +206,73 @@ function buildBtns(placeholderId, items, onclickFn, idPrefix) {
   }
   el.innerHTML = html;
 }
+function openApp() {
+  var landing = document.getElementById('landing');
+  var picker = document.getElementById('grade-picker');
+  landing.style.setProperty('display', 'none', 'important');
+  picker.style.display = 'flex';
+  setTimeout(_updateFooterVisibility, 50);
+}
 // ══════════════════════════════════════════════════════════
 // NAV STATE — tracks which semester is active
 // ══════════════════════════════════════════════════════════
 window._activeSemester = 2; // default: Semester 2
 
-// ── i18n-aware helpers ──────────────────────────────────
-function _t(key) {
-  return (typeof i18n !== 'undefined') ? i18n.t(key) : key;
-}
-
 // ── Semester config: what grades are available per semester ──
-// Note: labels are rendered via _t() at render time, not at config time
-var _semesterConfigRaw = {
+var _semesterConfig = {
   1: {
-    labelKey: 'sem.1.title',
+    label: 'الفصل الدراسي الأول',
     icon: '🌅',
-    subKey: 'sem.1.sub',
+    sub: 'سبتمبر — يناير',
     accentColor: '#D4901A',
     grades: [
-      { g:5, icon:'🔭', labelKey:'grade.5', countKey:'grade.coming_soon', available: false },
-      { g:6, icon:'📗', labelKey:'grade.6', countKey:'grade.coming_soon', available: false },
-      { g:7, icon:'📚', labelKey:'grade.7', countKey:'grade.coming_soon', available: false },
-      { g:8, icon:'📖', labelKey:'grade.8', countKey:'grade.coming_soon', available: false },
-      { g:9, icon:'📕', labelKey:'grade.9', countKey:'grade.coming_soon', available: false },
+      { g:5, icon:'🔭', label:'الصف الخامس',  count:'قريباً',     available: false },
+      { g:6, icon:'📗', label:'الصف السادس',  count:'قريباً',     available: false },
+      { g:7, icon:'📚', label:'الصف السابع',  count:'قريباً',     available: false },
+      { g:8, icon:'📖', label:'الصف الثامن',  count:'قريباً',     available: false },
+      { g:9, icon:'📕', label:'الصف التاسع',  count:'قريباً',     available: false },
     ]
   },
   2: {
-    labelKey: 'sem.2.title',
+    label: 'الفصل الدراسي الثاني',
     icon: '🌿',
-    subKey: 'sem.2.sub',
+    sub: 'فبراير — يونيو',
     accentColor: '#1A8FA8',
     grades: [
-      { g:5, icon:'🔭', labelKey:'grade.5', countKey:'grade.5.count', available: true },
-      { g:6, icon:'📗', labelKey:'grade.6', countKey:'grade.6.count', available: true },
-      { g:7, icon:'📚', labelKey:'grade.7', countKey:'grade.7.count', available: true },
-      { g:8, icon:'📖', labelKey:'grade.8', countKey:'grade.8.count', available: true },
-      { g:9, icon:'📕', labelKey:'grade.9', countKey:'grade.9.count', available: true },
+      { g:5, icon:'🔭', label:'الصف الخامس',  count:'١٣ استقصاء',  available: true },
+      { g:6, icon:'📗', label:'الصف السادس',  count:'١١ استقصاء',  available: true },
+      { g:7, icon:'📚', label:'الصف السابع',  count:'٣٠+ استقصاء', available: true },
+      { g:8, icon:'📖', label:'الصف الثامن',  count:'١٠+ استقصاء', available: true },
+      { g:9, icon:'📕', label:'الصف التاسع',  count:'٢٠+ استقصاء', available: true },
     ]
   }
 };
 
-// Returns the translated config for a semester
-function _semesterConfig(sem) {
-  var raw = _semesterConfigRaw[sem];
-  if (!raw) return null;
-  return {
-    label: _t(raw.labelKey),
-    icon: raw.icon,
-    sub: _t(raw.subKey),
-    accentColor: raw.accentColor,
-    grades: raw.grades.map(function(g) {
-      return {
-        g: g.g,
-        icon: g.icon,
-        label: _t(g.labelKey),
-        count: _t(g.countKey),
-        available: g.available
-      };
-    })
-  };
-}
-
-// Keep _semesterConfig as a callable — used internally
-var _semesterConfig_orig = _semesterConfig; // alias
-
-function _gradeLabel(g) {
-  var keys = { 5:'grade.5', 6:'grade.6', 7:'grade.7', 8:'grade.8', 9:'grade.9' };
-  return _t(keys[g] || ('grade.' + g));
-}
-var _gradeLabels = {
-  get 5() { return _gradeLabel(5); },
-  get 6() { return _gradeLabel(6); },
-  get 7() { return _gradeLabel(7); },
-  get 8() { return _gradeLabel(8); },
-  get 9() { return _gradeLabel(9); }
-};
+var _gradeLabels = { 5:'الصف الخامس', 6:'الصف السادس', 7:'الصف السابع', 8:'الصف الثامن', 9:'الصف التاسع' };
 
 // ── Render grade buttons inside grade-picker based on active semester ──
 function renderGradeButtons(sem) {
-  var cfg = _semesterConfig(sem);
+  var cfg = _semesterConfig[sem];
   if (!cfg) return;
   var list = document.getElementById('grade-buttons-list');
   if (!list) return;
   list.innerHTML = '';
   cfg.grades.forEach(function(g) {
     var avail = g.available;
-    var isLtr = (typeof i18n !== 'undefined') && i18n.getCurrentLanguage() !== 'ar';
     var btn = document.createElement('button');
     btn.style.cssText = 'width:100%;padding:20px 24px;border-radius:16px;' +
       'border:2px solid ' + (avail ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.05)') + ';' +
-      'background:var(--bg-card,#fff);font-family:Tajawal,Inter,sans-serif;font-size:19px;font-weight:700;' +
+      'background:var(--bg-card,#fff);font-family:Tajawal;font-size:19px;font-weight:700;' +
       'color:' + (avail ? 'var(--text-heading,#1A2330)' : '#B0BAC5') + ';' +
       'cursor:' + (avail ? 'pointer' : 'not-allowed') + ';' +
-      'text-align:' + (isLtr ? 'left' : 'right') + ';display:flex;align-items:center;gap:14px;' +
-      'direction:' + (isLtr ? 'ltr' : 'rtl') + ';' +
+      'text-align:right;display:flex;align-items:center;gap:14px;' +
       'box-shadow:0 2px 8px rgba(0,0,0,0.05);' +
       'transition:box-shadow 0.2s,transform 0.2s;' +
       'opacity:' + (avail ? '1' : '0.55') + ';';
-    var marginAuto = isLtr ? 'margin-left:auto' : 'margin-right:auto';
     btn.innerHTML =
       '<span style="font-size:28px">' + g.icon + '</span>' +
       '<span>' + g.label + '</span>' +
-      '<span style="' + marginAuto + ';font-size:13px;color:' + (avail ? '#888' : '#B0BAC5') + ';font-weight:400;display:flex;align-items:center;gap:6px">' +
+      '<span style="margin-right:auto;font-size:13px;color:' + (avail ? '#888' : '#B0BAC5') + ';font-weight:400;display:flex;align-items:center;gap:6px">' +
         (avail ? '' : '<span style="font-size:10px;background:rgba(0,0,0,0.06);padding:2px 8px;border-radius:10px;">🔒</span>') +
         g.count +
       '</span>';
@@ -412,7 +282,7 @@ function renderGradeButtons(sem) {
       btn.onclick = function() { pickGrade(g.g); };
     } else {
       btn.onclick = function() {
-        buddySay && buddySay(_t('grade.soon.buddy'), 4000);
+        buddySay && buddySay('⏳ هذا الصف قريباً! تابع التحديثات على منصة بيّن.', 4000);
       };
     }
     list.appendChild(btn);
@@ -421,7 +291,7 @@ function renderGradeButtons(sem) {
 
 // ── Update grade-picker banner to reflect active semester ──
 function _updateGradePickerBanner(sem) {
-  var cfg = _semesterConfig(sem);
+  var cfg = _semesterConfig[sem];
   if (!cfg) return;
   var icon = document.getElementById('gp-sem-icon');
   var label = document.getElementById('gp-sem-label');
@@ -430,25 +300,25 @@ function _updateGradePickerBanner(sem) {
   var banner = document.getElementById('grade-picker-banner');
   if (icon)   icon.textContent   = cfg.icon;
   if (label)  label.textContent  = cfg.label;
-  if (sub)    sub.textContent    = cfg.sub + ' · ' + _t('grade.title');
+  if (sub)    sub.textContent    = cfg.sub + ' · اختَر صفّك';
   if (bc)     bc.textContent     = cfg.label;
   if (banner) {
     var c = sem === 1 ? 'rgba(212,144,26,' : 'rgba(26,143,168,';
     banner.style.background = c + '0.06)';
     banner.style.borderColor = c + '0.18)';
   }
-  // Re-render grade buttons with translated labels
+  // Color the accent stripe of the semester-picker cards
   renderGradeButtons(sem);
 }
 
 // ── Update app breadcrumb ──
 function _updateAppBreadcrumb(gradeNum) {
   var sem = window._activeSemester;
-  var cfg = _semesterConfig(sem) || _semesterConfig(2);
+  var cfg = _semesterConfig[sem] || _semesterConfig[2];
   var bcSem = document.getElementById('bc-semester');
   var bcGrade = document.getElementById('bc-grade');
-  if (bcSem) bcSem.textContent = cfg ? cfg.label : '';
-  if (bcGrade) bcGrade.textContent = _gradeLabel(gradeNum) || _t('bc.grade');
+  if (bcSem) bcSem.textContent = cfg.label;
+  if (bcGrade) bcGrade.textContent = _gradeLabels[gradeNum] || 'الصف';
 }
 
 // ══ MAIN NAVIGATION FUNCTIONS ══

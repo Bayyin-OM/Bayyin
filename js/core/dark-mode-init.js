@@ -15,18 +15,10 @@
     var moon  = btn.querySelector('.dm-moon');
     var sun   = btn.querySelector('.dm-sun');
     var label = btn.querySelector('.dm-label');
-    if (moon)  moon.style.display  = isDark ? 'none'  : 'block';
-    if (sun)   sun.style.display   = isDark ? 'block' : 'none';
-    if (label) {
-      // Use i18n if available, otherwise fall back to Arabic
-      var isEn = (typeof i18n !== 'undefined') && i18n.getCurrentLanguage() === 'en';
-      label.textContent = isDark
-        ? (isEn ? 'Light' : 'فاتح')
-        : (isEn ? 'Dark'  : 'داكن');
-    }
-    btn.title = isDark
-      ? ((typeof i18n !== 'undefined' && i18n.getCurrentLanguage() === 'en') ? 'Switch to Light Mode' : 'التبديل إلى الوضع الفاتح')
-      : ((typeof i18n !== 'undefined' && i18n.getCurrentLanguage() === 'en') ? 'Switch to Dark Mode'  : 'التبديل إلى الوضع الداكن');
+    if (moon)  moon.style.display  = isDark ? 'none'         : 'block';
+    if (sun)   sun.style.display   = isDark ? 'block'        : 'none';
+    if (label) label.textContent   = isDark ? 'فاتح'         : 'داكن';
+    btn.title = isDark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن';
     btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
   }
 

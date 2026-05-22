@@ -48,11 +48,10 @@ function srQuery(q){
   q=q.trim();
   document.getElementById('search-clear').classList.toggle('show',q.length>0);
   _srSel=-1;
-  var isEn = (typeof i18n !== 'undefined') && i18n.getCurrentLanguage() === 'en';
   var results,hint='';
   if(!q){
     results=_SEARCH_INDEX.slice(0,8);
-    hint='<div class="sr-hint">' + (isEn ? 'Suggested inquiries' : 'استقصاءات مقترحة') + '</div>';
+    hint='<div class="sr-hint">استقصاءات مقترحة</div>';
   } else {
     var ql=q.toLowerCase();
     results=_SEARCH_INDEX.filter(function(s){
@@ -62,7 +61,7 @@ function srQuery(q){
   }
   var html=hint;
   if(results.length===0){
-    html='<div class="sr-empty">' + (isEn ? 'No results for «' + q + '»' : 'لا توجد نتائج لـ «'+q+'»') + '</div>';
+    html='<div class="sr-empty">لا توجد نتائج لـ «'+q+'»</div>';
   } else {
     results.forEach(function(s,i){
       var name=q?_srMark(s.name,q):s.name;
@@ -71,7 +70,7 @@ function srQuery(q){
       html+='<div class="sr-emoji">'+s.emoji+'</div>';
       html+='<div class="sr-body"><div class="sr-name">'+name+'</div>';
       html+='<div class="sr-meta">'+meta+'</div></div>';
-      html+='<div class="sr-grade-badge">' + (isEn ? 'G' : 'ص') + s.grade + '</div></div>';
+      html+='<div class="sr-grade-badge">ص'+s.grade+'</div></div>';
     });
   }
   document.getElementById('search-results').innerHTML=html;
