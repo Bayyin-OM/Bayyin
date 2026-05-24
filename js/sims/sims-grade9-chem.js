@@ -8009,7 +8009,7 @@ const C15 = {
   panel:'rgba(241,245,249,0.97)', panelBorder:'#CBD5E1'
 };
 
-function dm15(){ return dm15(); }
+function dm15(){ return document.documentElement.classList.contains('dark-mode'); }
 function bg15(){ return dm15()?'#0F172A':'#F8FAFC'; }
 function txt15(){ return dm15()?'#E2E8F0':'#1E293B'; }
 function wire15(){ return dm15()?'#60A5FA':'#1E40AF'; }
