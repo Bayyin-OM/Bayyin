@@ -4502,7 +4502,7 @@ function simG9Energy2(){
 
   const cv=document.getElementById('simCanvas');
   function draw(){
-    if(!(currentSim==='g9efficiency' || currentSim==='g9solar')){ cancelAnimationFrame(animFrame); return; }
+    if(!(currentSim==='g9efficiency' || currentSim==='g9solar' || currentSim==='g9energymix')){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height;
     c.clearRect(0,0,w,h); S.t++;
     const eff = S.Euse/S.Ein;
@@ -5489,12 +5489,18 @@ function simG9Mirror1(){
     const mirGrad=c.createLinearGradient(mx,0,mx+18,0);
     mirGrad.addColorStop(0,'#94A3B8'); mirGrad.addColorStop(0.4,'#E2E8F0'); mirGrad.addColorStop(1,'#94A3B8');
     c.fillStyle=mirGrad; c.fillRect(mx,h*0.12,18,h*0.68);
-    // Mirror hatch marks (indicating it's a mirror)
+    // Specular highlight stripe
+    c.fillStyle='rgba(255,255,255,0.45)'; c.fillRect(mx+4,h*0.12,5,h*0.68);
+    // Mirror hatch marks (standard physics convention — angled lines behind the mirror)
     c.strokeStyle='#64748B'; c.lineWidth=1.5;
-    for(let i=0;i<12;i++){
-      const y=h*0.12+i*(h*0.68/12);
-      c.beginPath(); c.moveTo(mx+18,y); c.lineTo(mx+28,y+10); c.stroke();
+    const hatchCount=14;
+    for(let i=0;i<hatchCount;i++){
+      const y=h*0.12+i*(h*0.68/hatchCount);
+      c.beginPath(); c.moveTo(mx+18,y); c.lineTo(mx+30,y+12); c.stroke();
     }
+    // Thin front edge line for visual crispness
+    c.strokeStyle='rgba(30,45,61,0.5)'; c.lineWidth=1.5;
+    c.beginPath(); c.moveTo(mx,h*0.12); c.lineTo(mx,h*0.12+h*0.68); c.stroke();
     // Object (candle) - left of mirror
     const ox=mx-d, oh=h*0.2;
     // Candle body
@@ -5900,7 +5906,15 @@ function simG9RayRefl2(){
 // ══════════════════════════════════════════════════════════
 function simG9ReflType1(){
   cancelAnimationFrame(animFrame);
-  simState={surface:'smooth', roughness:0, t:0};
+  // Pre-compute surface bumps and ray normals so they don't jitter every frame
+  const BUMP_SEED = Array.from({length:40},()=>({x:Math.random(),y:Math.random(),r:2+Math.random()*5}));
+  const ROUGH_BUMP_SEED = Array.from({length:20},(_,i)=>({
+    bx:i/20+1/40, by:(Math.random()*0.5-0.25)
+  }));
+  const ROUGH_NORMS = Array.from({length:7},()=>(Math.random()*2-1));
+  const SEMI_NORMS = Array.from({length:7},()=>(Math.random()*2-1));
+  simState={surface:'smooth', roughness:0, t:0,
+    bumpSeed:BUMP_SEED, roughBump:ROUGH_BUMP_SEED, roughNorms:ROUGH_NORMS, semiNorms:SEMI_NORMS};
   window._rfSurf=function(s,r){simState.surface=s; simState.roughness=r; var btns=document.querySelectorAll('.rfs-btn'); btns.forEach(b=>b.classList.remove('action')); var el=document.getElementById('rfs-'+s); if(el) el.classList.add('action');};
   controls(`
     <div class="ctrl-section">
@@ -5937,38 +5951,38 @@ function simG9ReflType1(){
       c.fillStyle='#F5F5F0'; c.fillRect(0,surfY,w,h*0.08);
     } else {
       c.fillStyle='#78716C'; c.fillRect(0,surfY,w,h*0.08);
-      for(let i=0;i<40;i++){
-        const bx=Math.random()*w, by=surfY+Math.random()*h*0.08;
-        const br=2+Math.random()*5;
-        c.fillStyle='rgba(0,0,0,0.3)'; c.beginPath(); c.arc(bx,by,br,0,Math.PI*2); c.fill();
-      }
+      // Use pre-computed bump positions (no random per frame)
+      simState.bumpSeed.forEach(b=>{
+        c.fillStyle='rgba(0,0,0,0.3)'; c.beginPath(); c.arc(b.x*w,surfY+b.y*h*0.08,b.r,0,Math.PI*2); c.fill();
+      });
     }
     // Surface bumps (for rough surface)
     if(sc==='rough'){
       c.strokeStyle='#57534E'; c.lineWidth=2;
-      for(let i=0;i<20;i++){
-        const bx=i*w/20+w/40;
-        const by2=surfY+(Math.random()*0.5-0.25)*h*0.05;
+      simState.roughBump.forEach((b,i)=>{
+        const bx=b.bx*w;
+        const by2=surfY+b.by*h*0.05;
         c.beginPath(); c.moveTo(bx-10,surfY); c.lineTo(bx,by2); c.lineTo(bx+10,surfY); c.stroke();
-      }
+      });
     }
     // Incident rays (parallel, from above-left)
     const nRays=sc==='smooth'?1:7;
     const spacing=w/(nRays+1);
+    const norms=sc==='rough'?simState.roughNorms:simState.semiNorms;
     for(let ri=0;ri<nRays;ri++){
       const rx=(ri+1)*spacing;
       const incAng=40*Math.PI/180;
-      // Surface normal at this point
-      let localNorm=-Math.PI/2; // perfectly vertical for smooth
-      if(sc==='rough') localNorm=-Math.PI/2+(Math.random()*r-r/2)*0.8;
-      else if(sc==='semi') localNorm=-Math.PI/2+(Math.random()*r-r/2)*0.3;
+      // Use pre-computed normal perturbation (stable per frame)
+      let localNorm=-Math.PI/2;
+      if(sc==='rough') localNorm=-Math.PI/2+(norms[ri]||0)*r*0.8;
+      else if(sc==='semi') localNorm=-Math.PI/2+(norms[ri]||0)*r*0.3;
       // Incident ray
       const iLen=h*0.35;
       const ix0=rx-Math.sin(incAng)*iLen, iy0=surfY-Math.cos(incAng)*iLen;
       c.strokeStyle='rgba(245,158,11,0.85)'; c.lineWidth=ri===0&&sc==='smooth'?4:2.5; c.lineCap='round';
       c.beginPath(); c.moveTo(ix0,iy0); c.lineTo(rx,surfY); c.stroke();
       // Reflected ray
-      const reflAng=2*localNorm-(-Math.PI/2+incAng)+(Math.random()*r-r/2)*0.15;
+      const reflAng=2*localNorm-(-Math.PI/2+incAng);
       const rLen=h*0.3;
       const rx1=rx+Math.cos(reflAng+Math.PI/2)*rLen, ry1=surfY+Math.sin(reflAng+Math.PI/2)*rLen;
       c.strokeStyle=sc==='smooth'?'rgba(6,182,212,0.9)':'rgba(167,139,250,0.7)';
@@ -5978,15 +5992,25 @@ function simG9ReflType1(){
       if(sc==='smooth'&&ri===0){
         c.setLineDash([5,5]); c.strokeStyle='rgba(26,143,168,0.5)'; c.lineWidth=1.5;
         c.beginPath(); c.moveTo(rx,surfY-h*0.25); c.lineTo(rx,surfY+h*0.1); c.stroke(); c.setLineDash([]);
+        // i and r labels on arcs
+        const arcR2=h*0.08;
+        c.strokeStyle='rgba(245,158,11,0.85)'; c.lineWidth=2;
+        c.beginPath(); c.arc(rx,surfY,arcR2,-Math.PI/2,-Math.PI/2+incAng,false); c.stroke();
+        c.strokeStyle='rgba(6,182,212,0.85)';
+        c.beginPath(); c.arc(rx,surfY,arcR2,-Math.PI/2-incAng,-Math.PI/2,false); c.stroke();
+        c.fillStyle='#B45309'; c.font=`bold ${Math.round(h*0.021)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('i',rx+(arcR2+12)*Math.cos(-Math.PI/2+incAng/2),surfY+(arcR2+12)*Math.sin(-Math.PI/2+incAng/2));
+        c.fillStyle='#0E7490';
+        c.fillText('r',rx+(arcR2+12)*Math.cos(-Math.PI/2-incAng/2),surfY+(arcR2+12)*Math.sin(-Math.PI/2-incAng/2));
       }
     }
     // Labels
     const scDescriptions={
-      smooth:['الشعاع الساقط','الشعاع المنعكس','✅ اتجاه واحد منتظم\n— يتكون صورة واضحة'],
+      smooth:['الشعاع الساقط','الشعاع المنعكس','✅ اتجاه واحد منتظم — يتكوّن صورة واضحة'],
       semi:['أشعة ساقطة','أشعة منعكسة متشتتة قليلاً','🔶 انعكاس جزئي — صورة غير واضحة'],
-      rough:['أشعة ساقطة متوازية','أشعة منعكسة في كل الاتجاهات','❌ لا صورة — الضوء يتشتت']
+      rough:['أشعة ساقطة متوازية','أشعة منعكسة في كل الاتجاهات','❌ لا صورة — الضوء يتشتت في كل الاتجاهات']
     };
-    c.fillStyle='rgba(245,158,11,0.9)'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillStyle='rgba(245,158,11,0.9)'; c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
     c.fillText(scDescriptions[sc][0],w*0.2,h*0.3);
     c.fillStyle=sc==='smooth'?'rgba(6,182,212,0.9)':'rgba(167,139,250,0.9)';
     c.fillText(scDescriptions[sc][1],w*0.75,h*0.3);
@@ -5994,7 +6018,7 @@ function simG9ReflType1(){
     const bY=h*0.75;
     c.fillStyle='rgba(255,255,255,0.08)'; c.beginPath(); c.roundRect(w*0.1,bY,w*0.8,h*0.18,12); c.fill();
     c.fillStyle='white'; c.font=`bold ${Math.round(h*0.027)}px Tajawal`; c.textAlign='center';
-    c.fillText(scDescriptions[sc][2].replace('\n','  '),w*0.5,bY+h*0.07);
+    c.fillText(scDescriptions[sc][2],w*0.5,bY+h*0.07);
     const srfLabels={smooth:'مرآة لامعة (سطح أملس)',semi:'ورق أبيض (سطح شبه أملس)',rough:'جدار خشن (سطح خشن)'};
     c.fillStyle='rgba(255,255,255,0.6)'; c.font=`${Math.round(h*0.024)}px Tajawal`;
     c.fillText(srfLabels[sc],w*0.5,bY+h*0.135);
@@ -6270,6 +6294,15 @@ function simG9Refl1(){
     c.strokeStyle='rgba(6,182,212,0.85)';
     c.beginPath(); c.arc(midX,mirrorY,arcR,-Math.PI/2-i,-Math.PI/2,false); c.stroke();
 
+    // Angle arc labels: i (incident) and r (reflected)
+    const arcLR = arcR + 14;
+    const iMid = -Math.PI/2 + i/2;
+    const rMid = -Math.PI/2 - i/2;
+    c.fillStyle='#B45309'; c.font=`bold ${Math.round(h*0.023)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('i', midX + arcLR*Math.cos(iMid), mirrorY + arcLR*Math.sin(iMid));
+    c.fillStyle='#0E7490';
+    c.fillText('r', midX + arcLR*Math.cos(rMid), mirrorY + arcLR*Math.sin(rMid));
+
     c.fillStyle='#F59E0B'; c.beginPath(); c.arc(p0.x,p0.y,14+Math.sin(S.t*4)*2,0,Math.PI*2); c.fill();
     c.strokeStyle='white'; c.lineWidth=2; c.stroke();
     c.fillStyle='white'; c.font=`bold ${11}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
@@ -6418,8 +6451,9 @@ function simG9Refl2(){
     c.fillStyle='rgba(30,45,61,0.9)'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
     c.fillText('اسحب «مصدر الضوء» — راقب تساوي الزاويتين عن العمود الأفقي', w/2, 14);
 
-    // Angle calc relative to normal (horizontal): angle between ray and normal = |atan2(dy,dx)| for incident toward mirror
-    const incAng = Math.abs(Math.atan2(dir.y, dir.x)) * 180/Math.PI;
+    // Normal to vertical mirror is horizontal. Angle of incidence = angle between incoming ray and horizontal normal.
+    // dir = {x:cos(ang), y:sin(ang)}; angle from horizontal normal = atan2(|dir.y|, |dir.x|)
+    const incAng = Math.abs(Math.atan2(Math.abs(dir.y), Math.abs(dir.x))) * 180/Math.PI;
     c.fillStyle='rgba(0,0,0,0.55)'; c.beginPath(); c.roundRect(w*0.12,h*0.88,w*0.76,40,14); c.fill();
     c.fillStyle='white'; c.font=`${Math.round(h*0.028)}px Tajawal`; c.textBaseline='middle';
     c.fillText(`زاوية السقوط ≈ ${incAng.toFixed(0)}°  |  زاوية الانعكاس ≈ ${incAng.toFixed(0)}°`, w/2, h*0.88+20);
@@ -6553,11 +6587,19 @@ function simG9Refract1(){
     c.fillStyle='white'; c.font=`bold 10px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
     c.fillText('اسحب',p0.x,p0.y);
 
-    const arcR=Math.min(w,h)*0.09;
+    const arcRi=Math.min(w,h)*0.09, arcRr=Math.min(w,h)*0.115;
+    // Incident angle arc (above interface, orange)
     c.strokeStyle='rgba(245,158,11,0.85)'; c.lineWidth=2.5;
-    c.beginPath(); c.arc(cx,cy,arcR,-Math.PI/2,-Math.PI/2+i,false); c.stroke();
-    c.strokeStyle='rgba(14,165,233,0.85)';
-    c.beginPath(); c.arc(cx,cy,arcR,-Math.PI/2,-Math.PI/2+i+r,false); c.stroke();
+    c.beginPath(); c.arc(cx,cy,arcRi,-Math.PI/2,-Math.PI/2+i,false); c.stroke();
+    // Refracted angle arc (below interface, cyan, larger radius to separate visually)
+    c.strokeStyle='rgba(14,165,233,0.85)'; c.lineWidth=2.5;
+    c.beginPath(); c.arc(cx,cy,arcRr,-Math.PI/2,-Math.PI/2+r,false); c.stroke();
+    // Arc labels
+    const iMidA = -Math.PI/2 + i/2, rMidA = -Math.PI/2 + r/2;
+    c.fillStyle='#B45309'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('i', cx+(arcRi+14)*Math.cos(iMidA), cy+(arcRi+14)*Math.sin(iMidA));
+    c.fillStyle='#0E7490';
+    c.fillText('r', cx+(arcRr+14)*Math.cos(rMidA), cy+(arcRr+14)*Math.sin(rMidA));
 
     c.fillStyle='rgba(15,23,42,0.9)'; c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
     c.fillText('i = '+S.a.toFixed(0)+'°', cx-w*0.18, cy-h*0.12);
@@ -6653,12 +6695,17 @@ function simG9Refract2(){
     const c=cv.getContext('2d'),w=cv.width,h=cv.height;
     S.t+=0.02;
     c.clearRect(0,0,w,h);
-    const glass=c.createLinearGradient(0,0,0,h*0.5);
-    glass.addColorStop(0,'#BBF7D0'); glass.addColorStop(1,'#4ADE80');
-    c.fillStyle=glass; c.fillRect(0,0,w,h*0.5);
-    c.fillStyle='#E0F2FE'; c.fillRect(0,h*0.5,w,h*0.5);
+    // Glass below (denser medium where light starts), air above
+    c.fillStyle='#E0F2FE'; c.fillRect(0,0,w,h*0.5);  // air (upper half, light blue)
+    const glassGrad=c.createLinearGradient(0,h*0.5,0,h);
+    glassGrad.addColorStop(0,'#BBF7D0'); glassGrad.addColorStop(1,'#4ADE80');
+    c.fillStyle=glassGrad; c.fillRect(0,h*0.5,w,h*0.5);  // glass (lower half, green)
     c.strokeStyle='rgba(30,45,61,0.4)'; c.lineWidth=3;
     c.beginPath(); c.moveTo(0,h*0.5); c.lineTo(w,h*0.5); c.stroke();
+    // Zone labels
+    c.fillStyle='rgba(30,45,61,0.55)'; c.font=`${Math.round(h*0.026)}px Tajawal`; c.textAlign='left';
+    c.fillText('هواء (n = 1.00)', w*0.04, h*0.08);
+    c.fillText(`زجاج (n = ${S.n1.toFixed(2)})`, w*0.04, h*0.92);
 
     const {cx,cy,L,i,n1,n2,crit,tir,r,p0,pRefr}=geom(w,h);
 
@@ -6869,7 +6916,7 @@ function simG9TIR1(){
       <input type="range" min="1" max="89" value="20" oninput="window._tirA(this.value)" style="width:100%">
       <div class="ctrl-btns-grid" style="margin-top:8px">
         <button class="ctrl-btn" onclick="window._tirA(15)">⬇️ صغيرة</button>
-        <button class="ctrl-btn action" onclick="window._tirA(42)">🎯 حرجة</button>
+        <button class="ctrl-btn action" onclick="window._tirA(42)">🎯 قريب من الحرجة</button>
         <button class="ctrl-btn" onclick="window._tirA(65)">⬆️ كبيرة</button>
       </div>
       <div class="ctrl-label" style="margin-top:10px">معامل الانكسار n: <span id="tir-n">1.50</span></div>
@@ -7962,7 +8009,7 @@ const C15 = {
   panel:'rgba(241,245,249,0.97)', panelBorder:'#CBD5E1'
 };
 
-function dm15(){ return document.documentElement.classList.contains('dark-mode'); }
+function dm15(){ return dm15(); }
 function bg15(){ return dm15()?'#0F172A':'#F8FAFC'; }
 function txt15(){ return dm15()?'#E2E8F0':'#1E293B'; }
 function wire15(){ return dm15()?'#60A5FA':'#1E40AF'; }
@@ -13843,7 +13890,7 @@ function simG9Bio9N1a(){
         simState.sel=p.id;
         try{U9Sound.ping();}catch(e){}
         const box=document.getElementById('bio9XyInfo');
-        if(box){box.innerHTML=`<strong style="font-size:15px">${p.icon} ${p.label}</strong><br><span style="color:#064E3B">${p.desc}</span>`;box.style.background='rgba(39,174,96,0.15)';}
+        if(box){box.innerHTML=`<strong style="font-size:15px">${p.icon} ${p.label}</strong><br><span style="color:var(--text-primary)">${p.desc}</span>`;box.style.background='rgba(39,174,96,0.15)';}
       }
     });
   };
@@ -13946,7 +13993,7 @@ function simG9Bio9N1b(){
         simState.sel=p.id;
         try{U9Sound.ping();}catch(e){}
         const box=document.getElementById('bio9PhInfo');
-        if(box){box.innerHTML=`<strong style="font-size:15px">${p.icon} ${p.label}</strong><br><span style="color:#4C1D95">${p.desc}</span>`;box.style.background='rgba(107,78,154,0.15)';}
+        if(box){box.innerHTML=`<strong style="font-size:15px">${p.icon} ${p.label}</strong><br><span style="color:var(--text-primary)">${p.desc}</span>`;box.style.background='rgba(107,78,154,0.15)';}
       }
     });
   };
@@ -14938,7 +14985,7 @@ function simG9Bio9N5a(){
         simState.sel=n.id;
         try{U9Sound.ping();}catch(e){}
         const box=document.getElementById('bio9TranslInfo');
-        if(box) box.innerHTML=`<strong style="font-size:15px">${n.icon} ${n.label}</strong><br><span style="color:#064E3B">${n.desc}</span>`;
+        if(box) box.innerHTML=`<strong style="font-size:15px">${n.icon} ${n.label}</strong><br><span style="color:var(--text-primary)">${n.desc}</span>`;
       }
     });
   };
@@ -15331,7 +15378,7 @@ function _ctrlPanel(html){
 function _ctrlBtn(label,onclick,active,color){
   color=color||'#27AE60';
   const bg=active?color:'white';
-  const col=active?'white':(document.documentElement.classList.contains('dark-mode')?'#ddd':'#444');
+  const col=active?'white':(dm15()?'#ddd':'#444');
   const brd=active?color:'#ddd';
   return `<button onclick="${onclick}" style="padding:9px 14px;border-radius:9px;border:2px solid ${brd};background:${bg};color:${col};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;">${label}</button>`;
 }
@@ -15343,8 +15390,8 @@ function simG9Bio10N1a(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
   let step=0;
 
   const infos=[
@@ -15355,18 +15402,18 @@ function simG9Bio10N1a(){
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">⚙️ خطوات الاستقصاء</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">⚙️ خطوات الاستقصاء</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
         <button onclick="window._b10n1s(0)" id="btn10n1s0" style="padding:10px 14px;border-radius:9px;border:2px solid #27AE60;background:#27AE60;color:white;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">🌱 الإعداد</button>
-        <button onclick="window._b10n1s(1)" id="btn10n1s1" style="padding:10px 14px;border-radius:9px;border:2px solid #ddd;background:${dark?'rgba(255,255,255,0.05)':'white'};color:${dark?'#ccc':'#555'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">📅 اليوم الأول</button>
-        <button onclick="window._b10n1s(2)" id="btn10n1s2" style="padding:10px 14px;border-radius:9px;border:2px solid #ddd;background:${dark?'rgba(255,255,255,0.05)':'white'};color:${dark?'#ccc':'#555'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">🌿 اليوم السابع</button>
+        <button onclick="window._b10n1s(1)" id="btn10n1s1" style="padding:10px 14px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">📅 اليوم الأول</button>
+        <button onclick="window._b10n1s(2)" id="btn10n1s2" style="padding:10px 14px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">🌿 اليوم السابع</button>
       </div>
-      <div id="bio10n1info" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;background:${dark?'rgba(39,174,96,0.08)':'#F0FBF4'};border-radius:10px;padding:13px;border:1px solid ${dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.15)'};">
+      <div id="bio10n1info" style="font-size:13px;color:var(--text-secondary);line-height:1.9;background:var(--bg-card2);border-radius:10px;padding:13px;border:1px solid rgba(39,174,96,0.18);">
         🌱 <strong>الإعداد:</strong> ضع كمية متساوية من بذور الفاصولياء في الثلاثة أطباق. غطِّ كل طبق بقطن مبلّل.
       </div>
-      <div style="margin-top:16px;padding:10px;background:${dark?'rgba(26,143,168,0.1)':'rgba(26,143,168,0.06)'};border-radius:8px;border:1px solid ${dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.15)'};">
-        <div style="font-size:12px;font-weight:700;color:${dark?'#4DD0E1':'#0E6B80'};margin-bottom:4px;">🔑 المفهوم</div>
-        <div style="font-size:12px;color:${dark?'#90CAD4':'#1A7A92'};line-height:1.7;">الانتحاء الضوئي هو استجابة نمو السيقان باتجاه مصدر الضوء بسبب توزيع الأوكسين</div>
+      <div style="margin-top:16px;padding:10px;background:var(--bg-card2);border-radius:8px;border:1px solid rgba(26,143,168,0.18);">
+        <div style="font-size:12px;font-weight:700;color:#0E7490;margin-bottom:4px;">🔑 المفهوم</div>
+        <div style="font-size:12px;color:#1A7A92;line-height:1.7;">الانتحاء الضوئي هو استجابة نمو السيقان باتجاه مصدر الضوء بسبب توزيع الأوكسين</div>
       </div>
     </div>`);
 
@@ -15384,13 +15431,13 @@ function simG9Bio10N1a(){
 
   function draw(){
     c.clearRect(0,0,w,h);
-    // background
-    const bg=c.createLinearGradient(0,0,0,h);
-    bg.addColorStop(0,dark?'#1A2A3A':'#E8F5E9');
-    bg.addColorStop(0.62,dark?'#1A2A3A':'#F0FBF4');
-    bg.addColorStop(0.62,dark?'#2A1A0A':'#D7CCC8');
-    bg.addColorStop(1,dark?'#1A0F00':'#BCAAA4');
-    c.fillStyle=bg; c.fillRect(0,0,w,h);
+    // background — sky/soil split consistent with platform bio style
+    c.fillStyle=bioBg(); c.fillRect(0,0,w,h);
+    // soil strip at bottom (62%–100%)
+    c.fillStyle=dark?'rgba(120,80,40,0.25)':'rgba(180,130,70,0.18)';
+    c.fillRect(0,h*0.62,w,h*0.38);
+    c.strokeStyle=dark?'rgba(160,110,55,0.4)':'rgba(140,90,40,0.3)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(0,h*0.62); c.lineTo(w,h*0.62); c.stroke();
 
     // Title
     c.fillStyle=dark?'#81C784':'#1B5E20';
@@ -15454,24 +15501,24 @@ function simG9Bio10N1b(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
   c.clearRect(0,0,w,h);
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📊 قراءة الجدول</div>
-      <div style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;">
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">📊 قراءة الجدول</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.9;">
         <p style="margin-bottom:10px;">يُظهر الجدول <strong>طول البادرة</strong> في كل طبق عبر الأيام.</p>
         <p style="margin-bottom:10px;"><strong>لاحظ:</strong> الطبق (أ) نما أقل لكنه انحنى، بينما (ب) نما أسرع مستقيماً.</p>
       </div>
-      <div style="margin-top:12px;background:${dark?'rgba(39,174,96,0.08)':'#F0FBF4'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(39,174,96,0.2)':'rgba(39,174,96,0.15)'};">
-        <div style="font-size:12px;font-weight:700;color:${dark?'#81C784':'#27AE60'};margin-bottom:6px;">💡 استنتاج</div>
-        <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.7;">الانحناء لا يعني نمو الساق أكثر — بل يعني أن الجانب الظليل استطال أسرع من الجانب المضيء</div>
+      <div style="margin-top:12px;background:var(--bg-card2);border-radius:10px;padding:12px;border:1px solid rgba(39,174,96,0.18);">
+        <div style="font-size:12px;font-weight:700;color:#27AE60;margin-bottom:6px;">💡 استنتاج</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;">الانحناء لا يعني نمو الساق أكثر — بل يعني أن الجانب الظليل استطال أسرع من الجانب المضيء</div>
       </div>
     </div>`);
 
-  const bg=dark?'#1E2D3A':'#FAFAF8';
+  const bg=bioBg();
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
   c.fillStyle=dark?'#81C784':'#1B5E20';
@@ -15537,22 +15584,22 @@ function simG9Bio10N1c(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🔬 آلية الانتحاء الضوئي</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">🔬 آلية الانتحاء الضوئي</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         ${['١. الضوء يسقط من جانب واحد على القمة النامية','٢. الأوكسين (IAA) ينتقل من الجانب المضيء إلى الجانب الظليل','٣. خلايا الجانب الظليل تستطيل أكثر → تنمو أسرع','٤. الساق ينحني نحو الضوء (انتحاء ضوئي موجب)'].map((s,i)=>`
-          <div style="display:flex;align-items:flex-start;gap:8px;background:${dark?'rgba(255,255,255,0.04)':'#F9F6F2'};border-radius:8px;padding:9px 10px;">
+          <div style="display:flex;align-items:flex-start;gap:8px;background:var(--bg-card2);border-radius:8px;padding:9px 10px;">
             <div style="width:22px;height:22px;border-radius:50%;background:${['#27AE60','#E65100','#1A8FA8','#D4901A'][i]};color:white;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
             <div style="font-size:12px;color:${dark?'#ccc':'#37474F'};line-height:1.6;">${s}</div>
           </div>`).join('')}
       </div>
     </div>`);
 
-  const bg=dark?'#1E2D3A':'#FAFAF8';
+  const bg=bioBg();
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
   c.fillStyle=dark?'#81C784':'#1B5E20';
@@ -15566,15 +15613,21 @@ function simG9Bio10N1c(){
   _drawPlant10(c, stemX, stemBot, w, h, dark, w*0.12, 1.0, true);
 
   const tipX=stemX+w*0.12, tipY=stemTop+h*0.04;
-  // Label for apical tip
-  c.fillStyle='white'; c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
-  c.fillText('قمة',tipX,tipY+5);
+  // Apical tip label — pill background for readability
+  const tipLabel='قمة نامية';
+  c.font=`bold ${Math.round(h*0.021)}px Tajawal`; c.textAlign='center';
+  const tw2=c.measureText(tipLabel).width;
+  c.fillStyle='rgba(39,174,96,0.85)';
+  c.beginPath(); c.roundRect(tipX-tw2/2-8,tipY-Math.round(h*0.021),tw2+16,Math.round(h*0.021)+8,6); c.fill();
+  c.fillStyle='white'; c.fillText(tipLabel,tipX,tipY+1);
 
-  // Light arrow from right
-  _drawSun10(c,w*0.87,h*0.35,h*0.026,'left',h);
-  c.strokeStyle='rgba(255,200,0,0.6)'; c.lineWidth=2; c.setLineDash([6,4]);
-  c.beginPath(); c.moveTo(w*0.84,h*0.32); c.lineTo(tipX+h*0.05,tipY); c.stroke();
+  // Light arrow from right — sun further right for clarity
+  _drawSun10(c,w*0.93,h*0.28,h*0.03,'left',h);
+  c.strokeStyle='rgba(255,200,0,0.75)'; c.lineWidth=2.5; c.setLineDash([6,4]);
+  c.beginPath(); c.moveTo(w*0.89,h*0.28); c.lineTo(tipX+h*0.04,tipY+h*0.01); c.stroke();
   c.setLineDash([]);
+  c.fillStyle='rgba(255,200,0,0.9)'; c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+  c.fillText('ضوء',w*0.93,h*0.32);
 
   // Auxin dots — more on shadow side (left)
   for(let i=0;i<7;i++){
@@ -15609,22 +15662,22 @@ function simG9Bio10N2a(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
   let seedPos=0, showGrowth=false;
 
   function renderCtrl(){
     const labels=['↑ للأعلى','↓ للأسفل','← أفقي','↗ مائل'];
     _ctrlPanel(`
       <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🌱 اختر وضع البذرة</div>
+        <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">🌱 اختر وضع البذرة</div>
         <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
           ${labels.map((lb,i)=>`
             <button onclick="window._g2pos(${i})" id="g2btn${i}" style="padding:10px 14px;border-radius:9px;border:2px solid ${i===seedPos?'#1A8FA8':'#ddd'};background:${i===seedPos?'#1A8FA8':(dark?'rgba(255,255,255,0.05)':'white')};color:${i===seedPos?'white':(dark?'#ccc':'#555')};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">${lb}</button>`).join('')}
         </div>
         <button onclick="window._g2grow()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#1A8FA8;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">▶ شاهد النمو</button>
         <button onclick="window._g2reset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;">↺ إعادة</button>
-        <div id="g2res" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(26,143,168,0.08)':'rgba(26,143,168,0.06)'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.15)'};">
+        <div id="g2res" style="font-size:13px;color:var(--text-secondary);line-height:1.8;background:${dark?'rgba(26,143,168,0.08)':'rgba(26,143,168,0.06)'};border-radius:10px;padding:12px;border:1px solid rgba(26,143,168,0.18);">
           اختر وضع البذرة ثم اضغط "شاهد النمو"
         </div>
       </div>`);
@@ -15740,22 +15793,22 @@ function simG9Bio10N2b(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📋 نتيجة الأوضاع الأربعة</div>
-      <div style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;margin-bottom:12px;">
-        في كل وضع من الأوضاع الأربعة: <strong style="color:${dark?'#A1887F':'#795548'}">الجذر ينمو للأسفل</strong> و<strong style="color:${dark?'#81C784':'#27AE60'}">الساق ينمو للأعلى</strong>.
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">📋 نتيجة الأوضاع الأربعة</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.9;margin-bottom:12px;">
+        في كل وضع من الأوضاع الأربعة: <strong style="color:#795548">الجذر ينمو للأسفل</strong> و<strong style="color:#27AE60">الساق ينمو للأعلى</strong>.
       </div>
-      <div style="background:${dark?'rgba(26,143,168,0.1)':'rgba(26,143,168,0.06)'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(26,143,168,0.2)':'rgba(26,143,168,0.15)'};">
-        <div style="font-size:12px;font-weight:700;color:${dark?'#4DD0E1':'#0E6B80'};margin-bottom:6px;">🧬 لماذا؟</div>
-        <div style="font-size:12px;color:${dark?'#90CAD4':'#1A7A92'};line-height:1.7;">الأوكسين (IAA) يُعاد توزيعه استجابةً للجاذبية — يتجمّع في الجانب السفلي من الجذر فيُبطئ نموه، مما يجعله ينحني للأسفل</div>
+      <div style="background:var(--bg-card2);border-radius:10px;padding:12px;border:1px solid rgba(26,143,168,0.18);">
+        <div style="font-size:12px;font-weight:700;color:#0E7490;margin-bottom:6px;">🧬 لماذا؟</div>
+        <div style="font-size:12px;color:#1A7A92;line-height:1.7;">الأوكسين (IAA) يُعاد توزيعه استجابةً للجاذبية — يتجمّع في الجانب السفلي من الجذر فيُبطئ نموه، مما يجعله ينحني للأسفل</div>
       </div>
     </div>`);
 
-  const bg=dark?'#1E2D3A':'#FAFAF8';
+  const bg=bioBg();
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
   c.fillStyle=dark?'#fff':'#1B5E20';
@@ -15827,29 +15880,29 @@ function simG9Bio10N2c(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">⚖️ مقارنة الانتحاءات</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">⚖️ مقارنة الانتحاءات</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="background:${dark?'rgba(39,174,96,0.08)':'#F0FBF4'};border-radius:8px;padding:10px;border-right:3px solid #27AE60;">
+        <div style="background:var(--bg-card2);border-radius:8px;padding:10px;border-right:3px solid #27AE60;">
           <div style="font-size:12px;font-weight:700;color:#27AE60;margin-bottom:4px;">🌿 Phototropism</div>
-          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">السيقان: موجب (نحو الضوء) · الجذور: سالب</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">السيقان: موجب (نحو الضوء) · الجذور: سالب</div>
         </div>
         <div style="background:${dark?'rgba(26,143,168,0.08)':'#E1F5FE'};border-radius:8px;padding:10px;border-right:3px solid #1A8FA8;">
           <div style="font-size:12px;font-weight:700;color:#1A8FA8;margin-bottom:4px;">🌍 Gravitropism</div>
-          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">الجذور: موجب (للأسفل) · السيقان: سالب (للأعلى)</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">الجذور: موجب (للأسفل) · السيقان: سالب (للأعلى)</div>
         </div>
         <div style="background:${dark?'rgba(212,144,26,0.08)':'#FFF8E1'};border-radius:8px;padding:10px;border-right:3px solid #D4901A;">
           <div style="font-size:12px;font-weight:700;color:#D4901A;margin-bottom:4px;">🧬 الهرمون</div>
-          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">كلاهما يعتمد على الأوكسين (IAA) لكن بتأثيرات مختلفة</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">كلاهما يعتمد على الأوكسين (IAA) لكن بتأثيرات مختلفة</div>
         </div>
       </div>
     </div>`);
 
-  const bg=dark?'#1E2D3A':'#FAFAF8';
+  const bg=bioBg();
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
   c.fillStyle=dark?'#4DD0E1':'#1A8FA8';
@@ -15895,22 +15948,22 @@ function simG9Bio10N3a(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
   let lightDir='even', auxinLevel=60, bendAngle=0, animating=false;
 
   function renderCtrl(){
     _ctrlPanel(`
       <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">☀️ توزيع الأوكسين</div>
-        <div style="font-size:13px;font-weight:700;color:${dark?'#bbb':'#546E7A'};margin-bottom:8px;">اتجاه الضوء:</div>
+        <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">☀️ توزيع الأوكسين</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">اتجاه الضوء:</div>
         <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
           ${[['right','☀️ من اليمين'],['left','☀️ من اليسار'],['even','☀️ ضوء متساوٍ']].map(([d,lb])=>`
             <button onclick="window._n3aLight('${d}')" id="n3a_${d}" style="padding:9px 14px;border-radius:9px;border:2px solid ${lightDir===d?'#D4901A':'#ddd'};background:${lightDir===d?'#D4901A':(dark?'rgba(255,255,255,0.05)':'white')};color:${lightDir===d?'white':(dark?'#ccc':'#555')};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:right;">${lb}</button>`).join('')}
         </div>
         <div style="margin-bottom:14px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:13px;font-weight:700;color:${dark?'#bbb':'#546E7A'};">كثافة الأوكسين:</span>
+            <span style="font-size:13px;font-weight:700;color:var(--text-secondary);">كثافة الأوكسين:</span>
             <span id="auxValLbl" style="font-size:13px;font-weight:700;color:#E65100;">${auxinLevel}%</span>
           </div>
           <input type="range" min="10" max="100" value="${auxinLevel}" oninput="window._n3aAuxin(this.value)" style="width:100%;accent-color:#E65100;">
@@ -16024,19 +16077,19 @@ function simG9Bio10N3b(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
   let showResult=false;
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🧪 تجربة الأصيصات الثلاثية (١٩١٣)</div>
-      <div style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.9;margin-bottom:12px;">
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">🧪 تجربة الأصيصات الثلاثية (١٩١٣)</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.9;margin-bottom:12px;">
         ثلاث بادرات تتعرّض لضوء من جانب واحد. في كل بادرة تم إجراء تعديل مختلف على قمة الساق.
       </div>
       <button onclick="window._n3bShow()" id="n3bShowBtn" style="width:100%;padding:11px;border-radius:9px;border:none;background:#D4901A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">▶ أظهري النتيجة بعد يومين</button>
       <button onclick="window._n3bReset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;">↺ إعادة</button>
-      <div id="n3bRes" style="font-size:13px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(212,144,26,0.08)':'#FFF8E1'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(212,144,26,0.2)':'rgba(212,144,26,0.2)'};">
+      <div id="n3bRes" style="font-size:13px;color:var(--text-secondary);line-height:1.8;background:${dark?'rgba(212,144,26,0.08)':'#FFF8E1'};border-radius:10px;padding:12px;border:1px solid ${dark?'rgba(212,144,26,0.2)':'rgba(212,144,26,0.2)'};">
         انقر الزر لمشاهدة نتيجة كل بادرة بعد يومين من التجربة
       </div>
     </div>`);
@@ -16056,7 +16109,7 @@ function simG9Bio10N3b(){
 
   function draw(){
     c.clearRect(0,0,w,h);
-    const bg=dark?'#1E2D3A':'#F0FBF4';
+    const bg=bioBg();
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
     c.fillStyle=dark?'#FFD54F':'#E65100';
@@ -16145,18 +16198,18 @@ function simG9Bio10N3c(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🧠 أسئلة التحليل</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">🧠 أسئلة التحليل</div>
       ${[
         {q:'ما سبب مسح القمم باللانولين في البادرة (ب)؟',opts:['لتغذية القمة','اللانولين يمنع انتشار الأوكسين من القمة للأسفل','لحماية القمة من الحرارة'],ans:1},
         {q:'لماذا لم تنحنِ البادرة (أ) رغم تعرّضها للضوء؟',opts:['لأن الضوء كان ضعفاً','لأن القمة مفقودة — لا يوجد مصدر للأوكسين','لأن التربة كانت جافة'],ans:1},
         {q:'أيّ بادرة هي التجربة الضابطة؟',opts:['البادرة (أ)','البادرة (ب)','البادرة (ج) — بادرة كاملة طبيعية'],ans:2},
       ].map((q,qi)=>`
-        <div style="background:${dark?'rgba(255,255,255,0.04)':'#F9F6F2'};border-radius:10px;padding:12px;margin-bottom:10px;" id="qcard${qi}">
+        <div style="background:var(--bg-card2);border-radius:10px;padding:12px;margin-bottom:10px;" id="qcard${qi}">
           <div style="font-size:13px;font-weight:700;color:${dark?'#eee':'#2C3A4A'};margin-bottom:8px;line-height:1.6;">${qi+1}. ${q.q}</div>
           ${q.opts.map((opt,oi)=>`
             <button onclick="window._n3cAns(${qi},${oi},${q.ans})" class="n3copt_${qi}" style="display:block;width:100%;text-align:right;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.03)':'#F4F1EC'};color:${dark?'#ccc':'#444'};font-family:Tajawal,sans-serif;font-size:12px;font-weight:500;cursor:pointer;margin-bottom:5px;">${opt}</button>`).join('')}
@@ -16187,7 +16240,7 @@ function simG9Bio10N3c(){
     }
   };
 
-  const bg=dark?'#1E2D3A':'#FAFAF8';
+  const bg=bioBg();
   c.fillStyle=bg; c.fillRect(0,0,w,h);
   c.fillStyle=dark?'#FFD54F':'#D4901A';
   c.font=`bold ${Math.round(h*0.042)}px Tajawal`; c.textAlign='center';
@@ -16204,8 +16257,8 @@ function simG9Bio10N4a(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
   let covers=[null,null,null], showResult=false;
   const coverOpts=['tip','base',null];
   const coverLabels=['تغطية القمة','تغطية القاعدة','بدون غطاء'];
@@ -16213,7 +16266,7 @@ function simG9Bio10N4a(){
   function renderCtrl(){
     _ctrlPanel(`
       <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-        <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">🌿 حدّد منطقة الاستشعار</div>
+        <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">🌿 حدّد منطقة الاستشعار</div>
         ${[0,1,2].map(pi=>`
           <div style="margin-bottom:12px;background:${dark?'rgba(255,255,255,0.03)':'#F9F6F2'};border-radius:10px;padding:10px;">
             <div style="font-size:13px;font-weight:700;color:${dark?'#eee':'#2C3A4A'};margin-bottom:7px;">الأصيص ${pi+1}</div>
@@ -16223,7 +16276,7 @@ function simG9Bio10N4a(){
           </div>`).join('')}
         <button onclick="window._n4aRun()" style="width:100%;padding:11px;border-radius:9px;border:none;background:#6B4E9A;color:white;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">▶ أظهري النتائج بعد يومين</button>
         <button onclick="window._n4aReset()" style="width:100%;padding:9px;border-radius:9px;border:1.5px solid #ddd;background:${dark?'rgba(255,255,255,0.04)':'white'};color:${dark?'#ccc':'#666'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;">↺ إعادة</button>
-        <div id="n4aFb" style="font-size:12px;color:${dark?'#bbb':'#546E7A'};line-height:1.8;background:${dark?'rgba(107,78,154,0.1)':'rgba(107,78,154,0.06)'};border-radius:9px;padding:10px;border:1px solid ${dark?'rgba(107,78,154,0.2)':'rgba(107,78,154,0.2)'};">
+        <div id="n4aFb" style="font-size:12px;color:var(--text-secondary);line-height:1.8;background:${dark?'rgba(107,78,154,0.1)':'rgba(107,78,154,0.06)'};border-radius:9px;padding:10px;border:1px solid ${dark?'rgba(107,78,154,0.2)':'rgba(107,78,154,0.2)'};">
           اختر إعداداً مختلفاً لكل أصيص ثم شاهد النتيجة
         </div>
       </div>`);
@@ -16241,7 +16294,7 @@ function simG9Bio10N4a(){
 
   function draw(){
     c.clearRect(0,0,w,h);
-    const bg=dark?'#1E2D3A':'#F0F4FF';
+    const bg=bioBg();
     c.fillStyle=bg; c.fillRect(0,0,w,h);
 
     c.fillStyle=dark?'#CE93D8':'#6B4E9A';
@@ -16322,24 +16375,24 @@ function simG9Bio10N4b(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📊 قراءة النتائج</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">📊 قراءة النتائج</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <div style="background:${dark?'rgba(192,57,43,0.1)':'rgba(192,57,43,0.06)'};border-radius:8px;padding:10px;border-right:3px solid #C0392B;">
           <div style="font-size:12px;font-weight:700;color:#C0392B;margin-bottom:4px;">القمة مغطاة ✗</div>
-          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">الساق لا تنحني — القمة لا تستشعر الضوء → لا أوكسين → لا انحناء</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">الساق لا تنحني — القمة لا تستشعر الضوء → لا أوكسين → لا انحناء</div>
         </div>
         <div style="background:${dark?'rgba(39,174,96,0.1)':'rgba(39,174,96,0.06)'};border-radius:8px;padding:10px;border-right:3px solid #27AE60;">
           <div style="font-size:12px;font-weight:700;color:#27AE60;margin-bottom:4px;">القاعدة مغطاة ✓</div>
-          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">الساق تنحني — القمة مكشوفة تستشعر الضوء وتُنتج الأوكسين</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">الساق تنحني — القمة مكشوفة تستشعر الضوء وتُنتج الأوكسين</div>
         </div>
         <div style="background:${dark?'rgba(39,174,96,0.1)':'rgba(39,174,96,0.06)'};border-radius:8px;padding:10px;border-right:3px solid #27AE60;">
           <div style="font-size:12px;font-weight:700;color:#27AE60;margin-bottom:4px;">بدون غطاء ✓</div>
-          <div style="font-size:12px;color:${dark?'#aaa':'#546E7A'};line-height:1.6;">الساق تنحني بشكل طبيعي — القمة تستشعر وتُنتج الأوكسين بشكل طبيعي</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">الساق تنحني بشكل طبيعي — القمة تستشعر وتُنتج الأوكسين بشكل طبيعي</div>
         </div>
       </div>
       <div style="margin-top:12px;background:${dark?'rgba(107,78,154,0.1)':'rgba(107,78,154,0.07)'};border-radius:8px;padding:10px;border:1px solid ${dark?'rgba(107,78,154,0.25)':'rgba(107,78,154,0.2)'};">
@@ -16348,7 +16401,7 @@ function simG9Bio10N4b(){
       </div>
     </div>`);
 
-  const bg=dark?'#1E2D3A':'#FAFAF8';
+  const bg=bioBg();
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
   c.fillStyle=dark?'#CE93D8':'#6B4E9A';
@@ -16416,12 +16469,12 @@ function simG9Bio10N4c(){
   const cv=document.getElementById('simCanvas');
   const c=cv.getContext('2d');
   const w=cv.width,h=cv.height;
-  const dark=document.documentElement.classList.contains('dark-mode');
-  cancelAnimationFrame(window._animF);
+  const dark=dm15();
+  cancelAnimationFrame(animFrame);
 
   _ctrlPanel(`
     <div style="padding:20px 16px;font-family:Tajawal,sans-serif;direction:rtl;">
-      <div style="font-size:15px;font-weight:800;color:${dark?'#fff':'#2C3A4A'};margin-bottom:14px;border-bottom:2px solid ${dark?'rgba(255,255,255,0.1)':'#eee'};padding-bottom:10px;">📚 ملخص الوحدة العاشرة</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text-primary);margin-bottom:14px;border-bottom:2px solid var(--border-color);padding-bottom:10px;">📚 ملخص الوحدة العاشرة</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         ${[
           ['#27AE60','المُنبّه Stimulus','تغيّر في البيئة يستشعره الكائن — كالضوء والجاذبية'],
@@ -16432,12 +16485,12 @@ function simG9Bio10N4c(){
         ].map(([col,term,def])=>`
           <div style="background:${dark?'rgba(255,255,255,0.04)':'white'};border-radius:9px;padding:10px 12px;border-right:4px solid ${col};box-shadow:0 1px 4px rgba(0,0,0,0.05);">
             <div style="font-size:13px;font-weight:800;color:${col};margin-bottom:3px;">${term}</div>
-            <div style="font-size:12px;color:${dark?'#bbb':'#546E7A'};line-height:1.6;">${def}</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;">${def}</div>
           </div>`).join('')}
       </div>
     </div>`);
 
-  const bg=dark?'#1E2D3A':'#FAFAF8';
+  const bg=bioBg();
   c.fillStyle=bg; c.fillRect(0,0,w,h);
 
   c.fillStyle=dark?'#CE93D8':'#6B4E9A';
@@ -16592,7 +16645,7 @@ function simG9Bio10N4c(){
   /* ── تحديث لون الأسود/الأبيض حسب الوضع ── */
   function updateBwColor() {
     if (!bwBtn) return;
-    const isDark = document.documentElement.classList.contains('dark-mode');
+    const isDark = dm15();
     const c = isDark ? '#E8F2FA' : '#1E2D3D';
     bwBtn.dataset.color = c;
     bwBtn.style.background = c;
