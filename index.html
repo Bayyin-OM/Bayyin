@@ -1727,6 +1727,14 @@
     <div class="panel-title">وحدات الصف الثامن</div>
     <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
     <div class="units-grid">
+      <div class="unit-card" onclick="openUnit('u8plants', this)">
+        <div class="unit-num-badge c-green">١</div>
+        <div>
+          <div class="unit-title">النباتات</div>
+          <div class="unit-topics">التمثيل الضوئي</div>
+          <div class="unit-pill avail">🌱 ١ استقصاء متاح</div>
+        </div>
+      </div>
       <div class="unit-card" onclick="openUnit('u8circ', this)">
         <div class="unit-num-badge c-red">٧</div>
         <div>
@@ -1766,6 +1774,26 @@
           <div class="unit-topics">المغناطيس وأقطابه · المجال المغناطيسي · الكهرومغناطيس · الكهرباء الساكنة · الشحنات · التيار الكهربائي · الدوائر</div>
           <div class="unit-pill avail">🧲 ١٢ استقصاء متاح</div>
         </div>
+      </div>
+    </div>
+
+    <div class="sims-wrap" id="sims-u8plants" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ١ — النباتات</div>
+        <div class="sims-count">١ استقصاء</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g8bio1n1')">
+          <div class="sim-thumb t1">🌿</div>
+          <div class="sim-body">
+            <div class="sim-num">1-1 · التمثيل الضوئي</div>
+            <div class="sim-name">كيف تصنع النباتات غذاءها؟</div>
+            <div class="sim-desc">شاهد النبات ينبض بالحياة مع أشعة الشمس، واكتشف أثر الضوء على نموّه في تجربتين تفاعليتين</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
       </div>
     </div>
 
@@ -3484,6 +3512,7 @@
 
 <!-- Simulations: Grade 8 — Magnetism & Electricity -->
 <script src="/js/sims/sims-grade8-magnetics.js"></script>
+<script src="/js/sims/sims-grade8-plants.js"></script>
 
 <!-- Core: Nature sounds engine -->
 <script src="/js/core/nature-sounds.js"></script>
