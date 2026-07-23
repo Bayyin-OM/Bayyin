@@ -229,7 +229,7 @@ var _semesterConfig = {
       { g:5, icon:'🔭', label:'الصف الخامس',  count:'قريباً',     available: false },
       { g:6, icon:'📗', label:'الصف السادس',  count:'قريباً',     available: false },
       { g:7, icon:'📚', label:'الصف السابع',  count:'قريباً',     available: false },
-      { g:8, icon:'📖', label:'الصف الثامن',  count:'قريباً',     available: false },
+      { g:8, icon:'📖', label:'الصف الثامن',  count:'١ استقصاء',  available: true },
       { g:9, icon:'📕', label:'الصف التاسع',  count:'قريباً',     available: false },
     ]
   },
@@ -567,12 +567,23 @@ function switchGrade(g) {
   });
   document.querySelectorAll('.sims-wrap').forEach(function(el) { el.classList.remove('show'); });
   document.querySelectorAll('.unit-card').forEach(function(c) { c.classList.remove('active-unit'); });
+  // Filter units by active semester (for panels that mix both semesters' content, e.g. grade 8)
+  var sem = window._activeSemester || 2;
+  var activePanel = document.getElementById('panel-'+g);
+  if (activePanel) {
+    activePanel.querySelectorAll('.unit-card[data-sem]').forEach(function(card) {
+      card.style.display = (card.getAttribute('data-sem') == sem) ? '' : 'none';
+    });
+    if (g === 8) {
+      var p8sub = document.getElementById('panel8-sub');
+      if (p8sub) p8sub.textContent = 'اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي ' + (sem == 1 ? 'الأول' : 'الثاني');
+    }
+  }
   // Force scroll reset by briefly hiding the container
   var ca = document.getElementById('content-area');
   if(ca) {
     ca.scrollTop = 0;
     // Move the active panel to the top of content-area DOM order
-    var activePanel = document.getElementById('panel-'+g);
     if(activePanel && ca.firstElementChild !== activePanel) {
       ca.insertBefore(activePanel, ca.firstElementChild);
     }
