@@ -14,6 +14,56 @@ function g8pInfoPanel(lines, icon){
   return `<div class="q-box" style="font-size:14px;line-height:1.8">${icon ? `<strong>${icon}</strong><br>` : ''}${lines.join('<br>')}</div>`;
 }
 
+// ─── مساعد: رسم ورقة نبات واقعية (بيضاوية مدببة الطرف + عرق وسطي وعروق جانبية) ───
+// (cx,cy) نقطة اتصال الورقة بالساق (القاعدة) — الورقة تمتد باتجاه angle
+function _g8pDrawLeaf(c, cx, cy, length, width, angle, color, veinColor, sheen){
+  c.save();
+  c.translate(cx, cy);
+  c.rotate(angle);
+  // شكل الورقة: قاعدة عند (0,0)، طرف مدبب عند (length,0)
+  c.beginPath();
+  c.moveTo(0, 0);
+  c.bezierCurveTo(length*0.12, -width*0.52, length*0.68, -width*0.5, length, 0);
+  c.bezierCurveTo(length*0.68, width*0.5, length*0.12, width*0.52, 0, 0);
+  c.closePath();
+  c.fillStyle = color;
+  c.fill();
+  // بريق/لمعان خفيف أعلى الورقة (واقعية)
+  if(sheen){
+    c.save();
+    c.clip();
+    c.globalAlpha = 0.22;
+    c.fillStyle = '#FFFFFF';
+    c.beginPath();
+    c.ellipse(length*0.42, -width*0.16, length*0.34, width*0.16, -0.15, 0, Math.PI*2);
+    c.fill();
+    c.globalAlpha = 1;
+    c.restore();
+  }
+  // حافة الورقة
+  c.lineWidth = Math.max(0.8, length*0.02);
+  c.strokeStyle = veinColor;
+  c.globalAlpha = 0.45;
+  c.stroke();
+  // العرق الوسطي
+  c.beginPath();
+  c.moveTo(length*0.05, 0);
+  c.lineTo(length*0.9, 0);
+  c.lineWidth = Math.max(0.8, length*0.02);
+  c.globalAlpha = 0.55;
+  c.stroke();
+  // عروق جانبية
+  for(let i=1; i<=3; i++){
+    const fx = length*(0.22 + i*0.16);
+    const fy = width*0.36*(1 - i*0.16);
+    c.lineWidth = Math.max(0.6, length*0.012);
+    c.beginPath(); c.moveTo(fx, 0); c.lineTo(fx + length*0.1, -fy); c.stroke();
+    c.beginPath(); c.moveTo(fx, 0); c.lineTo(fx + length*0.1, fy); c.stroke();
+  }
+  c.globalAlpha = 1;
+  c.restore();
+}
+
 // ─── مساعد: تدرّج لوني بين لونين (hex) ───
 function _g8pLerpColor(hexA, hexB, t){
   t = Math.max(0, Math.min(1, t));
@@ -206,29 +256,38 @@ function simG8Bio1N1a(){
       {along:0.45, side:1, size:1.0}, {along:0.62, side:-1, size:0.9},
       {along:0.8,  side:1, size:0.85}, {along:1.0,  side:-1, size:1.1},
     ];
+    const dropA = 0.85, perkA = -0.42;
     leaves.forEach((lf,idx)=>{
-      const lx = stemBaseX + droop*lf.along*0.6 + lf.side*w*0.05*(0.5+0.5*uprightP);
+      const lx = stemBaseX + droop*lf.along*0.6 + lf.side*w*0.012;
       const ly = stemBaseY - (stemBaseY-stemTopY)*lf.along;
-      const lw = w*0.075*lf.size*(0.6+0.4*uprightP), lh2 = h*0.045*lf.size*(0.6+0.4*uprightP);
-      const tilt = lf.side*(-0.5+0.35*uprightP);
-      c.save(); c.translate(lx,ly); c.rotate(tilt);
-      c.fillStyle = leafColor;
-      c.beginPath(); c.ellipse(0,0,lw,lh2,0,0,Math.PI*2); c.fill();
-      c.strokeStyle = dark?'rgba(255,255,255,0.15)':'rgba(0,80,20,0.25)'; c.lineWidth=1.5;
-      c.beginPath(); c.ellipse(0,0,lw,lh2,0,0,Math.PI*2); c.stroke();
+      const baseA = dropA + (perkA-dropA)*uprightP;
+      const angle = lf.side>0 ? baseA : (Math.PI - baseA);
+      const leafLen = w*0.135*lf.size*(0.55+0.45*uprightP);
+      const leafWid = w*0.058*lf.size*(0.55+0.45*uprightP);
+      const veinColor = dark ? 'rgba(20,60,30,0.6)' : 'rgba(15,60,25,0.4)';
+
+      _g8pDrawLeaf(c, lx, ly, leafLen, leafWid, angle, leafColor, veinColor, true);
+
       // توهج التمثيل الضوئي داخل الورقة
       if(glowP>0.03){
         const pulse = 0.5 + Math.sin(t*5 + idx)*0.5;
-        c.globalAlpha = glowP*pulse*0.55;
-        c.fillStyle = '#FFF6B0';
-        c.beginPath(); c.ellipse(0,0,lw*0.55,lh2*0.55,0,0,Math.PI*2); c.fill();
+        const midX = lx + Math.cos(angle)*leafLen*0.52;
+        const midY = ly + Math.sin(angle)*leafLen*0.52;
+        c.save();
+        c.globalAlpha = glowP*pulse*0.5;
+        const gg = c.createRadialGradient(midX,midY,1,midX,midY,leafLen*0.4);
+        gg.addColorStop(0,'#FFF6B0'); gg.addColorStop(1,'rgba(255,246,176,0)');
+        c.fillStyle = gg;
+        c.beginPath(); c.arc(midX,midY,leafLen*0.4,0,Math.PI*2); c.fill();
         c.globalAlpha = 1;
+        c.restore();
       }
-      c.restore();
 
-      // فقاعات أكسجين تنطلق من هذه الورقة
+      // فقاعات أكسجين تنطلق من طرف هذه الورقة
       if(o2P>0.02 && Math.random() < 0.02*o2P){
-        S.bubbles.push({x:lx + (Math.random()-0.5)*lw, y:ly, age:0});
+        const tipX = lx + Math.cos(angle)*leafLen;
+        const tipY = ly + Math.sin(angle)*leafLen;
+        S.bubbles.push({x:tipX, y:tipY, age:0});
       }
     });
 
@@ -429,25 +488,19 @@ function simG8Bio1N1b(){
 
   function drawSprout(c, cx, potY, w, h, dark, growF, col){
     const stemH = h*0.22*growF;
+    const veinColor = dark ? 'rgba(20,60,30,0.55)' : 'rgba(15,60,25,0.35)';
     c.strokeStyle = growF>0.6 ? col : (dark?'#8A7A55':'#A99565');
     c.lineWidth = Math.max(2,h*0.008); c.lineCap='round';
     c.beginPath(); c.moveTo(cx,potY-h*0.01); c.lineTo(cx,potY-stemH); c.stroke();
     if(growF>0.15){
-      [-1,1].forEach(side=>{
-        c.fillStyle = col;
-        c.save(); c.translate(cx, potY-stemH*0.75); c.rotate(side*0.6);
-        c.beginPath(); c.ellipse(side*w*0.035*growF,0,w*0.045*growF,h*0.022*growF,0,0,Math.PI*2); c.fill();
-        c.restore();
-      });
+      const midY = potY-stemH*0.75;
+      _g8pDrawLeaf(c, cx, midY, w*0.09*growF, w*0.04*growF, Math.PI-0.55, col, veinColor, growF>0.6);
+      _g8pDrawLeaf(c, cx, midY, w*0.09*growF, w*0.04*growF, -0.55, col, veinColor, growF>0.6);
     }
     if(growF>0.6){
-      c.fillStyle = col;
-      c.save(); c.translate(cx, potY-stemH); c.rotate(-0.3);
-      c.beginPath(); c.ellipse(-w*0.02,0,w*0.05,h*0.026,0,0,Math.PI*2); c.fill();
-      c.restore();
-      c.save(); c.translate(cx, potY-stemH); c.rotate(0.3);
-      c.beginPath(); c.ellipse(w*0.02,0,w*0.05,h*0.026,0,0,Math.PI*2); c.fill();
-      c.restore();
+      const topY = potY-stemH;
+      _g8pDrawLeaf(c, cx, topY, w*0.11*growF, w*0.048*growF, Math.PI-0.32, col, veinColor, true);
+      _g8pDrawLeaf(c, cx, topY, w*0.11*growF, w*0.048*growF, -0.32, col, veinColor, true);
     }
   }
 
