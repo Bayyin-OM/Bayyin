@@ -1128,9 +1128,18 @@
       <div class="quran-ref">سورة الجاثية · الآية ١٣</div>
     </div>
     <div class="panel-title">وحدات الصف السادس</div>
-    <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+    <div class="panel-sub" id="panel6-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
     <div class="units-grid" id="grade6-units">
-      <div class="unit-card" onclick="openUnit('u6f', this)">
+      <div class="unit-card" data-sem="1" onclick="openUnit('u6body', this)">
+        <div class="unit-num-badge c-red">١</div>
+        <div>
+          <div class="unit-title">جسم الإنسان</div>
+          <div class="unit-topics">أعضاء الجسم</div>
+          <div class="unit-pill avail">🫀 ٤ استقصاءات متاحة</div>
+        </div>
+      </div>
+
+      <div class="unit-card" data-sem="2" onclick="openUnit('u6f', this)">
         <div class="unit-num-badge">١</div>
         <div>
           <div class="unit-title">القوى والحركة</div>
@@ -1139,13 +1148,63 @@
         </div>
       </div>
 
-      <div class="unit-card" onclick="openUnit('u6e', this)">
+      <div class="unit-card" data-sem="2" onclick="openUnit('u6e', this)">
         <div class="unit-num-badge">٢</div>
         <div>
           <div class="unit-title">المواد الموصِّلة والعازلة للكهرباء</div>
           <div class="unit-topics">الموصلات والعوازل · الماء والكهرباء · المعادن · الدوائر الكهربائية · الجهد والمقاومة</div>
           <div class="unit-pill avail">⚡ ٧ استقصاءات متاحة</div>
         </div>
+      </div>
+    </div>
+
+    <div id="sims-u6body" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ١ — جسم الإنسان</div>
+        <div class="sims-count">٤ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g6body1')">
+          <div class="sim-thumb t9">🫀</div>
+          <div class="sim-body">
+            <div class="sim-num">1-1 · أعضاء الجسم</div>
+            <div class="sim-name">اكتشف أعضاء جسمك</div>
+            <div class="sim-desc">اسحب كل عضو إلى مكانه الصحيح، ثم اختبر معلوماتك في نشاط "من المسؤول؟"</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6body2')">
+          <div class="sim-thumb t5">❤️</div>
+          <div class="sim-body">
+            <div class="sim-num">1-2 · القلب</div>
+            <div class="sim-name">شاهد القلب وهو يضخّ الدم</div>
+            <div class="sim-desc">غيّر سرعة النبض ولاحظ تأثيرها، ثم رتّب مسار الدم داخل القلب بالسحب والإفلات</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6body3')">
+          <div class="sim-thumb t9">📈</div>
+          <div class="sim-body">
+            <div class="sim-num">1-3 · القلب والنبض</div>
+            <div class="sim-name">راقب نبضك أثناء الحركة</div>
+            <div class="sim-desc">انتقل من الجلوس إلى المشي والجري وشاهد النبض يتغيّر، ثم طابق كل نشاط بسرعة نبضه</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g6body4')">
+          <div class="sim-thumb t7">🫁</div>
+          <div class="sim-body">
+            <div class="sim-num">1-4 · الرئتان والتنفس</div>
+            <div class="sim-name">شاهد رحلة الهواء في رئتيك</div>
+            <div class="sim-desc">جرّب الشهيق والزفير، ثم وصّل الأكسجين إلى الدم وأخرج ثاني أكسيد الكربون بالسحب والإفلات</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
       </div>
     </div>
 
@@ -2341,7 +2400,7 @@
       <div class="sims-wrap" id="sims-g9chem7" style="margin-top:28px">
         <div class="sims-header">
           <div class="sims-title">استقصاءات الوحدة السابعة — معادلات التفاعلات الكيميائية</div>
-          <div class="sims-count">٣ استقصاءات</div>
+          <div class="sims-count">٤ استقصاءات</div>
         </div>
         <div class="sims-grid">
 
@@ -3513,6 +3572,7 @@
 <!-- Simulations: Grade 8 — Magnetism & Electricity -->
 <script src="/js/sims/sims-grade8-magnetics.js"></script>
 <script src="/js/sims/sims-grade8-plants.js"></script>
+<script src="/js/sims/sims-grade6-humanbody.js"></script>
 
 <!-- Core: Nature sounds engine -->
 <script src="/js/core/nature-sounds.js"></script>
