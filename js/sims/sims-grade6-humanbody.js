@@ -175,6 +175,32 @@ function g6bDrawIntestineCoil(c, cx, cy, s, dark){
   c.restore();
 }
 
+function g6bDrawLiver(c, cx, cy, s, dark){
+  c.save(); c.translate(cx,cy); c.scale(s,s);
+  const grad = c.createLinearGradient(-30,-20,30,20);
+  grad.addColorStop(0, dark?'#B5695A':'#A0522D'); grad.addColorStop(1, dark?'#8A4A3E':'#7A3B22');
+  c.fillStyle = grad;
+  c.beginPath();
+  c.moveTo(-34,-14);
+  c.bezierCurveTo(-38,-26, -14,-30, 4,-24);
+  c.bezierCurveTo(20,-30, 38,-22, 36,-6);
+  c.bezierCurveTo(38,8, 22,18, 6,14);
+  c.bezierCurveTo(2,20, -12,20, -16,12);
+  c.bezierCurveTo(-30,14, -40,0, -34,-14);
+  c.closePath(); c.fill();
+  c.strokeStyle='rgba(0,0,0,0.18)'; c.lineWidth=1.5; c.stroke();
+  c.beginPath(); c.moveTo(4,-24); c.quadraticCurveTo(6,-6,6,14); c.stroke();
+  c.restore();
+}
+function g6bDrawLargeIntestineFrame(c, cx, cy, s, dark){
+  c.save(); c.translate(cx,cy); c.scale(s,s);
+  c.strokeStyle = dark?'#D9A97C':'#C08552'; c.lineWidth=11; c.lineCap='round'; c.lineJoin='round';
+  c.beginPath();
+  c.moveTo(-30,-24); c.lineTo(-30,20); c.quadraticCurveTo(-30,30,-18,30);
+  c.lineTo(18,30); c.quadraticCurveTo(30,30,30,20); c.lineTo(30,-18);
+  c.stroke();
+  c.restore();
+}
 function g6bDrawKidney(c, cx, cy, s, dark){
   c.save(); c.translate(cx,cy); c.scale(s,s);
   const grad = c.createLinearGradient(-30,-40,30,40);
@@ -254,17 +280,23 @@ function simG6Body1a(){
   cancelAnimationFrame(animFrame);
 
   const ORGANS = [
-    { id:'brain',  name:'الدماغ',   emoji:'🧠', color:'#F4A6A0', tx:0.50, ty:0.115, fn:'يتحكّم في كل شيء يقوم به الجسم ويستقبل رسائل الحواس.' },
-    { id:'heart',  name:'القلب',    emoji:'❤️', color:'#E74C3C', tx:0.44, ty:0.315, fn:'يضخّ الدم ليصل إلى جميع أجزاء الجسم.' },
-    { id:'lungs',  name:'الرئتان',  emoji:'🫁', color:'#5DADE2', tx:0.57, ty:0.30,  fn:'تُستخدَمان للتنفّس — دخول الأكسجين وخروج ثاني أكسيد الكربون.' },
-    { id:'stomach',name:'المعدة',   emoji:'🍽️', color:'#F5B041', tx:0.46, ty:0.44,  fn:'تهضم الطعام بمزجه مع العصارات الهضمية.' },
-    { id:'kidneys',name:'الكليتان', emoji:'🫘', color:'#AF7AC5', tx:0.55, ty:0.475, fn:'تُرشِّحان الدم وتُخرجان الفضلات على شكل بول.' },
-    { id:'intestines',name:'الأمعاء',emoji:'🌀', color:'#58D68D', tx:0.50, ty:0.55,  fn:'تُكمل هضم الطعام وتنقل الغذاء الممتص إلى الدم.' },
+    { id:'brain',  name:'الدماغ',   emoji:'🧠', color:'#F4A6A0', tx:0.50, ty:0.10, fn:'يتحكّم في كل شيء يقوم به الجسم ويستقبل رسائل الحواس.' },
+    { id:'heart',  name:'القلب',    emoji:'❤️', color:'#E74C3C', tx:0.44, ty:0.265, fn:'يضخّ الدم ليصل إلى جميع أجزاء الجسم.' },
+    { id:'lungs',  name:'الرئتان',  emoji:'🫁', color:'#5DADE2', tx:0.57, ty:0.255, fn:'تُستخدَمان للتنفّس — دخول الأكسجين وخروج ثاني أكسيد الكربون.' },
+    { id:'liver',  name:'الكبد',    emoji:'🟤', color:'#A0522D', tx:0.58, ty:0.375, fn:'يخزّن الطاقة وينقّي الدم من السموم.' },
+    { id:'stomach',name:'المعدة',   emoji:'🍽️', color:'#F5B041', tx:0.41, ty:0.38,  fn:'تهضم الطعام بمزجه مع العصارات الهضمية.' },
+    { id:'sintestine',name:'الأمعاء الدقيقة', emoji:'🌀', color:'#58D68D', tx:0.50, ty:0.49, fn:'تُكمل هضم الطعام وتنقل الغذاء الممتص إلى الدم.' },
+    { id:'lintestine',name:'الأمعاء الغليظة', emoji:'⭕', color:'#C08552', tx:0.50, ty:0.60, fn:'تمتص الماء المتبقي وتُخرج فضلات الطعام غير المهضوم.' },
+    { id:'kidneys',name:'الكليتان', emoji:'🫘', color:'#AF7AC5', tx:0.50, ty:0.70, fn:'تُرشِّحان الدم وتُخرجان الفضلات على شكل بول.' },
   ];
 
   simState = { placed:{}, dragId:null, dragX:0, dragY:0, tray:[], done:false };
   const S = simState;
-  ORGANS.forEach((o,i)=>{ S.tray.push({ ...o, x: 0.1 + (i%3)*0.16, y: 0.78 + Math.floor(i/3)*0.15, placed:false }); });
+  const trayPos = [
+    {x:0.09,y:0.80},{x:0.30,y:0.80},{x:0.51,y:0.80},{x:0.72,y:0.80},
+    {x:0.09,y:0.93},{x:0.30,y:0.93},{x:0.51,y:0.93},{x:0.72,y:0.93},
+  ];
+  ORGANS.forEach((o,i)=>{ S.tray.push({ ...o, x: trayPos[i].x, y: trayPos[i].y, placed:false }); });
 
   function renderControls(){
     const n = Object.keys(S.placed).length;
@@ -312,7 +344,7 @@ function simG6Body1a(){
     const o = S.tray.find(t=>t.id===S.dragId);
     const target = ORGANS.find(g=>g.id===o.id);
     const dist = Math.hypot(o.x-target.tx, o.y-target.ty);
-    if(dist < 0.08){
+    if(dist < 0.06){
       o.x = target.tx; o.y = target.ty; o.placed = true;
       S.placed[o.id] = true;
       _g6bPlayPulse();
@@ -328,7 +360,7 @@ function simG6Body1a(){
         if(sum) sum.innerHTML = `
           <div style="margin-top:14px;padding:12px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
             <div style="font-size:13px;font-weight:700;color:#16A34A;margin-bottom:6px">🎉 أحسنت! ماذا تعلّمت؟</div>
-            <div style="font-size:12px;color:var(--text-secondary);line-height:1.8)">تعرّفت على ستة أعضاء رئيسية في الجسم ومكان كلٍّ منها ووظيفته: الدماغ للتحكّم، والقلب لضخّ الدم، والرئتان للتنفّس، والمعدة والأمعاء للهضم، والكليتان لتنقية الدم.</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.8)">تعرّفت على ثمانية أعضاء رئيسية في الجسم ومكان كلٍّ منها ووظيفته: الدماغ للتحكّم، والقلب لضخّ الدم، والرئتان للتنفّس، والمعدة والأمعاء الدقيقة والغليظة للهضم، والكبد لتخزين الطاقة وتنقية الدم، والكليتان لترشيح الدم.</div>
           </div>`;
       }
     } else {
@@ -359,23 +391,25 @@ function simG6Body1a(){
       if(!S.placed[t.id]){
         c.save(); c.globalAlpha = 0.18;
         c.fillStyle = t.color;
-        c.beginPath(); c.arc(t.tx*w, t.ty*h, w*0.045, 0, Math.PI*2); c.fill();
+        c.beginPath(); c.arc(t.tx*w, t.ty*h, w*0.032, 0, Math.PI*2); c.fill();
         c.restore();
       }
     });
 
     // العناصر القابلة للسحب (وضعت أو ما زالت في الدرج)
     const G6B_ORGAN_DRAW = {
-      brain: (c,x,y,r,dark)=>g6bDrawBrain(c,x,y,r*0.024,dark),
-      heart: (c,x,y,r,dark)=>g6bDrawHeart(c,x,y,r*0.024,dark),
-      lungs: (c,x,y,r,dark)=>g6bDrawLungPair(c,x,y,r*0.014,dark),
-      stomach: (c,x,y,r,dark)=>g6bDrawStomach(c,x,y,r*0.026,dark),
-      kidneys: (c,x,y,r,dark)=>g6bDrawKidney(c,x,y,r*0.022,dark),
-      intestines: (c,x,y,r,dark)=>g6bDrawIntestineCoil(c,x,y,r*0.022,dark),
+      brain: (c,x,y,r,dark)=>g6bDrawBrain(c,x,y,r*0.020,dark),
+      heart: (c,x,y,r,dark)=>g6bDrawHeart(c,x,y,r*0.020,dark),
+      lungs: (c,x,y,r,dark)=>g6bDrawLungPair(c,x,y,r*0.0115,dark),
+      liver: (c,x,y,r,dark)=>g6bDrawLiver(c,x,y,r*0.024,dark),
+      stomach: (c,x,y,r,dark)=>g6bDrawStomach(c,x,y,r*0.021,dark),
+      sintestine: (c,x,y,r,dark)=>g6bDrawIntestineCoil(c,x,y,r*0.017,dark),
+      lintestine: (c,x,y,r,dark)=>g6bDrawLargeIntestineFrame(c,x,y,r*0.024,dark),
+      kidneys: (c,x,y,r,dark)=>g6bDrawKidney(c,x,y,r*0.018,dark),
     };
     S.tray.forEach(o=>{
       const dragging = S.dragId===o.id;
-      const r = w*0.042 * (dragging ? 1.18 : 1);
+      const r = w*0.032 * (dragging ? 1.18 : 1);
       c.save();
       if(dragging){ c.shadowColor='rgba(0,0,0,0.4)'; c.shadowBlur=14; }
       c.fillStyle = dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.03)';
@@ -409,6 +443,7 @@ function simG6Body1b(){
     { q:'أهضم الطعام',    opts:['الرئتان','الدماغ','المعدة'], ans:'المعدة', emoji:'🍎' },
     { q:'أضخّ الدم إلى الجسم كله', opts:['القلب','الكليتان','الرئتان'], ans:'القلب', emoji:'🩸' },
     { q:'أرشّح الفضلات من الدم',  opts:['الكليتان','المعدة','الدماغ'], ans:'الكليتان', emoji:'💧' },
+    { q:'أخزّن الطاقة وأنقّي الدم من السموم', opts:['الكبد','الرئتان','الأمعاء الدقيقة'], ans:'الكبد', emoji:'🟤' },
   ];
   simState = { round:0, correct:0, answered:false };
   const S = simState;
@@ -488,7 +523,7 @@ function simG6Body2a(){
       <div class="ctrl-section">
         <div class="ctrl-label">❤️ استقصاء: نبضات القلب</div>
         <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">
-          اضغط الزر لتبدأ مشاهدة القلب وهو يضخّ الدم، ثم غيّر سرعة النبض ولاحظ ماذا يحدث لحركة الدم.
+          اضغط الزر لتبدأ مشاهدة القلب وهو يضخّ الدم. لاحظ: الجانب الأيسر (🔴) يضخّ دماً مؤكسجاً إلى الجسم، والجانب الأيمن (🔵) يضخّ دماً غير مؤكسج إلى الرئتين.
         </div>
       </div>
       <button class="ctrl-btn play" id="g6bHeartBtn" onclick="window._g6bHeartToggle()">${S.running ? '⏸ إيقاف' : '▶ ابدأ ضخّ الدم'}</button>
@@ -527,35 +562,50 @@ function simG6Body2a(){
     c.fillStyle = g6bBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle = g6bTxt(dark);
     c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('١-٢ · القلب', w/2, h*0.06);
+    c.fillText('١-٢ · القلب', w/2, h*0.055);
+    c.font = `${Math.round(h*0.022)}px Tajawal`; c.fillStyle = '#8B5CF6';
+    c.fillText('عملية ضخّ الدم تُسمّى "الدورة الدموية"', w/2, h*0.09);
 
     if(S.running) S.t += 0.028 * S.speed;
     const beat = S.running ? 1 + Math.max(0, Math.sin(S.t*Math.PI*2))*0.12 : 1;
 
     // القلب (رسم تشريحي واقعي)
-    const hx = w*0.42, hy = h*0.42, r = w*0.075*beat;
+    const hx = w*0.42, hy = h*0.46, r = w*0.075*beat;
     g6bDrawHeart(c, hx, hy, r*0.021, dark);
 
-    // مسار دم متحرك نحو الجسم (يمين) وعودته
-    const bodyX = w*0.74, bodyY = h*0.42;
-    c.strokeStyle = dark?'rgba(230,220,200,0.4)':'rgba(50,60,75,0.35)'; c.lineWidth=2;
-    c.beginPath(); c.roundRect(bodyX-w*0.09, bodyY-h*0.22, w*0.18, h*0.44, 12); c.stroke();
-    c.font = `${Math.round(h*0.03)}px Tajawal`; c.fillStyle=g6bMut(dark); c.textAlign='center';
-    c.fillText('باقي الجسم', bodyX, bodyY+h*0.3);
+    // صندوق الجسم (يستقبل دماً مؤكسجاً من الجانب الأيسر الأحمر)
+    const bodyX = w*0.78, bodyY = h*0.58;
+    c.strokeStyle = '#E74C3C'; c.lineWidth=2.5;
+    c.beginPath(); c.roundRect(bodyX-w*0.1, bodyY-h*0.14, w*0.2, h*0.28, 12); c.stroke();
+    c.font = `bold ${Math.round(h*0.026)}px Tajawal`; c.fillStyle='#E74C3C'; c.textAlign='center';
+    c.fillText('🔴 الجسم', bodyX, bodyY-h*0.02);
+    c.font = `${Math.round(h*0.018)}px Tajawal`;
+    c.fillText('دم مؤكسج', bodyX, bodyY+h*0.03);
+
+    // صندوق الرئتين (يستقبل دماً غير مؤكسج من الجانب الأيمن الأزرق)
+    const lungX = w*0.78, lungY = h*0.2;
+    c.strokeStyle = '#3B82F6'; c.lineWidth=2.5;
+    c.beginPath(); c.roundRect(lungX-w*0.1, lungY-h*0.1, w*0.2, h*0.2, 12); c.stroke();
+    c.font = `bold ${Math.round(h*0.026)}px Tajawal`; c.fillStyle='#3B82F6';
+    c.fillText('🔵 الرئتان', lungX, lungY);
+    c.font = `${Math.round(h*0.018)}px Tajawal`;
+    c.fillText('دم غير مؤكسج', lungX, lungY+h*0.045);
 
     if(S.running){
-      if(Math.random() < 0.08*S.speed) S.dots.push({x:hx, y:hy, dir:1, age:0});
+      if(Math.random() < 0.06*S.speed) S.dots.push({x:hx, y:hy, dest:'body', age:0});
+      if(Math.random() < 0.06*S.speed) S.dots.push({x:hx, y:hy, dest:'lung', age:0});
       S.dots = S.dots.filter(d=>d.age<1);
       S.dots.forEach(d=>{
         d.age += 0.012*S.speed;
-        const px = hx + (bodyX-hx)*d.age;
-        const py = hy + Math.sin(d.age*Math.PI)*-h*0.06;
-        c.fillStyle = d.age<0.5 ? '#E74C3C' : '#3B82F6';
+        const tX = d.dest==='body' ? bodyX : lungX, tY = d.dest==='body' ? bodyY : lungY;
+        const px = hx + (tX-hx)*d.age;
+        const py = hy + (tY-hy)*d.age;
+        c.fillStyle = d.dest==='body' ? '#E74C3C' : '#3B82F6';
         c.beginPath(); c.arc(px,py,Math.max(3,h*0.011),0,Math.PI*2); c.fill();
       });
     }
-    c.fillStyle = g6bTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`;
-    c.fillText(S.running ? `النبض: ${(S.speed*72|0)} نبضة/د تقريباً` : 'القلب متوقف', w/2, h*0.86);
+    c.fillStyle = g6bTxt(dark); c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText(S.running ? `النبض: ${(S.speed*72|0)} نبضة/د تقريباً` : 'القلب متوقف', w/2, h*0.9);
 
     animFrame = requestAnimationFrame(draw);
   }
@@ -567,28 +617,23 @@ function simG6Body2a(){
 ════════════════════════════════════════ */
 function simG6Body2b(){
   cancelAnimationFrame(animFrame);
-  const STEPS = [
-    { id:0, text:'الدم يدخل الأذين الأيمن' },
-    { id:1, text:'ينتقل إلى البطين الأيمن ثم إلى الرئتين' },
-    { id:2, text:'يعود بالأكسجين إلى الأذين الأيسر' },
-    { id:3, text:'ينتقل إلى البطين الأيسر ثم يُضخّ إلى الجسم' },
+  const FACTS = [
+    { id:0, icon:'🩸', title:'مسار الدم', text:'ينتقل الدم عبر أنابيب تسمّى الأوعية الدموية إلى كل أجزاء الجسم.' },
+    { id:1, icon:'🍎', title:'الغذاء والأكسجين', text:'يحمل الدم الغذاء والأكسجين إلى جميع خلايا الجسم.' },
+    { id:2, icon:'🗑️', title:'التخلّص من الفضلات', text:'يحمل الدم فضلات الجسم إلى الكليتين والرئتين للتخلّص منها.' },
+    { id:3, icon:'⚙️', title:'اسم الجهاز', text:'القلب + الأوعية الدموية + الدم معاً يُكوِّنون الجهاز الدوري.' },
   ];
-  simState = { chips:[], slots:[null,null,null,null], dragId:null, checked:false, done:false };
+  simState = { flipped:[] };
   const S = simState;
-  const shuffled = [...STEPS].sort(()=>Math.random()-0.5);
-  const trayPos = [ {x:0.26,y:0.82}, {x:0.74,y:0.82}, {x:0.26,y:0.94}, {x:0.74,y:0.94} ];
-  shuffled.forEach((s,i)=>{ S.chips.push({ id:s.id, text:s.text, x:trayPos[i].x, y:trayPos[i].y, inSlot:-1 }); });
 
   function renderControls(){
     return `
       <div class="ctrl-section">
-        <div class="ctrl-label">🔀 رتّب مسار الدم داخل القلب</div>
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">
-          اسحب كل بطاقة إلى الخانة المناسبة لترتيب رحلة الدم، ثم اضغط "تحقّق".
-        </div>
+        <div class="ctrl-label">🩸 اكتشف حقائق عن الدم</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">اضغط كل بطاقة في الشاشة المقابلة لتكتشف حقيقة عن الدم ورحلته في الجسم.</div>
       </div>
-      <button class="ctrl-btn play" onclick="window._g6bCheck()">✅ تحقّق من الترتيب</button>
-      <div id="g6bOrderFeedback" style="margin-top:12px;font-size:13px;line-height:1.9;color:var(--text-secondary)"></div>`;
+      <div style="font-weight:700;color:#27AE60">التقدّم: ${S.flipped.length} / ${FACTS.length}</div>
+      <div id="g6bBloodFactsSummary"></div>`;
   }
   controls(renderControls());
 
@@ -598,60 +643,32 @@ function simG6Body2b(){
     const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
     return { x:(t.clientX-rect.left)/cv.offsetWidth, y:(t.clientY-rect.top)/cv.offsetHeight };
   }
-  const slotPos = [ {x:0.5,y:0.14}, {x:0.5,y:0.32}, {x:0.5,y:0.50}, {x:0.5,y:0.68} ];
-  function findChipAt(x,y){
-    for(let i=S.chips.length-1;i>=0;i--){
-      const ch = S.chips[i];
-      if(Math.abs(x-ch.x)<0.20 && Math.abs(y-ch.y)<0.06) return ch;
-    }
-    return null;
-  }
-  function onDown(e){ const p=relPos(e); const ch=findChipAt(p.x,p.y); if(ch) S.dragId=ch.id; }
-  function onMove(e){
-    if(S.dragId==null) return;
+  const cardPos = [ {x:0.27,y:0.28}, {x:0.73,y:0.28}, {x:0.27,y:0.62}, {x:0.73,y:0.62} ];
+  const CW=0.42, CH=0.28;
+  function onClick(e){
     const p = relPos(e);
-    const ch = S.chips.find(c=>c.id===S.dragId);
-    if(ch){ ch.x=p.x; ch.y=p.y; }
-  }
-  function onUp(){
-    if(S.dragId==null) return;
-    const ch = S.chips.find(c=>c.id===S.dragId);
-    let placed = false;
-    for(let i=0;i<4;i++){
-      if(Math.abs(ch.x-slotPos[i].x)<0.22 && Math.abs(ch.y-slotPos[i].y)<0.07){
-        if(S.slots[i]==null || S.slots[i]===ch.id){
-          if(ch.inSlot>=0) S.slots[ch.inSlot]=null;
-          S.slots[i]=ch.id; ch.inSlot=i; ch.x=slotPos[i].x; ch.y=slotPos[i].y;
-          placed = true; _g6bPlayClick();
+    FACTS.forEach((f,i)=>{
+      if(S.flipped.includes(f.id)) return;
+      const cp = cardPos[i];
+      if(Math.abs(p.x-cp.x)<CW/2 && Math.abs(p.y-cp.y)<CH/2){
+        S.flipped.push(f.id); _g6bPlayChime(true);
+        controls(renderControls());
+        if(S.flipped.length===FACTS.length){
+          setTimeout(()=>{
+            const sum = document.getElementById('g6bBloodFactsSummary');
+            if(sum) sum.innerHTML = `
+              <div style="margin-top:12px;padding:12px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
+                <div style="font-weight:700;color:#16A34A;margin-bottom:6px">🎉 أحسنت! ماذا تعلّمت؟</div>
+                <div style="color:var(--text-secondary);line-height:1.8">القلب + الأوعية الدموية + الدم = الجهاز الدوري، وهو المسؤول عن نقل الغذاء والأكسجين لكل خلايا الجسم، والتخلّص من فضلاته.</div>
+              </div>`;
+          }, 300);
         }
-        break;
       }
-    }
-    if(!placed && ch.inSlot>=0){ ch.x=slotPos[ch.inSlot].x; ch.y=slotPos[ch.inSlot].y; }
-    S.dragId = null;
+    });
   }
-  cv.onmousedown=onDown; cv.onmousemove=onMove; cv.onmouseup=onUp; cv.onmouseleave=onUp;
-  cv.ontouchstart=e=>{e.preventDefault();onDown(e);};
-  cv.ontouchmove=e=>{e.preventDefault();onMove(e);};
-  cv.ontouchend=e=>{e.preventDefault();onUp(e);};
-
-  window._g6bCheck = function(){
-    const allCorrect = S.slots.every((id,i)=>id===i);
-    const allFilled = S.slots.every(id=>id!=null);
-    _g6bPlayChime(allCorrect && allFilled);
-    const fb = document.getElementById('g6bOrderFeedback');
-    if(!allFilled){ if(fb) fb.innerHTML = '⚠️ رتّب جميع البطاقات الأربع أولاً.'; return; }
-    if(allCorrect){
-      S.done = true;
-      if(fb) fb.innerHTML = `
-        <div style="padding:12px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
-          <div style="font-weight:700;color:#16A34A;margin-bottom:6px">🎉 صحيح! ماذا تعلّمت؟</div>
-          <div style="color:var(--text-secondary);line-height:1.8">الدم يدخل القلب من جهة، يمر بالرئتين ليأخذ الأكسجين، ثم يعود ليُضخّ من الجهة الأخرى إلى بقية الجسم — رحلة مستمرة لا تتوقف.</div>
-        </div>`;
-    } else {
-      if(fb) fb.innerHTML = '❌ الترتيب غير صحيح — حاول مرة أخرى.';
-    }
-  };
+  cv.onmousedown = onClick;
+  cv.ontouchstart = e=>{ e.preventDefault(); onClick(e); };
+  cv.onmousemove=null; cv.onmouseup=null; cv.onmouseleave=null; cv.ontouchmove=null; cv.ontouchend=null;
 
   function draw(){
     if(currentSim!=='g6body2' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
@@ -659,34 +676,39 @@ function simG6Body2b(){
     c.fillStyle = g6bBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle = g6bTxt(dark);
     c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('١-٢ · رتّب مسار الدم', w/2, h*0.045);
+    c.fillText('١-٢ · اكتشف حقائق عن الدم', w/2, h*0.06);
 
-    slotPos.forEach((sp,i)=>{
-      c.strokeStyle = S.slots[i]!=null ? '#27AE60' : (dark?'rgba(230,220,200,0.4)':'rgba(50,60,75,0.35)');
-      c.lineWidth = 2; c.setLineDash(S.slots[i]==null?[6,5]:[]);
-      c.beginPath(); c.roundRect(sp.x*w-w*0.21, sp.y*h-h*0.045, w*0.42, h*0.09, 10); c.stroke();
-      c.setLineDash([]);
-      if(S.slots[i]==null){
-        c.fillStyle = g6bMut(dark); c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
-        c.fillText(`الخطوة ${i+1}`, sp.x*w, sp.y*h+h*0.008);
+    const allDone = S.flipped.length===FACTS.length;
+
+    FACTS.forEach((f,i)=>{
+      const cp = cardPos[i], flipped = S.flipped.includes(f.id);
+      const bx=cp.x*w-CW*w/2, by=cp.y*h-CH*h/2, bw=CW*w, bh=CH*h;
+      c.save();
+      if(!flipped){ c.shadowColor='rgba(0,0,0,0.15)'; c.shadowBlur=8; }
+      c.fillStyle = flipped ? (dark?'#1E3A2A':'#DCFCE7') : (dark?'#2A2F3A':'#FFF');
+      c.strokeStyle = flipped ? '#27AE60' : '#94A3B8'; c.lineWidth = flipped?3:2;
+      c.beginPath(); c.roundRect(bx,by,bw,bh,16); c.fill(); c.stroke();
+      c.restore();
+      if(flipped){
+        c.font = `${Math.round(h*0.036)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(f.icon, cp.x*w, cp.y*h - bh*0.28);
+        c.fillStyle = '#16A34A'; c.font = `bold ${Math.round(h*0.022)}px Tajawal`;
+        c.fillText(f.title, cp.x*w, cp.y*h - bh*0.06);
+        c.fillStyle = g6bTxt(dark); c.font = `${Math.round(h*0.018)}px Tajawal`;
+        g6bWrapText(c, f.text, cp.x*w, cp.y*h + bh*0.2, bw*0.85, h*0.026);
+      } else {
+        c.font = `${Math.round(h*0.05)}px serif`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillText('❓', cp.x*w, cp.y*h - bh*0.08);
+        c.fillStyle = g6bMut(dark); c.font = `bold ${Math.round(h*0.02)}px Tajawal`;
+        c.fillText('اضغط للاكتشاف', cp.x*w, cp.y*h + bh*0.22);
       }
     });
-
-    S.chips.forEach(ch=>{
-      const dragging = S.dragId===ch.id;
-      const cw = w*0.42*(dragging?1.05:1), chh = h*0.11*(dragging?1.08:1);
-      c.save();
-      if(dragging){ c.shadowColor='rgba(0,0,0,0.32)'; c.shadowBlur=12; }
-      c.fillStyle = ch.inSlot>=0 ? '#DCFCE7' : (dark?'#2A2F3A':'#FFF');
-      c.strokeStyle = ch.inSlot>=0 ? '#27AE60' : (dragging ? '#F5B041' : '#94A3B8');
-      c.lineWidth = dragging ? 3 : 2;
-      c.beginPath(); c.roundRect(ch.x*w-cw/2, ch.y*h-chh/2, cw, chh, 10); c.fill(); c.stroke();
-      c.restore();
-      c.fillStyle = dark?'#1A2530':'#2C3A4A';
-      c.font = `${Math.round(h*0.019)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      g6bWrapText(c, ch.text, ch.x*w, ch.y*h, cw*0.88, h*0.026);
-    });
     c.textBaseline='alphabetic';
+
+    if(allDone){
+      c.fillStyle = '#8B5CF6'; c.font = `bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+      c.fillText('❤️ القلب + 🩸📍 الأوعية الدموية + 🩸 الدم = ⚙️ الجهاز الدوري', w/2, h*0.96);
+    }
 
     animFrame = requestAnimationFrame(draw);
   }
@@ -703,7 +725,7 @@ function simG6Body3a(){
     { id:1, label:'🚶 يمشي', bpm:100, icon:'🚶' },
     { id:2, label:'🏃 يجري', bpm:150, icon:'🏃' },
   ];
-  simState = { state:0, bpm:70, wave:[], t:0 };
+  simState = { state:0, bpm:70, wave:[], t:0, focus:'beat' };
   const S = simState;
 
   function renderControls(){
@@ -711,8 +733,21 @@ function simG6Body3a(){
       <div class="ctrl-section">
         <div class="ctrl-label">❤️ استقصاء: القلب والنبض</div>
         <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">
-          اضغط كل زر بالترتيب ولاحظ كيف يتغيّر عداد النبض والرسم البياني عند تغيّر نشاط الجسم.
+          اضغط على "دقّة القلب" أو "النبض" لتفهم الفرق بينهما، ثم جرّب الأزرار بالأسفل لترى كيف يتغيّر عددهما مع الحركة.
         </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button id="g6bFocusBeat" onclick="window._g6bSetFocus('beat')" style="flex:1;padding:10px;border-radius:9px;border:2px solid ${S.focus==='beat'?'#27AE60':'#ddd'};background:${S.focus==='beat'?'#27AE60':'var(--bg-ctrl-btn)'};color:${S.focus==='beat'?'white':'var(--text-secondary)'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer">🫀 دقّة القلب</button>
+        <button id="g6bFocusPulse" onclick="window._g6bSetFocus('pulse')" style="flex:1;padding:10px;border-radius:9px;border:2px solid ${S.focus==='pulse'?'#27AE60':'#ddd'};background:${S.focus==='pulse'?'#27AE60':'var(--bg-ctrl-btn)'};color:${S.focus==='pulse'?'white':'var(--text-secondary)'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer">💓 النبض</button>
+      </div>
+      <div id="g6bFocusInfo" style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;border:1px solid rgba(231,76,60,0.2);margin-bottom:12px">
+        ${S.focus==='beat'
+          ? '🫀 <strong>الدقّة:</strong> هي انقباض عضلة القلب نفسها لتضخّ الدم — تحدث داخل الصدر.'
+          : '💓 <strong>النبض:</strong> هو ما تشعر به من ضغط الدم وهو يمرّ عبر الشرايين نتيجة كل دقّة قلب — يمكن الشعور به في المعصم أو الرقبة.'}
+        <br><span style="color:#27AE60;font-weight:700">عدد الدقّات = عدد النبضات في الدقيقة نفسها!</span>
+      </div>
+      <div class="ctrl-section">
+        <div class="ctrl-label">🏃 جرّب نشاطاً مختلفاً</div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px">
         ${STATES.map(s=>`<button id="g6bState_${s.id}" onclick="window._g6bSetState(${s.id})" style="flex:1;padding:11px 6px;border-radius:9px;border:2px solid ${s.id===S.state?'#27AE60':'#ddd'};background:${s.id===S.state?'#27AE60':'var(--bg-ctrl-btn)'};color:${s.id===S.state?'white':'var(--text-secondary)'};font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer">${s.label}</button>`).join('')}
@@ -722,6 +757,18 @@ function simG6Body3a(){
       </div>`;
   }
   controls(renderControls());
+
+  window._g6bSetFocus = function(f){
+    S.focus = f;
+    const beatBtn = document.getElementById('g6bFocusBeat'), pulseBtn = document.getElementById('g6bFocusPulse');
+    if(beatBtn){ beatBtn.style.background = f==='beat'?'#27AE60':'var(--bg-ctrl-btn)'; beatBtn.style.borderColor=f==='beat'?'#27AE60':'#ddd'; beatBtn.style.color=f==='beat'?'white':'var(--text-secondary)'; }
+    if(pulseBtn){ pulseBtn.style.background = f==='pulse'?'#27AE60':'var(--bg-ctrl-btn)'; pulseBtn.style.borderColor=f==='pulse'?'#27AE60':'#ddd'; pulseBtn.style.color=f==='pulse'?'white':'var(--text-secondary)'; }
+    _g6bPlayClick();
+    const info = document.getElementById('g6bFocusInfo');
+    if(info) info.innerHTML = f==='beat'
+      ? '🫀 <strong>الدقّة:</strong> هي انقباض عضلة القلب نفسها لتضخّ الدم — تحدث داخل الصدر.<br><span style="color:#27AE60;font-weight:700">عدد الدقّات = عدد النبضات في الدقيقة نفسها!</span>'
+      : '💓 <strong>النبض:</strong> هو ما تشعر به من ضغط الدم وهو يمرّ عبر الشرايين نتيجة كل دقّة قلب — يمكن الشعور به في المعصم أو الرقبة.<br><span style="color:#27AE60;font-weight:700">عدد الدقّات = عدد النبضات في الدقيقة نفسها!</span>';
+  };
 
   window._g6bSetState = function(id){
     S.state = id;
@@ -745,25 +792,43 @@ function simG6Body3a(){
     c.fillStyle = g6bBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle = g6bTxt(dark);
     c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('١-٣ · القلب والنبض', w/2, h*0.06);
+    c.fillText('١-٣ · القلب والنبض', w/2, h*0.055);
 
     const target = STATES[S.state].bpm;
     S.bpm += (target - S.bpm) * 0.02;
     S.t += 0.02 + (S.bpm/70)*0.02;
+    const beatPhase = (S.t*1.6) % 1;
+    const beatScale = 1 + Math.max(0, Math.sin(beatPhase*Math.PI*2))*0.16;
 
-    // شخصية
-    c.font = `${Math.round(h*0.14)}px serif`; c.textAlign='center';
-    c.fillText(STATES[S.state].icon, w*0.24, h*0.42);
+    // القلب (يمثّل الدقّة)
+    const heartX = w*0.3, heartY = h*0.32;
+    c.save(); c.globalAlpha = S.focus==='beat' ? 1 : 0.35;
+    g6bDrawHeart(c, heartX, heartY, beatScale*0.021, dark);
+    c.restore();
+    c.fillStyle = S.focus==='beat' ? '#E74C3C' : g6bMut(dark);
+    c.font = `bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('🫀 دقّة القلب', heartX, heartY + h*0.16);
 
-    // عداد النبض
-    c.font = `bold ${Math.round(h*0.09)}px Tajawal`;
-    c.fillStyle = '#E74C3C';
-    c.fillText(Math.round(S.bpm), w*0.24, h*0.6);
-    c.font = `${Math.round(h*0.024)}px Tajawal`; c.fillStyle = g6bMut(dark);
-    c.fillText('نبضة / دقيقة', w*0.24, h*0.66);
+    // نقطة النبض في المعصم
+    const wristX = w*0.7, wristY = h*0.32;
+    c.save(); c.globalAlpha = S.focus==='pulse' ? 1 : 0.35;
+    c.font = `${Math.round(h*0.09)}px serif`; c.fillText('✋', wristX, wristY);
+    const pulseR = w*0.02*beatScale;
+    c.fillStyle = '#3B82F6';
+    c.beginPath(); c.arc(wristX+w*0.015, wristY+h*0.02, pulseR, 0, Math.PI*2); c.fill();
+    c.restore();
+    c.fillStyle = S.focus==='pulse' ? '#3B82F6' : g6bMut(dark);
+    c.font = `bold ${Math.round(h*0.024)}px Tajawal`;
+    c.fillText('💓 النبض بالمعصم', wristX, wristY + h*0.16);
 
-    // موجة نبض (ECG مبسّط) تتحرك يميناً وتسرع مع البي بي إم
-    const waveX0 = w*0.45, waveX1 = w*0.94, waveY = h*0.42, waveH = h*0.14;
+    // عداد
+    c.fillStyle = '#16A34A'; c.font = `bold ${Math.round(h*0.06)}px Tajawal`;
+    c.fillText(Math.round(S.bpm), w/2, h*0.52);
+    c.font = `${Math.round(h*0.022)}px Tajawal`; c.fillStyle = g6bMut(dark);
+    c.fillText('نبضة/دقّة في الدقيقة', w/2, h*0.58);
+
+    // موجة نبض (ECG مبسّط)
+    const waveX0 = w*0.1, waveX1 = w*0.9, waveY = h*0.75, waveH = h*0.1;
     c.strokeStyle = dark? 'rgba(230,220,200,0.3)':'rgba(50,60,75,0.25)'; c.lineWidth=1;
     c.beginPath(); c.moveTo(waveX0,waveY); c.lineTo(waveX1,waveY); c.stroke();
     c.strokeStyle = '#E74C3C'; c.lineWidth = 2.5; c.beginPath();
@@ -869,9 +934,17 @@ function simG6Body3b(){
     c.fillStyle = colors.bg; c.strokeStyle = colors.bd; c.lineWidth = state==='normal'?2:3;
     c.beginPath(); c.roundRect(bx,by,bw,bh,14); c.fill(); c.stroke();
     c.restore();
-    c.fillStyle = colors.tx; c.font = `bold ${Math.round(h*0.032)}px Tajawal`;
-    c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(label, r.x*w, r.y*h);
+    c.fillStyle = colors.tx; c.textAlign='center'; c.textBaseline='middle';
+    const emojiMatch = label.match(/^(\p{Extended_Pictographic}\uFE0F?)\s+(.+)$/u);
+    if(emojiMatch){
+      c.font = `${Math.round(h*0.042)}px serif`;
+      c.fillText(emojiMatch[1], r.x*w, r.y*h - bh*0.15);
+      c.font = `bold ${Math.round(h*0.026)}px Tajawal`;
+      c.fillText(emojiMatch[2], r.x*w, r.y*h + bh*0.22);
+    } else {
+      c.font = `bold ${Math.round(h*0.032)}px Tajawal`;
+      c.fillText(label, r.x*w, r.y*h);
+    }
     if(state==='matched'){ c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.fillText('✓', r.x*w + bw/2 - w*0.03, r.y*h - bh/2 + h*0.015); }
   }
 
@@ -1449,9 +1522,17 @@ function simG6Body6b(){
     c.fillStyle = bg; c.strokeStyle = bd; c.lineWidth = 3;
     c.beginPath(); c.roundRect(bx,by,bw,bh,16); c.fill(); c.stroke();
     c.restore();
-    c.fillStyle = active ? '#FFFFFF' : bd;
-    c.font = `bold ${Math.round(h*0.036)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(label, r.x*w, r.y*h);
+    c.fillStyle = active ? '#FFFFFF' : bd; c.textAlign='center'; c.textBaseline='middle';
+    const emojiMatch = label.match(/^(\p{Extended_Pictographic}\uFE0F?)\s+(.+)$/u);
+    if(emojiMatch){
+      c.font = `${Math.round(h*0.05)}px serif`;
+      c.fillText(emojiMatch[1], r.x*w, r.y*h - bh*0.16);
+      c.font = `bold ${Math.round(h*0.028)}px Tajawal`;
+      c.fillText(emojiMatch[2], r.x*w, r.y*h + bh*0.22);
+    } else {
+      c.font = `bold ${Math.round(h*0.036)}px Tajawal`;
+      c.fillText(label, r.x*w, r.y*h);
+    }
   }
 
   function draw(){
@@ -1676,9 +1757,17 @@ function simG6Body7b(){
     c.fillStyle = colors.bg; c.strokeStyle = colors.bd; c.lineWidth = state==='normal'?2:3;
     c.beginPath(); c.roundRect(bx,by,bw,bh,14); c.fill(); c.stroke();
     c.restore();
-    c.fillStyle = colors.tx; c.font = `bold ${Math.round(h*0.03)}px Tajawal`;
-    c.textAlign='center'; c.textBaseline='middle';
-    c.fillText(label, r.x*w, r.y*h);
+    c.fillStyle = colors.tx; c.textAlign='center'; c.textBaseline='middle';
+    const emojiMatch = label.match(/^(\p{Extended_Pictographic}\uFE0F?)\s+(.+)$/u);
+    if(emojiMatch){
+      c.font = `${Math.round(h*0.038)}px serif`;
+      c.fillText(emojiMatch[1], r.x*w, r.y*h - bh*0.14);
+      c.font = `bold ${Math.round(h*0.024)}px Tajawal`;
+      c.fillText(emojiMatch[2], r.x*w, r.y*h + bh*0.2);
+    } else {
+      c.font = `bold ${Math.round(h*0.03)}px Tajawal`;
+      c.fillText(label, r.x*w, r.y*h);
+    }
   }
 
   function draw(){
