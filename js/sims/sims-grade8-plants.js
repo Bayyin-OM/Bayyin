@@ -113,9 +113,48 @@ function _g8pPlayClick(){
   }catch(e){}
 }
 
-/* ════════════════════════════════════════
-   نشاط ١-١ · التاب ١ — كيف يحدث التمثيل الضوئي؟
-════════════════════════════════════════ */
+// ─── مساعد: صوت رياح خفيف ───
+function _g8pPlayWind(dur){
+  try{
+    dur = dur || 3;
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const bufLen = Math.floor(ac.sampleRate*dur);
+    const buf = ac.createBuffer(1, bufLen, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<bufLen;i++) d[i] = (Math.random()*2-1);
+    const src = ac.createBufferSource(); src.buffer = buf;
+    const flt = ac.createBiquadFilter(); flt.type='bandpass'; flt.frequency.value=650; flt.Q.value=0.7;
+    const lfo = ac.createOscillator(); lfo.frequency.value=0.18;
+    const lfoGain = ac.createGain(); lfoGain.gain.value=180;
+    lfo.connect(lfoGain); lfoGain.connect(flt.frequency);
+    const g = ac.createGain(); const t = ac.currentTime;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(0.035,t+0.6);
+    g.gain.setValueAtTime(0.035,t+Math.max(0.7,dur-0.6));
+    g.gain.linearRampToValueAtTime(0,t+dur);
+    src.connect(flt); flt.connect(g); g.connect(ac.destination);
+    lfo.start(t); src.start(t); src.stop(t+dur); lfo.stop(t+dur);
+  }catch(e){}
+}
+// ─── مساعد: بريق خفيف عند انتشار الصبغة ───
+function _g8pPlaySparkle(){
+  try{
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const t = ac.currentTime;
+    [660,880,990].forEach((f,i)=>{
+      const o=ac.createOscillator(), g=ac.createGain();
+      o.type='sine'; o.frequency.value=f;
+      o.connect(g); g.connect(ac.destination);
+      const st=t+i*0.06;
+      g.gain.setValueAtTime(0,st);
+      g.gain.linearRampToValueAtTime(0.045,st+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001,st+0.22);
+      o.start(st); o.stop(st+0.24);
+    });
+  }catch(e){}
+}
+
+
 function simG8Bio1N1a(){
   cancelAnimationFrame(animFrame);
   simState = { running:false, t:0, stageIdx:-1, bubbles:[] };
@@ -504,5 +543,425 @@ function simG8Bio1N1b(){
     }
   }
 
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ١-٢ · التاب ١ — استقصاء الورقة (لماذا خضراء؟)
+════════════════════════════════════════ */
+function simG8Bio1N2a(){
+  cancelAnimationFrame(animFrame);
+  simState = { zooming:false, zoom:0, chloroBtn:false, chloro:0, sparks:[], t:0, windOn:false };
+  const S = simState;
+
+  function renderControls(){
+    let body;
+    if(S.zoom < 0.98){
+      body = `
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:12px">
+          شجرة كاملة تتمايل مع الهواء. اضغط الزر لتقترب تدريجياً حتى تصل إلى ورقة واحدة.
+        </div>
+        <button class="ctrl-btn play" id="g8pLeafZoomBtn" onclick="window._g8pLeafZoom()" ${S.zooming?'disabled':''}>🍃 لنستكشف الورقة</button>`;
+    } else if(S.chloro < 0.98){
+      body = `
+        <div id="g8pLeafQ" style="font-size:14px;font-weight:700;color:var(--text-primary);background:var(--bg-card2);border-radius:10px;padding:14px;text-align:center;margin-bottom:12px">
+          🤔 لماذا تبدو أوراق النباتات باللون الأخضر؟
+        </div>
+        <button class="ctrl-btn play" onclick="window._g8pAddChloro()">🧪 أضف صبغة الكلوروفيل</button>`;
+    } else {
+      body = `
+        <div style="padding:14px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
+          <div style="font-weight:700;color:#16A34A;margin-bottom:6px">🌿 الاستنتاج</div>
+          <div style="color:var(--text-secondary);line-height:1.9;font-size:13px">تحتوي خلايا الورقة على صبغة <strong>الكلوروفيل</strong>، وهي التي تكسب الورقة لونها الأخضر.</div>
+        </div>
+        <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g8pLeafReset()">↺ أعد الاستكشاف</button>`;
+    }
+    return `
+      <div class="ctrl-section">
+        <div class="ctrl-label">🍃 استقصاء الورقة</div>
+      </div>
+      ${body}`;
+  }
+  controls(renderControls());
+
+  window._g8pLeafZoom = function(){
+    if(S.zooming) return;
+    S.zooming = true; _g8pPlayClick();
+    if(!S.windOn){ S.windOn = true; _g8pPlayWind(4.5); }
+    const btn = document.getElementById('g8pLeafZoomBtn');
+    if(btn){ btn.disabled = true; btn.textContent = '🔍 يقترب...'; }
+  };
+  window._g8pAddChloro = function(){
+    if(S.chloro>0) return;
+    S.chloro = 0.001; _g8pPlaySparkle();
+    setTimeout(()=>_g8pPlaySparkle(), 500);
+    setTimeout(()=>_g8pPlaySparkle(), 1000);
+  };
+  window._g8pLeafReset = function(){
+    S.zoom = 0; S.zooming = false; S.chloro = 0; S.sparks = [];
+    controls(renderControls());
+  };
+
+  const cv = document.getElementById('simCanvas');
+  // موقع افتراضي للورقة البطلة داخل الشجرة (إحداثيات عالمية 0..1000)
+  const leafWorld = { x:640, y:330 };
+  const canopyLeaves = [];
+  for(let i=0;i<26;i++){
+    const ang = Math.random()*Math.PI*2, rad = 70+Math.random()*140;
+    canopyLeaves.push({ x:500+Math.cos(ang)*rad, y:260+Math.sin(ang)*rad*0.7, size:16+Math.random()*10, ph:Math.random()*10 });
+  }
+
+  function draw(){
+    if(currentSim!=='g8bio1n2' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
+    S.t += 0.016;
+    if(S.zooming && S.zoom<1){ S.zoom += 0.007; if(S.zoom>=1){ S.zoom=1; S.zooming=false; controls(renderControls()); } }
+    if(S.chloro>0 && S.chloro<1){ S.chloro += 0.006; if(S.chloro>=1){ S.chloro=1; controls(renderControls()); } }
+
+    // خلفية سماء تتدرج
+    const sky = c.createLinearGradient(0,0,0,h);
+    sky.addColorStop(0, dark?'#16233A':'#BEE7F5'); sky.addColorStop(1, dark?'#1C2E22':'#DDF2DE');
+    c.fillStyle = sky; c.fillRect(0,0,w,h);
+
+    // === نظام الكاميرا: نتحرك من مشهد الشجرة الكاملة إلى تكبير الورقة ===
+    const camScale = 1 + S.zoom*S.zoom*22;         // تكبير تصاعدي ناعم
+    const focal = { x: 500 + (leafWorld.x-500)*S.zoom, y: 400 + (leafWorld.y-400)*S.zoom };
+    const worldToScreen = (wx,wy) => ({
+      x: w/2 + (wx-focal.x) * (camScale * w/1000),
+      y: h*0.62 + (wy-focal.y) * (camScale * w/1000),
+    });
+
+    // أرضية
+    if(S.zoom<0.9){
+      const g0 = worldToScreen(0,760), g1 = worldToScreen(1000,760);
+      c.fillStyle = dark?'#1B3324':'#8FBE72';
+      c.fillRect(0, g0.y, w, h-g0.y);
+    }
+    // جذع
+    const sway = Math.sin(S.t*0.7)*4;
+    if(S.zoom<0.95){
+      const t0 = worldToScreen(500+sway*0.2,760), t1 = worldToScreen(500+sway,300);
+      c.strokeStyle = dark?'#5C4530':'#7A5A38'; c.lineWidth = Math.max(2, 26*camScale*w/1000);
+      c.lineCap='round';
+      c.beginPath(); c.moveTo(t0.x,t0.y); c.lineTo(t1.x,t1.y); c.stroke();
+    }
+    // مظلة الشجرة (أوراق صغيرة متمايلة)
+    if(S.zoom<0.85){
+      canopyLeaves.forEach(lf=>{
+        const wob = Math.sin(S.t*1.4+lf.ph)*6;
+        const p = worldToScreen(lf.x+wob*0.4+sway*0.5, lf.y+wob*0.2);
+        const rad = Math.max(1, lf.size*camScale*w/1000);
+        c.globalAlpha = Math.max(0, 1-S.zoom*1.3);
+        c.fillStyle = g8pAccent(dark);
+        c.beginPath(); c.arc(p.x,p.y,rad,0,Math.PI*2); c.fill();
+        c.globalAlpha = 1;
+      });
+    }
+
+    // الورقة البطلة (تكبر مع الزوم، تتمايل، ولونها يتحول للأخضر)
+    const leafScreen = worldToScreen(leafWorld.x, leafWorld.y);
+    const leafSway = Math.sin(S.t*1.6)*(0.12*(1-S.zoom*0.6));
+    const leafLen = Math.max(18, 90*camScale*w/1000*0.22);
+    const leafWid = leafLen*0.42;
+    const paleColor = dark? '#8A8570':'#C9C4A8';
+    const greenColor = g8pAccent(dark);
+    const leafColor = _g8pLerpColor(paleColor, greenColor, S.chloro);
+    const veinColor = dark? 'rgba(20,40,20,0.5)':'rgba(30,60,20,0.35)';
+    _g8pDrawLeaf(c, leafScreen.x, leafScreen.y, leafLen, leafWid, -Math.PI/2+0.15+leafSway, leafColor, veinColor, true);
+
+    // انتشار صبغة الكلوروفيل (جزيئات خضراء داخل الورقة)
+    if(S.chloro>0 && S.chloro<1){
+      if(Math.random()<0.5) S.sparks.push({ a:Math.random()*Math.PI*2, r:0, age:0 });
+      S.sparks = S.sparks.filter(sp=>sp.age<1);
+      S.sparks.forEach(sp=>{
+        sp.age += 0.03; sp.r = sp.age*leafLen*0.75;
+        const px = leafScreen.x + Math.cos(-Math.PI/2+0.15+leafSway)*sp.r*0.6 + Math.cos(sp.a)*leafWid*0.3*sp.age;
+        const py = leafScreen.y + Math.sin(-Math.PI/2+0.15+leafSway)*sp.r*0.6 + Math.sin(sp.a)*leafWid*0.3*sp.age;
+        c.globalAlpha = (1-sp.age)*0.8;
+        c.fillStyle = '#4ADE80';
+        c.beginPath(); c.arc(px,py,3.5,0,Math.PI*2); c.fill();
+        c.globalAlpha = 1;
+      });
+    }
+
+    // عنوان علوي
+    c.fillStyle = g8pTxt(dark);
+    c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ١-٢ · استقصاء الورقة', w/2, h*0.055);
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ١-٢ · التاب ٢ — دعونا نتعرف على أجزاء النبات
+════════════════════════════════════════ */
+function simG8Bio1N2b(){
+  cancelAnimationFrame(animFrame);
+  const PARTS = [
+    { id:'root',   name:'الجذر',  tx:0.5, ty:0.84, fn:'يُثبِّت النبات في التربة ويمتصّ الماء والأملاح المعدنية.' },
+    { id:'stem',   name:'الساق',  tx:0.5, ty:0.55, fn:'تدعم النبات وتنقل الماء والغذاء بين الجذر والأوراق.' },
+    { id:'leaf',   name:'الورقة', tx:0.32,ty:0.4,  fn:'تصنع الغذاء بعملية التمثيل الضوئي وتتبادل الغازات مع الهواء.' },
+    { id:'flower', name:'الزهرة', tx:0.5, ty:0.16, fn:'الجزء المسؤول عن تكاثر النبات وإنتاج البذور.' },
+  ];
+  simState = { explored:[], active:null, t:0 };
+  const S = simState;
+
+  function renderControls(){
+    const n = S.explored.length;
+    let body = `<div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">اضغط أي جزء من النبات في الشاشة المقابلة لتتعرّف عليه.</div>
+      <div style="font-weight:700;color:#27AE60;margin-bottom:10px">استكشفت ${n} من ${PARTS.length} أجزاء</div>`;
+    if(S.active){
+      const p = PARTS.find(pp=>pp.id===S.active);
+      body += `<div style="padding:13px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.25)">
+        <div style="font-weight:700;color:#16A34A;margin-bottom:6px">${p.name}</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8">${p.fn}</div>
+      </div>`;
+    }
+    if(n===PARTS.length){
+      body += `<div style="margin-top:12px;padding:12px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3);font-weight:700;color:#16A34A">🎉 أحسنت! لقد استكشفت أجزاء النبات ووظيفة كل جزء.</div>`;
+    }
+    return `<div class="ctrl-section"><div class="ctrl-label">🌱 أجزاء النبات</div></div>${body}`;
+  }
+  controls(renderControls());
+
+  const cv = document.getElementById('simCanvas');
+  function relPos(e){
+    const rect = cv.getBoundingClientRect();
+    const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+    return { x:(t.clientX-rect.left)/cv.offsetWidth, y:(t.clientY-rect.top)/cv.offsetHeight };
+  }
+  function onClick(e){
+    const p = relPos(e);
+    PARTS.forEach(part=>{
+      if(Math.abs(p.x-part.tx)<0.09 && Math.abs(p.y-part.ty)<0.09){
+        S.active = part.id; _g8pPlayClick();
+        if(!S.explored.includes(part.id)){ S.explored.push(part.id); if(S.explored.length===PARTS.length) _g8pPlaySparkle(); }
+        controls(renderControls());
+      }
+    });
+  }
+  cv.onmousedown = onClick;
+  cv.ontouchstart = e=>{ e.preventDefault(); onClick(e); };
+  cv.onmousemove=null; cv.onmouseup=null; cv.onmouseleave=null; cv.ontouchmove=null; cv.ontouchend=null;
+
+  function draw(){
+    if(currentSim!=='g8bio1n2' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
+    S.t += 0.016;
+    c.fillStyle = g8pBg(dark); c.fillRect(0,0,w,h);
+    c.fillStyle = g8pTxt(dark);
+    c.font = `bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ١-٢ · أجزاء النبات', w/2, h*0.05);
+
+    const stemBase = { x:w*0.5, y:h*0.86 }, stemTop = { x:w*0.5, y:h*0.18 };
+    // جذور
+    c.strokeStyle = dark?'rgba(210,180,150,0.6)':'rgba(120,80,45,0.55)'; c.lineWidth=Math.max(2,h*0.008);
+    for(let i=-2;i<=2;i++){
+      c.beginPath(); c.moveTo(stemBase.x, stemBase.y);
+      c.quadraticCurveTo(stemBase.x+i*w*0.05, stemBase.y+h*0.06, stemBase.x+i*w*0.07, stemBase.y+h*0.11);
+      c.stroke();
+    }
+    // ساق
+    c.strokeStyle = g8pAccent(dark); c.lineWidth = Math.max(3,h*0.012); c.lineCap='round';
+    c.beginPath(); c.moveTo(stemBase.x, stemBase.y); c.lineTo(stemTop.x, stemTop.y+h*0.05); c.stroke();
+    // ورقتان جانبيتان
+    [-1,1].forEach(side=>{
+      const attach = { x: w*0.5, y: h*0.4 };
+      _g8pDrawLeaf(c, attach.x, attach.y, w*0.13, w*0.06, side<0?Math.PI-0.5:-0.5, g8pAccent(dark), 'rgba(20,60,20,0.3)', true);
+    });
+    // زهرة أعلى الساق
+    const flX=stemTop.x, flY=stemTop.y;
+    for(let i=0;i<6;i++){
+      const ang = i/6*Math.PI*2;
+      c.fillStyle = '#F8B4D9';
+      c.beginPath(); c.ellipse(flX+Math.cos(ang)*w*0.03, flY+Math.sin(ang)*w*0.03, w*0.022, w*0.014, ang, 0, Math.PI*2); c.fill();
+    }
+    c.fillStyle='#F5B041'; c.beginPath(); c.arc(flX,flY,w*0.016,0,Math.PI*2); c.fill();
+
+    // نقاط تفاعلية نابضة + تأثير توضيحي عند التنشيط
+    const PARTS_POS = { root:{x:w*0.5,y:h*0.84}, stem:{x:w*0.5,y:h*0.55}, leaf:{x:w*0.32,y:h*0.4}, flower:{x:w*0.5,y:h*0.16} };
+    Object.entries(PARTS_POS).forEach(([id,pos])=>{
+      const pulse = 0.5+Math.sin(S.t*2.4)*0.5;
+      const active = S.active===id;
+      c.save();
+      c.globalAlpha = active ? 0.9 : 0.35+pulse*0.25;
+      c.strokeStyle = active ? '#16A34A' : (dark?'#E8E4D8':'#2C3A4A');
+      c.lineWidth = active?3:2;
+      c.beginPath(); c.arc(pos.x,pos.y, w*0.028*(active?1.2:1), 0, Math.PI*2); c.stroke();
+      c.restore();
+      if(active){
+        // رسوم متحركة توضيحية بسيطة لكل جزء
+        if(id==='root'){
+          const p = (S.t*0.6)%1;
+          c.fillStyle='#3B82F6'; c.globalAlpha=1-p;
+          c.beginPath(); c.arc(pos.x, pos.y - p*h*0.25, 3, 0, Math.PI*2); c.fill(); c.globalAlpha=1;
+        } else if(id==='stem'){
+          const p = (S.t*0.6)%1;
+          c.fillStyle='#3B82F6'; c.globalAlpha=1-p;
+          c.beginPath(); c.arc(pos.x, stemBase.y - p*(stemBase.y-stemTop.y), 3, 0, Math.PI*2); c.fill(); c.globalAlpha=1;
+        } else if(id==='leaf'){
+          c.font=`${Math.round(h*0.03)}px serif`; c.textAlign='center';
+          c.globalAlpha = 0.5+Math.sin(S.t*3)*0.5;
+          c.fillText('☀️', pos.x, pos.y-h*0.06); c.globalAlpha=1;
+        } else if(id==='flower'){
+          const p=(S.t*1.2)%1;
+          c.fillStyle='#FBBF24'; c.globalAlpha=1-p;
+          c.beginPath(); c.arc(pos.x+Math.cos(p*6)*w*0.02, pos.y-p*h*0.05, 2.5, 0, Math.PI*2); c.fill(); c.globalAlpha=1;
+        }
+      }
+    });
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ١-٢ · التاب ٣ — المختبر الافتراضي: الثغور
+════════════════════════════════════════ */
+function simG8Bio1N2c(){
+  cancelAnimationFrame(animFrame);
+  simState = { surface:'upper', counts:{upper:0,lower:0}, marked:{upper:[],lower:[]}, stomata:{upper:[],lower:[]}, stage:'count', predicted:null };
+  const S = simState;
+
+  function genStomata(n){
+    const arr = [];
+    for(let i=0;i<n;i++) arr.push({ x:0.1+Math.random()*0.8, y:0.15+Math.random()*0.7, ang:Math.random()*Math.PI });
+    return arr;
+  }
+  S.stomata.upper = genStomata(6);
+  S.stomata.lower = genStomata(18);
+
+  function renderControls(){
+    if(S.stage==='count'){
+      const doneBoth = S.stomata.upper.length===S.marked.upper.length && S.stomata.lower.length===S.marked.lower.length;
+      return `
+        <div class="ctrl-section">
+          <div class="ctrl-label">🔬 مختبر الثغور</div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">افحص السطحين تحت المجهر الافتراضي، واضغط على كل ثغر لتعدّه.</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button id="g8pSurfUp" onclick="window._g8pSurf('upper')" style="flex:1;padding:10px;border-radius:9px;border:2px solid ${S.surface==='upper'?'#27AE60':'#ddd'};background:${S.surface==='upper'?'#27AE60':'var(--bg-ctrl-btn)'};color:${S.surface==='upper'?'white':'var(--text-secondary)'};font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer">⬆️ السطح العلوي</button>
+          <button id="g8pSurfDn" onclick="window._g8pSurf('lower')" style="flex:1;padding:10px;border-radius:9px;border:2px solid ${S.surface==='lower'?'#27AE60':'#ddd'};background:${S.surface==='lower'?'#27AE60':'var(--bg-ctrl-btn)'};color:${S.surface==='lower'?'white':'var(--text-secondary)'};font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer">⬇️ السطح السفلي</button>
+        </div>
+        <div style="font-weight:700;color:#27AE60">عدد الثغور المعدودة: ${S.marked[S.surface].length} / ${S.stomata[S.surface].length}</div>
+        <div style="margin-top:6px;font-size:12px;color:var(--text-secondary)">العلوي: ${S.marked.upper.length} · السفلي: ${S.marked.lower.length}</div>
+        ${doneBoth ? `<button class="ctrl-btn play" style="margin-top:12px" onclick="window._g8pStomataCompare()">📊 قارن السطحين</button>` : ''}`;
+    }
+    if(S.stage==='predict'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🔬 مختبر الثغور</div></div>
+        <div style="font-size:14px;font-weight:700;text-align:center;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:12px">هل يتساوى عدد الثغور في السطحين العلوي والسفلي؟</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="window._g8pPredict(true)" style="flex:1;padding:11px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-weight:700;cursor:pointer">نعم، متساوٍ</button>
+          <button onclick="window._g8pPredict(false)" style="flex:1;padding:11px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-weight:700;cursor:pointer">لا، مختلف</button>
+        </div>`;
+    }
+    const correct = S.marked.lower.length !== S.marked.upper.length;
+    const predOk = S.predicted === correct;
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">🔬 مختبر الثغور</div></div>
+      <div style="padding:13px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.25);margin-bottom:10px">
+        <div style="font-size:13px;color:var(--text-secondary)">${predOk ? '✅ توقّعك كان صحيحاً!' : '📌 لاحظ الفرق بين النتيجتين:'}</div>
+      </div>
+      <div style="padding:12px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
+        <div style="font-weight:700;color:#16A34A;margin-bottom:6px">🎉 الاستنتاج</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8">عدد الثغور في السطح السفلي (${S.marked.lower.length}) أكبر من عدده في السطح العلوي (${S.marked.upper.length}) — وهذا شائع في كثير من النباتات.</div>
+      </div>
+      <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g8pStomataRestart()">↺ أعد المختبر</button>`;
+  }
+  controls(renderControls());
+
+  window._g8pSurf = function(s){ S.surface = s; _g8pPlayClick(); controls(renderControls()); };
+  window._g8pStomataCompare = function(){ S.stage='predict'; _g8pPlayClick(); controls(renderControls()); };
+  window._g8pPredict = function(v){
+    S.predicted = v; _g8pPlayClick();
+    const correct = S.marked.lower.length !== S.marked.upper.length;
+    _g8pPlaySparkle();
+    S.stage='conclude'; controls(renderControls());
+  };
+  window._g8pStomataRestart = function(){
+    S.marked = {upper:[],lower:[]}; S.stomata.upper = genStomata(6); S.stomata.lower = genStomata(18);
+    S.stage='count'; S.predicted=null; controls(renderControls());
+  };
+
+  const cv = document.getElementById('simCanvas');
+  function relPos(e){
+    const rect = cv.getBoundingClientRect();
+    const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+    return { x:(t.clientX-rect.left)/cv.offsetWidth, y:(t.clientY-rect.top)/cv.offsetHeight };
+  }
+  function onClick(e){
+    if(S.stage!=='count') return;
+    const p = relPos(e);
+    const list = S.stomata[S.surface];
+    list.forEach((st,i)=>{
+      if(S.marked[S.surface].includes(i)) return;
+      if(Math.abs(p.x-st.x)<0.05 && Math.abs(p.y-st.y)<0.05){
+        S.marked[S.surface].push(i); _g8pPlayClick();
+        controls(renderControls());
+      }
+    });
+  }
+  cv.onmousedown = onClick;
+  cv.ontouchstart = e=>{ e.preventDefault(); onClick(e); };
+  cv.onmousemove=null; cv.onmouseup=null; cv.onmouseleave=null; cv.ontouchmove=null; cv.ontouchend=null;
+
+  function drawStoma(c,x,y,r,ang,marked,dark){
+    c.save(); c.translate(x,y); c.rotate(ang);
+    c.fillStyle = marked ? '#27AE60' : (dark?'#3A5A42':'#5CA86E');
+    c.beginPath(); c.ellipse(-r*0.4,0,r*0.55,r*0.9,0,0,Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(r*0.4,0,r*0.55,r*0.9,0,0,Math.PI*2); c.fill();
+    c.fillStyle = dark?'#12251A':'#0B4A20';
+    c.beginPath(); c.ellipse(0,0,r*0.28,r*0.55,0,0,Math.PI*2); c.fill();
+    if(marked){ c.strokeStyle='#16A34A'; c.lineWidth=2; c.beginPath(); c.arc(0,0,r*1.6,0,Math.PI*2); c.stroke(); }
+    c.restore();
+  }
+
+  function draw(){
+    if(currentSim!=='g8bio1n2' || currentTab!==2){ cancelAnimationFrame(animFrame); return; }
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
+    c.fillStyle = g8pBg(dark); c.fillRect(0,0,w,h);
+    c.fillStyle = g8pTxt(dark);
+    c.font = `bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ١-٢ · مختبر الثغور', w/2, h*0.05);
+
+    if(S.stage==='count'){
+      // إطار المجهر
+      c.strokeStyle = '#94A3B8'; c.lineWidth=4;
+      c.beginPath(); c.arc(w*0.5,h*0.48,Math.min(w,h)*0.38,0,Math.PI*2); c.stroke();
+      c.save(); c.beginPath(); c.arc(w*0.5,h*0.48,Math.min(w,h)*0.38,0,Math.PI*2); c.clip();
+      c.fillStyle = dark?'#0F2818':'#DFF5E4'; c.fillRect(0,0,w,h);
+      S.stomata[S.surface].forEach((st,i)=>{
+        drawStoma(c, st.x*w, st.y*h, Math.min(w,h)*0.028, st.ang, S.marked[S.surface].includes(i), dark);
+      });
+      c.restore();
+      c.fillStyle = g8pMut(dark); c.font=`bold ${Math.round(h*0.022)}px Tajawal`;
+      c.fillText(S.surface==='upper' ? '⬆️ السطح العلوي — تكبير المجهر' : '⬇️ السطح السفلي — تكبير المجهر', w/2, h*0.9);
+    } else if(S.stage==='predict'){
+      c.font = `${Math.round(h*0.13)}px serif`; c.fillText('🔬', w/2, h*0.42);
+      c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.026)}px Tajawal`;
+      c.fillText('فكّر قبل أن ترى النتيجة!', w/2, h*0.58);
+    } else {
+      const maxCount = Math.max(S.marked.upper.length, S.marked.lower.length, 1);
+      const barW = w*0.18;
+      [['upper','⬆️ العلوي',w*0.35,'#5DADE2'],['lower','⬇️ السفلي',w*0.65,'#27AE60']].forEach(([key,label,x,color])=>{
+        const val = S.marked[key].length;
+        const barH = (val/maxCount)*h*0.4;
+        c.fillStyle = color;
+        c.fillRect(x-barW/2, h*0.7-barH, barW, barH);
+        c.fillStyle = g8pTxt(dark); c.font=`bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+        c.fillText(val, x, h*0.7-barH-h*0.02);
+        c.font=`${Math.round(h*0.022)}px Tajawal`;
+        c.fillText(label, x, h*0.75);
+      });
+      c.strokeStyle = g8pMut(dark); c.lineWidth=1;
+      c.beginPath(); c.moveTo(w*0.15,h*0.7); c.lineTo(w*0.85,h*0.7); c.stroke();
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
   draw();
 }
