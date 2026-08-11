@@ -794,15 +794,19 @@ function simG8Bio1N2b(){
   function onClick(e){
     const p = relPos(e);
     const w = cv.width, h = cv.height;
+    const px = p.x*w, py = p.y*h;
+    let best = null, bestDist = Infinity;
     PARTS.forEach(part=>{
       const hp = S.hotspots[part.id];
       if(!hp) return;
-      if(Math.abs(p.x*w-hp.x)<w*0.09 && Math.abs(p.y*h-hp.y)<w*0.09){
-        S.active = part.id; _g8pPlayClick();
-        if(!S.explored.includes(part.id)){ S.explored.push(part.id); if(S.explored.length===PARTS.length) _g8pPlaySparkle(); }
-        controls(renderControls());
-      }
+      const d = Math.hypot(px-hp.x, py-hp.y);
+      if(d < w*0.045 && d < bestDist){ best = part; bestDist = d; }
     });
+    if(best){
+      S.active = best.id; _g8pPlayClick();
+      if(!S.explored.includes(best.id)){ S.explored.push(best.id); if(S.explored.length===PARTS.length) _g8pPlaySparkle(); }
+      controls(renderControls());
+    }
   }
   cv.onmousedown = onClick;
   cv.ontouchstart = e=>{ e.preventDefault(); onClick(e); };

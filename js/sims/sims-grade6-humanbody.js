@@ -42,10 +42,10 @@ function _g6bFlash(el, ok){
 }
 
 // ─── رسومات أعضاء واقعية (منحنيات تشريحية بدل الأشكال الهندسية البسيطة) ───
-function g6bDrawHeart(c, cx, cy, s, dark){
+function g6bDrawHeart(c, cx, cy, s, dark, detailed){
   c.save(); c.translate(cx,cy); c.scale(s,s);
   const grad = c.createLinearGradient(-40,-40,40,50);
-  grad.addColorStop(0, dark?'#F27C6E':'#E85C4A'); grad.addColorStop(1, dark?'#B5372A':'#B8291A');
+  grad.addColorStop(0, dark?'#D97A6C':'#C86A56'); grad.addColorStop(1, dark?'#A8564A':'#9E4A3C');
   c.fillStyle = grad;
   c.beginPath();
   c.moveTo(0,18);
@@ -59,9 +59,27 @@ function g6bDrawHeart(c, cx, cy, s, dark){
   c.beginPath(); c.moveTo(-6,-46); c.quadraticCurveTo(4,-70,-14,-78); c.stroke();
   c.strokeStyle = dark?'#F2A0A0':'#D46A5E'; c.lineWidth=5;
   c.beginPath(); c.moveTo(10,-44); c.quadraticCurveTo(20,-64,34,-68); c.stroke();
-  // خط الحاجز الفاصل بين البطينين (واقعية)
-  c.strokeStyle='rgba(0,0,0,0.18)'; c.lineWidth=2;
-  c.beginPath(); c.moveTo(0,-30); c.quadraticCurveTo(-4,0,0,16); c.stroke();
+  if(detailed){
+    // الحاجز بين الجانبين (يمين/يسار) والحاجز بين الأذينين والبطينين
+    c.save();
+    c.beginPath();
+    c.moveTo(0,18);
+    c.bezierCurveTo(-55,-18, -42,-58, -8,-46);
+    c.bezierCurveTo(6,-52, 12,-52, 0,-30);
+    c.bezierCurveTo(-8,-52, -2,-52, 12,-46);
+    c.bezierCurveTo(46,-58, 55,-18, 0,18);
+    c.closePath(); c.clip();
+    c.strokeStyle='rgba(0,0,0,0.22)'; c.lineWidth=2.2;
+    c.beginPath(); c.moveTo(0,-55); c.quadraticCurveTo(-2,-15,0,18); c.stroke();
+    c.beginPath(); c.moveTo(-46,-24); c.quadraticCurveTo(0,-14,48,-22); c.stroke();
+    c.restore();
+    c.fillStyle='rgba(0,0,0,0.55)'; c.font='bold 8px Tajawal'; c.textAlign='center';
+    c.fillText('أذين أيمن', -22,-34); c.fillText('أذين أيسر', 24,-34);
+    c.fillText('بطين أيمن', -22,-2);  c.fillText('بطين أيسر', 24,-2);
+  } else {
+    c.strokeStyle='rgba(0,0,0,0.18)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(0,-30); c.quadraticCurveTo(-4,0,0,16); c.stroke();
+  }
   c.restore();
 }
 function g6bDrawLungPair(c, cx, cy, s, dark){
@@ -120,9 +138,10 @@ function g6bDrawBrain(c, cx, cy, s, dark){
 }
 // ─── جسم بشري تخطيطي واقعي (رأس، كتفان، خصر، أرجل) ───
 function g6bDrawBodyOutline(c, bx, by, bw, bh, dark){
-  const stroke = dark? 'rgba(230,220,200,0.55)':'rgba(60,68,80,0.5)';
+  const stroke = dark? 'rgba(230,220,200,0.6)':'rgba(60,68,80,0.55)';
+  const skin = dark? 'rgba(214,164,132,0.16)':'rgba(224,172,138,0.22)';
   c.save();
-  c.strokeStyle = stroke; c.fillStyle = dark?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.02)';
+  c.strokeStyle = stroke; c.fillStyle = skin;
   c.lineWidth = Math.max(2,bh*0.006);
   // الرأس
   c.beginPath(); c.ellipse(bx, by+bh*0.07, bw*0.13, bh*0.075, 0, 0, Math.PI*2); c.fill(); c.stroke();
@@ -531,7 +550,7 @@ function simG6Body2a(){
       <div class="ctrl-section">
         <div class="ctrl-label">❤️ استقصاء: نبضات القلب</div>
         <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">
-          اضغط الزر لتبدأ مشاهدة القلب وهو يضخّ الدم. لاحظ: الجانب الأيسر (🔴) يضخّ دماً مؤكسجاً إلى الجسم، والجانب الأيمن (🔵) يضخّ دماً غير مؤكسج إلى الرئتين.
+          اضغط الزر لتبدأ مشاهدة القلب وهو يضخّ الدم. لاحظ: البطين الأيسر (🔴) يضخّ دماً مؤكسجاً إلى الجسم، والبطين الأيمن (🔵) يضخّ دماً غير مؤكسج إلى الرئتين.
         </div>
       </div>
       <button class="ctrl-btn play" id="g6bHeartBtn" onclick="window._g6bHeartToggle()">${S.running ? '⏸ إيقاف' : '▶ ابدأ ضخّ الدم'}</button>
@@ -577,9 +596,12 @@ function simG6Body2a(){
     if(S.running) S.t += 0.028 * S.speed;
     const beat = S.running ? 1 + Math.max(0, Math.sin(S.t*Math.PI*2))*0.12 : 1;
 
-    // القلب (رسم تشريحي واقعي)
+    // القلب (رسم تشريحي واقعي بأربع حجرات)
     const hx = w*0.42, hy = h*0.46, r = w*0.075*beat;
-    g6bDrawHeart(c, hx, hy, r*0.021, dark);
+    g6bDrawHeart(c, hx, hy, r*0.021, dark, true);
+    // نقطتا خروج الدم: البطين الأيسر (يمين الرسم) نحو الجسم، البطين الأيمن (يسار الرسم) نحو الرئتين
+    const lvOut = { x: hx + r*0.35, y: hy + r*0.15 };
+    const rvOut = { x: hx - r*0.35, y: hy + r*0.15 };
 
     // صندوق الجسم (يستقبل دماً مؤكسجاً من الجانب الأيسر الأحمر)
     const bodyX = w*0.78, bodyY = h*0.58;
@@ -611,12 +633,12 @@ function simG6Body2a(){
       c.beginPath(); c.moveTo(0,0); c.lineTo(-10,-5); c.lineTo(-10,5); c.closePath(); c.fill();
       c.restore();
     }
-    drawPathArrow(hx+r*0.5, hy, bodyX-w*0.11, bodyY, '#E74C3C');
-    drawPathArrow(hx+r*0.3, hy-r*0.5, lungX-w*0.11, lungY, '#3B82F6');
+    drawPathArrow(lvOut.x, lvOut.y, bodyX-w*0.11, bodyY, '#E74C3C');
+    drawPathArrow(rvOut.x, rvOut.y, lungX-w*0.11, lungY, '#3B82F6');
 
     if(S.running){
-      if(Math.random() < 0.06*S.speed) S.dots.push({x:hx, y:hy, dest:'body', age:0});
-      if(Math.random() < 0.06*S.speed) S.dots.push({x:hx, y:hy, dest:'lung', age:0});
+      if(Math.random() < 0.06*S.speed) S.dots.push({x:lvOut.x, y:lvOut.y, dest:'body', age:0});
+      if(Math.random() < 0.06*S.speed) S.dots.push({x:rvOut.x, y:rvOut.y, dest:'lung', age:0});
       S.dots = S.dots.filter(d=>d.age<1);
       S.dots.forEach(d=>{
         d.age += 0.012*S.speed;
