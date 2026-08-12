@@ -1182,33 +1182,36 @@ function simG8Bio1N3a(){
 /* ════════════════════════════════════════
    نشاط ١-٣ · التاب ٢ — استقصاء: الكشف عن النشاء في الورقة
 ════════════════════════════════════════ */
-function simG8Bio1N3b(){
+/* ════════════════════════════════════════
+   نشاط ١-٤ · استقصاء: الكشف عن النشاء في الورقة
+════════════════════════════════════════ */
+function simG8Bio1N4a(){
   cancelAnimationFrame(animFrame);
   const STEPS = [
-    { id:'start',   btn:'▶ ابدأ التجربة', info:'أمامك مختبر يحتوي على إناء ماء فوق مصدر حرارة، وورقة نبات، وأدوات التجربة. اضغط لتبدأ.' },
+    { id:'start',    btn:'▶ ابدأ التجربة', info:'أمامك مختبر يحتوي على إناء ماء فوق مصدر حرارة مطفأ، وورقة نبات خارج الإناء، وأدوات التجربة. لا شيء يعمل بعد — اضغط لتبدأ.' },
     { id:'fire',     btn:'🔥 شغّل النار',  info:'اضغط لإشعال النار تحت الإناء وبدء تسخين الماء.' },
-    { id:'boil',     btn:'💧 اغلِ الماء',  info:'الماء بدأ يسخن. اضغط لجعله يغلي.' },
-    { id:'putleaf',  btn:'🍃 ضع الورقة في الماء', info:'اضغط لوضع الورقة في الماء الساخن — هذا يُلين الورقة ويوقف نشاطها الحيوي.' },
-    { id:'stopfire', btn:'🛑 أوقف التسخين', info:'اضغط لإطفاء النار بعد أن أصبحت الورقة لينة.' },
-    { id:'tongs',    btn:'🥢 استخدم الملقط', info:'اضغط لاستخدام الملقط لإخراج الورقة من الماء الساخن.' },
-    { id:'tube',     btn:'🧪 ضع الورقة في أنبوب الاختبار', info:'اضغط لوضع الورقة داخل أنبوب اختبار مائل.' },
-    { id:'ethanol',  btn:'⚗️ أضف الإيثانول', info:'اضغط لإضافة الإيثانول — سيُذيب الإيثانول الكلوروفيل الأخضر ويُخرجه من الورقة.' },
+    { id:'boil',     btn:'💧 اغلِ الماء',  info:'الماء سخن. اضغط لجعله يغلي بقوة.' },
+    { id:'putleaf',  btn:'🍃 ضع الورقة في الماء', info:'اضغط لغمر الورقة في الماء الساخن — هذا يُلين الورقة ويوقف نشاطها الحيوي.' },
+    { id:'stopfire', btn:'🛑 أوقف النار', info:'اضغط لإطفاء النار بعد أن أصبحت الورقة لينة.' },
+    { id:'tongs',    btn:'🥢 أخرج الورقة بالملقط', info:'اضغط لاستخدام الملقط ورفع الورقة من الماء الساخن.' },
+    { id:'tube',     btn:'🧪 ضع الورقة في أنبوب الاختبار', info:'اضغط لنقل الورقة إلى أنبوب اختبار مائل.' },
+    { id:'ethanol',  btn:'⚗️ أضف الإيثانول', info:'اضغط لسكب الإيثانول على الورقة داخل الأنبوب — سيُذيب الكلوروفيل الأخضر ويُخرجه منها.' },
     { id:'q1',       btn:'➡ متابعة', info:'', question:{
         q:'ماذا لاحظت أثناء إضافة الإيثانول؟',
         opts:['اللون الأخضر انتقل من الورقة إلى الإيثانول','لم يتغيّر شيء إطلاقاً','الورقة أصبحت أكبر حجماً'],
         ans:0, fb:'✅ صحيح! الإيثانول أذاب صبغة الكلوروفيل الخضراء وأخرجها من الورقة، فأصبح المحلول أخضر والورقة شاحبة.'
       } },
-    { id:'rinse',    btn:'💧 اغمس الورقة في الماء', info:'اضغط لغمس الورقة الشاحبة في الماء لتليينها من جديد بعد تصلّبها في الإيثانول.' },
-    { id:'slide',    btn:'🔬 ضع الورقة على الشريحة', info:'اضغط لوضع الورقة على الشريحة الزجاجية استعداداً للفحص.' },
-    { id:'iodine',   btn:'🟤 أضف اليود', info:'اضغط لإضافة محلول اليود على الورقة ومراقبة التغيّر اللوني.' },
+    { id:'rinse',    btn:'💧 اغمس الورقة في الماء', info:'اضغط لغمس الورقة الشاحبة والمتصلّبة في الماء لتليينها من جديد.' },
+    { id:'slide',    btn:'🔬 ضع الورقة على الشريحة', info:'اضغط لوضع الورقة على شريحة زجاجية استعداداً للفحص.' },
+    { id:'iodine',   btn:'🟤 أضف اليود', info:'اضغط لإضافة قطرات من محلول اليود على الورقة، وراقب التغيّر اللوني.' },
     { id:'q2',       btn:'➡ استنتج', info:'', question:{
         q:'ماذا يدل تغيّر لون الورقة إلى الأزرق الداكن/الأسود عند إضافة اليود؟',
         opts:['وجود النشاء في الورقة','وجود الماء فقط','عدم وجود أي مادة'],
-        ans:0, fb:'✅ صحيح! يتحوّل لون اليود من البني إلى الأزرق الداكن أو الأسود عند ملامسته للنشاء — وهذا دليل على وجود النشاء في الورقة.'
+        ans:0, fb:'✅ صحيح! يتحوّل لون اليود من البني إلى الأزرق الداكن أو الأسود عند ملامسته للنشاء — وهذا دليل على وجوده في الورقة.'
       } },
     { id:'done',     btn:'', info:'' },
   ];
-  simState = { step:0, sub:0, ethanolT:0, iodineT:0, answered:false, leafPale:0 };
+  simState = { step:0, transT:1, ethanolT:0, iodineT:0, answered:false, leafPale:0 };
   const S = simState;
 
   function renderControls(){
@@ -1234,10 +1237,14 @@ function simG8Bio1N3b(){
         </div>
         <div id="g8pLabFb" style="margin-top:10px;font-size:13px;color:var(--text-secondary);line-height:1.8"></div>`;
     }
+    const stepNum = STEPS.findIndex(s=>s.id===st.id);
     return `
       <div class="ctrl-section">
         <div class="ctrl-label">🔬 استقصاء: الكشف عن النشاء</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">الخطوة ${S.step+1} من ${STEPS.length-1}</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">الخطوة ${stepNum} من ${STEPS.length-2}</div>
+        <div style="height:6px;background:var(--bg-card2);border-radius:3px;overflow:hidden;margin-bottom:10px">
+          <div style="height:100%;width:${Math.round(stepNum/(STEPS.length-2)*100)}%;background:#27AE60"></div>
+        </div>
       </div>
       <div id="g8pLabInfo" style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;border:1px solid rgba(39,174,96,0.2);margin-bottom:12px">${st.info}</div>
       <button class="ctrl-btn play" onclick="window._g8pLabNext()">${st.btn}</button>`;
@@ -1251,6 +1258,7 @@ function simG8Bio1N3b(){
     if(st.id==='ethanol'){ _g8pPlayDrop(); S.ethanolT = 0.0001; }
     if(st.id==='iodine'){ _g8pPlayDrop(); S.iodineT = 0.0001; }
     S.step++;
+    S.transT = 0.0001;
     controls(renderControls());
   };
   window._g8pLabAnswer = function(i){
@@ -1266,121 +1274,162 @@ function simG8Bio1N3b(){
     }
     const fb = document.getElementById('g8pLabFb');
     if(fb) fb.innerHTML = q.fb;
-    setTimeout(()=>{ S.step++; S.answered=false; controls(renderControls()); }, 1500);
+    setTimeout(()=>{ S.step++; S.transT=0.0001; S.answered=false; controls(renderControls()); }, 1500);
   };
   window._g8pLabRestart = function(){
-    S.step=0; S.ethanolT=0; S.iodineT=0; S.answered=false; S.leafPale=0;
+    S.step=0; S.transT=1; S.ethanolT=0; S.iodineT=0; S.answered=false; S.leafPale=0;
     controls(renderControls());
   };
 
   const cv = document.getElementById('simCanvas');
+  const idxOf = (id) => STEPS.findIndex(s=>s.id===id);
+
   function draw(){
-    if(currentSim!=='g8bio1n3' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    if(currentSim!=='g8bio1n4' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
     const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
     c.fillStyle = g8pBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle = g8pTxt(dark);
     c.font = `bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
-    c.fillText('نشاط ١-٣ · الكشف عن النشاء', w/2, h*0.05);
+    c.fillText('نشاط ١-٤ · الكشف عن النشاء', w/2, h*0.05);
 
     const stId = STEPS[S.step] ? STEPS[S.step].id : 'done';
-    const idx = STEPS.findIndex(s=>s.id===stId);
-    const reached = (id) => idx >= STEPS.findIndex(s=>s.id===id);
+    const idx = idxOf(stId);
+    // reached(id) = صحيح فقط بعد أن يضغط الطالب زر تلك الخطوة (تجاوزناها فعلياً)
+    const reached = (id) => idx > idxOf(id);
+    const atStep = (id) => idx === idxOf(id);
+    if(S.transT<1) S.transT += 0.045;
+    const tt = Math.min(1, S.transT);
 
     if(S.ethanolT>0 && S.ethanolT<1) S.ethanolT += 0.008;
     if(S.iodineT>0 && S.iodineT<1) S.iodineT += 0.01;
     S.leafPale = Math.min(1, S.ethanolT);
 
-    // ── المرحلة ١-٥: الإناء والنار والورقة في الماء ──
-    if(idx <= STEPS.findIndex(s=>s.id==='tongs')){
-      const potX=w*0.4, potY=h*0.62, potW=w*0.22, potH=h*0.18;
+    const potX=w*0.38, potY=h*0.6, potW=w*0.22, potH=h*0.17;
+    const leafRestPos = { x:w*0.74, y:h*0.5 };
+    const leafInPotPos = { x:potX, y:potY+potH*0.68 };
+    const leafLiftedPos = { x:potX+w*0.02, y:potY-h*0.09 };
+
+    // ── المشهد الأول: الإناء والنار (حتى مرحلة الملقط) ──
+    if(idx <= idxOf('tongs')){
       // حامل ثلاثي
-      c.strokeStyle = '#94A3B8'; c.lineWidth=4;
-      c.beginPath(); c.moveTo(potX-potW*0.5,potY+potH); c.lineTo(potX-potW*0.65,potY+potH+h*0.08); c.stroke();
-      c.beginPath(); c.moveTo(potX+potW*0.5,potY+potH); c.lineTo(potX+potW*0.65,potY+potH+h*0.08); c.stroke();
-      c.beginPath(); c.moveTo(potX,potY+potH); c.lineTo(potX,potY+potH+h*0.09); c.stroke();
-      // النار
+      c.strokeStyle = '#8A93A0'; c.lineWidth=Math.max(3,h*0.006);
+      c.beginPath(); c.moveTo(potX-potW*0.5,potY+potH); c.lineTo(potX-potW*0.65,potY+potH+h*0.09); c.stroke();
+      c.beginPath(); c.moveTo(potX+potW*0.5,potY+potH); c.lineTo(potX+potW*0.65,potY+potH+h*0.09); c.stroke();
+      c.beginPath(); c.moveTo(potX,potY+potH); c.lineTo(potX,potY+potH+h*0.1); c.stroke();
+
+      // النار — تظهر فقط بعد الضغط الفعلي على "شغّل النار"
       if(reached('fire') && !reached('stopfire')){
         const flick = Math.sin(Date.now()/90)*3;
-        c.save(); c.translate(potX, potY+potH+h*0.1);
+        const fireGrow = atStep('boil') || reached('boil') ? 1 : Math.min(1, tt* (idx===idxOf('fire')+0?1:1));
+        c.save(); c.translate(potX, potY+potH+h*0.11); c.scale(fireGrow,fireGrow);
         for(let i=-1;i<=1;i++){
           c.fillStyle = i===0 ? '#F97316' : '#FBBF24';
           c.beginPath();
-          c.moveTo(i*10,0);
-          c.quadraticCurveTo(i*10+8+flick*0.3,-18,i*10,-34-Math.abs(flick));
-          c.quadraticCurveTo(i*10-8-flick*0.3,-18,i*10,0);
+          c.moveTo(i*11,0);
+          c.quadraticCurveTo(i*11+9+flick*0.3,-20,i*11,-38-Math.abs(flick));
+          c.quadraticCurveTo(i*11-9-flick*0.3,-20,i*11,0);
           c.fill();
         }
         c.restore();
       }
-      // الإناء
-      c.fillStyle = '#94A3B8';
-      c.beginPath(); c.moveTo(potX-potW/2,potY); c.lineTo(potX+potW/2,potY);
-      c.lineTo(potX+potW*0.42,potY+potH); c.lineTo(potX-potW*0.42,potY+potH); c.closePath(); c.fill();
+      // الإناء (زجاجي واقعي بحواف مستديرة)
+      c.fillStyle = dark?'rgba(200,210,220,0.25)':'rgba(180,195,210,0.35)';
+      c.strokeStyle = '#8A93A0'; c.lineWidth=3;
+      c.beginPath();
+      c.moveTo(potX-potW/2,potY); c.lineTo(potX+potW/2,potY);
+      c.quadraticCurveTo(potX+potW/2, potY+potH*0.5, potX+potW*0.42,potY+potH);
+      c.lineTo(potX-potW*0.42,potY+potH);
+      c.quadraticCurveTo(potX-potW/2, potY+potH*0.5, potX-potW/2,potY);
+      c.fill(); c.stroke();
       // الماء
-      const waterOn = reached('fire');
+      c.save(); c.beginPath();
+      c.moveTo(potX-potW*0.46,potY+potH*0.3); c.lineTo(potX+potW*0.46,potY+potH*0.3);
+      c.quadraticCurveTo(potX+potW*0.4, potY+potH*0.7, potX+potW*0.36,potY+potH*0.95);
+      c.lineTo(potX-potW*0.36,potY+potH*0.95);
+      c.quadraticCurveTo(potX-potW*0.4, potY+potH*0.7, potX-potW*0.46,potY+potH*0.3);
+      c.closePath(); c.clip();
       c.fillStyle = dark?'#1E4A6B':'#5DADE2';
-      c.beginPath(); c.moveTo(potX-potW*0.44,potY+potH*0.35); c.lineTo(potX+potW*0.44,potY+potH*0.35);
-      c.lineTo(potX+potW*0.4,potY+potH*0.95); c.lineTo(potX-potW*0.4,potY+potH*0.95); c.closePath(); c.fill();
-      // فقاعات الغليان + بخار
+      c.fillRect(potX-potW/2,potY,potW,potH);
+      // فقاعات الغليان + بخار — فقط بعد الضغط الفعلي على "اغلِ الماء"
       if(reached('boil') && !reached('stopfire')){
-        for(let i=0;i<5;i++){
-          const bx = potX + (Math.sin(Date.now()/300+i*2)*potW*0.3);
-          const by = potY+potH*0.9 - ((Date.now()/8+i*40)%(potH*0.5));
-          c.fillStyle='rgba(255,255,255,0.7)';
-          c.beginPath(); c.arc(bx,by,3,0,Math.PI*2); c.fill();
+        for(let i=0;i<6;i++){
+          const bx = potX + (Math.sin(Date.now()/300+i*2)*potW*0.32);
+          const by = potY+potH*0.9 - ((Date.now()/8+i*40)%(potH*0.6));
+          c.fillStyle='rgba(255,255,255,0.75)';
+          c.beginPath(); c.arc(bx,by,Math.max(2,w*0.004),0,Math.PI*2); c.fill();
         }
+      }
+      c.restore();
+      if(reached('boil') && !reached('stopfire')){
         for(let i=0;i<3;i++){
           const sx = potX + (i-1)*potW*0.25 + Math.sin(Date.now()/400+i)*6;
-          const sy = potY - h*0.02 - ((Date.now()/20+i*30)%(h*0.12));
+          const sy = potY - h*0.02 - ((Date.now()/20+i*30)%(h*0.13));
           c.strokeStyle='rgba(255,255,255,0.35)'; c.lineWidth=6; c.lineCap='round';
           c.beginPath(); c.moveTo(sx,sy+20); c.quadraticCurveTo(sx+6,sy+10,sx,sy); c.stroke();
         }
       }
-      // الورقة
-      if(!reached('putleaf')){
-        _g8pDrawLeaf(c, w*0.72, h*0.55, w*0.1, w*0.045, Math.PI*0.85, g8pAccent(dark), 'rgba(20,60,20,0.3)', true);
-      } else if(!reached('tongs')){
-        _g8pDrawLeaf(c, potX, potY+potH*0.7, w*0.08, w*0.035, Math.PI/2, g8pAccent(dark), 'rgba(20,60,20,0.3)', true);
+
+      // الورقة — نقاط ثابتة + حركة انتقالية سلسة بين المراحل (لا اختفاء/ظهور مفاجئ)
+      let leafPos, leafAngle = Math.PI/2;
+      if(!reached('putleaf') && !atStep('putleaf')){
+        leafPos = leafRestPos; leafAngle = Math.PI*0.85;
+      } else if(atStep('putleaf')){
+        // ينتقل بسلاسة من مكانه الأصلي إلى داخل الإناء لحظة الضغط
+        leafPos = { x: leafRestPos.x + (leafInPotPos.x-leafRestPos.x)*tt, y: leafRestPos.y + (leafInPotPos.y-leafRestPos.y)*tt };
+        leafAngle = Math.PI*0.85 + (Math.PI/2-Math.PI*0.85)*tt;
+      } else if(!reached('tongs') && !atStep('tongs')){
+        leafPos = leafInPotPos;
+      } else if(atStep('tongs')){
+        leafPos = { x: leafInPotPos.x + (leafLiftedPos.x-leafInPotPos.x)*tt, y: leafInPotPos.y + (leafLiftedPos.y-leafInPotPos.y)*tt };
+      } else {
+        leafPos = leafLiftedPos;
+      }
+      if(idx <= idxOf('tongs')){
+        _g8pDrawLeaf(c, leafPos.x, leafPos.y, w*0.09, w*0.04, leafAngle, g8pAccent(dark), 'rgba(20,60,20,0.3)', true);
+      }
+      // الملقط — يظهر بدءاً من خطوة الملقط، يمسك الورقة تدريجياً
+      if(idx >= idxOf('tongs')){
+        const gripT = atStep('tongs') ? tt : 1;
+        const tipX = leafPos.x, tipY = leafPos.y - h*0.02;
+        const handleX = w*0.62, handleY = h*0.28;
+        c.strokeStyle = '#71717A'; c.lineWidth=5; c.lineCap='round';
+        c.beginPath(); c.moveTo(handleX-6, handleY); c.lineTo(tipX-4-6*(1-gripT), tipY); c.stroke();
+        c.beginPath(); c.moveTo(handleX+6, handleY); c.lineTo(tipX+4+6*(1-gripT), tipY); c.stroke();
       }
     }
 
-    // ── مرحلة الملقط ──
-    if(idx===STEPS.findIndex(s=>s.id==='tongs')){
-      const potX=w*0.4, potY=h*0.62, potH=h*0.18;
-      c.strokeStyle = '#71717A'; c.lineWidth=5; c.lineCap='round';
-      c.beginPath(); c.moveTo(w*0.62,h*0.35); c.lineTo(potX+w*0.03,potY+potH*0.6); c.stroke();
-      c.beginPath(); c.moveTo(w*0.66,h*0.35); c.lineTo(potX-w*0.03,potY+potH*0.6); c.stroke();
-      _g8pDrawLeaf(c, potX, potY+potH*0.65, w*0.07, w*0.032, Math.PI/2, g8pAccent(dark), 'rgba(20,60,20,0.3)', true);
-    }
-
-    // ── مرحلة الأنبوب والإيثانول ──
-    if(idx >= STEPS.findIndex(s=>s.id==='tube') && idx <= STEPS.findIndex(s=>s.id==='q1')){
-      const tx=w*0.5, ty=h*0.35;
+    // ── المشهد الثاني: الأنبوب والإيثانول ──
+    if(idx >= idxOf('tube') && idx <= idxOf('q1')){
+      const sceneAlpha = atStep('tube') ? tt : 1;
+      c.save(); c.globalAlpha = sceneAlpha;
+      const tx=w*0.5, ty=h*0.38;
       c.save(); c.translate(tx,ty); c.rotate(0.35);
-      c.strokeStyle = '#94A3B8'; c.lineWidth=3;
+      c.fillStyle = dark?'rgba(200,210,220,0.15)':'rgba(180,195,210,0.25)';
+      c.strokeStyle = '#8A93A0'; c.lineWidth=3;
       c.beginPath(); c.moveTo(-w*0.035,0); c.lineTo(-w*0.035,h*0.32); c.quadraticCurveTo(-w*0.035,h*0.36,0,h*0.36);
-      c.quadraticCurveTo(w*0.035,h*0.36,w*0.035,h*0.32); c.lineTo(w*0.035,0); c.stroke();
-      // الإيثانول/السائل
+      c.quadraticCurveTo(w*0.035,h*0.36,w*0.035,h*0.32); c.lineTo(w*0.035,0); c.closePath(); c.fill(); c.stroke();
       if(S.ethanolT>0){
         const liquidGreen = _g8pLerpColor('#F5F0DC', '#4ADE80', Math.min(1,S.ethanolT*1.3));
-        c.fillStyle = liquidGreen; c.globalAlpha=0.85;
+        c.fillStyle = liquidGreen; c.globalAlpha=sceneAlpha*0.85;
         c.beginPath(); c.moveTo(-w*0.033,h*0.12); c.lineTo(-w*0.033,h*0.32);
         c.quadraticCurveTo(-w*0.033,h*0.355,0,h*0.355); c.quadraticCurveTo(w*0.033,h*0.355,w*0.033,h*0.32);
-        c.lineTo(w*0.033,h*0.12); c.closePath(); c.fill(); c.globalAlpha=1;
+        c.lineTo(w*0.033,h*0.12); c.closePath(); c.fill(); c.globalAlpha=sceneAlpha;
       }
-      // الورقة داخل الأنبوب (تشحب تدريجياً)
       const leafCol = _g8pLerpColor(g8pAccent(dark), '#D8D4B8', S.leafPale);
       _g8pDrawLeaf(c, 0, h*0.22, w*0.045, w*0.02, Math.PI/2, leafCol, 'rgba(20,60,20,0.2)', false);
       c.restore();
       c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
       c.fillText(reached('ethanol') ? 'الإيثانول يذيب الكلوروفيل الأخضر...' : 'أنبوب اختبار مائل', tx, h*0.16);
+      c.restore();
     }
 
-    // ── مرحلة الغسل والشريحة واليود ──
-    if(idx >= STEPS.findIndex(s=>s.id==='rinse')){
+    // ── المشهد الثالث: الغسل والشريحة واليود ──
+    if(idx >= idxOf('rinse')){
+      const sceneAlpha = atStep('rinse') ? tt : 1;
+      c.save(); c.globalAlpha = sceneAlpha;
       const slideX=w*0.5, slideY=h*0.55;
       c.fillStyle = dark?'rgba(200,220,255,0.12)':'rgba(200,220,255,0.35)';
-      c.strokeStyle='#94A3B8'; c.lineWidth=2;
+      c.strokeStyle='#8A93A0'; c.lineWidth=2;
       c.beginPath(); c.roundRect(slideX-w*0.16, slideY-h*0.03, w*0.32, h*0.06, 4); c.fill(); c.stroke();
       let leafCol = _g8pLerpColor(g8pAccent(dark), '#D8D4B8', S.leafPale);
       if(S.iodineT>0) leafCol = _g8pLerpColor('#D8D4B8', dark?'#3730A3':'#1E1B4B', Math.min(1,S.iodineT*1.2));
@@ -1391,6 +1440,7 @@ function simG8Bio1N3b(){
         c.font=`${Math.round(h*0.018)}px Tajawal`;
         c.fillText(S.iodineT<1 ? 'اليود يتفاعل مع النشاء...' : '🔵⚫ اللون الداكن = وجود النشاء!', slideX, slideY-h*0.09);
       }
+      c.restore();
     }
 
     animFrame = requestAnimationFrame(draw);
