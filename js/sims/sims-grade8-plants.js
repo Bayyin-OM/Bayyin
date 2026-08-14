@@ -1310,9 +1310,10 @@ function simG8Bio1N4a(){
 
     const stId = STEPS[S.step] ? STEPS[S.step].id : 'done';
     const idx = idxOf(stId);
-    // reached(id) = صحيح فقط بعد أن يضغط الطالب زر تلك الخطوة (تجاوزناها فعلياً)
-    const reached = (id) => idx > idxOf(id);
-    const atStep  = (id) => idx === idxOf(id);
+    // مهم: التأثير البصري لأي خطوة يبدأ فقط بعد ضغط الطالب على زر تلك الخطوة نفسها،
+    // وليس بمجرد وصولنا لعرض نص/زر تلك الخطوة (لهذا كل الدوال هنا مبنية على +1).
+    const justAfter   = (id) => idx === idxOf(id) + 1; // اللحظة/الإطارات التي تعرض نتيجة الضغط على زر id (قد تتضمّن حركة انتقال tt)
+    const activeSince = (id) => idx >= idxOf(id) + 1;  // فعّال باستمرار من لحظة ضغط زر id فصاعداً
     if(S.transT<1) S.transT += 0.045;
     const tt = Math.min(1, S.transT);
 
@@ -1346,7 +1347,7 @@ function simG8Bio1N4a(){
     function leafState(){
       let cur = P.supply;
       for(const leg of LEGS){
-        const li = idxOf(leg.id);
+        const li = idxOf(leg.id) + 1; // تبدأ الحركة بعد الضغط على زر هذه الخطوة، لا عند مجرّد عرضها
         if(idx < li) return cur;
         if(idx === li){
           return {
@@ -1363,11 +1364,18 @@ function simG8Bio1N4a(){
 
     // fireScale: تنمو عند الإشعال، وتنطفئ تدريجياً (بدل الاختفاء الفوري) عند إيقاف النار
     let fireScale = 0;
-    if(reached('fire') && !reached('stopfire')) fireScale = 1;
-    if(atStep('stopfire')) fireScale = Math.max(0, 1-tt);
+    if(activeSince('fire') && !activeSince('stopfire')) fireScale = 1;
+    if(justAfter('stopfire')) fireScale = Math.max(0, 1-tt);
     const heatGlow = fireScale; // يُستخدم أيضاً لتلاشي الفقاعات/البخار تدريجياً
 
+    // ── تركيز بصري: نُخفت الأدوات غير المستخدمة حالياً حتى لا يتشتّت الطالب ──
+    const ZONE_OF_STEP = { start:'pot', fire:'pot', boil:'pot', putleaf:'pot', stopfire:'pot', tongs:'pot',
+      tube:'tube', ethanol:'tube', q1:'tube', rinse:'rinse', slide:'slide', iodine:'slide', q2:'slide', done:'slide' };
+    const activeZone = ZONE_OF_STEP[stId] || 'pot';
+    const zoneAlpha = (z) => z===activeZone ? 1 : 0.32;
+
     // ═══ ١) الحامل الثلاثي + النار + الإناء ═══
+    c.save(); c.globalAlpha = zoneAlpha('pot');
     c.strokeStyle = dark?'#71767F':'#8A93A0'; c.lineWidth=Math.max(3,h*0.006);
     c.beginPath(); c.moveTo(potX-potW*0.5,potY+potH); c.lineTo(potX-potW*0.65,potY+potH+h*0.09); c.stroke();
     c.beginPath(); c.moveTo(potX+potW*0.5,potY+potH); c.lineTo(potX+potW*0.65,potY+potH+h*0.09); c.stroke();
@@ -1435,8 +1443,10 @@ function simG8Bio1N4a(){
     }
     c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
     c.fillText('🔥 التسخين', potX, potY+potH+h*0.16);
+    c.restore();
 
     // ═══ ٢) حامل أنبوب الاختبار ═══
+    c.save(); c.globalAlpha = zoneAlpha('tube');
     c.save(); c.translate(tubeX,tubeTopY); c.rotate(0.35);
     // مشبك التثبيت
     c.fillStyle = dark?'#52525B':'#71717A';
@@ -1450,7 +1460,7 @@ function simG8Bio1N4a(){
     c.beginPath(); c.moveTo(-w*0.035,0); c.lineTo(-w*0.035,h*0.32); c.quadraticCurveTo(-w*0.035,h*0.36,0,h*0.36);
     c.quadraticCurveTo(w*0.035,h*0.36,w*0.035,h*0.32); c.lineTo(w*0.035,0); c.closePath(); c.fill(); c.stroke();
     // انسكاب الإيثانول من قارورة صغيرة أعلى الأنبوب (بدل ظهور السائل فجأة)
-    if(atStep('ethanol') && tt<1){
+    if(justAfter('ethanol') && tt<1){
       c.fillStyle = dark?'#D9F99D':'#A3E635'; c.globalAlpha=0.85;
       c.beginPath(); c.moveTo(-2,-h*0.05); c.lineTo(2,-h*0.05); c.lineTo(1,h*0.1*tt); c.lineTo(-1,h*0.1*tt); c.closePath(); c.fill();
       c.globalAlpha=1;
@@ -1467,9 +1477,11 @@ function simG8Bio1N4a(){
     }
     c.restore();
     c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
-    c.fillText(reached('ethanol') ? 'الإيثانول يذيب الكلوروفيل...' : '⚗️ إذابة الكلوروفيل', tubeX, tubeTopY+tubeLen+h*0.06);
+    c.fillText(activeSince('ethanol') ? 'الإيثانول يذيب الكلوروفيل...' : '⚗️ إذابة الكلوروفيل', tubeX, tubeTopY+tubeLen+h*0.06);
+    c.restore();
 
     // ═══ ٣) وعاء الغسل (الماء) ═══
+    c.save(); c.globalAlpha = zoneAlpha('rinse');
     c.save();
     const rinseGrad = c.createLinearGradient(rinseX-rinseW/2,rinseY,rinseX+rinseW/2,rinseY+rinseH);
     rinseGrad.addColorStop(0, dark?'rgba(210,220,230,0.22)':'rgba(255,255,255,0.5)');
@@ -1482,8 +1494,10 @@ function simG8Bio1N4a(){
     c.restore();
     c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
     c.fillText('💧 غسل بالماء', rinseX, rinseY+rinseH+h*0.045);
+    c.restore();
 
     // ═══ ٤) الشريحة الزجاجية + قارورة اليود ═══
+    c.save(); c.globalAlpha = zoneAlpha('slide');
     c.fillStyle = dark?'rgba(200,220,255,0.12)':'rgba(200,220,255,0.35)';
     c.strokeStyle= dark?'#9AA3AF':'#8A93A0'; c.lineWidth=2;
     c.beginPath(); c.roundRect(slideX-w*0.09, slideY-h*0.018, w*0.18, h*0.036, 3); c.fill(); c.stroke();
@@ -1500,23 +1514,24 @@ function simG8Bio1N4a(){
     c.restore();
 
     // قطرة يود تسقط فعلياً من القارورة إلى الورقة (بدل تغيّر اللون المفاجئ)
-    if(atStep('iodine') && tt<1){
+    if(justAfter('iodine') && tt<1){
       _g8pDrawFallingDrop(c, dropperX, dropperY+h*0.07, leaf.x, leaf.y-h*0.02, tt, '#92400E');
     }
-    if(reached('iodine')){
+    if(activeSince('iodine')){
       c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.018)}px Tajawal`; c.textAlign='center';
       c.fillText(S.iodineT<1 ? 'اليود يتفاعل مع النشاء...' : '🔵⚫ اللون الداكن = وجود النشاء!', slideX, slideY-h*0.09);
     }
+    c.restore();
 
     // ═══ ٥) الورقة (تتحرك بسلاسة بين كل النقاط أعلاه، بلا اختفاء/ظهور مفاجئ) ═══
     let leafCol = g8pAccent(dark);
-    if(idx >= idxOf('tube')) leafCol = _g8pLerpColor(g8pAccent(dark), '#D8D4B8', S.leafPale);
+    if(activeSince('tube')) leafCol = _g8pLerpColor(g8pAccent(dark), '#D8D4B8', S.leafPale);
     if(S.iodineT>0) leafCol = _g8pLerpColor(leafCol, dark?'#3730A3':'#1E1B4B', Math.min(1,S.iodineT*1.2));
-    const leafSize = idx >= idxOf('tube') ? w*0.045 : w*0.09;
-    _g8pDrawLeaf(c, leaf.x, leaf.y, leafSize, leafSize*0.44, leaf.a, leafCol, 'rgba(20,60,20,0.3)', idx < idxOf('tube'));
+    const leafSize = activeSince('tube') ? w*0.045 : w*0.09;
+    _g8pDrawLeaf(c, leaf.x, leaf.y, leafSize, leafSize*0.44, leaf.a, leafCol, 'rgba(20,60,20,0.3)', !activeSince('tube'));
 
     // ═══ ٦) الملقط — يظهر من لحظة إمساكه بالورقة حتى وضعها على الشريحة، ويتحرّك معها دوماً ═══
-    if(idx>=idxOf('tongs') && idx<=idxOf('slide')){
+    if(idx>=idxOf('tongs')+1 && idx<=idxOf('slide')+1){
       const tipX = leaf.x, tipY = leaf.y - h*0.018;
       const handleX = tipX, handleY = tipY - h*0.13;
       c.strokeStyle = dark?'#D4D4D8':'#71717A'; c.lineWidth=Math.max(3,h*0.007); c.lineCap='round';
@@ -1650,8 +1665,12 @@ function simG8Bio1N5a(){
 
     const stId = STEPS[S.step] ? STEPS[S.step].id : 'done';
     const idx = idxOf(stId);
-    const reached = (id) => idx > idxOf(id);
-    const atStep  = (id) => idx === idxOf(id);
+    // التأثير البصري لأي خطوة يبدأ فقط بعد ضغط الطالب على زر تلك الخطوة نفسها
+    const justAfter   = (id) => idx === idxOf(id) + 1;
+    const activeSince = (id) => idx >= idxOf(id) + 1;
+    // خطوة "grow" استثناء: لا يتقدّم S.step إلا بعد اكتمال محاكاة الأيام كاملة (مُدارة أدناه)
+    const growDone = idx > idxOf('grow');
+    const growing  = idx === idxOf('grow');
     if(S.transT<1) S.transT += 0.045;
     const tt = Math.min(1, S.transT);
 
@@ -1676,10 +1695,10 @@ function simG8Bio1N5a(){
     c.quadraticCurveTo(cupX,cupY+cupH+h*0.015,cupX+cupW*0.46,cupY+cupH);
     c.lineTo(cupX+cupW/2,cupY); c.closePath(); c.fill(); c.stroke();
 
-    // ── الماء عند القاع (بعد خطوة إضافة الماء) ──
-    const waterLevel = reached('water') || atStep('water') ? cupH*0.16 : 0;
+    // ── الماء عند القاع (يظهر فقط بعد الضغط الفعلي على زر "أضف الماء") ──
+    const waterLevel = activeSince('water') ? cupH*0.16 : 0;
     if(waterLevel>0){
-      const wl = atStep('water') ? waterLevel*tt : waterLevel;
+      const wl = justAfter('water') ? waterLevel*tt : waterLevel;
       c.save(); c.beginPath();
       c.moveTo(cupX-cupW*0.47,cupY+cupH); c.quadraticCurveTo(cupX,cupY+cupH+h*0.015,cupX+cupW*0.47,cupY+cupH);
       c.lineTo(cupX+cupW*0.47,cupY+cupH-wl); c.lineTo(cupX-cupW*0.47,cupY+cupH-wl); c.closePath(); c.clip();
@@ -1689,7 +1708,7 @@ function simG8Bio1N5a(){
 
     // ── الورق المقوّى الملتصق بجدار الكأس (رطب تدريجياً بعد إضافة الماء) ──
     const paperX = cupX, paperY=cupY+h*0.01, paperW=cupW*0.86, paperH=cupH*0.9;
-    const wetness = reached('water') ? 1 : (atStep('water') ? tt : 0);
+    const wetness = !activeSince('water') ? 0 : (justAfter('water') ? tt : 1);
     c.fillStyle = _g8pLerpColor('#E8D9B5', '#B89968', wetness);
     c.strokeStyle = dark?'#8A6D3A':'#A9895A'; c.lineWidth=2;
     c.beginPath(); c.roundRect(paperX-paperW/2, paperY, paperW, paperH, 4); c.fill(); c.stroke();
@@ -1702,15 +1721,15 @@ function simG8Bio1N5a(){
       { x: cupX,           y: cupY+cupH*0.52 },
       { x: cupX+cupW*0.22, y: cupY+cupH*0.74 },
     ];
-    const seedsVisible = reached('seeds') || atStep('seeds');
+    const seedsVisible = activeSince('seeds');
     if(seedsVisible){
-      const seedIn = atStep('seeds') ? tt : 1;
+      const seedIn = justAfter('seeds') ? tt : 1;
       for(let i=0;i<3;i++){
         const sp = seedPositions[i];
         const sx = seedsVisible ? sp.x : w*0.62;
         const sy = seedsVisible ? sp.y : h*0.75;
-        const drawX = atStep('seeds') ? (w*0.62 + (sp.x-w*0.62)*seedIn) : sp.x;
-        const drawY = atStep('seeds') ? (h*0.75 + (sp.y-h*0.75)*seedIn) : sp.y;
+        const drawX = justAfter('seeds') ? (w*0.62 + (sp.x-w*0.62)*seedIn) : sp.x;
+        const drawY = justAfter('seeds') ? (h*0.75 + (sp.y-h*0.75)*seedIn) : sp.y;
         // البذرة (شكل بيضاوي بنّي)
         c.save(); c.translate(drawX,drawY); c.rotate(SEED_ANGLES[i]*0.25);
         const sGrad = c.createLinearGradient(-8,-6,8,6);
@@ -1721,10 +1740,10 @@ function simG8Bio1N5a(){
 
         // ── محاكاة النمو (Time-lapse): جذير يبدأ من زاوية البذرة الأصلية، وينحني تدريجياً نحو الأسفل ──
         let g = 0;
-        if(reached('grow')) g = 1;
-        else if(atStep('grow') || atStep('q1') || atStep('done')) {
+        if(growDone) g = 1;
+        else if(growing) {
           const localT = Math.max(0, Math.min(1, (S.growT - SEED_DELAYS[i]) / (1-SEED_DELAYS[i])));
-          g = (atStep('grow')) ? localT : 1;
+          g = localT;
         }
         if(g>0.01){
           const rootLen = h*0.16*g;
@@ -1754,12 +1773,12 @@ function simG8Bio1N5a(){
     }
 
     // مؤشر الأيام أثناء التسريع الزمني
-    if(atStep('grow') && S.growT>0){
+    if(growing && S.growT>0){
       const day = Math.max(1, Math.round(1+S.growT*6));
       c.fillStyle = g8pAccent(dark); c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
       c.fillText(`⏩ اليوم ${day} من ٧`, w/2, h*0.88);
     }
-    if(reached('grow')){
+    if(growDone){
       c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
       c.fillText('🌱 لاحظ: كل الجذور اتجهت نحو الأسفل رغم اختلاف اتجاه البذور', w/2, h*0.88);
     }
@@ -1888,8 +1907,12 @@ function simG8Bio1N6a(){
 
     const stId = STEPS[S.step] ? STEPS[S.step].id : 'done';
     const idx = idxOf(stId);
-    const reached = (id) => idx > idxOf(id);
-    const atStep  = (id) => idx === idxOf(id);
+    // التأثير البصري لأي خطوة يبدأ فقط بعد ضغط الطالب على زر تلك الخطوة نفسها
+    const justAfter   = (id) => idx === idxOf(id) + 1;
+    const activeSince = (id) => idx >= idxOf(id) + 1;
+    // خطوة "observe" استثناء: لا يتقدّم S.step إلا بعد اكتمال محاكاة الوقت كاملة (مُدارة أدناه)
+    const observeDone = idx > idxOf('observe');
+    const observing   = idx === idxOf('observe');
     if(S.transT<1) S.transT += 0.045;
     const tt = Math.min(1, S.transT);
 
@@ -1916,8 +1939,8 @@ function simG8Bio1N6a(){
     c.lineTo(cupX+cupW*0.44,cupY+cupH); c.lineTo(cupX+cupW/2,cupY); c.closePath(); c.fill(); c.stroke();
 
     // ── لون الماء (عادي ثم يتحوّل لملوّن بعد addcolor) ──
-    const colored = reached('addcolor') || atStep('addcolor');
-    const colorT = atStep('addcolor') ? tt : (colored?1:0);
+    const colored = activeSince('addcolor');
+    const colorT = justAfter('addcolor') ? tt : (colored?1:0);
     const waterCol = _g8pLerpColor(dark?'#274B63':'#CFEFFB', DYE, colorT);
     c.save(); c.beginPath();
     c.moveTo(cupX-cupW*0.48,cupY+h*0.01); c.lineTo(cupX+cupW*0.48,cupY+h*0.01);
@@ -1926,21 +1949,17 @@ function simG8Bio1N6a(){
     c.restore();
 
     // انسكاب الصبغة أثناء الإضافة
-    if(atStep('addcolor') && tt<1){
+    if(justAfter('addcolor') && tt<1){
       c.fillStyle = DYE; c.globalAlpha=0.85;
       c.beginPath(); c.moveTo(cupX-3,cupY-h*0.05); c.lineTo(cupX+3,cupY-h*0.05);
       c.lineTo(cupX+1.5,cupY+h*0.02*tt); c.lineTo(cupX-1.5,cupY+h*0.02*tt); c.closePath(); c.fill();
       c.globalAlpha=1;
     }
 
-    // ── دخول الساق للكأس (يبدأ الظهور بعد addcolor) ──
-    const stemInWater = reached('addcolor') || atStep('addcolor');
-
     // مستوى ارتفاع الصبغة داخل الساق (٠ = القاع، ١ = القمة عند الورقة)
     let dyeRise = 0;
-    if(reached('observe')) dyeRise = 1;
-    else if(atStep('observe')) dyeRise = S.obsT;
-    else if(atStep('zoom') || atStep('q1') || atStep('q2') || atStep('done')) dyeRise = 1;
+    if(observeDone) dyeRise = 1;
+    else if(observing) dyeRise = S.obsT;
 
     // ── الساق (شفاف قليلاً لإظهار الأنابيب الداخلية) ──
     const stemGrad = c.createLinearGradient(stemX-stemW/2,0,stemX+stemW/2,0);
@@ -1979,15 +1998,15 @@ function simG8Bio1N6a(){
     c.restore();
 
     // مؤشر الوقت أثناء المراقبة
-    if(atStep('observe')){
+    if(observing){
       const hrs = Math.max(1, Math.round(1+S.obsT*11));
       c.fillStyle = g8pAccent(dark); c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
       c.fillText(`⏩ بعد ${hrs} ساعة تقريباً`, w/2, h*0.9);
     }
 
     // ── تكبير مقطع الساق (بعد خطوة zoom): دائرة تُظهر ترتيب الأنسجة الوعائية الخشبية ──
-    if(reached('zoom') || atStep('zoom')){
-      const zoomIn = atStep('zoom') ? tt : 1;
+    if(activeSince('zoom')){
+      const zoomIn = justAfter('zoom') ? tt : 1;
       c.save(); c.globalAlpha = zoomIn;
       const zx=w*0.78, zy=h*0.32, zr=Math.min(w,h)*0.13*zoomIn + Math.min(w,h)*0.001;
       c.fillStyle = dark? '#0B1A10':'#FFFFFF'; c.strokeStyle=g8pAccent(dark); c.lineWidth=3;
