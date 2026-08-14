@@ -1530,3 +1530,482 @@ function simG8Bio1N4a(){
   }
   draw();
 }
+
+/* ════════════════════════════════════════
+   نشاط ١-٥ · استقصاء: إلى أيّ اتجاه تنمو الجذور؟
+   (الدرس ٥-١ — الجذور، كتاب الصف الثامن ص٢٣)
+════════════════════════════════════════ */
+function simG8Bio1N5a(){
+  cancelAnimationFrame(animFrame);
+  const STEPS = [
+    { id:'start',    btn:'▶ ابدأ التجربة', info:'أمامك كأس زجاجية طويلة بداخلها ورق مقوّى قوي مثبّت على جدارها من الداخل. الورق جافّ الآن، وبذور الفول المنقوعة جاهزة بجانب الكأس. لا شيء يتحرّك بعد.' },
+    { id:'water',    btn:'💧 أضف الماء', info:'اضغط لإضافة القليل من الماء إلى قاع الكأس، بحيث يتشرّبه الورق المقوّى ويصبح رطباً.' },
+    { id:'seeds',    btn:'🌱 أضف بذور الفول', info:'اضغط لوضع ثلاث بذور فول بعناية بين الورق وجدار الكأس، كل واحدة في اتجاه مختلف عن الأخرى.' },
+    { id:'place',    btn:'📦 ضعها في الظروف المناسبة', info:'اضغط لوضع الكأس في مكان دافئ مناسب للإنبات، مع الحرص على أن يبقى الورق رطباً وليس مبلَّلاً.' },
+    { id:'grow',     btn:'⏩ راقب مرور الأيام', info:'اضغط لتشغيل محاكاة مرور الوقت، وراقب البذور الثلاث وهي تنبت.' },
+    { id:'q1',       btn:'➡ متابعة', info:'', question:{
+        q:'هل نمت الجذور الثلاثة في نفس الاتجاه الذي وُضعت فيه البذور؟',
+        opts:['لا، تغيّر اتجاه نموّها جميعاً نحو الأسفل', 'نعم، بقيت في نفس اتجاه البذرة', 'بعضها فقط تغيّر اتجاهه'],
+        ans:0, fb:'✅ صحيح! رغم اختلاف اتجاه البذور الثلاث في البداية، غيّرت جميع الجذور اتجاه نموّها لتتجه نحو الأسفل.'
+      } },
+    { id:'done',     btn:'', info:'' },
+  ];
+  const MAIN_IDS = STEPS.filter(s=>!s.question && s.id!=='done').map(s=>s.id);
+  simState = { step:0, transT:1, growT:0, answered:false };
+  const S = simState;
+  const idxOf = (id) => STEPS.findIndex(s=>s.id===id);
+
+  function renderControls(){
+    const st = STEPS[S.step];
+    if(st.id==='done'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🔬 ماذا استنتجنا؟</div></div>
+        <div style="padding:14px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
+          <div style="font-weight:700;color:#16A34A;margin-bottom:8px">🎉 تنمو الجذور إلى الأسفل باتجاه الجاذبية!</div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.9">
+            • تمتص الجذور الماء والأملاح المعدنية من الفراغات بين حبيبات التربة.<br>
+            • تعمل الجذور كدعامات لتثبيت النبات في الأرض.<br>
+            • يمكن للجذور تخزين غذاء النبات.<br>
+            • تستطيع الجذور أحياناً البقاء حيّة في ظروف قاسية رغم موت أجزاء النبات فوق سطح الأرض.
+          </div>
+        </div>
+        <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g8pRootRestart()">↺ أعد التجربة</button>`;
+    }
+    let mainNum = 0;
+    for(const id of MAIN_IDS){ if(idxOf(id) <= S.step) mainNum++; }
+    mainNum = Math.max(1, mainNum);
+    const progressHtml = `
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">الخطوة ${mainNum} من ${MAIN_IDS.length}</div>
+      <div style="height:6px;background:var(--bg-card2);border-radius:3px;overflow:hidden;margin-bottom:10px">
+        <div style="height:100%;width:${Math.round(mainNum/MAIN_IDS.length*100)}%;background:#27AE60;transition:width .3s"></div>
+      </div>`;
+    if(st.question){
+      const q = st.question;
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🔬 استقصاء: اتجاه نمو الجذور</div></div>
+        ${progressHtml}
+        <div style="font-size:14px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:12px">${q.q}</div>
+        <div id="g8pRootOpts" style="display:flex;flex-direction:column;gap:8px">
+          ${q.opts.map((o,i)=>`<button id="g8pRootOpt${i}" onclick="window._g8pRootAnswer(${i})" style="padding:11px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer">${o}</button>`).join('')}
+        </div>
+        <div id="g8pRootFb" style="margin-top:10px;font-size:13px;color:var(--text-secondary);line-height:1.8"></div>`;
+    }
+    const growLock = st.id==='grow' ? ' disabled' : '';
+    return `
+      <div class="ctrl-section">
+        <div class="ctrl-label">🔬 استقصاء: اتجاه نمو الجذور</div>
+        ${progressHtml}
+      </div>
+      <div id="g8pRootInfo" style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;border:1px solid rgba(39,174,96,0.2);margin-bottom:12px">${st.info}</div>
+      <button class="ctrl-btn play" id="g8pRootBtn" onclick="window._g8pRootNext()">${st.btn}</button>`;
+  }
+  controls(renderControls());
+
+  window._g8pRootNext = function(){
+    _g8pPlayClick();
+    const st = STEPS[S.step];
+    if(st.id==='grow'){
+      // خطوة النمو تدار داخلياً بمحاكاة زمنية طويلة قبل الانتقال للسؤال
+      S.growT = 0.0001;
+      const btn = document.getElementById('g8pRootBtn');
+      if(btn){ btn.setAttribute('disabled','true'); btn.style.opacity='0.5'; btn.textContent='⏳ مرور الأيام...'; }
+      return;
+    }
+    S.step++;
+    S.transT = 0.0001;
+    controls(renderControls());
+  };
+  window._g8pRootAnswer = function(i){
+    if(S.answered) return; S.answered = true;
+    const q = STEPS[S.step].question;
+    const ok = i===q.ans;
+    _g8pPlayClick();
+    const btn = document.getElementById('g8pRootOpt'+i);
+    if(btn){ btn.style.background = ok?'#27AE60':'#E74C3C'; btn.style.color='white'; btn.style.borderColor= ok?'#27AE60':'#E74C3C'; }
+    if(!ok){
+      const okBtn = document.getElementById('g8pRootOpt'+q.ans);
+      if(okBtn){ okBtn.style.background='#27AE60'; okBtn.style.color='white'; okBtn.style.borderColor='#27AE60'; }
+    }
+    const fb = document.getElementById('g8pRootFb');
+    if(fb) fb.innerHTML = q.fb;
+    setTimeout(()=>{ S.step++; S.transT=0.0001; S.answered=false; controls(renderControls()); }, 1500);
+  };
+  window._g8pRootRestart = function(){
+    S.step=0; S.transT=1; S.growT=0; S.answered=false;
+    controls(renderControls());
+  };
+
+  const cv = document.getElementById('simCanvas');
+  // ثلاث بذور: كل واحدة بزاوية بداية مختلفة (اتجاه الجذير الجنيني)، وتنحني جميعاً نحو الأسفل (الجاذبية)
+  const SEED_ANGLES = [-1.05, 0.15, 1.2]; // راديان: يسار مائل، شبه أفقي، يمين مائل
+  const SEED_DELAYS = [0, 0.08, 0.16];    // بداية إنبات غير متزامنة تماماً — طبيعية أكثر
+
+  function draw(){
+    if(currentSim!=='g8bio1n5' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
+    c.fillStyle = g8pBg(dark); c.fillRect(0,0,w,h);
+    c.fillStyle = g8pTxt(dark);
+    c.font = `bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ١-٥ · إلى أيّ اتجاه تنمو الجذور؟', w/2, h*0.05);
+
+    const stId = STEPS[S.step] ? STEPS[S.step].id : 'done';
+    const idx = idxOf(stId);
+    const reached = (id) => idx > idxOf(id);
+    const atStep  = (id) => idx === idxOf(id);
+    if(S.transT<1) S.transT += 0.045;
+    const tt = Math.min(1, S.transT);
+
+    if(S.growT>0 && S.growT<1){
+      S.growT += 0.0035;
+      if(S.growT>=1){
+        S.growT = 1;
+        S.step++; S.transT = 0.0001;
+        controls(renderControls());
+      }
+    }
+
+    // ── الكأس الزجاجية الطويلة ──
+    const cupX=w*0.32, cupY=h*0.24, cupW=w*0.20, cupH=h*0.52;
+    const cupGrad = c.createLinearGradient(cupX-cupW/2,cupY,cupX+cupW/2,cupY);
+    cupGrad.addColorStop(0, dark?'rgba(210,220,230,0.10)':'rgba(255,255,255,0.55)');
+    cupGrad.addColorStop(0.5, dark?'rgba(200,210,220,0.05)':'rgba(200,210,220,0.15)');
+    cupGrad.addColorStop(1, dark?'rgba(210,220,230,0.10)':'rgba(255,255,255,0.4)');
+    c.fillStyle = cupGrad; c.strokeStyle = dark?'#9AA3AF':'#8A93A0'; c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cupX-cupW/2,cupY); c.lineTo(cupX-cupW*0.46,cupY+cupH);
+    c.quadraticCurveTo(cupX,cupY+cupH+h*0.015,cupX+cupW*0.46,cupY+cupH);
+    c.lineTo(cupX+cupW/2,cupY); c.closePath(); c.fill(); c.stroke();
+
+    // ── الماء عند القاع (بعد خطوة إضافة الماء) ──
+    const waterLevel = reached('water') || atStep('water') ? cupH*0.16 : 0;
+    if(waterLevel>0){
+      const wl = atStep('water') ? waterLevel*tt : waterLevel;
+      c.save(); c.beginPath();
+      c.moveTo(cupX-cupW*0.47,cupY+cupH); c.quadraticCurveTo(cupX,cupY+cupH+h*0.015,cupX+cupW*0.47,cupY+cupH);
+      c.lineTo(cupX+cupW*0.47,cupY+cupH-wl); c.lineTo(cupX-cupW*0.47,cupY+cupH-wl); c.closePath(); c.clip();
+      c.fillStyle = dark?'#2E6B94':'#7EC1EA'; c.fillRect(cupX-cupW/2,cupY,cupW,cupH);
+      c.restore();
+    }
+
+    // ── الورق المقوّى الملتصق بجدار الكأس (رطب تدريجياً بعد إضافة الماء) ──
+    const paperX = cupX, paperY=cupY+h*0.01, paperW=cupW*0.86, paperH=cupH*0.9;
+    const wetness = reached('water') ? 1 : (atStep('water') ? tt : 0);
+    c.fillStyle = _g8pLerpColor('#E8D9B5', '#B89968', wetness);
+    c.strokeStyle = dark?'#8A6D3A':'#A9895A'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(paperX-paperW/2, paperY, paperW, paperH, 4); c.fill(); c.stroke();
+    c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center'; c.save(); c.translate(paperX, paperY+paperH*0.06); 
+    c.fillText(wetness>0.5 ? 'ورق مقوّى رطب' : 'ورق مقوّى', 0, 0); c.restore();
+
+    // ── البذور الثلاث + الجذور النامية ──
+    const seedPositions = [
+      { x: cupX-cupW*0.22, y: cupY+cupH*0.28 },
+      { x: cupX,           y: cupY+cupH*0.52 },
+      { x: cupX+cupW*0.22, y: cupY+cupH*0.74 },
+    ];
+    const seedsVisible = reached('seeds') || atStep('seeds');
+    if(seedsVisible){
+      const seedIn = atStep('seeds') ? tt : 1;
+      for(let i=0;i<3;i++){
+        const sp = seedPositions[i];
+        const sx = seedsVisible ? sp.x : w*0.62;
+        const sy = seedsVisible ? sp.y : h*0.75;
+        const drawX = atStep('seeds') ? (w*0.62 + (sp.x-w*0.62)*seedIn) : sp.x;
+        const drawY = atStep('seeds') ? (h*0.75 + (sp.y-h*0.75)*seedIn) : sp.y;
+        // البذرة (شكل بيضاوي بنّي)
+        c.save(); c.translate(drawX,drawY); c.rotate(SEED_ANGLES[i]*0.25);
+        const sGrad = c.createLinearGradient(-8,-6,8,6);
+        sGrad.addColorStop(0, '#C8A45C'); sGrad.addColorStop(1, '#8B6B34');
+        c.fillStyle = sGrad; c.strokeStyle='#5A4520'; c.lineWidth=1.5;
+        c.beginPath(); c.ellipse(0,0,Math.max(6,w*0.014),Math.max(4,w*0.009),0,0,Math.PI*2); c.fill(); c.stroke();
+        c.restore();
+
+        // ── محاكاة النمو (Time-lapse): جذير يبدأ من زاوية البذرة الأصلية، وينحني تدريجياً نحو الأسفل ──
+        let g = 0;
+        if(reached('grow')) g = 1;
+        else if(atStep('grow') || atStep('q1') || atStep('done')) {
+          const localT = Math.max(0, Math.min(1, (S.growT - SEED_DELAYS[i]) / (1-SEED_DELAYS[i])));
+          g = (atStep('grow')) ? localT : 1;
+        }
+        if(g>0.01){
+          const rootLen = h*0.16*g;
+          const startAngle = SEED_ANGLES[i];
+          const endAngle = Math.PI/2; // نحو الأسفل تماماً
+          const bendProgress = Math.min(1, g*1.4); // ينحني بسرعة أكبر قليلاً من الاستطالة
+          const curAngle = startAngle + (endAngle-startAngle)*bendProgress;
+          c.save(); c.translate(drawX,drawY);
+          c.strokeStyle = dark?'#86EFAC':'#22C55E'; c.lineWidth=Math.max(2,w*0.006); c.lineCap='round';
+          c.beginPath(); c.moveTo(0,0);
+          const midAngle = startAngle + (curAngle-startAngle)*0.5;
+          const midLen = rootLen*0.55;
+          c.quadraticCurveTo(Math.cos(midAngle)*midLen, Math.sin(midAngle)*midLen, Math.cos(curAngle)*rootLen, Math.sin(curAngle)*rootLen);
+          c.stroke();
+          // شعيرات جذرية بسيطة
+          if(g>0.3){
+            c.strokeStyle = dark? 'rgba(134,239,172,0.5)':'rgba(34,197,94,0.5)'; c.lineWidth=1;
+            for(let k=0.3;k<=0.9;k+=0.2){
+              const px = Math.cos(curAngle)*rootLen*k, py = Math.sin(curAngle)*rootLen*k;
+              c.beginPath(); c.moveTo(px,py); c.lineTo(px+4,py-3); c.stroke();
+              c.beginPath(); c.moveTo(px,py); c.lineTo(px-4,py-3); c.stroke();
+            }
+          }
+          c.restore();
+        }
+      }
+    }
+
+    // مؤشر الأيام أثناء التسريع الزمني
+    if(atStep('grow') && S.growT>0){
+      const day = Math.max(1, Math.round(1+S.growT*6));
+      c.fillStyle = g8pAccent(dark); c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+      c.fillText(`⏩ اليوم ${day} من ٧`, w/2, h*0.88);
+    }
+    if(reached('grow')){
+      c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('🌱 لاحظ: كل الجذور اتجهت نحو الأسفل رغم اختلاف اتجاه البذور', w/2, h*0.88);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════
+   نشاط ١-٦ · استقصاء: النقل في ساق الكرفس
+   (الدرس ٦-١ — نقل الماء والأملاح المعدنية، كتاب الصف الثامن ص٢٤-٢٥)
+════════════════════════════════════════ */
+function simG8Bio1N6a(){
+  cancelAnimationFrame(animFrame);
+  const STEPS = [
+    { id:'start',   btn:'▶ ابدأ التجربة', info:'أمامك ساق كرفس طازج يحمل ورقة في أعلاه، بجانبه كأس شفاف بداخله ماء عادٍ غير ملوّن. لا شيء يتحرّك بعد.' },
+    { id:'addcolor',btn:'🎨 أضف الماء الملوّن', info:'اضغط لإضافة صبغة ملوّنة إلى الماء، ثمّ وضع ساق الكرفس بشكل قائم داخل الكأس بحيث يغمر الماء طرفه السفلي.' },
+    { id:'observe', btn:'👁 راقب النبات', info:'اضغط لبدء محاكاة زمنية، وراقب الصبغة الملوّنة وهي تتحرّك تدريجياً من أسفل الساق إلى أعلاه.' },
+    { id:'zoom',    btn:'🔍 اقطع الساق وكبّر المقطع', info:'اضغط لقطع جزء من الساق بعناية والنظر إلى طرفه المقطوع تحت عدسة مكبّرة.' },
+    { id:'q1',      btn:'➡ متابعة', info:'', question:{
+        q:'ماذا حدث للماء الملوّن؟',
+        opts:['انتقل من الكأس صعوداً داخل الساق حتى وصل الأوراق','بقي في الكأس ولم يتحرّك','تبخّر فوراً دون أن يدخل الساق'],
+        ans:0, fb:'✅ صحيح! انتقل الماء الملوّن من الكأس صعوداً عبر أنابيب دقيقة داخل الساق حتى وصل عروق الورقة في الأعلى.'
+      } },
+    { id:'q2',      btn:'➡ استنتج', info:'', question:{
+        q:'ما اسم الأنسجة التي نقلت الماء والأملاح المعدنية داخل الساق؟',
+        opts:['الأنسجة الوعائية الخشبية (Xylem)','الأوراق','الجذور فقط','قشرة الساق الخارجية'],
+        ans:0, fb:'✅ صحيح! تنتقل الماء والأملاح المعدنية من جذور النبات إلى أوراقه داخل أنابيب مجوّفة طويلة تُسمّى الأنسجة الوعائية الخشبية.'
+      } },
+    { id:'done',    btn:'', info:'' },
+  ];
+  const MAIN_IDS = STEPS.filter(s=>!s.question && s.id!=='done').map(s=>s.id);
+  simState = { step:0, transT:1, obsT:0, answered:false };
+  const S = simState;
+  const idxOf = (id) => STEPS.findIndex(s=>s.id===id);
+
+  function renderControls(){
+    const st = STEPS[S.step];
+    if(st.id==='done'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🔬 ماذا استنتجنا؟</div></div>
+        <div style="padding:14px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
+          <div style="font-weight:700;color:#16A34A;margin-bottom:8px">🎉 الساق ينقل الماء والأملاح المعدنية!</div>
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.9">
+            • تنتقل الماء والأملاح المعدنية من جذور النبات إلى أوراقه داخل أنابيب مجوّفة طويلة تُسمّى الأنسجة الوعائية الخشبية.<br>
+            • تحتوي عروق ورقة النبات على أنسجة وعائية خشبية.<br>
+            • يتشكّل الخشب من أنسجة وعائية خشبية.
+          </div>
+        </div>
+        <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g8pStemRestart()">↺ أعد التجربة</button>`;
+    }
+    let mainNum = 0;
+    for(const id of MAIN_IDS){ if(idxOf(id) <= S.step) mainNum++; }
+    mainNum = Math.max(1, mainNum);
+    const progressHtml = `
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">الخطوة ${mainNum} من ${MAIN_IDS.length}</div>
+      <div style="height:6px;background:var(--bg-card2);border-radius:3px;overflow:hidden;margin-bottom:10px">
+        <div style="height:100%;width:${Math.round(mainNum/MAIN_IDS.length*100)}%;background:#27AE60;transition:width .3s"></div>
+      </div>`;
+    if(st.question){
+      const q = st.question;
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🔬 استقصاء: النقل في ساق الكرفس</div></div>
+        ${progressHtml}
+        <div style="font-size:14px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:12px">${q.q}</div>
+        <div id="g8pStemOpts" style="display:flex;flex-direction:column;gap:8px">
+          ${q.opts.map((o,i)=>`<button id="g8pStemOpt${i}" onclick="window._g8pStemAnswer(${i})" style="padding:11px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer">${o}</button>`).join('')}
+        </div>
+        <div id="g8pStemFb" style="margin-top:10px;font-size:13px;color:var(--text-secondary);line-height:1.8"></div>`;
+    }
+    return `
+      <div class="ctrl-section">
+        <div class="ctrl-label">🔬 استقصاء: النقل في ساق الكرفس</div>
+        ${progressHtml}
+      </div>
+      <div id="g8pStemInfo" style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;border:1px solid rgba(39,174,96,0.2);margin-bottom:12px">${st.info}</div>
+      <button class="ctrl-btn play" id="g8pStemBtn" onclick="window._g8pStemNext()">${st.btn}</button>`;
+  }
+  controls(renderControls());
+
+  window._g8pStemNext = function(){
+    _g8pPlayClick();
+    const st = STEPS[S.step];
+    if(st.id==='addcolor') _g8pPlayDrop();
+    if(st.id==='observe'){
+      S.obsT = 0.0001;
+      const btn = document.getElementById('g8pStemBtn');
+      if(btn){ btn.setAttribute('disabled','true'); btn.style.opacity='0.5'; btn.textContent='⏳ الوقت يمرّ...'; }
+      return;
+    }
+    S.step++;
+    S.transT = 0.0001;
+    controls(renderControls());
+  };
+  window._g8pStemAnswer = function(i){
+    if(S.answered) return; S.answered = true;
+    const q = STEPS[S.step].question;
+    const ok = i===q.ans;
+    _g8pPlayClick();
+    const btn = document.getElementById('g8pStemOpt'+i);
+    if(btn){ btn.style.background = ok?'#27AE60':'#E74C3C'; btn.style.color='white'; btn.style.borderColor= ok?'#27AE60':'#E74C3C'; }
+    if(!ok){
+      const okBtn = document.getElementById('g8pStemOpt'+q.ans);
+      if(okBtn){ okBtn.style.background='#27AE60'; okBtn.style.color='white'; okBtn.style.borderColor='#27AE60'; }
+    }
+    const fb = document.getElementById('g8pStemFb');
+    if(fb) fb.innerHTML = q.fb;
+    setTimeout(()=>{ S.step++; S.transT=0.0001; S.answered=false; controls(renderControls()); }, 1600);
+  };
+  window._g8pStemRestart = function(){
+    S.step=0; S.transT=1; S.obsT=0; S.answered=false;
+    controls(renderControls());
+  };
+
+  const cv = document.getElementById('simCanvas');
+  const DYE = '#DB2777'; // زهري وردي فاتح — واضح للرؤية
+
+  function draw(){
+    if(currentSim!=='g8bio1n6' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
+    c.fillStyle = g8pBg(dark); c.fillRect(0,0,w,h);
+    c.fillStyle = g8pTxt(dark);
+    c.font = `bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ١-٦ · النقل في ساق الكرفس', w/2, h*0.05);
+
+    const stId = STEPS[S.step] ? STEPS[S.step].id : 'done';
+    const idx = idxOf(stId);
+    const reached = (id) => idx > idxOf(id);
+    const atStep  = (id) => idx === idxOf(id);
+    if(S.transT<1) S.transT += 0.045;
+    const tt = Math.min(1, S.transT);
+
+    if(S.obsT>0 && S.obsT<1){
+      S.obsT += 0.0032;
+      if(S.obsT>=1){
+        S.obsT = 1;
+        _g8pPlayClick();
+        S.step++; S.transT = 0.0001;
+        controls(renderControls());
+      }
+    }
+
+    const cupX=w*0.5, cupY=h*0.62, cupW=w*0.20, cupH=h*0.16;
+    const stemX=w*0.5, stemBotY=cupY+cupH*0.35, stemTopY=h*0.16, stemW=w*0.032;
+
+    // ── الكأس ──
+    const cupGrad = c.createLinearGradient(cupX-cupW/2,cupY,cupX+cupW/2,cupY+cupH);
+    cupGrad.addColorStop(0, dark?'rgba(210,220,230,0.20)':'rgba(255,255,255,0.55)');
+    cupGrad.addColorStop(1, dark?'rgba(180,195,210,0.10)':'rgba(180,195,210,0.25)');
+    c.fillStyle = cupGrad; c.strokeStyle = dark?'#9AA3AF':'#8A93A0'; c.lineWidth=3;
+    c.beginPath();
+    c.moveTo(cupX-cupW/2,cupY); c.lineTo(cupX-cupW*0.44,cupY+cupH);
+    c.lineTo(cupX+cupW*0.44,cupY+cupH); c.lineTo(cupX+cupW/2,cupY); c.closePath(); c.fill(); c.stroke();
+
+    // ── لون الماء (عادي ثم يتحوّل لملوّن بعد addcolor) ──
+    const colored = reached('addcolor') || atStep('addcolor');
+    const colorT = atStep('addcolor') ? tt : (colored?1:0);
+    const waterCol = _g8pLerpColor(dark?'#274B63':'#CFEFFB', DYE, colorT);
+    c.save(); c.beginPath();
+    c.moveTo(cupX-cupW*0.48,cupY+h*0.01); c.lineTo(cupX+cupW*0.48,cupY+h*0.01);
+    c.lineTo(cupX+cupW*0.44,cupY+cupH); c.lineTo(cupX-cupW*0.44,cupY+cupH); c.closePath(); c.clip();
+    c.fillStyle = waterCol; c.fillRect(cupX-cupW/2,cupY,cupW,cupH);
+    c.restore();
+
+    // انسكاب الصبغة أثناء الإضافة
+    if(atStep('addcolor') && tt<1){
+      c.fillStyle = DYE; c.globalAlpha=0.85;
+      c.beginPath(); c.moveTo(cupX-3,cupY-h*0.05); c.lineTo(cupX+3,cupY-h*0.05);
+      c.lineTo(cupX+1.5,cupY+h*0.02*tt); c.lineTo(cupX-1.5,cupY+h*0.02*tt); c.closePath(); c.fill();
+      c.globalAlpha=1;
+    }
+
+    // ── دخول الساق للكأس (يبدأ الظهور بعد addcolor) ──
+    const stemInWater = reached('addcolor') || atStep('addcolor');
+
+    // مستوى ارتفاع الصبغة داخل الساق (٠ = القاع، ١ = القمة عند الورقة)
+    let dyeRise = 0;
+    if(reached('observe')) dyeRise = 1;
+    else if(atStep('observe')) dyeRise = S.obsT;
+    else if(atStep('zoom') || atStep('q1') || atStep('q2') || atStep('done')) dyeRise = 1;
+
+    // ── الساق (شفاف قليلاً لإظهار الأنابيب الداخلية) ──
+    const stemGrad = c.createLinearGradient(stemX-stemW/2,0,stemX+stemW/2,0);
+    stemGrad.addColorStop(0, '#86A94A'); stemGrad.addColorStop(0.5,'#A3C25C'); stemGrad.addColorStop(1,'#86A94A');
+    c.fillStyle = stemGrad; c.strokeStyle='#5F7A2E'; c.lineWidth=2;
+    c.beginPath(); c.roundRect(stemX-stemW/2, stemTopY, stemW, stemBotY-stemTopY, [3,3,10,10]); c.fill(); c.stroke();
+
+    // خطوط الأنسجة الوعائية الخشبية (٤ خيوط داخل الساق تتلوّن تدريجياً من الأسفل للأعلى)
+    const veinOffsets = [-stemW*0.28, -stemW*0.09, stemW*0.09, stemW*0.28];
+    const dyeTopY = stemBotY - (stemBotY-stemTopY)*dyeRise;
+    for(const vx of veinOffsets){
+      c.strokeStyle = dark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.10)'; c.lineWidth=2;
+      c.beginPath(); c.moveTo(stemX+vx, stemBotY); c.lineTo(stemX+vx, stemTopY); c.stroke();
+      if(dyeRise>0.01){
+        c.strokeStyle = DYE; c.lineWidth=2.6; c.lineCap='round';
+        c.beginPath(); c.moveTo(stemX+vx, stemBotY); c.lineTo(stemX+vx, Math.max(dyeTopY, stemTopY)); c.stroke();
+      }
+    }
+    c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+    c.fillText('🌿 ساق الكرفس', cupX, cupY+cupH+h*0.045);
+
+    // ── الورقة أعلى الساق (تتلوّن أطراف عروقها عند وصول الصبغة للقمة) ──
+    const leafReached = dyeRise>0.92;
+    c.save(); c.translate(stemX, stemTopY);
+    const leafCol = leafReached ? _g8pLerpColor('#4ADE80', DYE, Math.min(1,(dyeRise-0.92)/0.08)) : '#4ADE80';
+    c.fillStyle = leafCol; c.strokeStyle='#166534'; c.lineWidth=1.5;
+    for(const side of [-1,1]){
+      c.save(); c.rotate(side*0.5);
+      c.beginPath();
+      c.moveTo(0,0);
+      c.quadraticCurveTo(side*w*0.05, -h*0.03, side*w*0.09, -h*0.005);
+      c.quadraticCurveTo(side*w*0.05, h*0.01, 0, 0.005);
+      c.closePath(); c.fill(); c.stroke();
+      c.restore();
+    }
+    c.restore();
+
+    // مؤشر الوقت أثناء المراقبة
+    if(atStep('observe')){
+      const hrs = Math.max(1, Math.round(1+S.obsT*11));
+      c.fillStyle = g8pAccent(dark); c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.textAlign='center';
+      c.fillText(`⏩ بعد ${hrs} ساعة تقريباً`, w/2, h*0.9);
+    }
+
+    // ── تكبير مقطع الساق (بعد خطوة zoom): دائرة تُظهر ترتيب الأنسجة الوعائية الخشبية ──
+    if(reached('zoom') || atStep('zoom')){
+      const zoomIn = atStep('zoom') ? tt : 1;
+      c.save(); c.globalAlpha = zoomIn;
+      const zx=w*0.78, zy=h*0.32, zr=Math.min(w,h)*0.13*zoomIn + Math.min(w,h)*0.001;
+      c.fillStyle = dark? '#0B1A10':'#FFFFFF'; c.strokeStyle=g8pAccent(dark); c.lineWidth=3;
+      c.beginPath(); c.arc(zx,zy,zr,0,Math.PI*2); c.fill(); c.stroke();
+      c.save(); c.beginPath(); c.arc(zx,zy,zr-3,0,Math.PI*2); c.clip();
+      c.fillStyle = '#C7DDA0'; c.fillRect(zx-zr,zy-zr,zr*2,zr*2);
+      for(let a=0;a<8;a++){
+        const ang = a/8*Math.PI*2;
+        const vx = zx+Math.cos(ang)*zr*0.55, vy=zy+Math.sin(ang)*zr*0.55;
+        c.fillStyle = DYE;
+        c.beginPath(); c.ellipse(vx,vy, zr*0.09, zr*0.14, ang, 0, Math.PI*2); c.fill();
+      }
+      c.restore(); c.restore();
+      c.fillStyle = g8pMut(dark); c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
+      c.fillText('مقطع الساق: الأنسجة الوعائية الخشبية', zx, zy+zr+h*0.04);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
