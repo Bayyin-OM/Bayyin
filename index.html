@@ -1433,6 +1433,15 @@
 
     <div class="units-grid" id="grade7-units">
 
+      <div class="unit-card" onclick="openUnit('u7plants', this)">
+        <div class="unit-num-badge c-green">١</div>
+        <div>
+          <div class="unit-title">النبات والإنسان ككائنات حيّة</div>
+          <div class="unit-topics">أعضاء النبات · الأزهار · التلقيح</div>
+          <div class="unit-pill avail">🌱 ١ استقصاء متاح</div>
+        </div>
+      </div>
+
       <div class="unit-card" onclick="openUnit('u7', this)">
         <div class="unit-num-badge c-red">٧</div>
         <div>
@@ -1715,6 +1724,26 @@
       </div>
 
       <!-- Unit 7 sims -->
+      <div class="sims-wrap" id="sims-u7plants" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة ١ — النبات والإنسان ككائنات حيّة</div>
+          <div class="sims-count">١ استقصاء</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g7bio1n1')">
+            <div class="sim-thumb t1">🌱</div>
+            <div class="sim-body">
+              <div class="sim-num">1-1 · أعضاء النبات</div>
+              <div class="sim-name">ابنِ النبات، وصِل العضو بوظيفته</div>
+              <div class="sim-desc">اسحبي أجزاء النبات إلى مكانها الصحيح لتبني نباتاً كاملاً، ثمّ صِلي كل عضو بوظيفته</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
       <div class="sims-wrap" id="sims-u7">
         <div class="sims-header" style="margin-top:28px">
           <div class="sims-title">استقصاءات الوحدة السابعة</div>
@@ -3691,6 +3720,7 @@
 <script src="/js/sims/sims-grade8-magnetics.js"></script>
 <script src="/js/sims/sims-grade8-plants.js"></script>
 <script src="/js/sims/sims-grade8-chem.js"></script>
+<script src="/js/sims/sims-grade7-plants.js"></script>
 <script src="/js/sims/sims-grade6-humanbody.js"></script>
 
 <!-- Core: Nature sounds engine -->
