@@ -1159,3 +1159,618 @@ function simG7Bio1N3c(){
   }
   draw();
 }
+
+// ══════════════════════════════════════════════════════════
+// الصف السابع — الوحدة الأولى
+// نشاط ٤-١ · الإخصاب (كتاب الصف السابع ص٢٠-٢١)
+// ══════════════════════════════════════════════════════════
+
+/* ── تاب ١: رحلة حبة اللقاح ── */
+function simG7Bio1N4a(){
+  cancelAnimationFrame(animFrame);
+  simState = { mode:'predict', predicted:null, growT:0, revealed:false, pathAns:null };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+
+  function renderControls(){
+    if(S.mode==='predict'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🌼 رحلة حبة اللقاح</div></div>
+        <div style="font-size:14px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:12px">ماذا تتوقّعين أن يحدث لحبة اللقاح بعد وصولها إلى الميسم؟</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${['ستكوّن أنبوباً يمتدّ نحو البويضة داخل المبيض','ستبقى على الميسم دون تغيير','ستسقط عن الزهرة فوراً'].map((o,i)=>`<button onclick="window._g7feStart(${i})" style="padding:11px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer">${o}</button>`).join('')}
+        </div>`;
+    }
+    if(S.mode==='grow'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🌱 اضغطي على حبّة اللقاح</div></div>
+        <div style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px">اضغطي على حبّة اللقاح الصفراء الموجودة على الميسم لتبدأ رحلتها.</div>`;
+    }
+    if(S.mode==='growing'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🌱 راقبي أنبوب اللقاح</div></div>
+        <div style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px">ينزل المشيج الذكري داخل الأنبوب أسفل الميسم مروراً بالقلم، حتى يصل إلى البويضة داخل المبيض.</div>`;
+    }
+    if(S.mode==='success'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">✅ حدث الإخصاب!</div></div>
+        <div style="padding:14px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(212,60,120,0.3);font-size:13px;color:var(--text-secondary);line-height:1.9;margin-bottom:12px">
+          اتّحد المشيج الذكري مع المشيج الأنثوي وحدث الإخصاب، وتكوّنت خلية جديدة تُسمّى البويضة الملقّحة (الزيجوت).
+        </div>
+        <button class="ctrl-btn play" onclick="window._g7fePath()">➡ متابعة</button>`;
+    }
+    if(S.mode==='path'){
+      const opts = ['الميسم ← أنبوب اللقاح ← المبيض ← البويضة','البويضة ← الميسم ← المبيض ← أنبوب اللقاح','أنبوب اللقاح ← البويضة ← الميسم ← المبيض'];
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🤔 ما المسار الذي اتّبعته حبّة اللقاح؟</div></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${opts.map((o,i)=>`<button id="g7fePathOpt${i}" onclick="window._g7fePathAns(${i})" style="padding:11px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer;font-size:13px">${o}</button>`).join('')}
+        </div>
+        <div id="g7fePathFb" style="margin-top:10px;font-size:13px;color:var(--text-secondary);line-height:1.8"></div>`;
+    }
+    // done
+    const predictedRight = S.predicted===0;
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">🎉 قارني توقّعك بما حدث</div></div>
+      <div style="padding:14px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(212,60,120,0.3);font-size:13px;color:var(--text-secondary);line-height:1.9">
+        ${predictedRight ? 'توقّعك كان صحيحاً! ' : ''}كوّنت حبّة اللقاح أنبوباً امتدّ من الميسم حتى البويضة داخل المبيض، فحدث الإخصاب وتكوّنت البويضة الملقّحة (الزيجوت).
+      </div>
+      <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g7feRestart()">↺ أعد التجربة</button>`;
+  }
+  controls(renderControls());
+
+  window._g7feStart = function(i){ _g8pPlayClick(); S.predicted=i; S.mode='grow'; controls(renderControls()); };
+  window._g7fePath = function(){ _g8pPlayClick(); S.mode='path'; controls(renderControls()); };
+  window._g7fePathAns = function(i){
+    if(S.pathAns!==null) return; S.pathAns=i;
+    const ok = i===0; _g8pPlayClick();
+    const btn = document.getElementById('g7fePathOpt'+i);
+    if(btn){ btn.style.background= ok?'#27AE60':'#E74C3C'; btn.style.color='white'; btn.style.borderColor= ok?'#27AE60':'#E74C3C'; }
+    if(!ok){ const okBtn=document.getElementById('g7fePathOpt0'); if(okBtn){ okBtn.style.background='#27AE60'; okBtn.style.color='white'; okBtn.style.borderColor='#27AE60'; } }
+    const fb=document.getElementById('g7fePathFb'); if(fb) fb.innerHTML = ok? '✅ صحيح!' : '💡 المسار الصحيح: الميسم ← أنبوب اللقاح ← المبيض ← البويضة.';
+    setTimeout(()=>{ S.mode='done'; controls(renderControls()); }, 1600);
+  };
+  window._g7feRestart = function(){
+    S.mode='predict'; S.predicted=null; S.growT=0; S.pathAns=null;
+    controls(renderControls());
+  };
+
+  cv.onmousedown=null; cv.onmousemove=null; cv.onmouseup=null;
+  cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null;
+  cv.onclick = function(e){
+    if(S.mode!=='grow') return;
+    const p = g7pGp(cv,e), w=cv.width, h=cv.height;
+    const px = w*0.5, py = h*0.14;
+    if(Math.hypot(p.x-px,p.y-py) < w*0.05){
+      _g8pPlayDrop(); S.mode='growing'; S.growT=0.0001; controls(renderControls());
+    }
+  };
+
+  function draw(){
+    if(currentSim!=='g7bio1n4' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ٤-١ · رحلة حبّة اللقاح', w/2, h*0.06);
+
+    if(S.mode==='growing'){
+      S.growT += 0.006;
+      if(S.growT>=1){ S.growT=1; S.mode='success'; _g8pPlayClick(); controls(renderControls()); }
+    }
+
+    // قطاع الزهرة (تخطيطي مبسّط: ميسم أعلى، قلم، مبيض بيضاوي أسفل يحوي بويضة)
+    const cx=w*0.5, stigY=h*0.16, styTop=h*0.20, styBot=h*0.58, ovY=h*0.74, ovRX=w*0.16, ovRY=h*0.14;
+    c.strokeStyle='#4D7C3A'; c.lineWidth=Math.max(3,w*0.012); c.lineCap='round';
+    c.beginPath(); c.moveTo(cx,styTop); c.lineTo(cx,styBot); c.stroke();
+    c.fillStyle='#84CC16'; c.beginPath(); c.arc(cx,stigY,w*0.035,0,Math.PI*2); c.fill();
+    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+    c.fillText('ميسم', cx+w*0.08, stigY);
+    c.fillText('قلم', cx+w*0.06, (styTop+styBot)/2);
+
+    c.fillStyle='#A7D98C'; c.strokeStyle='#3F6212'; c.lineWidth=2;
+    c.beginPath(); c.ellipse(cx,ovY,ovRX,ovRY,0,0,Math.PI*2); c.fill(); c.stroke();
+    c.fillText('مبيض', cx-ovRX-w*0.05, ovY);
+
+    // بويضة داخل المبيض
+    const oviX=cx, oviY=ovY+ovRY*0.15;
+    c.fillStyle='#E5F3D8'; c.strokeStyle='#65A30D'; c.lineWidth=1.5;
+    c.beginPath(); c.ellipse(oviX,oviY,w*0.045,h*0.035,0,0,Math.PI*2); c.fill(); c.stroke();
+    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`;
+    c.fillText('بويضة', oviX, oviY+h*0.06);
+
+    // حبّة اللقاح (تظل ظاهرة على الميسم حتى تُضغط)
+    if(S.mode==='predict' || S.mode==='grow'){
+      c.save();
+      c.fillStyle='#FDE047'; c.strokeStyle='#CA8A04'; c.lineWidth=2;
+      c.beginPath(); c.arc(cx, stigY-h*0.06, w*0.028, 0, Math.PI*2); c.fill(); c.stroke();
+      c.restore();
+      if(S.mode==='grow'){
+        c.fillStyle=g7pAccent(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
+        c.fillText('👆 اضغطي هنا', cx, stigY-h*0.11);
+      }
+    }
+
+    // أنبوب اللقاح ينمو تدريجياً من الميسم إلى البويضة
+    if(S.mode==='growing' || S.mode==='success' || S.mode==='path' || S.mode==='done'){
+      const t = S.mode==='growing' ? S.growT : 1;
+      const tubeEndY = stigY + (oviY-stigY)*t;
+      c.strokeStyle='#F59E0B'; c.lineWidth=Math.max(3,w*0.01); c.lineCap='round';
+      c.beginPath(); c.moveTo(cx,stigY); c.lineTo(cx,tubeEndY); c.stroke();
+      // المشيج الذكري (نقطة) عند رأس الأنبوب النامي
+      c.fillStyle='#F59E0B'; c.beginPath(); c.arc(cx,tubeEndY,w*0.014,0,Math.PI*2); c.fill();
+
+      if(t>=1){
+        const glow = S.mode==='growing' ? 0 : 1;
+        c.save(); c.globalAlpha=0.7*glow;
+        c.fillStyle='#FBBF24'; c.beginPath(); c.arc(oviX,oviY,w*0.055,0,Math.PI*2); c.fill();
+        c.restore();
+      }
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ── تاب ٢: من بويضة إلى بذرة (ترتيب زمني) ── */
+function simG7Bio1N4b(){
+  cancelAnimationFrame(animFrame);
+  const STAGES = [
+    { id:'ovule', label:'بويضة', order:0, desc:'قبل الإخصاب، داخل المبيض.' },
+    { id:'zygote', label:'بويضة ملقّحة (زيجوت)', order:1, desc:'بعد اتّحاد المشيجين.' },
+    { id:'embryo', label:'جنين', order:2, desc:'مجموعة صغيرة من الخلايا تنتج من انقسام الزيجوت.' },
+    { id:'seed', label:'بذرة', order:3, desc:'تتحوّل إليها البويضة تدريجياً، وبداخلها الجنين.' },
+  ];
+  simState = { placed:{}, dragId:null, dragX:0, dragY:0, hint:'', hintT:0, done:false, revealed:false, predictAns:null };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  const HOMES = [ {x:0.15,y:0.20}, {x:0.85,y:0.20}, {x:0.15,y:0.42}, {x:0.85,y:0.42} ];
+  // ترتيب عشوائي للبطاقات في مواضع البداية (لا يفسد الحل، فقط أيّ بطاقة في أيّ موضع بداية)
+  const SHUFFLED = [...STAGES].sort(()=>Math.random()-0.5);
+
+  function slotPos(i,w,h){ return { x: w*(0.18+i*0.22), y: h*0.72 }; }
+
+  function renderControls(){
+    const n = Object.keys(S.placed).length;
+    if(!S.done){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🌰 من بويضة إلى بذرة</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">اسحبي البطاقات إلى خطّ الزمن بترتيبها الصحيح (${n} من ٤)</div>
+        ${S.hintT>0 ? `<div style="font-size:13px;color:#D97706;background:#FEF3C7;border-radius:8px;padding:10px">💡 ${S.hint}</div>` : ''}`;
+    }
+    if(!S.revealed){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🎉 أحسنتِ! الترتيب صحيح</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">اضغطي الزر لمشاهدة التحوّل التدريجي حتى تكوّن البذرة.</div>
+        <button class="ctrl-btn play" onclick="window._g7seedReveal()">▶ شغّلي المحاكاة</button>`;
+    }
+    if(S.predictAns===null){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🤔 توقّعي</div></div>
+        <div style="font-size:14px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:12px">إذا لم يحدث الإخصاب، هل ستتكوّن البذرة بالطريقة نفسها؟</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${['نعم، ستتكوّن بنفس الطريقة','لا، لن تتكوّن البذرة دون إخصاب'].map((o,i)=>`<button onclick="window._g7seedPredict(${i})" style="padding:11px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer">${o}</button>`).join('')}
+        </div>`;
+    }
+    const ok = S.predictAns===1;
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">${ok?'✅ صحيح!':'💡 التوضيح'}</div></div>
+      <div style="padding:14px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(212,60,120,0.3);font-size:13px;color:var(--text-secondary);line-height:1.9">
+        بدون إخصاب لا يتكوّن الزيجوت، وبالتالي لا يتكوّن الجنين ولا البذرة — فالإخصاب خطوة ضرورية لتكوين البذرة.
+      </div>
+      <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g7seedRestart()">↺ أعد النشاط</button>`;
+  }
+  controls(renderControls());
+
+  window._g7seedReveal = function(){ _g8pPlayClick(); S.revealed=true; controls(renderControls()); };
+  window._g7seedPredict = function(i){ _g8pPlayClick(); S.predictAns=i; controls(renderControls()); };
+  window._g7seedRestart = function(){
+    S.placed={}; S.dragId=null; S.hint=''; S.hintT=0; S.done=false; S.revealed=false; S.predictAns=null;
+    controls(renderControls());
+  };
+
+  function hitCard(p,w,h){
+    for(let i=0;i<SHUFFLED.length;i++){
+      const st = SHUFFLED[i];
+      if(S.placed[st.id]!==undefined) continue;
+      const pos = { x:w*HOMES[i].x, y:h*HOMES[i].y };
+      if(Math.abs(p.x-pos.x)<w*0.11 && Math.abs(p.y-pos.y)<h*0.06) return st;
+    }
+    return null;
+  }
+  function onDown(e){ if(S.done) return; const p=g7pGp(cv,e); const st=hitCard(p,cv.width,cv.height); if(st){ S.dragId=st.id; S.dragX=p.x; S.dragY=p.y; } }
+  function onMove(e){ if(!S.dragId) return; e.preventDefault && e.preventDefault(); const p=g7pGp(cv,e); S.dragX=p.x; S.dragY=p.y; }
+  function onUp(){
+    if(!S.dragId) return;
+    const st = STAGES.find(x=>x.id===S.dragId);
+    const w=cv.width,h=cv.height;
+    let nearestSlot=-1, nearestDist=Infinity;
+    for(let i=0;i<4;i++){ const sp=slotPos(i,w,h); const d=Math.hypot(S.dragX-sp.x,S.dragY-sp.y); if(d<nearestDist){nearestDist=d;nearestSlot=i;} }
+    const slotTaken = Object.values(S.placed).includes(nearestSlot);
+    if(nearestDist < w*0.11 && !slotTaken){
+      if(nearestSlot===st.order){
+        S.placed[st.id]=nearestSlot; _g8pPlayDrop();
+        if(Object.keys(S.placed).length===4) S.done=true;
+      } else {
+        _g8pPlayClick(); S.hint='ليست هذه المرحلة الصحيحة هنا — فكّري بالتسلسل الزمني.'; S.hintT=120;
+      }
+    }
+    S.dragId=null; controls(renderControls());
+  }
+  cv.onmousedown=onDown; cv.onmousemove=onMove; cv.onmouseup=onUp;
+  cv.ontouchstart=onDown; cv.ontouchmove=onMove; cv.ontouchend=onUp;
+  cv.onclick=null;
+
+  function drawStageIcon(c,id,x,y,w,h,scale){
+    c.save(); c.translate(x,y); c.scale(scale,scale);
+    if(id==='ovule'){ c.fillStyle='#E5F3D8'; c.strokeStyle='#65A30D'; c.lineWidth=1.5; c.beginPath(); c.ellipse(0,0,w*0.035,h*0.028,0,0,Math.PI*2); c.fill(); c.stroke(); }
+    else if(id==='zygote'){ c.fillStyle='#FBBF24'; c.beginPath(); c.arc(0,0,w*0.022,0,Math.PI*2); c.fill(); }
+    else if(id==='embryo'){ c.fillStyle='#A7D98C'; c.strokeStyle='#3F6212'; c.lineWidth=1.5; c.beginPath(); c.ellipse(0,0,w*0.03,h*0.03,0,0,Math.PI*2); c.fill(); c.stroke();
+      c.strokeStyle='#166534'; c.lineWidth=1.5; c.beginPath(); c.arc(0,0,w*0.014,0.2,2.8); c.stroke(); }
+    else { c.fillStyle='#C4A374'; c.strokeStyle='#7C5A32'; c.lineWidth=1.5; c.beginPath(); c.ellipse(0,0,w*0.035,h*0.03,0,0,Math.PI*2); c.fill(); c.stroke(); }
+    c.restore();
+  }
+
+  function draw(){
+    if(currentSim!=='g7bio1n4' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ٤-١ · من بويضة إلى بذرة', w/2, h*0.06);
+    if(S.hintT>0) S.hintT--;
+
+    if(!S.revealed){
+      // خط الزمن + الأهداف
+      c.strokeStyle=g7pMut(dark); c.lineWidth=2; c.setLineDash([6,5]);
+      c.beginPath(); c.moveTo(w*0.12,h*0.72); c.lineTo(w*0.9,h*0.72); c.stroke(); c.setLineDash([]);
+      for(let i=0;i<4;i++){
+        const sp = slotPos(i,w,h);
+        const filledStage = STAGES.find(s=>S.placed[s.id]===i);
+        c.save();
+        c.strokeStyle = S.dragId ? g7pAccent(dark) : g7pMut(dark); c.lineWidth=2.5; c.setLineDash([5,4]);
+        c.beginPath(); c.arc(sp.x,sp.y,w*0.05,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+        c.restore();
+        if(filledStage){ drawStageIcon(c,filledStage.id,sp.x,sp.y,w,h,1.3);
+          c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+          c.fillText(filledStage.label, sp.x, sp.y+h*0.08);
+        } else {
+          c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+          c.fillText(i+1, sp.x, sp.y+h*0.005);
+        }
+      }
+      // البطاقات غير الموضوعة
+      SHUFFLED.forEach((st,i)=>{
+        if(S.placed[st.id]!==undefined || S.dragId===st.id) return;
+        const pos={x:w*HOMES[i].x,y:h*HOMES[i].y};
+        c.save(); c.fillStyle=dark?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.75)'; c.strokeStyle=g7pMut(dark); c.lineWidth=1.5;
+        c.beginPath(); c.roundRect(pos.x-w*0.11,pos.y-h*0.05,w*0.22,h*0.1,10); c.fill(); c.stroke();
+        drawStageIcon(c,st.id,pos.x-w*0.06,pos.y,w,h,0.9);
+        c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+        c.fillText(st.label, pos.x+w*0.03, pos.y+h*0.006);
+        c.restore();
+      });
+      if(S.dragId){
+        const st=STAGES.find(x=>x.id===S.dragId);
+        c.save(); c.fillStyle='rgba(74,222,128,0.2)'; c.strokeStyle=g7pAccent(dark); c.lineWidth=2;
+        c.beginPath(); c.roundRect(S.dragX-w*0.11,S.dragY-h*0.05,w*0.22,h*0.1,10); c.fill(); c.stroke();
+        drawStageIcon(c,st.id,S.dragX-w*0.06,S.dragY,w,h,0.9);
+        c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+        c.fillText(st.label, S.dragX+w*0.03, S.dragY+h*0.006);
+        c.restore();
+      }
+    } else {
+      // محاكاة قصيرة: بويضة تتحوّل تدريجياً إلى بذرة يظهر بداخلها الجنين
+      const cx=w*0.5, cy=h*0.5, R=Math.min(w,h)*0.22;
+      c.fillStyle='#C4A374'; c.strokeStyle='#7C5A32'; c.lineWidth=2.5;
+      c.beginPath(); c.ellipse(cx,cy,R,R*0.8,0,0,Math.PI*2); c.fill(); c.stroke();
+      c.fillStyle='#A7D98C'; c.strokeStyle='#3F6212'; c.lineWidth=2;
+      c.beginPath(); c.ellipse(cx,cy,R*0.5,R*0.4,0,0,Math.PI*2); c.fill(); c.stroke();
+      c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('الجنين النباتي', cx, cy+R*0.4+h*0.03);
+      c.fillText('بذرة مكتملة 🌰', cx, cy-R-h*0.04);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════════════════
+// الصف السابع — الوحدة الأولى
+// نشاط ٥-١ · الثمار (كتاب الصف السابع ص٢٢-٢٣)
+// ══════════════════════════════════════════════════════════
+
+/* ── تاب ١: إلى أين ستذهب البذرة؟ (تصنيف Drag & Drop) ── */
+function simG7Bio1N5a(){
+  cancelAnimationFrame(animFrame);
+  const FRUITS = [
+    { id:'hook',  label:'ثمرة شائكة',  method:'animal', home:{x:0.18,y:0.24}, desc:'أشواك تعلق بفراء الحيوانات فتُنقل معها.' },
+    { id:'wing',  label:'ثمرة مجنّحة', method:'wind',   home:{x:0.5,y:0.24},  desc:'شكل مجنّح يساعدها على الطيران بفعل الرياح.' },
+    { id:'float', label:'ثمرة طافية',  method:'water',  home:{x:0.82,y:0.24}, desc:'غلاف خفيف يساعدها على الطفو فوق الماء.' },
+  ];
+  const METHODS = [
+    { id:'animal', label:'🐾 الحيوانات', x:0.18 },
+    { id:'wind',   label:'🌬️ الرياح',   x:0.5 },
+    { id:'water',  label:'💧 الماء',     x:0.82 },
+  ];
+  simState = { placed:{}, dragId:null, dragX:0, dragY:0, hint:'', hintT:0, done:false, animMethod:null, animT:0 };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+
+  function renderControls(){
+    const n = Object.keys(S.placed).length;
+    if(!S.done){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🍇 إلى أين ستذهب البذرة؟</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">اسحبي كل ثمرة إلى وسيلة الانتشار المناسبة لها (${n} من ٣)</div>
+        ${S.hintT>0 ? `<div style="font-size:13px;color:#D97706;background:#FEF3C7;border-radius:8px;padding:10px">💡 ${S.hint}</div>` : ''}`;
+    }
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">🎉 أحسنتِ!</div></div>
+      <div style="padding:14px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3);font-size:13px;color:var(--text-secondary);line-height:1.9">
+        تتكيّف الثمار كي تساعد البذور الموجودة بداخلها على الانتشار إلى أماكن جديدة، وهذا يساعدها على تجنّب التنافس مع النبات الأصلي على الماء والضوء والأملاح المعدنية.
+      </div>
+      <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g7frRestart()">↺ أعد النشاط</button>`;
+  }
+  controls(renderControls());
+  window._g7frRestart = function(){
+    S.placed={}; S.dragId=null; S.hint=''; S.hintT=0; S.done=false; S.animMethod=null; S.animT=0;
+    controls(renderControls());
+  };
+
+  function hitFruit(p,w,h){
+    for(const f of FRUITS){
+      if(S.placed[f.id]) continue;
+      const hx=f.home.x*w, hy=f.home.y*h;
+      if(Math.hypot(p.x-hx,p.y-hy) < w*0.07) return f;
+    }
+    return null;
+  }
+  function onDown(e){ if(S.done) return; const p=g7pGp(cv,e); const f=hitFruit(p,cv.width,cv.height); if(f){ S.dragId=f.id; S.dragX=p.x; S.dragY=p.y; } }
+  function onMove(e){ if(!S.dragId) return; e.preventDefault && e.preventDefault(); const p=g7pGp(cv,e); S.dragX=p.x; S.dragY=p.y; }
+  function onUp(){
+    if(!S.dragId) return;
+    const f = FRUITS.find(x=>x.id===S.dragId);
+    const w=cv.width,h=cv.height;
+    let hitM=null;
+    for(const m of METHODS){ if(Math.abs(S.dragX-w*m.x)<w*0.13 && Math.abs(S.dragY-h*0.72)<h*0.1){ hitM=m; break; } }
+    if(hitM && hitM.id===f.method){
+      S.placed[f.id]=true; _g8pPlayDrop();
+      S.animMethod=f.method; S.animT=0.0001;
+      if(Object.keys(S.placed).length===FRUITS.length) S.done=true;
+    } else if(hitM){
+      _g8pPlayClick(); S.hint=`فكّري: ${f.desc}`; S.hintT=120;
+    }
+    S.dragId=null; controls(renderControls());
+  }
+  cv.onmousedown=onDown; cv.onmousemove=onMove; cv.onmouseup=onUp;
+  cv.ontouchstart=onDown; cv.ontouchmove=onMove; cv.ontouchend=onUp;
+  cv.onclick=null;
+
+  function drawFruit(c,id,x,y,w,h,scale){
+    c.save(); c.translate(x,y); c.scale(scale,scale);
+    if(id==='hook'){
+      c.fillStyle='#A16207'; c.beginPath(); c.arc(0,0,w*0.03,0,Math.PI*2); c.fill();
+      c.strokeStyle='#78350F'; c.lineWidth=1.5;
+      for(let i=0;i<8;i++){ const a=i/8*Math.PI*2; c.beginPath(); c.moveTo(Math.cos(a)*w*0.03,Math.sin(a)*w*0.03); c.lineTo(Math.cos(a)*w*0.05,Math.sin(a)*w*0.05); c.stroke(); }
+    } else if(id==='wing'){
+      c.fillStyle='#CA8A04'; c.beginPath(); c.ellipse(0,0,w*0.015,w*0.02,0,0,Math.PI*2); c.fill();
+      c.fillStyle='rgba(202,138,4,0.5)'; c.strokeStyle='#A16207'; c.lineWidth=1;
+      c.beginPath(); c.ellipse(-w*0.035,0,w*0.03,w*0.012,0.3,0,Math.PI*2); c.fill(); c.stroke();
+      c.beginPath(); c.ellipse(w*0.035,0,w*0.03,w*0.012,-0.3,0,Math.PI*2); c.fill(); c.stroke();
+    } else {
+      c.fillStyle='#D97706'; c.strokeStyle='#92400E'; c.lineWidth=1.5;
+      c.beginPath(); c.arc(0,0,w*0.032,0,Math.PI*2); c.fill(); c.stroke();
+    }
+    c.restore();
+  }
+
+  function draw(){
+    if(currentSim!=='g7bio1n5' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ٥-١ · إلى أين ستذهب البذرة؟', w/2, h*0.06);
+    if(S.hintT>0) S.hintT--;
+
+    // مناطق وسائل الانتشار
+    METHODS.forEach(m=>{
+      const mx=w*m.x, my=h*0.72;
+      c.save();
+      c.fillStyle = dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)';
+      c.strokeStyle = g7pMut(dark); c.lineWidth=2; c.setLineDash([5,4]);
+      c.beginPath(); c.roundRect(mx-w*0.13,my-h*0.1,w*0.26,h*0.2,12); c.fill(); c.stroke();
+      c.setLineDash([]);
+      c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+      c.fillText(m.label, mx, my+h*0.14);
+      c.restore();
+      // الثمار الموضوعة بنجاح تظهر هنا مع حركة بسيطة
+      const placedFruit = FRUITS.find(f=>f.method===m.id && S.placed[f.id]);
+      if(placedFruit){
+        let ox=0, oy=0;
+        if(S.animMethod===m.id && S.animT<1){
+          S.animT += 0.02;
+          if(m.id==='wind') ox = Math.sin(S.animT*10)*w*0.03;
+          if(m.id==='water') oy = Math.sin(S.animT*8)*h*0.015;
+          if(m.id==='animal') ox = -S.animT*w*0.05;
+        }
+        drawFruit(c, placedFruit.id, mx+ox, my+oy, w, h, 1.4);
+      }
+    });
+
+    // الثمار غير الموضوعة
+    FRUITS.forEach(f=>{
+      if(S.placed[f.id] || S.dragId===f.id) return;
+      const hx=f.home.x*w, hy=f.home.y*h;
+      c.save(); c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)';
+      c.beginPath(); c.arc(hx,hy,w*0.055,0,Math.PI*2); c.fill(); c.restore();
+      drawFruit(c,f.id,hx,hy,w,h,1);
+      c.fillStyle=g7pTxt(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+      c.fillText(f.label, hx, hy+h*0.07);
+    });
+    if(S.dragId){ drawFruit(c,S.dragId,S.dragX,S.dragY,w,h,1.1); }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ── تاب ٢: مصنع الثمار (ترتيب مراحل) ── */
+function simG7Bio1N5b(){
+  cancelAnimationFrame(animFrame);
+  const STAGES = [
+    { id:'flower', label:'🌸 زهرة', order:0 },
+    { id:'ovary',  label:'مبيض',   order:1 },
+    { id:'seeds',  label:'بذور',   order:2 },
+    { id:'fruit',  label:'ثمرة',   order:3 },
+  ];
+  simState = { placed:{}, dragId:null, dragX:0, dragY:0, hint:'', hintT:0, done:false, opened:false };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  const HOMES = [ {x:0.15,y:0.20}, {x:0.85,y:0.20}, {x:0.15,y:0.42}, {x:0.85,y:0.42} ];
+  const SHUFFLED = [...STAGES].sort(()=>Math.random()-0.5);
+
+  function slotPos(i,w,h){ return { x: w*(0.18+i*0.22), y: h*0.68 }; }
+
+  function renderControls(){
+    const n = Object.keys(S.placed).length;
+    if(!S.done){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🍎 مصنع الثمار</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">رتّبي المراحل بالسحب على خطّ الزمن (${n} من ٤)</div>
+        ${S.hintT>0 ? `<div style="font-size:13px;color:#D97706;background:#FEF3C7;border-radius:8px;padding:10px">💡 ${S.hint}</div>` : ''}`;
+    }
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">🎉 أحسنتِ!</div></div>
+      <div style="padding:14px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3);font-size:13px;color:var(--text-secondary);line-height:1.9;margin-bottom:12px">
+        تتحوّل المبايض إلى ثمار بعد الإخصاب، وتحتوي الثمار على البذور.
+      </div>
+      <button class="ctrl-btn play" onclick="window._g7fruitOpen()">${S.opened?'🔒 أغلقي الثمرة':'🔍 ماذا يوجد داخل الثمرة؟'}</button>
+      <button class="ctrl-btn reset" style="margin-top:10px" onclick="window._g7fruitRestart()">↺ أعد النشاط</button>`;
+  }
+  controls(renderControls());
+  window._g7fruitOpen = function(){ _g8pPlayClick(); S.opened=!S.opened; controls(renderControls()); };
+  window._g7fruitRestart = function(){
+    S.placed={}; S.dragId=null; S.hint=''; S.hintT=0; S.done=false; S.opened=false;
+    controls(renderControls());
+  };
+
+  function hitCard(p,w,h){
+    for(let i=0;i<SHUFFLED.length;i++){
+      const st = SHUFFLED[i];
+      if(S.placed[st.id]!==undefined) continue;
+      const pos = { x:w*HOMES[i].x, y:h*HOMES[i].y };
+      if(Math.abs(p.x-pos.x)<w*0.11 && Math.abs(p.y-pos.y)<h*0.06) return st;
+    }
+    return null;
+  }
+  function onDown(e){ if(S.done) return; const p=g7pGp(cv,e); const st=hitCard(p,cv.width,cv.height); if(st){ S.dragId=st.id; S.dragX=p.x; S.dragY=p.y; } }
+  function onMove(e){ if(!S.dragId) return; e.preventDefault && e.preventDefault(); const p=g7pGp(cv,e); S.dragX=p.x; S.dragY=p.y; }
+  function onUp(){
+    if(!S.dragId) return;
+    const st = STAGES.find(x=>x.id===S.dragId);
+    const w=cv.width,h=cv.height;
+    let nearestSlot=-1, nearestDist=Infinity;
+    for(let i=0;i<4;i++){ const sp=slotPos(i,w,h); const d=Math.hypot(S.dragX-sp.x,S.dragY-sp.y); if(d<nearestDist){nearestDist=d;nearestSlot=i;} }
+    const slotTaken = Object.values(S.placed).includes(nearestSlot);
+    if(nearestDist < w*0.11 && !slotTaken){
+      if(nearestSlot===st.order){
+        S.placed[st.id]=nearestSlot; _g8pPlayDrop();
+        if(Object.keys(S.placed).length===4) S.done=true;
+      } else {
+        _g8pPlayClick(); S.hint='فكّري بالترتيب الزمني: من الزهرة إلى الثمرة.'; S.hintT=120;
+      }
+    }
+    S.dragId=null; controls(renderControls());
+  }
+  cv.onmousedown=onDown; cv.onmousemove=onMove; cv.onmouseup=onUp;
+  cv.ontouchstart=onDown; cv.ontouchmove=onMove; cv.ontouchend=onUp;
+  cv.onclick=null;
+
+  function drawStage(c,id,x,y,w,h,scale){
+    c.save(); c.translate(x,y); c.scale(scale,scale);
+    if(id==='flower'){
+      for(let i=0;i<5;i++){ const a=i/5*Math.PI*2; c.save(); c.rotate(a); c.fillStyle='#F472B6';
+        c.beginPath(); c.ellipse(0,-w*0.03,w*0.014,w*0.028,0,0,Math.PI*2); c.fill(); c.restore(); }
+      c.fillStyle='#FDE047'; c.beginPath(); c.arc(0,0,w*0.012,0,Math.PI*2); c.fill();
+    } else if(id==='ovary'){
+      c.fillStyle='#84CC16'; c.strokeStyle='#3F6212'; c.lineWidth=1.5;
+      c.beginPath(); c.ellipse(0,0,w*0.03,h*0.024,0,0,Math.PI*2); c.fill(); c.stroke();
+    } else if(id==='seeds'){
+      c.fillStyle='#92400E';
+      for(let i=0;i<3;i++){ c.beginPath(); c.arc((i-1)*w*0.018,0,w*0.01,0,Math.PI*2); c.fill(); }
+    } else {
+      c.fillStyle='#DC2626'; c.strokeStyle='#7F1D1D'; c.lineWidth=1.5;
+      c.beginPath(); c.arc(0,0,w*0.032,0,Math.PI*2); c.fill(); c.stroke();
+    }
+    c.restore();
+  }
+
+  function draw(){
+    if(currentSim!=='g7bio1n5' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ٥-١ · مصنع الثمار', w/2, h*0.06);
+    if(S.hintT>0) S.hintT--;
+
+    if(!S.done){
+      c.strokeStyle=g7pMut(dark); c.lineWidth=2; c.setLineDash([6,5]);
+      c.beginPath(); c.moveTo(w*0.12,h*0.68); c.lineTo(w*0.9,h*0.68); c.stroke(); c.setLineDash([]);
+      for(let i=0;i<4;i++){
+        const sp = slotPos(i,w,h);
+        const filled = STAGES.find(s=>S.placed[s.id]===i);
+        c.save(); c.strokeStyle= S.dragId?g7pAccent(dark):g7pMut(dark); c.lineWidth=2.5; c.setLineDash([5,4]);
+        c.beginPath(); c.arc(sp.x,sp.y,w*0.05,0,Math.PI*2); c.stroke(); c.setLineDash([]); c.restore();
+        if(filled){ drawStage(c,filled.id,sp.x,sp.y,w,h,1.4);
+          c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+          c.fillText(filled.label, sp.x, sp.y+h*0.08);
+        } else {
+          c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+          c.fillText(i+1, sp.x, sp.y+h*0.005);
+        }
+      }
+      SHUFFLED.forEach((st,i)=>{
+        if(S.placed[st.id]!==undefined || S.dragId===st.id) return;
+        const pos={x:w*HOMES[i].x,y:h*HOMES[i].y};
+        c.save(); c.fillStyle=dark?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.75)'; c.strokeStyle=g7pMut(dark); c.lineWidth=1.5;
+        c.beginPath(); c.roundRect(pos.x-w*0.11,pos.y-h*0.05,w*0.22,h*0.1,10); c.fill(); c.stroke();
+        drawStage(c,st.id,pos.x-w*0.06,pos.y,w,h,0.9);
+        c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+        c.fillText(st.label, pos.x+w*0.03, pos.y+h*0.006);
+        c.restore();
+      });
+      if(S.dragId){
+        const st=STAGES.find(x=>x.id===S.dragId);
+        c.save(); c.fillStyle='rgba(74,222,128,0.2)'; c.strokeStyle=g7pAccent(dark); c.lineWidth=2;
+        c.beginPath(); c.roundRect(S.dragX-w*0.11,S.dragY-h*0.05,w*0.22,h*0.1,10); c.fill(); c.stroke();
+        drawStage(c,st.id,S.dragX-w*0.06,S.dragY,w,h,0.9);
+        c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+        c.fillText(st.label, S.dragX+w*0.03, S.dragY+h*0.006);
+        c.restore();
+      }
+    } else {
+      const cx=w*0.5, cy=h*0.5, R=Math.min(w,h)*0.24;
+      if(!S.opened){
+        c.fillStyle='#DC2626'; c.strokeStyle='#7F1D1D'; c.lineWidth=2.5;
+        c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.fill(); c.stroke();
+        c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+        c.fillText('ثمرة 🍎', cx, cy+R+h*0.05);
+      } else {
+        c.save(); c.beginPath(); c.arc(cx,cy,R,Math.PI*0.15,Math.PI*0.85); c.fillStyle='#DC2626'; c.strokeStyle='#7F1D1D'; c.lineWidth=2.5; c.fill(); c.stroke(); c.restore();
+        c.save(); c.beginPath(); c.arc(cx,cy,R,Math.PI*1.15,Math.PI*1.85); c.fillStyle='#DC2626'; c.strokeStyle='#7F1D1D'; c.lineWidth=2.5; c.fill(); c.stroke(); c.restore();
+        c.fillStyle='#92400E';
+        for(let i=0;i<5;i++){ const a=i/5*Math.PI*2; c.beginPath(); c.arc(cx+Math.cos(a)*R*0.3, cy+Math.sin(a)*R*0.3, R*0.09, 0, Math.PI*2); c.fill(); }
+        c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+        c.fillText('البذور بداخل الثمرة 🌰', cx, cy+R+h*0.05);
+        c.font=`${Math.round(h*0.015)}px Tajawal`; c.fillStyle=g7pMut(dark);
+        c.fillText('أين بدأت هذه البذور؟ — تذكّري نشاط الإخصاب', cx, cy+R+h*0.09);
+      }
+      c.font=`${Math.round(h*0.017)}px Tajawal`; c.fillStyle=g7pAccent(dark); c.textAlign='center';
+      c.fillText('🌸 زهرة  →  مبيض  →  بذور  →  ثمرة', cx, h*0.14);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
