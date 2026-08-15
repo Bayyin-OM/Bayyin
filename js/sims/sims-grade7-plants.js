@@ -196,6 +196,23 @@ function simG7Bio1N1a(){
     c.fillText('سطح التربة', w*0.5, h*0.665);
     c.restore();
 
+    // أدلّة الأهداف (Ghost Targets): تُظهر بوضوح أين يجب أن يوضع كل جزء قبل إفلاته
+    ORGANS.forEach(o=>{
+      if(S.placed[o.id]) return;
+      const zx=o.zone.x*w, zy=o.zone.y*h;
+      c.save();
+      c.setLineDash([6,5]);
+      c.lineWidth = 2.5;
+      c.strokeStyle = S.dragId ? g7pAccent(dark) : g7pMut(dark);
+      c.globalAlpha = S.dragId ? 0.85 : 0.45;
+      c.beginPath(); c.arc(zx, zy, w*0.075, 0, Math.PI*2); c.stroke();
+      c.setLineDash([]);
+      c.globalAlpha = 0.6;
+      c.fillStyle = g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+      c.fillText(o.label, zx, zy + w*0.075 + h*0.028);
+      c.restore();
+    });
+
     // الأعضاء الموضوعة في مكانها
     ORGANS.forEach(o=>{
       if(S.placed[o.id]){
@@ -358,27 +375,18 @@ function simG7Bio1N1b(){
       c.restore();
     });
 
-    // خطوط الربط للمُطابَق منها
+    // بطاقات الأعضاء (يمين) — تبقى ظاهرة دوماً؛ تتحوّل لتصميم "تمّ الربط ✓" عند المطابقة الصحيحة
     PAIRS.forEach((o,i)=>{
-      if(!S.matched[o.id]) return;
-      const oi = i, fi = FUNCS_ORDER.findIndex(f=>f.id===o.id);
-      const op = organPos(oi,w,h), fp = funcPos(fi,w,h);
-      c.save(); c.strokeStyle=g7pAccent(dark); c.globalAlpha=0.4; c.lineWidth=2; c.setLineDash([4,4]);
-      c.beginPath(); c.moveTo(op.x-w*0.09,op.y); c.lineTo(fp.x+w*0.185,fp.y); c.stroke();
-      c.restore();
-    });
-
-    // بطاقات الأعضاء (يمين)
-    PAIRS.forEach((o,i)=>{
-      if(S.matched[o.id]) return;
       if(S.dragId===o.id) return;
       const pos = organPos(i,w,h);
+      const isMatched = !!S.matched[o.id];
       c.save();
-      c.fillStyle = dark?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.7)';
-      c.strokeStyle = g7pMut(dark); c.lineWidth=1.5;
+      c.fillStyle = isMatched ? (dark?'rgba(74,222,128,0.18)':'rgba(39,174,96,0.12)') : (dark?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.7)');
+      c.strokeStyle = isMatched ? g7pAccent(dark) : g7pMut(dark);
+      c.lineWidth = isMatched ? 2.5 : 1.5;
       c.beginPath(); c.roundRect(pos.x-w*0.08, pos.y-h*0.05, w*0.16, h*0.10, 10); c.fill(); c.stroke();
-      c.fillStyle = g7pTxt(dark); c.font=`bold ${Math.round(h*0.018)}px Tajawal`; c.textAlign='center';
-      c.fillText(o.label, pos.x, pos.y+h*0.006);
+      c.fillStyle = isMatched ? g7pAccent(dark) : g7pTxt(dark); c.font=`bold ${Math.round(h*0.018)}px Tajawal`; c.textAlign='center';
+      c.fillText((isMatched?'✓ ':'')+o.label, pos.x, pos.y+h*0.006);
       c.restore();
     });
 
@@ -424,11 +432,11 @@ function simG7Bio1N1b(){
 function simG7Bio1N2a(){
   cancelAnimationFrame(animFrame);
   const PARTS = [
-    { id:'sepal',  label:'سبلات',  func:'تحيط بالزهرة وتحميها قبل أن تتفتّح.', zone:{x:0.5,y:0.72}, home:{x:0.12,y:0.30} },
-    { id:'petal',  label:'بتلات',  func:'عادةً أكثر جزء ملوّن في الزهرة، وتجذب الحشرات والطيور.', zone:{x:0.5,y:0.42}, home:{x:0.88,y:0.30} },
-    { id:'stamen', label:'أسدية (المتك والخيط)', func:'الجزء الذكري؛ يحتوي المتك على حبوب اللقاح التي تضمّ الأمشاج الذكرية.', zone:{x:0.35,y:0.42}, home:{x:0.12,y:0.55} },
-    { id:'ovary',  label:'مبيض',   func:'يحتوي البويضات التي تضمّ الأمشاج الأنثوية.', zone:{x:0.5,y:0.60}, home:{x:0.88,y:0.55} },
-    { id:'stigst', label:'ميسم وقلم', func:'الميسم يستقبل حبوب اللقاح، ويصلها القلم بالمبيض.', zone:{x:0.5,y:0.30}, home:{x:0.5,y:0.86} },
+    { id:'sepal',  label:'سبلات',  func:'تحيط بالزهرة وتحميها قبل أن تتفتّح.', zone:{x:0.5,y:0.80}, home:{x:0.12,y:0.28} },
+    { id:'petal',  label:'بتلات',  func:'عادةً أكثر جزء ملوّن في الزهرة، وتجذب الحشرات والطيور.', zone:{x:0.5,y:0.16}, home:{x:0.88,y:0.28} },
+    { id:'stamen', label:'أسدية (المتك والخيط)', func:'الجزء الذكري؛ يحتوي المتك على حبوب اللقاح التي تضمّ الأمشاج الذكرية.', zone:{x:0.28,y:0.48}, home:{x:0.12,y:0.60} },
+    { id:'ovary',  label:'مبيض',   func:'يحتوي البويضات التي تضمّ الأمشاج الأنثوية.', zone:{x:0.5,y:0.64}, home:{x:0.88,y:0.60} },
+    { id:'stigst', label:'ميسم وقلم', func:'الميسم يستقبل حبوب اللقاح، ويصلها القلم بالمبيض.', zone:{x:0.5,y:0.32}, home:{x:0.5,y:0.88} },
   ];
   const HINTS = {
     sepal:  'فكّري: أيّ جزء يحيط بالزهرة من الخارج قبل أن تتفتّح؟',
@@ -488,19 +496,22 @@ function simG7Bio1N2a(){
   cv.ontouchstart=onDown; cv.ontouchmove=onMove; cv.ontouchend=onUp;
   cv.onclick=null;
 
-  function drawPart(c,o,x,y,w,h,scale){
+  function drawPart(c,o,x,y,w,h,scale,full){
     c.save(); c.translate(x,y); c.scale(scale,scale);
     if(o.id==='sepal'){
       c.fillStyle='#4D7C3A';
-      for(let i=0;i<5;i++){ const a=i/5*Math.PI*2; c.save(); c.rotate(a);
+      const n = full ? 5 : 2;
+      for(let i=0;i<n;i++){ const a= full ? i/5*Math.PI*2 : (i===0?-0.3:0.3); c.save(); c.rotate(a);
         c.beginPath(); c.ellipse(0,-w*0.06,w*0.018,w*0.06,0,0,Math.PI*2); c.fill(); c.restore(); }
     } else if(o.id==='petal'){
       c.fillStyle='#F472B6'; c.strokeStyle='#9D174D'; c.lineWidth=1.2;
-      for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; c.save(); c.rotate(a);
+      const n = full ? 6 : 2;
+      for(let i=0;i<n;i++){ const a= full ? i/6*Math.PI*2 : (i===0?-0.35:0.35); c.save(); c.rotate(a);
         c.beginPath(); c.ellipse(0,-w*0.05,w*0.026,w*0.05,0,0,Math.PI*2); c.fill(); c.stroke(); c.restore(); }
     } else if(o.id==='stamen'){
       c.fillStyle='#FDE047'; c.strokeStyle='#CA8A04'; c.lineWidth=1;
-      for(let i=0;i<5;i++){ const a=i/5*Math.PI*2+0.3; c.save(); c.rotate(a);
+      const n = full ? 5 : 2;
+      for(let i=0;i<n;i++){ const a= full ? i/5*Math.PI*2+0.3 : (i===0?-0.25:0.25); c.save(); c.rotate(a);
         c.beginPath(); c.moveTo(0,0); c.lineTo(0,-w*0.055); c.stroke();
         c.beginPath(); c.ellipse(0,-w*0.06,w*0.012,w*0.018,0,0,Math.PI*2); c.fill(); c.restore(); }
     } else if(o.id==='ovary'){
@@ -524,25 +535,41 @@ function simG7Bio1N2a(){
 
     // ساق بسيط أسفل الزهرة
     c.strokeStyle='#5F9E52'; c.lineWidth=Math.max(4,w*0.012); c.lineCap='round';
-    c.beginPath(); c.moveTo(w*0.5,h*0.78); c.lineTo(w*0.5,h*0.98); c.stroke();
+    c.beginPath(); c.moveTo(w*0.5,h*0.86); c.lineTo(w*0.5,h*0.98); c.stroke();
+
+    // أدلّة الأهداف (Ghost Targets)
+    PARTS.forEach(o=>{
+      if(S.placed[o.id]) return;
+      const zx=o.zone.x*w, zy=o.zone.y*h;
+      c.save();
+      c.setLineDash([6,5]); c.lineWidth=2.5;
+      c.strokeStyle = S.dragId ? g7pAccent(dark) : g7pMut(dark);
+      c.globalAlpha = S.dragId ? 0.85 : 0.4;
+      c.beginPath(); c.arc(zx, zy, w*0.06, 0, Math.PI*2); c.stroke();
+      c.setLineDash([]);
+      c.globalAlpha=0.6;
+      c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+      c.fillText(o.label, zx, zy + w*0.06 + h*0.024);
+      c.restore();
+    });
 
     PARTS.forEach(o=>{
-      if(S.placed[o.id]) drawPart(c,o,o.zone.x*w,o.zone.y*h,w,h,1);
+      if(S.placed[o.id]) drawPart(c,o,o.zone.x*w,o.zone.y*h,w,h,1,true);
     });
     PARTS.forEach(o=>{
       if(S.placed[o.id] || S.dragId===o.id) return;
       const hx=o.home.x*w, hy=o.home.y*h;
       c.save(); c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)';
       c.beginPath(); c.arc(hx,hy,w*0.06,0,Math.PI*2); c.fill(); c.restore();
-      drawPart(c,o,hx,hy,w,h,0.85);
+      drawPart(c,o,hx,hy,w,h,0.85,false);
       c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
       c.fillText(o.label, hx, hy+h*0.08);
     });
-    if(S.dragId){ const o=PARTS.find(x=>x.id===S.dragId); drawPart(c,o,S.dragX,S.dragY,w,h,0.95); }
+    if(S.dragId){ const o=PARTS.find(x=>x.id===S.dragId); drawPart(c,o,S.dragX,S.dragY,w,h,0.95,false); }
 
     if(!S.done){
       c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
-      c.fillText(`اكتمل ${Object.keys(S.placed).length} من ٥ 🌸`, w/2, h*0.06);
+      c.fillText(`اكتمل ${Object.keys(S.placed).length} من ٥ 🌸`, w/2, h*0.98);
     }
     animFrame = requestAnimationFrame(draw);
   }
@@ -553,14 +580,26 @@ function simG7Bio1N2a(){
 function simG7Bio1N2b(){
   cancelAnimationFrame(animFrame);
   const SPOTS = [
-    { id:'petal',  label:'بتلة',  pos:{x:0.72,y:0.30}, func:'عادةً أكثر جزء ملوّن في الزهرة، وتجذب الحشرات والطيور لبعضها روائح أيضاً.', riddle:'أنا الجزء الملوّن الذي يجذب الحشرات والطيور إلى الزهرة. من أنا؟' },
-    { id:'sepal',  label:'سبلة',  pos:{x:0.20,y:0.70}, func:'تحيط بالزهرة وتحميها.', riddle:'أنا أحيط بالزهرة من الخارج وأحميها. من أنا؟' },
-    { id:'anther', label:'متك',   pos:{x:0.42,y:0.28}, func:'ينتج حبوب اللقاح التي تحتوي على الأمشاج الذكرية.', riddle:'أنتج حبوب اللقاح التي تحمل الأمشاج الذكرية. من أنا؟' },
-    { id:'filament',label:'خيط', pos:{x:0.42,y:0.45}, func:'يحمل المتك في أعلى الزهرة.', riddle:'أحمل المتك في مكانه العالي داخل الزهرة. من أنا؟' },
-    { id:'stigma', label:'ميسم', pos:{x:0.55,y:0.18}, func:'يستقبل حبوب اللقاح أثناء التلقيح.', riddle:'أساعد في عملية التكاثر باستقبال حبوب اللقاح في أعلى الزهرة. من أنا؟' },
-    { id:'style',  label:'قلم',  pos:{x:0.55,y:0.35}, func:'يصل الميسم بالمبيض.', riddle:'أصل بين الميسم والمبيض. من أنا؟' },
-    { id:'ovary',  label:'مبيض', pos:{x:0.55,y:0.58}, func:'يحتوي البويضات، وفيها الأمشاج الأنثوية.', riddle:'أحتوي على البويضات التي تحمل الأمشاج الأنثوية. من أنا؟' },
+    { id:'petal',    label:'بتلة',  func:'عادةً أكثر جزء ملوّن في الزهرة، وتجذب الحشرات والطيور، ولبعضها روائح أيضاً.', riddle:'أنا الجزء الملوّن الذي يجذب الحشرات والطيور إلى الزهرة. من أنا؟' },
+    { id:'sepal',    label:'سبلة',  func:'تحيط بالزهرة وتحميها.', riddle:'أنا أحيط بالزهرة من الخارج وأحميها. من أنا؟' },
+    { id:'anther',   label:'متك',   func:'ينتج حبوب اللقاح التي تحتوي على الأمشاج الذكرية.', riddle:'أنتج حبوب اللقاح التي تحمل الأمشاج الذكرية. من أنا؟' },
+    { id:'filament', label:'خيط',   func:'يحمل المتك في أعلى الزهرة.', riddle:'أحمل المتك في مكانه العالي داخل الزهرة. من أنا؟' },
+    { id:'stigma',   label:'ميسم',  func:'يستقبل حبوب اللقاح أثناء التلقيح.', riddle:'أساعد في عملية التكاثر باستقبال حبوب اللقاح في أعلى الزهرة. من أنا؟' },
+    { id:'style',    label:'قلم',   func:'يصل الميسم بالمبيض.', riddle:'أصل بين الميسم والمبيض. من أنا؟' },
+    { id:'ovary',    label:'مبيض',  func:'يحتوي البويضات، وفيها الأمشاج الأنثوية.', riddle:'أحتوي على البويضات التي تحمل الأمشاج الأنثوية. من أنا؟' },
   ];
+  // مواقع كل جزء تُحسب بنفس معادلات الرسم بالضبط (بدون أي تخمين)، فتقع النقاط دوماً فوق الجزء الصحيح
+  function flowerAnchor(id, cx, cy, R){
+    switch(id){
+      case 'petal':    return { x: cx, y: cy - R*0.65 };
+      case 'sepal':    { const a=0.4;  return { x: cx + R*0.95*Math.sin(a), y: cy - R*0.95*Math.cos(a) }; }
+      case 'anther':   { const a=0.3;  return { x: cx + R*0.46*Math.sin(a), y: cy - R*0.46*Math.cos(a) }; }
+      case 'filament': { const a=0.3;  return { x: cx + R*0.22*Math.sin(a), y: cy - R*0.22*Math.cos(a) }; }
+      case 'stigma':   return { x: cx, y: cy - R*0.55 };
+      case 'style':    return { x: cx, y: cy - R*0.25 };
+      case 'ovary':    return { x: cx, y: cy + R*0.15 };
+    }
+  }
   simState = { mode:'explore', selected:null, riddleIdx:0, riddleOrder:[], wrongPick:null, score:0 };
   const S = simState;
   const cv = document.getElementById('simCanvas');
@@ -571,7 +610,7 @@ function simG7Bio1N2b(){
     if(S.mode==='explore'){
       return `
         <div class="ctrl-section"><div class="ctrl-label">🌸 استكشفي الزهرة</div></div>
-        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">اضغطي على أيّ جزء من الزهرة في الصورة لتتعرّفي عليه.</div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">اضغطي على أيّ دائرة على الزهرة لتتعرّفي على ذلك الجزء.</div>
         <div id="g7fSpotInfo" style="font-size:13px;color:var(--text-secondary);line-height:1.8;min-height:24px;margin-bottom:14px;background:var(--bg-card2);border-radius:8px;padding:${S.selected?'12px':'0px'}">
           ${S.selected ? ('<strong>'+SPOTS.find(s=>s.id===S.selected).label+':</strong> '+SPOTS.find(s=>s.id===S.selected).func) : ''}
         </div>
@@ -608,9 +647,11 @@ function simG7Bio1N2b(){
   cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null;
   cv.onclick = function(e){
     const p = g7pGp(cv,e), w=cv.width, h=cv.height;
+    const cx=w*0.5, cy=h*0.52, R=Math.min(w,h)*0.32;
     let hit = null;
     for(const s of SPOTS){
-      if(Math.hypot(p.x-s.pos.x*w, p.y-s.pos.y*h) < w*0.055){ hit = s; break; }
+      const a = flowerAnchor(s.id, cx, cy, R);
+      if(Math.hypot(p.x-a.x, p.y-a.y) < w*0.045){ hit = s; break; }
     }
     if(!hit) return;
     if(S.mode==='explore'){
@@ -635,7 +676,7 @@ function simG7Bio1N2b(){
     c.fillText(S.mode==='explore' ? 'نشاط ٢-١ · استكشفي الزهرة' : 'نشاط ٢-١ · من أنا؟', w/2, h*0.05);
 
     // رسم زهرة كبيرة وواضحة (تقريب تخطيطي لرسم الكتاب)
-    const cx=w*0.5, cy=h*0.5, R=Math.min(w,h)*0.34;
+    const cx=w*0.5, cy=h*0.52, R=Math.min(w,h)*0.32;
     // بتلات
     c.save(); c.translate(cx,cy);
     for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; c.save(); c.rotate(a);
@@ -656,18 +697,25 @@ function simG7Bio1N2b(){
     c.beginPath(); c.ellipse(0,R*0.15,R*0.15,R*0.12,0,0,Math.PI*2); c.fill(); c.stroke();
     c.restore();
 
-    // نقاط تفاعلية (Hotspots)
+    // نقاط تفاعلية (Hotspots) — بنفس إحداثيات flowerAnchor تماماً، فتقع دوماً فوق الجزء الصحيح
     SPOTS.forEach(s=>{
-      const x=s.pos.x*w, y=s.pos.y*h;
+      const { x, y } = flowerAnchor(s.id, cx, cy, R);
       const isSel = (S.mode==='explore' && S.selected===s.id) || (S.mode==='quiz' && S.wrongPick===s.id);
+      const wasRight = S.mode==='quiz' && S.riddleOrder.slice(0,S.riddleIdx).includes(s.id);
       c.save();
-      c.fillStyle = isSel ? (S.mode==='quiz' && S.wrongPick===s.id ? 'rgba(231,76,60,0.55)' : 'rgba(74,222,128,0.5)') : (dark?'rgba(255,255,255,0.35)':'rgba(255,255,255,0.85)');
-      c.strokeStyle = g7pAccent(dark); c.lineWidth=2;
-      c.beginPath(); c.arc(x,y,w*0.018,0,Math.PI*2); c.fill(); c.stroke();
+      c.fillStyle = isSel ? (S.mode==='quiz' && S.wrongPick===s.id ? 'rgba(231,76,60,0.6)' : 'rgba(74,222,128,0.55)') : (dark?'rgba(255,255,255,0.55)':'rgba(255,255,255,0.9)');
+      c.strokeStyle = wasRight ? g7pAccent(dark) : (dark?'#1A3A25':'#166534'); c.lineWidth=2.5;
+      c.beginPath(); c.arc(x,y,w*0.026,0,Math.PI*2); c.fill(); c.stroke();
       c.restore();
       if(S.mode==='explore'){
-        c.fillStyle=g7pTxt(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+        c.save();
+        c.fillStyle=dark?'rgba(11,26,16,0.85)':'rgba(255,255,255,0.9)';
+        c.font=`bold ${Math.round(h*0.0135)}px Tajawal`; c.textAlign='center';
+        const tw = c.measureText(s.label).width;
+        c.fillRect(x-tw/2-4, y-h*0.045, tw+8, h*0.022);
+        c.fillStyle=g7pTxt(dark);
         c.fillText(s.label, x, y - h*0.03);
+        c.restore();
       }
     });
 
