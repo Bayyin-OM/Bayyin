@@ -3,6 +3,46 @@
 // نشاط ٦-١ · أجهزة جسم الإنسان (كتاب الصف السابع ص٢٤-٢٥)
 // ══════════════════════════════════════════════════════════
 
+// ── هيكل جسم واقعي مبسّط (رأس + رقبة + جذع بخصر + ذراعان) يُستخدم في نشاطَي ٦-١ و٧-١ ──
+function g7pDrawBody(c, w, h, dark){
+  const cx = w*0.5;
+  const skin = dark ? '#4A4038' : '#E8DCC8';
+  const stroke = g7pMut(dark);
+  c.fillStyle = skin; c.strokeStyle = stroke; c.lineWidth = 2.5; c.lineJoin='round';
+
+  // الرأس
+  c.beginPath(); c.arc(cx, h*0.145, w*0.05, 0, Math.PI*2); c.fill(); c.stroke();
+  // الرقبة
+  c.beginPath(); c.roundRect(cx-w*0.02, h*0.188, w*0.04, h*0.032, 3); c.fill(); c.stroke();
+
+  // الذراعان (خلف الجذع، تُرسمان أولاً)
+  [-1,1].forEach(side=>{
+    const sx = cx+side*w*0.145, sy=h*0.235;
+    c.beginPath();
+    c.moveTo(sx, sy);
+    c.quadraticCurveTo(sx+side*w*0.045, h*0.38, sx+side*w*0.03, h*0.54);
+    c.quadraticCurveTo(sx+side*w*0.028, h*0.565, sx-side*w*0.01, h*0.565);
+    c.quadraticCurveTo(sx-side*w*0.04, h*0.40, sx-side*w*0.05, sy+h*0.01);
+    c.closePath();
+    c.fill(); c.stroke();
+  });
+
+  // الجذع: كتفان → خصر أضيق → وركان، بمنحنيات ناعمة
+  c.beginPath();
+  c.moveTo(cx-w*0.018, h*0.21);
+  c.lineTo(cx-w*0.135, h*0.235);
+  c.quadraticCurveTo(cx-w*0.165, h*0.32, cx-w*0.10, h*0.42);
+  c.quadraticCurveTo(cx-w*0.085, h*0.47, cx-w*0.115, h*0.55);
+  c.quadraticCurveTo(cx-w*0.125, h*0.60, cx-w*0.10, h*0.635);
+  c.lineTo(cx+w*0.10, h*0.635);
+  c.quadraticCurveTo(cx+w*0.125, h*0.60, cx+w*0.115, h*0.55);
+  c.quadraticCurveTo(cx+w*0.085, h*0.47, cx+w*0.10, h*0.42);
+  c.quadraticCurveTo(cx+w*0.165, h*0.32, cx+w*0.135, h*0.235);
+  c.lineTo(cx+w*0.018, h*0.21);
+  c.closePath();
+  c.fill(); c.stroke();
+}
+
 /* ── تاب ١: من الجهاز المسؤول؟ ── */
 function simG7Bio1N6a(){
   cancelAnimationFrame(animFrame);
@@ -70,10 +110,7 @@ function simG7Bio1N6a(){
     c.fillText('نشاط ٦-١ · من الجهاز المسؤول؟', w/2, h*0.06);
 
     const cx=w*0.5;
-    // جسم مبسّط (رأس + جذع)
-    c.fillStyle= dark?'#3A3A3A':'#E8DCC8'; c.strokeStyle=g7pMut(dark); c.lineWidth=2;
-    c.beginPath(); c.arc(cx,h*0.16,w*0.055,0,Math.PI*2); c.fill(); c.stroke();
-    c.beginPath(); c.roundRect(cx-w*0.13,h*0.22,w*0.26,h*0.42,w*0.08); c.fill(); c.stroke();
+    g7pDrawBody(c,w,h,dark);
 
     Object.keys(SYSTEMS).forEach(id=>{
       const sys = SYSTEMS[id];
@@ -330,9 +367,7 @@ function simG7Bio1N7a(){
   cv.onclick=null;
 
   function drawBody(c,w,h,dark){
-    c.fillStyle= dark?'#3A3A3A':'#E8DCC8'; c.strokeStyle=g7pMut(dark); c.lineWidth=2;
-    c.beginPath(); c.arc(w*0.5,h*0.16,w*0.055,0,Math.PI*2); c.fill(); c.stroke();
-    c.beginPath(); c.roundRect(w*0.37,h*0.22,w*0.26,h*0.42,w*0.08); c.fill(); c.stroke();
+    g7pDrawBody(c,w,h,dark);
   }
   function drawOrganAndShield(c,key,w,h,dark){
     const o = ORGANS[key];
