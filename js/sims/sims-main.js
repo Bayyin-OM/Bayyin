@@ -574,7 +574,7 @@ function switchGrade(g) {
     activePanel.querySelectorAll('.unit-card[data-sem]').forEach(function(card) {
       card.style.display = (card.getAttribute('data-sem') == sem) ? '' : 'none';
     });
-    if (g === 8 || g === 6) {
+    if (g === 8 || g === 6 || g === 5) {
       var pSub = document.getElementById('panel' + g + '-sub');
       if (pSub) pSub.textContent = 'اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي ' + (sem == 1 ? 'الأول' : 'الثاني');
     }
