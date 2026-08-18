@@ -886,6 +886,15 @@
     <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي الثاني</div>
     <div class="units-grid" id="grade5-units">
 
+      <div class="unit-card" data-sem="1" onclick="openUnit('u5plants', this)">
+        <div class="unit-num-badge c-green">١</div>
+        <div>
+          <div class="unit-title">استقصاء نمو النبات</div>
+          <div class="unit-topics">البذور · كيف تنمو البذور؟ · عملية الإنبات · ماذا يحتاج النبات كي ينمو؟ · النبات والضوء</div>
+          <div class="unit-pill avail">🌱 ٥ استقصاءات متاحة</div>
+        </div>
+      </div>
+
       <div class="unit-card" data-sem="2" onclick="openUnit('u5light', this)">
         <div class="unit-num-badge c-gold">٤</div>
         <div>
@@ -913,6 +922,67 @@
         </div>
       </div>
 
+    </div>
+
+    <!-- ===== الوحدة ١ — استقصاء نمو النبات ===== -->
+    <div id="sims-u5plants" class="sims-wrap" style="margin-top:28px">
+      <div class="sims-header">
+        <div class="sims-title">استقصاءات الوحدة ١ — استقصاء نمو النبات</div>
+        <div class="sims-count">٥ استقصاءات</div>
+      </div>
+      <div class="sims-grid">
+
+        <div class="sim-card" onclick="openSim('g5bio1n1')">
+          <div class="sim-thumb t3">🌰</div>
+          <div class="sim-body">
+            <div class="sim-num">1-1 · البذور</div>
+            <div class="sim-name">استكشفي البذرة من الداخل والخارج</div>
+            <div class="sim-desc">اضغطي على أجزاء البذرة لتتعرّفي عليها، ثمّ افتحيها لتكتشفي ما بداخلها، واختبري نفسك بلعبة "أين هذا الجزء؟"</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5bio1n2')">
+          <div class="sim-thumb t1">🌱</div>
+          <div class="sim-body">
+            <div class="sim-num">2-1 · كيف تنمو البذور؟</div>
+            <div class="sim-name">راقبي مراحل الإنبات خطوة بخطوة</div>
+            <div class="sim-desc">توقّعي أولاً، ثم تابعي بذرة الفول وهي تمتصّ الماء وينمو جذرها وساقها وأوراقها الأولى</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5bio1n3')">
+          <div class="sim-thumb t7">🌬️</div>
+          <div class="sim-body">
+            <div class="sim-num">3-1 · استقصاء عملية الإنبات</div>
+            <div class="sim-name">هل تحتاج البذور إلى الهواء؟</div>
+            <div class="sim-desc">جهّزي وعاءين — أحدهما بهواء والآخر بلا هواء — وراقبي الفرق في الإنبات يوماً بعد يوم</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5bio1n4')">
+          <div class="sim-thumb t5">🌿</div>
+          <div class="sim-body">
+            <div class="sim-num">4-1 · ماذا يحتاج النبات كي ينمو؟</div>
+            <div class="sim-name">قارني نتائج أربعة نباتات</div>
+            <div class="sim-desc">راقبي أربعة نباتات زُرعت في ظروف مختلفة من الضوء والماء، وقارني أطوالها ومظهرها</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5bio1n5')">
+          <div class="sim-thumb t8">☀️</div>
+          <div class="sim-body">
+            <div class="sim-num">5-1 · النبات والضوء</div>
+            <div class="sim-name">قارني نبات الشمس بنبات الظلام</div>
+            <div class="sim-desc">توقّعي أولاً، ثم راقبي نبتتين — واحدة عند نافذة مشمسة والأخرى في خزانة مظلمة — على مدى عدة أسابيع</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+      </div>
     </div>
 
     <!-- ===== الوحدة ٤ — الطريقة التي نرى بها الأشياء ===== -->
@@ -3782,6 +3852,7 @@
 <script src="/js/sims/sims-grade8-chem.js"></script>
 <script src="/js/sims/sims-grade7-plants.js"></script>
 <script src="/js/sims/sims-grade7-body.js"></script>
+<script src="/js/sims/sims-grade5-plants.js"></script>
 <script src="/js/sims/sims-grade6-humanbody.js"></script>
 
 <!-- Core: Nature sounds engine -->
