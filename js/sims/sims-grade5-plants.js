@@ -328,7 +328,13 @@ function simG5Bio1N4a(){
     { name:'سعيد',    cond:'مكان مشمس، لكن نُسي أن يُروى', h:6,  desc:'جافّ وبنيّ', col:'#A16207' },
     { name:'طارق',    cond:'تحت السرير + رُوي مرتين أسبوعياً', h:14, desc:'نحيف وضعيف', col:'#65A30D' },
   ];
-  simState = { stage:'intro', revealIdx:0, growT:0 };
+  const QUESTIONS = [
+    { q:'١) أيّ النباتات نما بأفضل حال؟ ولماذا؟', a:'نبات عبدالله — لأنّه كان في مكان مشمس ورُوي بانتظام؛ توفّرت له الشمس والماء معاً.' },
+    { q:'٢) أيّ النباتات نما بأسوأ حال؟ ولماذا؟', a:'نبات سعيد — كان في الشمس لكنّه لم يُروَ، فذبل وجفّ رغم توفّر الضوء.' },
+    { q:'٣) لماذا كان نبات محمد أصغر من نبات عبدالله رغم أنّ كليهما رُوي بانتظام؟', a:'لأنّ محمد كان في مكان ظليل؛ النباتات تحتاج إلى الضوء لصنع غذائها والنمو جيّداً.' },
+    { q:'٤) لماذا كان نبات طارق نحيفاً وضعيفاً رغم أنّه رُوي بانتظام؟', a:'لأنّه كان تحت السرير بعيداً عن الضوء تماماً — الماء وحده لا يكفي، فالنبات يحتاج الضوء أيضاً.' }
+  ];
+  simState = { stage:'intro', revealIdx:0, growT:0, qIdx:0, showAns:false };
   const S = simState;
   const cv = document.getElementById('simCanvas');
 
@@ -352,25 +358,37 @@ function simG5Bio1N4a(){
           <button class="ctrl-btn play" onclick="window._g5fNext()">➡ التالي</button>`;
       }
       return `<div class="ctrl-section"><div class="ctrl-label">📊 قارني النتائج</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">تأمّلي الرسم البياني جيّداً — أيّ نبات الأطول؟ وأيّهم الأقصر؟</div>
         <button class="ctrl-btn play" onclick="window._g5fQ()">➡ الأسئلة</button>`;
     }
     if(S.stage==='q'){
+      if(S.qIdx >= QUESTIONS.length){
+        return `
+          <div class="ctrl-section"><div class="ctrl-label">🎉 أحسنتِ!</div></div>
+          <div style="padding:14px;background:var(--bg-card2);border-radius:10px;font-size:13px;color:var(--text-secondary);line-height:1.9">
+            النبات يحتاج <strong>ضوءاً وماءً معاً</strong> لينمو بشكل صحّي. نقص أيٍّ منهما — حتى مع توفّر الآخر — يجعل النبات ضعيفاً أو يجعله يذبل.
+          </div>
+          <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g5fRestart()">↺ أعد النشاط</button>`;
+      }
+      const cur = QUESTIONS[S.qIdx];
       return `
-        <div class="ctrl-section"><div class="ctrl-label">🤔 أسئلة</div></div>
-        <div style="font-size:13px;line-height:2;color:var(--text-secondary)">
-          <strong>١) أيّ النباتات نما بأفضل حال؟</strong> نبات عبدالله (مشمس + مروي بانتظام).<br>
-          <strong>٢) أيّ النباتات نما بأسوأ حال؟</strong> نبات سعيد (جافّ وبنيّ) لأنّه لم يُروَ رغم وجوده في الشمس.<br>
-          <strong>٣) لماذا كان نبات محمد أصغر من نبات عبدالله؟</strong> لأنّه كان في مكان ظليل، والنباتات تحتاج الطاقة الضوئية لتنمو جيّداً.<br>
-          <strong>٤) لماذا كان نبات طارق نحيفاً وضعيفاً؟</strong> لأنّه كان تحت السرير بعيداً عن الضوء رغم رَيّه بانتظام.
-        </div>
-        <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g5fRestart()">↺ أعد النشاط</button>`;
+        <div class="ctrl-section"><div class="ctrl-label">🤔 سؤال ${S.qIdx+1} من ${QUESTIONS.length}</div></div>
+        <div style="font-size:14px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:12px;line-height:1.8">${cur.q}</div>
+        ${!S.showAns ?
+          `<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">فكّري في إجابتك أولاً، ثمّ اضغطي لإظهارها.</div>
+           <button class="ctrl-btn play" onclick="window._g5fShowAns()">💡 أظهري الإجابة</button>` :
+          `<div style="font-size:13px;line-height:1.8;color:var(--text-secondary);background:rgba(74,222,128,0.12);border-right:4px solid #22C55E;border-radius:8px;padding:12px;margin-bottom:12px"><strong>الإجابة:</strong> ${cur.a}</div>
+           <button class="ctrl-btn play" onclick="window._g5fNextQ()">➡ ${S.qIdx+1<QUESTIONS.length?'السؤال التالي':'إنهاء'}</button>`}
+      `;
     }
   }
   controls(renderControls());
   window._g5fReveal = function(){ _g8pPlayClick(); S.stage='reveal'; S.revealIdx=0; controls(renderControls()); };
   window._g5fNext = function(){ _g8pPlayClick(); S.revealIdx++; controls(renderControls()); };
-  window._g5fQ = function(){ _g8pPlayClick(); S.stage='q'; controls(renderControls()); };
-  window._g5fRestart = function(){ S.stage='intro'; S.revealIdx=0; controls(renderControls()); };
+  window._g5fQ = function(){ _g8pPlayClick(); S.stage='q'; S.qIdx=0; S.showAns=false; controls(renderControls()); };
+  window._g5fShowAns = function(){ _g8pPlayDrop(); S.showAns=true; controls(renderControls()); };
+  window._g5fNextQ = function(){ _g8pPlayClick(); S.qIdx++; S.showAns=false; controls(renderControls()); };
+  window._g5fRestart = function(){ S.stage='intro'; S.revealIdx=0; S.qIdx=0; S.showAns=false; controls(renderControls()); };
   cv.onclick=null;
 
   function draw(){
@@ -381,6 +399,22 @@ function simG5Bio1N4a(){
     c.fillText('نشاط ٤-١ · ماذا يحتاج النبات كي ينمو؟', w/2, h*0.06);
 
     const baseY = h*0.78, maxH = 25;
+    const allShown = S.stage==='q' || (S.stage==='reveal' && S.revealIdx>=PLANTS.length);
+
+    // خطوط إرشادية تُظهر مقياس الطول بالسنتيمتر
+    c.save();
+    c.strokeStyle = dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'; c.lineWidth=1;
+    c.fillStyle=g5pMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='right';
+    for(let cm=5; cm<=25; cm+=5){
+      const gy = baseY - h*0.45*(cm/maxH);
+      c.beginPath(); c.moveTo(w*0.06,gy); c.lineTo(w*0.94,gy); c.stroke();
+      c.fillText(cm+' cm', w*0.06, gy-3);
+    }
+    c.restore();
+
+    let tallestI=0, shortestI=0;
+    PLANTS.forEach((p,i)=>{ if(p.h>PLANTS[tallestI].h) tallestI=i; if(p.h<PLANTS[shortestI].h) shortestI=i; });
+
     PLANTS.forEach((p,i)=>{
       const x = w*(0.18+i*0.22);
       const show = S.stage!=='intro' && (S.stage!=='reveal' || i<=S.revealIdx);
@@ -390,12 +424,23 @@ function simG5Bio1N4a(){
       c.fillText(p.name, x, baseY+h*0.09);
       if(show){
         const barH = h*0.45*(p.h/maxH);
-        c.strokeStyle=p.col; c.lineWidth=Math.max(3,w*0.008); c.lineCap='round';
+        c.strokeStyle=p.col; c.lineWidth=Math.max(5,w*0.011); c.lineCap='round';
         c.beginPath(); c.moveTo(x,baseY); c.lineTo(x,baseY-barH); c.stroke();
         c.fillStyle=p.col;
         c.beginPath(); c.ellipse(x,baseY-barH,w*0.02,h*0.015,0,0,Math.PI*2); c.fill();
-        c.fillStyle=g5pTxt(dark); c.font=`${Math.round(h*0.014)}px Tajawal`;
-        c.fillText(p.h+' cm', x, baseY-barH-h*0.02);
+        c.fillStyle=g5pTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`;
+        c.fillText(p.h+' cm', x, baseY-barH-h*0.025);
+        if(allShown && i===tallestI){
+          c.font=`${Math.round(h*0.028)}px Tajawal`; c.fillText('👑', x, baseY-barH-h*0.06);
+        }
+        if(allShown && i===shortestI){
+          c.fillStyle='#DC2626'; c.font=`bold ${Math.round(h*0.013)}px Tajawal`;
+          c.fillText('الأقصر', x, baseY+h*0.13);
+        }
+        if(allShown && i===tallestI){
+          c.fillStyle='#16A34A'; c.font=`bold ${Math.round(h*0.013)}px Tajawal`;
+          c.fillText('الأطول', x, baseY+h*0.13);
+        }
       }
     });
 
@@ -440,7 +485,7 @@ function simG5Bio1N5a(){
     return `
       <div class="ctrl-section"><div class="ctrl-label">🎉 ماذا تعلّمنا؟</div></div>
       <div style="padding:14px;background:var(--bg-card2);border-radius:10px;font-size:13px;color:var(--text-secondary);line-height:1.9">
-        ${predictedRight?'توقّعك كان صحيحاً! ':''}تحتاج النباتات إلى طاقة ضوئية لتنمو جيّداً، وتحتاج إلى طاقة ضوئية لصنع الغذاء داخل أوراقها. النبات (أ) نما أطول وأخضر صحيّاً، بينما النبات (ب) نما ضعيفاً وشاحب اللون بسبب غياب الضوء.
+        ${predictedRight?'توقّعك كان صحيحاً! ':''}نبات (أ) — المشمس — نما أطول بكثير وأخضر صحيّاً؛ بينما نبات (ب) — في الخزانة المظلمة — بقي قصيراً جداً وشاحب اللون رغم أنّه رُوي بنفس الكمية بالضبط. الماء وحده لا يكفي: النبات يحتاج إلى الضوء أيضاً ليصنع غذاءه وينمو.
       </div>
       <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g5lRestart()">↺ أعد التجربة</button>`;
   }
@@ -452,27 +497,38 @@ function simG5Bio1N5a(){
   cv.onclick=null;
 
   function drawPlant(c,x,y,w,h,growth,healthy){
-    const stemH = h*0.28*growth;
-    c.strokeStyle = healthy? '#22C55E' : '#A3E635'; c.lineWidth=Math.max(3,w*0.01); c.lineCap='round';
+    const effGrowth = growth*(healthy?1:0.32);
+    const stemH = h*0.28*effGrowth;
+    c.strokeStyle = healthy? '#22C55E' : '#BEF264'; c.lineWidth= healthy? Math.max(3,w*0.01) : Math.max(1.5,w*0.005); c.lineCap='round';
     c.beginPath(); c.moveTo(x,y); c.lineTo(x,y-stemH); c.stroke();
-    if(growth>0.2){
-      const leafCol = healthy? '#4ADE80' : '#D9F99D';
-      c.fillStyle=leafCol; c.strokeStyle= healthy?'#166534':'#65A30D'; c.lineWidth=1.2;
+    if(effGrowth>0.15 && effGrowth<=0.45){
+      const leafCol = healthy? '#4ADE80' : '#EEF9C8';
+      c.fillStyle=leafCol; c.strokeStyle= healthy?'#166534':'#A3B36A'; c.lineWidth=1;
       for(const side of [-1,1]){
         c.save(); c.translate(x,y-stemH*0.6); c.rotate(side*0.6);
-        c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(side*w*0.04,-h*0.03,side*w*0.07,0); c.quadraticCurveTo(side*w*0.04,h*0.01,0,0); c.fill(); c.stroke();
+        const s = healthy?1:0.55;
+        c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(side*w*0.04*s,-h*0.03*s,side*w*0.07*s,0); c.quadraticCurveTo(side*w*0.04*s,h*0.01*s,0,0); c.fill(); c.stroke();
         c.restore();
       }
     }
-    if(growth>0.5){
-      const leafCol = healthy? '#4ADE80' : '#D9F99D';
-      c.fillStyle=leafCol; c.strokeStyle= healthy?'#166534':'#65A30D'; c.lineWidth=1.2;
+    if(effGrowth>0.45){
+      const leafCol = healthy? '#4ADE80' : '#EEF9C8';
+      c.fillStyle=leafCol; c.strokeStyle= healthy?'#166534':'#A3B36A'; c.lineWidth=1;
+      for(const side of [-1,1]){
+        c.save(); c.translate(x,y-stemH*0.6); c.rotate(side*0.6);
+        const s = healthy?1:0.55;
+        c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(side*w*0.04*s,-h*0.03*s,side*w*0.07*s,0); c.quadraticCurveTo(side*w*0.04*s,h*0.01*s,0,0); c.fill(); c.stroke();
+        c.restore();
+      }
+      c.fillStyle=leafCol; c.strokeStyle= healthy?'#166534':'#A3B36A'; c.lineWidth=1;
       for(const side of [-1,1]){
         c.save(); c.translate(x,y-stemH); c.rotate(side*0.5);
-        c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(side*w*0.045,-h*0.035,side*w*0.08,0); c.quadraticCurveTo(side*w*0.045,h*0.012,0,0); c.fill(); c.stroke();
+        const s = healthy?1:0.55;
+        c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(side*w*0.045*s,-h*0.035*s,side*w*0.08*s,0); c.quadraticCurveTo(side*w*0.045*s,h*0.012*s,0,0); c.fill(); c.stroke();
         c.restore();
       }
     }
+    return Math.round(effGrowth*20); // طول تقريبي بالسنتيمتر للعرض
   }
 
   function draw(){
@@ -498,7 +554,7 @@ function simG5Bio1N5a(){
     c.restore();
     c.fillStyle=g5pMut(dark); c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
     c.fillText('نبات (أ) — مكان مشمس', w*0.25, h*0.72);
-    drawPlant(c, w*0.25, h*0.66, w, h, growth, true);
+    const cmA = drawPlant(c, w*0.25, h*0.66, w, h, growth, true);
 
     // منطقة الخزانة (مظلمة)
     c.save();
@@ -508,11 +564,20 @@ function simG5Bio1N5a(){
     c.restore();
     c.fillStyle=g5pMut(dark); c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
     c.fillText('نبات (ب) — خزانة مظلمة', w*0.75, h*0.72);
-    drawPlant(c, w*0.75, h*0.66, w, h, growth, false);
+    const cmB = drawPlant(c, w*0.75, h*0.66, w, h, growth, false);
 
     if(S.stage==='wait' || S.stage==='result'){
       c.fillStyle=g5pAccent(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
       c.fillText(`الأسبوع ${S.day}`, w/2, h*0.9);
+      // مقارنة رقمية واضحة للطول
+      c.fillStyle='#16A34A'; c.font=`bold ${Math.round(h*0.017)}px Tajawal`;
+      c.fillText(cmA+' سم', w*0.25, h*0.78);
+      c.fillStyle= (cmB>0)?'#CA8A04':'#9CA3AF'; c.font=`bold ${Math.round(h*0.017)}px Tajawal`;
+      c.fillText(cmB+' سم', w*0.75, h*0.78);
+      if(S.stage==='result'){
+        c.fillStyle='#16A34A'; c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+        c.fillText('👑 الأطول', w*0.25, h*0.16);
+      }
     }
 
     animFrame = requestAnimationFrame(draw);
