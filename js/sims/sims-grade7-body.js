@@ -4,41 +4,43 @@
 // ══════════════════════════════════════════════════════════
 
 // ── هيكل جسم واقعي مبسّط (رأس + رقبة + جذع بخصر + ذراعان) يُستخدم في نشاطَي ٦-١ و٧-١ ──
-function g7pDrawBody(c, w, h, dark){
+function g7pDrawBody(c, w, h, dark, yOff){
+  yOff = yOff || 0;
   const cx = w*0.5;
   const skin = dark ? '#4A4038' : '#E8DCC8';
   const stroke = g7pMut(dark);
   c.fillStyle = skin; c.strokeStyle = stroke; c.lineWidth = 2.5; c.lineJoin='round';
+  const Y = (f)=> h*f + h*yOff;
 
   // الرأس
-  c.beginPath(); c.arc(cx, h*0.145, w*0.05, 0, Math.PI*2); c.fill(); c.stroke();
+  c.beginPath(); c.arc(cx, Y(0.145), w*0.05, 0, Math.PI*2); c.fill(); c.stroke();
   // الرقبة
-  c.beginPath(); c.roundRect(cx-w*0.02, h*0.188, w*0.04, h*0.032, 3); c.fill(); c.stroke();
+  c.beginPath(); c.roundRect(cx-w*0.02, Y(0.188), w*0.04, h*0.032, 3); c.fill(); c.stroke();
 
   // الذراعان (خلف الجذع، تُرسمان أولاً)
   [-1,1].forEach(side=>{
-    const sx = cx+side*w*0.145, sy=h*0.235;
+    const sx = cx+side*w*0.145, sy=Y(0.235);
     c.beginPath();
     c.moveTo(sx, sy);
-    c.quadraticCurveTo(sx+side*w*0.045, h*0.38, sx+side*w*0.03, h*0.54);
-    c.quadraticCurveTo(sx+side*w*0.028, h*0.565, sx-side*w*0.01, h*0.565);
-    c.quadraticCurveTo(sx-side*w*0.04, h*0.40, sx-side*w*0.05, sy+h*0.01);
+    c.quadraticCurveTo(sx+side*w*0.045, Y(0.38), sx+side*w*0.03, Y(0.54));
+    c.quadraticCurveTo(sx+side*w*0.028, Y(0.565), sx-side*w*0.01, Y(0.565));
+    c.quadraticCurveTo(sx-side*w*0.04, Y(0.40), sx-side*w*0.05, sy+h*0.01);
     c.closePath();
     c.fill(); c.stroke();
   });
 
   // الجذع: كتفان → خصر أضيق → وركان، بمنحنيات ناعمة
   c.beginPath();
-  c.moveTo(cx-w*0.018, h*0.21);
-  c.lineTo(cx-w*0.135, h*0.235);
-  c.quadraticCurveTo(cx-w*0.165, h*0.32, cx-w*0.10, h*0.42);
-  c.quadraticCurveTo(cx-w*0.085, h*0.47, cx-w*0.115, h*0.55);
-  c.quadraticCurveTo(cx-w*0.125, h*0.60, cx-w*0.10, h*0.635);
-  c.lineTo(cx+w*0.10, h*0.635);
-  c.quadraticCurveTo(cx+w*0.125, h*0.60, cx+w*0.115, h*0.55);
-  c.quadraticCurveTo(cx+w*0.085, h*0.47, cx+w*0.10, h*0.42);
-  c.quadraticCurveTo(cx+w*0.165, h*0.32, cx+w*0.135, h*0.235);
-  c.lineTo(cx+w*0.018, h*0.21);
+  c.moveTo(cx-w*0.018, Y(0.21));
+  c.lineTo(cx-w*0.135, Y(0.235));
+  c.quadraticCurveTo(cx-w*0.165, Y(0.32), cx-w*0.10, Y(0.42));
+  c.quadraticCurveTo(cx-w*0.085, Y(0.47), cx-w*0.115, Y(0.55));
+  c.quadraticCurveTo(cx-w*0.125, Y(0.60), cx-w*0.10, Y(0.635));
+  c.lineTo(cx+w*0.10, Y(0.635));
+  c.quadraticCurveTo(cx+w*0.125, Y(0.60), cx+w*0.115, Y(0.55));
+  c.quadraticCurveTo(cx+w*0.085, Y(0.47), cx+w*0.10, Y(0.42));
+  c.quadraticCurveTo(cx+w*0.165, Y(0.32), cx+w*0.135, Y(0.235));
+  c.lineTo(cx+w*0.018, Y(0.21));
   c.closePath();
   c.fill(); c.stroke();
 }
@@ -47,10 +49,10 @@ function g7pDrawBody(c, w, h, dark){
 function simG7Bio1N6a(){
   cancelAnimationFrame(animFrame);
   const SYSTEMS = {
-    nervous:    { label:'الجهاز العصبي', y:0.20, col:'#8B5CF6' },
-    respiratory:{ label:'الجهاز التنفسي', y:0.34, col:'#3B82F6' },
-    circulatory:{ label:'الجهاز الدوري',  y:0.42, col:'#EF4444' },
-    digestive:  { label:'الجهاز الهضمي',  y:0.55, col:'#F59E0B' },
+    nervous:    { label:'الجهاز العصبي', y:0.28, col:'#8B5CF6' },
+    respiratory:{ label:'الجهاز التنفسي', y:0.40, col:'#3B82F6' },
+    circulatory:{ label:'الجهاز الدوري',  y:0.48, col:'#EF4444' },
+    digestive:  { label:'الجهاز الهضمي',  y:0.60, col:'#F59E0B' },
   };
   const SITUATIONS = [
     { text:'"لمستُ كوباً ساخناً فسحبتُ يدي بسرعة."', opts:[['nervous','الجهاز العصبي'],['digestive','الجهاز الهضمي'],['respiratory','الجهاز التنفسي'],['circulatory','الجهاز الدوري']], ans:'nervous' },
@@ -106,34 +108,41 @@ function simG7Bio1N6a(){
     if(currentSim!=='g7bio1n6' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
-    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
-    c.fillText('نشاط ٦-١ · من الجهاز المسؤول؟', w/2, h*0.06);
 
     const cx=w*0.5;
-    g7pDrawBody(c,w,h,dark);
+    g7pDrawBody(c,w,h,dark,0.06);
 
     Object.keys(SYSTEMS).forEach(id=>{
       const sys = SYSTEMS[id];
+      const sy = h*(sys.y+0.06);
       const isLit = !!S.lit[id];
       const pulse = isLit ? (0.85+Math.sin(Date.now()/300)*0.15) : 1;
       c.save();
       c.globalAlpha = isLit ? 1 : 0.18;
       c.fillStyle = sys.col;
       if(isLit){ c.shadowColor=sys.col; c.shadowBlur = w*0.03; }
-      c.beginPath(); c.ellipse(cx, h*sys.y, w*0.075*pulse, h*0.05*pulse, 0, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.ellipse(cx, sy, w*0.075*pulse, h*0.05*pulse, 0, 0, Math.PI*2); c.fill();
       c.restore();
       if(isLit){
         c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='right';
-        c.fillText(sys.label, cx+w*0.16, h*sys.y+h*0.005);
+        c.fillText(sys.label, cx+w*0.16, sy+h*0.005);
         c.strokeStyle=sys.col; c.lineWidth=1.5;
-        c.beginPath(); c.moveTo(cx+w*0.08,h*sys.y); c.lineTo(cx+w*0.15,h*sys.y); c.stroke();
+        c.beginPath(); c.moveTo(cx+w*0.08,sy); c.lineTo(cx+w*0.15,sy); c.stroke();
       }
     });
 
     if(S.round<SITUATIONS.length && !S.revealed){
       c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
-      c.fillText('اقرئي الموقف واختاري الجهاز المسؤول 👆', cx, h*0.92);
+      c.fillText('اقرئي الموقف واختاري الجهاز المسؤول 👆', cx, h*0.95);
     }
+
+    // شريط العنوان — يُرسم أخيراً وفوق كل شيء
+    c.save();
+    c.fillStyle = dark ? 'rgba(11,26,16,0.92)' : 'rgba(240,250,243,0.92)';
+    c.fillRect(0,0,w,h*0.12);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ٦-١ · من الجهاز المسؤول؟', w/2, h*0.06);
+    c.restore();
 
     animFrame = requestAnimationFrame(draw);
   }
@@ -209,33 +218,71 @@ function simG7Bio1N6b(){
     if(currentSim!=='g7bio1n6' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
-    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
-    c.fillText('نشاط ٦-١ · رحلة الأكسجين', w/2, h*0.06);
 
     if(S.started && S.travelT<1) S.travelT += 0.006;
 
-    const lungX=w*0.25, lungY=h*0.35, heartX=w*0.5, heartY=h*0.5, cellX=w*0.78, cellY=h*0.68;
-    // الرئتان
-    c.fillStyle='#93C5FD'; c.strokeStyle='#1D4ED8'; c.lineWidth=2;
-    c.beginPath(); c.ellipse(lungX-w*0.03,lungY,w*0.045,h*0.09,0,0,Math.PI*2); c.fill(); c.stroke();
-    c.beginPath(); c.ellipse(lungX+w*0.03,lungY,w*0.045,h*0.09,0,0,Math.PI*2); c.fill(); c.stroke();
+    const lungX=w*0.25, lungY=h*0.38, heartX=w*0.5, heartY=h*0.52, cellX=w*0.78, cellY=h*0.68;
+
+    // الرئتان — شكل تشريحي مبسّط بفصوص وشُعيبات هوائية متفرّعة
+    function drawLung(side){
+      c.save(); c.translate(lungX+side*w*0.035, lungY);
+      c.fillStyle='#E8899A'; c.strokeStyle='#B23A56'; c.lineWidth=2;
+      c.beginPath();
+      c.moveTo(0,-h*0.09);
+      c.quadraticCurveTo(side*w*0.055,-h*0.09, side*w*0.06,-h*0.02);
+      c.quadraticCurveTo(side*w*0.065,h*0.06, side*w*0.03,h*0.1);
+      c.quadraticCurveTo(0,h*0.08, 0,h*0.02);
+      c.closePath(); c.fill(); c.stroke();
+      // شُعيبات هوائية متفرّعة (شجرة قصبية مبسّطة)
+      c.strokeStyle='#8B2942'; c.lineWidth=Math.max(1,w*0.003);
+      c.beginPath(); c.moveTo(0,-h*0.08); c.lineTo(side*w*0.01,-h*0.03); c.stroke();
+      c.beginPath(); c.moveTo(side*w*0.01,-h*0.03); c.lineTo(side*w*0.03,h*0.01); c.stroke();
+      c.beginPath(); c.moveTo(side*w*0.01,-h*0.03); c.lineTo(side*w*0.02,h*0.03); c.stroke();
+      c.restore();
+    }
+    drawLung(-1); drawLung(1);
+    // القصبة الهوائية الموصلة بين الرئتين
+    c.strokeStyle='#B23A56'; c.lineWidth=Math.max(3,w*0.008);
+    c.beginPath(); c.moveTo(lungX,lungY-h*0.13); c.lineTo(lungX,lungY-h*0.08); c.stroke();
     c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('الرئتان', lungX, lungY+h*0.13);
+    c.fillText('الرئتان', lungX, lungY+h*0.15);
 
-    // القلب/الجهاز الدوري
-    c.fillStyle='#FCA5A5'; c.strokeStyle='#B91C1C'; c.lineWidth=2;
-    c.beginPath(); c.arc(heartX,heartY,w*0.04,0,Math.PI*2); c.fill(); c.stroke();
-    c.fillStyle=g7pMut(dark); c.fillText('القلب والدم', heartX, heartY+h*0.09);
+    // القلب — شكل تشريحي واقعي مبسّط (وليس رمز ❤️)
+    c.save(); c.translate(heartX,heartY);
+    const hs = w*0.045;
+    c.fillStyle='#C0392B'; c.strokeStyle='#7B1E14'; c.lineWidth=2;
+    c.beginPath();
+    c.moveTo(0, hs*0.3);
+    c.bezierCurveTo(-hs*1.3,-hs*0.9, -hs*0.4,-hs*1.6, 0,-hs*0.55);
+    c.bezierCurveTo(hs*0.4,-hs*1.6, hs*1.3,-hs*0.9, 0, hs*0.3);
+    c.bezierCurveTo(0, hs*0.9, 0, hs*1.3, 0, hs*1.6);
+    c.bezierCurveTo(0, hs*1.3, 0, hs*0.9, 0, hs*0.3);
+    c.closePath(); c.fill(); c.stroke();
+    c.restore();
+    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+    c.fillText('القلب والدم', heartX, heartY+h*0.1);
 
-    // خلايا الجسم
-    c.fillStyle='#86EFAC'; c.strokeStyle='#166534'; c.lineWidth=2;
-    for(let i=0;i<3;i++){ c.beginPath(); c.arc(cellX, cellY+(i-1)*h*0.05, w*0.02, 0, Math.PI*2); c.fill(); c.stroke(); }
-    c.fillStyle=g7pMut(dark); c.fillText('خلايا الجسم', cellX, cellY+h*0.12);
+    // خلايا الجسم — أشكال عضوية غير منتظمة بنواة داخلية، لا دوائر بسيطة
+    function drawCell(x,y,r){
+      c.save(); c.translate(x,y);
+      c.fillStyle='#B7E4B0'; c.strokeStyle='#2F6B32'; c.lineWidth=1.5;
+      c.beginPath();
+      for(let k=0;k<8;k++){ const a=k/8*Math.PI*2; const rr=r*(0.85+0.15*Math.sin(k*2.3)); const px=Math.cos(a)*rr, py=Math.sin(a)*rr; k===0?c.moveTo(px,py):c.lineTo(px,py); }
+      c.closePath(); c.fill(); c.stroke();
+      c.fillStyle='#5B8C57'; c.beginPath(); c.ellipse(r*0.1,-r*0.1,r*0.35,r*0.28,0.4,0,Math.PI*2); c.fill();
+      c.restore();
+    }
+    for(let i=0;i<3;i++) drawCell(cellX, cellY+(i-1)*h*0.06, w*0.024);
+    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+    c.fillText('خلايا الجسم', cellX, cellY+h*0.14);
 
-    // مسار الأنابيب
-    c.strokeStyle=dark?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.15)'; c.lineWidth=2; c.setLineDash([5,4]);
-    c.beginPath(); c.moveTo(lungX,lungY); c.lineTo(heartX,heartY); c.lineTo(cellX,cellY); c.stroke();
-    c.setLineDash([]);
+    // الأوعية الدموية: أنبوب داكن بحافة فاتحة، وليس خطاً متقطّعاً رفيعاً
+    c.save();
+    c.strokeStyle='#7B1E14'; c.lineWidth=Math.max(7,w*0.02); c.lineCap='round'; c.lineJoin='round';
+    c.beginPath(); c.moveTo(lungX,lungY+h*0.06); c.lineTo(heartX-w*0.03,heartY); c.lineTo(heartX+w*0.03,heartY); c.lineTo(cellX,cellY-h*0.03); c.stroke();
+    c.strokeStyle='#E57373'; c.lineWidth=Math.max(3,w*0.009);
+    c.beginPath(); c.moveTo(lungX,lungY+h*0.06); c.lineTo(heartX-w*0.03,heartY); c.lineTo(heartX+w*0.03,heartY); c.lineTo(cellX,cellY-h*0.03); c.stroke();
+    c.restore();
 
     // جزيئات الأكسجين المتحرّكة
     if(S.travelT>0){
@@ -245,11 +292,11 @@ function simG7Bio1N6b(){
         const lt = Math.max(0, Math.min(1, (t - off)*1.6));
         if(lt<=0 || lt>=1.3) continue;
         let x,y;
-        if(lt<0.5){ const seg=lt/0.5; x=lungX+(heartX-lungX)*seg; y=lungY+(heartY-lungY)*seg; }
-        else { const seg=(lt-0.5)/0.5; x=heartX+(cellX-heartX)*seg; y=heartY+(cellY-heartY)*seg; }
-        c.fillStyle='#3B82F6';
-        c.beginPath(); c.arc(x,y,w*0.012,0,Math.PI*2); c.fill();
-        c.fillStyle='#fff'; c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='center';
+        if(lt<0.5){ const seg=lt/0.5; x=lungX+(heartX-lungX)*seg; y=(lungY+h*0.06)+(heartY-(lungY+h*0.06))*seg; }
+        else { const seg=(lt-0.5)/0.5; x=heartX+(cellX-heartX)*seg; y=heartY+((cellY-h*0.03)-heartY)*seg; }
+        c.fillStyle='#3B82F6'; c.strokeStyle='#1D4ED8'; c.lineWidth=1;
+        c.beginPath(); c.arc(x,y,w*0.014,0,Math.PI*2); c.fill(); c.stroke();
+        c.fillStyle='#fff'; c.font=`bold ${Math.round(h*0.012)}px Tajawal`; c.textAlign='center';
         c.fillText('O₂', x, y+h*0.004);
       }
     }
@@ -257,6 +304,14 @@ function simG7Bio1N6b(){
     if(S.started && S.travelT>=1 && S.stage==='travel'){
       S.stage='q1'; controls(renderControls());
     }
+
+    // شريط العنوان — يُرسم أخيراً وفوق كل شيء
+    c.save();
+    c.fillStyle = dark ? 'rgba(11,26,16,0.92)' : 'rgba(240,250,243,0.92)';
+    c.fillRect(0,0,w,h*0.12);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ٦-١ · رحلة الأكسجين', w/2, h*0.06);
+    c.restore();
 
     animFrame = requestAnimationFrame(draw);
   }
@@ -271,12 +326,12 @@ function simG7Bio1N6b(){
 function simG7Bio1N7a(){
   cancelAnimationFrame(animFrame);
   const BONES = [
-    { id:'skull', label:'الجمجمة', organ:'brain', home:{x:0.15,y:0.24}, hint:'فكّري في العضو الموجود داخل الرأس.' },
-    { id:'ribs',  label:'القفص الصدري', organ:'chest', home:{x:0.85,y:0.24}, hint:'أيّ جزء من الهيكل العظمي يحيط بالقلب والرئتين؟' },
+    { id:'skull', label:'الجمجمة', organ:'brain', home:{x:0.15,y:0.3}, hint:'فكّري في العضو الموجود داخل الرأس.' },
+    { id:'ribs',  label:'القفص الصدري', organ:'chest', home:{x:0.85,y:0.3}, hint:'أيّ جزء من الهيكل العظمي يحيط بالقلب والرئتين؟' },
   ];
   const ORGANS = {
-    brain: { x:0.5, y:0.16, label:'🧠 الدماغ', msg:'أحسنتِ! الجمجمة تحمي الدماغ. 🧠🛡️' },
-    chest: { x:0.5, y:0.42, label:'❤️🫁 القلب والرئتان', msg:'أحسنتِ! القفص الصدري يساعد على حماية القلب والرئتين. 🫁❤️' },
+    brain: { x:0.5, y:0.24, label:'الدماغ', msg:'أحسنتِ! الجمجمة تحمي الدماغ. 🧠🛡️' },
+    chest: { x:0.5, y:0.50, label:'القلب والرئتان', msg:'أحسنتِ! القفص الصدري يساعد على حماية القلب والرئتين. 🫁❤️' },
   };
   simState = { placed:{}, dragId:null, dragX:0, dragY:0, hint:'', hintT:0, done:false, mode:'build', removedBone:null };
   const S = simState;
@@ -354,7 +409,7 @@ function simG7Bio1N7a(){
     const b = BONES.find(x=>x.id===S.dragId);
     const w=cv.width,h=cv.height;
     const target = ORGANS[b.organ];
-    if(Math.hypot(S.dragX-w*target.x, S.dragY-h*target.y) < w*0.13){
+    if(Math.hypot(S.dragX-w*target.x, S.dragY-h*target.y) < w*0.15){
       S.placed[b.id]=true; _g8pPlayDrop();
       if(Object.keys(S.placed).length===BONES.length) S.done=true;
     } else {
@@ -367,7 +422,54 @@ function simG7Bio1N7a(){
   cv.onclick=null;
 
   function drawBody(c,w,h,dark){
-    g7pDrawBody(c,w,h,dark);
+    g7pDrawBody(c,w,h,dark,0.06);
+  }
+  function drawBrainShape(c,x,y,w,h){
+    c.save(); c.translate(x,y);
+    const r=w*0.055;
+    c.fillStyle='#E8AFAE'; c.strokeStyle='#B5615F'; c.lineWidth=2;
+    c.beginPath();
+    c.moveTo(-r*0.9,-r*0.3);
+    c.bezierCurveTo(-r*1.15,-r*0.9,-r*0.35,-r*1.15,0,-r*0.75);
+    c.bezierCurveTo(r*0.35,-r*1.15,r*1.15,-r*0.9,r*0.9,-r*0.3);
+    c.bezierCurveTo(r*1.05,r*0.15,r*0.65,r*0.65,r*0.15,r*0.6);
+    c.bezierCurveTo(r*0.05,r*0.85,-r*0.35,r*0.85,-r*0.4,r*0.55);
+    c.bezierCurveTo(-r*0.85,r*0.55,-r*1.05,r*0.1,-r*0.9,-r*0.3);
+    c.closePath(); c.fill(); c.stroke();
+    // تلافيف الدماغ (خطوط منحنية بسيطة تعطي ملمساً واقعياً)
+    c.strokeStyle='#B5615F'; c.lineWidth=Math.max(1,w*0.0028);
+    c.beginPath(); c.moveTo(0,-r*0.6); c.quadraticCurveTo(-r*0.15,-r*0.35,0,-r*0.1); c.stroke();
+    c.beginPath(); c.moveTo(r*0.2,-r*0.55); c.quadraticCurveTo(r*0.35,-r*0.3,r*0.2,-r*0.05); c.stroke();
+    c.beginPath(); c.moveTo(-r*0.3,-r*0.5); c.quadraticCurveTo(-r*0.4,-r*0.2,-r*0.25,r*0.05); c.stroke();
+    c.beginPath(); c.moveTo(-r*0.1,r*0.1); c.quadraticCurveTo(0,r*0.3,r*0.15,r*0.15); c.stroke();
+    c.restore();
+  }
+  function drawHeartLungsShape(c,x,y,w,h){
+    c.save(); c.translate(x,y);
+    // رئتان صغيرتان على الجانبين
+    [-1,1].forEach(side=>{
+      c.save(); c.translate(side*w*0.05,0);
+      c.fillStyle='#E8899A'; c.strokeStyle='#B23A56'; c.lineWidth=1.8;
+      c.beginPath();
+      c.moveTo(0,-w*0.045);
+      c.quadraticCurveTo(side*w*0.035,-w*0.045, side*w*0.038,-w*0.005);
+      c.quadraticCurveTo(side*w*0.042,w*0.04, side*w*0.018,w*0.06);
+      c.quadraticCurveTo(0,w*0.05, 0,w*0.01);
+      c.closePath(); c.fill(); c.stroke();
+      c.restore();
+    });
+    // قلب في المنتصف، فوق الرئتين قليلاً
+    const hs=w*0.028;
+    c.save(); c.translate(0,w*0.005);
+    c.fillStyle='#C0392B'; c.strokeStyle='#7B1E14'; c.lineWidth=1.8;
+    c.beginPath();
+    c.moveTo(0, hs*0.3);
+    c.bezierCurveTo(-hs*1.3,-hs*0.9, -hs*0.4,-hs*1.6, 0,-hs*0.55);
+    c.bezierCurveTo(hs*0.4,-hs*1.6, hs*1.3,-hs*0.9, 0, hs*0.3);
+    c.bezierCurveTo(0, hs*1.0, 0, hs*1.3, 0, hs*1.5);
+    c.closePath(); c.fill(); c.stroke();
+    c.restore();
+    c.restore();
   }
   function drawOrganAndShield(c,key,w,h,dark){
     const o = ORGANS[key];
@@ -375,21 +477,21 @@ function simG7Bio1N7a(){
     const protectedNow = S.mode==='build' ? !!S.placed[boneId] : (S.mode!=='build' && S.removedBone!==boneId && (S.mode==='remove'||S.mode==='whyq'||S.mode==='done2'));
     if(protectedNow){
       c.save(); c.globalAlpha=0.35+Math.sin(Date.now()/400)*0.1; c.fillStyle='#60A5FA';
-      c.beginPath(); c.arc(w*o.x,h*o.y,w*0.075,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(w*o.x,h*o.y,w*0.09,0,Math.PI*2); c.fill();
       c.strokeStyle='#2563EB'; c.lineWidth=2; c.globalAlpha=0.8;
-      c.beginPath(); c.arc(w*o.x,h*o.y,w*0.075,0,Math.PI*2); c.stroke();
+      c.beginPath(); c.arc(w*o.x,h*o.y,w*0.09,0,Math.PI*2); c.stroke();
       c.restore();
     }
-    c.font=`${Math.round(h*0.045)}px sans-serif`; c.textAlign='center';
-    c.fillText(key==='brain'?'🧠':'❤️🫁', w*o.x, h*o.y+h*0.015);
+    if(key==='brain') drawBrainShape(c, w*o.x, h*o.y, w, h);
+    else drawHeartLungsShape(c, w*o.x, h*o.y, w, h);
+    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+    c.fillText(o.label, w*o.x, h*o.y + w*0.09);
   }
 
   function draw(){
     if(currentSim!=='g7bio1n7' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
-    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
-    c.fillText('نشاط ٧-١ · حارس الأعضاء 🛡️', w/2, h*0.06);
 
     drawBody(c,w,h,dark);
     drawOrganAndShield(c,'brain',w,h,dark);
@@ -414,6 +516,14 @@ function simG7Bio1N7a(){
         c.restore();
       }
     }
+
+    // شريط العنوان — يُرسم أخيراً وفوق كل شيء
+    c.save();
+    c.fillStyle = dark ? 'rgba(11,26,16,0.92)' : 'rgba(240,250,243,0.92)';
+    c.fillRect(0,0,w,h*0.12);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+    c.fillText('نشاط ٧-١ · حارس الأعضاء 🛡️', w/2, h*0.06);
+    c.restore();
 
     animFrame = requestAnimationFrame(draw);
   }
