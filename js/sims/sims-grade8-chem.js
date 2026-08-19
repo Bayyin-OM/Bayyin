@@ -373,8 +373,21 @@ function simG8Chem2N9b(){
   const HOME_POS = [
     { x:0.22, y:0.30 }, { x:0.42, y:0.30 }, { x:0.62, y:0.30 }, { x:0.80, y:0.30 },
   ];
-  // مواضع مبعثرة عشوائية (بعد الخلط) لكلّ جزيء، محسوبة مرّة واحدة
-  const SCATTER = HOME_POS.map(()=>({ x: 0.15+Math.random()*0.7, y: 0.28+Math.random()*0.45, spin: Math.random()*Math.PI*2 }));
+  // مواضع مبعثرة (بعد الخلط) — قريبة من بعضها في منتصف اللوحة لتوضّح أنّها مخلوط متجانس، وليست مبعثرة في كل الاتجاهات
+  const SCATTER = (function(){
+    const cx=0.5, cy=0.44, spread=0.16;
+    const pts = [];
+    for(let i=0;i<HOME_POS.length;i++){
+      let tries=0, x,y;
+      do{
+        x = cx + (Math.random()-0.5)*spread*2;
+        y = cy + (Math.random()-0.5)*spread*1.3;
+        tries++;
+      } while(pts.some(p=>Math.hypot(p.x-x,p.y-y)<0.09) && tries<30);
+      pts.push({ x, y, spin: Math.random()*Math.PI*2 });
+    }
+    return pts;
+  })();
 
   function drawMolecule(c, g, cx, cy, scale){
     const r = Math.max(6, scale*0.028);
@@ -426,6 +439,15 @@ function simG8Chem2N9b(){
 
     const scattered = activeSince('reveal');
     const scatterT = justAfter('reveal') ? tt : 1;
+
+    if(scattered){
+      // دائرة توضّح أنّ الغازات أصبحت مجتمعة معاً في نفس الحيّز (الهواء) بعد الخلط
+      c.save();
+      c.globalAlpha = 0.5*Math.min(1,scatterT);
+      c.strokeStyle = g8cAccent(dark); c.setLineDash([6,5]); c.lineWidth=2;
+      c.beginPath(); c.arc(w*0.5, h*0.44, Math.min(w,h)*0.24, 0, Math.PI*2); c.stroke();
+      c.restore();
+    }
 
     GASES.forEach((g,i)=>{
       const home = HOME_POS[i], scat = SCATTER[i];
