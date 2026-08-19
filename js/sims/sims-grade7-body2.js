@@ -408,7 +408,12 @@ function simG7Bio1N9b(){
     if(id===r.ans){ _g8pPlayDrop(); S.animTo = r.anim==='bend' ? 1 : 0; }
     controls(renderControls());
   };
-  window._g7tNext = function(){ _g8pPlayClick(); S.rIdx++; S.sel=null; controls(renderControls()); if(S.rIdx>=ROUNDS.length){ S.stage='challenge'; controls(renderControls()); } };
+  window._g7tNext = function(){
+    _g8pPlayClick();
+    S.rIdx++; S.sel=null;
+    if(S.rIdx>=ROUNDS.length){ S.stage='challenge'; }
+    controls(renderControls());
+  };
   window._g7tFinal = function(i){ if(S.finalSel!==null) return; _g8pPlayClick(); S.finalSel=i; if(i===1) _g8pPlayDrop(); controls(renderControls()); };
   window._g7tFinalQ = function(){ _g8pPlayClick(); S.stage='finalq'; controls(renderControls()); };
   window._g7tFq = function(i){ _g8pPlayClick(); if(i===1) _g8pPlayDrop(); S.stage='done'; controls(renderControls()); };
