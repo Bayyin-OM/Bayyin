@@ -248,60 +248,76 @@ function simG8Bio3N1b(){
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
 
-    const lampX=w*0.28, lampY=h*0.38, bookX=w*0.55, bookY=h*0.62, eyeX=w*0.78, eyeY=h*0.5;
+    const lampX=w*0.16, lampY=h*0.32, chairX=w*0.62, chairY=h*0.72;
+    const bookX=chairX-w*0.02, bookY=chairY-h*0.28, eyeX=chairX-w*0.01, eyeY=chairY-h*0.38;
 
-    // مصباح
+    // مصباح بجانب القارئ
     c.save(); c.translate(lampX,lampY);
     c.strokeStyle=g8cMut(dark); c.lineWidth=Math.max(3,w*0.008);
-    c.beginPath(); c.moveTo(0,h*0.14); c.lineTo(0,0); c.stroke();
+    c.beginPath(); c.moveTo(0,h*0.22); c.lineTo(0,0); c.stroke();
+    c.fillStyle='#6B7280'; c.beginPath(); c.ellipse(0,h*0.23,w*0.035,h*0.012,0,0,Math.PI*2); c.fill();
     c.fillStyle= S.lampOn? '#FDE047' : '#9CA3AF'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
-    c.beginPath(); c.moveTo(-w*0.03,0); c.lineTo(w*0.03,0); c.lineTo(w*0.018,-h*0.05); c.lineTo(-w*0.018,-h*0.05); c.closePath(); c.fill(); c.stroke();
-    if(S.lampOn){ c.save(); c.globalAlpha=0.5+Math.sin(Date.now()/200)*0.15; c.fillStyle='#FDE047'; c.beginPath(); c.arc(0,-h*0.02,w*0.05,0,Math.PI*2); c.fill(); c.restore(); }
+    c.beginPath(); c.moveTo(-w*0.032,0); c.lineTo(w*0.032,0); c.lineTo(w*0.017,-h*0.055); c.lineTo(-w*0.017,-h*0.055); c.closePath(); c.fill(); c.stroke();
+    if(S.lampOn){ c.save(); c.globalAlpha=0.45+Math.sin(Date.now()/200)*0.15; c.fillStyle='#FDE047'; c.beginPath(); c.arc(0,-h*0.022,w*0.055,0,Math.PI*2); c.fill(); c.restore(); }
     c.restore();
     c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText(S.lampOn?'💡 مصدر مضيء':'مصباح مطفأ', lampX, lampY+h*0.2);
+    c.fillText(S.lampOn?'💡 مصدر مضيء':'مصباح مطفأ', lampX, lampY+h*0.32);
 
-    // كتاب
-    c.save(); c.translate(bookX,bookY);
-    c.fillStyle='#3B82F6'; c.strokeStyle='#1E40AF'; c.lineWidth=2;
-    c.save(); c.rotate(-0.06);
-    c.fillRect(-w*0.05,-h*0.03,w*0.1,h*0.06); c.strokeRect(-w*0.05,-h*0.03,w*0.1,h*0.06);
-    c.strokeStyle='#fff'; c.lineWidth=1;
-    c.beginPath(); c.moveTo(0,-h*0.03); c.lineTo(0,h*0.03); c.stroke();
+    // كرسي بسيط
+    c.save(); c.strokeStyle=g8cMut(dark); c.lineWidth=Math.max(3,w*0.008); c.lineCap='round';
+    c.beginPath(); c.moveTo(chairX-w*0.09,chairY+h*0.12); c.lineTo(chairX-w*0.09,chairY-h*0.16); c.stroke(); // ظهر الكرسي
+    c.beginPath(); c.moveTo(chairX-w*0.09,chairY+h*0.12); c.lineTo(chairX+w*0.11,chairY+h*0.12); c.stroke(); // مقعد
+    c.beginPath(); c.moveTo(chairX-w*0.09,chairY+h*0.12); c.lineTo(chairX-w*0.09,chairY+h*0.24); c.stroke(); // أرجل
+    c.beginPath(); c.moveTo(chairX+w*0.11,chairY+h*0.12); c.lineTo(chairX+w*0.11,chairY+h*0.24); c.stroke();
     c.restore();
+
+    // القارئ (جالس بشكل جانبي): جذع + رأس + ذراع يحمل الكتاب
+    c.save();
+    c.fillStyle='#7C9CBF'; c.strokeStyle='#3E5570'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(chairX-w*0.075,chairY+h*0.1);
+    c.quadraticCurveTo(chairX-w*0.09,chairY-h*0.12, chairX-w*0.02,chairY-h*0.16);
+    c.quadraticCurveTo(chairX+w*0.06,chairY-h*0.14, chairX+w*0.055,chairY+h*0.02);
+    c.quadraticCurveTo(chairX+w*0.05,chairY+h*0.1, chairX+w*0.02,chairY+h*0.12);
+    c.closePath(); c.fill(); c.stroke();
+    // الرأس
+    c.fillStyle='#E8C9A0'; c.strokeStyle='#B8946B'; c.lineWidth=2;
+    c.beginPath(); c.arc(chairX-w*0.005,chairY-h*0.28,w*0.038,0,Math.PI*2); c.fill(); c.stroke();
+    // شعر بسيط
+    c.fillStyle='#4A3728';
+    c.beginPath(); c.arc(chairX-w*0.005,chairY-h*0.30,w*0.04,Math.PI*0.95,Math.PI*1.85); c.fill();
+    // عين وأنف بسيطان (باتّجاه الكتاب)
+    c.fillStyle='#3B2A1A'; c.beginPath(); c.arc(chairX-w*0.025,chairY-h*0.275,w*0.005,0,Math.PI*2); c.fill();
+    c.restore();
+
+    // الكتاب المفتوح — صفحتان متماثلتان حول الكعب
+    c.save(); c.translate(bookX,bookY); c.rotate(-0.08);
+    c.fillStyle='#FEFCF6'; c.strokeStyle='#B8946B'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(0,-h*0.005); c.quadraticCurveTo(-w*0.05,-h*0.03,-w*0.075,-h*0.006); c.lineTo(-w*0.075,h*0.045); c.quadraticCurveTo(-w*0.05,h*0.02,0,h*0.045); c.closePath(); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(0,-h*0.005); c.quadraticCurveTo(w*0.05,-h*0.03,w*0.075,-h*0.006); c.lineTo(w*0.075,h*0.045); c.quadraticCurveTo(w*0.05,h*0.02,0,h*0.045); c.closePath(); c.fill(); c.stroke();
+    c.strokeStyle='#D8CBB0'; c.lineWidth=1;
+    for(let i=0;i<3;i++){
+      const yy=h*(0.005+i*0.013);
+      c.beginPath(); c.moveTo(-w*0.06,yy); c.lineTo(-w*0.012,yy+h*0.003); c.stroke();
+      c.beginPath(); c.moveTo(w*0.012,yy+h*0.003); c.lineTo(w*0.06,yy); c.stroke();
+    }
     c.restore();
     c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('📖 غير مضيء', bookX, bookY+h*0.07);
-
-    // شخص مبسّط بجانب الكتاب
-    c.save(); c.translate(bookX+w*0.1,bookY+h*0.02);
-    c.fillStyle='#D8B78C'; c.beginPath(); c.arc(0,-h*0.09,w*0.018,0,Math.PI*2); c.fill();
-    c.fillStyle='#8B7355'; c.fillRect(-w*0.02,-h*0.07,w*0.04,h*0.09);
-    c.restore();
+    c.fillText('📖 غير مضيء', bookX, bookY+h*0.08);
 
     if(S.revealed && S.lampOn){
       // ضوء من المصباح إلى الكتاب
       c.save(); c.strokeStyle='#FDE047'; c.lineWidth=Math.max(1.5,w*0.004); c.globalAlpha=0.85;
-      c.beginPath(); c.moveTo(lampX,lampY-h*0.02); c.lineTo(bookX-w*0.02,bookY-h*0.02); c.stroke();
+      c.beginPath(); c.moveTo(lampX,lampY-h*0.03); c.lineTo(bookX-w*0.02,bookY-h*0.01); c.stroke();
       c.restore();
-      // ضوء منعكس من الكتاب إلى العين
+      // ضوء منعكس من الكتاب إلى عين القارئ
       c.save(); c.strokeStyle='#60A5FA'; c.lineWidth=Math.max(1.5,w*0.004); c.globalAlpha=0.85;
-      c.beginPath(); c.moveTo(bookX-w*0.01,bookY-h*0.02); c.lineTo(eyeX,eyeY); c.stroke();
+      c.beginPath(); c.moveTo(bookX,bookY-h*0.01); c.lineTo(eyeX,eyeY); c.stroke();
       c.restore();
     }
 
-    // العين
-    c.save(); c.translate(eyeX,eyeY);
-    c.fillStyle=dark?'#2A1F1A':'#fff'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
-    c.beginPath(); c.ellipse(0,0,w*0.032,h*0.024,0,0,Math.PI*2); c.fill(); c.stroke();
-    c.fillStyle='#3B2A1A'; c.beginPath(); c.arc(0,0,w*0.013,0,Math.PI*2); c.fill();
-    c.restore();
-    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('👁 عين', eyeX, eyeY+h*0.06);
-
     if(S.revealed && !S.lampOn){
       c.save(); c.fillStyle='#DC2626'; c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
-      c.fillText('لا يوجد ضوء كافٍ ليصل إلى العين', w*0.5, h*0.86);
+      c.fillText('لا يوجد ضوء كافٍ ليصل إلى العين', w*0.5, h*0.9);
       c.restore();
     }
 
@@ -317,9 +333,9 @@ function simG8Bio3N1b(){
 function simG8Bio3N2a(){
   cancelAnimationFrame(animFrame);
   const PARTS = [
-    { id:'windshield', label:'الزجاج الأمامي', type:'transparent', card:'🔵 مادة شفّافة', info:'الزجاج الأمامي شفّاف ينفذ الضوء من خلاله (Transmitted) — لذلك نستطيع الرؤية عبره.', x:0.48, y:0.42 },
-    { id:'metal',       label:'المعدن اللامع',  type:'reflective',  card:'🪞 سطح عاكس',   info:'المعدن اللامع في مقدّمة السيارة يعكس الضوء الساقط عليه (Reflected).', x:0.28, y:0.58 },
-    { id:'plastic',     label:'البلاستيك الأسود', type:'opaque',      card:'⚫ مادة معتمة', info:'البلاستيك الأسود المعتم يمتصّ الضوء الساقط عليه ولا يسمح له بالمرور من خلاله (Opaque).', x:0.72, y:0.63 },
+    { id:'windshield', label:'الزجاج الأمامي', type:'transparent', card:'🔵 مادة شفّافة', info:'الزجاج الأمامي شفّاف ينفذ الضوء من خلاله (Transmitted) — لذلك نستطيع الرؤية عبره.', x:0.698, y:0.42 },
+    { id:'metal',       label:'المعدن اللامع',  type:'reflective',  card:'🪞 سطح عاكس',   info:'المعدن اللامع في مقدّمة السيارة يعكس الضوء الساقط عليه (Reflected).', x:0.82, y:0.565 },
+    { id:'plastic',     label:'البلاستيك الأسود (المرآة الجانبية)', type:'opaque', card:'⚫ مادة معتمة', info:'البلاستيك الأسود المعتم يمتصّ الضوء الساقط عليه ولا يسمح له بالمرور من خلاله (Opaque).', x:0.6, y:0.485 },
   ];
   simState = { curId:null, revealed:{}, beamT:0 };
   const S = simState;
@@ -355,24 +371,75 @@ function simG8Bio3N2a(){
 
   function drawCar(c,w,h,dark){
     c.save();
-    const bx=w*0.15, by=h*0.55, bw=w*0.7, bh=h*0.22;
-    c.fillStyle='#DC2626'; c.strokeStyle='#7F1D1D'; c.lineWidth=2;
+    const bx=w*0.1, bw=w*0.8;
+    const groundY=h*0.66, beltY=h*0.5, roofY=h*0.34;
+
+    // ظل خفيف تحت السيارة
+    c.save(); c.fillStyle=dark?'rgba(0,0,0,0.35)':'rgba(0,0,0,0.15)';
+    c.beginPath(); c.ellipse(bx+bw*0.5, groundY+h*0.075, bw*0.46, h*0.02, 0,0,Math.PI*2); c.fill(); c.restore();
+
+    // هيكل السيارة (بروفايل جانبي واقعي مبسّط)
     c.beginPath();
-    c.moveTo(bx,by+bh);
-    c.lineTo(bx,by+bh*0.4);
-    c.quadraticCurveTo(bx+bw*0.08,by, bx+bw*0.35, by);
-    c.lineTo(bx+bw*0.62, by);
-    c.quadraticCurveTo(bx+bw*0.78,by, bx+bw*0.85, by+bh*0.4);
-    c.lineTo(bx+bw, by+bh*0.4);
-    c.lineTo(bx+bw, by+bh);
+    c.moveTo(bx, groundY);
+    c.lineTo(bx, beltY+h*0.05);
+    c.quadraticCurveTo(bx, beltY-h*0.03, bx+bw*0.1, beltY-h*0.03);
+    c.lineTo(bx+bw*0.19, beltY-h*0.03);
+    c.quadraticCurveTo(bx+bw*0.26, roofY+h*0.01, bx+bw*0.37, roofY);
+    c.lineTo(bx+bw*0.68, roofY);
+    c.quadraticCurveTo(bx+bw*0.79, roofY+h*0.01, bx+bw*0.85, beltY-h*0.03);
+    c.lineTo(bx+bw*0.92, beltY-h*0.03);
+    c.quadraticCurveTo(bx+bw, beltY-h*0.03, bx+bw, beltY+h*0.05);
+    c.lineTo(bx+bw, groundY);
     c.closePath();
+    const grad = c.createLinearGradient(0,roofY,0,groundY);
+    grad.addColorStop(0,'#EF4444'); grad.addColorStop(1,'#B91C1C');
+    c.fillStyle=grad; c.strokeStyle='#7F1D1D'; c.lineWidth=2.5; c.lineJoin='round';
     c.fill(); c.stroke();
-    // عجلات
-    c.fillStyle='#1F2937';
-    c.beginPath(); c.arc(bx+bw*0.22,by+bh,h*0.05,0,Math.PI*2); c.fill();
-    c.beginPath(); c.arc(bx+bw*0.78,by+bh,h*0.05,0,Math.PI*2); c.fill();
+
+    // خط لمعان جانبي
+    c.save(); c.strokeStyle='rgba(255,255,255,0.35)'; c.lineWidth=2;
+    c.beginPath(); c.moveTo(bx+bw*0.06, beltY+h*0.09); c.lineTo(bx+bw*0.94, beltY+h*0.09); c.stroke();
     c.restore();
-    return {bx,by,bw,bh};
+
+    // نوافذ (زجاج أمامي، جانبي، خلفي) بإطار غامق موحّد
+    c.save();
+    c.fillStyle= dark? 'rgba(147,197,253,0.5)':'rgba(191,219,254,0.85)'; c.strokeStyle='#1E293B'; c.lineWidth=2.5;
+    c.beginPath();
+    c.moveTo(bx+bw*0.205, beltY-h*0.045);
+    c.quadraticCurveTo(bx+bw*0.27, roofY+h*0.02, bx+bw*0.375, roofY+h*0.015);
+    c.lineTo(bx+bw*0.66, roofY+h*0.015);
+    c.quadraticCurveTo(bx+bw*0.77, roofY+h*0.02, bx+bw*0.835, beltY-h*0.045);
+    c.closePath(); c.fill(); c.stroke();
+    // عمود منتصف (بين الزجاج الأمامي والخلفي)
+    c.beginPath(); c.moveTo(bx+bw*0.5, roofY+h*0.017); c.lineTo(bx+bw*0.5, beltY-h*0.045); c.stroke();
+    c.restore();
+
+    // مصدّ أمامي وخلفي (بامبر)
+    c.fillStyle='#374151';
+    c.beginPath(); c.roundRect(bx-w*0.006, groundY-h*0.03, w*0.02, h*0.05, 3); c.fill();
+    c.beginPath(); c.roundRect(bx+bw-w*0.014, groundY-h*0.03, w*0.02, h*0.05, 3); c.fill();
+
+    // مقبض الباب
+    c.fillStyle='#7F1D1D'; c.beginPath(); c.roundRect(bx+bw*0.56, beltY+h*0.02, w*0.035, h*0.012, 3); c.fill();
+
+    // مصباح أمامي
+    c.fillStyle='#FEF9C3'; c.strokeStyle='#CA8A04'; c.lineWidth=1.5;
+    c.beginPath(); c.ellipse(bx+bw*0.955, beltY+h*0.02, w*0.018, h*0.02, 0,0,Math.PI*2); c.fill(); c.stroke();
+
+    // أقواس العجلات (سوداء) + عجلات بجنوط
+    [0.24, 0.76].forEach(fx=>{
+      const wx=bx+bw*fx;
+      c.fillStyle='#111827';
+      c.beginPath(); c.arc(wx,groundY,h*0.075,Math.PI,0); c.fill();
+      c.beginPath(); c.arc(wx,groundY+h*0.01,h*0.062,0,Math.PI*2); c.fill();
+      c.fillStyle='#9CA3AF';
+      c.beginPath(); c.arc(wx,groundY+h*0.01,h*0.032,0,Math.PI*2); c.fill();
+      c.fillStyle='#4B5563';
+      c.beginPath(); c.arc(wx,groundY+h*0.01,h*0.012,0,Math.PI*2); c.fill();
+    });
+
+    c.restore();
+    return {bx,bw,groundY,beltY,roofY};
   }
 
   function draw(){
@@ -380,33 +447,32 @@ function simG8Bio3N2a(){
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
 
-    const {bx,by,bw,bh} = drawCar(c,w,h,dark);
+    const {bx,bw,groundY,beltY,roofY} = drawCar(c,w,h,dark);
 
     // مصدر ضوء (مصباح يدوي) قادم من أعلى اليسار
-    const srcX=w*0.08, srcY=h*0.18;
+    const srcX=w*0.06, srcY=h*0.16;
     c.save(); c.fillStyle='#4B5563'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
-    c.beginPath(); c.roundRect(srcX-w*0.025,srcY-h*0.02,w*0.05,h*0.04,4); c.fill(); c.stroke();
+    c.beginPath(); c.roundRect(srcX-w*0.028,srcY-h*0.022,w*0.056,h*0.044,4); c.fill(); c.stroke();
+    c.fillStyle='#FDE047'; c.beginPath(); c.arc(srcX+w*0.03,srcY,w*0.012,0,Math.PI*2); c.fill();
     c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+    c.fillText('🔦 مصباح', srcX, srcY-h*0.04);
 
     PARTS.forEach(p=>{
       const px=w*p.x, py=h*p.y;
       c.save();
-      if(p.id==='windshield'){
-        c.fillStyle= dark?'rgba(147,197,253,0.35)':'rgba(147,197,253,0.55)'; c.strokeStyle='#1E40AF'; c.lineWidth=2;
-        c.beginPath(); c.moveTo(px-w*0.09,py+h*0.06); c.lineTo(px-w*0.02,py-h*0.09); c.lineTo(px+w*0.09,py-h*0.03); c.lineTo(px+w*0.06,py+h*0.07); c.closePath(); c.fill(); c.stroke();
-      } else if(p.id==='metal'){
-        c.fillStyle='#D1D5DB'; c.strokeStyle='#6B7280'; c.lineWidth=2;
-        c.beginPath(); c.roundRect(px-w*0.07,py-h*0.025,w*0.14,h*0.05,6); c.fill(); c.stroke();
-        c.strokeStyle='rgba(255,255,255,0.7)'; c.lineWidth=1.5;
-        c.beginPath(); c.moveTo(px-w*0.05,py-h*0.012); c.lineTo(px+w*0.05,py-h*0.012); c.stroke();
-      } else {
+      if(p.id==='metal'){
+        // بقعة لمعان معدني إضافية على غطاء المحرك لتوضيح السطح العاكس
+        c.fillStyle='rgba(255,255,255,0.55)'; c.strokeStyle='rgba(255,255,255,0.8)'; c.lineWidth=1.5;
+        c.beginPath(); c.ellipse(px,py,w*0.045,h*0.014,-0.15,0,Math.PI*2); c.fill(); c.stroke();
+      } else if(p.id==='plastic'){
+        // مرآة جانبية سوداء صغيرة بارزة من جسم السيارة
         c.fillStyle='#111827'; c.strokeStyle='#000'; c.lineWidth=2;
-        c.beginPath(); c.ellipse(px,py,w*0.05,h*0.035,0,0,Math.PI*2); c.fill(); c.stroke();
-        c.strokeStyle='#374151'; c.lineWidth=Math.max(4,w*0.012);
-        c.beginPath(); c.arc(px,py,w*0.032,0,Math.PI*2); c.stroke();
+        c.beginPath(); c.ellipse(px,py,w*0.028,h*0.02,0.2,0,Math.PI*2); c.fill(); c.stroke();
+        c.fillStyle='#1F2937'; c.beginPath(); c.roundRect(px-w*0.01,py+h*0.012,w*0.02,h*0.012,2); c.fill();
       }
       if(S.curId===p.id){ c.strokeStyle=g8cAccent(dark); c.lineWidth=3; c.setLineDash([5,4]);
-        c.beginPath(); c.arc(px,py,w*0.075,0,Math.PI*2); c.stroke(); c.setLineDash([]); }
+        c.beginPath(); c.arc(px,py,w*0.06,0,Math.PI*2); c.stroke(); c.setLineDash([]); }
       c.restore();
     });
 
@@ -797,12 +863,32 @@ function simG8Bio3N3b(){
       c.closePath(); c.fill(); c.restore();
     })();
 
-    // مصدر الضوء (مقبض قابل للسحب)
-    c.save(); c.fillStyle= S.dragging? g8cAccent(dark) : '#4B5563'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
-    c.beginPath(); c.arc(srcPos.x,srcPos.y,w*0.026,0,Math.PI*2); c.fill(); c.stroke();
-    c.restore();
+    // مصدر الضوء (مصباح يدوي واقعي قابل للسحب)
+    (function(){
+      const ang = Math.atan2(py-srcPos.y, px-srcPos.x);
+      c.save();
+      c.translate(srcPos.x, srcPos.y);
+      c.rotate(ang - Math.PI/2);
+      const bw = w*0.032, bh = h*0.075;
+      // جسم المصباح
+      c.fillStyle = S.dragging ? g8cAccent(dark) : '#4B5563'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
+      c.beginPath(); c.roundRect(-bw*0.55, -bh*0.15, bw*1.1, bh*0.75, bw*0.3); c.fill(); c.stroke();
+      // رأس المصباح (أوسع قليلاً، جهة الشعاع الخارج)
+      c.fillStyle = '#E5E7EB'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
+      c.beginPath();
+      c.moveTo(-bw*0.55, -bh*0.15);
+      c.lineTo(-bw*0.75, -bh*0.45);
+      c.lineTo(bw*0.75, -bh*0.45);
+      c.lineTo(bw*0.55, -bh*0.15);
+      c.closePath(); c.fill(); c.stroke();
+      // زجاج مضيء
+      c.fillStyle='#FDE047'; c.beginPath(); c.ellipse(0,-bh*0.45,bw*0.55,bw*0.14,0,0,Math.PI*2); c.fill();
+      // زرّ صغير
+      c.fillStyle='#DC2626'; c.beginPath(); c.arc(0, bh*0.35, bw*0.14, 0, Math.PI*2); c.fill();
+      c.restore();
+    })();
     c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-    c.fillText('🔦 اسحبيني', srcPos.x, srcPos.y-h*0.045);
+    c.fillText('🔦 اسحبيني', srcPos.x, srcPos.y-h*0.075);
 
     // الشعاع المنعكس (بنفس الزاوية على الجهة الأخرى من العمود المقام)
     const reflRad = (90-S.angle)*Math.PI/180;
@@ -831,7 +917,7 @@ function simG8Bio3N3b(){
 
     // تسميات الأشعّة — بعيدة عن مسار الشعاع نفسه لتفادي التداخل
     c.fillStyle='#F59E0B'; c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('الشعاع الساقط', srcPos.x - w*0.02, srcPos.y - h*0.04);
+    c.fillText('الشعاع الساقط', (srcPos.x+px)/2 - w*0.06, (srcPos.y+py)/2 - h*0.02);
     c.fillStyle='#3B82F6';
     c.fillText('الشعاع المنعكس', reflX + w*0.02, reflY - h*0.02);
 
