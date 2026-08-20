@@ -248,8 +248,14 @@ function simG8Bio3N1b(){
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
 
-    const lampX=w*0.16, lampY=h*0.32, chairX=w*0.62, chairY=h*0.72;
-    const bookX=chairX-w*0.02, bookY=chairY-h*0.28, eyeX=chairX-w*0.01, eyeY=chairY-h*0.38;
+    const lampX=w*0.16, lampY=h*0.32;
+    const chairX=w*0.62, seatY=h*0.66;              // مستوى مقعد الكرسي
+    const torsoW=w*0.075, torsoH=h*0.16;
+    const torsoCX = chairX-w*0.01, torsoBottomY = seatY-h*0.01, torsoTopY = torsoBottomY-torsoH;
+    const headR = w*0.032;
+    const headCX = torsoCX+w*0.005, headCY = torsoTopY-headR-h*0.008;
+    const bookX = torsoCX-w*0.09, bookY = headCY+h*0.09;   // الكتاب ممسوك أسفل الوجه، باتّجاه المصباح
+    const eyeX = headCX-headR*0.35, eyeY = headCY-headR*0.05;
 
     // مصباح بجانب القارئ
     c.save(); c.translate(lampX,lampY);
@@ -263,55 +269,55 @@ function simG8Bio3N1b(){
     c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
     c.fillText(S.lampOn?'💡 مصدر مضيء':'مصباح مطفأ', lampX, lampY+h*0.32);
 
-    // كرسي بسيط
+    // كرسي بسيط (يُرسم أولاً، خلف القارئ)
     c.save(); c.strokeStyle=g8cMut(dark); c.lineWidth=Math.max(3,w*0.008); c.lineCap='round';
-    c.beginPath(); c.moveTo(chairX-w*0.09,chairY+h*0.12); c.lineTo(chairX-w*0.09,chairY-h*0.16); c.stroke(); // ظهر الكرسي
-    c.beginPath(); c.moveTo(chairX-w*0.09,chairY+h*0.12); c.lineTo(chairX+w*0.11,chairY+h*0.12); c.stroke(); // مقعد
-    c.beginPath(); c.moveTo(chairX-w*0.09,chairY+h*0.12); c.lineTo(chairX-w*0.09,chairY+h*0.24); c.stroke(); // أرجل
-    c.beginPath(); c.moveTo(chairX+w*0.11,chairY+h*0.12); c.lineTo(chairX+w*0.11,chairY+h*0.24); c.stroke();
+    c.beginPath(); c.moveTo(chairX-w*0.085,seatY); c.lineTo(chairX-w*0.085,seatY-h*0.22); c.stroke(); // ظهر الكرسي
+    c.beginPath(); c.moveTo(chairX-w*0.085,seatY); c.lineTo(chairX+w*0.09,seatY); c.stroke(); // مقعد
+    c.beginPath(); c.moveTo(chairX-w*0.07,seatY); c.lineTo(chairX-w*0.07,seatY+h*0.14); c.stroke(); // أرجل
+    c.beginPath(); c.moveTo(chairX+w*0.075,seatY); c.lineTo(chairX+w*0.075,seatY+h*0.14); c.stroke();
     c.restore();
 
-    // القارئ (جالس بشكل جانبي): جذع + رأس + ذراع يحمل الكتاب
+    // جذع القارئ (كتلة بسيطة منتظمة الحجم فوق المقعد مباشرة)
     c.save();
     c.fillStyle='#7C9CBF'; c.strokeStyle='#3E5570'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(chairX-w*0.075,chairY+h*0.1);
-    c.quadraticCurveTo(chairX-w*0.09,chairY-h*0.12, chairX-w*0.02,chairY-h*0.16);
-    c.quadraticCurveTo(chairX+w*0.06,chairY-h*0.14, chairX+w*0.055,chairY+h*0.02);
-    c.quadraticCurveTo(chairX+w*0.05,chairY+h*0.1, chairX+w*0.02,chairY+h*0.12);
-    c.closePath(); c.fill(); c.stroke();
-    // الرأس
-    c.fillStyle='#E8C9A0'; c.strokeStyle='#B8946B'; c.lineWidth=2;
-    c.beginPath(); c.arc(chairX-w*0.005,chairY-h*0.28,w*0.038,0,Math.PI*2); c.fill(); c.stroke();
-    // شعر بسيط
-    c.fillStyle='#4A3728';
-    c.beginPath(); c.arc(chairX-w*0.005,chairY-h*0.30,w*0.04,Math.PI*0.95,Math.PI*1.85); c.fill();
-    // عين وأنف بسيطان (باتّجاه الكتاب)
-    c.fillStyle='#3B2A1A'; c.beginPath(); c.arc(chairX-w*0.025,chairY-h*0.275,w*0.005,0,Math.PI*2); c.fill();
+    c.beginPath(); c.roundRect(torsoCX-torsoW/2, torsoTopY, torsoW, torsoH, torsoW*0.35);
+    c.fill(); c.stroke();
     c.restore();
 
-    // الكتاب المفتوح — صفحتان متماثلتان حول الكعب
-    c.save(); c.translate(bookX,bookY); c.rotate(-0.08);
+    // الرأس (فوق الجذع مباشرة، بلا فجوة)
+    c.save();
+    c.fillStyle='#E8C9A0'; c.strokeStyle='#B8946B'; c.lineWidth=2;
+    c.beginPath(); c.arc(headCX,headCY,headR,0,Math.PI*2); c.fill(); c.stroke();
+    // شعر بسيط
+    c.fillStyle='#4A3728';
+    c.beginPath(); c.arc(headCX,headCY-headR*0.12,headR*1.05,Math.PI*0.95,Math.PI*1.85); c.fill();
+    // عين باتّجاه الكتاب
+    c.fillStyle='#3B2A1A'; c.beginPath(); c.arc(eyeX,eyeY,w*0.005,0,Math.PI*2); c.fill();
+    c.restore();
+
+    // الكتاب المفتوح — صفحتان متماثلتان حول الكعب، أسفل الوجه مباشرة
+    c.save(); c.translate(bookX,bookY); c.rotate(-0.06);
     c.fillStyle='#FEFCF6'; c.strokeStyle='#B8946B'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(0,-h*0.005); c.quadraticCurveTo(-w*0.05,-h*0.03,-w*0.075,-h*0.006); c.lineTo(-w*0.075,h*0.045); c.quadraticCurveTo(-w*0.05,h*0.02,0,h*0.045); c.closePath(); c.fill(); c.stroke();
-    c.beginPath(); c.moveTo(0,-h*0.005); c.quadraticCurveTo(w*0.05,-h*0.03,w*0.075,-h*0.006); c.lineTo(w*0.075,h*0.045); c.quadraticCurveTo(w*0.05,h*0.02,0,h*0.045); c.closePath(); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(0,-h*0.004); c.quadraticCurveTo(-w*0.045,-h*0.024,-w*0.068,-h*0.005); c.lineTo(-w*0.068,h*0.036); c.quadraticCurveTo(-w*0.045,h*0.016,0,h*0.036); c.closePath(); c.fill(); c.stroke();
+    c.beginPath(); c.moveTo(0,-h*0.004); c.quadraticCurveTo(w*0.045,-h*0.024,w*0.068,-h*0.005); c.lineTo(w*0.068,h*0.036); c.quadraticCurveTo(w*0.045,h*0.016,0,h*0.036); c.closePath(); c.fill(); c.stroke();
     c.strokeStyle='#D8CBB0'; c.lineWidth=1;
     for(let i=0;i<3;i++){
-      const yy=h*(0.005+i*0.013);
-      c.beginPath(); c.moveTo(-w*0.06,yy); c.lineTo(-w*0.012,yy+h*0.003); c.stroke();
-      c.beginPath(); c.moveTo(w*0.012,yy+h*0.003); c.lineTo(w*0.06,yy); c.stroke();
+      const yy=h*(0.004+i*0.011);
+      c.beginPath(); c.moveTo(-w*0.055,yy); c.lineTo(-w*0.011,yy+h*0.0025); c.stroke();
+      c.beginPath(); c.moveTo(w*0.011,yy+h*0.0025); c.lineTo(w*0.055,yy); c.stroke();
     }
     c.restore();
     c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('📖 غير مضيء', bookX, bookY+h*0.08);
+    c.fillText('📖 غير مضيء', bookX, bookY+h*0.07);
 
     if(S.revealed && S.lampOn){
       // ضوء من المصباح إلى الكتاب
       c.save(); c.strokeStyle='#FDE047'; c.lineWidth=Math.max(1.5,w*0.004); c.globalAlpha=0.85;
-      c.beginPath(); c.moveTo(lampX,lampY-h*0.03); c.lineTo(bookX-w*0.02,bookY-h*0.01); c.stroke();
+      c.beginPath(); c.moveTo(lampX,lampY-h*0.03); c.lineTo(bookX-w*0.015,bookY-h*0.008); c.stroke();
       c.restore();
       // ضوء منعكس من الكتاب إلى عين القارئ
       c.save(); c.strokeStyle='#60A5FA'; c.lineWidth=Math.max(1.5,w*0.004); c.globalAlpha=0.85;
-      c.beginPath(); c.moveTo(bookX,bookY-h*0.01); c.lineTo(eyeX,eyeY); c.stroke();
+      c.beginPath(); c.moveTo(bookX,bookY-h*0.008); c.lineTo(eyeX,eyeY); c.stroke();
       c.restore();
     }
 
@@ -333,9 +339,9 @@ function simG8Bio3N1b(){
 function simG8Bio3N2a(){
   cancelAnimationFrame(animFrame);
   const PARTS = [
-    { id:'windshield', label:'الزجاج الأمامي', type:'transparent', card:'🔵 مادة شفّافة', info:'الزجاج الأمامي شفّاف ينفذ الضوء من خلاله (Transmitted) — لذلك نستطيع الرؤية عبره.', x:0.698, y:0.42 },
-    { id:'metal',       label:'المعدن اللامع',  type:'reflective',  card:'🪞 سطح عاكس',   info:'المعدن اللامع في مقدّمة السيارة يعكس الضوء الساقط عليه (Reflected).', x:0.82, y:0.565 },
-    { id:'plastic',     label:'البلاستيك الأسود (المرآة الجانبية)', type:'opaque', card:'⚫ مادة معتمة', info:'البلاستيك الأسود المعتم يمتصّ الضوء الساقط عليه ولا يسمح له بالمرور من خلاله (Opaque).', x:0.6, y:0.485 },
+    { id:'windshield', label:'الزجاج الأمامي', type:'transparent', card:'🔵 مادة شفّافة', info:'الزجاج الأمامي شفّاف ينفذ الضوء من خلاله (Transmitted) — لذلك نستطيع الرؤية عبره.', xFrac:0.75, yFrac:0.32 },
+    { id:'metal',       label:'المعدن اللامع',  type:'reflective',  card:'🪞 سطح عاكس',   info:'المعدن اللامع في مقدّمة السيارة يعكس الضوء الساقط عليه (Reflected).', xFrac:0.9, yFrac:0.58 },
+    { id:'plastic',     label:'البلاستيك الأسود (المرآة الجانبية)', type:'opaque', card:'⚫ مادة معتمة', info:'البلاستيك الأسود المعتم يمتصّ الضوء الساقط عليه ولا يسمح له بالمرور من خلاله (Opaque).', xFrac:0.615, yFrac:0.42 },
   ];
   simState = { curId:null, revealed:{}, beamT:0 };
   const S = simState;
@@ -371,24 +377,27 @@ function simG8Bio3N2a(){
 
   function drawCar(c,w,h,dark){
     c.save();
-    const bx=w*0.1, bw=w*0.8;
-    const groundY=h*0.66, beltY=h*0.5, roofY=h*0.34;
+    // نستخدم عرض السيارة كوحدة قياس موحّدة للأبعاد كلّها (أفقياً ورأسياً)
+    // لضمان تناسب الشكل بصرياً بغضّ النظر عن أبعاد الكانفس
+    const bx=w*0.2, bw=w*0.6, S=bw;
+    const baseY=h*0.68;                 // خط الأرض
+    const groundY=baseY, beltY=baseY-S*0.24, roofY=baseY-S*0.46;
 
     // ظل خفيف تحت السيارة
     c.save(); c.fillStyle=dark?'rgba(0,0,0,0.35)':'rgba(0,0,0,0.15)';
-    c.beginPath(); c.ellipse(bx+bw*0.5, groundY+h*0.075, bw*0.46, h*0.02, 0,0,Math.PI*2); c.fill(); c.restore();
+    c.beginPath(); c.ellipse(bx+bw*0.5, groundY+S*0.05, bw*0.48, S*0.035, 0,0,Math.PI*2); c.fill(); c.restore();
 
     // هيكل السيارة (بروفايل جانبي واقعي مبسّط)
     c.beginPath();
     c.moveTo(bx, groundY);
-    c.lineTo(bx, beltY+h*0.05);
-    c.quadraticCurveTo(bx, beltY-h*0.03, bx+bw*0.1, beltY-h*0.03);
-    c.lineTo(bx+bw*0.19, beltY-h*0.03);
-    c.quadraticCurveTo(bx+bw*0.26, roofY+h*0.01, bx+bw*0.37, roofY);
+    c.lineTo(bx, beltY+S*0.03);
+    c.quadraticCurveTo(bx, beltY-S*0.02, bx+bw*0.1, beltY-S*0.02);
+    c.lineTo(bx+bw*0.19, beltY-S*0.02);
+    c.quadraticCurveTo(bx+bw*0.26, roofY+S*0.01, bx+bw*0.37, roofY);
     c.lineTo(bx+bw*0.68, roofY);
-    c.quadraticCurveTo(bx+bw*0.79, roofY+h*0.01, bx+bw*0.85, beltY-h*0.03);
-    c.lineTo(bx+bw*0.92, beltY-h*0.03);
-    c.quadraticCurveTo(bx+bw, beltY-h*0.03, bx+bw, beltY+h*0.05);
+    c.quadraticCurveTo(bx+bw*0.79, roofY+S*0.01, bx+bw*0.85, beltY-S*0.02);
+    c.lineTo(bx+bw*0.92, beltY-S*0.02);
+    c.quadraticCurveTo(bx+bw, beltY-S*0.02, bx+bw, beltY+S*0.03);
     c.lineTo(bx+bw, groundY);
     c.closePath();
     const grad = c.createLinearGradient(0,roofY,0,groundY);
@@ -398,44 +407,45 @@ function simG8Bio3N2a(){
 
     // خط لمعان جانبي
     c.save(); c.strokeStyle='rgba(255,255,255,0.35)'; c.lineWidth=2;
-    c.beginPath(); c.moveTo(bx+bw*0.06, beltY+h*0.09); c.lineTo(bx+bw*0.94, beltY+h*0.09); c.stroke();
+    c.beginPath(); c.moveTo(bx+bw*0.06, beltY+S*0.06); c.lineTo(bx+bw*0.94, beltY+S*0.06); c.stroke();
     c.restore();
 
     // نوافذ (زجاج أمامي، جانبي، خلفي) بإطار غامق موحّد
     c.save();
     c.fillStyle= dark? 'rgba(147,197,253,0.5)':'rgba(191,219,254,0.85)'; c.strokeStyle='#1E293B'; c.lineWidth=2.5;
     c.beginPath();
-    c.moveTo(bx+bw*0.205, beltY-h*0.045);
-    c.quadraticCurveTo(bx+bw*0.27, roofY+h*0.02, bx+bw*0.375, roofY+h*0.015);
-    c.lineTo(bx+bw*0.66, roofY+h*0.015);
-    c.quadraticCurveTo(bx+bw*0.77, roofY+h*0.02, bx+bw*0.835, beltY-h*0.045);
+    c.moveTo(bx+bw*0.205, beltY-S*0.03);
+    c.quadraticCurveTo(bx+bw*0.27, roofY+S*0.014, bx+bw*0.375, roofY+S*0.01);
+    c.lineTo(bx+bw*0.66, roofY+S*0.01);
+    c.quadraticCurveTo(bx+bw*0.77, roofY+S*0.014, bx+bw*0.835, beltY-S*0.03);
     c.closePath(); c.fill(); c.stroke();
     // عمود منتصف (بين الزجاج الأمامي والخلفي)
-    c.beginPath(); c.moveTo(bx+bw*0.5, roofY+h*0.017); c.lineTo(bx+bw*0.5, beltY-h*0.045); c.stroke();
+    c.beginPath(); c.moveTo(bx+bw*0.5, roofY+S*0.011); c.lineTo(bx+bw*0.5, beltY-S*0.03); c.stroke();
     c.restore();
 
     // مصدّ أمامي وخلفي (بامبر)
     c.fillStyle='#374151';
-    c.beginPath(); c.roundRect(bx-w*0.006, groundY-h*0.03, w*0.02, h*0.05, 3); c.fill();
-    c.beginPath(); c.roundRect(bx+bw-w*0.014, groundY-h*0.03, w*0.02, h*0.05, 3); c.fill();
+    c.beginPath(); c.roundRect(bx-S*0.004, groundY-S*0.02, S*0.014, S*0.034, 3); c.fill();
+    c.beginPath(); c.roundRect(bx+bw-S*0.01, groundY-S*0.02, S*0.014, S*0.034, 3); c.fill();
 
     // مقبض الباب
-    c.fillStyle='#7F1D1D'; c.beginPath(); c.roundRect(bx+bw*0.56, beltY+h*0.02, w*0.035, h*0.012, 3); c.fill();
+    c.fillStyle='#7F1D1D'; c.beginPath(); c.roundRect(bx+bw*0.56, beltY+S*0.013, S*0.024, S*0.008, 3); c.fill();
 
     // مصباح أمامي
     c.fillStyle='#FEF9C3'; c.strokeStyle='#CA8A04'; c.lineWidth=1.5;
-    c.beginPath(); c.ellipse(bx+bw*0.955, beltY+h*0.02, w*0.018, h*0.02, 0,0,Math.PI*2); c.fill(); c.stroke();
+    c.beginPath(); c.ellipse(bx+bw*0.955, beltY+S*0.013, S*0.012, S*0.014, 0,0,Math.PI*2); c.fill(); c.stroke();
 
-    // أقواس العجلات (سوداء) + عجلات بجنوط
+    // أقواس العجلات (سوداء) + عجلات بجنوط — نصف قطر موحّد النسبة مع عرض السيارة
+    const wheelR = S*0.075;
     [0.24, 0.76].forEach(fx=>{
       const wx=bx+bw*fx;
       c.fillStyle='#111827';
-      c.beginPath(); c.arc(wx,groundY,h*0.075,Math.PI,0); c.fill();
-      c.beginPath(); c.arc(wx,groundY+h*0.01,h*0.062,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(wx,groundY,wheelR,Math.PI,0); c.fill();
+      c.beginPath(); c.arc(wx,groundY,wheelR*0.86,0,Math.PI*2); c.fill();
       c.fillStyle='#9CA3AF';
-      c.beginPath(); c.arc(wx,groundY+h*0.01,h*0.032,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(wx,groundY,wheelR*0.42,0,Math.PI*2); c.fill();
       c.fillStyle='#4B5563';
-      c.beginPath(); c.arc(wx,groundY+h*0.01,h*0.012,0,Math.PI*2); c.fill();
+      c.beginPath(); c.arc(wx,groundY,wheelR*0.16,0,Math.PI*2); c.fill();
     });
 
     c.restore();
@@ -459,7 +469,8 @@ function simG8Bio3N2a(){
     c.fillText('🔦 مصباح', srcX, srcY-h*0.04);
 
     PARTS.forEach(p=>{
-      const px=w*p.x, py=h*p.y;
+      const px=bx+bw*p.xFrac, py=roofY+(groundY-roofY)*p.yFrac;
+      p._px=px; p._py=py;
       c.save();
       if(p.id==='metal'){
         // بقعة لمعان معدني إضافية على غطاء المحرك لتوضيح السطح العاكس
@@ -478,8 +489,7 @@ function simG8Bio3N2a(){
 
     if(S.curId){
       const p = PARTS.find(x=>x.id===S.curId);
-      const px=w*p.x, py=h*p.y;
-      if(S.beamT>0 && S.beamT<1){ S.beamT += 0.03; }
+      const px=p._px, py=p._py;
       if(S.beamT>=1 && !S.revealed[p.id]){ S.revealed[p.id]=true; _g8pPlayDrop(); controls(renderControls()); }
       const t = Math.min(1,S.beamT);
       if(t>0){
