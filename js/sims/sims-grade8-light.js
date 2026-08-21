@@ -936,3 +936,638 @@ function simG8Bio3N3b(){
   }
   draw();
 }
+
+/* ══════════════════════════════════════════════════════════
+   الصف الثامن — نشاط ٤-٣ · كيف ينكسر الضوء؟ (كتاب الصف الثامن ص٦٠-٦١)
+   ══════════════════════════════════════════════════════════ */
+
+/* تاب ١: هل يبدو القلم مكسورًا؟ (ص٦٠) */
+function simG8Bio3N4a(){
+  cancelAnimationFrame(animFrame);
+  simState = { stage:'start', qSel:null };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  const QOPTS = ['لأنّ القلم انكسر فعليًا داخل الماء','لأنّ الضوء ينكسر عند انتقاله من الماء إلى الهواء، فتتغيّر الصورة التي نراها','لأنّ الماء يكبّر حجم الأشياء دائمًا'];
+  const QANS = 1;
+
+  function renderControls(){
+    if(S.stage==='start'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🖊️ هل يبدو القلم مكسورًا؟</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">في الصورة كأس ماء وقلم رصاص بجانبه. ضعي القلم في الماء وراقبي شكله.</div>
+        <button class="ctrl-btn play" onclick="window._g8lPencil()">🖊️ ضعي القلم في الماء</button>`;
+    }
+    if(S.stage==='inWater'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">👀 لاحظي القلم!</div></div>
+        <div style="font-size:13px;line-height:1.85;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:12px;margin-bottom:12px">هل يبدو القلم كما هو، أم أنّه يبدو منحنيًا أو مكسورًا عند سطح الماء؟</div>
+        <button class="ctrl-btn play" onclick="window._g8lAskWhy()">🤔 لماذا يبدو القلم هكذا؟</button>`;
+    }
+    if(S.stage==='qAsked' || S.stage==='qAnswered'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🤔 توقّعي</div></div>
+        <div style="font-size:13.5px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:12px">لماذا يبدو القلم مكسورًا أو منحرفًا عند وضعه في الماء؟</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${QOPTS.map((o,i)=>`<button onclick="window._g8lQAns4(${i})" style="padding:10px;border-radius:9px;border:2px solid ${S.qSel===null?'#ddd':(i===QANS?'#22C55E':(i===S.qSel?'#DC2626':'#ddd'))};background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer;font-size:12.5px">${o}</button>`).join('')}
+        </div>
+        ${S.stage==='qAnswered' ? `
+        <div style="margin-top:10px;padding:13px;background:${S.qSel===QANS?'rgba(74,222,128,0.15)':'rgba(239,68,68,0.1)'};border-radius:10px;font-size:13px;line-height:1.9;color:var(--text-secondary)">
+          ${S.qSel===QANS?'✅ صحيح!':'💡'} <strong style="color:#D4901A">الانكسار Refraction:</strong> التغيّر في اتّجاه الشعاع الضوئي عند انتقاله من وسط شفّاف إلى وسط شفّاف آخر (من الماء إلى الهواء أو من الهواء إلى الماء). القلم نفسه لم ينكسر — بل انحرف مسار الضوء القادم منه إلى عينك.
+        </div>
+        <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g8lRestart4()">↺ أعيدي المحاولة</button>` : ''}
+      `;
+    }
+  }
+  controls(renderControls());
+  window._g8lPencil = function(){ _g8pPlayClick(); S.stage='inWater'; S.animT=0; controls(renderControls()); };
+  window._g8lAskWhy = function(){ _g8pPlayClick(); S.stage='qAsked'; controls(renderControls()); };
+  window._g8lQAns4 = function(i){ _g8pPlayClick(); S.qSel=i; S.stage='qAnswered'; if(i===QANS) _g8pPlayDrop(); controls(renderControls()); };
+  window._g8lRestart4 = function(){ S.stage='start'; S.qSel=null; controls(renderControls()); };
+
+  cv.onmousedown=null; cv.onmousemove=null; cv.onmouseup=null;
+  cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null; cv.onclick=null;
+
+  function draw(){
+    if(currentSim!=='g8bio3n4' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
+    const inWater = S.stage!=='start';
+
+    // الكأس — وحدة قياس موحّدة B لكلّ الأبعاد
+    const B = w*0.34;
+    const cupX = w*0.5, cupTopY = h*0.32, cupH = B*1.05, cupBotY = cupTopY+cupH;
+    const waterTopY = cupTopY + cupH*0.22;
+
+    // ظل الكأس
+    c.save(); c.fillStyle=dark?'rgba(0,0,0,0.35)':'rgba(0,0,0,0.13)';
+    c.beginPath(); c.ellipse(cupX, cupBotY+B*0.03, B*0.42, B*0.05,0,0,Math.PI*2); c.fill(); c.restore();
+
+    // جسم الكأس الزجاجي
+    c.save();
+    c.beginPath();
+    c.moveTo(cupX-B*0.4, cupTopY); c.lineTo(cupX-B*0.34, cupBotY); c.quadraticCurveTo(cupX,cupBotY+B*0.02,cupX+B*0.34,cupBotY);
+    c.lineTo(cupX+B*0.4, cupTopY); c.closePath();
+    c.fillStyle= dark?'rgba(180,210,230,0.14)':'rgba(200,225,240,0.28)'; c.fill();
+    c.strokeStyle=dark?'#8FAFC0':'#9FC3D6'; c.lineWidth=2.5; c.stroke();
+    c.restore();
+
+    // الماء
+    c.save();
+    c.beginPath();
+    c.moveTo(cupX-B*0.375, waterTopY); c.lineTo(cupX-B*0.34, cupBotY); c.quadraticCurveTo(cupX,cupBotY+B*0.02,cupX+B*0.34,cupBotY);
+    c.lineTo(cupX+B*0.375, waterTopY); c.closePath();
+    const wg=c.createLinearGradient(0,waterTopY,0,cupBotY); wg.addColorStop(0,'#7EC8E3'); wg.addColorStop(1,'#3E8FBF');
+    c.fillStyle=wg; c.globalAlpha=0.75; c.fill();
+    c.restore();
+    // خط سطح الماء
+    c.save(); c.strokeStyle='#BEE6F5'; c.lineWidth=2; c.globalAlpha=0.85;
+    c.beginPath(); c.ellipse(cupX,waterTopY,B*0.375,B*0.035,0,0,Math.PI*2); c.stroke(); c.restore();
+    // حافة الكأس العلوية
+    c.save(); c.strokeStyle=dark?'#8FAFC0':'#9FC3D6'; c.lineWidth=2.5;
+    c.beginPath(); c.ellipse(cupX,cupTopY,B*0.4,B*0.035,0,0,Math.PI*2); c.stroke(); c.restore();
+
+    // القلم
+    const pencilLen = B*1.15, pencilW = Math.max(5,B*0.032);
+    if(!inWater){
+      // القلم مستقيم بجانب الكأس
+      const px0 = cupX+B*0.62, py0 = cupTopY-B*0.05, ang=1.05;
+      c.save(); c.translate(px0,py0); c.rotate(ang);
+      c.fillStyle='#F4C430'; c.strokeStyle='#8A5A1A'; c.lineWidth=1.5;
+      c.beginPath(); c.roundRect(-pencilW/2,0,pencilW,pencilLen*0.86,pencilW*0.3); c.fill(); c.stroke();
+      c.beginPath(); c.moveTo(-pencilW/2,pencilLen*0.86); c.lineTo(pencilW/2,pencilLen*0.86); c.lineTo(0,pencilLen); c.closePath();
+      c.fillStyle='#D9A441'; c.fill(); c.stroke();
+      c.restore();
+      c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+      c.fillText('قلم رصاص جافّ', px0+Math.sin(ang)*pencilLen*0.5, py0+Math.cos(ang)*pencilLen*0.5+h*0.05);
+    } else {
+      // القلم مائل يدخل الماء: يبدو منحرفًا عند خط السطح
+      const entryX = cupX+B*0.06, ang1=1.0, ang2=0.55;
+      const aboveLen = (waterTopY-(cupTopY-B*0.42))/Math.cos(ang1);
+      const srcX = entryX - Math.sin(ang1)*aboveLen, srcY = cupTopY-B*0.42;
+      // الجزء فوق الماء (مستقيم)
+      c.save(); c.strokeStyle='#8A5A1A'; c.lineWidth=pencilW; c.lineCap='round';
+      c.beginPath(); c.moveTo(srcX,srcY); c.lineTo(entryX,waterTopY); c.stroke(); c.restore();
+      c.save(); c.fillStyle='#F4C430'; c.strokeStyle='#8A5A1A'; c.lineWidth=1;
+      c.beginPath(); c.arc(srcX,srcY,pencilW*0.55,0,Math.PI*2); c.fill(); c.stroke(); c.restore();
+      // الجزء تحت الماء (بزاوية مختلفة — يبدو منحرفًا عند خط السطح)
+      const belowLen = B*0.62;
+      const tipX = entryX + Math.sin(ang2)*belowLen, tipY = waterTopY + Math.cos(ang2)*belowLen;
+      c.save(); c.globalAlpha=0.88; c.strokeStyle='#B8860B'; c.lineWidth=pencilW*0.92; c.lineCap='round';
+      c.beginPath(); c.moveTo(entryX,waterTopY); c.lineTo(tipX,tipY); c.stroke(); c.restore();
+      // إبراز نقطة الانحراف عند السطح
+      c.save(); c.fillStyle=g8cAccent(dark); c.beginPath(); c.arc(entryX,waterTopY,3.5,0,Math.PI*2); c.fill(); c.restore();
+      c.fillStyle=g8cMut(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+      c.fillText('👀 يبدو منحرفًا هنا', entryX+B*0.28, waterTopY-B*0.05);
+    }
+
+    g8lHeader(c,w,h,dark,'نشاط ٤-٣ · هل يبدو القلم مكسورًا؟');
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* تاب ٢: مسار الشعاع عند دخوله الزجاج (ص٦٠-٦١) */
+function simG8Bio3N4b(){
+  cancelAnimationFrame(animFrame);
+  simState = { angle:30, tried:{}, showQ:false, qSel:null };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  const N_GLASS = 1.5;
+  const QOPTS = ['كلّما زادت زاوية السقوط، زادت زاوية الانكسار أيضًا','زاوية الانكسار تبقى ثابتة دائمًا مهما تغيّرت زاوية السقوط','كلّما زادت زاوية السقوط، قلّت زاوية الانكسار'];
+  const QANS = 0;
+
+  function refrAngle(a){ return Math.asin(Math.sin(a*Math.PI/180)/N_GLASS)*180/Math.PI; }
+
+  function renderControls(){
+    const r = refrAngle(S.angle);
+    const triedCount = Object.keys(S.tried).length;
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">📐 مسار الشعاع عند دخوله الزجاج</div></div>
+      <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">اختاري زاوية سقوط مختلفة وراقبي كيف ينكسر الشعاع عند دخوله القطعة الزجاجية.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        ${[0,30,60].map(a=>`<button onclick="window._g8lAngle4(${a})" style="flex:1;padding:11px 4px;border-radius:9px;border:2px solid ${S.angle===a?'#D4901A':'#ddd'};background:${S.angle===a?'rgba(212,144,26,0.12)':'var(--bg-ctrl-btn)'};color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:800;cursor:pointer">${a}°</button>`).join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between;background:var(--bg-card2);border-radius:8px;padding:10px;margin-bottom:10px;font-size:13px;font-weight:700">
+        <span style="color:#F59E0B">زاوية السقوط: ${S.angle}°</span>
+        <span style="color:#3B82F6">زاوية الانكسار: ${S.angle===0?'0':r.toFixed(0)}°</span>
+      </div>
+      ${S.angle===0 ? `<div style="font-size:12.5px;background:rgba(74,222,128,0.15);border-radius:8px;padding:10px;margin-bottom:10px">💡 إذا سقط الشعاع عموديًا على السطح (على امتداد العمود المقام)، فإنّه <strong>لا ينحرف</strong>.</div>` :
+      `<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">لاحظي أنّ الشعاع ينحرف نحو العمود المقام عند دخوله الزجاج (وسط أكثف من الهواء).</div>`}
+      ${triedCount>=2 ? (!S.showQ ? `<button class="ctrl-btn play" onclick="window._g8lShowQ4b()">🤔 كيف تتغيّر زاوية الانكسار؟</button>` : `
+        <div style="font-size:13px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:12px;margin-bottom:10px">كيف تتغيّر زاوية الانكسار عندما تتغيّر زاوية السقوط؟</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${QOPTS.map((o,i)=>`<button onclick="window._g8lQAns4b(${i})" style="padding:10px;border-radius:9px;border:2px solid ${S.qSel===null?'#ddd':(i===QANS?'#22C55E':(i===S.qSel?'#DC2626':'#ddd'))};background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer;font-size:12.5px">${o}</button>`).join('')}
+        </div>
+        ${S.qSel!==null?`<div style="margin-top:8px;padding:10px;background:${S.qSel===QANS?'rgba(74,222,128,0.15)':'rgba(239,68,68,0.1)'};border-radius:9px;font-size:12.5px;line-height:1.8;color:var(--text-secondary)">${S.qSel===QANS?'✅ صحيح!':'💡'} كلّما زادت زاوية السقوط، زادت زاوية الانكسار — لكنّ الشعاع يبقى دائمًا أقرب إلى العمود المقام داخل الزجاج منه في الهواء.</div>`:''}
+      `) : ''}
+    `;
+  }
+  controls(renderControls());
+  window._g8lAngle4 = function(a){ _g8pPlayClick(); S.angle=a; S.tried[a]=true; controls(renderControls()); };
+  window._g8lShowQ4b = function(){ _g8pPlayClick(); S.showQ=true; controls(renderControls()); };
+  window._g8lQAns4b = function(i){ _g8pPlayClick(); S.qSel=i; if(i===QANS) _g8pPlayDrop(); controls(renderControls()); };
+
+  cv.onmousedown=null; cv.onmousemove=null; cv.onmouseup=null;
+  cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null; cv.onclick=null;
+
+  function draw(){
+    if(currentSim!=='g8bio3n4' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
+
+    const entryX = w*0.5, entryY = h*0.44;
+    const blockW = w*0.5, blockTop = entryY, blockBot = h*0.84;
+
+    // القطعة الزجاجية
+    c.save();
+    const gg=c.createLinearGradient(0,blockTop,0,blockBot); gg.addColorStop(0,dark?'rgba(147,197,253,0.22)':'rgba(191,219,254,0.55)'); gg.addColorStop(1,dark?'rgba(147,197,253,0.12)':'rgba(191,219,254,0.3)');
+    c.fillStyle=gg; c.strokeStyle=dark?'#93C5FD':'#60A5FA'; c.lineWidth=2.5;
+    c.beginPath(); c.roundRect(entryX-blockW/2, blockTop, blockW, blockBot-blockTop, 6); c.fill(); c.stroke();
+    c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+    c.fillText('قطعة زجاجيّة', entryX, blockBot+h*0.045);
+
+    // العمود المقام (عمودي على سطح الزجاج عند نقطة السقوط)
+    const normLen = Math.min(w,h)*0.3;
+    c.save(); c.strokeStyle=g8cMut(dark); c.setLineDash([5,4]); c.lineWidth=1.8; c.globalAlpha=0.75;
+    c.beginPath(); c.moveTo(entryX,entryY-normLen*0.42); c.lineTo(entryX,entryY+normLen*0.68); c.stroke();
+    c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('العمود المقام', entryX+w*0.1, entryY-normLen*0.42-h*0.012);
+
+    // الشعاع الساقط
+    const rad1 = S.angle*Math.PI/180;
+    const aboveLen = Math.min(w,h)*0.34;
+    const srcX = entryX - Math.sin(rad1)*aboveLen, srcY = entryY - Math.cos(rad1)*aboveLen;
+    c.save(); c.strokeStyle='#F59E0B'; c.lineWidth=Math.max(2.5,w*0.006); c.lineCap='round';
+    c.beginPath(); c.moveTo(srcX,srcY); c.lineTo(entryX,entryY); c.stroke(); c.restore();
+    (function(){ const ang=Math.atan2(entryY-srcY,entryX-srcX), ah=w*0.018;
+      c.save(); c.fillStyle='#F59E0B'; c.beginPath(); c.moveTo(entryX,entryY);
+      c.lineTo(entryX-ah*Math.cos(ang-0.4),entryY-ah*Math.sin(ang-0.4)); c.lineTo(entryX-ah*Math.cos(ang+0.4),entryY-ah*Math.sin(ang+0.4));
+      c.closePath(); c.fill(); c.restore(); })();
+    // مصباح يدوي كمصدر
+    c.save(); c.translate(srcX,srcY); c.fillStyle='#4B5563'; c.strokeStyle=g8cMut(dark); c.lineWidth=1.5;
+    c.beginPath(); c.arc(0,0,w*0.022,0,Math.PI*2); c.fill(); c.stroke(); c.restore();
+
+    // الشعاع المنكسر داخل الزجاج
+    const rad2 = refrAngle(S.angle)*Math.PI/180;
+    const belowLen = Math.min(w,h)*0.32;
+    const destX = entryX + Math.sin(rad2)*belowLen, destY = entryY + Math.cos(rad2)*belowLen;
+    c.save(); c.strokeStyle='#3B82F6'; c.lineWidth=Math.max(2.5,w*0.006); c.lineCap='round';
+    c.beginPath(); c.moveTo(entryX,entryY); c.lineTo(destX,destY); c.stroke(); c.restore();
+    (function(){ const ang=Math.atan2(destY-entryY,destX-entryX), ah=w*0.018;
+      c.save(); c.fillStyle='#3B82F6'; c.beginPath(); c.moveTo(destX,destY);
+      c.lineTo(destX-ah*Math.cos(ang-0.4),destY-ah*Math.sin(ang-0.4)); c.lineTo(destX-ah*Math.cos(ang+0.4),destY-ah*Math.sin(ang+0.4));
+      c.closePath(); c.fill(); c.restore(); })();
+
+    if(S.angle>0){
+      c.save(); c.strokeStyle='#F59E0B'; c.lineWidth=2; c.globalAlpha=0.65;
+      c.beginPath(); c.arc(entryX,entryY,w*0.06,-Math.PI/2,-Math.PI/2-rad1,true); c.stroke(); c.restore();
+      c.save(); c.strokeStyle='#3B82F6'; c.lineWidth=2; c.globalAlpha=0.65;
+      c.beginPath(); c.arc(entryX,entryY,w*0.06,Math.PI/2,Math.PI/2-rad2,false); c.stroke(); c.restore();
+    }
+
+    c.fillStyle='#F59E0B'; c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشعاع الساقط', (srcX+entryX)/2-w*0.09, (srcY+entryY)/2);
+    c.fillStyle='#3B82F6';
+    c.fillText('الشعاع المنكسر', destX+w*0.02, destY+h*0.03);
+
+    g8lHeader(c,w,h,dark,'نشاط ٤-٣ · مسار الشعاع عند دخوله الزجاج');
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ══════════════════════════════════════════════════════════
+   الصف الثامن — نشاط ٥-٣ · طيف الضوء الأبيض (كتاب الصف الثامن ص٦٢-٦٣)
+   ══════════════════════════════════════════════════════════ */
+const G8_SPECTRUM = [
+  {name:'أحمر',    col:'#EF4444', bend:0.10},
+  {name:'برتقالي', col:'#F97316', bend:0.16},
+  {name:'أصفر',    col:'#FACC15', bend:0.22},
+  {name:'أخضر',    col:'#22C55E', bend:0.28},
+  {name:'أزرق',    col:'#3B82F6', bend:0.34},
+  {name:'نيلي',    col:'#4338CA', bend:0.40},
+  {name:'بنفسجي',  col:'#8B5CF6', bend:0.46},
+];
+
+/* تاب ١: المنشور الزجاجي — تشتّت الضوء الأبيض */
+function simG8Bio3N5a(){
+  cancelAnimationFrame(animFrame);
+  simState = { stage:'predict', beamT:0, revealMnemonic:false };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+
+  function renderControls(){
+    if(S.stage==='predict'){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🔺 المنشور الزجاجي</div></div>
+        <div style="font-size:13px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:13px;margin-bottom:12px">🤔 توقّعي: ماذا سيحدث للضوء الأبيض عندما يمرّ عبر منشور زجاجي؟</div>
+        <button class="ctrl-btn play" onclick="window._g8lFirePrism()">💡 أطلقي الضوء</button>`;
+    }
+    if(S.stage==='firing'){
+      return `<div class="ctrl-section"><div class="ctrl-label">⏳ ...</div></div><div style="font-size:12.5px;color:var(--text-secondary)">راقبي الضوء وهو يمرّ عبر المنشور.</div>`;
+    }
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">🌈 ماذا لاحظتِ؟</div></div>
+      <div style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;margin-bottom:12px">
+        تحلّل الضوء الأبيض إلى ألوان الطيف عند مروره بالمنشور، وتُسمّى هذه الظاهرة <strong style="color:#D4901A">التشتّت Dispersion</strong>.
+        تظهر الألوان دائمًا بالترتيب نفسه: أحمر، برتقالي، أصفر، أخضر، أزرق، نيلي، بنفسجي.
+      </div>
+      ${!S.revealMnemonic ? `<button class="ctrl-btn play" onclick="window._g8lMnemonic()">🔤 كيف نتذكّر ترتيب الألوان؟</button>` : `
+      <div style="font-size:20px;font-weight:900;text-align:center;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:10px;letter-spacing:2px;color:#D4901A">Roy G. Biv</div>
+      <div style="font-size:12px;color:var(--text-secondary);text-align:center">يأخذ بعض الأشخاص الحرف الأوّل من اسم كلّ لون بالإنجليزية ليتذكّروا ترتيب ألوان الطيف بسهولة.</div>
+      <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g8lRestart5a()">↺ أعيدي النشاط</button>`}
+    `;
+  }
+  controls(renderControls());
+  window._g8lFirePrism = function(){ _g8pPlayClick(); S.stage='firing'; S.beamT=0; };
+  window._g8lMnemonic = function(){ _g8pPlayClick(); S.revealMnemonic=true; controls(renderControls()); };
+  window._g8lRestart5a = function(){ S.stage='predict'; S.revealMnemonic=false; S.beamT=0; controls(renderControls()); };
+
+  cv.onmousedown=null; cv.onmousemove=null; cv.onmouseup=null;
+  cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null; cv.onclick=null;
+
+  function draw(){
+    if(currentSim!=='g8bio3n5' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
+
+    const boxX=w*0.13, boxY=h*0.5, prismX=w*0.46, prismY=h*0.5, prismS=w*0.16;
+
+    // صندوق الإضاءة
+    c.save(); c.translate(boxX,boxY);
+    c.fillStyle='#4B5563'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
+    c.beginPath(); c.roundRect(-w*0.045,-h*0.05,w*0.09,h*0.1,6); c.fill(); c.stroke();
+    c.fillStyle='#FDE047'; c.beginPath(); c.roundRect(w*0.03,-h*0.014,w*0.02,h*0.028,3); c.fill();
+    c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('صندوق إضاءة', boxX, boxY+h*0.09);
+
+    // المنشور (مثلث)
+    c.save();
+    c.beginPath();
+    c.moveTo(prismX, prismY-prismS*0.62);
+    c.lineTo(prismX-prismS*0.55, prismY+prismS*0.4);
+    c.lineTo(prismX+prismS*0.55, prismY+prismS*0.4);
+    c.closePath();
+    const pg=c.createLinearGradient(prismX,prismY-prismS*0.6,prismX,prismY+prismS*0.4);
+    pg.addColorStop(0, dark?'rgba(226,232,240,0.28)':'rgba(226,232,240,0.55)'); pg.addColorStop(1, dark?'rgba(226,232,240,0.12)':'rgba(226,232,240,0.25)');
+    c.fillStyle=pg; c.strokeStyle=dark?'#CBD5E1':'#94A3B8'; c.lineWidth=2.5; c.fill(); c.stroke();
+    c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('منشور زجاجي', prismX, prismY+prismS*0.4+h*0.045);
+
+    if(S.stage!=='predict'){
+      if(S.stage==='firing'){ S.beamT=Math.min(1,S.beamT+0.02); if(S.beamT>=1) S.stage='result'; }
+      const t=S.beamT;
+      // الشعاع الأبيض قبل المنشور
+      const beamEndX = boxX + (prismX-prismS*0.4-boxX)*Math.min(1,t*3);
+      c.save(); c.strokeStyle='#F8FAFC'; c.lineWidth=Math.max(3,w*0.008); c.lineCap='round'; c.shadowColor='#fff'; c.shadowBlur=6;
+      c.beginPath(); c.moveTo(boxX+w*0.045,boxY); c.lineTo(beamEndX,prismY); c.stroke(); c.restore();
+
+      // الطيف بعد المنشور (يظهر تدريجيًا)
+      const spreadT = Math.max(0, Math.min(1,(t-0.33)*1.6));
+      if(spreadT>0){
+        const exitX = prismX+prismS*0.28, exitY = prismY-prismS*0.02;
+        G8_SPECTRUM.forEach((col,i)=>{
+          const len = w*0.34*spreadT;
+          const ex = exitX + Math.cos(col.bend)*len, ey = exitY + Math.sin(col.bend)*len*1.4 - (i-3)*0*0;
+          const dy = (i-3)*h*0.028*spreadT;
+          c.save(); c.strokeStyle=col.col; c.lineWidth=Math.max(2.5,w*0.006); c.lineCap='round'; c.globalAlpha=0.92;
+          c.beginPath(); c.moveTo(exitX,exitY); c.lineTo(exitX+w*0.34*spreadT, exitY+dy); c.stroke(); c.restore();
+          if(spreadT>0.85){
+            c.fillStyle=col.col; c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='right';
+            c.fillText(col.name, exitX+w*0.36*spreadT, exitY+dy+h*0.005);
+          }
+        });
+      }
+    }
+
+    g8lHeader(c,w,h,dark,'نشاط ٥-٣ · طيف الضوء الأبيض');
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* تاب ٢: أيّ لون ينكسر بزاوية أكبر؟ (ص٦٣) */
+function simG8Bio3N5b(){
+  cancelAnimationFrame(animFrame);
+  simState = { tried:{}, qSel:null, showQ:false };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  const QOPTS = ['الأحمر ينحرف بزاوية أكبر من البنفسجي','البنفسجي ينحرف بزاوية أكبر من الأحمر','ينحرف اللونان بالزاوية نفسها تمامًا'];
+  const QANS = 1;
+
+  function renderControls(){
+    const triedCount = Object.keys(S.tried).length;
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">🔴🟣 أيّ لون ينكسر أكثر؟</div></div>
+      <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">جرّبي الشعاعين وقارني بين مقدار انحراف كلّ لون عبر المنشور.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button onclick="window._g8lTryColor('red')" style="flex:1;padding:11px;border-radius:9px;border:2px solid ${S.tried.red?'#EF4444':'#ddd'};background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:800;cursor:pointer">🔴 الأحمر</button>
+        <button onclick="window._g8lTryColor('violet')" style="flex:1;padding:11px;border-radius:9px;border:2px solid ${S.tried.violet?'#8B5CF6':'#ddd'};background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:800;cursor:pointer">🟣 البنفسجي</button>
+      </div>
+      ${triedCount>=2 ? (!S.showQ ? `<button class="ctrl-btn play" onclick="window._g8lShowQ5b()">🤔 أيّهما انحرف أكثر؟</button>` : `
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${QOPTS.map((o,i)=>`<button onclick="window._g8lQAns5b(${i})" style="padding:10px;border-radius:9px;border:2px solid ${S.qSel===null?'#ddd':(i===QANS?'#22C55E':(i===S.qSel?'#DC2626':'#ddd'))};background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer;font-size:12.5px">${o}</button>`).join('')}
+        </div>
+        ${S.qSel!==null?`<div style="margin-top:8px;padding:10px;background:${S.qSel===QANS?'rgba(74,222,128,0.15)':'rgba(239,68,68,0.1)'};border-radius:9px;font-size:12.5px;line-height:1.8;color:var(--text-secondary)">${S.qSel===QANS?'✅ صحيح!':'💡'} البنفسجي هو الأكثر انحرافًا، والأحمر هو الأقلّ انحرافًا. ولأنّ الألوان تنكسر بزوايا مختلفة، تخرج من المنشور باتّجاهات مختلفة فنراها منفصلة.</div>`:''}`) : ''}
+    `;
+  }
+  controls(renderControls());
+  window._g8lTryColor = function(k){ _g8pPlayClick(); S.tried[k]=true; S.lastFired=k; S.fireT=0; controls(renderControls()); };
+  window._g8lShowQ5b = function(){ _g8pPlayClick(); S.showQ=true; controls(renderControls()); };
+  window._g8lQAns5b = function(i){ _g8pPlayClick(); S.qSel=i; if(i===QANS) _g8pPlayDrop(); controls(renderControls()); };
+
+  cv.onmousedown=null; cv.onmousemove=null; cv.onmouseup=null;
+  cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null; cv.onclick=null;
+
+  function draw(){
+    if(currentSim!=='g8bio3n5' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
+
+    const prismX=w*0.42, prismY=h*0.55, prismS=w*0.17;
+    c.save();
+    c.beginPath();
+    c.moveTo(prismX, prismY-prismS*0.62);
+    c.lineTo(prismX-prismS*0.55, prismY+prismS*0.4);
+    c.lineTo(prismX+prismS*0.55, prismY+prismS*0.4);
+    c.closePath();
+    const pg=c.createLinearGradient(prismX,prismY-prismS*0.6,prismX,prismY+prismS*0.4);
+    pg.addColorStop(0, dark?'rgba(226,232,240,0.28)':'rgba(226,232,240,0.55)'); pg.addColorStop(1, dark?'rgba(226,232,240,0.12)':'rgba(226,232,240,0.25)');
+    c.fillStyle=pg; c.strokeStyle=dark?'#CBD5E1':'#94A3B8'; c.lineWidth=2.5; c.fill(); c.stroke();
+    c.restore();
+
+    const entryX=prismX-prismS*0.2, entryY=prismY;
+    c.save(); c.strokeStyle=g8cMut(dark); c.lineWidth=Math.max(2,w*0.005); c.lineCap='round';
+    c.beginPath(); c.moveTo(w*0.08,entryY); c.lineTo(entryX,entryY); c.stroke(); c.restore();
+
+    const DEFS = { red:{col:'#EF4444',bend:0.10,label:'أحمر'}, violet:{col:'#8B5CF6',bend:0.46,label:'بنفسجي'} };
+    Object.keys(S.tried).forEach(k=>{
+      const d = DEFS[k];
+      const exitX = prismX+prismS*0.3, exitY = prismY-prismS*0.02;
+      const len = w*0.4;
+      const ex = exitX+Math.cos(d.bend)*len, ey = exitY+Math.sin(d.bend)*len*1.5;
+      c.save(); c.strokeStyle=d.col; c.lineWidth=Math.max(3,w*0.007); c.lineCap='round'; c.globalAlpha=0.92;
+      c.beginPath(); c.moveTo(exitX,exitY); c.lineTo(ex,ey); c.stroke(); c.restore();
+      c.fillStyle=d.col; c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='right';
+      c.fillText(d.label, ex+w*0.015, ey+h*0.006);
+    });
+
+    if(Object.keys(S.tried).length===0){
+      c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+      c.fillText('اضغطي على أحد اللونين أعلاه لتجربته', w*0.5, h*0.85);
+    }
+
+    g8lHeader(c,w,h,dark,'نشاط ٥-٣ · أيّ لون ينكسر بزاوية أكبر؟');
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ══════════════════════════════════════════════════════════
+   الصف الثامن — نشاط ٦-٣ · الضوء الملوّن (كتاب الصف الثامن ص٦٤-٦٥)
+   ══════════════════════════════════════════════════════════ */
+
+/* تاب ١: كيف تعمل المرشّحات؟ */
+function simG8Bio3N6a(){
+  cancelAnimationFrame(animFrame);
+  const FILTERS = [
+    { id:'red',   label:'مرشّح أحمر 🔴',  col:'#EF4444', passes:['أحمر (وقليل من البرتقالي)'], info:'يسمح المرشّح الأحمر بمرور الضوء الأحمر (وقليل من البرتقالي)، ويمتصّ باقي الألوان (الأصفر والأخضر والأزرق والنيليّ والبنفسجيّ).' },
+    { id:'green', label:'مرشّح أخضر 🟢', col:'#22C55E', passes:['أخضر'], info:'يسمح المرشّح الأخضر بمرور الضوء الأخضر فقط تقريبًا، ويمتصّ باقي الألوان.' },
+    { id:'blue',  label:'مرشّح أزرق 🔵',  col:'#3B82F6', passes:['أزرق'], info:'يسمح المرشّح الأزرق بمرور الضوء الأزرق غالبًا، ويمتصّ باقي الألوان.' },
+  ];
+  simState = { curId:null, fired:false };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+
+  function renderControls(){
+    if(!S.curId){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🔍 كيف تعمل المرشّحات؟</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">المرشّح Filter قطعة زجاجية أو بلاستيكية ملوّنة تسمح لبعض ألوان الضوء بالمرور فقط، وتمتصّ الألوان الأخرى. اختاري مرشّحًا لتجربته.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${FILTERS.map(f=>`<button onclick="window._g8lFilter('${f.id}')" style="padding:11px;border-radius:9px;border:2px solid ${f.col};background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer">${f.label}</button>`).join('')}
+        </div>`;
+    }
+    const f = FILTERS.find(x=>x.id===S.curId);
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">${f.label}</div></div>
+      ${!S.fired ? `<button class="ctrl-btn play" onclick="window._g8lFireFilter()">💡 مرّري الضوء الأبيض</button>` : `
+      <div style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;margin-bottom:12px">${f.info}</div>
+      <button class="ctrl-btn reset" onclick="window._g8lFilterBack()">↺ جرّبي مرشّحًا آخر</button>`}
+    `;
+  }
+  controls(renderControls());
+  window._g8lFilter = function(id){ _g8pPlayClick(); S.curId=id; S.fired=false; controls(renderControls()); };
+  window._g8lFireFilter = function(){ _g8pPlayClick(); S.fired=true; controls(renderControls()); };
+  window._g8lFilterBack = function(){ _g8pPlayClick(); S.curId=null; S.fired=false; controls(renderControls()); };
+
+  cv.onmousedown=null; cv.onmousemove=null; cv.onmouseup=null;
+  cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null; cv.onclick=null;
+
+  function draw(){
+    if(currentSim!=='g8bio3n6' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
+
+    const boxX=w*0.13, boxY=h*0.5, filterX=w*0.5, filterY=h*0.5, filterW=w*0.06, filterH=h*0.34;
+
+    // صندوق ضوء أبيض
+    c.save(); c.translate(boxX,boxY);
+    c.fillStyle='#4B5563'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
+    c.beginPath(); c.roundRect(-w*0.045,-h*0.06,w*0.09,h*0.12,6); c.fill(); c.stroke();
+    c.fillStyle='#F8FAFC'; c.beginPath(); c.roundRect(w*0.03,-h*0.018,w*0.02,h*0.036,3); c.fill();
+    c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('💡 ضوء أبيض', boxX, boxY+h*0.11);
+
+    if(S.curId){
+      const f = FILTERS_G8L[S.curId];
+      // شعاع أبيض قبل المرشح
+      c.save(); c.strokeStyle='#F8FAFC'; c.lineWidth=Math.max(4,w*0.012); c.lineCap='round'; c.shadowColor='#fff'; c.shadowBlur=8;
+      c.beginPath(); c.moveTo(boxX+w*0.045,boxY); c.lineTo(filterX-filterW/2,filterY); c.stroke(); c.restore();
+
+      // المرشح
+      c.save(); c.fillStyle=f.col; c.globalAlpha=0.55; c.strokeStyle=f.col; c.lineWidth=2.5;
+      c.beginPath(); c.roundRect(filterX-filterW/2,filterY-filterH/2,filterW,filterH,6); c.fill(); c.stroke(); c.restore();
+      c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+      c.fillText('مرشّح', filterX, filterY+filterH/2+h*0.04);
+
+      if(S.fired){
+        // شعاع ملون بعد المرشح
+        c.save(); c.strokeStyle=f.col; c.lineWidth=Math.max(4,w*0.012); c.lineCap='round'; c.shadowColor=f.col; c.shadowBlur=10;
+        c.beginPath(); c.moveTo(filterX+filterW/2,filterY); c.lineTo(w*0.88,filterY); c.stroke(); c.restore();
+        c.fillStyle=f.col; c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
+        c.fillText(`يمرّ: ${f.passes[0]}`, w*0.78, filterY-h*0.045);
+
+        // أسهم ألوان ممتصّة تتوقف عند المرشح
+        const absorbed = ['#FACC15','#4338CA','#000000'].filter(x=>x!==f.col);
+        absorbed.slice(0,2).forEach((cc,i)=>{
+          const ay = filterY - filterH*0.32 + i*filterH*0.64;
+          c.save(); c.strokeStyle=g8cMut(dark); c.globalAlpha=0.5; c.lineWidth=2.5; c.lineCap='round';
+          c.beginPath(); c.moveTo(filterX-filterW*0.9,ay); c.lineTo(filterX-filterW*0.55,ay); c.stroke(); c.restore();
+        });
+        c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='center';
+        c.fillText('✗ تُمتصّ باقي الألوان', filterX, filterY-filterH/2-h*0.025);
+      }
+    }
+
+    g8lHeader(c,w,h,dark,'نشاط ٦-٣ · كيف تعمل المرشّحات؟');
+    animFrame = requestAnimationFrame(draw);
+  }
+  const FILTERS_G8L = { red:{col:'#EF4444',passes:['أحمر']}, green:{col:'#22C55E',passes:['أخضر']}, blue:{col:'#3B82F6',passes:['أزرق']} };
+  draw();
+}
+
+/* تاب ٢: لماذا نرى السيارة حمراء والعشب أخضر؟ (ص٦٥) */
+function simG8Bio3N6b(){
+  cancelAnimationFrame(animFrame);
+  simState = { sunOn:false, revealed:false, dark2:false };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+
+  function renderControls(){
+    if(!S.sunOn){
+      return `
+        <div class="ctrl-section"><div class="ctrl-label">🚗🌿 لماذا نرى السيارة حمراء والعشب أخضر؟</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">أطلقي أشعة الشمس على السيارة والعشب وراقبي الألوان التي تنعكس نحو أعيننا.</div>
+        <button class="ctrl-btn play" onclick="window._g8lSunOn()">☀️ أطلقي أشعة الشمس</button>`;
+    }
+    if(!S.revealed){
+      return `<div class="ctrl-section"><div class="ctrl-label">👀 لاحظي مسار الضوء</div></div>
+      <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">لماذا نرى السيارة حمراء والعشب أخضر رغم أنّ ضوء الشمس أبيض؟</div>
+      <button class="ctrl-btn play" onclick="window._g8lRevealColors()">💡 اكتشفي السبب</button>`;
+    }
+    return `
+      <div class="ctrl-section"><div class="ctrl-label">🎯 السبب</div></div>
+      <div style="font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;margin-bottom:12px">
+        يحتوي ضوء الشمس الأبيض على جميع الألوان. <strong style="color:#EF4444">السيارة الحمراء تعكس الضوء الأحمر</strong> وتمتصّ معظم الألوان الأخرى، بينما <strong style="color:#22C55E">العشب يعكس الضوء الأخضر</strong> ويمتصّ معظم الألوان الأخرى. اللون الذي نراه هو لون الضوء الذي ينعكس من الجسم إلى أعيننا.
+      </div>
+      <button class="ctrl-btn ${S.dark2?'play':'reset'}" onclick="window._g8lToggleSun2()">${S.dark2?'☀️ أعيدي إشعال الشمس':'🌙 أطفئي الشمس'}</button>
+      ${S.dark2? `<div style="margin-top:12px;font-size:13px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:13px">هل ستظلّ السيارة تبدو حمراء في الظلام التام؟ لماذا؟<br><span style="font-weight:400;font-size:12.5px;color:var(--text-secondary)">💡 لا — رؤية اللون تحتاج إلى وجود ضوء يصل إلى الجسم ثم ينعكس منه إلى العين. بلا ضوء، لا يوجد شيء لينعكس ونراه.</span></div>` : ''}
+    `;
+  }
+  controls(renderControls());
+  window._g8lSunOn = function(){ _g8pPlayClick(); S.sunOn=true; S.beamT=0; controls(renderControls()); };
+  window._g8lRevealColors = function(){ _g8pPlayClick(); S.revealed=true; controls(renderControls()); };
+  window._g8lToggleSun2 = function(){ _g8pPlayClick(); S.dark2=!S.dark2; controls(renderControls()); };
+
+  cv.onmousedown=null; cv.onmousemove=null; cv.onmouseup=null;
+  cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null; cv.onclick=null;
+
+  function draw(){
+    if(currentSim!=='g8bio3n6' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
+    const lit = S.sunOn && !S.dark2;
+
+    // الشمس
+    const sunX=w*0.16, sunY=h*0.2, sunR=w*0.055;
+    c.save();
+    c.fillStyle = lit ? '#FDE047' : (dark?'#4B5563':'#D1D5DB');
+    c.beginPath(); c.arc(sunX,sunY,sunR,0,Math.PI*2); c.fill();
+    if(lit){ c.strokeStyle='#FBBF24'; c.lineWidth=3; for(let i=0;i<8;i++){ const a=i*Math.PI/4;
+      c.beginPath(); c.moveTo(sunX+Math.cos(a)*sunR*1.25,sunY+Math.sin(a)*sunR*1.25); c.lineTo(sunX+Math.cos(a)*sunR*1.6,sunY+Math.sin(a)*sunR*1.6); c.stroke(); } }
+    c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+    c.fillText(lit?'☀️ الشمس':'🌙 لا يوجد ضوء', sunX, sunY+sunR+h*0.04);
+
+    // أرضية عشب
+    const groundY = h*0.78;
+    c.save(); c.fillStyle = lit ? '#4ADE80' : (dark?'#1F2937':'#374151'); c.fillRect(0,groundY,w,h-groundY); c.restore();
+
+    // السيارة
+    const carX=w*0.42, carY=groundY, carW=w*0.24, carH=carW*0.42;
+    c.save(); c.translate(carX,carY-carH*0.5);
+    c.fillStyle = lit ? '#DC2626' : (dark?'#3F1F1F':'#4B2020'); c.strokeStyle='#7F1D1D'; c.lineWidth=2;
+    c.beginPath();
+    c.moveTo(-carW*0.45,carH*0.5); c.lineTo(-carW*0.45,-carH*0.1); c.quadraticCurveTo(-carW*0.3,-carH*0.55,-carW*0.05,-carH*0.55);
+    c.lineTo(carW*0.2,-carH*0.55); c.quadraticCurveTo(carW*0.4,-carH*0.4,carW*0.45,-carH*0.1); c.lineTo(carW*0.45,carH*0.5); c.closePath();
+    c.fill(); c.stroke();
+    [-carW*0.28,carW*0.28].forEach(fx=>{ c.fillStyle='#111827'; c.beginPath(); c.arc(fx,carH*0.5,carW*0.13,0,Math.PI*2); c.fill();
+      c.fillStyle='#9CA3AF'; c.beginPath(); c.arc(fx,carH*0.5,carW*0.06,0,Math.PI*2); c.fill(); });
+    c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+    c.fillText('🚗 سيارة حمراء', carX, carY+h*0.05);
+
+    // عشبة رمزية (نبتة) بجانب السيارة
+    const grassX=w*0.72, grassY=groundY;
+    c.save(); c.strokeStyle= lit? '#16A34A':(dark?'#374151':'#1F2937'); c.lineWidth=Math.max(3,w*0.008); c.lineCap='round';
+    for(let i=-2;i<=2;i++){ c.beginPath(); c.moveTo(grassX+i*w*0.014,grassY); c.lineTo(grassX+i*w*0.014+w*0.008,grassY-h*0.09-Math.abs(i)*h*0.01); c.stroke(); }
+    c.restore();
+    c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+    c.fillText('🌿 عشب أخضر', grassX, grassY+h*0.05);
+
+    if(S.sunOn && !S.dark2){
+      // أشعة شمس بيضاء إلى السيارة والعشب
+      c.save(); c.strokeStyle='#F8FAFC'; c.lineWidth=Math.max(2,w*0.005); c.globalAlpha=0.85; c.setLineDash([]);
+      c.beginPath(); c.moveTo(sunX,sunY); c.lineTo(carX,carY-carH*0.5); c.stroke();
+      c.beginPath(); c.moveTo(sunX,sunY); c.lineTo(grassX,grassY-h*0.05); c.stroke();
+      c.restore();
+      if(S.revealed){
+        // أشعة منعكسة ملونة نحو عين مشاهد فوق يمين المشهد
+        const eyeX=w*0.9, eyeY=h*0.14;
+        c.save(); c.fillStyle=dark?'#2A1F1A':'#fff'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
+        c.beginPath(); c.ellipse(eyeX,eyeY,w*0.03,h*0.02,0,0,Math.PI*2); c.fill(); c.stroke();
+        c.fillStyle='#3B2A1A'; c.beginPath(); c.arc(eyeX,eyeY,w*0.01,0,Math.PI*2); c.fill(); c.restore();
+        c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center'; c.fillText('👁️ العين', eyeX, eyeY-h*0.035);
+
+        c.save(); c.strokeStyle='#EF4444'; c.lineWidth=Math.max(2.5,w*0.006); c.globalAlpha=0.9;
+        c.beginPath(); c.moveTo(carX,carY-carH*0.5); c.lineTo(eyeX,eyeY); c.stroke(); c.restore();
+        c.save(); c.strokeStyle='#22C55E'; c.lineWidth=Math.max(2.5,w*0.006); c.globalAlpha=0.9;
+        c.beginPath(); c.moveTo(grassX,grassY-h*0.05); c.lineTo(eyeX,eyeY); c.stroke(); c.restore();
+      }
+    }
+    if(S.dark2){
+      c.fillStyle='#DC2626'; c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
+      c.fillText('لا يصل ضوء إلى أعيننا من السيارة أو العشب', w*0.5, h*0.92);
+    }
+
+    g8lHeader(c,w,h,dark,'نشاط ٦-٣ · لماذا نرى السيارة حمراء؟');
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
