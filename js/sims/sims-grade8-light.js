@@ -537,7 +537,7 @@ function simG8Bio3N2b(){
   simState = { stage:'intro', sunX:0.2, beamT:0, qSel:null };
   const S = simState;
   const cv = document.getElementById('simCanvas');
-  const TREE = {x:0.6, y:0.68};
+  const TREE = {x:0.62, y:0.72};
 
   function renderControls(){
     if(S.stage==='intro'){
@@ -553,7 +553,7 @@ function simG8Bio3N2b(){
       return `
         <div class="ctrl-section"><div class="ctrl-label">🌑 تكوّن الظلّ!</div></div>
         <div style="padding:13px;background:var(--bg-card2);border-radius:10px;font-size:13.5px;line-height:1.9;color:var(--text-secondary);margin-bottom:12px">
-          <strong style="color:#D4901A">يتكوّن الظلّ عندما يحجب جسم معتم الضوء.</strong><br>الضوء ينتقل في خطوط مستقيمة ولا يمكنه الانحناء حول الشجرة، فتتكوّن منطقة مظلمة خلفها.
+          <strong style="color:#D4901A">يتكوّن الظلّ عندما يحجب جسم معتم الضوء.</strong><br>الضوء ينتقل في خطوط مستقيمة ولا يمكنه الانحناء حول الشجرة، فتتكوّن منطقة مظلمة خلفها تُظهر ظلّ الجذع والأوراق معاً.
         </div>
         <button class="ctrl-btn play" onclick="window._g8lMoveSun()">➡ حرّكي الشمس وراقبي الظلّ</button>`;
     }
@@ -588,14 +588,50 @@ function simG8Bio3N2b(){
   cv.ontouchstart=onDown; cv.ontouchmove=onMove; cv.ontouchend=onUp;
   cv.onclick=null;
 
-  function drawTree(c,x,y,w,h){
-    c.save(); c.translate(x,y);
-    c.fillStyle='#92653F'; c.fillRect(-w*0.012,-h*0.12,w*0.024,h*0.12);
-    c.fillStyle='#4D7C3A';
-    c.beginPath(); c.arc(0,-h*0.16,w*0.06,0,Math.PI*2); c.fill();
-    c.beginPath(); c.arc(-w*0.035,-h*0.13,w*0.045,0,Math.PI*2); c.fill();
-    c.beginPath(); c.arc(w*0.035,-h*0.13,w*0.045,0,Math.PI*2); c.fill();
+  // شجرة واقعية: جذع + تاج مكوّن من ٣ فصوص، مرجعها نقطة التماس مع الأرض
+  function treeGeometry(x, groundY, w, h){
+    const trunkW = w*0.026, trunkH = h*0.13;
+    const trunkTopY = groundY - trunkH;
+    const canopyR = w*0.078;
+    const canopyCY = trunkTopY - canopyR*0.75;
+    return { trunkW, trunkH, trunkTopY, canopyR, canopyCY };
+  }
+  function drawTree(c, x, groundY, w, h, dark){
+    const g = treeGeometry(x, groundY, w, h);
+    c.save();
+    // جذع بتدرّج بسيط
+    const tg = c.createLinearGradient(x-g.trunkW/2,0,x+g.trunkW/2,0);
+    tg.addColorStop(0,'#6B4423'); tg.addColorStop(0.5,'#8A5A32'); tg.addColorStop(1,'#5A3A1C');
+    c.fillStyle=tg; c.strokeStyle='#4A2F16'; c.lineWidth=1.2;
+    c.beginPath(); c.roundRect(x-g.trunkW/2, g.trunkTopY, g.trunkW, g.trunkH, g.trunkW*0.25); c.fill(); c.stroke();
+    // تاج بثلاثة فصوص متراكبة بتدرّج أخضر
+    const lobes = [ {dx:0, dy:0, r:g.canopyR}, {dx:-g.canopyR*0.68, dy:g.canopyR*0.22, r:g.canopyR*0.72}, {dx:g.canopyR*0.68, dy:g.canopyR*0.22, r:g.canopyR*0.72} ];
+    lobes.forEach(lb=>{
+      const cx=x+lb.dx, cy=g.canopyCY+lb.dy;
+      const lg = c.createRadialGradient(cx-lb.r*0.3,cy-lb.r*0.3,lb.r*0.15, cx,cy,lb.r);
+      lg.addColorStop(0,'#6FA855'); lg.addColorStop(1,'#3D6B2C');
+      c.fillStyle=lg; c.strokeStyle='#2F5320'; c.lineWidth=1;
+      c.beginPath(); c.arc(cx,cy,lb.r,0,Math.PI*2); c.fill(); c.stroke();
+    });
     c.restore();
+    return g;
+  }
+
+  // تقاطع شعاع (من a إلى b) مع دائرة (مركزها cx,cy ونصف قطرها r) — يعيد أقرب نقطة تماس أو null
+  function raySegCircleNear(ax,ay,bx,by,cx,cy,r){
+    const dx=bx-ax, dy=by-ay;
+    const fx=ax-cx, fy=ay-cy;
+    const a = dx*dx+dy*dy;
+    const b = 2*(fx*dx+fy*dy);
+    const cc = fx*fx+fy*fy - r*r;
+    const disc = b*b-4*a*cc;
+    if(disc<0) return null;
+    const sq = Math.sqrt(disc);
+    const t1 = (-b-sq)/(2*a), t2=(-b+sq)/(2*a);
+    let t = null;
+    if(t1>=0 && t1<=1) t=t1; else if(t2>=0 && t2<=1) t=t2;
+    if(t===null) return null;
+    return { x: ax+dx*t, y: ay+dy*t, t };
   }
 
   function draw(){
@@ -603,61 +639,76 @@ function simG8Bio3N2b(){
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g8cBg(dark); c.fillRect(0,0,w,h);
 
+    const groundY = h*0.83;
     // أرض
-    c.fillStyle=dark?'rgba(139,105,60,0.15)':'rgba(139,105,60,0.12)'; c.fillRect(0,h*0.72,w,h*0.16);
+    c.fillStyle=dark?'rgba(139,105,60,0.15)':'rgba(139,105,60,0.12)'; c.fillRect(0,groundY,w,h-groundY);
 
-    const sunY=h*0.22, treeX=w*TREE.x, treeY=h*TREE.y;
+    const sunY=h*0.2, treeX=w*TREE.x;
     const sunPos = { x:w*S.sunX, y:sunY };
+    const tg = treeGeometry(treeX, groundY, w, h);
 
     // الشمس
     c.save(); c.fillStyle='#FBBF24'; c.beginPath(); c.arc(sunPos.x,sunPos.y,w*0.035,0,Math.PI*2); c.fill(); c.restore();
     c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
     c.fillText('☀️ اسحبيني', sunPos.x, sunPos.y-h*0.06);
 
-    drawTree(c, treeX, treeY, w, h);
-
     const showRays = S.stage!=='intro';
-    const treeTopY = treeY-h*0.22, treeBotY = treeY;
-    // اتّجاه الظلّ: من الشجرة بعيداً عن الشمس أفقياً
-    const sunDir = (treeX - sunPos.x);
-    const shadowLen = w*0.22 * (1 + Math.abs(sunDir)/(w*0.5));
-    const shadowDirX = sunDir>=0 ? 1 : -1;
-    const shadowEndX = treeX + shadowDirX*shadowLen;
 
+    // إسقاط ظلّ التاج على الأرض (إسقاط هندسي حقيقي عبر خط الشمس ومركز التاج)
+    const projT = (groundY - sunPos.y) / (tg.canopyCY - sunPos.y);
+    const shadowTipX = sunPos.x + (treeX - sunPos.x)*projT;
+    const shadowBaseNear = treeX - Math.sign(shadowTipX-treeX||1)*tg.canopyR*0.15;
+    const shadowWidthNear = tg.canopyR*2.1;
+    const shadowWidthFar = tg.canopyR*1.15;
+
+    if(S.stage==='shadowed' || S.stage==='moveSun' || S.stage==='done'){
+      c.save();
+      c.fillStyle = dark?'rgba(0,0,0,0.5)':'rgba(30,20,10,0.32)';
+      const dirX = shadowTipX>=treeX ? 1 : -1;
+      const nearX = treeX, farX = shadowTipX;
+      c.beginPath();
+      c.moveTo(nearX - dirX*shadowWidthNear*0.15, groundY - shadowWidthNear*0.16);
+      c.quadraticCurveTo((nearX+farX)/2, groundY - shadowWidthFar*0.28, farX, groundY - shadowWidthFar*0.14);
+      c.lineTo(farX, groundY + shadowWidthFar*0.14);
+      c.quadraticCurveTo((nearX+farX)/2, groundY + shadowWidthFar*0.28, nearX + dirX*shadowWidthNear*0.15, groundY + shadowWidthNear*0.16);
+      c.closePath(); c.fill();
+      c.restore();
+      c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+      c.fillText('الظلّ (الجذع والأوراق معاً)', (nearX+farX)/2, groundY + shadowWidthFar*0.28 + h*0.045);
+    }
+
+    // الأشعّة — تُرسم قبل الشجرة كي تتوقّف الأشعّة المصطدمة عند حافّة التاج فعلياً ولا تظهر فوقه
     if(showRays){
-      if(S.stage==='beaming') S.beamT += 0.02;
+      if(S.stage==='beaming') S.beamT += 0.008; // أبطأ بكثير من قبل
       const t = S.stage==='beaming' ? Math.min(1,S.beamT) : 1;
-      c.save(); c.strokeStyle='#FBBF24'; c.globalAlpha=0.8; c.lineWidth=Math.max(1.5,w*0.004);
+      c.save(); c.strokeStyle='#FBBF24'; c.globalAlpha=0.85; c.lineWidth=Math.max(1.6,w*0.0042);
+
+      // زاوية الاتّجاه من الشمس نحو مركز التاج، لأخذ عيّنات على السطح المواجه للشمس
+      const baseAngle = Math.atan2(sunPos.y-tg.canopyCY, sunPos.x-treeX);
       for(let i=-2;i<=2;i++){
-        const targetX = treeX + i*w*0.03, targetY = treeBotY - h*0.02 + Math.abs(i)*h*0.01;
-        // الشعاع الأوسط يصطدم بالشجرة، البقية تكمل خلفها لتوضيح المنطقة المظلمة
-        const hits = Math.abs(i)<=1;
-        const exX = sunPos.x+(targetX-sunPos.x)*t, exY = sunPos.y+(targetY-sunPos.y)*t;
-        c.beginPath(); c.moveTo(sunPos.x,sunPos.y); c.lineTo(exX,exY); c.stroke();
-        if(!hits && t>=1){
-          // يكمل الشعاع إلى الأرض
-          const groundX = targetX + (targetX-sunPos.x)*0.5, groundY = h*0.86;
-          c.save(); c.globalAlpha=0.4;
-          c.beginPath(); c.moveTo(targetX,targetY); c.lineTo(groundX,groundY); c.stroke();
-          c.restore();
-        }
+        const a = baseAngle + i*0.34;
+        const surfX = treeX + Math.cos(a)*tg.canopyR, surfY = tg.canopyCY + Math.sin(a)*tg.canopyR;
+        // نقطة التماس الفعلية بين الشعاع والتاج (لضمان توقّف الشعاع عند الحافة الصحيحة)
+        const hit = raySegCircleNear(sunPos.x, sunPos.y, surfX, surfY, treeX, tg.canopyCY, tg.canopyR*1.02);
+        const clampT = hit ? Math.min(t, hit.t) : t;
+        const finalX = sunPos.x + (surfX-sunPos.x)*clampT, finalY = sunPos.y + (surfY-sunPos.y)*clampT;
+        c.beginPath(); c.moveTo(sunPos.x,sunPos.y); c.lineTo(finalX,finalY); c.stroke();
       }
+      // شعاعان خارجيان يفوتان الشجرة تماماً ويكملان إلى الأرض — يحدّدان حواف الظلّ
+      [-1,1].forEach(side=>{
+        const missX = treeX + side*tg.canopyR*1.55;
+        const groundX = sunPos.x + (missX-sunPos.x)*((groundY-sunPos.y)/(tg.canopyCY-sunPos.y));
+        const endX = sunPos.x + (groundX-sunPos.x)*t, endY = sunPos.y + (groundY-sunPos.y)*t;
+        c.save(); c.globalAlpha=0.4;
+        c.beginPath(); c.moveTo(sunPos.x,sunPos.y); c.lineTo(endX,endY); c.stroke();
+        c.restore();
+      });
       c.restore();
       if(t>=1 && S.stage==='beaming'){ S.stage='shadowed'; controls(renderControls()); }
     }
 
-    if(S.stage==='shadowed' || S.stage==='moveSun' || S.stage==='done'){
-      c.save(); c.fillStyle= dark?'rgba(0,0,0,0.45)':'rgba(30,20,10,0.28)';
-      c.beginPath();
-      c.moveTo(treeX-w*0.015, treeBotY);
-      c.lineTo(shadowEndX, h*0.85);
-      c.lineTo(shadowEndX*0.985 + treeX*0.015, h*0.85);
-      c.lineTo(treeX+w*0.015, treeBotY);
-      c.closePath(); c.fill();
-      c.restore();
-      c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
-      c.fillText('الظلّ', (treeX+shadowEndX)/2, h*0.89);
-    }
+    // الشجرة تُرسم بعد الأشعّة كي تحجبها بصرياً عند نقطة الاصطدام (تراكب صحيح)
+    drawTree(c, treeX, groundY, w, h, dark);
 
     g8lHeader(c,w,h,dark,'نشاط ٢-٣ · كيف يتكوّن الظلّ؟');
     animFrame = requestAnimationFrame(draw);
@@ -789,15 +840,16 @@ function simG8Bio3N3a(){
    ══════════════════════════════════════════════════════════ */
 function simG8Bio3N3b(){
   cancelAnimationFrame(animFrame);
-  simState = { angle:40, dragging:false, revealedLabels:false };
+  simState = { angle:40, dragging:false, firing:false, fireStage:0, animT:0 };
   const S = simState;
   const cv = document.getElementById('simCanvas');
 
   function renderControls(){
     return `
       <div class="ctrl-section"><div class="ctrl-label">📐 زاوية السقوط وزاوية الانعكاس</div></div>
-      <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">اسحبي مصدر الضوء لتغيير زاوية سقوط الشعاع على المرآة، وراقبي الشعاع المنعكس والزاويتين.</div>
-      <div style="display:flex;justify-content:space-between;background:var(--bg-card2);border-radius:8px;padding:10px;margin-bottom:10px;font-size:13px;font-weight:700">
+      <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">اسحبي مصدر الضوء لتغيير زاوية سقوط الشعاع على المرآة، ثمّ اضغطي الزر لإطلاق الشعاع ومشاهدته يتحرّك نحو المرآة.</div>
+      <button class="ctrl-btn play" ${S.firing?'disabled':''} onclick="window._g8lFireRay3b()">🔦 أطلقي الشعاع</button>
+      <div style="display:flex;justify-content:space-between;background:var(--bg-card2);border-radius:8px;padding:10px;margin:12px 0 10px;font-size:13px;font-weight:700">
         <span style="color:#F59E0B">زاوية السقوط: ${Math.round(S.angle)}°</span>
         <span style="color:#3B82F6">زاوية الانعكاس: ${Math.round(S.angle)}°</span>
       </div>
@@ -808,6 +860,10 @@ function simG8Bio3N3b(){
     `;
   }
   controls(renderControls());
+  window._g8lFireRay3b = function(){
+    if(S.firing) return;
+    _g8pPlayClick(); S.firing=true; S.fireStage=1; S.animT=0; controls(renderControls());
+  };
 
   const PIVOT = {x:0.5, y:0.62};
   function srcPosFromAngle(w,h,ang){
@@ -816,12 +872,13 @@ function simG8Bio3N3b(){
     return { x: w*PIVOT.x - Math.cos(rad)*len, y: h*PIVOT.y - Math.sin(rad)*len };
   }
   function onDown(e){
+    if(S.firing) return;
     const p=g8lGp(cv,e), w=cv.width, h=cv.height;
     const sp = srcPosFromAngle(w,h,S.angle);
     if(Math.hypot(p.x-sp.x,p.y-sp.y) < w*0.09) S.dragging=true;
   }
   function onMove(e){
-    if(!S.dragging) return;
+    if(!S.dragging || S.firing) return;
     e.preventDefault && e.preventDefault();
     const p=g8lGp(cv,e), w=cv.width, h=cv.height;
     const px=w*PIVOT.x, py=h*PIVOT.y;
@@ -857,21 +914,39 @@ function simG8Bio3N3b(){
     c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
     c.fillText('العمود المقام', px+w*0.09, py-normalLen+h*0.02);
 
-    // الشعاع الساقط
     const srcPos = srcPosFromAngle(w,h,S.angle);
+    const reflRad = (90-S.angle)*Math.PI/180;
+    const reflLen = Math.min(w,h)*0.42;
+    const reflX = px + Math.cos(reflRad)*reflLen, reflY = py - Math.sin(reflRad)*reflLen;
+
+    // تقدّم الرسوم المتحركة عند الإطلاق
+    let incidentT = 1, reflectedT = S.firing ? 0 : 1;
+    if(S.firing){
+      S.animT += 0.02;
+      if(S.fireStage===1){
+        incidentT = Math.min(1, S.animT/0.55);
+        reflectedT = 0;
+        if(incidentT>=1){ S.fireStage=2; S.animT=0; _g8pPlayDrop(); }
+      } else if(S.fireStage===2){
+        incidentT = 1;
+        reflectedT = Math.min(1, S.animT/0.55);
+        if(reflectedT>=1){ S.firing=false; S.fireStage=0; controls(renderControls()); }
+      }
+    }
+
+    // الشعاع الساقط (يتحرّك تدريجياً عند الإطلاق)
+    const incEndX = srcPos.x + (px-srcPos.x)*incidentT, incEndY = srcPos.y + (py-srcPos.y)*incidentT;
     c.save(); c.strokeStyle='#F59E0B'; c.lineWidth=Math.max(2.5,w*0.006); c.lineCap='round';
-    c.beginPath(); c.moveTo(srcPos.x,srcPos.y); c.lineTo(px,py); c.stroke();
+    c.beginPath(); c.moveTo(srcPos.x,srcPos.y); c.lineTo(incEndX,incEndY); c.stroke();
     c.restore();
-    // رأس سهم على الشعاع الساقط
-    (function(){
-      const ang = Math.atan2(py-srcPos.y, px-srcPos.x);
-      const ah=w*0.018;
+    if(incidentT>0.02){
+      const ang = Math.atan2(incEndY-srcPos.y, incEndX-srcPos.x); const ah=w*0.016;
       c.save(); c.fillStyle='#F59E0B';
-      c.beginPath(); c.moveTo(px,py);
-      c.lineTo(px-ah*Math.cos(ang-0.4), py-ah*Math.sin(ang-0.4));
-      c.lineTo(px-ah*Math.cos(ang+0.4), py-ah*Math.sin(ang+0.4));
+      c.beginPath(); c.moveTo(incEndX,incEndY);
+      c.lineTo(incEndX-ah*Math.cos(ang-0.4), incEndY-ah*Math.sin(ang-0.4));
+      c.lineTo(incEndX-ah*Math.cos(ang+0.4), incEndY-ah*Math.sin(ang+0.4));
       c.closePath(); c.fill(); c.restore();
-    })();
+    }
 
     // مصدر الضوء (مصباح يدوي واقعي قابل للسحب)
     (function(){
@@ -880,10 +955,8 @@ function simG8Bio3N3b(){
       c.translate(srcPos.x, srcPos.y);
       c.rotate(ang - Math.PI/2);
       const bw = w*0.032, bh = h*0.075;
-      // جسم المصباح
-      c.fillStyle = S.dragging ? g8cAccent(dark) : '#4B5563'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
+      c.fillStyle = (S.dragging||S.firing) ? g8cAccent(dark) : '#4B5563'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
       c.beginPath(); c.roundRect(-bw*0.55, -bh*0.15, bw*1.1, bh*0.75, bw*0.3); c.fill(); c.stroke();
-      // رأس المصباح (أوسع قليلاً، جهة الشعاع الخارج)
       c.fillStyle = '#E5E7EB'; c.strokeStyle=g8cMut(dark); c.lineWidth=2;
       c.beginPath();
       c.moveTo(-bw*0.55, -bh*0.15);
@@ -891,45 +964,41 @@ function simG8Bio3N3b(){
       c.lineTo(bw*0.75, -bh*0.45);
       c.lineTo(bw*0.55, -bh*0.15);
       c.closePath(); c.fill(); c.stroke();
-      // زجاج مضيء
       c.fillStyle='#FDE047'; c.beginPath(); c.ellipse(0,-bh*0.45,bw*0.55,bw*0.14,0,0,Math.PI*2); c.fill();
-      // زرّ صغير
       c.fillStyle='#DC2626'; c.beginPath(); c.arc(0, bh*0.35, bw*0.14, 0, Math.PI*2); c.fill();
       c.restore();
     })();
     c.fillStyle=g8cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-    c.fillText('🔦 اسحبيني', srcPos.x, srcPos.y-h*0.075);
+    c.fillText(S.firing?'🔦':'🔦 اسحبيني', srcPos.x, srcPos.y-h*0.075);
 
-    // الشعاع المنعكس (بنفس الزاوية على الجهة الأخرى من العمود المقام)
-    const reflRad = (90-S.angle)*Math.PI/180;
-    const reflLen = Math.min(w,h)*0.42;
-    const reflX = px + Math.cos(reflRad)*reflLen, reflY = py - Math.sin(reflRad)*reflLen;
-    c.save(); c.strokeStyle='#3B82F6'; c.lineWidth=Math.max(2.5,w*0.006); c.lineCap='round';
-    c.beginPath(); c.moveTo(px,py); c.lineTo(reflX,reflY); c.stroke();
-    (function(){
-      const ang = Math.atan2(reflY-py, reflX-px);
-      const ah=w*0.018;
+    // الشعاع المنعكس (يظهر تدريجياً بعد اكتمال الشعاع الساقط)
+    if(reflectedT>0){
+      const rEndX = px + (reflX-px)*reflectedT, rEndY = py + (reflY-py)*reflectedT;
+      c.save(); c.strokeStyle='#3B82F6'; c.lineWidth=Math.max(2.5,w*0.006); c.lineCap='round';
+      c.beginPath(); c.moveTo(px,py); c.lineTo(rEndX,rEndY); c.stroke();
+      const ang = Math.atan2(rEndY-py, rEndX-px); const ah=w*0.018;
       c.save(); c.fillStyle='#3B82F6';
-      c.beginPath(); c.moveTo(reflX,reflY);
-      c.lineTo(reflX-ah*Math.cos(ang-0.4), reflY-ah*Math.sin(ang-0.4));
-      c.lineTo(reflX-ah*Math.cos(ang+0.4), reflY-ah*Math.sin(ang+0.4));
+      c.beginPath(); c.moveTo(rEndX,rEndY);
+      c.lineTo(rEndX-ah*Math.cos(ang-0.4), rEndY-ah*Math.sin(ang-0.4));
+      c.lineTo(rEndX-ah*Math.cos(ang+0.4), rEndY-ah*Math.sin(ang+0.4));
       c.closePath(); c.fill(); c.restore();
-    })();
-    c.restore();
+      c.restore();
+    }
 
-    // قوسا الزاويتين (بين كل شعاع والعمود المقام)
-    c.save(); c.strokeStyle='#F59E0B'; c.lineWidth=2; c.globalAlpha=0.7;
-    c.beginPath(); c.arc(px,py, w*0.075, -Math.PI/2, -Math.PI/2-(S.angle*Math.PI/180), true); c.stroke();
-    c.restore();
-    c.save(); c.strokeStyle='#3B82F6'; c.lineWidth=2; c.globalAlpha=0.7;
-    c.beginPath(); c.arc(px,py, w*0.075, -Math.PI/2, -Math.PI/2+(S.angle*Math.PI/180), false); c.stroke();
-    c.restore();
+    // قوسا الزاويتين وتسميات الأشعّة — تظهر بعد اكتمال الحركة
+    if(!S.firing){
+      c.save(); c.strokeStyle='#F59E0B'; c.lineWidth=2; c.globalAlpha=0.7;
+      c.beginPath(); c.arc(px,py, w*0.075, -Math.PI/2, -Math.PI/2-(S.angle*Math.PI/180), true); c.stroke();
+      c.restore();
+      c.save(); c.strokeStyle='#3B82F6'; c.lineWidth=2; c.globalAlpha=0.7;
+      c.beginPath(); c.arc(px,py, w*0.075, -Math.PI/2, -Math.PI/2+(S.angle*Math.PI/180), false); c.stroke();
+      c.restore();
 
-    // تسميات الأشعّة — بعيدة عن مسار الشعاع نفسه لتفادي التداخل
-    c.fillStyle='#F59E0B'; c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('الشعاع الساقط', (srcPos.x+px)/2 - w*0.06, (srcPos.y+py)/2 - h*0.02);
-    c.fillStyle='#3B82F6';
-    c.fillText('الشعاع المنعكس', reflX + w*0.02, reflY - h*0.02);
+      c.fillStyle='#F59E0B'; c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+      c.fillText('الشعاع الساقط', (srcPos.x+px)/2 - w*0.06, (srcPos.y+py)/2 - h*0.02);
+      c.fillStyle='#3B82F6';
+      c.fillText('الشعاع المنعكس', reflX + w*0.02, reflY - h*0.02);
+    }
 
     g8lHeader(c,w,h,dark,'نشاط ٣-٣ · زاوية السقوط وزاوية الانعكاس');
     animFrame = requestAnimationFrame(draw);

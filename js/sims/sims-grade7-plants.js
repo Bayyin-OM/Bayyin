@@ -469,11 +469,11 @@ function simG7Bio1N1b(){
 function simG7Bio1N2a(){
   cancelAnimationFrame(animFrame);
   const PARTS = [
-    { id:'sepal',  label:'سبلات',  func:'تحيط بالزهرة وتحميها قبل أن تتفتّح.', zone:{x:0.5,y:0.80}, home:{x:0.12,y:0.28} },
-    { id:'petal',  label:'بتلات',  func:'عادةً أكثر جزء ملوّن في الزهرة، وتجذب الحشرات والطيور.', zone:{x:0.5,y:0.16}, home:{x:0.88,y:0.28} },
-    { id:'stamen', label:'أسدية (المتك والخيط)', func:'الجزء الذكري؛ يحتوي المتك على حبوب اللقاح التي تضمّ الأمشاج الذكرية.', zone:{x:0.28,y:0.48}, home:{x:0.12,y:0.60} },
-    { id:'ovary',  label:'مبيض',   func:'يحتوي البويضات التي تضمّ الأمشاج الأنثوية.', zone:{x:0.5,y:0.64}, home:{x:0.88,y:0.60} },
-    { id:'stigst', label:'ميسم وقلم', func:'الميسم يستقبل حبوب اللقاح، ويصلها القلم بالمبيض.', zone:{x:0.5,y:0.32}, home:{x:0.5,y:0.88} },
+    { id:'sepal',  label:'سبلات',  func:'تحيط بالزهرة وتحميها قبل أن تتفتّح.', home:{x:0.12,y:0.28} },
+    { id:'petal',  label:'بتلات',  func:'عادةً أكثر جزء ملوّن في الزهرة، وتجذب الحشرات والطيور.', home:{x:0.88,y:0.28} },
+    { id:'stamen', label:'أسدية (المتك والخيط)', func:'الجزء الذكري؛ يحتوي المتك على حبوب اللقاح التي تضمّ الأمشاج الذكرية.', home:{x:0.12,y:0.60} },
+    { id:'ovary',  label:'مبيض',   func:'يحتوي البويضات التي تضمّ الأمشاج الأنثوية.', home:{x:0.88,y:0.60} },
+    { id:'stigst', label:'ميسم وقلم', func:'الميسم يستقبل حبوب اللقاح، ويصلها القلم بالمبيض.', home:{x:0.5,y:0.88} },
   ];
   const HINTS = {
     sepal:  'فكّري: أيّ جزء يحيط بالزهرة من الخارج قبل أن تتفتّح؟',
@@ -482,7 +482,8 @@ function simG7Bio1N2a(){
     ovary:  'فكّري: أين توجد البويضات داخل الزهرة؟',
     stigst: 'فكّري: أيّ جزء يستقبل حبوب اللقاح في أعلى الزهرة؟',
   };
-  simState = { placed:{}, dragId:null, dragX:0, dragY:0, hint:'', hintT:0, done:false, growT:0 };
+  const CENTER = {x:0.5, y:0.46}; // مركز الزهرة الموحّد — كل الأجزاء تُبنى هنا فوق بعضها
+  simState = { placed:{}, placedAt:{}, dragId:null, dragX:0, dragY:0, hint:'', hintT:0, done:false, frameCount:0 };
   const S = simState;
   const cv = document.getElementById('simCanvas');
 
@@ -491,7 +492,7 @@ function simG7Bio1N2a(){
     if(!S.done){
       return `
         <div class="ctrl-section"><div class="ctrl-label">🌸 استقصاء: ركّبي أجزاء الزهرة</div></div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">اسحبي كل جزء إلى مكانه الصحيح (${n} من ٥)</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">اسحبي كل جزء إلى مركز الزهرة (${n} من ٥)</div>
         ${S.hintT>0 ? `<div style="font-size:13px;color:#D97706;background:#FEF3C7;border-radius:8px;padding:10px;margin-bottom:10px">💡 ${S.hint}</div>` : ''}`;
     }
     return `
@@ -503,7 +504,7 @@ function simG7Bio1N2a(){
   }
   controls(renderControls());
   window._g7fRestart = function(){
-    S.placed={}; S.dragId=null; S.hint=''; S.hintT=0; S.done=false;
+    S.placed={}; S.placedAt={}; S.dragId=null; S.hint=''; S.hintT=0; S.done=false;
     controls(renderControls());
   };
 
@@ -520,37 +521,36 @@ function simG7Bio1N2a(){
   function onUp(){
     if(!S.dragId) return;
     const o = PARTS.find(x=>x.id===S.dragId);
-    const w=cv.width,h=cv.height, zx=o.zone.x*w, zy=o.zone.y*h;
-    if(Math.hypot(S.dragX-zx,S.dragY-zy) < w*0.11){
-      S.placed[o.id]=true; _g8pPlayDrop();
-      if(Object.keys(S.placed).length===PARTS.length){ S.done=true; S.growT=0; }
+    const w=cv.width,h=cv.height, zx=CENTER.x*w, zy=CENTER.y*h;
+    if(Math.hypot(S.dragX-zx,S.dragY-zy) < w*0.16){
+      S.placed[o.id]=true; S.placedAt[o.id]=S.frameCount; _g8pPlayDrop();
+      if(Object.keys(S.placed).length===PARTS.length){ S.done=true; }
+      controls(renderControls());
     } else {
       _g8pPlayClick(); S.hint=HINTS[o.id]; S.hintT=120;
+      controls(renderControls());
     }
-    S.dragId=null; controls(renderControls());
+    S.dragId=null;
   }
   cv.onmousedown=onDown; cv.onmousemove=onMove; cv.onmouseup=onUp;
   cv.ontouchstart=onDown; cv.ontouchmove=onMove; cv.ontouchend=onUp;
   cv.onclick=null;
 
-  function drawPart(c,o,x,y,w,h,scale,full){
+  function drawPickupPart(c,o,x,y,w,h,scale){
     c.save(); c.translate(x,y); c.scale(scale,scale);
     if(o.id==='sepal'){
       c.fillStyle='#4D7C3A';
-      const n = full ? 5 : 2;
-      for(let i=0;i<n;i++){ const a= full ? i/5*Math.PI*2 : (i===0?-0.3:0.3); c.save(); c.rotate(a);
-        c.beginPath(); c.ellipse(0,-w*0.06,w*0.018,w*0.06,0,0,Math.PI*2); c.fill(); c.restore(); }
+      [-0.3,0.3].forEach(a=>{ c.save(); c.rotate(a);
+        c.beginPath(); c.ellipse(0,-w*0.06,w*0.018,w*0.06,0,0,Math.PI*2); c.fill(); c.restore(); });
     } else if(o.id==='petal'){
       c.fillStyle='#F472B6'; c.strokeStyle='#9D174D'; c.lineWidth=1.2;
-      const n = full ? 6 : 2;
-      for(let i=0;i<n;i++){ const a= full ? i/6*Math.PI*2 : (i===0?-0.35:0.35); c.save(); c.rotate(a);
-        c.beginPath(); c.ellipse(0,-w*0.05,w*0.026,w*0.05,0,0,Math.PI*2); c.fill(); c.stroke(); c.restore(); }
+      [-0.35,0.35].forEach(a=>{ c.save(); c.rotate(a);
+        c.beginPath(); c.ellipse(0,-w*0.05,w*0.026,w*0.05,0,0,Math.PI*2); c.fill(); c.stroke(); c.restore(); });
     } else if(o.id==='stamen'){
       c.fillStyle='#FDE047'; c.strokeStyle='#CA8A04'; c.lineWidth=1;
-      const n = full ? 5 : 2;
-      for(let i=0;i<n;i++){ const a= full ? i/5*Math.PI*2+0.3 : (i===0?-0.25:0.25); c.save(); c.rotate(a);
+      [-0.25,0.25].forEach(a=>{ c.save(); c.rotate(a);
         c.beginPath(); c.moveTo(0,0); c.lineTo(0,-w*0.055); c.stroke();
-        c.beginPath(); c.ellipse(0,-w*0.06,w*0.012,w*0.018,0,0,Math.PI*2); c.fill(); c.restore(); }
+        c.beginPath(); c.ellipse(0,-w*0.06,w*0.012,w*0.018,0,0,Math.PI*2); c.fill(); c.restore(); });
     } else if(o.id==='ovary'){
       c.fillStyle='#84CC16'; c.strokeStyle='#3F6212'; c.lineWidth=1.5;
       c.beginPath(); c.ellipse(0,0,w*0.03,w*0.024,0,0,Math.PI*2); c.fill(); c.stroke();
@@ -562,32 +562,62 @@ function simG7Bio1N2a(){
     c.restore();
   }
 
-  function drawComposedFlower(c,cx,cy,w,h,prog){
-    // زهرة متكاملة واحدة: كل الأجزاء تُرسم متّحدة المركز حول نقطة واحدة، من الخارج للداخل
-    c.save(); c.translate(cx,cy); c.scale(prog,prog);
-    // السبلات (خلف البتلات، أوسع قليلاً)
-    c.fillStyle='#4D7C3A';
-    for(let i=0;i<5;i++){ const a=i/5*Math.PI*2+0.15; c.save(); c.rotate(a);
-      c.beginPath(); c.ellipse(0,-w*0.075,w*0.02,w*0.075,0,0,Math.PI*2); c.fill(); c.restore(); }
+  // ترسم الزهرة كوحدة واحدة متماسكة، وتُظهر فقط الأجزاء التي تمّ وضعها فعلاً — كل جزء "ينبثق" في مكانه الصحيح بمجرّد إسقاطه
+  function drawFlowerAssembly(c,cx,cy,w,h,dark){
+    function partScale(id){
+      if(!S.placed[id]) return 0;
+      const age = S.frameCount - (S.placedAt[id]||0);
+      return Math.min(1, age/14);
+    }
+    c.save(); c.translate(cx,cy);
+    // السبلات (خلف البتلات)
+    if(S.placed.sepal){
+      const sc=partScale('sepal'); c.save(); c.scale(sc,sc);
+      c.fillStyle='#4D7C3A';
+      for(let i=0;i<5;i++){ const a=i/5*Math.PI*2+0.15; c.save(); c.rotate(a);
+        c.beginPath(); c.ellipse(0,-w*0.075,w*0.02,w*0.075,0,0,Math.PI*2); c.fill(); c.restore(); }
+      c.restore();
+    }
     // البتلات
-    c.fillStyle='#F472B6'; c.strokeStyle='#9D174D'; c.lineWidth=1.4;
-    for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; c.save(); c.rotate(a);
-      c.beginPath(); c.ellipse(0,-w*0.06,w*0.03,w*0.06,0,0,Math.PI*2); c.fill(); c.stroke(); c.restore(); }
-    // الأسدية (المتك والخيط) داخل حلقة البتلات
-    c.strokeStyle='#CA8A04'; c.lineWidth=Math.max(1,w*0.003);
-    for(let i=0;i<6;i++){ const a=i/6*Math.PI*2+0.5; c.save(); c.rotate(a);
-      c.beginPath(); c.moveTo(0,0); c.lineTo(0,-w*0.038); c.stroke();
-      c.fillStyle='#FDE047'; c.strokeStyle='#CA8A04'; c.lineWidth=1;
-      c.beginPath(); c.ellipse(0,-w*0.042,w*0.011,w*0.016,0,0,Math.PI*2); c.fill(); c.stroke();
-      c.restore(); }
-    // القلم والميسم يعلو المبيض في المركز
-    c.strokeStyle='#65A30D'; c.lineWidth=Math.max(2,w*0.006);
-    c.beginPath(); c.moveTo(0,0); c.lineTo(0,-w*0.05); c.stroke();
-    c.fillStyle='#A3E635'; c.strokeStyle='#3F6212'; c.lineWidth=1;
-    c.beginPath(); c.arc(0,-w*0.055,w*0.012,0,Math.PI*2); c.fill(); c.stroke();
-    // المبيض في القاعدة، متّصل مباشرة بالساق
-    c.fillStyle='#84CC16'; c.strokeStyle='#3F6212'; c.lineWidth=1.5;
-    c.beginPath(); c.ellipse(0,w*0.015,w*0.032,w*0.026,0,0,Math.PI*2); c.fill(); c.stroke();
+    if(S.placed.petal){
+      const sc=partScale('petal'); c.save(); c.scale(sc,sc);
+      c.fillStyle='#F472B6'; c.strokeStyle='#9D174D'; c.lineWidth=1.4;
+      for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; c.save(); c.rotate(a);
+        c.beginPath(); c.ellipse(0,-w*0.06,w*0.03,w*0.06,0,0,Math.PI*2); c.fill(); c.stroke(); c.restore(); }
+      c.restore();
+    }
+    // الأسدية
+    if(S.placed.stamen){
+      const sc=partScale('stamen'); c.save(); c.scale(sc,sc);
+      c.strokeStyle='#CA8A04'; c.lineWidth=Math.max(1,w*0.003);
+      for(let i=0;i<6;i++){ const a=i/6*Math.PI*2+0.5; c.save(); c.rotate(a);
+        c.beginPath(); c.moveTo(0,0); c.lineTo(0,-w*0.038); c.stroke();
+        c.fillStyle='#FDE047'; c.strokeStyle='#CA8A04'; c.lineWidth=1;
+        c.beginPath(); c.ellipse(0,-w*0.042,w*0.011,w*0.016,0,0,Math.PI*2); c.fill(); c.stroke();
+        c.restore(); }
+      c.restore();
+    }
+    // القلم والميسم
+    if(S.placed.stigst){
+      const sc=partScale('stigst'); c.save(); c.scale(sc,sc);
+      c.strokeStyle='#65A30D'; c.lineWidth=Math.max(2,w*0.006);
+      c.beginPath(); c.moveTo(0,0); c.lineTo(0,-w*0.05); c.stroke();
+      c.fillStyle='#A3E635'; c.strokeStyle='#3F6212'; c.lineWidth=1;
+      c.beginPath(); c.arc(0,-w*0.055,w*0.012,0,Math.PI*2); c.fill(); c.stroke();
+      c.restore();
+    }
+    // المبيض في القاعدة
+    if(S.placed.ovary){
+      const sc=partScale('ovary'); c.save(); c.scale(sc,sc);
+      c.fillStyle='#84CC16'; c.strokeStyle='#3F6212'; c.lineWidth=1.5;
+      c.beginPath(); c.ellipse(0,w*0.015,w*0.032,w*0.026,0,0,Math.PI*2); c.fill(); c.stroke();
+      c.restore();
+    }
+    // نقطة استقبال مركزية خافتة تظهر قبل وضع أي جزء — لتوضيح أين يُسقَط كل جزء
+    if(Object.keys(S.placed).length===0){
+      c.save(); c.globalAlpha=0.35; c.strokeStyle=g7pMut(dark); c.setLineDash([5,4]); c.lineWidth=2;
+      c.beginPath(); c.arc(0,0,w*0.05,0,Math.PI*2); c.stroke(); c.restore();
+    }
     c.restore();
   }
 
@@ -596,45 +626,40 @@ function simG7Bio1N2a(){
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
     if(S.hintT>0) S.hintT--;
+    S.frameCount++;
 
-    // ساق بسيط أسفل الزهرة، تصل حتى مركز الزهرة المكتملة
+    const cx=w*CENTER.x, cy=h*CENTER.y;
+
+    // ساق ثابتة من مركز الزهرة إلى أسفل الشاشة — تظهر من البداية لتوضيح بنية النبات
     c.strokeStyle='#5F9E52'; c.lineWidth=Math.max(4,w*0.012); c.lineCap='round';
-    c.beginPath(); c.moveTo(w*0.5, S.done? h*0.5 : h*0.86); c.lineTo(w*0.5,h*0.98); c.stroke();
+    c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx,h*0.98); c.stroke();
 
-    if(S.done){
-      if(S.growT<40) S.growT++;
-      const prog = Math.min(1, S.growT/40);
-      drawComposedFlower(c, w*0.5, h*0.5, w, h, 0.4+0.6*prog);
-    } else {
-      // أدلّة الأهداف (Ghost Targets)
-      PARTS.forEach(o=>{
-        if(S.placed[o.id]) return;
-        const zx=o.zone.x*w, zy=o.zone.y*h;
-        c.save();
-        c.setLineDash([6,5]); c.lineWidth=2.5;
-        c.strokeStyle = S.dragId ? g7pAccent(dark) : g7pMut(dark);
-        c.globalAlpha = S.dragId ? 0.85 : 0.4;
-        c.beginPath(); c.arc(zx, zy, w*0.06, 0, Math.PI*2); c.stroke();
-        c.setLineDash([]);
-        c.globalAlpha=0.6;
-        c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-        c.fillText(o.label, zx, zy + w*0.06 + h*0.024);
-        c.restore();
-      });
+    // منطقة الهدف المركزية (تظهر فقط أثناء السحب لتوجيه الطالبة)
+    if(!S.done && S.dragId){
+      c.save(); c.setLineDash([6,5]); c.lineWidth=2.5;
+      c.strokeStyle=g7pAccent(dark); c.globalAlpha=0.85;
+      c.beginPath(); c.arc(cx,cy,w*0.09,0,Math.PI*2); c.stroke();
+      c.setLineDash([]); c.globalAlpha=0.7;
+      c.fillStyle=g7pAccent(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+      c.fillText('أفلتيه هنا', cx, cy - w*0.09 - h*0.018);
+      c.restore();
+    }
 
-      PARTS.forEach(o=>{
-        if(S.placed[o.id]) drawPart(c,o,o.zone.x*w,o.zone.y*h,w,h,1,true);
-      });
+    // الزهرة المُجمَّعة تُرسم دائماً في المركز، وتنمو جزءاً بجزء
+    drawFlowerAssembly(c, cx, cy, w, h, dark);
+
+    if(!S.done){
+      // القطع غير الموضوعة بعد — تظهر في مواقعها الأصلية على الأطراف كعناصر قابلة للسحب
       PARTS.forEach(o=>{
         if(S.placed[o.id] || S.dragId===o.id) return;
         const hx=o.home.x*w, hy=o.home.y*h;
         c.save(); c.fillStyle=dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)';
         c.beginPath(); c.arc(hx,hy,w*0.06,0,Math.PI*2); c.fill(); c.restore();
-        drawPart(c,o,hx,hy,w,h,0.85,false);
+        drawPickupPart(c,o,hx,hy,w,h,0.85);
         c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
         c.fillText(o.label, hx, hy+h*0.08);
       });
-      if(S.dragId){ const o=PARTS.find(x=>x.id===S.dragId); drawPart(c,o,S.dragX,S.dragY,w,h,0.95,false); }
+      if(S.dragId){ const o=PARTS.find(x=>x.id===S.dragId); drawPickupPart(c,o,S.dragX,S.dragY,w,h,0.95); }
     }
 
     // شريط العنوان — أخيراً وفوق كل شيء
@@ -694,11 +719,40 @@ function simG7Bio1N2b(){
   const cv = document.getElementById('simCanvas');
   function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
+  // نقطة تقاطع شعاع خارج من مركز المستطيل (البطاقة) باتّجاه dx,dy مع حافّة المستطيل تماماً — تضمن توقّف الخط عند الحافة دون أي تغطية للنصّ
+  function rectEdgePoint(ccx,ccy,halfW,halfH,dx,dy){
+    if(dx===0 && dy===0) return {x:ccx,y:ccy};
+    const tX = dx!==0 ? halfW/Math.abs(dx) : Infinity;
+    const tY = dy!==0 ? halfH/Math.abs(dy) : Infinity;
+    const t = Math.min(tX,tY);
+    return { x: ccx+dx*t, y: ccy+dy*t };
+  }
+
+  // يحسب تخطيط كامل (مواضع الأجزاء والبطاقات) — يُستخدم في الرسم وفي كشف النقر معاً لضمان التطابق التام
+  function computeLayout(w,h){
+    const cx=w*0.5, cy=h*0.56, R=Math.min(w,h)*0.2;
+    const c = cv.getContext('2d');
+    c.font=`bold ${Math.round(h*0.0155)}px Tajawal`;
+    return SPOTS.map(s=>{
+      const tip = flowerAnchor(s.id, cx, cy, R);
+      const slot = labelSlot(s.id, cx, cy, R);
+      const tw = c.measureText(s.label).width;
+      const padX=10, padY=7, cardW=tw+padX*2, cardH=h*0.028+padY;
+      let cardX = slot.x, cardY = slot.y;
+      if(slot.align==='left') cardX = slot.x;
+      else if(slot.align==='right') cardX = slot.x - cardW;
+      else cardX = slot.x - cardW/2;
+      cardY -= cardH/2;
+      const cardCx = cardX+cardW/2, cardCy = cardY+cardH/2;
+      return { s, tip, cardX, cardY, cardW, cardH, cardCx, cardCy, R, cx, cy };
+    });
+  }
+
   function renderControls(){
     if(S.mode==='explore'){
       return `
         <div class="ctrl-section"><div class="ctrl-label">🌸 استكشفي الزهرة</div></div>
-        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">اضغطي على أيّ دائرة على الزهرة لتتعرّفي على ذلك الجزء.</div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">اضغطي على اسم أيّ جزء لتتعرّفي عليه.</div>
         <div id="g7fSpotInfo" style="font-size:13px;color:var(--text-secondary);line-height:1.8;min-height:24px;margin-bottom:14px;background:var(--bg-card2);border-radius:8px;padding:${S.selected?'12px':'0px'}">
           ${S.selected ? ('<strong>'+SPOTS.find(s=>s.id===S.selected).label+':</strong> '+SPOTS.find(s=>s.id===S.selected).func) : ''}
         </div>
@@ -716,7 +770,7 @@ function simG7Bio1N2b(){
     return `
       <div class="ctrl-section"><div class="ctrl-label">🔍 من أنا؟ (${S.riddleIdx+1} من ${SPOTS.length})</div></div>
       <div style="font-size:14px;font-weight:700;background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:10px">${cur.riddle}</div>
-      <div style="font-size:12.5px;color:var(--text-secondary)">اضغطي على الجزء المناسب في الصورة.</div>
+      <div style="font-size:12.5px;color:var(--text-secondary)">اضغطي على اسم الجزء المناسب في الصورة.</div>
       ${S.wrongPick ? `<div style="margin-top:10px;font-size:13px;color:#D97706;background:#FEF3C7;border-radius:8px;padding:10px">💡 ليس هذا الجزء الصحيح، حاولي مرّة أخرى.</div>` : ''}`;
   }
   controls(renderControls());
@@ -735,11 +789,17 @@ function simG7Bio1N2b(){
   cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null;
   cv.onclick = function(e){
     const p = g7pGp(cv,e), w=cv.width, h=cv.height;
-    const cx=w*0.5, cy=h*0.56, R=Math.min(w,h)*0.2;
+    const layout = computeLayout(w,h);
+    // النقر على بطاقة الاسم هو وسيلة الإجابة الأساسية (مساحة أوسع وأوضح من النقطة الصغيرة على الزهرة)
     let hit = null;
-    for(const s of SPOTS){
-      const a = flowerAnchor(s.id, cx, cy, R);
-      if(Math.hypot(p.x-a.x, p.y-a.y) < w*0.032){ hit = s; break; }
+    for(const L of layout){
+      if(p.x>=L.cardX && p.x<=L.cardX+L.cardW && p.y>=L.cardY && p.y<=L.cardY+L.cardH){ hit=L.s; break; }
+    }
+    // احتياطياً: يظلّ النقر مباشرةً على الجزء داخل الزهرة يعمل أيضاً
+    if(!hit){
+      for(const L of layout){
+        if(Math.hypot(p.x-L.tip.x, p.y-L.tip.y) < w*0.032){ hit=L.s; break; }
+      }
     }
     if(!hit) return;
     if(S.mode==='explore'){
@@ -783,53 +843,44 @@ function simG7Bio1N2b(){
     c.beginPath(); c.ellipse(0,R*0.15,R*0.15,R*0.12,0,0,Math.PI*2); c.fill(); c.stroke();
     c.restore();
 
-    // أسهم + بطاقات أسماء موزّعة حول الزهرة — كل سهم يصل من بطاقته مباشرة إلى الجزء، بلا تقاطع وبلا تغطية
-    c.font=`bold ${Math.round(h*0.0155)}px Tajawal`;
-    SPOTS.forEach(s=>{
-      const tip = flowerAnchor(s.id, cx, cy, R);
-      const slot = labelSlot(s.id, cx, cy, R);
+    // أسهم + بطاقات أسماء موزّعة حول الزهرة — كل سهم ينطلق من الجزء نفسه ويشير إلى بطاقة اسمه (بلا أي تغطية للنص)
+    const layout = computeLayout(w,h);
+    layout.forEach(L=>{
+      const s = L.s, tip = L.tip, cardCx=L.cardCx, cardCy=L.cardCy, cardW=L.cardW, cardH=L.cardH, cardX=L.cardX, cardY=L.cardY;
       const isSel = (S.mode==='explore' && S.selected===s.id) || (S.mode==='quiz' && S.wrongPick===s.id);
       const wasRight = S.mode==='quiz' && S.riddleOrder.slice(0,S.riddleIdx).includes(s.id);
       const col = isSel ? (S.mode==='quiz' && S.wrongPick===s.id ? '#DC2626' : '#22C55E') : (wasRight ? g7pAccent(dark) : (dark?'#8FBF9E':'#3D6B4A'));
 
-      // بطاقة الاسم
-      const tw = c.measureText(s.label).width;
-      const padX=10, padY=7, cardW=tw+padX*2, cardH=h*0.028+padY;
-      let cardX = slot.x, cardY = slot.y;
-      if(slot.align==='left') cardX = slot.x;
-      else if(slot.align==='right') cardX = slot.x - cardW;
-      else cardX = slot.x - cardW/2;
-      cardY -= cardH/2;
-
-      // نقطة بداية السهم: من أقرب حافة للبطاقة باتجاه الجزء
-      const cardCx = cardX+cardW/2, cardCy = cardY+cardH/2;
-      const dx = tip.x-cardCx, dy = tip.y-cardCy, dist=Math.hypot(dx,dy)||1;
-      // نقطة خروج على حافة البطاقة (تقريب بسيط: تقاطع مع مستطيل البطاقة)
-      const startX = cardCx + (dx/dist) * (cardW/2+2);
-      const startY = cardCy + (dy/dist) * (cardH/2+2);
-      // توقف السهم قليلاً قبل ملامسة الجزء نفسه كي لا يغطيه، لكن رأسه يظل متصلاً بحافته
-      const endX = tip.x - (dx/dist) * (w*0.012);
-      const endY = tip.y - (dy/dist) * (w*0.012);
+      // اتّجاه السهم: من الجزء في الزهرة إلى بطاقة اسمه (يشير مباشرة نحو الاسم)
+      const dx = cardCx-tip.x, dy = cardCy-tip.y, dist=Math.hypot(dx,dy)||1;
+      // نقطة البداية: حافة الجزء نفسه (مُبعدة قليلاً عن مركزه)
+      const startX = tip.x + (dx/dist) * (w*0.014);
+      const startY = tip.y + (dy/dist) * (w*0.014);
+      // نقطة النهاية: تتوقّف تماماً عند حافّة البطاقة (تقاطع هندسي دقيق) مع هامش إضافي — لا تلامس النص أبداً
+      const edge = rectEdgePoint(cardCx, cardCy, cardW/2, cardH/2, tip.x-cardCx, tip.y-cardCy);
+      const gap = w*0.008;
+      const endXFinal = edge.x - (dx/dist)*gap;
+      const endYFinal = edge.y - (dy/dist)*gap;
 
       c.save();
       c.strokeStyle = col; c.lineWidth = Math.max(1.5, w*0.0035); c.lineCap='round';
-      c.beginPath(); c.moveTo(startX,startY); c.lineTo(endX,endY); c.stroke();
-      // رأس السهم
-      const ang = Math.atan2(endY-startY, endX-startX);
+      c.beginPath(); c.moveTo(startX,startY); c.lineTo(endXFinal,endYFinal); c.stroke();
+      // رأس السهم عند نهاية الخط قرب البطاقة — يشير نحو اسم الجزء
+      const ang = Math.atan2(endYFinal-startY, endXFinal-startX);
       const ahL = w*0.016;
       c.beginPath();
-      c.moveTo(endX,endY);
-      c.lineTo(endX - ahL*Math.cos(ang-0.4), endY - ahL*Math.sin(ang-0.4));
-      c.lineTo(endX - ahL*Math.cos(ang+0.4), endY - ahL*Math.sin(ang+0.4));
+      c.moveTo(endXFinal,endYFinal);
+      c.lineTo(endXFinal - ahL*Math.cos(ang-0.4), endYFinal - ahL*Math.sin(ang-0.4));
+      c.lineTo(endXFinal - ahL*Math.cos(ang+0.4), endYFinal - ahL*Math.sin(ang+0.4));
       c.closePath(); c.fillStyle=col; c.fill();
       c.restore();
 
-      // البطاقة نفسها
+      // البطاقة نفسها — قابلة للنقر مباشرة، مع تظليل واضح يدعو للضغط
       c.save();
       c.fillStyle = isSel ? (S.mode==='quiz' && S.wrongPick===s.id ? 'rgba(220,38,38,0.15)' : 'rgba(34,197,94,0.18)') : (dark?'rgba(11,26,16,0.9)':'rgba(255,255,255,0.95)');
       c.strokeStyle = col; c.lineWidth=2;
       c.beginPath(); c.roundRect(cardX,cardY,cardW,cardH,8); c.fill(); c.stroke();
-      c.fillStyle = g7pTxt(dark); c.textAlign='center';
+      c.fillStyle = g7pTxt(dark); c.textAlign='center'; c.font=`bold ${Math.round(h*0.0155)}px Tajawal`;
       c.fillText(s.label, cardCx, cardCy + h*0.005);
       c.restore();
     });

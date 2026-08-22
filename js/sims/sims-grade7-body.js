@@ -247,20 +247,43 @@ function simG7Bio1N6b(){
     c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
     c.fillText('الرئتان', lungX, lungY+h*0.15);
 
-    // القلب — شكل تشريحي واقعي مبسّط (وليس رمز ❤️)
-    c.save(); c.translate(heartX,heartY);
-    const hs = w*0.045;
-    c.fillStyle='#C0392B'; c.strokeStyle='#7B1E14'; c.lineWidth=2;
+    // القلب — شكل تشريحي واقعي (كتلة عضلية غير متماثلة تضيق نحو قمّة مدبّبة، مع بقايا أوعية كبيرة أعلاه)
+    c.save(); c.translate(heartX,heartY); c.rotate(0.08);
+    const hs = w*0.05;
+    const hg = c.createLinearGradient(-hs,-hs*1.2,hs*0.3,hs*1.6);
+    hg.addColorStop(0,'#D9534F'); hg.addColorStop(1,'#8B2318');
+    c.fillStyle=hg; c.strokeStyle='#5E1710'; c.lineWidth=2;
     c.beginPath();
-    c.moveTo(0, hs*0.3);
-    c.bezierCurveTo(-hs*1.3,-hs*0.9, -hs*0.4,-hs*1.6, 0,-hs*0.55);
-    c.bezierCurveTo(hs*0.4,-hs*1.6, hs*1.3,-hs*0.9, 0, hs*0.3);
-    c.bezierCurveTo(0, hs*0.9, 0, hs*1.3, 0, hs*1.6);
-    c.bezierCurveTo(0, hs*1.3, 0, hs*0.9, 0, hs*0.3);
+    // الأذين الأيسر (انتفاخ علوي يسار)
+    c.moveTo(-hs*0.15, -hs*0.95);
+    c.bezierCurveTo(-hs*0.75,-hs*1.35, -hs*1.25,-hs*0.85, -hs*1.15,-hs*0.35);
+    // انحدار الجانب الأيسر نحو القمّة المدبّبة أسفل يسار قليلاً (تشريحياً القلب يميل يساراً)
+    c.bezierCurveTo(-hs*1.05,hs*0.35, -hs*0.55,hs*1.05, -hs*0.12,hs*1.55);
+    // القمّة (Apex)
+    c.quadraticCurveTo(hs*0.05,hs*1.35, hs*0.22,hs*1.0);
+    // الجانب الأيمن صعوداً
+    c.bezierCurveTo(hs*0.62,hs*0.35, hs*0.85,-hs*0.25, hs*0.7,-hs*0.75);
+    // الأذين الأيمن (انتفاخ علوي يمين، أصغر قليلاً من الأيسر)
+    c.bezierCurveTo(hs*0.6,-hs*1.2, hs*0.15,-hs*1.25, -hs*0.15,-hs*0.95);
     c.closePath(); c.fill(); c.stroke();
+    // الأخدود الفاصل بين البطينين (خط سطحي بسيط)
+    c.save(); c.strokeStyle='rgba(0,0,0,0.25)'; c.lineWidth=Math.max(1.2,hs*0.05);
+    c.beginPath(); c.moveTo(-hs*0.05,-hs*0.3); c.quadraticCurveTo(hs*0.02,hs*0.5, hs*0.12,hs*1.05); c.stroke();
+    c.restore();
+    // بصيص إضاءة لإعطاء حجماً
+    c.save(); c.globalAlpha=0.22; c.fillStyle='#fff';
+    c.beginPath(); c.ellipse(-hs*0.45,-hs*0.35,hs*0.28,hs*0.5,-0.4,0,Math.PI*2); c.fill();
+    c.restore();
+    // بقايا الأوعية الكبيرة الخارجة من أعلى القلب (الأبهر والشريان الرئوي والوريد الأجوف)
+    c.fillStyle='#C0392B'; c.strokeStyle='#5E1710'; c.lineWidth=1.6;
+    c.beginPath(); c.roundRect(-hs*0.5,-hs*1.55,hs*0.28,hs*0.55,hs*0.12); c.fill(); c.stroke();
+    c.fillStyle='#D9534F';
+    c.beginPath(); c.roundRect(-hs*0.05,-hs*1.6,hs*0.22,hs*0.6,hs*0.1); c.fill(); c.stroke();
+    c.fillStyle='#B33A2E';
+    c.beginPath(); c.roundRect(hs*0.28,-hs*1.4,hs*0.2,hs*0.5,hs*0.09); c.fill(); c.stroke();
     c.restore();
     c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('القلب والدم', heartX, heartY+h*0.1);
+    c.fillText('القلب والدم', heartX, heartY+hs*1.9);
 
     // خلايا الجسم — أشكال عضوية غير منتظمة بنواة داخلية، لا دوائر بسيطة
     function drawCell(x,y,r){

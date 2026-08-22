@@ -1206,7 +1206,7 @@ function simG8Mot6N7a(){
 
     const pivotX=w*0.5, pivotY=h*0.32, armLen=w*0.28;
     const diff = S.leftN-APPLE_N;
-    const tilt = Math.max(-0.25,Math.min(0.25, diff*0.05));
+    const tilt = Math.max(-0.25,Math.min(0.25, -diff*0.05));
 
     // القاعدة
     c.save(); c.strokeStyle=g8cMut(dark); c.lineWidth=Math.max(5,w*0.014);
@@ -1311,7 +1311,7 @@ function simG8Mot6N7b(){
     const pivotX=w*0.5, pivotY=h*0.42, maxArm=w*0.36;
     const mL=S.leftN*S.leftD, mR=S.rightN*S.rightD;
     const diff = mL-mR;
-    const tilt = Math.max(-0.22,Math.min(0.22, diff*0.004));
+    const tilt = Math.max(-0.22,Math.min(0.22, -diff*0.004));
 
     c.save(); c.fillStyle=g8cMut(dark);
     c.beginPath(); c.moveTo(pivotX-w*0.05,pivotY+h*0.08); c.lineTo(pivotX+w*0.05,pivotY+h*0.08); c.lineTo(pivotX,pivotY-h*0.02); c.closePath(); c.fill(); c.restore();

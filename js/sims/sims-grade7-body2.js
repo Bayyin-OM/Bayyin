@@ -287,9 +287,10 @@ function simG7Bio1N9a(){
   cv.onclick=null;
 
   function drawArm(c,w,h,bendT,dark){
-    // bendT: 0 = مستقيمة، 1 = منثنية بالكامل
-    const shX=w*0.32, shY=h*0.32, elX = shX + (w*0.0)* (1-bendT), elY = shY + h*0.28;
-    const wrX = elX + Math.sin(bendT*1.3)*w*0.22, wrY = elY - Math.cos(bendT*1.3)*h*0.24 + h*0.02*(1-bendT);
+    // bendT: 0 = مستقيمة (الساعد يكمل بامتداد العضد نحو الأسفل)، 1 = منثنية بالكامل (الساعد مطويّ نحو الكتف)
+    const shX=w*0.32, shY=h*0.32, elX = shX, elY = shY + h*0.28;
+    const flexAngle = bendT*2.3; // 0 = بامتداد العضد، ‎~132°‎ = مطويّة بالكامل نحو الكتف
+    const wrX = elX + Math.sin(flexAngle)*w*0.22, wrY = elY + Math.cos(flexAngle)*h*0.24;
     // العضد (ثابت الطول من الكتف للمرفق)
     c.strokeStyle='#D8B78C'; c.lineWidth=Math.max(16,w*0.05); c.lineCap='round';
     c.beginPath(); c.moveTo(shX,shY); c.lineTo(elX,elY); c.stroke();
