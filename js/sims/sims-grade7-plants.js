@@ -1428,8 +1428,8 @@ function simG7Bio1N4a(){
   cv.onclick = function(e){
     if(S.mode!=='grow') return;
     const p = g7pGp(cv,e), w=cv.width, h=cv.height;
-    const px = w*0.5, py = h*0.24 - w*0.05;
-    if(Math.hypot(p.x-px,p.y-py) < w*0.05){
+    const px = w*0.4, py = h*0.26 - w*0.045;
+    if(Math.hypot(p.x-px,p.y-py) < w*0.045){
       _g8pPlayDrop(); S.mode='growing'; S.growT=0.0001; controls(renderControls());
     }
   };
@@ -1444,45 +1444,45 @@ function simG7Bio1N4a(){
       if(S.growT>=1){ S.growT=1; S.mode='success'; _g8pPlayClick(); controls(renderControls()); }
     }
 
-    // قطاع الزهرة (تخطيطي مبسّط: ميسم أعلى، قلم، مبيض بيضاوي أسفل يحوي بويضة) — أُنزل قليلاً ليترك مساحة واضحة للعنوان
-    const cx=w*0.5, stigY=h*0.24, styTop=h*0.28, styBot=h*0.62, ovY=h*0.78, ovRX=w*0.16, ovRY=h*0.13;
-    c.strokeStyle='#4D7C3A'; c.lineWidth=Math.max(3,w*0.012); c.lineCap='round';
+    // قطاع الزهرة (تخطيطي مبسّط: ميسم أعلى، قلم، مبيض بيضاوي أسفل يحوي بويضة) — مصغّر ومزاح يساراً ليترك مساحة كافية لتسميات الأجزاء يمين الرسم دون أي تداخل
+    const cx=w*0.4, stigY=h*0.26, styTop=h*0.3, styBot=h*0.58, ovY=h*0.74, ovRX=w*0.115, ovRY=h*0.095;
+    c.strokeStyle='#4D7C3A'; c.lineWidth=Math.max(2.5,w*0.009); c.lineCap='round';
     c.beginPath(); c.moveTo(cx,styTop); c.lineTo(cx,styBot); c.stroke();
-    c.fillStyle='#84CC16'; c.beginPath(); c.arc(cx,stigY,w*0.035,0,Math.PI*2); c.fill();
-    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('ميسم', cx+w*0.09, stigY);
-    c.fillText('قلم', cx+w*0.06, (styTop+styBot)/2);
+    c.fillStyle='#84CC16'; c.beginPath(); c.arc(cx,stigY,w*0.026,0,Math.PI*2); c.fill();
+    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='left';
+    c.fillText('ميسم', cx+w*0.14, stigY);
+    c.fillText('قلم', cx+w*0.14, (styTop+styBot)/2);
 
     c.fillStyle='#A7D98C'; c.strokeStyle='#3F6212'; c.lineWidth=2;
     c.beginPath(); c.ellipse(cx,ovY,ovRX,ovRY,0,0,Math.PI*2); c.fill(); c.stroke();
-    c.fillText('مبيض', cx-ovRX-w*0.06, ovY);
+    c.fillText('مبيض', cx+ovRX+w*0.02, ovY);
 
     // بويضة داخل المبيض
     const oviX=cx, oviY=ovY+ovRY*0.15;
     c.fillStyle='#E5F3D8'; c.strokeStyle='#65A30D'; c.lineWidth=1.5;
-    c.beginPath(); c.ellipse(oviX,oviY,w*0.045,h*0.035,0,0,Math.PI*2); c.fill(); c.stroke();
-    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`;
+    c.beginPath(); c.ellipse(oviX,oviY,w*0.033,h*0.026,0,0,Math.PI*2); c.fill(); c.stroke();
+    c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='center';
     c.fillText('بويضة', oviX, oviY+h*0.06);
 
     // حبّة اللقاح: تبقى ثابتة فوق الميسم طوال الوقت — لا تتحرّك ولا تتحوّل إلى الأنبوب
-    const grainY = stigY - w*0.05;
+    const grainY = stigY - w*0.045;
     c.save();
     c.fillStyle='#FDE047'; c.strokeStyle='#CA8A04'; c.lineWidth=2;
-    c.beginPath(); c.arc(cx, grainY, w*0.026, 0, Math.PI*2); c.fill(); c.stroke();
+    c.beginPath(); c.arc(cx, grainY, w*0.02, 0, Math.PI*2); c.fill(); c.stroke();
     // أشواك دقيقة صغيرة على سطح الحبة لتمييزها بصرياً عن الأنبوب الملساء
     c.strokeStyle='#CA8A04'; c.lineWidth=1;
-    for(let k=0;k<8;k++){ const a=k/8*Math.PI*2; c.beginPath(); c.moveTo(cx+Math.cos(a)*w*0.026, grainY+Math.sin(a)*w*0.026); c.lineTo(cx+Math.cos(a)*w*0.034, grainY+Math.sin(a)*w*0.034); c.stroke(); }
+    for(let k=0;k<8;k++){ const a=k/8*Math.PI*2; c.beginPath(); c.moveTo(cx+Math.cos(a)*w*0.02, grainY+Math.sin(a)*w*0.02); c.lineTo(cx+Math.cos(a)*w*0.027, grainY+Math.sin(a)*w*0.027); c.stroke(); }
     c.restore();
     if(S.mode==='predict' || S.mode==='grow'){
-      c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-      c.fillText('حبّة اللقاح', cx-w*0.09, grainY);
+      c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='left';
+      c.fillText('حبّة اللقاح', cx+w*0.14, grainY);
       if(S.mode==='grow'){
         c.fillStyle=g7pAccent(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
-        c.fillText('👆 اضغطي هنا', cx, grainY-h*0.06);
+        c.fillText('👆 اضغطي هنا', cx, grainY-h*0.05);
       }
     } else {
-      c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='center';
-      c.fillText('حبّة اللقاح (ثابتة)', cx-w*0.11, grainY);
+      c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='left';
+      c.fillText('حبّة اللقاح (ثابتة)', cx+w*0.14, grainY);
     }
 
     // أنبوب اللقاح: تركيب منفصل تماماً عن حبّة اللقاح، ينمو تدريجياً من أسفل الحبة وحتى البويضة
@@ -1490,19 +1490,20 @@ function simG7Bio1N4a(){
       const t = S.mode==='growing' ? S.growT : 1;
       const tubeStartY = stigY;
       const tubeEndY = tubeStartY + (oviY-tubeStartY)*t;
-      c.strokeStyle='#F59E0B'; c.lineWidth=Math.max(2.5,w*0.007); c.lineCap='round';
+      c.strokeStyle='#F59E0B'; c.lineWidth=Math.max(2,w*0.006); c.lineCap='round';
       c.beginPath(); c.moveTo(cx,tubeStartY); c.lineTo(cx,tubeEndY); c.stroke();
       if(S.mode==='growing'){
-        c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='center';
-        c.fillText('أنبوب اللقاح ينمو ↓', cx+w*0.1, (tubeStartY+tubeEndY)/2);
+        c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='left';
+        c.fillText('أنبوب اللقاح ينمو ↓', cx+w*0.14, (tubeStartY+tubeEndY)/2);
       }
       // المشيج الذكري (نقطة) عند رأس الأنبوب النامي
-      c.fillStyle='#F59E0B'; c.beginPath(); c.arc(cx,tubeEndY,w*0.012,0,Math.PI*2); c.fill();
+      c.fillStyle='#F59E0B'; c.beginPath(); c.arc(cx,tubeEndY,w*0.01,0,Math.PI*2); c.fill();
 
+      // توهّج الإخصاب يظهر فقط عند وصول الأنبوب فعلياً إلى البويضة أسفل الصورة — وليس قبل ذلك أو أعلى الرسم
       if(t>=1){
         const glow = S.mode==='growing' ? 0 : 1;
         c.save(); c.globalAlpha=0.7*glow;
-        c.fillStyle='#FBBF24'; c.beginPath(); c.arc(oviX,oviY,w*0.055,0,Math.PI*2); c.fill();
+        c.fillStyle='#FBBF24'; c.beginPath(); c.arc(oviX,oviY,w*0.045,0,Math.PI*2); c.fill();
         c.restore();
       }
     }

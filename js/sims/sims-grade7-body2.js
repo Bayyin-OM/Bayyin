@@ -286,7 +286,25 @@ function simG7Bio1N9a(){
   cv.ontouchstart=null; cv.ontouchmove=null; cv.ontouchend=null;
   cv.onclick=null;
 
-  function drawArm(c,w,h,bendT,dark){
+  function draw(){
+    if(currentSim!=='g7bio1n9' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
+
+    if(S.stage==='raising'){ S.animT+=0.03; if(S.animT>=1){ S.animT=1; S.stage='bent'; controls(renderControls()); } }
+    if(S.stage==='lowering'){ S.animT-=0.03; if(S.animT<=0){ S.animT=0; S.stage='done'; controls(renderControls()); } }
+    const bendT = S.stage==='straight' ? 0 : S.stage==='done' ? 0 : S.animT;
+
+    g7mDrawArm(c,w,h,bendT,dark);
+
+    g7pHeader(c,w,h,dark,'نشاط ٩-١ · العضلات');
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* رسم ذراع مشترك بين تابَي "من الذي تحرّك؟" و"شدّ الحبل" — نفس الشكل تماماً لتكون التجربة أوضح ومتّسقة */
+function g7mDrawArm(c,w,h,bendT,dark){
     // bendT: 0 = مستقيمة (الساعد يكمل بامتداد العضد نحو الأسفل)، 1 = منثنية بالكامل (الساعد مطويّ نحو الكتف)
     const shX=w*0.32, shY=h*0.32, elX = shX, elY = shY + h*0.28;
     const flexAngle = bendT*2.3; // 0 = بامتداد العضد، ‎~132°‎ = مطويّة بالكامل نحو الكتف
@@ -305,8 +323,8 @@ function simG7Bio1N9a(){
     const midX=(shX+elX)/2 - w*0.02, midY=(shY+elY)/2;
     c.beginPath(); c.moveTo(shX-w*0.01,shY+h*0.02); c.quadraticCurveTo(midX,midY, elX-w*0.015,elY-h*0.01); c.stroke();
     c.restore();
-    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
-    c.fillText(`ذات الرأسين ${bendT>0.5?'(منقبضة 💪)':'(مسترخية)'}`, midX-w*0.09, midY-h*0.02);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText(`ذات الرأسين ${bendT>0.5?'(منقبضة 💪)':'(مسترخية)'}`, midX+w*0.14, midY-h*0.02);
 
     // العضلة ثلاثية الرؤوس (خلف العضد) — تطول عند الانبساط، تقصر عند الانقباض
     const tricepsBulge = 1 + (1-bendT)*0.7;
@@ -316,30 +334,13 @@ function simG7Bio1N9a(){
     const midX2=(shX+elX)/2 + w*0.025, midY2=(shY+elY)/2;
     c.beginPath(); c.moveTo(shX+w*0.01,shY+h*0.02); c.quadraticCurveTo(midX2,midY2, elX+w*0.015,elY-h*0.01); c.stroke();
     c.restore();
-    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
-    c.fillText(`ثلاثية الرؤوس ${bendT>0.5?'(مسترخية)':'(منقبضة 💪)'}`, midX2+w*0.11, midY2+h*0.03);
+    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.019)}px Tajawal`; c.textAlign='center';
+    c.fillText(`ثلاثية الرؤوس ${bendT>0.5?'(مسترخية)':'(منقبضة 💪)'}`, midX2-w*0.14, midY2+h*0.03);
 
     // نقطة المرفق
     c.fillStyle='#B8946B'; c.beginPath(); c.arc(elX,elY,w*0.016,0,Math.PI*2); c.fill();
 
     return {shX,shY,elX,elY,wrX,wrY};
-  }
-
-  function draw(){
-    if(currentSim!=='g7bio1n9' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
-    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
-    c.fillStyle=g7pBg(dark); c.fillRect(0,0,w,h);
-
-    if(S.stage==='raising'){ S.animT+=0.03; if(S.animT>=1){ S.animT=1; S.stage='bent'; controls(renderControls()); } }
-    if(S.stage==='lowering'){ S.animT-=0.03; if(S.animT<=0){ S.animT=0; S.stage='done'; controls(renderControls()); } }
-    const bendT = S.stage==='straight' ? 0 : S.stage==='done' ? 0 : S.animT;
-
-    drawArm(c,w,h,bendT,dark);
-
-    g7pHeader(c,w,h,dark,'نشاط ٩-١ · العضلات');
-    animFrame = requestAnimationFrame(draw);
-  }
-  draw();
 }
 
 /* ── تاب ٢: شدّ الحبل ── */
@@ -434,31 +435,9 @@ function simG7Bio1N9b(){
       if(Math.abs(S.animTo-S.animT) < 0.01) S.animT = S.animTo;
     }
     const t = S.animT; // 0 = مستقيمة (ثلاثية الرؤوس منقبضة)، 1 = منثنية (ذات الرأسين منقبضة)
-    const boneY = h*0.5, boneX1 = w*0.5 - w*0.12*(1-t*0.3), boneX2 = w*0.5 + w*0.12;
 
-    // العظم في المنتصف
-    c.strokeStyle='#D8B78C'; c.lineWidth=Math.max(14,w*0.045); c.lineCap='round';
-    c.beginPath(); c.moveTo(w*0.5-w*0.14,boneY); c.lineTo(w*0.5+w*0.14,boneY); c.stroke();
-
-    // حبل العضلة ذات الرأسين (يسحب لليسار/أعلى)
-    const biceps = 0.5+t*0.5;
-    c.strokeStyle='#EF4444'; c.lineWidth=Math.max(10,w*0.03)*(0.7+biceps*0.6); c.lineCap='round';
-    c.beginPath(); c.moveTo(w*0.14,h*0.28); c.lineTo(w*0.5-w*0.14*(0.4+t*0.3),boneY); c.stroke();
-    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
-    c.fillText('🔴 ذات الرأسين', w*0.14, h*0.22);
-
-    // حبل العضلة ثلاثية الرؤوس (يسحب لليمين/أسفل)
-    const triceps = 0.5+(1-t)*0.5;
-    c.strokeStyle='#3B82F6'; c.lineWidth=Math.max(10,w*0.03)*(0.7+triceps*0.6); c.lineCap='round';
-    c.beginPath(); c.moveTo(w*0.86,h*0.72); c.lineTo(w*0.5+w*0.14*(0.4+(1-t)*0.3),boneY); c.stroke();
-    c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
-    c.fillText('🔵 ثلاثية الرؤوس', w*0.86, h*0.8);
-
-    // اتجاه السحب (سهمان متعاكسان)
-    c.save(); c.globalAlpha=0.5; c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('⬅', w*0.32, boneY-h*0.05);
-    c.fillText('➡', w*0.68, boneY+h*0.07);
-    c.restore();
+    // نفس رسم الذراع المستخدم في تاب "من الذي تحرّك؟" لضمان تجربة متّسقة وأوضح للطالبة
+    g7mDrawArm(c,w,h,t,dark);
 
     g7pHeader(c,w,h,dark,'نشاط ٩-١ · شدّ الحبل');
     animFrame = requestAnimationFrame(draw);
@@ -572,17 +551,17 @@ function simG7Bio1N10a(){
 
     if(showKey){
       const sc = SCIENTISTS[showKey];
-      const cx=w*0.5, cy=h*0.5;
+      const cx=w*0.5, cy=h*0.42, R=Math.min(w,h)*0.15;
       c.save();
-      c.fillStyle=sc.col+'22'; c.beginPath(); c.arc(cx,cy,w*0.22,0,Math.PI*2); c.fill();
-      c.strokeStyle=sc.col; c.lineWidth=3; c.beginPath(); c.arc(cx,cy,w*0.22,0,Math.PI*2); c.stroke();
-      c.font=`${Math.round(h*0.11)}px sans-serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillStyle=sc.col+'22'; c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.fill();
+      c.strokeStyle=sc.col; c.lineWidth=3; c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.stroke();
+      c.font=`${Math.round(R*0.9)}px sans-serif`; c.textAlign='center'; c.textBaseline='middle';
       c.fillText(sc.icon, cx, cy-h*0.02);
       c.restore();
-      c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
-      c.fillText(sc.label, cx, cy+w*0.16);
-      c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`;
-      c.fillText(sc.en, cx, cy+w*0.16+h*0.035);
+      c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center'; c.textBaseline='alphabetic';
+      c.fillText(sc.label, cx, cy+R+h*0.05);
+      c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`;
+      c.fillText(sc.en, cx, cy+R+h*0.09);
     } else if(S.stage==='cards' && S.idx<CARDS.length){
       c.fillStyle=g7pMut(dark); c.font=`${Math.round(h*0.09)}px sans-serif`; c.textAlign='center'; c.textBaseline='middle';
       c.fillText('🔎', w*0.5, h*0.5);
