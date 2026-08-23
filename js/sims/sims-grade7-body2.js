@@ -18,8 +18,10 @@ function g7pHeader(c,w,h,dark,title){
 function simG7Bio1N8a(){
   cancelAnimationFrame(animFrame);
   const JOINTS = [
-    { id:'skull',    label:'الجمجمة',   type:'fixed', range:0,   seg1:'عظام القحف', seg2:'عظم الفكّ',
-      info:'تتصل عظام الجمجمة الثابتة ببعضها بثبات لحماية الدماغ، أمّا عظم الفكّ فيتّصل بمفصل متحرّك يسمح له بالحركة عند مضغ الغذاء أو التكلّم.' },
+    { id:'skull',    label:'الجمجمة (عظام القحف)', type:'fixed', range:0,   seg1:'عظم القحف', seg2:'عظم مجاور',
+      info:'تتّصل عظام القحف الثابتة ببعضها بثبات تامّ (لا تتحرّك) لحماية الدماغ.' },
+    { id:'jaw',      label:'الفكّ',      type:'hinge', range:40,  seg1:'الجمجمة', seg2:'الفكّ السفلي',
+      info:'يتّصل الفكّ السفلي بالجمجمة بمفصل رَزّي (Hinge Joint) يسمح له بالحركة في اتّجاه واحد فقط (فتح وإغلاق الفم)، تمامًا كحركة المرفق.' },
     { id:'elbow',    label:'المرفق (الكوع)', type:'hinge', range:120, seg1:'العضد', seg2:'الساعد',
       info:'مفصل المرفق مفصل رَزّي (Hinge Joint) — لا يمكنه الحركة إلّا في اتّجاه واحد، فهو يتحرّك مثل الباب المثبّت في الرزّة.' },
     { id:'shoulder', label:'الكتف',      type:'ball',  range:150, seg1:'لوح الكتف', seg2:'العضد',
@@ -194,10 +196,22 @@ function simG7Bio1N8a(){
       c.beginPath(); c.arc(px,py,w*0.02,0,Math.PI*2); c.fill();
       c.strokeStyle=dark?'#0B1A10':'#fff'; c.lineWidth=2; c.stroke();
 
-      // مقياس زاوية بصري لمفصل الرزّي والكرويّ
-      if(j.type!=='fixed'){
-        c.save(); c.strokeStyle=g7pMut(dark); c.globalAlpha=0.35; c.lineWidth=2; c.setLineDash([4,4]);
-        c.beginPath(); c.arc(px,py,seg2Len*0.55,Math.PI, Math.PI-(j.range*Math.PI/180), true); c.stroke();
+      // مسار الحركة الممكن — نقاط متتابعة توضّح الفرق بين المفصل الرَزّي (قوس جزئي) والكرويّ (دائرة كاملة)
+      if(j.type==='hinge'){
+        c.save(); c.fillStyle=g7pAccent(dark); c.globalAlpha=0.55;
+        const nDots=10;
+        for(let i=0;i<=nDots;i++){
+          const a = Math.PI - (j.range*Math.PI/180)*(i/nDots);
+          c.beginPath(); c.arc(px+Math.cos(a)*seg2Len*0.62, py+Math.sin(a)*seg2Len*0.62, w*0.006,0,Math.PI*2); c.fill();
+        }
+        c.restore();
+      } else if(j.type==='ball'){
+        c.save(); c.fillStyle=g7pAccent(dark); c.globalAlpha=0.4;
+        const nDots=20;
+        for(let i=0;i<nDots;i++){
+          const a = (i/nDots)*Math.PI*2;
+          c.beginPath(); c.arc(px+Math.cos(a)*seg2Len*0.62, py+Math.sin(a)*seg2Len*0.62, w*0.006,0,Math.PI*2); c.fill();
+        }
         c.restore();
       }
 
@@ -207,22 +221,43 @@ function simG7Bio1N8a(){
       else if(S.boundFlash>0) c.fillText('🚫 هذا أقصى مدى للحركة', px, h*0.86);
       else c.fillText(S.dragging ? '👆 استمرّي بالسحب' : '👆 اسحبي الجزء المتحرّك', px, h*0.86);
     } else {
-      // عرض توضيحي مصغّر للمفاصل الثلاثة في شاشة الاختيار/التصنيف
+      // عرض توضيحي مصغّر لأنواع المفاصل الأربعة في شاشة الاختيار/التصنيف — نقاط تتبّع مسار الحركة الفعلي لكل نوع
       const items = [
-        {label:'ثابت', x:w*0.2, icon:'skull'},
-        {label:'رَزّي', x:w*0.5, icon:'elbow'},
-        {label:'كرويّ', x:w*0.8, icon:'shoulder'},
+        {label:'ثابت', x:w*0.14, type:'fixed', range:0},
+        {label:'رَزّي (الفكّ)', x:w*0.38, type:'hinge', range:40},
+        {label:'رَزّي (المرفق)', x:w*0.62, type:'hinge', range:120},
+        {label:'كرويّ', x:w*0.86, type:'ball', range:150},
       ];
       items.forEach(it=>{
-        const cy=h*0.42, r=w*0.05;
-        c.strokeStyle=g7pMut(dark); c.lineWidth=Math.max(6,w*0.018); c.lineCap='round';
+        const cy=h*0.4, r=w*0.045;
+        c.strokeStyle=g7pMut(dark); c.lineWidth=Math.max(6,w*0.016); c.lineCap='round';
         c.beginPath(); c.moveTo(it.x-r,cy); c.lineTo(it.x,cy); c.stroke();
-        let ang2 = it.icon==='skull'? 0 : it.icon==='elbow'? 55 : 100;
+        let ang2 = it.type==='fixed'? 4 : it.type==='ball'? 70 : it.range*0.45;
         const rad=(180-ang2)*Math.PI/180;
         c.beginPath(); c.moveTo(it.x,cy); c.lineTo(it.x+Math.cos(rad)*r, cy+Math.sin(rad)*r); c.stroke();
-        c.fillStyle=g7pAccent(dark); c.beginPath(); c.arc(it.x,cy,w*0.009,0,Math.PI*2); c.fill();
-        c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-        c.fillText(it.label, it.x, cy+h*0.08);
+
+        // نقاط مسار الحركة: قوس جزئي للمفصل الرَزّي، دائرة كاملة للمفصل الكرويّ، بلا مسار للمفصل الثابت
+        if(it.type==='hinge'){
+          c.save(); c.fillStyle=g7pAccent(dark); c.globalAlpha=0.6;
+          const nDots=7;
+          for(let i=0;i<=nDots;i++){
+            const a = Math.PI - (it.range*Math.PI/180)*(i/nDots);
+            c.beginPath(); c.arc(it.x+Math.cos(a)*r*0.75, cy+Math.sin(a)*r*0.75, w*0.0045,0,Math.PI*2); c.fill();
+          }
+          c.restore();
+        } else if(it.type==='ball'){
+          c.save(); c.fillStyle=g7pAccent(dark); c.globalAlpha=0.45;
+          const nDots=16;
+          for(let i=0;i<nDots;i++){
+            const a=(i/nDots)*Math.PI*2;
+            c.beginPath(); c.arc(it.x+Math.cos(a)*r*0.75, cy+Math.sin(a)*r*0.75, w*0.0045,0,Math.PI*2); c.fill();
+          }
+          c.restore();
+        }
+
+        c.fillStyle=g7pAccent(dark); c.beginPath(); c.arc(it.x,cy,w*0.008,0,Math.PI*2); c.fill();
+        c.fillStyle=g7pTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+        c.fillText(it.label, it.x, cy+r+h*0.045);
       });
     }
 
