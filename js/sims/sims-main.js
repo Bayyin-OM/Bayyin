@@ -231,6 +231,7 @@ var _semesterConfig = {
       { g:7, icon:'📚', label:'الصف السابع',  count:'٧ استقصاءات',  available: true },
       { g:8, icon:'📖', label:'الصف الثامن',  count:'٨ استقصاءات',  available: true },
       { g:9, icon:'📕', label:'الصف التاسع',  count:'قريباً',     available: false },
+      { g:10, icon:'🎓', label:'الصف العاشر', count:'المحتوى قادم',  available: true },
     ]
   },
   2: {
@@ -244,11 +245,12 @@ var _semesterConfig = {
       { g:7, icon:'📚', label:'الصف السابع',  count:'٣٠+ استقصاء', available: true },
       { g:8, icon:'📖', label:'الصف الثامن',  count:'١٠+ استقصاء', available: true },
       { g:9, icon:'📕', label:'الصف التاسع',  count:'٢٠+ استقصاء', available: true },
+      { g:10, icon:'🎓', label:'الصف العاشر', count:'المحتوى قادم',  available: true },
     ]
   }
 };
 
-var _gradeLabels = { 5:'الصف الخامس', 6:'الصف السادس', 7:'الصف السابع', 8:'الصف الثامن', 9:'الصف التاسع' };
+var _gradeLabels = { 5:'الصف الخامس', 6:'الصف السادس', 7:'الصف السابع', 8:'الصف الثامن', 9:'الصف التاسع', 10:'الصف العاشر' };
 
 // ── Render grade buttons inside grade-picker based on active semester ──
 function renderGradeButtons(sem) {
@@ -559,7 +561,7 @@ async function _showSubscriptionDays() {
 function switchGrade(g) {
   window._activeGrade = g;
   if (window._stopNatureSound) window._stopNatureSound();
-  [5,6,7,8,9].forEach(n => {
+  [5,6,7,8,9,10].forEach(n => {
     const tab = document.getElementById('tab-'+n);
     const panel = document.getElementById('panel-'+n);
     if(tab) tab.classList.toggle('active', n===g);
@@ -577,6 +579,10 @@ function switchGrade(g) {
     if (g === 8 || g === 6 || g === 5) {
       var pSub = document.getElementById('panel' + g + '-sub');
       if (pSub) pSub.textContent = 'اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي ' + (sem == 1 ? 'الأول' : 'الثاني');
+    }
+    if (g === 10) {
+      var p10Sub = document.getElementById('panel10-sub');
+      if (p10Sub) p10Sub.textContent = 'المحتوى قيد الإعداد — سيتم إضافة الوحدات والاستقصاءات قريباً — الفصل الدراسي ' + (sem == 1 ? 'الأول' : 'الثاني');
     }
   }
   // Force scroll reset by briefly hiding the container
@@ -599,6 +605,10 @@ function switchGrade(g) {
   // When switching to grade 9, init subject tabs
   if(g === 9) {
     switchG9Subject(window._g9ActiveSubject || 'chem');
+  }
+  // When switching to grade 10, init subject tabs (same pattern as grade 9)
+  if(g === 10) {
+    switchG10Subject(window._g10ActiveSubject || 'chem');
   }
 }
 
@@ -657,8 +667,19 @@ function switchG9Subject(subject) {
     if(tab) tab.classList.toggle('g9-active', s === subject);
   });
 }
+
+// ── Grade 10 subject tabs — same pattern as switchG9Subject() above ──
+function switchG10Subject(subject) {
+  window._g10ActiveSubject = subject;
+  ['chem','phys','bio'].forEach(function(s) {
+    var panel = document.getElementById('g10-' + s);
+    if(panel) panel.style.display = s === subject ? 'block' : 'none';
+    var tab = document.getElementById('g10-tab-' + s);
+    if(tab) tab.classList.toggle('g9-active', s === subject);
+  });
+}
 function setMobTab(g) {
-  [5,7,8,9].forEach(n => {
+  [5,7,8,9,10].forEach(n => {
     const el = document.getElementById('mob-'+n);
     if(el) el.classList.toggle('active', n===g);
   });

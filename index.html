@@ -829,6 +829,7 @@
       <button class="topbar-tab active" id="tab-7" onclick="switchGrade(7)">📚 الصف السابع</button>
       <button class="topbar-tab" id="tab-8" onclick="switchGrade(8)">📖 الصف الثامن</button>
       <button class="topbar-tab" id="tab-9" onclick="switchGrade(9)">📕 الصف التاسع</button>
+      <button class="topbar-tab" id="tab-10" onclick="switchGrade(10)">🎓 الصف العاشر</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end">
       <!-- subscription remaining badge -->
@@ -3762,6 +3763,81 @@
     </div>
 
   </div>
+
+  <!-- Grade 10 -->
+  <div id="panel-10" class="main-content" style="display:none">
+
+    <!-- Subject selector tabs -->
+    <div id="g10-subject-bar" style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap">
+      <button id="g10-tab-chem" onclick="switchG10Subject('chem')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(192,57,43,0.3);
+          background:rgba(192,57,43,0.08);color:#C0392B;font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">⚗️</span> الكيمياء
+      </button>
+      <button id="g10-tab-phys" onclick="switchG10Subject('phys')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(26,143,168,0.25);
+          background:var(--bg-card2);color:var(--text-secondary);font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">⚡</span> الفيزياء
+      </button>
+      <button id="g10-tab-bio" onclick="switchG10Subject('bio')"
+        style="flex:1;min-width:120px;padding:14px 18px;border-radius:14px;border:2px solid rgba(39,174,96,0.25);
+          background:var(--bg-card2);color:var(--text-secondary);font-family:Tajawal;font-size:16px;font-weight:700;
+          cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:22px">🧬</span> الأحياء
+      </button>
+    </div>
+
+    <!-- ═══ CHEMISTRY ═══ -->
+    <div id="g10-chem" class="g9-subject-panel">
+      <div class="panel-title">كتاب الكيمياء — الصف العاشر</div>
+      <div class="panel-sub" id="panel10-sub">المحتوى قيد الإعداد — سيتم إضافة الوحدات والاستقصاءات قريباً — الفصل الدراسي الثاني</div>
+      <div class="units-grid" style="margin-top:16px" id="grade10-chem-units">
+        <div class="unit-card" style="cursor:default;opacity:0.6" data-placeholder="1">
+          <div class="unit-num-badge">⏳</div>
+          <div>
+            <div class="unit-title">الوحدات قادمة قريباً</div>
+            <div class="unit-topics">سيتم إضافة وحدات واستقصاءات الكيمياء للصف العاشر فور توفر محتوى الكتاب المدرسي</div>
+            <div class="unit-pill">🔒 قريباً</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end g10-chem -->
+
+    <!-- ═══ PHYSICS ═══ -->
+    <div id="g10-phys" class="g9-subject-panel" style="display:none">
+      <div class="panel-title">كتاب الفيزياء — الصف العاشر</div>
+      <div class="panel-sub">المحتوى قيد الإعداد — سيتم إضافة الوحدات والاستقصاءات قريباً</div>
+      <div class="units-grid" style="margin-top:16px" id="grade10-phys-units">
+        <div class="unit-card" style="cursor:default;opacity:0.6" data-placeholder="1">
+          <div class="unit-num-badge">⏳</div>
+          <div>
+            <div class="unit-title">الوحدات قادمة قريباً</div>
+            <div class="unit-topics">سيتم إضافة وحدات واستقصاءات الفيزياء للصف العاشر فور توفر محتوى الكتاب المدرسي</div>
+            <div class="unit-pill">🔒 قريباً</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end g10-phys -->
+
+    <!-- ═══ BIOLOGY ═══ -->
+    <div id="g10-bio" class="g9-subject-panel" style="display:none">
+      <div class="panel-title">كتاب الأحياء — الصف العاشر</div>
+      <div class="panel-sub">المحتوى قيد الإعداد — سيتم إضافة الوحدات والاستقصاءات قريباً</div>
+      <div class="units-grid" style="margin-top:16px" id="grade10-bio-units">
+        <div class="unit-card" style="cursor:default;opacity:0.6" data-placeholder="1">
+          <div class="unit-num-badge">⏳</div>
+          <div>
+            <div class="unit-title">الوحدات قادمة قريباً</div>
+            <div class="unit-topics">سيتم إضافة وحدات واستقصاءات الأحياء للصف العاشر فور توفر محتوى الكتاب المدرسي</div>
+            <div class="unit-pill">🔒 قريباً</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end g10-bio -->
+
+  </div><!-- end panel-10 -->
 
   </div><!-- /content-area -->
 
