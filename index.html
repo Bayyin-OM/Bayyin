@@ -3792,15 +3792,67 @@
     <!-- ═══ CHEMISTRY ═══ -->
     <div id="g10-chem" class="g9-subject-panel">
       <div class="panel-title">كتاب الكيمياء — الصف العاشر</div>
-      <div class="panel-sub" id="panel10-sub">المحتوى قيد الإعداد — سيتم إضافة الوحدات والاستقصاءات قريباً — الفصل الدراسي الثاني</div>
+      <div class="panel-sub" id="panel10-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي الأول</div>
       <div class="units-grid" style="margin-top:16px" id="grade10-chem-units">
+
+        <div class="unit-card" onclick="openUnit('g10chem1', this)">
+          <div class="unit-num-badge c-gold">١</div>
+          <div>
+            <div class="unit-title">الفلزات وخصائصها</div>
+            <div class="unit-topics">الترابط الفلزي · العناصر الانتقالية والفلزات القلوية في الجدول الدوري · نشاط الفلزات وتفاعلات الإزاحة</div>
+            <div class="unit-pill avail">🔓 ٣ استقصاءات متاحة</div>
+          </div>
+        </div>
+
         <div class="unit-card" style="cursor:default;opacity:0.6" data-placeholder="1">
           <div class="unit-num-badge">⏳</div>
           <div>
-            <div class="unit-title">الوحدات قادمة قريباً</div>
-            <div class="unit-topics">سيتم إضافة وحدات واستقصاءات الكيمياء للصف العاشر فور توفر محتوى الكتاب المدرسي</div>
+            <div class="unit-title">باقي الوحدات قادمة قريباً</div>
+            <div class="unit-topics">سيتم إضافة استخلاص الفلزات، الكيمياء الكمية، والكيمياء العضوية تباعاً</div>
             <div class="unit-pill">🔒 قريباً</div>
           </div>
+        </div>
+
+      </div>
+
+      <!-- ══ sims: g10chem1 ══ -->
+      <div class="sims-wrap" id="sims-g10chem1" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة الأولى — الفلزات وخصائصها</div>
+          <div class="sims-count">٣ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g10chem1n1')">
+            <div class="sim-thumb t6">🔵</div>
+            <div class="sim-body">
+              <div class="sim-num">١-١ · الرابطة الفلزية</div>
+              <div class="sim-name">ماذا يحدث داخل الفلز؟</div>
+              <div class="sim-desc">شاهد حركة الإلكترونات الحرة بين الأيونات الموجبة واكتشف سرّ الرابطة الفلزية وتوصيل الفلزات للكهرباء</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g10chem1n2')">
+            <div class="sim-thumb t7">🧭</div>
+            <div class="sim-body">
+              <div class="sim-num">٢-١ / ٣-١ · الجدول الدوري</div>
+              <div class="sim-name">استكشف مجموعات الجدول الدوري</div>
+              <div class="sim-desc">اضغط على أي عنصر لتتظلّل مجموعته الكاملة وتتعرّف على الفلزات القلوية والعناصر الانتقالية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g10chem1n4')">
+            <div class="sim-thumb t5">🧪</div>
+            <div class="sim-body">
+              <div class="sim-num">٤-١ · نشاط الفلزات</div>
+              <div class="sim-name">من الفلز الأكثر نشاطاً؟</div>
+              <div class="sim-desc">أضف الخارصين إلى محلول كبريتات النحاس وراقب تفاعل الإزاحة يحدث أمامك خطوة بخطوة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
         </div>
       </div>
     </div><!-- end g10-chem -->
@@ -4148,6 +4200,7 @@
 
 <!-- Simulations: Grade 9 Chemistry (analysis units) + Interactive Whiteboard -->
 <script src="/js/sims/sims-grade9-chem.js"></script>
+<script src="/js/sims/sims-grade10-chem.js"></script>
 
 <!-- Core: Review mode engine -->
 <script src="/js/core/review-mode.js"></script>
