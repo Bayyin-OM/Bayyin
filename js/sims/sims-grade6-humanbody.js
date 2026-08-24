@@ -108,7 +108,7 @@ function g6bDrawLungPair(c, cx, cy, s, dark){
   c.beginPath(); c.moveTo(0,-30); c.lineTo(18,-14); c.stroke();
   c.restore();
 }
-function g6bDrawBrain(c, cx, cy, s, dark){
+function g6bDrawBrain(c, cx, cy, s, dark, withStem){
   c.save(); c.translate(cx,cy); c.scale(s,s);
   const grad = c.createRadialGradient(-10,-15,5,0,0,60);
   grad.addColorStop(0, dark?'#E8B4A8':'#F0BFAE'); grad.addColorStop(1, dark?'#C98C7E':'#D99C86');
@@ -134,6 +134,15 @@ function g6bDrawBrain(c, cx, cy, s, dark){
   c.beginPath(); c.ellipse(28,26,16,11,0.3,0,Math.PI*2); c.fill();
   c.strokeStyle='rgba(90,45,35,0.3)'; c.lineWidth=1;
   for(let i=-2;i<=2;i++){ c.beginPath(); c.moveTo(20+i*5,18); c.lineTo(24+i*5,34); c.stroke(); }
+  // جذع الدماغ (اختياري) — أنبوب يتّصل بالحبل الشوكي أسفل المخيخ
+  if(withStem){
+    c.fillStyle = dark?'#C9AFA0':'#D6BBAC';
+    c.beginPath();
+    c.moveTo(4,32); c.lineTo(16,32); c.lineTo(14,58); c.lineTo(6,58);
+    c.closePath(); c.fill();
+    c.strokeStyle='rgba(90,45,35,0.3)'; c.lineWidth=1;
+    c.beginPath(); c.roundRect(4,32,12,26,4); c.stroke();
+  }
   c.restore();
 }
 // ─── جسم بشري تخطيطي واقعي (رأس، كتفان، خصر، أرجل) ───
@@ -1042,7 +1051,8 @@ function simG6Body3b(){
 ════════════════════════════════════════ */
 function simG6Body4a(){
   cancelAnimationFrame(animFrame);
-  simState = { phase:'idle', p:0, particles:[] };
+  // diaphragm: 0 = مرتخٍ (قبّة مرتفعة، حالة الزفير) → 1 = منقبض (مسطّح وهابط، حالة الشهيق)
+  simState = { phase:'idle', p:0, particles:[], diaphragm:0, nextSpawn:0 };
   const S = simState;
 
   function renderControls(){
@@ -1050,7 +1060,7 @@ function simG6Body4a(){
       <div class="ctrl-section">
         <div class="ctrl-label">🫁 استقصاء: الرئتان والتنفس</div>
         <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">
-          اضغط "شهيق" لتشاهد الرئتين تتمددان ويدخل الأكسجين، ثم اضغط "زفير" لتشاهدهما تنكمشان ويخرج ثاني أكسيد الكربون.
+          اضغط "شهيق" لتشاهد الرئتين تتمددان ويدخل الأكسجين (🔵) ويهبط الحجاب الحاجز، ثم اضغط "زفير" لتشاهدهما تنكمشان ويخرج ثاني أكسيد الكربون (⚪) ويرتفع الحجاب الحاجز.
         </div>
       </div>
       <div style="display:flex;gap:8px">
@@ -1059,21 +1069,20 @@ function simG6Body4a(){
       </div>
       <div id="g6bBreathInfo" style="margin-top:12px;font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;border:1px solid rgba(93,173,226,0.25)">
         الرئتان في وضعهما الطبيعي. اضغط "شهيق" لتبدأ.
+      </div>
+      <div style="display:flex;gap:14px;margin-top:10px;font-size:12.5px;color:var(--text-secondary)">
+        <div>🔵 أكسجين (O₂)</div>
+        <div>⚪ ثاني أكسيد الكربون (CO₂)</div>
       </div>`;
   }
   controls(renderControls());
 
   window._g6bBreathe = function(dir){
-    S.phase = dir; S.p = 0; _g6bPlayClick();
+    S.phase = dir; S.p = 0.0001; S.nextSpawn = 0; _g6bPlayClick();
     const info = document.getElementById('g6bBreathInfo');
     if(info) info.innerHTML = dir==='in'
-      ? '🫁 <strong>الشهيق:</strong> الرئتان تتمددان ويزداد حجمهما، ويدخل الهواء المحمَّل بالأكسجين.'
-      : '💨 <strong>الزفير:</strong> الرئتان تنكمشان ويقلّ حجمهما، ويخرج الهواء المحمَّل بثاني أكسيد الكربون.';
-    if(dir==='in'){
-      for(let i=0;i<4;i++) S.particles.push({x:0.5+(Math.random()-0.5)*0.1, y:0.05, type:'O2', age:0});
-    } else {
-      for(let i=0;i<4;i++) S.particles.push({x:0.5+(Math.random()-0.5)*0.1, y:0.35, type:'CO2', age:0});
-    }
+      ? '🫁 <strong>الشهيق:</strong> الرئتان تتمددان ويزداد حجمهما، ويدخل الهواء المحمَّل بالأكسجين، ويهبط الحجاب الحاجز إلى الأسفل.'
+      : '💨 <strong>الزفير:</strong> الرئتان تنكمشان ويقلّ حجمهما، ويخرج الهواء المحمَّل بثاني أكسيد الكربون، ويرتفع الحجاب الحاجز إلى الأعلى.';
   };
 
   const cv = document.getElementById('simCanvas');
@@ -1082,26 +1091,70 @@ function simG6Body4a(){
     const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
     c.fillStyle = g6bBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle = g6bTxt(dark);
-    c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('١-٤ · الرئتان والتنفس', w/2, h*0.06);
+    c.font = `bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText('١-٤ · الرئتان والتنفس', w/2, h*0.045);
 
-    if(S.phase==='in' && S.p<1) S.p += 0.025;
-    if(S.phase==='out' && S.p<1) S.p += 0.025;
+    // سرعة أبطأ وأوضح من ذي قبل
+    if((S.phase==='in' || S.phase==='out') && S.p<1) S.p += 0.011;
     const scale = S.phase==='in' ? 1 + Math.min(1,S.p)*0.22 : S.phase==='out' ? 1.22 - Math.min(1,S.p)*0.22 : 1;
 
-    const cx = w*0.5, cy = h*0.32;
-    g6bDrawLungPair(c, cx, cy, scale*w*0.0016, dark);
+    // تحديث موضع الحجاب الحاجز: يهبط تدريجياً أثناء الشهيق، ويرتفع تدريجياً أثناء الزفير
+    if(S.phase==='in') S.diaphragm = Math.min(1, S.p);
+    else if(S.phase==='out') S.diaphragm = Math.max(0, 1-S.p);
 
+    // رُسمت الرئتان في منتصف الشاشة تقريباً حتى لا تتداخلا مع العنوان أعلاه
+    const cx = w*0.5, cy = h*0.40;
+    const s = scale*w*0.0016;
+    g6bDrawLungPair(c, cx, cy, s, dark);
+
+    // ─── الحجاب الحاجز أسفل الرئتين مباشرة ───
+    const diaY = cy + 78*s;                 // خط الأساس أسفل الرئتين
+    const domeH = (1-S.diaphragm) * 22*s;   // كلما زاد الانقباض (شهيق) قلّ الارتفاع القبابي
+    c.beginPath();
+    c.moveTo(cx - 78*s, diaY);
+    c.quadraticCurveTo(cx, diaY - domeH, cx + 78*s, diaY);
+    c.lineTo(cx + 78*s, diaY + 14*s);
+    c.lineTo(cx - 78*s, diaY + 14*s);
+    c.closePath();
+    const dg = c.createLinearGradient(0, diaY-domeH, 0, diaY+14*s);
+    dg.addColorStop(0, dark?'#C87B5A':'#D98F6C'); dg.addColorStop(1, dark?'#A85C3E':'#BC7350');
+    c.fillStyle = dg; c.fill();
+    c.strokeStyle = dark?'#8A4A30':'#9C5A3C'; c.lineWidth = 2; c.stroke();
+
+    c.fillStyle = g6bMut(dark); c.font=`bold ${Math.round(h*0.018)}px Tajawal`; c.textAlign='center'; c.textBaseline='top';
+    c.fillText('الحجاب الحاجز', cx, diaY + 18*s);
+    c.fillText(S.diaphragm>0.5 ? '⬇ يهبط أثناء الشهيق' : '⬆ يرتفع أثناء الزفير', cx, diaY + 18*s + h*0.028);
+
+    // ─── نقطة الدخول/الخروج خارج الجسم (أعلى القصبة الهوائية) ───
+    const outsideY = cy - 128*s;
+    c.fillStyle = g6bMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center'; c.textBaseline='bottom';
+    c.fillText('🌬️ الهواء خارج الجسم', cx, outsideY - 6);
+
+    // ─── إطلاق الجُسيمات بمعدّل منتظم وواضح (أكبر حجماً وأبطأ حركة) ───
+    if((S.phase==='in' || S.phase==='out') && S.p < 0.85){
+      S.nextSpawn -= 1;
+      if(S.nextSpawn <= 0){
+        S.nextSpawn = 14; // فاصل منتظم بين كل جسيم والآخر (بدل العشوائية)
+        const side = S.particles.length % 2 === 0 ? -1 : 1;
+        if(S.phase==='in'){
+          S.particles.push({ x: cx + side*18*s, y0: outsideY, y1: cy, type:'O2', age:0 });
+        } else {
+          S.particles.push({ x: cx + side*18*s, y0: cy, y1: outsideY, type:'CO2', age:0 });
+        }
+      }
+    }
     S.particles = S.particles.filter(p=>p.age<1);
     S.particles.forEach(p=>{
-      p.age += 0.02;
-      const py = p.type==='O2' ? p.y + p.age*(cy-p.y) : p.y - p.age*0.3;
-      c.fillStyle = p.type==='O2' ? '#3B82F6' : '#94A3B8';
-      c.globalAlpha = 1-p.age;
-      c.beginPath(); c.arc(p.x*w, py*h, w*0.018, 0, Math.PI*2); c.fill();
+      p.age += 0.0085; // أبطأ بكثير من السابق (0.02)
+      const py = p.y0 + (p.y1-p.y0)*p.age;
+      const r = w*0.026; // أكبر بكثير من السابق (0.018)
+      c.globalAlpha = p.age<0.85 ? 1 : (1-p.age)/0.15;
+      c.fillStyle = p.type==='O2' ? '#3B82F6' : '#9AA5B1';
+      c.beginPath(); c.arc(p.x, py, r, 0, Math.PI*2); c.fill();
+      c.strokeStyle = 'rgba(255,255,255,0.6)'; c.lineWidth=1.5; c.stroke();
       c.globalAlpha=1;
-      c.fillStyle='white'; c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(p.type==='O2'?'O₂':'CO₂', p.x*w, py*h);
+      c.fillStyle='white'; c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(p.type==='O2'?'O₂':'CO₂', p.x, py);
     });
     c.textBaseline='alphabetic';
 
@@ -1194,10 +1247,21 @@ function simG6Body4b(){
     c.fillText('١-٤ · وصّل ونظّف الدم', w/2, h*0.06);
 
     Object.entries(zones).forEach(([k,z])=>{
-      c.strokeStyle = k==='blood' ? '#E74C3C' : '#5DADE2'; c.lineWidth=2; c.setLineDash([6,5]);
+      const isBlood = k==='blood';
+      c.strokeStyle = isBlood ? '#E74C3C' : '#5DADE2'; c.lineWidth=2.5; c.setLineDash([6,5]);
       c.beginPath(); c.arc(z.x*w, z.y*h, w*0.1, 0, Math.PI*2); c.stroke(); c.setLineDash([]);
-      c.fillStyle = g6bMut(dark); c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
-      c.fillText(k==='blood'?'🩸 الدم':'🌬️ خارج الجسم', z.x*w, z.y*h + w*0.135);
+      c.fillStyle = isBlood ? 'rgba(231,76,60,0.10)' : 'rgba(93,173,226,0.10)';
+      c.beginPath(); c.arc(z.x*w, z.y*h, w*0.1, 0, Math.PI*2); c.fill();
+      // عنوان واضح فوق كل دائرة داخل شارة (pill) بلون مميّز
+      const label = isBlood ? '🩸 دم' : '🌬️ خارج الجسم';
+      c.font = `bold ${Math.round(h*0.024)}px Tajawal`;
+      const tw = c.measureText(label).width;
+      const py = z.y*h + w*0.135;
+      c.fillStyle = isBlood ? '#E74C3C' : '#3498DB';
+      c.beginPath(); c.roundRect(z.x*w - tw/2 - 12, py - h*0.022, tw+24, h*0.044, 999); c.fill();
+      c.fillStyle = '#FFFFFF'; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(label, z.x*w, py + 1);
+      c.textBaseline='alphabetic';
     });
 
     S.items.forEach(it=>{
@@ -1308,21 +1372,25 @@ function simG6Body5a(){
 ════════════════════════════════════════ */
 function simG6Body5b(){
   cancelAnimationFrame(animFrame);
+  // ٥ خطوات رحلة هضم الطعام بالترتيب الوارد في الكتاب (ص٢٧)، وليست أعضاءً فقط
   const STEPS = [
-    { id:0, text:'الفم' }, { id:1, text:'المريء' }, { id:2, text:'المعدة' },
-    { id:3, text:'الأمعاء الدقيقة' }, { id:4, text:'الأمعاء الغليظة' },
+    { id:0, text:'تمضغ الأسنان الطعام وتفتّته إلى قطع صغيرة يمكن ابتلاعها' },
+    { id:1, text:'يُدفع الطعام عبر أنبوب يسمّى المريء إلى المعدة' },
+    { id:2, text:'يمتزج الطعام داخل المعدة بالعصارة الهضمية ليتحوّل إلى سائل سميك' },
+    { id:3, text:'تُفتِّت الأمعاء الطعام إلى جزيئات أصغر حتى يمكن نقله عبر الدّم' },
+    { id:4, text:'يتخلّص الجسم من بقايا الطعام غير المهضوم في صورة براز' },
   ];
   simState = { chips:[], slots:[null,null,null,null,null], dragId:null, done:false };
   const S = simState;
   const shuffled = [...STEPS].sort(()=>Math.random()-0.5);
-  const trayPos = [ {x:0.19,y:0.85}, {x:0.5,y:0.85}, {x:0.81,y:0.85}, {x:0.34,y:0.955}, {x:0.66,y:0.955} ];
-  shuffled.forEach((s,i)=>{ S.chips.push({ id:s.id, text:s.text, x:trayPos[i].x, y:trayPos[i].y, inSlot:-1 }); });
+  const trayPos = [ {x:0.18,y:0.62}, {x:0.5,y:0.62}, {x:0.82,y:0.62}, {x:0.335,y:0.86}, {x:0.665,y:0.86} ];
+  shuffled.forEach((s,i)=>{ S.chips.push({ id:s.id, text:s.text, x:trayPos[i].x, y:trayPos[i].y, trayIdx:i, inSlot:-1 }); });
 
   function renderControls(){
     return `
       <div class="ctrl-section">
-        <div class="ctrl-label">🔀 رتّب أعضاء الجهاز الهضمي</div>
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">اسحب كل بطاقة إلى مكانها الصحيح بترتيب رحلة الطعام، ثم اضغط "تحقّق".</div>
+        <div class="ctrl-label">🔀 رتّب خطوات هضم الطعام</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">اسحب كل بطاقة (خطوة) إلى مكانها الصحيح بترتيب حدوثها أثناء هضم الطعام، ثم اضغط "تحقّق".</div>
       </div>
       <button class="ctrl-btn play" onclick="window._g6bCheck5()">✅ تحقّق من الترتيب</button>
       <div id="g6bOrderFeedback5" style="margin-top:12px;font-size:13px;line-height:1.9;color:var(--text-secondary)"></div>`;
@@ -1335,10 +1403,16 @@ function simG6Body5b(){
     const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
     return { x:(t.clientX-rect.left)/cv.offsetWidth, y:(t.clientY-rect.top)/cv.offsetHeight };
   }
-  const slotPos = [ {x:0.5,y:0.09}, {x:0.5,y:0.24}, {x:0.5,y:0.39}, {x:0.5,y:0.54}, {x:0.5,y:0.69} ];
+  const slotPos = [ {x:0.5,y:0.085}, {x:0.5,y:0.165}, {x:0.5,y:0.245}, {x:0.5,y:0.325}, {x:0.5,y:0.405} ];
   function findChipAt(x,y){
-    for(let i=S.chips.length-1;i>=0;i--){ const ch=S.chips[i]; if(Math.abs(x-ch.x)<0.14 && Math.abs(y-ch.y)<0.055) return ch; }
+    for(let i=S.chips.length-1;i>=0;i--){ const ch=S.chips[i]; if(ch.inSlot>=0) continue; if(Math.abs(x-ch.x)<0.155 && Math.abs(y-ch.y)<0.105) return ch; }
     return null;
+  }
+  function fitText(c, text, maxW){
+    if(c.measureText(text).width <= maxW) return text;
+    let t = text;
+    while(t.length>1 && c.measureText(t+'…').width > maxW) t = t.slice(0,-1);
+    return t+'…';
   }
   function onDown(e){ const p=relPos(e); const ch=findChipAt(p.x,p.y); if(ch) S.dragId=ch.id; }
   function onMove(e){ if(S.dragId==null) return; const p=relPos(e); const ch=S.chips.find(c=>c.id===S.dragId); if(ch){ch.x=p.x;ch.y=p.y;} }
@@ -1347,7 +1421,7 @@ function simG6Body5b(){
     const ch = S.chips.find(c=>c.id===S.dragId);
     let placed = false;
     for(let i=0;i<5;i++){
-      if(Math.abs(ch.x-slotPos[i].x)<0.22 && Math.abs(ch.y-slotPos[i].y)<0.06){
+      if(Math.abs(ch.x-slotPos[i].x)<0.46 && Math.abs(ch.y-slotPos[i].y)<0.05){
         if(S.slots[i]==null || S.slots[i]===ch.id){
           if(ch.inSlot>=0) S.slots[ch.inSlot]=null;
           S.slots[i]=ch.id; ch.inSlot=i; ch.x=slotPos[i].x; ch.y=slotPos[i].y;
@@ -1356,7 +1430,8 @@ function simG6Body5b(){
         break;
       }
     }
-    if(!placed && ch.inSlot>=0){ ch.x=slotPos[ch.inSlot].x; ch.y=slotPos[ch.inSlot].y; }
+    if(!placed && ch.inSlot>=0){ ch.x=trayPos[ch.trayIdx].x; ch.y=trayPos[ch.trayIdx].y; S.slots[ch.inSlot]=null; ch.inSlot=-1; }
+    else if(!placed){ ch.x=trayPos[ch.trayIdx].x; ch.y=trayPos[ch.trayIdx].y; }
     S.dragId = null;
   }
   cv.onmousedown=onDown; cv.onmousemove=onMove; cv.onmouseup=onUp; cv.onmouseleave=onUp;
@@ -1375,7 +1450,7 @@ function simG6Body5b(){
       if(fb) fb.innerHTML = `
         <div style="padding:12px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
           <div style="font-weight:700;color:#16A34A;margin-bottom:6px">🎉 صحيح! ماذا تعلّمت؟</div>
-          <div style="color:var(--text-secondary);line-height:1.8">يمرّ الطعام بترتيب محدّد: الفم، ثم المريء، ثم المعدة، ثم الأمعاء الدقيقة، وأخيراً الأمعاء الغليظة — وكل عضو له دور مختلف في هذه الرحلة.</div>
+          <div style="color:var(--text-secondary);line-height:1.8">يمرّ الطعام برحلة هضم مرتّبة: تمضغه الأسنان أولاً، ثم يمرّ عبر المريء إلى المعدة، فيمتزج بعصارتها، ثم تُفتِّته الأمعاء إلى جزيئات صغيرة تنتقل إلى الدّم، وأخيراً يتخلّص الجسم من بقاياه غير المهضومة.</div>
         </div>`;
     } else {
       if(fb) fb.innerHTML = '❌ الترتيب غير صحيح — حاول مرة أخرى.';
@@ -1387,29 +1462,39 @@ function simG6Body5b(){
     const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
     c.fillStyle = g6bBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle = g6bTxt(dark);
-    c.font = `bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
-    c.fillText('١-٥ · رتّب الجهاز الهضمي', w/2, h*0.04);
+    c.font = `bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('١-٥ · رتّب خطوات هضم الطعام', w/2, h*0.035);
 
+    // ─── خمس خانات مرقّمة مدمجة أعلى الشاشة ───
     slotPos.forEach((sp,i)=>{
-      c.strokeStyle = S.slots[i]!=null ? '#27AE60' : (dark?'rgba(230,220,200,0.4)':'rgba(50,60,75,0.35)');
-      c.lineWidth=2; c.setLineDash(S.slots[i]==null?[6,5]:[]);
-      c.beginPath(); c.roundRect(sp.x*w-w*0.19, sp.y*h-h*0.035, w*0.38, h*0.07, 10); c.stroke(); c.setLineDash([]);
-      if(S.slots[i]==null){
-        c.fillStyle = g6bMut(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+      const filled = S.slots[i]!=null;
+      c.strokeStyle = filled ? '#27AE60' : (dark?'rgba(230,220,200,0.4)':'rgba(50,60,75,0.35)');
+      c.lineWidth=2; c.setLineDash(filled?[]:[6,5]);
+      c.beginPath(); c.roundRect(sp.x*w-w*0.47, sp.y*h-h*0.032, w*0.94, h*0.064, 9); c.stroke(); c.setLineDash([]);
+      c.font = `bold ${Math.round(h*0.019)}px Tajawal`;
+      if(filled){
+        const ch = S.chips.find(x=>x.id===S.slots[i]);
+        c.fillStyle = dark?'#DCEFDA':'#1E5A32'; c.textAlign='center';
+        c.fillText(fitText(c, `${i+1}) ${ch.text}`, w*0.88), sp.x*w, sp.y*h+h*0.007);
+      } else {
+        c.fillStyle = g6bMut(dark); c.textAlign='center';
         c.fillText(`الخطوة ${i+1}`, sp.x*w, sp.y*h+h*0.007);
       }
     });
+
+    // ─── بطاقات الخطوات غير المرتَّبة بعد (أكبر حجماً وبنص كامل ملتفّ) ───
     S.chips.forEach(ch=>{
+      if(ch.inSlot>=0) return; // تُعرض الآن داخل الخانة أعلاه فقط
       const dragging = S.dragId===ch.id;
-      const cw=w*0.29*(dragging?1.05:1), chh=h*0.075*(dragging?1.08:1);
+      const cw=w*0.30*(dragging?1.06:1), chh=h*0.185*(dragging?1.06:1);
       c.save();
-      if(dragging){ c.shadowColor='rgba(0,0,0,0.32)'; c.shadowBlur=12; }
-      c.fillStyle = ch.inSlot>=0 ? '#FEF3C7' : (dark?'#2A2F3A':'#FFF');
-      c.strokeStyle = ch.inSlot>=0 ? '#F5B041' : (dragging?'#27AE60':'#94A3B8'); c.lineWidth=dragging?3:2;
+      if(dragging){ c.shadowColor='rgba(0,0,0,0.32)'; c.shadowBlur=14; }
+      c.fillStyle = dark?'#2A2F3A':'#FFF';
+      c.strokeStyle = dragging?'#27AE60':'#94A3B8'; c.lineWidth=dragging?3:2;
       c.beginPath(); c.roundRect(ch.x*w-cw/2, ch.y*h-chh/2, cw, chh, 10); c.fill(); c.stroke();
       c.restore();
-      c.fillStyle = dark?'#1A2530':'#2C3A4A'; c.font=`${Math.round(h*0.019)}px Tajawal`;
-      c.textAlign='center'; c.textBaseline='middle'; g6bWrapText(c, ch.text, ch.x*w, ch.y*h, cw*0.85, h*0.025);
+      c.fillStyle = dark?'#1A2530':'#2C3A4A'; c.font=`${Math.round(h*0.0145)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle'; g6bWrapText(c, ch.text, ch.x*w, ch.y*h, cw*0.86, h*0.021);
     });
     c.textBaseline='alphabetic';
     animFrame = requestAnimationFrame(draw);
@@ -1468,31 +1553,45 @@ function simG6Body6a(){
     c.fillStyle = g6bMut(dark); c.font=`${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
     c.fillText('الكليتان', w/2, h*0.62);
 
-    if(S.running && Math.random()<0.06){
-      const types = ['💧','🧂','🗑️'];
-      S.particles.push({ type: types[Math.floor(Math.random()*3)], age:0, side: Math.random()<0.5?-1:1 });
+    if(S.running){
+      S.spawnTimer = (S.spawnTimer||0) - 1;
+      if(S.spawnTimer<=0){
+        S.spawnTimer = 55; // فاصل منتظم وواضح بين كل جسيم والآخر (بدل الاحتمال العشوائي)
+        const seq = ['💧','🧂','🗑️','💧','🧂'];
+        const type = seq[(S.spawnCount=(S.spawnCount||0)+1) % seq.length];
+        S.particles.push({ type, age:0, side: (S.spawnCount%2===0) ? -1 : 1 });
+      }
     }
     S.particles = S.particles.filter(p=>p.age<1);
     S.particles.forEach(p=>{
-      p.age += 0.015;
-      const startY = h*0.14, midY = h*0.42;
+      p.age += 0.0055; // أبطأ بكثير (كانت 0.015) ليلاحظ الطالب الحركة بوضوح
+      const startY = h*0.16, midY = h*0.42;
       let x, y;
-      if(p.age < 0.5){
-        x = w*0.5 + p.side*w*0.09*(p.age*2);
-        y = startY + (midY-startY)*(p.age*2);
+      if(p.age < 0.45){
+        const t = p.age/0.45;
+        x = w*0.5 + p.side*w*0.10*t;
+        y = startY + (midY-startY)*t;
       } else {
         const goingBack = p.type !== '🗑️';
-        x = w*0.5 + p.side*w*0.09 + (goingBack ? -p.side*w*0.22 : 0)*((p.age-0.5)*2);
-        y = midY + (goingBack ? -h*0.05 : h*0.28)*((p.age-0.5)*2);
+        const t = (p.age-0.45)/0.55;
+        x = w*0.5 + p.side*w*0.10 + (goingBack ? -p.side*w*0.24 : p.side*w*0.02)*t;
+        y = midY + (goingBack ? -h*0.06 : h*0.30)*t;
       }
-      c.font = `${Math.round(h*0.03)}px serif`; c.textAlign='center';
+      c.globalAlpha = p.age>0.9 ? (1-p.age)/0.1 : 1;
+      c.font = `${Math.round(h*0.05)}px serif`; c.textAlign='center'; c.textBaseline='middle'; // أكبر بكثير (كانت 0.03)
       c.fillText(p.type, x, y);
+      c.globalAlpha = 1;
     });
+    c.textBaseline='alphabetic';
 
-    c.fillStyle = g6bTxt(dark); c.font=`bold ${Math.round(h*0.024)}px Tajawal`;
-    c.fillText('🩸 الدم', w/2, h*0.11);
-    c.fillText('💧🧂 يعود للدم', w*0.5-w*0.28, h*0.32);
-    c.fillText('🚽 بول', w/2, h*0.9);
+    c.fillStyle = g6bTxt(dark); c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+    c.fillText('🩸 الدم يدخل', w/2, h*0.115);
+    c.fillStyle = '#3B82F6'; c.font=`bold ${Math.round(h*0.02)}px Tajawal`;
+    c.fillText('💧🧂 الماء والمواد المفيدة تعود إلى الدم', w*0.5, h*0.255);
+    c.fillStyle = '#94A3B8';
+    c.fillText('🗑️ الفضلات تخرج للخارج', w*0.5, h*0.76);
+    c.fillStyle = g6bTxt(dark);
+    c.fillText('🚽 بول', w/2, h*0.92);
 
     animFrame = requestAnimationFrame(draw);
   }
@@ -1628,9 +1727,9 @@ function simG6Body6b(){
 function simG6Body7a(){
   cancelAnimationFrame(animFrame);
   const SCENES = [
-    { id:'hot', label:'🔥 لمس شيء ساخن', sense:'الجلد', signal:'إشارة الألم', action:'سحب اليد بسرعة!' },
-    { id:'ball', label:'⚽ رؤية كرة', sense:'العين', signal:'إشارة الرؤية', action:'التقاط الكرة أو تجنّبها!' },
-    { id:'sound', label:'🔊 سماع صوت', sense:'الأذن', signal:'إشارة السمع', action:'الالتفات نحو الصوت!' },
+    { id:'hot',   label:'🔥 لمس شيء ساخن', sense:'الجلد', pos:'hand', signal:'🔵 إشارة الألم تنتقل من الجلد إلى الدماغ', action:'🟠 أمر من الدماغ: سحب اليد بسرعة!' },
+    { id:'ball',  label:'⚽ رؤية كرة قادمة', sense:'العين', pos:'eye', signal:'🔵 إشارة الرؤية تنتقل من العين إلى الدماغ', action:'🟠 أمر من الدماغ: مدّ اليد لالتقاط الكرة!' },
+    { id:'sound', label:'🔊 سماع صوت مرتفع', sense:'الأذن', pos:'ear', signal:'🔵 إشارة السمع تنتقل من الأذن إلى الدماغ', action:'🟠 أمر من الدماغ: الإشارة بيدك نحو مصدر الصوت!' },
   ];
   simState = { scene:null, p:0 };
   const S = simState;
@@ -1639,13 +1738,13 @@ function simG6Body7a(){
     return `
       <div class="ctrl-section">
         <div class="ctrl-label">🧠 استقصاء: كيف يعمل الدماغ؟</div>
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">اختر موقفاً وشاهد كيف تنتقل الإشارة من الحاسة إلى الدماغ، ثم يعود الأمر إلى العضلات.</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">اختر موقفاً، وشاهد اتجاه الأسهم: الحاسة ⟶ الدماغ (أزرق)، ثم الدماغ ⟶ العضلة (برتقالي).</div>
       </div>
       <div style="display:flex;flex-direction:column;gap:8px">
         ${SCENES.map(s=>`<button onclick="window._g6bScene('${s.id}')" style="padding:12px;border-radius:9px;border:2px solid ${S.scene===s.id?'#27AE60':'#ddd'};background:${S.scene===s.id?'#27AE60':'var(--bg-ctrl-btn)'};color:${S.scene===s.id?'white':'var(--text-secondary)'};font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer">${s.label}</button>`).join('')}
       </div>
       <div id="g6bBrainInfo" style="margin-top:12px;font-size:13px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;border:1px solid rgba(244,166,160,0.3);min-height:40px">
-        اختر موقفاً لتشاهد رحلة الإشارة العصبية.
+        اختر موقفاً لتشاهد رحلة الإشارة العصبية خطوة بخطوة.
       </div>`;
   }
   controls(renderControls());
@@ -1653,7 +1752,28 @@ function simG6Body7a(){
   window._g6bScene = function(id){
     S.scene = id; S.p = 0.0001; _g6bPlayClick();
     controls(renderControls());
+    const info = document.getElementById('g6bBrainInfo');
+    if(info) info.innerHTML = 'شاهد السهم الأزرق: الإشارة تنتقل أولاً من الحاسة إلى الدماغ.';
   };
+
+  function drawArrow(c, x1, y1, x2, y2, color, dashed){
+    c.save();
+    c.strokeStyle = color; c.fillStyle = color; c.lineWidth = 3;
+    if(dashed) c.setLineDash([6,5]);
+    const ang = Math.atan2(y2-y1, x2-x1);
+    const headLen = 12;
+    // خط السهم يتوقف قبل الرأس مباشرة حتى لا يتقاطع مع رأس السهم
+    const ex = x2 - Math.cos(ang)*headLen*0.9, ey = y2 - Math.sin(ang)*headLen*0.9;
+    c.beginPath(); c.moveTo(x1,y1); c.lineTo(ex,ey); c.stroke();
+    c.setLineDash([]);
+    // رأس السهم يشير دوماً نحو الوجهة (x2,y2) — لا يمكن أن يكون معكوساً
+    c.beginPath();
+    c.moveTo(x2,y2);
+    c.lineTo(x2 - headLen*Math.cos(ang-Math.PI/7), y2 - headLen*Math.sin(ang-Math.PI/7));
+    c.lineTo(x2 - headLen*Math.cos(ang+Math.PI/7), y2 - headLen*Math.sin(ang+Math.PI/7));
+    c.closePath(); c.fill();
+    c.restore();
+  }
 
   const cv = document.getElementById('simCanvas');
   function draw(){
@@ -1661,61 +1781,54 @@ function simG6Body7a(){
     const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
     c.fillStyle = g6bBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle = g6bTxt(dark);
-    c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('١-٧ · ما وظيفة الدماغ؟', w/2, h*0.06);
+    c.font = `bold ${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.fillText('١-٧ · كيف يعمل الدماغ؟', w/2, h*0.035);
 
-    const bx=w*0.5, by=h*0.14, bw=w*0.22, bh=h*0.7;
+    const bx=w*0.5, by=h*0.11, bw=w*0.22, bh=h*0.7;
     g6bDrawBodyOutline(c, bx, by, bw, bh, dark);
-    const headX=bx, headY=by+bh*0.07, handX=bx+bw*0.36, handY=by+bh*0.52, eyeX=bx-bw*0.06, eyeY=by+bh*0.06;
+    const headX=bx, headY=by+bh*0.07, handX=bx+bw*0.36, handY=by+bh*0.52,
+          eyeX=bx-bw*0.06, eyeY=by+bh*0.055, earX=bx-bw*0.20, earY=by+bh*0.09;
 
-    // الدماغ داخل الرأس
     g6bDrawBrain(c, headX, headY, bw*0.0026, dark);
-
-    const sceneMeta = { hot:{iconPos:'hand',icon:'🔥'}, ball:{iconPos:'eye',icon:'⚽'}, sound:{iconPos:'ear',icon:'🔊'} };
-    const meta = S.scene ? sceneMeta[S.scene] : null;
-
-    // نقطة الحاسة (تتغيّر حسب الموقف)
-    const sensePt = meta && meta.iconPos==='hand' ? {x:handX,y:handY} : {x:eyeX,y:eyeY};
-    if(meta){
-      c.font = `${Math.round(bh*0.06)}px serif`; c.textAlign='center';
-      c.fillText(meta.icon, sensePt.x + bw*0.16, sensePt.y - bh*0.03);
-    }
-
-    // توهّج العضلة (اليد) عند رد الفعل
-    if(S.scene && S.p>=0.5){
-      const glowA = Math.min(1,(S.p-0.5)*2);
-      c.save(); c.globalAlpha = glowA*0.6;
-      const gg = c.createRadialGradient(handX,handY,2,handX,handY,bw*0.22);
-      gg.addColorStop(0,'#F39C12'); gg.addColorStop(1,'rgba(243,156,18,0)');
-      c.fillStyle = gg; c.beginPath(); c.arc(handX,handY,bw*0.22,0,Math.PI*2); c.fill();
-      c.restore();
-    }
-    // توهّج الدماغ عند وصول الإشارة
-    if(S.scene && S.p>=0.03 && S.p<0.55){
-      c.save(); c.globalAlpha = 0.35;
-      const gg = c.createRadialGradient(headX,headY,2,headX,headY,bw*0.22);
-      gg.addColorStop(0,'#F4A6A0'); gg.addColorStop(1,'rgba(244,166,160,0)');
-      c.fillStyle = gg; c.beginPath(); c.arc(headX,headY,bw*0.22,0,Math.PI*2); c.fill();
-      c.restore();
-    }
-
-    c.fillStyle = g6bMut(dark); c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
-    c.fillText('🧠 الدماغ', headX, headY - bh*0.13);
+    c.fillStyle = g6bMut(dark); c.font=`${Math.round(h*0.018)}px Tajawal`; c.textAlign='center';
+    c.fillText('🧠 الدماغ', headX, headY - bh*0.14);
     c.fillText('💪 العضلة', handX + bw*0.02, handY + bh*0.09);
 
-    if(S.scene){
-      const sc = SCENES.find(s=>s.id===S.scene);
-      if(S.p<1) S.p += 0.012;
-      let dotX, dotY, label;
-      if(S.p < 0.5){ dotX = sensePt.x + (headX-sensePt.x)*(S.p*2); dotY = sensePt.y + (headY-sensePt.y)*(S.p*2); label = sc.signal; }
-      else { dotX = headX + (handX-headX)*((S.p-0.5)*2); dotY = headY + (handY-headY)*((S.p-0.5)*2); label = sc.action; }
-      c.fillStyle = '#F39C12';
-      c.beginPath(); c.arc(dotX,dotY,w*0.012,0,Math.PI*2); c.fill();
-      c.fillStyle = g6bTxt(dark); c.font=`bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
-      c.fillText(label, w/2, h*0.93);
+    const posMap = { hand:{x:handX,y:handY}, eye:{x:eyeX,y:eyeY}, ear:{x:earX,y:earY} };
+    const sc = S.scene ? SCENES.find(s=>s.id===S.scene) : null;
+
+    if(sc){
+      const sensePt = posMap[sc.pos];
+      c.font = `${Math.round(bh*0.05)}px serif`; c.textAlign='center';
+      c.fillText(sc.label.split(' ')[0], sensePt.x + bw*0.16, sensePt.y - bh*0.02);
+
+      // ─── سهمان دائمان واضحا الاتجاه: حاسة⟶دماغ (أزرق)، دماغ⟶عضلة (برتقالي) ───
+      drawArrow(c, sensePt.x, sensePt.y, headX, headY - bh*0.02, '#3B82F6', true);
+      drawArrow(c, headX, headY + bh*0.02, handX, handY, '#F39C12', true);
+
+      if(S.p<1) S.p += 0.01;
+      // نقطة متوهّجة تتحرّك فوق مسار السهم النشط لتعزيز الإحساس بالحركة
+      let dotX, dotY;
+      if(S.p < 0.5){ const t=S.p*2; dotX = sensePt.x + (headX-sensePt.x)*t; dotY = sensePt.y + (headY-sensePt.y)*t; }
+      else { const t=(S.p-0.5)*2; dotX = headX + (handX-headX)*t; dotY = headY + (handY-headY)*t; }
+      c.save(); c.shadowBlur=10; c.shadowColor = S.p<0.5 ? '#3B82F6' : '#F39C12';
+      c.fillStyle = S.p<0.5 ? '#3B82F6' : '#F39C12';
+      c.beginPath(); c.arc(dotX,dotY,w*0.014,0,Math.PI*2); c.fill();
+      c.restore();
+
+      c.fillStyle = g6bTxt(dark); c.font=`bold ${Math.round(h*0.023)}px Tajawal`; c.textAlign='center';
+      c.fillText(S.p<0.5 ? sc.signal : sc.action, w/2, h*0.93);
       if(S.p>=1){
-        c.font=`${Math.round(h*0.024)}px Tajawal`; c.fillStyle=g6bMut(dark);
-        c.fillText(`${sc.sense} → الدماغ → العضلات`, w/2, h*0.85);
+        c.font=`bold ${Math.round(h*0.022)}px Tajawal`; c.fillStyle='#27AE60';
+        c.fillText(`${sc.sense} ⟶ الدماغ ⟶ العضلة`, w/2, h*0.85);
+        const info = document.getElementById('g6bBrainInfo');
+        if(info && !info.dataset.done){
+          info.dataset.done='1';
+          info.innerHTML = `✅ الآن السهم البرتقالي: يرسل الدماغ أمراً إلى العضلة لتتحرّك استجابةً — الدماغ هو مركز التحكم الذي يستقبل الإشارات ويفسّرها ثم يصدر الأوامر.`;
+        }
+      } else {
+        const info = document.getElementById('g6bBrainInfo');
+        if(info) info.dataset.done='';
       }
     }
 
@@ -1726,28 +1839,40 @@ function simG6Body7a(){
 
 /* ════════════════════════════════════════
    الدرس ٧ · التاب ٢ — نشاط: من المسؤول؟
+   (دماغ بمواقع مرقّمة + وظائف متناثرة تُسحب لمكانها الصحيح)
 ════════════════════════════════════════ */
 function simG6Body7b(){
   cancelAnimationFrame(animFrame);
-  const PAIRS = [
-    { id:0, sense:'👁️ العين',  fn:'الرؤية' },
-    { id:1, sense:'👂 الأذن',  fn:'السمع' },
-    { id:2, sense:'✋ الجلد',  fn:'اللمس' },
-    { id:3, sense:'👃 الأنف',  fn:'الشمّ' },
-    { id:4, sense:'👅 اللسان', fn:'التذوّق' },
+  // مواقع محلّية داخل نظام إحداثيات g6bDrawBrain نفسه (قبل التحجيم)
+  const ZONES = [
+    { id:1, lx:26,  ly:-32, fn:'يتحكم في الكلام ويمكّنك من التحدث' },
+    { id:2, lx:0,   ly:-46, fn:'يرسل رسائل عصبية إلى العضلات لجعلها تتحرّك' },
+    { id:3, lx:-34, ly:-22, fn:'يعطي معنى للرسائل العصبية الواردة من الأذن ويخبرك بما تسمعه' },
+    { id:4, lx:-44, ly:10,  fn:'يغيّر الرسائل العصبية الواردة من العينين ليحوّلها إلى الصور التي تراها' },
+    { id:5, lx:28,  ly:26,  fn:'المخيخ: يتحكم في التوازن' },
+    { id:6, lx:10,  ly:45,  fn:'جذع الدماغ: يتحكم في الأشياء التي تحدث تلقائياً بدون تفكير، مثل التنفس ودقات القلب وطرفة العين والعطس' },
   ];
-  const fns = [...PAIRS].sort(()=>Math.random()-0.5);
-  simState = { selSense:null, selFn:null, matched:[], flashOk:false, flashT:0 };
+  const trayPos = [ {x:0.17,y:0.66}, {x:0.5,y:0.66}, {x:0.83,y:0.66}, {x:0.17,y:0.90}, {x:0.5,y:0.90}, {x:0.83,y:0.90} ];
+  const shuffled = [...ZONES].sort(()=>Math.random()-0.5);
+  simState = { chips: shuffled.map((z,i)=>({ zoneId:z.id, text:z.fn, x:trayPos[i].x, y:trayPos[i].y, trayIdx:i, matched:false })),
+               dragId:null, matchedList:[], flashZone:null, flashOk:false, flashT:0 };
   const S = simState;
 
   function renderControls(){
     return `
       <div class="ctrl-section">
         <div class="ctrl-label">🎯 من المسؤول؟</div>
-        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">اضغط الحاسة من العمود الأيمن، ثم اضغط الوظيفة التي يتحكم بها الدماغ من خلالها من العمود الأيسر — في الشاشة المقابلة.</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;margin-bottom:10px">كل رقم على الدماغ يمثّل موقعاً مختلفاً. اسحب كل بطاقة وظيفة إلى الرقم الذي يقوم بها.</div>
       </div>
-      <div id="g6bBrainMatchFb" style="font-size:13px;line-height:1.9;color:var(--text-secondary)"></div>
-      <div style="margin-top:10px;font-weight:700;color:#27AE60">التقدّم: ${S.matched.length} / ${PAIRS.length}</div>`;
+      <div style="font-weight:700;color:#27AE60">التقدّم: ${S.matchedList.length} / ${ZONES.length}</div>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+        ${S.matchedList.map(m=>`<div style="font-size:12.5px;line-height:1.7;background:var(--bg-card2);border-radius:8px;padding:8px 10px;border:1px solid rgba(39,174,96,0.25)"><b style="color:#27AE60">${m.id})</b> ${m.text}</div>`).join('')}
+      </div>
+      ${S.matchedList.length===ZONES.length ? `
+        <div style="margin-top:12px;padding:12px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
+          <div style="font-weight:700;color:#16A34A;margin-bottom:6px">🎉 أحسنت! ماذا تعلّمت؟</div>
+          <div style="color:var(--text-secondary);line-height:1.8">لكلِّ جزء من أجزاء الدماغ المختلفة وظيفةٌ مختلفة: المخّ يتحكم في الكلام والحركة وتفسير إشارات الحواس، والمخيخ يتحكم في التوازن، وجذع الدماغ يتحكم في الأشياء التلقائية كالتنفس ودقات القلب.</div>
+        </div>` : ''}`;
   }
   controls(renderControls());
 
@@ -1757,101 +1882,92 @@ function simG6Body7b(){
     const t = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
     return { x:(t.clientX-rect.left)/cv.offsetWidth, y:(t.clientY-rect.top)/cv.offsetHeight };
   }
-  function senseRect(i){ return { x:0.75, y:0.16+i*0.155, w:0.42, h:0.12 }; }
-  function fnRect(i){ return { x:0.25, y:0.16+i*0.155, w:0.34, h:0.12 }; }
-  function hit(r,x,y){ return Math.abs(x-r.x)<r.w/2 && Math.abs(y-r.y)<r.h/2; }
+  // إحداثيات الدماغ على الشاشة (يجب أن تُحدَّث بنفس القيم في draw())
+  const brainCx = 0.5, brainCy = 0.34, brainS = 0.0052;
 
-  function tryMatch(){
-    if(S.selSense==null || S.selFn==null) return;
-    const ok = S.selSense === S.selFn;
-    _g6bPlayChime(ok);
-    S.flashOk = ok; S.flashT = 1;
-    const fb = document.getElementById('g6bBrainMatchFb');
-    if(fb) fb.innerHTML = ok ? '✅ تطابق صحيح!' : '❌ غير مطابق — حاول مرة أخرى.';
-    setTimeout(()=>{
-      if(ok) S.matched.push(S.selSense);
-      S.selSense = null; S.selFn = null; S.flashT = 0;
-      controls(renderControls());
-      if(ok && S.matched.length === PAIRS.length){
-        const fb2 = document.getElementById('g6bBrainMatchFb');
-        if(fb2) fb2.innerHTML = `
-          <div style="padding:12px;background:var(--bg-card2);border-radius:10px;border:1px solid rgba(39,174,96,0.3)">
-            <div style="font-weight:700;color:#16A34A;margin-bottom:6px">🎉 أحسنت! ماذا تعلّمت؟</div>
-            <div style="color:var(--text-secondary);line-height:1.8">الدماغ يستقبل إشارات من جميع الحواس الخمس (العين، الأذن، الجلد، الأنف، اللسان)، ويفسّرها، ثم يرسل الأوامر المناسبة إلى بقية الجسم — كل ذلك خلال أجزاء من الثانية!</div>
-          </div>`;
+  function findChipAt(x,y){
+    for(let i=S.chips.length-1;i>=0;i--){ const ch=S.chips[i]; if(ch.matched) continue; if(Math.abs(x-ch.x)<0.15 && Math.abs(y-ch.y)<0.09) return ch; }
+    return null;
+  }
+  function onDown(e){ const p=relPos(e); const ch=findChipAt(p.x,p.y); if(ch) S.dragId=ch.zoneId+'-'+S.chips.indexOf(ch); }
+  function chipByDragId(){ if(S.dragId==null) return null; const idx = +S.dragId.split('-')[1]; return S.chips[idx]; }
+  function onMove(e){ if(S.dragId==null) return; const p=relPos(e); const ch=chipByDragId(); if(ch){ch.x=p.x;ch.y=p.y;} }
+  function onUp(e){
+    if(S.dragId==null) return;
+    const ch = chipByDragId();
+    const w = cv.width, h = cv.height, mn = Math.min(w,h);
+    let bestZ=null, bestD=Infinity;
+    ZONES.forEach(z=>{
+      // إحداثيات نسبية (0-1) لموقع الشارة، محسوبة بنفس منطق draw() تماماً
+      const zx = brainCx + (z.lx*brainS*mn)/w;
+      const zy = brainCy + (z.ly*brainS*mn)/h;
+      const d = Math.hypot(ch.x-zx, ch.y-zy);
+      if(d<bestD){ bestD=d; bestZ=z; }
+    });
+    if(bestZ && bestD < 0.09){
+      S.flashZone = bestZ.id; S.flashT = 1;
+      if(bestZ.id === ch.zoneId){
+        ch.matched = true; S.flashOk = true; _g6bPlayChime(true);
+        S.matchedList.push({ id:bestZ.id, text:ch.text });
+        controls(renderControls());
+      } else {
+        S.flashOk = false; _g6bPlayChime(false);
+        ch.x = trayPos[ch.trayIdx].x; ch.y = trayPos[ch.trayIdx].y;
       }
-    }, ok ? 650 : 550);
-  }
-  function onClick(e){
-    const p = relPos(e);
-    PAIRS.forEach((pr,i)=>{
-      if(S.matched.includes(pr.id)) return;
-      if(hit(senseRect(i), p.x, p.y)){ S.selSense = pr.id; _g6bPlayClick(); tryMatch(); }
-    });
-    fns.forEach((pr,i)=>{
-      if(S.matched.includes(pr.id)) return;
-      if(hit(fnRect(i), p.x, p.y)){ S.selFn = pr.id; _g6bPlayClick(); tryMatch(); }
-    });
-  }
-  cv.onmousedown = onClick;
-  cv.ontouchstart = e=>{ e.preventDefault(); onClick(e); };
-  cv.onmousemove=null; cv.onmouseup=null; cv.onmouseleave=null; cv.ontouchmove=null; cv.ontouchend=null;
-
-  function drawBtn(c,w,h,r,label,state){
-    const dark = isDarkMode();
-    const colors = {
-      normal:  { bg: dark?'#2A2F3A':'#FFF', bd:'#94A3B8', tx: g6bTxt(dark) },
-      selected:{ bg:'#FEF3C7', bd:'#F5B041', tx:'#7A5B10' },
-      matched: { bg:'#DCFCE7', bd:'#27AE60', tx:'#16A34A' },
-      correct: { bg:'#27AE60', bd:'#27AE60', tx:'#FFFFFF' },
-      wrong:   { bg:'#E74C3C', bd:'#E74C3C', tx:'#FFFFFF' },
-    }[state];
-    const bx=r.x*w-r.w*w/2, by=r.y*h-r.h*h/2, bw=r.w*w, bh=r.h*h;
-    c.save();
-    if(state==='selected'){ c.shadowColor='rgba(0,0,0,0.2)'; c.shadowBlur=10; }
-    c.fillStyle = colors.bg; c.strokeStyle = colors.bd; c.lineWidth = state==='normal'?2:3;
-    c.beginPath(); c.roundRect(bx,by,bw,bh,14); c.fill(); c.stroke();
-    c.restore();
-    c.fillStyle = colors.tx; c.textAlign='center'; c.textBaseline='middle';
-    const emojiMatch = label.match(/^(\p{Extended_Pictographic}\uFE0F?)\s+(.+)$/u);
-    if(emojiMatch){
-      c.font = `${Math.round(h*0.038)}px serif`;
-      c.fillText(emojiMatch[1], r.x*w, r.y*h - bh*0.14);
-      c.font = `bold ${Math.round(h*0.024)}px Tajawal`;
-      c.fillText(emojiMatch[2], r.x*w, r.y*h + bh*0.2);
     } else {
-      c.font = `bold ${Math.round(h*0.03)}px Tajawal`;
-      c.fillText(label, r.x*w, r.y*h);
+      ch.x = trayPos[ch.trayIdx].x; ch.y = trayPos[ch.trayIdx].y;
     }
+    S.dragId = null;
   }
+  cv.onmousedown=onDown; cv.onmousemove=onMove; cv.onmouseup=onUp; cv.onmouseleave=onUp;
+  cv.ontouchstart=e=>{e.preventDefault();onDown(e);};
+  cv.ontouchmove=e=>{e.preventDefault();onMove(e);};
+  cv.ontouchend=e=>{e.preventDefault();onUp(e);};
 
   function draw(){
     if(currentSim!=='g6body7' || currentTab!==1){ cancelAnimationFrame(animFrame); return; }
     const c = cv.getContext('2d'), w = cv.width, h = cv.height, dark = isDarkMode();
     c.fillStyle = g6bBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle = g6bTxt(dark);
-    c.font = `bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('١-٧ · من المسؤول؟', w/2, h*0.055);
-    c.font = `${Math.round(h*0.02)}px Tajawal`; c.fillStyle = g6bMut(dark);
-    c.fillText('الحاسة', w*0.75, h*0.1); c.fillText('الوظيفة', w*0.25, h*0.1);
+    c.font = `bold ${Math.round(h*0.026)}px Tajawal`; c.textAlign='center';
+    c.fillText('١-٧ · من المسؤول؟ اسحب الوظيفة لموقعها الصحيح', w/2, h*0.03);
 
-    if(S.flashT>0) S.flashT -= 0.03;
+    if(S.flashT>0) S.flashT -= 0.025;
 
-    PAIRS.forEach((pr,i)=>{
-      const r = senseRect(i);
-      let state = 'normal';
-      if(S.matched.includes(pr.id)) state='matched';
-      else if(S.flashT>0 && S.selSense===pr.id) state = S.flashOk?'correct':'wrong';
-      else if(S.selSense===pr.id) state='selected';
-      drawBtn(c,w,h,r,pr.sense,state);
+    const cx = w*brainCx, cy = h*brainCy, s = Math.min(w,h)*brainS;
+    g6bDrawBrain(c, cx, cy, s, dark, true);
+
+    // ─── شارات مرقّمة على مواقع الدماغ ───
+    ZONES.forEach(z=>{
+      const zx = cx + z.lx*s, zy = cy + z.ly*s;
+      const matched = S.matchedList.some(m=>m.id===z.id);
+      const flashing = S.flashT>0 && S.flashZone===z.id;
+      const r = Math.max(11, w*0.023);
+      c.beginPath(); c.arc(zx,zy,r,0,Math.PI*2);
+      c.fillStyle = matched ? '#27AE60' : (flashing ? (S.flashOk?'#27AE60':'#E74C3C') : (dark?'#3A3F4A':'#FFFFFF'));
+      c.fill();
+      c.strokeStyle = matched ? '#1E8449' : (flashing ? (S.flashOk?'#1E8449':'#A93226') : '#F5B041');
+      c.lineWidth = 2.5; c.stroke();
+      c.fillStyle = matched||flashing ? '#FFFFFF' : '#7A5B10';
+      c.font = `bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(matched ? '✓' : z.id, zx, zy+1);
+      c.textBaseline='alphabetic';
     });
-    fns.forEach((pr,i)=>{
-      const r = fnRect(i);
-      let state = 'normal';
-      if(S.matched.includes(pr.id)) state='matched';
-      else if(S.flashT>0 && S.selFn===pr.id) state = S.flashOk?'correct':'wrong';
-      else if(S.selFn===pr.id) state='selected';
-      drawBtn(c,w,h,r,pr.fn,state);
+
+    // ─── بطاقات الوظائف المتناثرة (تُسحب) ───
+    S.chips.forEach(ch=>{
+      if(ch.matched) return;
+      const dragging = S.dragId!=null && chipByDragId()===ch;
+      const cw=w*0.29*(dragging?1.06:1), chh=h*0.15*(dragging?1.06:1);
+      c.save();
+      if(dragging){ c.shadowColor='rgba(0,0,0,0.3)'; c.shadowBlur=14; }
+      c.fillStyle = dark?'#2A2F3A':'#FFF';
+      c.strokeStyle = dragging?'#27AE60':'#94A3B8'; c.lineWidth=dragging?3:2;
+      c.beginPath(); c.roundRect(ch.x*w-cw/2, ch.y*h-chh/2, cw, chh, 10); c.fill(); c.stroke();
+      c.restore();
+      c.fillStyle = dark?'#1A2530':'#2C3A4A'; c.font=`${Math.round(h*0.0135)}px Tajawal`;
+      c.textAlign='center'; c.textBaseline='middle'; g6bWrapText(c, ch.text, ch.x*w, ch.y*h, cw*0.86, h*0.019);
+      c.textBaseline='alphabetic';
     });
 
     animFrame = requestAnimationFrame(draw);
