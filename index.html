@@ -899,9 +899,9 @@
       <div class="unit-card" data-sem="1" onclick="openUnit('u5water', this)">
         <div class="unit-num-badge c-red">٣</div>
         <div>
-          <div class="unit-title">التبخّر</div>
-          <div class="unit-topics">أين يتبخّر الماء أسرع؟ · أثر الحرارة في سرعة التبخّر</div>
-          <div class="unit-pill avail">💧 ١ استقصاء متاح</div>
+          <div class="unit-title">حالات المادّة</div>
+          <div class="unit-topics">استقصاء التبخر · استعادة الملح بالتبخير · استقصاء الغليان · استقصاء الانصهار</div>
+          <div class="unit-pill avail">💧 ٤ استقصاءات متاحة</div>
         </div>
       </div>
 
@@ -995,20 +995,50 @@
       </div>
     </div>
 
-    <!-- ===== الوحدة ٣ — التبخّر ===== -->
+    <!-- ===== الوحدة ٣ — حالات المادّة ===== -->
     <div id="sims-u5water" class="sims-wrap" style="margin-top:28px">
       <div class="sims-header">
-        <div class="sims-title">استقصاءات الوحدة ٣ — التبخّر</div>
-        <div class="sims-count">١ استقصاء</div>
+        <div class="sims-title">استقصاءات الوحدة ٣ — حالات المادّة</div>
+        <div class="sims-count">٤ استقصاءات</div>
       </div>
       <div class="sims-grid">
 
         <div class="sim-card" onclick="openSim('g5water1')">
           <div class="sim-thumb t1">💧</div>
           <div class="sim-body">
-            <div class="sim-num">1 · التبخّر</div>
+            <div class="sim-num">٣-٣ · استقصاء التبخر</div>
             <div class="sim-name">أين يتبخّر الماء أسرع؟</div>
-            <div class="sim-desc">حدّدي مستوى الماء في كوبين متماثلين، ثمّ راقبي الفرق بعد يومين — واحد في الشمس والآخر في الظلام</div>
+            <div class="sim-desc">حدّدي مستوى الماء في كوبين متماثلين، ثمّ راقبي الفرق بعد يومين — واحد في مكان دافئ والآخر في مكان بارد</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5water2')">
+          <div class="sim-thumb t3">🧂</div>
+          <div class="sim-body">
+            <div class="sim-num">٤-٣(ب) · استقصاء التبخر من المحلول</div>
+            <div class="sim-name">هل يمكنك استعادة الملح؟</div>
+            <div class="sim-desc">أذيبي الملح في الماء، توقّعي ما سيحدث، ثمّ سخّني المحلول وشاهدي بلّورات الملح تظهر بعد تبخّر الماء</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5water3')">
+          <div class="sim-thumb t7">🔥</div>
+          <div class="sim-body">
+            <div class="sim-num">٧-٣(ب) · الغليان</div>
+            <div class="sim-name">استقصاء درجة غليان الماء</div>
+            <div class="sim-desc">شغّلي التسخين وسجّلي درجة الحرارة كلّ دقيقتين في الجدول، وراقبي الرسم البياني حتى يثبت عند ١٠٠°C</div>
+          </div>
+          <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+        </div>
+
+        <div class="sim-card" onclick="openSim('g5water4')">
+          <div class="sim-thumb t9">🧊</div>
+          <div class="sim-body">
+            <div class="sim-num">٨-٣ · الانصهار</div>
+            <div class="sim-name">استقصاء درجة انصهار الثلج</div>
+            <div class="sim-desc">اضبطي كمّية الثلج والملح، وراقبي درجة الحرارة أثناء انصهار الثلج، واكتشفي كيف يخفض الملح درجة الانصهار</div>
           </div>
           <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
         </div>
@@ -4382,6 +4412,7 @@
 <script src="/js/sims/sims-grade7-body2.js"></script>
 <script src="/js/sims/sims-grade5-plants.js"></script>
 <script src="/js/sims/sims-grade5-water.js"></script>
+<script src="/js/sims/sims-grade5-water2.js"></script>
 <script src="/js/sims/sims-grade6-humanbody.js"></script>
 <script src="/js/sims/sims-grade6-ecosystems.js"></script>
 

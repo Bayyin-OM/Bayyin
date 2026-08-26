@@ -29,7 +29,7 @@ function simG5Water1a(){
       return `
         <div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🔬 أين يتبخّر الماء أسرع؟</div></div>
         <div style="font-size:14px;line-height:1.9;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:13px;margin-bottom:12px">
-          أمامك كوبان متماثلان بهما نفس كمّية الماء: الأوّل ☀️ في مكان معرَّض للشمس، والثاني 🌑 في مكان مظلم بعيد عن الشمس.
+          أمامك كوبان متماثلان بهما نفس كمّية الماء: الأوّل ☀️ عند حافّة نافذة مشمسة (مكان دافئ)، والثاني 🚪 داخل خزانة (مكان بارد).
         </div>
         <div style="font-size:14px;font-weight:700;background:rgba(8,126,164,0.1);border-right:4px solid var(--accent-color,#087EA4);border-radius:8px;padding:10px 12px;margin-bottom:12px">📍 أوّلاً: حدّدي مستوى الماء في الكوبين حتى تستطيعي المقارنة لاحقاً.</div>
         <button class="ctrl-btn play" onclick="window._g5wMark()">📍 حدّدي مستوى الماء</button>`;
@@ -61,7 +61,7 @@ function simG5Water1a(){
         <div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">👀 ماذا لاحظت؟</div></div>
         <div style="font-size:14.5px;line-height:2;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:14px;margin-bottom:12px">
           ☀️ الماء في الكوب الموجود في الشمس <strong>انخفض مستواه بشكل واضح</strong>.<br>
-          🌑 الماء في الكوب الموجود في الظلام <strong>بقي تقريباً كما هو</strong>.
+          🚪 الماء في الكوب الموجود في المكان البارد <strong>بقي تقريباً كما هو</strong>.
         </div>
         <button class="ctrl-btn play" onclick="window._g5wConclude()">➡ الاستنتاج</button>`;
     }
@@ -77,7 +77,7 @@ function simG5Water1a(){
     return `
       <div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">❓ في أيّ كوب تبخّر الماء بشكل أسرع؟ ولماذا؟</div></div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        ${['الكوب الموجود في الظلام','الكوب الموجود في الشمس؛ لأنّ الحرارة تساعد على زيادة سرعة التبخّر','الكوبان بالسرعة نفسها','لا يتبخّر الماء'].map((o,i)=>`<button id="g5wOpt${i}" onclick="window._g5wAnswer(${i})" style="padding:12px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer;font-size:14px">${o}</button>`).join('')}
+        ${['الكوب الموجود في المكان البارد','الكوب الموجود في الشمس؛ لأنّ الحرارة تساعد على زيادة سرعة التبخّر','الكوبان بالسرعة نفسها','لا يتبخّر الماء'].map((o,i)=>`<button id="g5wOpt${i}" onclick="window._g5wAnswer(${i})" style="padding:12px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer;font-size:14px">${o}</button>`).join('')}
       </div>
       <div id="g5wFb" style="margin-top:12px;font-size:14px;line-height:1.9;color:var(--text-secondary)"></div>
       ${S.qAnswered? `<button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g5wRestart()">↺ أعد الاستقصاء</button>`:''}
@@ -163,7 +163,7 @@ function simG5Water1a(){
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g5wBg(dark); c.fillRect(0,0,w,h);
     c.fillStyle=g5wTxt(dark); c.font=`bold ${Math.round(h*0.032)}px Tajawal`; c.textAlign='center';
-    c.fillText('١-٣ · أين يتبخّر الماء أسرع؟', w/2, h*0.07);
+    c.fillText('٣-٣ · أين يتبخّر الماء أسرع؟', w/2, h*0.07);
 
     if(S.stage==='animating'){
       S.animT += 0.012;
@@ -174,7 +174,7 @@ function simG5Water1a(){
     const showMark = S.markSet;
     const showDrop = S.stage==='compare' || S.stage==='observe' || S.stage==='conclude' || S.stage==='question';
     drawCup(c, w*0.28, w, h, dark, S.levelSun, SUN_START, showMark, 'مكان مشمس', '☀️', showDrop);
-    drawCup(c, w*0.72, w, h, dark, S.levelDark, DARK_START, showMark, 'مكان مظلم', '🌑', showDrop);
+    drawCup(c, w*0.72, w, h, dark, S.levelDark, DARK_START, showMark, 'مكان بارد', '🚪', showDrop);
 
     if(S.stage==='animating'){
       const dayNum = S.animT<0.5?1:2;
