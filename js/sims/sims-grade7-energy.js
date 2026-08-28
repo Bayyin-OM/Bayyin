@@ -195,7 +195,7 @@ function simG7Energy1a(){
         const roadY=h*0.65;
         c.strokeStyle=g7eMut(dark); c.lineWidth=3; c.beginPath(); c.moveTo(w*0.1,roadY); c.lineTo(w*0.9,roadY); c.stroke();
         const bx = w*0.2 + (S.bikeSpeed*w*0.15);
-        c.font=`${Math.round(h*0.09)}px Tajawal`; c.textAlign='center';
+        c.font=`${Math.round(h*0.09)}px Tajawal`; c.textAlign='center'; c.fillStyle=g7eTxt(dark);
         c.fillText('🚲', g7eClamp(bx,w*0.15,w*0.85), roadY);
       }
     } else {
@@ -207,7 +207,7 @@ function simG7Energy1a(){
         c.fillStyle= S.matched[name]? 'rgba(39,174,96,0.18)':(dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)');
         c.strokeStyle= S.matched[name]?'#27AE60':g7eMut(dark); c.lineWidth=2.5;
         c.beginPath(); c.arc(pos.x,pos.y,w*0.09,0,Math.PI*2); c.fill(); c.stroke();
-        c.font=`${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.font=`${Math.round(h*0.05)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
         c.fillText(icons[name], pos.x, pos.y); c.textBaseline='alphabetic';
         if(S.matched[name]){ c.font=`${Math.round(h*0.03)}px Tajawal`; c.fillText('✅', pos.x+w*0.07, pos.y-w*0.07); }
         c.restore();
@@ -217,7 +217,7 @@ function simG7Energy1a(){
         const chipX = S.matchDragging?S.mdX:w*0.5, chipY = S.matchDragging?S.mdY:h*0.36;
         c.save();
         c.fillStyle=g7eAccent(dark); g7eRRect(c,chipX-w*0.14,chipY-h*0.04,w*0.28,h*0.08,10); c.fill();
-        c.fillStyle='#fff'; c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.fillStyle='#fff'; c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
         c.fillText('تحتاج إلى طاقة ⚡', chipX, chipY); c.textBaseline='alphabetic';
         c.restore();
       }
@@ -235,11 +235,12 @@ function simG7Energy1a(){
 function simG7Energy1b(){
   cancelAnimationFrame(animFrame);
   const ITEMS = {
-    car:  { icon:'🚗', label:'السيارة', pos:{x:0.18,y:0.3}, opts:['الكهرباء','الغذاء','الوقود'], correct:2, source:'وقود', anim:0 },
-    home: { icon:'🏠', label:'المنزل', pos:{x:0.5,y:0.24}, opts:['الكهرباء','الغذاء','الرياح فقط'], correct:0, source:'كهرباء', anim:0 },
-    plane:{ icon:'✈️', label:'الطائرة', pos:{x:0.82,y:0.2}, opts:['الوقود','الغذاء','البطارية'], correct:0, source:'وقود', anim:0 },
-    farm: { icon:'🐴', label:'الحيوان', pos:{x:0.35,y:0.66}, opts:['الغذاء','الكهرباء','البنزين'], correct:0, source:'غذاء', anim:0 },
+    car:  { icon:'🚗', label:'السيارة', pos:{x:0.18,y:0.3}, matchPos:{x:0.16,y:0.68}, opts:['الكهرباء','الغذاء','الوقود'], correct:2, source:'وقود', anim:0 },
+    home: { icon:'🏠', label:'المنزل', pos:{x:0.5,y:0.24}, matchPos:{x:0.4,y:0.68}, opts:['الكهرباء','الغذاء','الرياح فقط'], correct:0, source:'كهرباء', anim:0 },
+    plane:{ icon:'✈️', label:'الطائرة', pos:{x:0.82,y:0.2}, matchPos:{x:0.64,y:0.68}, opts:['الوقود','الغذاء','البطارية'], correct:0, source:'وقود', anim:0 },
+    farm: { icon:'🐴', label:'الحيوان', pos:{x:0.35,y:0.66}, matchPos:{x:0.88,y:0.68}, opts:['الغذاء','الكهرباء','البنزين'], correct:0, source:'غذاء', anim:0 },
   };
+  const SOURCES = { 'غذاء':{icon:'🍎',x:0.2}, 'وقود':{icon:'⛽',x:0.52}, 'كهرباء':{icon:'🔌',x:0.84} };
   const KEYS = Object.keys(ITEMS);
   simState = { active:null, done:{}, stage:'explore', srcSel:null, links:{}, linkDone:0 };
   const S = simState;
@@ -260,10 +261,10 @@ function simG7Energy1b(){
         <div style="font-size:13.5px;color:var(--text-secondary)">اضغطي على عنصر من المدينة لمعرفة من أين يحصل على طاقته (${Object.keys(S.done).length} من ٤).</div>`;
     }
     if(S.stage==='match'){
-      return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🔗 التحدّي النهائي</div></div>
-        <div style="font-size:13.5px;color:var(--text-secondary);margin-bottom:8px">اختاري مصدر الطاقة، ثمّ اضغطي على العنصر المناسب له (${S.linkDone} من ٤).</div>
+      return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🔗 التحدّي النهائي: صِلي كلّ شيء بمصدر طاقته</div></div>
+        <div style="font-size:13.5px;color:var(--text-secondary);margin-bottom:8px">اختاري مصدر الطاقة من الأعلى، ثمّ اضغطي على العنصر المناسب له في الأسفل، لرسم خطّ يربط بينهما (${S.linkDone} من ٤).</div>
         <div class="ctrl-btns-grid-1">
-          ${['غذاء','وقود','كهرباء'].map(s=>`<button class="ctrl-btn ${S.srcSel===s?'active':''}" onclick="window._g7e1bSrc('${s}')">${s}</button>`).join('')}
+          ${Object.keys(SOURCES).map(s=>`<button class="ctrl-btn ${S.srcSel===s?'active':''}" onclick="window._g7e1bSrc('${s}')">${SOURCES[s].icon} ${s}</button>`).join('')}
         </div>`;
     }
     return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🎉 أحسنتِ!</div></div>
@@ -287,14 +288,15 @@ function simG7Energy1b(){
 
   cv.onclick = function(e){
     const p=g7eGp(cv,e), w=cv.width, h=cv.height;
-    let hit=null;
-    KEYS.forEach(k=>{ const it=ITEMS[k]; if(Math.hypot(p.x-it.pos.x*w,p.y-it.pos.y*h)<w*0.09) hit=k; });
-    if(!hit) return;
     if(S.stage==='explore'){
-      if(S.done[hit]) return;
+      let hit=null;
+      KEYS.forEach(k=>{ const it=ITEMS[k]; if(Math.hypot(p.x-it.pos.x*w,p.y-it.pos.y*h)<w*0.09) hit=k; });
+      if(!hit || S.done[hit]) return;
       _g8pPlayClick(); S.active=hit; controls(renderControls());
     } else if(S.stage==='match'){
-      if(!S.srcSel || S.links[hit]) return;
+      let hit=null;
+      KEYS.forEach(k=>{ const it=ITEMS[k]; if(Math.hypot(p.x-it.matchPos.x*w,p.y-it.matchPos.y*h)<w*0.08) hit=k; });
+      if(!hit || !S.srcSel || S.links[hit]) return;
       const it=ITEMS[hit];
       if(it.source===S.srcSel){
         S.links[hit]=S.srcSel; S.linkDone++; _g8pPlayDrop();
@@ -311,24 +313,76 @@ function simG7Energy1b(){
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g7eBg(dark); c.fillRect(0,0,w,h);
 
-    KEYS.forEach(k=>{
-      const it=ITEMS[k];
-      if(it.anim!==undefined && it.anim>0 && it.anim<1) it.anim+=0.02;
-      const x=it.pos.x*w, y=it.pos.y*h;
-      const wobble = it.anim>0 ? Math.sin(performance.now()*0.01)*4 : 0;
+    if(S.stage==='explore'){
+      KEYS.forEach(k=>{
+        const it=ITEMS[k];
+        if(it.anim!==undefined && it.anim>0 && it.anim<1) it.anim+=0.02;
+        const x=it.pos.x*w, y=it.pos.y*h;
+        const wobble = it.anim>0 ? Math.sin(performance.now()*0.01)*4 : 0;
+        c.save();
+        c.fillStyle= S.done[k]?'rgba(39,174,96,0.15)':(dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)');
+        c.strokeStyle = S.active===k? g7eAccent(dark) : (S.done[k]?'#27AE60':g7eMut(dark));
+        c.lineWidth=2.5;
+        c.beginPath(); c.arc(x,y,w*0.09,0,Math.PI*2); c.fill(); c.stroke();
+        c.font=`${Math.round(h*0.05)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(it.icon, x+wobble, y); c.textBaseline='alphabetic';
+        c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.017)}px Tajawal`;
+        c.fillText(it.label, x, y+w*0.12);
+        if(S.done[k]){ c.fillStyle=g7eTxt(dark); c.font=`${Math.round(h*0.024)}px Tajawal`; c.fillText('✅', x+w*0.07,y-w*0.07); }
+        c.restore();
+      });
+    } else {
+      // ── مرحلة المطابقة: تخطيط مختلف تماماً — مصادر أعلى وعناصر أسفل، مع خطوط ربط ──
       c.save();
-      c.fillStyle= S.done[k]?'rgba(39,174,96,0.15)':(dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)');
-      c.strokeStyle = S.active===k? g7eAccent(dark) : (S.done[k]?'#27AE60':g7eMut(dark));
-      c.lineWidth=2.5;
-      c.beginPath(); c.arc(x,y,w*0.09,0,Math.PI*2); c.fill(); c.stroke();
-      c.font=`${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(it.icon, x+wobble, y); c.textBaseline='alphabetic';
-      c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.017)}px Tajawal`;
-      c.fillText(it.label, x, y+w*0.12);
-      if(S.done[k]){ c.font=`${Math.round(h*0.024)}px Tajawal`; c.fillText('✅', x+w*0.07,y-w*0.07); }
-      if(S.stage==='match' && S.links[k]){ c.fillStyle='#27AE60'; c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.fillText(S.links[k], x, y+w*0.17); }
+      c.fillStyle=g7eMut(dark); c.font=`bold ${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('مصادر الطاقة', w*0.5, h*0.15);
       c.restore();
-    });
+
+      // ارسمي خطوط الربط المكتملة أوّلاً (خلف كلّ شيء)
+      const LINE_COLORS = {'غذاء':'#16A34A','وقود':'#EA580C','كهرباء':'#2563EB'};
+      Object.keys(S.links).forEach(k=>{
+        const it=ITEMS[k]; const src=SOURCES[S.links[k]];
+        c.save();
+        c.strokeStyle=LINE_COLORS[S.links[k]]; c.lineWidth=w*0.006; c.lineCap='round';
+        c.beginPath();
+        c.moveTo(src.x*w, h*0.24);
+        c.quadraticCurveTo((src.x*w+it.matchPos.x*w)/2, h*0.46, it.matchPos.x*w, it.matchPos.y*h-w*0.08);
+        c.stroke();
+        c.restore();
+      });
+
+      // مصادر الطاقة (أعلى الشاشة)
+      Object.keys(SOURCES).forEach(s=>{
+        const src=SOURCES[s]; const x=src.x*w, y=h*0.24;
+        const sel = S.srcSel===s;
+        c.save();
+        c.fillStyle= sel? 'rgba(147,51,234,0.18)':(dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)');
+        c.strokeStyle= sel? g7eAccent(dark) : g7eMut(dark); c.lineWidth=2.5;
+        g7eRRect(c, x-w*0.09, y-h*0.06, w*0.18, h*0.12, 14); c.fill(); c.stroke();
+        c.font=`${Math.round(h*0.05)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(src.icon, x, y-h*0.005); c.textBaseline='alphabetic';
+        c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`;
+        c.fillText(s, x, y+h*0.075);
+        c.restore();
+      });
+
+      // العناصر (أسفل الشاشة)
+      KEYS.forEach(k=>{
+        const it=ITEMS[k];
+        const x=it.matchPos.x*w, y=it.matchPos.y*h;
+        const linked = !!S.links[k];
+        c.save();
+        c.fillStyle= linked?'rgba(39,174,96,0.16)':(dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)');
+        c.strokeStyle= linked?'#27AE60':g7eMut(dark); c.lineWidth=2.5;
+        c.beginPath(); c.arc(x,y,w*0.08,0,Math.PI*2); c.fill(); c.stroke();
+        c.font=`${Math.round(h*0.045)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
+        c.fillText(it.icon, x, y); c.textBaseline='alphabetic';
+        c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`;
+        c.fillText(it.label, x, y+w*0.11);
+        if(linked){ c.fillStyle=g7eTxt(dark); c.font=`${Math.round(h*0.02)}px Tajawal`; c.fillText('✅', x+w*0.065,y-w*0.065); }
+        c.restore();
+      });
+    }
 
     g7eTitle(c,w,h,dark,'٣-١(ب) · اكتشف مصدر الطاقة');
     animFrame = requestAnimationFrame(draw);
@@ -436,7 +490,7 @@ function simG7Energy2a(){
     // ميزان حرارة (يظهر بعد السحب)
     if(!S.thermPlaced){
       const x=S.dragTherm?S.dtX:THERM_HOME.x*w, y=S.dragTherm?S.dtY:THERM_HOME.y*h;
-      c.font=`${Math.round(h*0.07)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.font=`${Math.round(h*0.07)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
       c.fillText('🌡️', x, y); c.textBaseline='alphabetic';
       if(!S.dragTherm){ c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.fillText('اسحبي إلى الكأس', x, y+h*0.05); }
     } else {
@@ -467,7 +521,7 @@ function simG7Energy3a(){
   const TOYS = {
     car:{ icon:'🚗', label:'سيارة اللعبة', pos:{x:0.2,y:0.32}, need:'battery', filled:false, run:0 },
     frog:{ icon:'🐸', label:'الضفدع القافز', pos:{x:0.5,y:0.32}, need:'spring', filled:false, run:0 },
-    ball:{ icon:'⚪', label:'مسار الكرة', pos:{x:0.8,y:0.32}, need:'raised', filled:false, run:0 },
+    ball:{ icon:'🟠', label:'مسار الكرة', pos:{x:0.8,y:0.32}, need:'raised', filled:false, run:0 },
   };
   const STORES = { battery:{icon:'🔋',label:'بطارية',x:0.2}, spring:{icon:'🌀',label:'نابض',x:0.5}, raised:{icon:'⬆️',label:'جسم مرفوع',x:0.8} };
   simState = { dragging:null, dx:0, dy:0, done:false, qAnswered:false };
@@ -489,7 +543,7 @@ function simG7Energy3a(){
         <tbody>
           <tr><td style="padding:6px;text-align:center;border-bottom:1px solid #ddd3">🚗 السيارة</td><td style="padding:6px;text-align:center;border-bottom:1px solid #ddd3">🔋 بطارية</td></tr>
           <tr><td style="padding:6px;text-align:center;border-bottom:1px solid #ddd3">🐸 الضفدع</td><td style="padding:6px;text-align:center;border-bottom:1px solid #ddd3">🌀 نابض</td></tr>
-          <tr><td style="padding:6px;text-align:center">⚪ الكرة</td><td style="padding:6px;text-align:center">⬆️ جسم مرفوع</td></tr>
+          <tr><td style="padding:6px;text-align:center">🟠 الكرة</td><td style="padding:6px;text-align:center">⬆️ جسم مرفوع</td></tr>
         </tbody>
       </table>
       <div class="info-box">تحتاج الألعاب إلى مخزن للطاقة قبل أن تبدأ بالحركة.</div>
@@ -549,7 +603,7 @@ function simG7Energy3a(){
       c.strokeStyle = t.filled?'#27AE60':g7eMut(dark); c.lineWidth=2.5;
       c.beginPath(); c.arc(x,y,w*0.09,0,Math.PI*2); c.fill(); c.stroke();
       const bounce = t.filled? Math.sin(performance.now()*0.008)*4 : 0;
-      c.font=`${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.font=`${Math.round(h*0.05)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
       c.fillText(t.icon, x, y+bounce); c.textBaseline='alphabetic';
       c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`;
       c.fillText(t.label, x, y+w*0.13);
@@ -564,7 +618,7 @@ function simG7Energy3a(){
         const st=STORES[k];
         const x=(S.dragging===k)?S.dx:st.x*w, y=(S.dragging===k)?S.dy:h*0.72;
         c.save();
-        c.font=`${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.font=`${Math.round(h*0.05)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
         c.fillText(st.icon, x, y); c.textBaseline='alphabetic';
         c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`;
         c.fillText(st.label, x, y+w*0.09);
@@ -755,7 +809,7 @@ function simG7Energy4b(){
       carX = w*0.16 + w*0.7*surf.dist*speedFactor;
       carX = Math.min(carX, w*0.82);
     }
-    c.font=`${Math.round(h*0.07)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.font=`${Math.round(h*0.07)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
     c.fillText('🚗', g7eClamp(carX,w*0.16,w*0.84), roadY+h*0.025); c.textBaseline='alphabetic';
 
     // ميزان حرارة
@@ -912,14 +966,14 @@ function simG7Energy5a(){
     // الأباريق
     if(!S.coldPlaced){
       const x=S.dragType==='cold'?S.dx:JUG_COLD.x*w, y=S.dragType==='cold'?S.dy:JUG_COLD.y*h;
-      c.font=`${Math.round(h*0.08)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.font=`${Math.round(h*0.08)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
       c.fillText('🧊', x, y); c.textBaseline='alphabetic';
       c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`;
       c.fillText('ماء بارد 20°C', x, y+h*0.06);
     }
     if(!S.hotPlaced){
       const x=S.dragType==='hot'?S.dx:JUG_HOT.x*w, y=S.dragType==='hot'?S.dy:JUG_HOT.y*h;
-      c.font=`${Math.round(h*0.08)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.font=`${Math.round(h*0.08)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
       c.fillText('♨️', x, y); c.textBaseline='alphabetic';
       c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`;
       c.fillText('ماء ساخن 80°C', x, y+h*0.06);
@@ -1134,7 +1188,7 @@ function simG7Energy6a(){
         const px=g7eLerp(bx+w*0.04,lampX,S.wireT), py=g7eLerp(by-h*0.02,lampY,S.wireT);
         c.fillStyle=g7eAccent(dark); c.beginPath(); c.arc(px,py,w*0.008,0,Math.PI*2); c.fill();
       }
-      c.font=`${Math.round(h*0.06)}px Tajawal`; c.textAlign='center';
+      c.font=`${Math.round(h*0.06)}px Tajawal`; c.textAlign='center'; c.fillStyle=g7eTxt(dark);
       c.fillText(S.lampOn?'💡':'⚫', lampX, lampY);
       if(S.lampOn){ c.save(); c.globalAlpha=0.3+0.15*Math.sin(performance.now()*0.01); c.fillStyle='#FDE047'; c.beginPath(); c.arc(lampX,lampY,w*0.05,0,Math.PI*2); c.fill(); c.restore(); }
       // مسار سلك للمروحة
@@ -1151,7 +1205,7 @@ function simG7Energy6a(){
     if(S.stage==='stations' && S.station===2){
       const T = {near:40,medium:32,far:25};
       const srcX=w*0.22, handX = S.dist==='near'?w*0.4:(S.dist==='medium'?w*0.6:w*0.82);
-      c.font=`${Math.round(h*0.08)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.font=`${Math.round(h*0.08)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
       c.fillText('🔥', srcX, h*0.45);
       for(let i=0;i<3;i++){
         const r=w*0.05+(i*w*0.04)+((performance.now()*0.05)%(w*0.04));
@@ -1165,7 +1219,7 @@ function simG7Energy6a(){
 
     if(S.stage==='stations' && S.station===3){
       const drumX=w*0.28, earNearX=w*0.55, earFarX=w*0.85;
-      c.font=`${Math.round(h*0.08)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.font=`${Math.round(h*0.08)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
       c.fillText('🥁', drumX, h*0.45);
       c.fillText('👂', earNearX, h*0.45); c.fillText('👂', earFarX, h*0.45); c.textBaseline='alphabetic';
       if(S.drumHits>0){
@@ -1197,7 +1251,7 @@ function simG7Energy6a(){
         c.fillStyle= S.chDone[it.id]?'rgba(39,174,96,0.16)':(dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)');
         c.strokeStyle= S.chDone[it.id]?'#27AE60':g7eMut(dark); c.lineWidth=2.5;
         c.beginPath(); c.arc(x,y,w*0.085,0,Math.PI*2); c.fill(); c.stroke();
-        c.font=`${Math.round(h*0.045)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+        c.font=`${Math.round(h*0.045)}px Tajawal`; c.fillStyle=g7eTxt(dark); c.textAlign='center'; c.textBaseline='middle';
         c.fillText(it.icon, x, y); c.textBaseline='alphabetic';
         c.fillStyle=g7eTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`;
         c.fillText(it.label, x, y+w*0.12);
@@ -1277,7 +1331,7 @@ function simG7Energy7a(){
     const rodX=w*0.15, rodY=h*0.45, rodW=w*0.7, rodH=h*0.05;
     // مصدر الحرارة
     const flameX=rodX;
-    c.font=`${Math.round(h*0.05)}px Tajawal`; c.textAlign='center';
+    c.font=`${Math.round(h*0.05)}px Tajawal`; c.textAlign='center'; c.fillStyle=g7eTxt(dark);
     c.fillText('🔥', flameX, rodY+rodH+h*0.06);
 
     const heatFrac = g7eClamp(S.t,0,1);

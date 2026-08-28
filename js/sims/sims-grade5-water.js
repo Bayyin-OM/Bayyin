@@ -115,7 +115,7 @@ function simG5Water1a(){
     c.fill();
     c.restore();
 
-    c.font=`${Math.round(h*0.045)}px Tajawal`; c.textAlign='center';
+    c.font=`${Math.round(h*0.045)}px Tajawal`; c.textAlign='center'; c.fillStyle=g5wTxt(dark);
     c.fillText(icon, cx, h*0.22);
     c.fillStyle=g5wTxt(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`;
     c.fillText(label, cx, h*0.28);

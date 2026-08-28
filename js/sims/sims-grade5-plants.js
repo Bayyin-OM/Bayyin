@@ -311,7 +311,7 @@ function simG5Bio1N2a(){
       }
       if(!S.placed.water){
         const x = S.dragType==='water'?S.dragX:WATER_HOME.x*w, y = S.dragType==='water'?S.dragY:WATER_HOME.y*h;
-        c.font=`${Math.round(h*0.07)}px Tajawal`; c.textAlign='center'; c.fillText('💧', x, y);
+        c.font=`${Math.round(h*0.07)}px Tajawal`; c.textAlign='center'; c.fillStyle=g5pTxt(dark); c.fillText('💧', x, y);
         if(S.dragType!=='water'){ c.fillStyle=g5pTxt(dark); c.font=`bold ${Math.round(h*0.017)}px Tajawal`; c.fillText('ماء', x, y+w*0.055); }
       } else {
         c.font=`${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.fillText('✅', potX+potW*0.28, potY-potH*0.2);
@@ -472,7 +472,7 @@ function simG5Bio1N3a(){
       const x = (active && S.dragging) ? S.dragX : home.x*w, y = (active && S.dragging) ? S.dragY : home.y*h;
       c.save();
       c.globalAlpha = active ? 1 : 0.32;
-      c.font = `${Math.round(h*(active?0.075:0.05))}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.font = `${Math.round(h*(active?0.075:0.05))}px Tajawal`; c.fillStyle=g5pTxt(dark); c.textAlign='center'; c.textBaseline='middle';
       c.fillText(G5_TOOL_EMOJI[type], x, y);
       c.textBaseline='alphabetic';
       if(active){
@@ -499,7 +499,7 @@ function simG5Bio1N3a(){
       g5DrawBean(c, bx, by, w*0.022, dark, 0.3*i);
     }
     // قطرات ماء
-    if(st.water){ c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+    if(st.water){ c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center'; c.fillStyle=g5pTxt(dark);
       [-1,0,1].forEach(o=> c.fillText('💧', dx+o*dr*0.4, dy-dr*0.55)); }
     // الكيس البلاستيكي
     if(st.bag){
@@ -509,7 +509,7 @@ function simG5Bio1N3a(){
     }
     // الإغلاق
     if(st.sealed){
-      c.font=`${Math.round(h*0.028)}px Tajawal`; c.textAlign='center';
+      c.font=`${Math.round(h*0.028)}px Tajawal`; c.textAlign='center'; c.fillStyle=g5pTxt(dark);
       c.fillText(side==='A'?'➰':'🥤', dx, dy+dr*1.1);
     }
     c.restore();
@@ -660,7 +660,7 @@ function simG5Bio1N3b(){
     g5RRect(c, px-pw*1.1, py-ph*2.1, pw*2.2, ph*2.6, 16); c.fill();
     c.strokeStyle=g5pMut(dark); c.lineWidth=1.5; c.setLineDash([4,4]);
     g5RRect(c, px-pw*1.1, py-ph*2.1, pw*2.2, ph*2.6, 16); c.stroke(); c.setLineDash([]);
-    c.font=`${Math.round(h*0.03)}px Tajawal`; c.textAlign='center';
+    c.font=`${Math.round(h*0.03)}px Tajawal`; c.textAlign='center'; c.fillStyle=g5pTxt(dark);
     c.fillText(side==='A'?'☀️':'❄️', px, py-ph*1.6);
     c.fillStyle=g5pTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`;
     c.fillText(warmLabel, px, py-ph*1.15);
@@ -693,7 +693,7 @@ function simG5Bio1N3b(){
       const st = STEPS[S.stepIdx];
       const home = TOOL_HOME[st.type];
       const x = S.dragging?S.dragX:home.x*w, y = S.dragging?S.dragY:home.y*h;
-      c.save(); c.font=`${Math.round(h*0.08)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+      c.save(); c.font=`${Math.round(h*0.08)}px Tajawal`; c.fillStyle=g5pTxt(dark); c.textAlign='center'; c.textBaseline='middle';
       c.fillText(G5_TOOL_EMOJI[st.type], x, y); c.textBaseline='alphabetic';
       c.fillStyle=g5pTxt(dark); c.font=`bold ${Math.round(h*0.017)}px Tajawal`;
       c.fillText(G5_TOOL_NAME[st.type], x, y+h*0.06);

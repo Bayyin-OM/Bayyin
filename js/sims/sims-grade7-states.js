@@ -371,7 +371,7 @@ function simG7States2b(){
     if(c.roundRect) c.roundRect(x-cw/2, y-ch2/2, cw, ch2, 10); else c.rect(x-cw/2, y-ch2/2, cw, ch2);
     c.fill(); c.stroke();
     c.fillStyle = warn ? '#fff' : g7sTxt(dark);
-    c.font = `bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='center'; c.textBaseline='middle';
+    c.font = `bold ${Math.round(h*0.016)}px Tajawal`; c.fillStyle=g7sTxt(dark); c.textAlign='center'; c.textBaseline='middle';
     c.fillText(text, x, y+1);
     c.textBaseline='alphabetic';
     c.restore();
