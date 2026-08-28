@@ -499,3 +499,564 @@ function simG10Chem1N4() {
   }
   draw();
 }
+
+// ══════════════════════════════════════════════════════════
+// الصف العاشر — كيمياء — الوحدة الثانية: استخلاص الفلزات واستخداماتها
+// ══════════════════════════════════════════════════════════
+
+// ────────────────────────────────────────────────────────────
+// نشاط ١-٢ · استخلاص النحاس من أكسيد النحاس (II) باستخدام الكربون
+// ────────────────────────────────────────────────────────────
+function _g10L5Panel() {
+  const S = simState;
+  var html = '';
+  html += '<div class="ctrl-section"><div class="ctrl-label">🧪 تجربة استخلاص فلز</div>' +
+    '<div class="ctrl-name" style="font-size:13px;font-weight:400;line-height:1.9">نفّذ التجربة خطوة بخطوة كما في المختبر الحقيقي، ثم راقب ماذا يحدث.</div></div>';
+
+  var steps = [
+    'اسحب مسحوق أكسيد النحاس الثنائي (الأسود) إلى أنبوبة التسخين.',
+    'اسحب مسحوق الفحم (الكربون) وأضِفه فوق أكسيد النحاس داخل الأنبوبة.',
+    'اضغط "شغّل النار" لتسخين الأنبوبة تسخيناً قوياً.',
+    'انتظر حتى يكتمل التسخين، ثم اضغط "أغلق النار ودع الأنبوبة تبرد".',
+    'اسحب أداة سحب الغاز إلى فوهة أنبوبة التسخين.',
+    'انقل الأداة إلى أنبوبة ماء الجير لتمرير الغاز فيها.'
+  ];
+  var cur = S.step || 0;
+  html += '<div class="ctrl-section"><div class="ctrl-label">📋 خطوات التجربة</div>';
+  steps.forEach(function(txt, i) {
+    var done = i < cur;
+    var active = i === cur;
+    html += '<div style="display:flex;gap:8px;align-items:flex-start;padding:7px 0;' +
+      (active ? 'font-weight:700;color:#B8780A' : (done ? 'color:#3B8C4A' : 'color:var(--text-muted)')) + '">' +
+      '<span>' + (done ? '✅' : (active ? '👉' : '⚪')) + '</span>' +
+      '<span style="font-size:12.5px;line-height:1.7">' + txt + '</span></div>';
+  });
+  html += '</div>';
+
+  if (cur === 0) {
+    html += '<button class="ctrl-btn play" onclick="g10L5Hint(0)" style="width:100%;margin-top:10px">🖱️ اسحب مسحوق أكسيد النحاس (CuO) أعلى اليسار إلى الأنبوبة</button>';
+  } else if (cur === 1) {
+    html += '<button class="ctrl-btn play" onclick="g10L5Hint(1)" style="width:100%;margin-top:10px">🖱️ اسحب مسحوق الفحم (C) إلى الأنبوبة</button>';
+  } else if (cur === 2) {
+    html += '<button class="ctrl-btn action" onclick="g10L5Flame(true)" style="width:100%;margin-top:10px">🔥 شغّل النار</button>';
+  } else if (cur === 3) {
+    html += '<div class="info-box" style="margin-top:6px">🔥 تسخّن الأنبوبة الآن بقوة... راقب التغيّر داخلها.</div>';
+    html += '<button class="ctrl-btn action" onclick="g10L5Flame(false)" style="width:100%;margin-top:10px" ' + (S.heatProg < 1 ? 'disabled' : '') + '>⏹ أغلق النار ودع الأنبوبة تبرد</button>';
+  } else if (cur === 4) {
+    html += '<div class="info-box" style="margin-top:6px">✨ لاحظ: تحوّل المسحوق الأسود إلى مادة <b>نحاس فلزي بنّي محمرّ لامع</b>!</div>';
+    html += '<button class="ctrl-btn play" onclick="g10L5Hint(4)" style="width:100%;margin-top:10px">🖱️ اسحب أداة سحب الغاز إلى فوهة الأنبوبة</button>';
+  } else if (cur === 5) {
+    html += '<button class="ctrl-btn play" onclick="g10L5Hint(5)" style="width:100%;margin-top:10px">🖱️ انقل الأداة إلى أنبوبة ماء الجير</button>';
+  }
+
+  if (S.limeTurbid > 0 && S.limeTurbid < 1) {
+    html += '<div class="q-box" style="margin-top:14px">🤔 ماذا يحدث للون ماء الجير؟ راقب جيداً...</div>';
+  }
+
+  if (cur >= 6) {
+    html += '<div class="info-box" style="margin-top:14px;border-color:#D4901A">💡 تعكّر ماء الجير دليل على وجود غاز <b>ثاني أكسيد الكربون CO₂</b>.</div>';
+    if (!S.showSummary) {
+      html += '<button class="ctrl-btn action" onclick="g10L5ShowSummary()" style="width:100%;margin-top:10px">📊 ماذا حدث في التجربة؟</button>';
+    }
+  }
+
+  if (S.showSummary) {
+    html += '<div class="ctrl-section" style="margin-top:14px"><div class="ctrl-label">📊 ما الذي حدث؟</div>' +
+      '<div style="font-size:12.5px;line-height:2;color:var(--text-secondary)">' +
+      '1️⃣ عند تسخين أكسيد النحاس الثنائي الأسود (CuO) مع مسحوق الفحم، يتفاعل الكربون مع أكسيد النحاس.<br>' +
+      '2️⃣ يتحوّل أكسيد النحاس الأسود إلى <b>نحاس فلزي أحمر/بنّي لامع</b>.<br>' +
+      '3️⃣ يتكوّن غاز <b>ثاني أكسيد الكربون (CO₂)</b>، ويمرّ الغاز إلى ماء الجير.<br>' +
+      '4️⃣ يتعكّر ماء الجير ويصبح <b>أبيض حليبياً</b>، وهذا دليل على وجود CO₂.</div></div>';
+    html += '<div class="ctrl-section" style="margin-top:10px"><div class="ctrl-label">⚖️ المعادلة الكيميائية</div>' +
+      '<div style="text-align:center;font-weight:800;font-size:15px;color:#B8780A;direction:ltr">2CuO + C → 2Cu + CO₂</div></div>';
+    html += '<div style="display:flex;gap:8px;margin-top:10px;font-size:12px;text-align:center">' +
+      '<div style="flex:1;background:rgba(0,0,0,0.04);border-radius:10px;padding:8px">أسود ⬅️<br><b style="color:#A0522D">نحاس بنّي محمرّ</b></div>' +
+      '<div style="flex:1;background:rgba(0,0,0,0.04);border-radius:10px;padding:8px">ماء جير شفاف ⬅️<br><b style="color:#777">متعكّر أبيض حليبي</b></div></div>';
+    if (!S.showConclusion) {
+      html += '<button class="ctrl-btn action" onclick="g10L5ShowConclusion()" style="width:100%;margin-top:12px">🎯 الاستنتاج</button>';
+    } else {
+      html += '<div class="info-box" style="margin-top:12px;border-color:#3B8C4A">🏆 <b>الاستنتاج:</b> الكربون أكثر نشاطاً من النحاس، لذلك يستطيع اختزال أكسيد النحاس وإزاحة النحاس منه.</div>';
+    }
+  }
+
+  controls(html);
+}
+
+window.g10L5Hint = function(step) {
+  var msgs = {
+    0: 'اسحب كومة المسحوق الأسود (CuO) من أعلى يسار المشهد إلى داخل الأنبوبة 🖱️',
+    1: 'اسحب كومة الفحم من أعلى يمين المشهد إلى داخل الأنبوبة 🖱️',
+    4: 'اسحب أداة سحب الغاز 🧪 من مكانها إلى فوهة أنبوبة التسخين',
+    5: 'الآن انقل الأداة الممتلئة بالغاز إلى أنبوبة ماء الجير على اليمين'
+  };
+  buddySay(msgs[step] || 'تابع التجربة 👀', 4500);
+};
+
+window.g10L5Flame = function(on) {
+  const S = simState;
+  if (on) {
+    S.flameOn = true;
+    S.heatProg = 0;
+    _g10L5Panel();
+  } else {
+    S.flameOn = false;
+    S.cooling = true;
+    U9Sound.ping(380, 0.15, 0.2);
+    _g10L5Panel();
+  }
+};
+
+window.g10L5ShowSummary = function() { simState.showSummary = true; _g10L5Panel(); };
+window.g10L5ShowConclusion = function() {
+  simState.showConclusion = true;
+  U9Sound.win();
+  buddySay('أحسنت! أنهيت التجربة بنجاح 🏆', 4500);
+  _g10L5Panel();
+};
+
+function simG10Chem2N1() {
+  cancelAnimationFrame(animFrame);
+  simState = {
+    t: 0, step: 0, flameOn: false, heatProg: 0, cooling: false, cooled: false,
+    limeTurbid: 0, showSummary: false, showConclusion: false,
+    heap1: { placed: false, dragging: false, x: 0, y: 0 },
+    heap2: { placed: false, dragging: false, x: 0, y: 0 },
+    dropper: { placed: 'shelf', dragging: false, x: 0, y: 0, gasLoaded: false }
+  };
+  const S = simState;
+  _g10L5Panel();
+  const cv = document.getElementById('simCanvas');
+
+  function L() {
+    var w = elW(), h = elH();
+    return {
+      w: w, h: h,
+      tubeX: w * 0.30, tubeY: h * 0.52, tubeW: w * 0.30, tubeH: h * 0.10,
+      standX: w * 0.30, standY: h * 0.60,
+      burnerX: w * 0.30, burnerY: h * 0.86,
+      heap1Home: { x: w * 0.10, y: h * 0.18 },
+      heap2Home: { x: w * 0.24, y: h * 0.14 },
+      dropperHome: { x: w * 0.52, y: h * 0.22 },
+      limeX: w * 0.80, limeY: h * 0.55, limeW: w * 0.11, limeH: h * 0.34
+    };
+  }
+  if (!S.heap1.placed) { var l0 = L(); S.heap1.x = l0.heap1Home.x; S.heap1.y = l0.heap1Home.y; }
+  if (!S.heap2.placed) { var l1 = L(); S.heap2.x = l1.heap2Home.x; S.heap2.y = l1.heap2Home.y; }
+  var l2 = L(); S.dropper.x = l2.dropperHome.x; S.dropper.y = l2.dropperHome.y;
+
+  function gp(e) {
+    var r = cv.getBoundingClientRect(), sc = cv.width / r.width;
+    var s = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+    return { x: (s.clientX - r.left) * sc, y: (s.clientY - r.top) * sc };
+  }
+
+  function onDown(e) {
+    var p = gp(e), l = L();
+    if (S.step === 0 && !S.heap1.placed && Math.hypot(p.x - S.heap1.x, p.y - S.heap1.y) < 40) {
+      S.heap1.dragging = true; e.preventDefault && e.preventDefault();
+    } else if (S.step === 1 && !S.heap2.placed && Math.hypot(p.x - S.heap2.x, p.y - S.heap2.y) < 40) {
+      S.heap2.dragging = true; e.preventDefault && e.preventDefault();
+    } else if (S.step === 4 && S.dropper.placed === 'shelf' && Math.hypot(p.x - S.dropper.x, p.y - S.dropper.y) < 40) {
+      S.dropper.dragging = true; e.preventDefault && e.preventDefault();
+    } else if (S.step === 5 && S.dropper.placed === 'tube' && Math.hypot(p.x - S.dropper.x, p.y - S.dropper.y) < 40) {
+      S.dropper.dragging = true; e.preventDefault && e.preventDefault();
+    }
+  }
+  function onMove(e) {
+    var p = gp(e);
+    if (S.heap1.dragging) { S.heap1.x = p.x; S.heap1.y = p.y; }
+    if (S.heap2.dragging) { S.heap2.x = p.x; S.heap2.y = p.y; }
+    if (S.dropper.dragging) { S.dropper.x = p.x; S.dropper.y = p.y; }
+  }
+  function onUp(e) {
+    var l = L();
+    if (S.heap1.dragging) {
+      S.heap1.dragging = false;
+      if (Math.hypot(S.heap1.x - l.tubeX, S.heap1.y - l.tubeY) < 70) {
+        S.heap1.placed = true; S.step = 1; U9Sound.win(); buddySay('أضفت أكسيد النحاس الأسود ✅ الآن أضف الفحم', 4000);
+      } else { S.heap1.x = l.heap1Home.x; S.heap1.y = l.heap1Home.y; }
+      _g10L5Panel();
+    }
+    if (S.heap2.dragging) {
+      S.heap2.dragging = false;
+      if (Math.hypot(S.heap2.x - l.tubeX, S.heap2.y - l.tubeY) < 70) {
+        S.heap2.placed = true; S.step = 2; U9Sound.win(); buddySay('ممتاز! الأنبوبة جاهزة الآن للتسخين 🔥', 4000);
+      } else { S.heap2.x = l.heap2Home.x; S.heap2.y = l.heap2Home.y; }
+      _g10L5Panel();
+    }
+    if (S.dropper.dragging) {
+      S.dropper.dragging = false;
+      if (S.step === 4 && Math.hypot(S.dropper.x - l.tubeX, S.dropper.y - l.tubeY) < 70) {
+        S.dropper.placed = 'tube'; S.dropper.gasLoaded = true; S.step = 5;
+        U9Sound.win(); buddySay('التقطت الغاز! انقله الآن إلى أنبوبة ماء الجير 🧪', 4200);
+      } else if (S.step === 5 && Math.hypot(S.dropper.x - l.limeX, S.dropper.y - l.limeY) < 70) {
+        S.dropper.placed = 'lime'; S.step = 6; S.limeTurbid = 0.001;
+        U9Sound.win();
+      } else if (S.step === 4) {
+        S.dropper.x = l.dropperHome.x; S.dropper.y = l.dropperHome.y;
+      } else if (S.step === 5) {
+        S.dropper.x = l.tubeX; S.dropper.y = l.tubeY;
+      }
+      _g10L5Panel();
+    }
+  }
+  cv.addEventListener('mousedown', onDown); cv.addEventListener('mousemove', onMove); cv.addEventListener('mouseup', onUp);
+  cv.addEventListener('touchstart', onDown, { passive: false }); cv.addEventListener('touchmove', onMove, { passive: false }); cv.addEventListener('touchend', onUp, { passive: false });
+
+  function drawBunsen(c, x, y, w, on) {
+    c.fillStyle = '#4A4A4A';
+    c.beginPath(); c.roundRect(x - w * 0.5, y, w, w * 0.18, 4); c.fill();
+    c.fillStyle = '#6E6E6E';
+    c.beginPath(); c.roundRect(x - w * 0.09, y - w * 0.6, w * 0.18, w * 0.62, 3); c.fill();
+    if (on) {
+      var g = c.createLinearGradient(0, y - w * 0.6, 0, y - w * 1.5);
+      g.addColorStop(0, '#4F9BFF'); g.addColorStop(0.5, '#FFB74A'); g.addColorStop(1, 'rgba(255,183,74,0)');
+      c.fillStyle = g;
+      c.beginPath();
+      c.moveTo(x - w * 0.08, y - w * 0.6);
+      c.quadraticCurveTo(x - w * 0.16, y - w * 1.05, x, y - w * (1.35 + 0.08 * Math.sin(S.t * 0.3)));
+      c.quadraticCurveTo(x + w * 0.16, y - w * 1.05, x + w * 0.08, y - w * 0.6);
+      c.closePath(); c.fill();
+    }
+  }
+
+  function draw() {
+    if (currentSim !== 'g10chem2n1') { cancelAnimationFrame(animFrame); return; }
+    var c = cv.getContext('2d'), w = cv.width, h = cv.height, l = L();
+    c.clearRect(0, 0, w, h);
+    var bg = c.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#F7F3EA'); bg.addColorStop(1, '#EDE6D6');
+    c.fillStyle = bg; c.fillRect(0, 0, w, h);
+    S.t++;
+
+    // منضدة المختبر
+    c.fillStyle = 'rgba(120,90,50,0.10)';
+    c.fillRect(0, h * 0.90, w, h * 0.10);
+
+    // حامل الأنبوبة
+    c.strokeStyle = '#8A8A8A'; c.lineWidth = 4;
+    c.beginPath(); c.moveTo(l.standX - l.tubeW * 0.6, l.standY + 10); c.lineTo(l.standX - l.tubeW * 0.6, h * 0.9); c.stroke();
+    c.beginPath(); c.moveTo(l.standX - l.tubeW * 0.6, l.standY + 10); c.lineTo(l.tubeX + l.tubeW * 0.15, l.standY + 10); c.stroke();
+
+    // أنبوبة التسخين (أفقية مائلة قليلاً)
+    c.save();
+    c.translate(l.tubeX, l.tubeY); c.rotate(-0.06);
+    c.fillStyle = 'rgba(230,240,245,0.55)';
+    c.strokeStyle = '#93A6AD'; c.lineWidth = 2.5;
+    c.beginPath(); c.roundRect(-l.tubeW * 0.5, -l.tubeH * 0.5, l.tubeW, l.tubeH, l.tubeH * 0.5); c.fill(); c.stroke();
+
+    // محتوى الأنبوبة
+    var mixColor = '#2B2B2B';
+    if (S.cooled) mixColor = '#A0522D';
+    else if (S.flameOn) {
+      var p = Math.min(1, S.heatProg);
+      mixColor = 'rgb(' + Math.round(43 + (160 - 43) * p) + ',' + Math.round(43 + (82 - 43) * p) + ',' + Math.round(43 + (45 - 43) * p) + ')';
+    }
+    if (S.heap1.placed || S.heap2.placed) {
+      c.fillStyle = mixColor;
+      c.beginPath(); c.roundRect(-l.tubeW * 0.42, -l.tubeH * 0.32, l.tubeW * 0.5, l.tubeH * 0.62, 5); c.fill();
+      if (S.cooled) {
+        // بريق النحاس
+        for (var i = 0; i < 10; i++) {
+          c.fillStyle = 'rgba(255,215,180,' + (0.15 + 0.15 * Math.sin(S.t * 0.05 + i)) + ')';
+          c.beginPath(); c.arc(-l.tubeW * 0.42 + 6 + i * (l.tubeW * 0.045), -l.tubeH * 0.1, 3, 0, Math.PI * 2); c.fill();
+        }
+      }
+    }
+    c.restore();
+
+    // موقد بنزن
+    drawBunsen(c, l.burnerX, l.burnerY, w * 0.09, S.flameOn);
+
+    // تقدم التسخين
+    if (S.flameOn && S.heatProg < 1) {
+      S.heatProg += 0.006;
+      if (S.heatProg >= 1) { S.heatProg = 1; buddySay('اكتمل التسخين! أغلق النار الآن ⏹', 4000); _g10L5Panel(); }
+    }
+    if (S.cooling) {
+      S.coolProg = (S.coolProg || 0) + 0.02;
+      if (S.coolProg >= 1 && !S.cooled) { S.cooled = true; S.cooling = false; S.step = 4; _g10L5Panel(); buddySay('انظر! تحوّل المسحوق إلى نحاس فلزي لامع ✨', 4500); }
+    }
+
+    // أكوام المساحيق (على الرف قبل السحب / أثناء السحب)
+    function drawHeap(pos, color, label, active) {
+      if (pos.placed) return;
+      c.fillStyle = color;
+      c.beginPath(); c.arc(pos.x, pos.y, 26, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = 'rgba(0,0,0,0.25)'; c.lineWidth = 1.5; c.stroke();
+      c.fillStyle = '#fff'; c.font = 'bold 12px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(label, pos.x, pos.y);
+      if (!pos.dragging && active) {
+        c.strokeStyle = 'rgba(212,144,26,0.8)'; c.lineWidth = 2; c.setLineDash([4, 4]);
+        c.beginPath(); c.arc(pos.x, pos.y, 34, 0, Math.PI * 2); c.stroke(); c.setLineDash([]);
+      }
+    }
+    drawHeap(S.heap1, '#2B2B2B', 'CuO', S.step === 0);
+    drawHeap(S.heap2, '#3D3D3D', 'C', S.step === 1);
+
+    // أنبوبة ماء الجير
+    c.fillStyle = 'rgba(230,240,245,0.4)'; c.strokeStyle = '#93A6AD'; c.lineWidth = 2.5;
+    c.beginPath(); c.roundRect(l.limeX - l.limeW / 2, l.limeY, l.limeW, l.limeH, 8); c.fill(); c.stroke();
+    var turb = S.limeTurbid;
+    if (turb > 0 && turb < 1) { S.limeTurbid = Math.min(1, turb + 0.006); }
+    if (turb >= 1 && S.step === 6 && !S._limeDoneMsg) { S._limeDoneMsg = true; buddySay('تعكّر ماء الجير! دليل على غاز CO₂ 🎉', 4500); _g10L5Panel(); }
+    var lc = 'rgba(41,128,185,' + (0.12 * (1 - turb)).toFixed(3) + ')';
+    c.fillStyle = lc; c.fillRect(l.limeX - l.limeW / 2 + 3, l.limeY + l.limeH * 0.15, l.limeW - 6, l.limeH * 0.8);
+    if (turb > 0) {
+      c.fillStyle = 'rgba(255,255,255,' + Math.min(0.9, turb).toFixed(3) + ')';
+      c.fillRect(l.limeX - l.limeW / 2 + 3, l.limeY + l.limeH * 0.15, l.limeW - 6, l.limeH * 0.8);
+    }
+    c.fillStyle = '#5A4020'; c.font = '11px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillText('ماء الجير', l.limeX, l.limeY + l.limeH + 4);
+
+    // أداة سحب الغاز
+    if (!S.dropper.dragging || true) {
+      c.save(); c.translate(S.dropper.x, S.dropper.y);
+      c.fillStyle = '#DCE6E9'; c.strokeStyle = '#8FA3AA'; c.lineWidth = 1.5;
+      c.beginPath(); c.roundRect(-6, -22, 12, 30, 4); c.fill(); c.stroke();
+      c.beginPath(); c.moveTo(-6, -22); c.lineTo(0, -34); c.lineTo(6, -22); c.closePath(); c.fill(); c.stroke();
+      if (S.dropper.gasLoaded) { c.fillStyle = 'rgba(180,220,255,0.7)'; c.beginPath(); c.arc(0, -2, 4, 0, Math.PI * 2); c.fill(); }
+      c.restore();
+    }
+    if (S.step === 4 || S.step === 5) {
+      c.strokeStyle = 'rgba(212,144,26,0.8)'; c.lineWidth = 2; c.setLineDash([4, 4]);
+      c.beginPath(); c.arc(S.dropper.x, S.dropper.y, 30, 0, Math.PI * 2); c.stroke(); c.setLineDash([]);
+    }
+
+    // تسميات
+    c.fillStyle = '#5A4020'; c.font = 'bold 12px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+    c.fillText('أنبوبة التسخين', l.tubeX, l.tubeY + l.tubeH * 0.7 + 8);
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ────────────────────────────────────────────────────────────
+// نشاط ٢-٢ · الفرن العالي — استخلاص الحديد
+// ────────────────────────────────────────────────────────────
+var _G10_BF_REACTIONS = [
+  { t: 'الكربون يحترق بالهواء الساخن عند قاعدة الفرن', eq: 'C + O₂ → CO₂' },
+  { t: 'ثاني أكسيد الكربون يتفاعل مع مزيد من الكربون', eq: 'CO₂ + C → 2CO' },
+  { t: 'أحادي أكسيد الكربون يختزل أكسيد الحديد ويُنتج الحديد المنصهر', eq: 'Fe₂O₃ + 3CO → 2Fe + 3CO₂' }
+];
+
+function _g10L6Panel() {
+  const S = simState;
+  var html = '';
+  html += '<div class="ctrl-section"><div class="ctrl-label">🏭 الفرن العالي</div>' +
+    '<div class="ctrl-name" style="font-size:13px;font-weight:400;line-height:1.9">أضِف المواد الخام إلى الفرن، ثم اضخّ الهواء الساخن وراقب كيف يُستخلَص الحديد.</div></div>';
+
+  var mats = [
+    { k: 'ore', label: 'خام الحديد (Fe₂O₃)', icon: '🪨' },
+    { k: 'coke', label: 'فحم الكوك (C)', icon: '⚫' },
+    { k: 'lime', label: 'الحجر الجيري (CaCO₃)', icon: '🧱' }
+  ];
+  html += '<div class="ctrl-section"><div class="ctrl-label">📦 المواد الخام</div>';
+  mats.forEach(function(m) {
+    var added = S.added[m.k];
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0">' +
+      '<span style="font-size:18px">' + m.icon + '</span>' +
+      '<span style="flex:1;font-size:12.5px;' + (added ? 'color:#3B8C4A;font-weight:700' : 'color:var(--text-secondary)') + '">' + m.label + (added ? ' ✅' : '') + '</span>' +
+      (added ? '' : '<button class="ctrl-btn" style="padding:5px 10px;font-size:12px" onclick="g10L6Add(\'' + m.k + '\')">أضِف ⬇️</button>') +
+      '</div>';
+  });
+  html += '</div>';
+
+  var allAdded = S.added.ore && S.added.coke && S.added.lime;
+  if (allAdded && !S.airOn) {
+    html += '<button class="ctrl-btn action" onclick="g10L6Air()" style="width:100%;margin-top:12px">💨 ضخّ الهواء الساخن</button>';
+  } else if (!allAdded) {
+    html += '<div class="info-box" style="margin-top:12px">👆 أضِف خام الحديد وفحم الكوك والحجر الجيري إلى الفرن أولاً.</div>';
+  }
+
+  if (S.airOn) {
+    html += '<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label">🔥 التفاعلات داخل الفرن</div>';
+    _G10_BF_REACTIONS.forEach(function(r, i) {
+      var shown = S.reactStage > i;
+      var active = S.reactStage === i;
+      html += '<div style="padding:7px 0;' + (shown ? 'opacity:1' : (active ? 'opacity:1' : 'opacity:0.35')) + '">' +
+        '<div style="font-size:12px;color:var(--text-secondary)">' + (i + 1) + '️⃣ ' + r.t + '</div>' +
+        (shown || active ? '<div style="direction:ltr;text-align:center;font-weight:800;color:#B8780A;font-size:13.5px;margin-top:2px">' + r.eq + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (S.showLimeInfo) {
+    html += '<div class="info-box" style="margin-top:12px;border-color:#8E6A9A">🧱 يُستخدم الحجر الجيري لإزالة الشوائب الرئيسية، مثل الرمل، وتكوين <b>الخبث (سيليكات الكالسيوم)</b>.</div>';
+  }
+
+  if (S.ironFormed) {
+    html += '<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label">⬇️ الناتج في أسفل الفرن</div>' +
+      '<div style="font-size:12.5px;line-height:2;color:var(--text-secondary)">' +
+      '🔶 <b style="color:#C0432B">الحديد المنصهر</b> — يتجمّع في الأسفل بسبب كثافته العالية.<br>' +
+      '🟣 <b style="color:#8E6A9A">الخبث</b> — يطفو فوق الحديد، أخفّ منه في الكثافة.<br>' +
+      '↑ <b style="color:#5B8DBF">غازات العادم</b> — تصعد وتخرج من أعلى الفرن.</div></div>';
+    if (!S.quizShown) {
+      html += '<button class="ctrl-btn action" onclick="g10L6Quiz()" style="width:100%;margin-top:12px">🧠 اختبر نفسك</button>';
+    }
+  }
+
+  if (S.quizShown) {
+    html += '<div class="q-box" style="margin-top:14px"><strong>ما المادة التي تساعد على إزالة الشوائب من خام الحديد؟</strong>' +
+      '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">' +
+      '<button class="ctrl-btn" onclick="g10L6Answer(this,false)">خام الحديد</button>' +
+      '<button class="ctrl-btn" onclick="g10L6Answer(this,false)">فحم الكوك</button>' +
+      '<button class="ctrl-btn" onclick="g10L6Answer(this,true)">الحجر الجيري</button>' +
+      '<button class="ctrl-btn" onclick="g10L6Answer(this,false)">الهواء الساخن</button>' +
+      '</div><div id="g10l6fb" style="margin-top:8px;font-size:13px;font-weight:700"></div></div>';
+  }
+
+  if (S.info) html += '<div class="info-box" style="margin-top:14px">' + S.info + '</div>';
+
+  controls(html);
+}
+
+window.g10L6Add = function(k) {
+  simState.added[k] = true;
+  U9Sound.ping(520, 0.12, 0.18);
+  if (k === 'lime') simState.showLimeInfo = true;
+  _g10L6Panel();
+};
+
+window.g10L6Air = function() {
+  const S = simState;
+  S.airOn = true; S.reactStage = 0; S.t2 = 0;
+  U9Sound.ping(300, 0.2, 0.2);
+  buddySay('يشتعل فحم الكوك بالهواء الساخن! راقب التفاعلات المتتالية 🔥', 4500);
+  _g10L6Panel();
+};
+
+window.g10L6Quiz = function() { simState.quizShown = true; _g10L6Panel(); };
+window.g10L6Answer = function(btn, correct) {
+  var fb = document.getElementById('g10l6fb');
+  if (correct) {
+    fb.style.color = '#1E8449';
+    fb.textContent = '✅ أحسنت! يساعد الحجر الجيري على إزالة الشوائب وتكوين الخبث.';
+    U9Sound.win();
+  } else {
+    fb.style.color = '#C0392B';
+    fb.textContent = '❌ حاول مرة أخرى 💡';
+    U9Sound.ping(220, 0.3, 0.25);
+  }
+};
+
+function simG10Chem2N2() {
+  cancelAnimationFrame(animFrame);
+  simState = {
+    t: 0, t2: 0, added: { ore: false, coke: false, lime: false },
+    airOn: false, reactStage: -1, ironFormed: false, showLimeInfo: false,
+    quizShown: false, info: null
+  };
+  const S = simState;
+  _g10L6Panel();
+  const cv = document.getElementById('simCanvas');
+
+  function draw() {
+    if (currentSim !== 'g10chem2n2') { cancelAnimationFrame(animFrame); return; }
+    var c = cv.getContext('2d'), w = cv.width, h = cv.height;
+    c.clearRect(0, 0, w, h);
+    var bg = c.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#1C1A17'); bg.addColorStop(1, '#0F0D0B');
+    c.fillStyle = bg; c.fillRect(0, 0, w, h);
+    S.t++;
+
+    var fx = w * 0.5, topY = h * 0.06, botY = h * 0.86, topW = w * 0.22, botW = w * 0.34, midW = w * 0.40;
+    // جسم الفرن (مقطعي)
+    c.strokeStyle = '#8A8378'; c.lineWidth = 4;
+    c.fillStyle = 'rgba(120,100,80,0.10)';
+    c.beginPath();
+    c.moveTo(fx - topW / 2, topY);
+    c.lineTo(fx + topW / 2, topY);
+    c.lineTo(fx + midW / 2, h * 0.42);
+    c.lineTo(fx + botW / 2, botY);
+    c.lineTo(fx - botW / 2, botY);
+    c.lineTo(fx - midW / 2, h * 0.42);
+    c.closePath(); c.fill(); c.stroke();
+
+    // فتحة خروج العادم أعلى الفرن
+    c.strokeStyle = '#5B8DBF'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(fx + topW / 2 + 4, topY + 6); c.lineTo(fx + topW / 2 + 30, topY - 12); c.stroke();
+    c.fillStyle = '#5B8DBF'; c.font = '11px Tajawal'; c.textAlign = 'right'; c.textBaseline = 'bottom';
+    c.fillText('↑ غاز العادم', fx + topW / 2 + 32, topY - 14);
+
+    // المواد الخام في الأعلى (إن أُضيفت)
+    var addedCount = (S.added.ore ? 1 : 0) + (S.added.coke ? 1 : 0) + (S.added.lime ? 1 : 0);
+    if (addedCount > 0) {
+      var fillH = Math.min(h * 0.34, h * 0.10 * addedCount);
+      c.fillStyle = '#3A322A';
+      c.beginPath();
+      c.moveTo(fx - topW / 2 + 3, topY + 6);
+      c.lineTo(fx + topW / 2 - 3, topY + 6);
+      c.lineTo(fx + topW / 2 + (midW - topW) / 2 * (fillH / (h * 0.36)) - 3, topY + 6 + fillH);
+      c.lineTo(fx - topW / 2 - (midW - topW) / 2 * (fillH / (h * 0.36)) + 3, topY + 6 + fillH);
+      c.closePath(); c.fill();
+      var specks = ['#8A6D4E', '#2B2B2B', '#C9BFA8'];
+      for (var i = 0; i < addedCount * 14; i++) {
+        c.fillStyle = specks[i % 3];
+        c.beginPath();
+        c.arc(fx - topW / 2 + 8 + (i * 9 % (topW - 16)), topY + 12 + (i * 13 % (fillH - 8)), 3, 0, Math.PI * 2);
+        c.fill();
+      }
+    }
+
+    // منطقة الاحتراق السفلية + الهواء الساخن
+    if (S.airOn) {
+      // فتحات الهواء
+      for (var side = -1; side <= 1; side += 2) {
+        var hx = fx + side * (botW / 2 - 6), hy = botY - 14;
+        c.fillStyle = 'rgba(255,140,60,0.9)';
+        c.beginPath(); c.arc(hx, hy, 6, 0, Math.PI * 2); c.fill();
+      }
+      // توهج الاحتراق
+      var glowR = w * 0.20;
+      var glow = c.createRadialGradient(fx, botY - 10, 4, fx, botY - 10, glowR);
+      glow.addColorStop(0, 'rgba(255,150,40,0.85)');
+      glow.addColorStop(0.5, 'rgba(255,90,20,0.35)');
+      glow.addColorStop(1, 'rgba(255,90,20,0)');
+      c.fillStyle = glow;
+      c.beginPath(); c.arc(fx, botY - 10, glowR, 0, Math.PI * 2); c.fill();
+
+      // فقاعات غاز صاعدة (CO تتصاعد)
+      S.t2++;
+      for (var b = 0; b < 8; b++) {
+        var by = botY - ((S.t2 * 1.4 + b * 40) % (botY - topY - 20));
+        var bx = fx + Math.sin((S.t2 + b * 30) * 0.05) * (midW * 0.18);
+        c.fillStyle = 'rgba(255,170,90,' + (0.5 - 0.4 * ((botY - by) / (botY - topY))) + ')';
+        c.beginPath(); c.arc(bx, by, 4, 0, Math.PI * 2); c.fill();
+      }
+
+      // تقدّم مراحل التفاعل
+      if (S.reactStage < 2 && S.t2 % 90 === 0) {
+        S.reactStage++;
+        _g10L6Panel();
+      }
+      if (S.reactStage >= 2 && !S.ironFormed && S.t2 > 300) {
+        S.ironFormed = true;
+        buddySay('تكوّن الحديد المنصهر في قاع الفرن! 🎉', 4500);
+        _g10L6Panel();
+      }
+    }
+
+    // الحديد المنصهر + الخبث في القاع
+    if (S.ironFormed) {
+      var poolH = h * 0.09;
+      c.fillStyle = '#B14A2A';
+      c.beginPath(); c.roundRect(fx - botW / 2 + 8, botY - poolH, botW - 16, poolH - 3, 4); c.fill();
+      for (var k = 0; k < 6; k++) {
+        c.fillStyle = 'rgba(255,200,120,' + (0.25 + 0.2 * Math.sin(S.t * 0.08 + k)) + ')';
+        c.beginPath(); c.arc(fx - botW / 2 + 20 + k * ((botW - 40) / 5), botY - poolH * 0.4, 4, 0, Math.PI * 2); c.fill();
+      }
+      c.fillStyle = '#B98ACB';
+      c.beginPath(); c.roundRect(fx - botW / 2 + 8, botY - poolH - 8, botW - 16, 7, 3); c.fill();
+      c.fillStyle = '#DCC8E0'; c.font = '10px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+      c.fillText('خبث', fx, botY - poolH - 10);
+      c.fillStyle = '#F4C9A8'; c.font = 'bold 11px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText('حديد منصهر', fx, botY + 4);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}

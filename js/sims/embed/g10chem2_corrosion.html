@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محاكاة العوامل المؤثرة في صدأ الحديد</title>
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --card: #ffffff;
+    --border: #ddd9d0;
+    --text-primary: #2c2c2a;
+    --text-secondary: #6a6a66;
+    --text-muted: #9a9890;
+    --accent: #185fa5;
+    --accent-bg: #e6f1fb;
+    --warning: #854f0b;
+    --warning-bg: #faeeda;
+    --success: #3b6d11;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Tahoma", "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 1rem 0.5rem 2rem;
+    direction: rtl;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--text-primary);
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem;
+  }
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+    background: var(--accent-bg);
+    padding: 12px 16px;
+    border-radius: 10px;
+  }
+  .slider-row label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 4px;
+  }
+  #days-out {
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 60px;
+    text-align: left;
+    color: var(--accent);
+  }
+  .tubes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  @media (max-width: 480px) {
+    .tubes { grid-template-columns: 1fr; }
+  }
+  .tube-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .tube-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .tube-cond {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+    min-height: 32px;
+  }
+  .badges {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 20px;
+  }
+  .badge.on { background: var(--accent-bg); color: var(--accent); }
+  .badge.off { background: #f1efe8; color: var(--text-muted); }
+  .nail-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+    background: #f1efe8;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .nail {
+    width: 10px;
+    height: 54px;
+    border-radius: 4px;
+    background: #9a9890;
+    transition: background 0.3s ease;
+  }
+  .status {
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .btn:active { transform: scale(0.98); }
+  .conclusion {
+    display: none;
+    margin-top: 1rem;
+    background: var(--warning-bg);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .conclusion p.title {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    color: var(--warning);
+  }
+  .conclusion p.body {
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="subtitle" style="margin-top:0">حرّك الشريط لتمثيل مرور الأيام، وراقب ماذا يحدث للمسمار الحديدي في كل أنبوبة اختبار.</p>
+
+  <div class="slider-row">
+    <label for="days">عدد الأيام المنقضية</label>
+    <input type="range" min="0" max="7" step="1" value="0" id="days" />
+    <span id="days-out">0 يوم</span>
+  </div>
+
+  <div class="tubes" id="tubes"></div>
+
+  <button class="btn" id="concludeBtn">اطّلع على الاستنتاج</button>
+
+  <div class="conclusion" id="conclusion">
+    <p class="title">الاستنتاج</p>
+    <p class="body">يصدأ الحديد فقط عندما يتوفّر الماء والأكسجين معًا في وقت واحد (كما في الأنبوبتين ١ و٤). أما غياب أحدهما فقط -سواء الماء (الأنبوبة ٢) أو الأكسجين (الأنبوبة ٣)- فيمنع تكوّن الصدأ تمامًا. كما أنّ زيادة تركيز الأكسجين (الأنبوبة ٤) تُسرّع معدّل الصدأ مقارنةً بالهواء العادي.</p>
+  </div>
+
+  <footer>محاكاة تعليمية — الوحدة الثانية: استخلاص الفلزّات واستخدامها</footer>
+</div>
+
+<script>
+  const tubesData = [
+    { id: 1, label: "الأنبوبة ١ (ضابطة)", water: true, oxygen: true, rate: 1, cond: "هواء عادي + ماء مقطّر" },
+    { id: 2, label: "الأنبوبة ٢", water: false, oxygen: true, rate: 0, cond: "هواء جاف (بدون ماء) — عامل تجفيف" },
+    { id: 3, label: "الأنبوبة ٣", water: true, oxygen: false, rate: 0, cond: "ماء مغلي منزوع الأكسجين + طبقة زيت" },
+    { id: 4, label: "الأنبوبة ٤", water: true, oxygen: true, rate: 2, cond: "ماء مقطّر + أكسجين نقي" },
+  ];
+
+  const tubesEl = document.getElementById('tubes');
+
+  function badge(present, name) {
+    const cls = present ? 'on' : 'off';
+    return '<span class="badge ' + cls + '">' + name + '</span>';
+  }
+
+  function rustColor(pct) {
+    // interpolate from gray (#9a9890) to rust brown (#a3521d)
+    const from = [0x9a, 0x98, 0x90];
+    const to = [0xa3, 0x52, 0x1d];
+    const t = pct / 100;
+    const c = from.map((f, i) => Math.round(f + (to[i] - f) * t));
+    return 'rgb(' + c.join(',') + ')';
+  }
+
+  function renderTubes(days) {
+    tubesEl.innerHTML = tubesData.map(t => {
+      const rustPct = Math.min(100, t.rate * days * 14);
+      const nailColor = rustColor(rustPct);
+      let statusText, statusColor;
+      if (rustPct === 0) { statusText = 'لا صدأ'; statusColor = 'var(--text-secondary)'; }
+      else if (rustPct < 40) { statusText = 'بداية الصدأ'; statusColor = 'var(--warning)'; }
+      else if (rustPct < 100) { statusText = 'صدأ متزايد'; statusColor = 'var(--warning)'; }
+      else { statusText = 'صدأ كامل'; statusColor = '#a32d2d'; }
+
+      return '<div class="tube-card">' +
+        '<p class="tube-title">' + t.label + '</p>' +
+        '<p class="tube-cond">' + t.cond + '</p>' +
+        '<div class="badges">' + badge(t.water, 'ماء') + badge(t.oxygen, 'أكسجين') + '</div>' +
+        '<div class="nail-box"><div class="nail" style="background:' + nailColor + '"></div></div>' +
+        '<p class="status" style="color:' + statusColor + '">' + statusText + '</p>' +
+      '</div>';
+    }).join('');
+  }
+
+  const daysSlider = document.getElementById('days');
+  const daysOut = document.getElementById('days-out');
+
+  function update() {
+    const d = Number(daysSlider.value);
+    daysOut.textContent = d + ' يوم';
+    renderTubes(d);
+  }
+
+  daysSlider.addEventListener('input', update);
+  update();
+
+  document.getElementById('concludeBtn').addEventListener('click', function () {
+    document.getElementById('conclusion').style.display = 'block';
+  });
+</script>
+</body>
+</html>

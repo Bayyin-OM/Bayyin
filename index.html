@@ -4124,11 +4124,20 @@
           </div>
         </div>
 
+        <div class="unit-card" onclick="openUnit('g10chem2', this)">
+          <div class="unit-num-badge c-gold">٢</div>
+          <div>
+            <div class="unit-title">استخلاص الفلزات واستخدامها</div>
+            <div class="unit-topics">استخلاص النحاس بالكربون · الفرن العالي وإنتاج الحديد · صناعة الفولاذ · تآكل الفلزات وحمايتها</div>
+            <div class="unit-pill avail">🔓 ٤ استقصاءات متاحة</div>
+          </div>
+        </div>
+
         <div class="unit-card" style="cursor:default;opacity:0.6" data-placeholder="1">
           <div class="unit-num-badge">⏳</div>
           <div>
             <div class="unit-title">باقي الوحدات قادمة قريباً</div>
-            <div class="unit-topics">سيتم إضافة استخلاص الفلزات، الكيمياء الكمية، والكيمياء العضوية تباعاً</div>
+            <div class="unit-topics">سيتم إضافة الكيمياء الكمية والكيمياء العضوية تباعاً</div>
             <div class="unit-pill">🔒 قريباً</div>
           </div>
         </div>
@@ -4169,6 +4178,57 @@
               <div class="sim-num">٤-١ · نشاط الفلزات</div>
               <div class="sim-name">من الفلز الأكثر نشاطاً؟</div>
               <div class="sim-desc">أضف الخارصين إلى محلول كبريتات النحاس وراقب تفاعل الإزاحة يحدث أمامك خطوة بخطوة</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ sims: g10chem2 ══ -->
+      <div class="sims-wrap" id="sims-g10chem2" style="margin-top:28px">
+        <div class="sims-header">
+          <div class="sims-title">استقصاءات الوحدة الثانية — استخلاص الفلزات واستخدامها</div>
+          <div class="sims-count">٤ استقصاءات</div>
+        </div>
+        <div class="sims-grid">
+
+          <div class="sim-card" onclick="openSim('g10chem2n1')">
+            <div class="sim-thumb t5">⚗️</div>
+            <div class="sim-body">
+              <div class="sim-num">١-٢ · استخلاص النحاس</div>
+              <div class="sim-name">استخلاص النحاس من أكسيد النحاس بالكربون</div>
+              <div class="sim-desc">نفّذ تجربة مخبرية تفاعلية: أضِف أكسيد النحاس والفحم، سخّن الأنبوبة، وراقب تكوّن النحاس الفلزي وتعكّر ماء الجير</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g10chem2n2')">
+            <div class="sim-thumb t7">🏭</div>
+            <div class="sim-body">
+              <div class="sim-num">٢-٢ · الفرن العالي</div>
+              <div class="sim-name">استخلاص الحديد في الفرن العالي</div>
+              <div class="sim-desc">أضِف خام الحديد وفحم الكوك والحجر الجيري، اضخّ الهواء الساخن، وتابع التفاعلات المتتالية حتى تكوّن الحديد المنصهر</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g10chem2n3')">
+            <div class="sim-thumb t6">🔩</div>
+            <div class="sim-body">
+              <div class="sim-num">٢-٢ · صناعة الفولاذ</div>
+              <div class="sim-name">محاكاة عملية الأكسجين الأساسية</div>
+              <div class="sim-desc">تابع المراحل الثلاث لتحويل الحديد الخام إلى فولاذ داخل الفرن المحوّل، وتحقّق من فهمك ببطاقات تفاعلية</div>
+            </div>
+            <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
+          </div>
+
+          <div class="sim-card" onclick="openSim('g10chem2n4')">
+            <div class="sim-thumb t8">🧷</div>
+            <div class="sim-body">
+              <div class="sim-num">٤-٢ · تآكل الفلزات</div>
+              <div class="sim-name">العوامل المؤثرة في صدأ الحديد</div>
+              <div class="sim-desc">حرّك الزمن وراقب أربع أنابيب اختبار مختلفة الظروف لتكتشف متى يصدأ الحديد ومتى لا يصدأ</div>
             </div>
             <div class="sim-footer"><button class="sim-btn">▶ ابدأ الاستقصاء</button></div>
           </div>
@@ -4225,6 +4285,7 @@
   <div class="sim-body-wrap">
     <div class="sim-canvas-wrap">
       <canvas id="simCanvas"></canvas>
+      <iframe id="simEmbedFrame" title="محاكاة تفاعلية" style="display:none;width:100%;height:100%;border:0"></iframe>
       <div class="data-display" id="dataDisplay" style="display:none"></div>
       <div class="q-drawer" id="qDrawer">
         <div class="q-drawer-title" id="qTitle"></div>

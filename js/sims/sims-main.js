@@ -744,7 +744,8 @@ function openUnit(id, el) {
     g9bio8:'الوحدة الثامنة 🍽️ — الطعام يمر برحلة طويلة قبل أن تستفيد منه خلاياك! استكشف الجهاز الهضمي خطوة بخطوة.',
     g9bio9:'الوحدة التاسعة 🌱 — الماء يتحرك من الجذر للأوراق! اكتشف أوعية الخشب واللحاء والنتح.',
     g9bio10:'الوحدة العاشرة 🌿 — النبات لا يملك عيناً لكنه يرى الضوء! اكتشف الأوكسين وسر انحناء السيقان.',
-    g10chem1:'الوحدة الأولى ⚗️ — الفلزات وخصائصها! اكتشف الرابطة الفلزية ونشاط الفلزات في الجدول الدوري.'
+    g10chem1:'الوحدة الأولى ⚗️ — الفلزات وخصائصها! اكتشف الرابطة الفلزية ونشاط الفلزات في الجدول الدوري.',
+    g10chem2:'الوحدة الثانية 🏭 — استخلاص الفلزات! جرّب استخلاص النحاس بالكربون، وشغّل الفرن العالي بنفسك.'
   };
   if(hints[id]) setTimeout(function(){ buddySay && buddySay(hints[id], 6000); }, 400);
   // Update breadcrumb unit segment
@@ -1035,6 +1036,11 @@ const SIM_META = {
   g10chem1n1: { title: 'نشاط ١-١ · الرابطة الفلزية', badge: '⚗️ 10', tabs: ['ماذا يحدث داخل الفلز؟ 🔵'] },
   g10chem1n2: { title: '٢-١ / ٣-١ · الجدول الدوري', badge: '🧭 10', tabs: ['استكشف المجموعات 🗺️'] },
   g10chem1n4: { title: 'نشاط ٤-١ · نشاط الفلزات', badge: '🧪 10', tabs: ['الخارصين وكبريتات النحاس ⚡'] },
+  // ── الصف العاشر — كيمياء: الوحدة ٢ (استخلاص الفلزات واستخدامها) ──
+  g10chem2n1: { title: 'نشاط ١-٢ · استخلاص النحاس بالكربون', badge: '⚗️ 10', tabs: ['التجربة المخبرية 🧪'] },
+  g10chem2n2: { title: '٢-٢ · الفرن العالي', badge: '🏭 10', tabs: ['استخلاص الحديد 🔥'] },
+  g10chem2n3: { title: '٢-٢ · صناعة الفولاذ', badge: '🔩 10', tabs: [], embed: 'js/sims/embed/g10chem2_steel.html' },
+  g10chem2n4: { title: '٤-٢ · تآكل الفلزات وحمايتها', badge: '🧷 10', tabs: [], embed: 'js/sims/embed/g10chem2_corrosion.html' },
   g9power15:{ title: 'نشاط ٤-١٥ · القدرة والطاقة الكهربائية', badge: '💡 9', tabs: ['حساب القدرة P=IV ⚡', 'الطاقة والتكلفة 💰'] },
   g9ohmslaw:{ title: 'نشاط ١-١٦ · قياس المقاومة R=V/I', badge: '🔩 9', tabs: ['دائرة القياس 🔬', 'جدول البيانات 📋'] },
   g9wireres:{ title: 'نشاط ٢-١٦ · عوامل المقاومة السلكية', badge: '〰️ 9', tabs: ['الطول والمقطع 📏', 'نوع المادة ⚗️'] },
@@ -1068,6 +1074,23 @@ const SIM_QUESTIONS = {
     opts: ['النحاس', 'الخارصين', 'كلاهما له النشاط نفسه', 'لا يمكن تحديد ذلك'],
     ans: 1,
     fb: '✅ الخارصين أكثر نشاطاً؛ فهو يمتلك قابلية أكبر من النحاس لتكوين أيونات موجبة، لذلك استطاع أن يحلّ محلّ النحاس في محلوله.'
+  },
+  g10chem2n1: {
+    q: 'لماذا يستطيع الكربون اختزال أكسيد النحاس (II) وإزاحة النحاس منه؟',
+    opts: [
+      'لأن الكربون أكثر نشاطاً كيميائياً من النحاس',
+      'لأن النحاس أكثر نشاطاً كيميائياً من الكربون',
+      'لأن الكربون أثقل من النحاس',
+      'لأن أكسيد النحاس لا يذوب في الماء'
+    ],
+    ans: 0,
+    fb: '✅ الكربون أكثر نشاطاً من النحاس، لذلك يستطيع اختزال أكسيد النحاس (يأخذ الأكسجين منه) وإزاحة النحاس الفلزي.'
+  },
+  g10chem2n2: {
+    q: 'ما الغاز الذي يختزل أكسيد الحديد (III) داخل الفرن العالي مباشرةً؟',
+    opts: ['ثاني أكسيد الكربون CO₂', 'أحادي أكسيد الكربون CO', 'الأكسجين O₂', 'بخار الماء H₂O'],
+    ans: 1,
+    fb: '✅ أحادي أكسيد الكربون (CO) هو الذي يختزل أكسيد الحديد (III) وفق المعادلة: Fe₂O₃ + 3CO → 2Fe + 3CO₂'
   },
   g5bio1n5: {
     q: 'ماذا تحتاج النباتات لكي تصنع غذاءها وتنمو جيّداً؟',
@@ -1828,8 +1851,30 @@ function openSim(type) {
   currentSim = type; currentTab = 0;
   document.getElementById('simPanelTitle').textContent = meta.title;
   document.getElementById('simPanelBadge').textContent = meta.badge;
-  buildTabs(meta.tabs);
   document.getElementById('sim-panel').classList.add('open');
+
+  var canvasEl = document.getElementById('simCanvas');
+  var embedEl  = document.getElementById('simEmbedFrame');
+  var ctrlPanel = document.getElementById('simControlsPanel');
+  var tabsRow = document.getElementById('simTabsRow');
+  var qBar = document.getElementById('qToggleBar');
+
+  if (meta.embed) {
+    // ── محاكاة مدمجة (ملف HTML جاهز) — لا تستخدم محرّك الكانفاس ──
+    if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+    if (canvasEl) canvasEl.style.display = 'none';
+    if (ctrlPanel) { ctrlPanel.style.display = 'none'; ctrlPanel.innerHTML = ''; }
+    if (tabsRow) tabsRow.innerHTML = '';
+    if (qBar) qBar.style.display = 'none';
+    if (embedEl) { embedEl.style.display = 'block'; embedEl.src = meta.embed; }
+    return;
+  }
+
+  if (canvasEl) canvasEl.style.display = 'block';
+  if (ctrlPanel) ctrlPanel.style.display = '';
+  if (embedEl) { embedEl.style.display = 'none'; embedEl.src = 'about:blank'; }
+
+  buildTabs(meta.tabs);
   resizeCanvas();
   startSim(type, 0);
   setTimeout(()=>loadQuestion(type), 500);
@@ -2073,7 +2118,10 @@ function closeSim() {
     if (_ctx) _ctx.clearRect(0, 0, _cv.width, _cv.height);
   }
   var _cp = document.getElementById('simControlsPanel');
-  if (_cp) _cp.innerHTML = '';
+  if (_cp) { _cp.innerHTML = ''; _cp.style.display = ''; }
+  var _ef = document.getElementById('simEmbedFrame');
+  if (_ef) { _ef.style.display = 'none'; _ef.src = 'about:blank'; }
+  if (_cv) _cv.style.display = 'block';
   currentSim = null; simState = {};
   const bar = document.getElementById('qToggleBar');
   if(bar) bar.style.display='none';
@@ -2152,7 +2200,7 @@ var _resizeTimer = null;
 window.addEventListener('resize', function() {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(function() {
-    if (currentSim) {
+    if (currentSim && !(SIM_META[currentSim] && SIM_META[currentSim].embed)) {
       resizeCanvas();
       if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
       startSim(currentSim, currentTab);
@@ -2167,7 +2215,7 @@ window.addEventListener('resize', function() {
   var ro = new ResizeObserver(function() {
     clearTimeout(_roTimer);
     _roTimer = setTimeout(function() {
-      if (currentSim) {
+      if (currentSim && !(SIM_META[currentSim] && SIM_META[currentSim].embed)) {
         resizeCanvas();
         if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
         startSim(currentSim, currentTab);
@@ -2451,6 +2499,8 @@ function startSim(type, tab) {
     g10chem1n1: [simG10Chem1N1],
     g10chem1n2: [simG10Chem1N2],
     g10chem1n4: [simG10Chem1N4],
+    g10chem2n1: [simG10Chem2N1],
+    g10chem2n2: [simG10Chem2N2],
     g9power15:[simG9Power1, simG9Power2],
     g9ohmslaw:[simG9OhmsLaw1, simG9OhmsLaw2],
     g9wireres:[simG9WireRes1, simG9WireRes2],
