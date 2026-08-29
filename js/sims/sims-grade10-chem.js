@@ -1401,7 +1401,7 @@ function simG10Chem2N4() {
   const cv = document.getElementById('simCanvas');
 
   function draw() {
-    if (currentSim !== 'g10chem2n4') { cancelAnimationFrame(animFrame); return; }
+    if (currentSim !== 'g10chem2n4' || currentTab !== 0) { cancelAnimationFrame(animFrame); return; }
     var c = cv.getContext('2d'), w = cv.width, h = cv.height;
     c.clearRect(0, 0, w, h);
     var bg = c.createLinearGradient(0, 0, 0, h);
@@ -1480,14 +1480,14 @@ function simG10Chem2N4() {
 // نشاط ٣-٢ · منع الصدأ — طرائق حماية الحديد
 // ────────────────────────────────────────────────────────────
 var _G10_PREV_TUBES = [
-  { n: '1', label: 'ضابطة',        icon: '🔩', rate: 1, method: 'method',  cond: 'مسمار عادٍ بدون أي معالجة (أنبوبة ضابطة للتجربة)' },
-  { n: '2', label: 'حاجز عازل',     icon: '🧴', rate: 0, method: 'barrier', cond: 'مغلَّف بورق تغليف بلاستيكي رقيق' },
-  { n: '3', label: 'حاجز عازل',     icon: '🖌️', rate: 0, method: 'barrier', cond: 'مطليّ بالدهان وتُرك ليجفّ' },
-  { n: '4', label: 'حاجز عازل',     icon: '🧈', rate: 0, method: 'barrier', cond: 'مطليّ بهلام بترولي (فازلين) / شحم' },
-  { n: '5', label: 'حماية بالتضحية', icon: '🧲', rate: 0, method: 'sacrificial', cond: 'ملفوف جزئيًا بشريط ماغنيسيوم (أو رقائق خارصين)' },
-  { n: '6', label: 'فلز أقل نشاطًا', icon: '🟠', rate: 2, method: 'copper', cond: 'ملفوف جزئيًا برقائق نحاس (فلز أقل نشاطًا من الحديد!)' },
-  { n: '7', label: 'سبيكة مقاوِمة',  icon: '⚙️', rate: 0, method: 'alloy', cond: 'مسمار (برغي) من الفولاذ المقاوم للصدأ' },
-  { n: '8', label: 'الجلفنة',       icon: '🛡️', rate: [0, 0], method: 'galvanised', cond: 'مسماران مجلفنان (مطليان بالخارصين) — أحدهما مخدوش عمدًا', dual: true }
+  { n: '1', label: 'ضابطة',        icon: '🔩', mat: 'بدون معالجة',      rate: 1, method: 'method',  cond: 'مسمار عادٍ بدون أي معالجة (أنبوبة ضابطة للتجربة)' },
+  { n: '2', label: 'حاجز عازل',     icon: '🎁', mat: 'تغليف بلاستيكي',   rate: 0, method: 'barrier', cond: 'مغلَّف بورق تغليف بلاستيكي رقيق' },
+  { n: '3', label: 'حاجز عازل',     icon: '🖌️', mat: 'دهان',            rate: 0, method: 'barrier', cond: 'مطليّ بالدهان وتُرك ليجفّ' },
+  { n: '4', label: 'حاجز عازل',     icon: '🧈', mat: 'شحم / فازلين',    rate: 0, method: 'barrier', cond: 'مطليّ بهلام بترولي (فازلين) / شحم' },
+  { n: '5', label: 'حماية بالتضحية', icon: '🔗', mat: 'لفّة ماغنيسيوم',   rate: 0, method: 'sacrificial', cond: 'ملفوف جزئيًا بشريط ماغنيسيوم (أو رقائق خارصين)' },
+  { n: '6', label: 'فلز أقل نشاطًا', icon: '🔶', mat: 'لفّة نحاس',       rate: 2, method: 'copper', cond: 'ملفوف جزئيًا برقائق نحاس (فلز أقل نشاطًا من الحديد!)' },
+  { n: '7', label: 'سبيكة مقاوِمة',  icon: '✨', mat: 'فولاذ مقاوم للصدأ', rate: 0, method: 'alloy', cond: 'مسمار (برغي) من الفولاذ المقاوم للصدأ' },
+  { n: '8', label: 'الجلفنة',       icon: '🛡️', mat: 'مجلفن (سليم / مخدوش)', rate: [0, 0], method: 'galvanised', cond: 'مسماران مجلفنان (مطليان بالخارصين) — أحدهما مخدوش عمدًا', dual: true }
 ];
 
 function _rustColor2(pct) {
@@ -1593,7 +1593,7 @@ function simG10Chem2N5() {
   const cv = document.getElementById('simCanvas');
 
   function draw() {
-    if (currentSim !== 'g10chem2n5') { cancelAnimationFrame(animFrame); return; }
+    if (currentSim !== 'g10chem2n4' || currentTab !== 1) { cancelAnimationFrame(animFrame); return; }
     var c = cv.getContext('2d'), w = cv.width, h = cv.height;
     c.clearRect(0, 0, w, h);
     var bg = c.createLinearGradient(0, 0, 0, h);
@@ -1621,14 +1621,16 @@ function simG10Chem2N5() {
         c.beginPath(); c.roundRect(x + 3, y + tubeH*0.45, tubeW - 6, tubeH*0.5, 5); c.fill();
       }
 
-      // أيقونة طريقة الحماية أعلى الأنبوبة
-      c.font = (tubeW*0.28) + 'px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
-      c.fillText(td.icon, cx, y + tubeH*0.04);
+      // أيقونة طريقة الحماية + تسمية نصية واضحة أعلى الأنبوبة
+      c.font = (tubeW*0.20) + 'px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText(td.icon, cx, y + tubeH*0.035);
+      c.fillStyle = '#5A4020'; c.font = 'bold ' + (tubeW*0.085) + 'px Tajawal';
+      c.fillText(td.mat, cx, y + tubeH*0.24);
 
       function nailAt(nx, protRate) {
         var rustPct = S.started ? Math.min(100, protRate * S.days * 14) : 0;
         c.fillStyle = _rustColor2(rustPct);
-        var nw = tubeW*0.09, nh = tubeH*0.5, ny = y + tubeH*0.36;
+        var nw = tubeW*0.09, nh = tubeH*0.42, ny = y + tubeH*0.44;
         c.beginPath(); c.roundRect(nx - nw/2, ny, nw, nh, 2); c.fill();
         c.beginPath(); c.moveTo(nx-nw/2, ny); c.lineTo(nx, ny-nh*0.06); c.lineTo(nx+nw/2, ny); c.closePath(); c.fill();
         return rustPct;
@@ -1640,7 +1642,7 @@ function simG10Chem2N5() {
         var p2 = nailAt(cx + tubeW*0.11, td.rate[1]);
         // خدش رمزي على المسمار الثاني
         c.strokeStyle = 'rgba(120,60,20,0.5)'; c.lineWidth = 1.5;
-        c.beginPath(); c.moveTo(cx + tubeW*0.11 - 4, y + tubeH*0.55); c.lineTo(cx + tubeW*0.11 + 4, y + tubeH*0.62); c.stroke();
+        c.beginPath(); c.moveTo(cx + tubeW*0.11 - 4, y + tubeH*0.6); c.lineTo(cx + tubeW*0.11 + 4, y + tubeH*0.67); c.stroke();
         pct = Math.max(p1, p2);
       } else {
         pct = nailAt(cx, td.rate);

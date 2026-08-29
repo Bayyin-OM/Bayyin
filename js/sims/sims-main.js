@@ -1040,8 +1040,7 @@ const SIM_META = {
   g10chem2n1: { title: 'نشاط ١-٢ · استخلاص النحاس بالكربون', badge: '⚗️ 10', tabs: ['التجربة المخبرية 🧪'] },
   g10chem2n2: { title: '٢-٢ · الفرن العالي', badge: '🏭 10', tabs: ['استخلاص الحديد 🔥'] },
   g10chem2n3: { title: '٢-٢ · صناعة الفولاذ', badge: '🔩 10', tabs: ['عملية الأكسجين الأساسية 🔥'] },
-  g10chem2n4: { title: '٤-٢ · تآكل الفلزات وحمايتها', badge: '🧷 10', tabs: ['العوامل المؤثّرة في الصدأ 🧪'] },
-  g10chem2n5: { title: 'نشاط ٣-٢ · منع الصدأ', badge: '🛡️ 10', tabs: ['طرائق حماية الحديد 🧷'] },
+  g10chem2n4: { title: '٤-٢ · تآكل الفلزات وحمايتها', badge: '🧷 10', tabs: ['العوامل المؤثّرة في الصدأ 🧪', 'طرائق حماية الحديد 🛡️'] },
   g9power15:{ title: 'نشاط ٤-١٥ · القدرة والطاقة الكهربائية', badge: '💡 9', tabs: ['حساب القدرة P=IV ⚡', 'الطاقة والتكلفة 💰'] },
   g9ohmslaw:{ title: 'نشاط ١-١٦ · قياس المقاومة R=V/I', badge: '🔩 9', tabs: ['دائرة القياس 🔬', 'جدول البيانات 📋'] },
   g9wireres:{ title: 'نشاط ٢-١٦ · عوامل المقاومة السلكية', badge: '〰️ 9', tabs: ['الطول والمقطع 📏', 'نوع المادة ⚗️'] },
@@ -1110,7 +1109,7 @@ const SIM_QUESTIONS = {
     ans: 2,
     fb: '✅ يصدأ الحديد فقط عند توفّر الماء والأكسجين معاً في وقت واحد؛ غياب أحدهما يمنع تكوّن الصدأ تماماً.'
   },
-  g10chem2n5: {
+  g10chem2n4_1: {
     q: 'لماذا يُسرِّع تغليف المسمار برقائق نحاس من صدأ الحديد بدلاً من حمايته؟',
     opts: [
       'لأن النحاس يمتص الأكسجين من الحديد',
@@ -2531,8 +2530,7 @@ function startSim(type, tab) {
     g10chem2n1: [simG10Chem2N1],
     g10chem2n2: [simG10Chem2N2],
     g10chem2n3: [simG10Chem2N3],
-    g10chem2n4: [simG10Chem2N4],
-    g10chem2n5: [simG10Chem2N5],
+    g10chem2n4: [simG10Chem2N4, simG10Chem2N5],
     g9power15:[simG9Power1, simG9Power2],
     g9ohmslaw:[simG9OhmsLaw1, simG9OhmsLaw2],
     g9wireres:[simG9WireRes1, simG9WireRes2],
