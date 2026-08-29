@@ -1060,3 +1060,419 @@ function simG10Chem2N2() {
   }
   draw();
 }
+
+// ────────────────────────────────────────────────────────────
+// نشاط ٢-٢ (تكملة) · صناعة الفولاذ — عملية الأكسجين الأساسية (BOF)
+// ────────────────────────────────────────────────────────────
+var _G10_BOF_STAGES = [
+  { letter:'أ', name:'التلقيم', title:'تعبئة الفرن بالمواد الخام',
+    pills:['حديد خام منصهر','خردة فولاذ','فرن مائل'],
+    body:'تُعبَّأ الفرن أولاً وهو مائل بالحديد الخام المنصهر القادم من الفرن العالي، ثم تُضاف إليه خردة الفولاذ المعاد تدويرها. تذوب الخردة وتمتزج مع الحديد غير النقي، وهذا يساعد على ضبط درجة حرارة المصهور والتخلّص من خردة الفولاذ القديم بدلاً من إهدارها.' },
+  { letter:'ب', name:'التكرير', title:'نفخ الأكسجين وإضافة الجير',
+    pills:['أكسجين عالي السرعة','جير حي CaO','خزانة جمع الأبخرة'],
+    body:'يعود الفرن لوضعه الرأسي، وتُضاف كمية من الجير الحي (أكسيد الكالسيوم) إلى المصهور. ثم يُدخَل مدفع أكسجين مبرَّد بالماء من الأعلى ويُضَخّ الأكسجين بسرعة عالية، فيتفاعل مع الكربون والكبريت والفوسفور مكوّناً أكاسيد. تخرج أكاسيد الكربون الغازية عبر خزانة جمع الأبخرة، ويتفاعل الجير مع الأكاسيد اللافلزية مكوّناً الخبث الذي يطفو فوق الفولاذ.' },
+  { letter:'ج', name:'السكب', title:'سكب الفولاذ والخبث',
+    pills:['فولاذ نقي منصهر','فصل الخبث','فرن جاهز لشحنة جديدة'],
+    body:'بعد اكتمال حرق الشوائب، يُمال الفرن في اتجاه واحد لسكب الفولاذ المنصهر النقي في وعاء التجميع. وعند الانتهاء، يُمال في الاتجاه المعاكس لسكب الخبث العائم بشكل منفصل، ليصبح الفرن جاهزاً لاستقبال شحنة جديدة.' }
+];
+
+// نقاط جسم الفرن (محلياً حول نقطة الارتكاز السفلى = (0,0))
+var _BOF_BODY = {
+  m:  [-10,-295],
+  l1: [50,-295],
+  c1: [[95,-295],[125,-255],[125,-205]],
+  l2: [125,-85],
+  c2: [[125,-35],[85,0],[20,0]],
+  l3: [-20,0],
+  c3: [[-85,0],[-125,-35],[-125,-85]],
+  l4: [-125,-205],
+  c4: [[-125,-255],[-95,-295],[-50,-295]]
+};
+function _bofPath(c, s) {
+  var P = _BOF_BODY;
+  c.beginPath();
+  c.moveTo(P.m[0]*s, P.m[1]*s);
+  c.lineTo(P.l1[0]*s, P.l1[1]*s);
+  c.bezierCurveTo(P.c1[0][0]*s,P.c1[0][1]*s, P.c1[1][0]*s,P.c1[1][1]*s, P.c1[2][0]*s,P.c1[2][1]*s);
+  c.lineTo(P.l2[0]*s, P.l2[1]*s);
+  c.bezierCurveTo(P.c2[0][0]*s,P.c2[0][1]*s, P.c2[1][0]*s,P.c2[1][1]*s, P.c2[2][0]*s,P.c2[2][1]*s);
+  c.lineTo(P.l3[0]*s, P.l3[1]*s);
+  c.bezierCurveTo(P.c3[0][0]*s,P.c3[0][1]*s, P.c3[1][0]*s,P.c3[1][1]*s, P.c3[2][0]*s,P.c3[2][1]*s);
+  c.lineTo(P.l4[0]*s, P.l4[1]*s);
+  c.bezierCurveTo(P.c4[0][0]*s,P.c4[0][1]*s, P.c4[1][0]*s,P.c4[1][1]*s, P.c4[2][0]*s,P.c4[2][1]*s);
+  c.closePath();
+}
+
+function _g10L7Panel() {
+  const S = simState;
+  var html = '';
+  html += '<div class="ctrl-section"><div class="ctrl-label">🔩 الفرن المحوّل BOF</div>' +
+    '<div class="ctrl-name" style="font-size:13px;font-weight:400;line-height:1.9">جرّب المراحل الثلاث لعملية الأكسجين الأساسية، أو شغّل المحاكاة تلقائياً.</div></div>';
+
+  html += '<div class="ctrl-section"><div class="ctrl-label">🧭 مراحل العملية</div><div style="display:flex;flex-direction:column;gap:6px">';
+  _G10_BOF_STAGES.forEach(function(st, i) {
+    var active = S.stage === i;
+    html += '<button class="ctrl-btn' + (active ? ' action' : '') + '" onclick="g10L7GoTo(' + i + ')" ' + (S.autoPlay ? 'disabled' : '') + ' style="text-align:right">' +
+      'المرحلة (' + st.letter + ') — ' + st.name + '</button>';
+  });
+  html += '</div></div>';
+
+  html += '<div style="display:flex;gap:8px;margin-top:10px">' +
+    '<button class="ctrl-btn action" style="flex:1" onclick="g10L7AutoToggle()">' + (S.autoPlay ? '⏸ إيقاف مؤقت' : '▶ تشغيل تلقائي') + '</button>' +
+    '<button class="ctrl-btn" style="flex:1" onclick="g10L7Reset()">↺ إعادة الضبط</button></div>';
+
+  var st = _G10_BOF_STAGES[S.stage];
+  html += '<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label">' + st.letter + ' — ' + st.title + '</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 8px">' +
+    st.pills.map(function(p){ return '<span style="background:rgba(212,144,26,0.12);color:#B8780A;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700">' + p + '</span>'; }).join('') +
+    '</div><div style="font-size:12.5px;line-height:1.9;color:var(--text-secondary)">' + st.body + '</div></div>';
+
+  if (S.stage === 1) {
+    html += '<button class="ctrl-btn action" style="width:100%;margin-top:10px" onclick="g10L7Oxygen()" ' + (S.oxygenActive || S.autoPlay ? 'disabled' : '') + '>💨 نفخ الأكسجين</button>';
+  }
+
+  html += '<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label">📊 قراءات الفرن</div>' +
+    '<div style="font-size:12px;display:flex;justify-content:space-between"><span>نسبة الكربون المتبقّية</span><b id="g10bofCarbonVal">' + S.carbon.toFixed(1) + '٪</b></div>' +
+    '<div style="height:8px;border-radius:5px;background:rgba(0,0,0,0.08);margin:4px 0 10px;overflow:hidden"><div id="g10bofCarbonBar" style="height:100%;background:#B8780A;width:' + (S.carbon/4*100) + '%"></div></div>' +
+    '<div style="font-size:12px;display:flex;justify-content:space-between"><span>درجة حرارة المصهور</span><b id="g10bofTempVal">' + Math.round(S.temp) + '°م</b></div>' +
+    '<div style="height:8px;border-radius:5px;background:rgba(0,0,0,0.08);margin:4px 0;overflow:hidden"><div id="g10bofTempBar" style="height:100%;background:#C0432B;width:' + ((S.temp-1300)/450*100) + '%"></div></div>' +
+    '</div>';
+
+  html += '<div class="info-box" style="margin-top:12px">🔑 <b>عملية الأكسجين الأساسية:</b> طريقة لتحويل الحديد الخام غير النقي إلى فولاذ، بضخّ الأكسجين عالي السرعة داخل الفرن لحرق الكربون الزائد والشوائب الأخرى الموجودة في المصهور.</div>';
+
+  controls(html);
+}
+
+window.g10L7GoTo = function(i) {
+  const S = simState;
+  if (S.autoPlay) return;
+  S.stage = i;
+  S.oxygenActive = false;
+  if (i === 0) { S.targetTilt = -16; S.scrapVisible = true; S.metalLevel = 0.32; S.slagLevel = 0; S.lanceDown = false; S.pourPhase = 0; S.hud = 'تعبئة الفرن'; }
+  else if (i === 1) { S.targetTilt = 0; S.scrapVisible = false; S.metalLevel = 0.42; S.slagLevel = 0.10; S.lanceDown = true; S.pourPhase = 0; S.hud = 'نفخ الأكسجين'; }
+  else { S.scrapVisible = false; S.lanceDown = false; S.pourPhase = 1; S.pourT = 0; S.hud = 'إمالة الفرن لسكب الفولاذ'; }
+  _g10L7Panel();
+};
+
+window.g10L7Oxygen = function() {
+  const S = simState;
+  if (S.stage !== 1 || S.oxygenActive) return;
+  S.oxygenActive = true; S.oxySteps = 0; S.hud = 'نفخ الأكسجين نشط';
+  _g10L7Panel();
+};
+
+window.g10L7AutoToggle = function() {
+  const S = simState;
+  S.autoPlay = !S.autoPlay;
+  if (S.autoPlay) { S.autoT = 0; S.autoPhase = 0; window.g10L7GoTo(0); S.autoPlay = true; }
+  _g10L7Panel();
+};
+
+window.g10L7Reset = function() {
+  const S = simState;
+  S.autoPlay = false;
+  window.g10L7GoTo(0);
+  U9Sound.ping(300, 0.15, 0.15);
+};
+
+function simG10Chem2N3() {
+  cancelAnimationFrame(animFrame);
+  simState = {
+    t: 0, stage: 0, tilt: -16, targetTilt: -16, scrapVisible: true,
+    metalLevel: 0.32, slagLevel: 0, lanceDown: false,
+    carbon: 4.0, temp: 1350, oxygenActive: false, oxySteps: 0,
+    pourPhase: 0, pourT: 0, autoPlay: false, autoT: 0, autoPhase: 0,
+    hud: 'تعبئة الفرن', particles: []
+  };
+  const S = simState;
+  _g10L7Panel();
+  const cv = document.getElementById('simCanvas');
+
+  function draw() {
+    if (currentSim !== 'g10chem2n3') { cancelAnimationFrame(animFrame); return; }
+    var c = cv.getContext('2d'), w = cv.width, h = cv.height;
+    c.clearRect(0, 0, w, h);
+    var bg = c.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#201910'); bg.addColorStop(1, '#120E09');
+    c.fillStyle = bg; c.fillRect(0, 0, w, h);
+    S.t++;
+
+    var scale = Math.min(w, h) * 0.0022;
+    var pivotX = w * 0.42, pivotY = h * 0.72;
+
+    // ── التشغيل التلقائي ──
+    if (S.autoPlay) {
+      S.autoT++;
+      if (S.autoPhase === 0 && S.autoT > 140) { window.g10L7GoTo(1); S.autoPhase = 1; S.autoT = 0; }
+      else if (S.autoPhase === 1 && S.autoT > 40 && !S.oxygenActive && S.oxySteps === 0) { window.g10L7Oxygen(); S.autoPhase = 2; }
+      else if (S.autoPhase === 2 && !S.oxygenActive && S.oxySteps > 0) { S.autoPhase = 3; S.autoT = 0; }
+      else if (S.autoPhase === 3 && S.autoT > 60) { window.g10L7GoTo(2); S.autoPhase = 4; S.autoT = 0; }
+      else if (S.autoPhase === 4 && S.pourPhase === 0 && S.autoT > 30) { S.autoPlay = false; _g10L7Panel(); }
+    }
+
+    // ── نفخ الأكسجين ──
+    if (S.oxygenActive) {
+      if (S.t % 9 === 0) {
+        S.oxySteps++;
+        S.carbon = Math.max(0.15, S.carbon - 0.13);
+        S.temp = Math.min(1650, S.temp + 10);
+        S.slagLevel = Math.min(0.28, 0.10 + S.oxySteps * 0.006);
+        S.particles.push({ x: pivotX + (Math.random()*10-5)*scale, y: pivotY - 175*scale, life: 30, ox: Math.random() > 0.5 });
+        var cv1 = document.getElementById('g10bofCarbonVal'), cb1 = document.getElementById('g10bofCarbonBar');
+        var tv1 = document.getElementById('g10bofTempVal'), tb1 = document.getElementById('g10bofTempBar');
+        if (cv1) cv1.textContent = S.carbon.toFixed(1) + '٪';
+        if (cb1) cb1.style.width = (S.carbon/4*100) + '%';
+        if (tv1) tv1.textContent = Math.round(S.temp) + '°م';
+        if (tb1) tb1.style.width = ((S.temp-1300)/450*100) + '%';
+        if (S.oxySteps > 28) { S.oxygenActive = false; S.hud = 'الشوائب أُزيلت — جاهز للسكب'; _g10L7Panel(); }
+      }
+    }
+    S.particles = S.particles.filter(function(p){ p.y -= 1.1; p.life--; return p.life > 0; });
+
+    // ── تسلسل السكب في المرحلة (ج) ──
+    if (S.stage === 2) {
+      S.pourT++;
+      if (S.pourPhase === 1) { S.targetTilt = 22; if (S.pourT > 20) S.pourPhase = 1.5; }
+      else if (S.pourPhase === 1.5 && S.pourT > 60) { S.pourPhase = 2; S.pourT = 0; S.hud = 'سكب الفولاذ المنصهر'; }
+      else if (S.pourPhase === 2 && S.pourT > 90) { S.pourPhase = 3; S.targetTilt = -22; S.pourT = 0; S.hud = 'إمالة الفرن لسكب الخبث'; }
+      else if (S.pourPhase === 3 && S.pourT > 30) { S.pourPhase = 3.5; }
+      else if (S.pourPhase === 3.5 && S.pourT > 70) { S.pourPhase = 4; S.pourT = 0; }
+      else if (S.pourPhase === 4 && S.pourT > 40) { S.pourPhase = 5; S.targetTilt = 0; S.metalLevel = 0.05; S.slagLevel = 0; S.hud = 'الفرن جاهز لشحنة جديدة'; }
+    }
+
+    // إمالة سلسة نحو الهدف
+    S.tilt += (S.targetTilt - S.tilt) * 0.06;
+
+    // ── رسم الفرن ──
+    c.save();
+    c.translate(pivotX, pivotY);
+    c.rotate(S.tilt * Math.PI / 180);
+    _bofPath(c, scale);
+    var shellGrad = c.createLinearGradient(-125*scale, -295*scale, 125*scale, 0);
+    shellGrad.addColorStop(0, '#6A7280'); shellGrad.addColorStop(0.5, '#3A4150'); shellGrad.addColorStop(1, '#1C212B');
+    c.fillStyle = shellGrad; c.fill();
+    c.strokeStyle = '#0E1117'; c.lineWidth = 5; c.stroke();
+
+    c.save();
+    _bofPath(c, scale); c.clip();
+    var metalTopY = -Math.min(295, 260 * S.metalLevel) * scale;
+    var metalGrad = c.createLinearGradient(0, metalTopY, 0, 40*scale);
+    metalGrad.addColorStop(0, '#FFB648'); metalGrad.addColorStop(0.55, '#FF5A1F'); metalGrad.addColorStop(1, '#A4230A');
+    c.fillStyle = metalGrad;
+    c.fillRect(-140*scale, metalTopY, 280*scale, 300*scale);
+    if (S.slagLevel > 0) {
+      var slagPixH = 260 * S.slagLevel * scale;
+      var slagGrad = c.createLinearGradient(-140*scale, metalTopY - slagPixH, 140*scale, metalTopY);
+      slagGrad.addColorStop(0, '#E8C25F'); slagGrad.addColorStop(1, '#A97F28');
+      c.fillStyle = slagGrad;
+      c.fillRect(-140*scale, metalTopY - slagPixH, 280*scale, slagPixH);
+    }
+    c.restore();
+
+    // خردة الفولاذ (المرحلة أ)
+    if (S.scrapVisible) {
+      c.save(); c.fillStyle = '#9AA3AF'; c.strokeStyle = '#4A5162'; c.lineWidth = 1.5 * scale;
+      [[-47*scale,-268*scale,16*scale,0.3],[8*scale,-282*scale,14*scale,-0.2],[45*scale,-262*scale,18*scale,0.15]].forEach(function(r) {
+        c.save(); c.translate(r[0], r[1]); c.rotate(r[3]);
+        c.beginPath(); c.roundRect(-r[2]/2, -r[2]/2, r[2], r[2], 3); c.fill(); c.stroke();
+        c.restore();
+      });
+      c.restore();
+    }
+
+    c.restore(); // نهاية مجموعة الفرن المائل
+
+    // مدفع الأكسجين (يبقى شاقولياً، خارج مجموعة الإمالة)
+    var lanceY = S.lanceDown ? pivotY - 175*scale : pivotY - 460*scale;
+    c.strokeStyle = '#57D6E8'; c.fillStyle = '#2C3542'; c.lineWidth = 1.5;
+    c.beginPath(); c.roundRect(pivotX - 4*scale, lanceY - 220*scale, 8*scale, 220*scale, 3); c.fill(); c.stroke();
+    c.fillStyle = '#57D6E8'; c.beginPath(); c.arc(pivotX, lanceY, 4*scale, 0, Math.PI*2); c.fill();
+
+    // جسيمات صاعدة أثناء النفخ
+    S.particles.forEach(function(p) {
+      c.fillStyle = (p.ox ? 'rgba(87,214,232,' : 'rgba(255,220,160,') + (p.life/30) + ')';
+      c.beginPath(); c.arc(p.x, p.y, 2.2*scale, 0, Math.PI*2); c.fill();
+    });
+
+    // مجاري السكب + أوعية التجميع
+    var ladleY = h * 0.94;
+    function drawLadle(x, on, color, label) {
+      c.globalAlpha = on ? 1 : 0.18;
+      c.fillStyle = color;
+      c.beginPath(); c.moveTo(x - 26, ladleY); c.lineTo(x + 26, ladleY); c.lineTo(x + 18, ladleY + 18); c.lineTo(x - 18, ladleY + 18); c.closePath(); c.fill();
+      c.fillStyle = '#C9A06A'; c.font = '10px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText(label, x, ladleY + 22);
+      c.globalAlpha = 1;
+    }
+    var steelOn = S.pourPhase >= 1.5, slagOn = S.pourPhase >= 4;
+    drawLadle(pivotX - 130*scale, steelOn, '#FF7A2A', 'فولاذ منصهر');
+    drawLadle(pivotX + 130*scale, slagOn, '#D3A13A', 'الخبث');
+
+    if (S.pourPhase === 1.5 || (S.pourPhase >= 1.5 && S.pourPhase < 2 + 0.01 && S.pourPhase !== 3)) {
+      // stream سكب الفولاذ يظهر بين ١.٥ إلى بداية ٣
+    }
+    var showSteelStream = S.pourPhase >= 1.5 && S.pourPhase < 3;
+    var showSlagStream = S.pourPhase >= 4 && S.pourPhase < 5;
+    function pourStream(fromX, toX, color) {
+      c.strokeStyle = color; c.lineWidth = 5; c.lineCap = 'round';
+      c.beginPath();
+      c.moveTo(fromX, pivotY - 20*scale);
+      c.bezierCurveTo(fromX, pivotY + 60*scale, toX, pivotY + 100*scale, toX, ladleY);
+      c.stroke();
+    }
+    if (showSteelStream) pourStream(pivotX - 15*scale, pivotX - 120*scale, '#FF7A2A');
+    if (showSlagStream) pourStream(pivotX + 15*scale, pivotX + 120*scale, '#D3A13A');
+
+    // بطاقة الحالة (HUD)
+    c.fillStyle = 'rgba(0,0,0,0.35)';
+    c.beginPath(); c.roundRect(w*0.06, h*0.05, w*0.42, h*0.07, 10); c.fill();
+    c.fillStyle = '#F4ECE0'; c.font = 'bold 13px Tajawal'; c.textAlign = 'right'; c.textBaseline = 'middle';
+    c.fillText('الحالة: ' + S.hud, w*0.06 + w*0.40, h*0.05 + h*0.035);
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ────────────────────────────────────────────────────────────
+// نشاط ٤-٢ · العوامل المؤثّرة في صدأ الحديد
+// ────────────────────────────────────────────────────────────
+var _G10_RUST_TUBES = [
+  { label: 'الأنبوبة ١ (ضابطة)', water: true,  oxygen: true,  rate: 1, cond: 'هواء عادي + ماء مقطّر' },
+  { label: 'الأنبوبة ٢',          water: false, oxygen: true,  rate: 0, cond: 'هواء جاف (عامل تجفيف) — بدون ماء' },
+  { label: 'الأنبوبة ٣',          water: true,  oxygen: false, rate: 0, cond: 'ماء مغلي منزوع الأكسجين + طبقة زيت' },
+  { label: 'الأنبوبة ٤',          water: true,  oxygen: true,  rate: 2, cond: 'ماء مقطّر + أكسجين نقي' }
+];
+
+function _rustColor(pct) {
+  var from = [154,152,144], to = [163,82,29];
+  var t = pct / 100;
+  var col = from.map(function(f,i){ return Math.round(f + (to[i]-f)*t); });
+  return 'rgb(' + col.join(',') + ')';
+}
+
+function _g10L8Panel() {
+  const S = simState;
+  var html = '';
+  html += '<div class="ctrl-section"><div class="ctrl-label">🧷 العوامل المؤثّرة في صدأ الحديد</div>' +
+    '<div class="ctrl-name" style="font-size:13px;font-weight:400;line-height:1.9">حرّك الشريط لتمثيل مرور الأيام، وراقب ماذا يحدث للمسمار الحديدي في كل أنبوبة اختبار.</div></div>';
+
+  html += '<div class="ctrl-section"><div class="ctrl-label">📅 عدد الأيام المنقضية: <b id="g10rustDaysOut">' + S.days + ' يوم</b></div>' +
+    '<input type="range" min="0" max="7" step="1" value="' + S.days + '" id="g10rustSlider" style="width:100%;accent-color:#185FA5" oninput="g10L8Days(this.value)"></div>';
+
+  html += '<div class="ctrl-section"><div class="ctrl-label">🧪 ظروف الأنابيب</div>';
+  _G10_RUST_TUBES.forEach(function(t, i) {
+    html += '<div style="padding:6px 0;border-bottom:1px dashed rgba(0,0,0,0.08)">' +
+      '<div style="font-size:12.5px;font-weight:700">' + t.label + '</div>' +
+      '<div style="font-size:11.5px;color:var(--text-muted)">' + t.cond + '</div>' +
+      '<div style="display:flex;gap:6px;margin-top:3px">' +
+      '<span style="font-size:10.5px;padding:2px 8px;border-radius:20px;background:' + (t.water ? 'rgba(24,95,165,0.12);color:#185FA5' : 'rgba(0,0,0,0.06);color:#999') + '">' + (t.water ? '💧 ماء' : '🚫 لا ماء') + '</span>' +
+      '<span style="font-size:10.5px;padding:2px 8px;border-radius:20px;background:' + (t.oxygen ? 'rgba(24,95,165,0.12);color:#185FA5' : 'rgba(0,0,0,0.06);color:#999') + '">' + (t.oxygen ? '🫧 أكسجين' : '🚫 لا أكسجين') + '</span>' +
+      '</div></div>';
+  });
+  html += '</div>';
+
+  if (!S.showConclusion) {
+    html += '<button class="ctrl-btn action" style="width:100%;margin-top:12px" onclick="g10L8Conclude()">🎯 اطّلع على الاستنتاج</button>';
+  } else {
+    html += '<div class="info-box" style="margin-top:12px;border-color:#3B8C4A">🏆 <b>الاستنتاج:</b> يصدأ الحديد فقط عندما يتوفّر الماء والأكسجين معاً في وقت واحد (كما في الأنبوبتين ١ و٤). أما غياب أحدهما فقط — سواء الماء (الأنبوبة ٢) أو الأكسجين (الأنبوبة ٣) — فيمنع تكوّن الصدأ تماماً. كما أنّ زيادة تركيز الأكسجين (الأنبوبة ٤) تُسرّع معدّل الصدأ مقارنةً بالهواء العادي.</div>';
+  }
+
+  controls(html);
+}
+
+window.g10L8Days = function(v) {
+  simState.days = Number(v);
+  var out = document.getElementById('g10rustDaysOut');
+  if (out) out.textContent = simState.days + ' يوم';
+};
+
+window.g10L8Conclude = function() {
+  simState.showConclusion = true;
+  U9Sound.win();
+  buddySay('أحسنت! الماء + الأكسجين معاً = صدأ 🎯', 4500);
+  _g10L8Panel();
+};
+
+function simG10Chem2N4() {
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, days: 0, showConclusion: false };
+  const S = simState;
+  _g10L8Panel();
+  const cv = document.getElementById('simCanvas');
+
+  function draw() {
+    if (currentSim !== 'g10chem2n4') { cancelAnimationFrame(animFrame); return; }
+    var c = cv.getContext('2d'), w = cv.width, h = cv.height;
+    c.clearRect(0, 0, w, h);
+    var bg = c.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#F7F3EA'); bg.addColorStop(1, '#EDE6D6');
+    c.fillStyle = bg; c.fillRect(0, 0, w, h);
+    S.t++;
+
+    var n = 4, gap = w * 0.03, tubeW = Math.min(w * 0.18, (w - gap*(n+1)) / n);
+    var startX = (w - (tubeW*n + gap*(n-1))) / 2;
+    var tubeTop = h * 0.14, tubeH = h * 0.60;
+
+    for (var i = 0; i < n; i++) {
+      var td = _G10_RUST_TUBES[i];
+      var x = startX + i * (tubeW + gap);
+      var cx = x + tubeW / 2;
+
+      // زجاج الأنبوبة
+      c.fillStyle = 'rgba(230,240,245,0.35)'; c.strokeStyle = '#93A6AD'; c.lineWidth = 2.5;
+      c.beginPath(); c.roundRect(x, tubeTop, tubeW, tubeH, tubeW*0.4); c.fill(); c.stroke();
+
+      // الماء
+      if (td.water) {
+        c.fillStyle = 'rgba(90,160,210,0.28)';
+        c.beginPath(); c.roundRect(x + 4, tubeTop + tubeH*0.35, tubeW - 8, tubeH*0.6, 6); c.fill();
+      } else {
+        // عامل تجفيف (كلوريد الكالسيوم) في القاع
+        c.fillStyle = '#DCD4C0';
+        c.beginPath(); c.roundRect(x + 6, tubeTop + tubeH*0.82, tubeW - 12, tubeH*0.12, 4); c.fill();
+        c.strokeStyle = 'rgba(0,0,0,0.15)'; c.lineWidth = 1; c.strokeRect(x + 6, tubeTop + tubeH*0.82, tubeW - 12, tubeH*0.12);
+      }
+      // طبقة زيت (الأنبوبة ٣ فقط) فوق سطح الماء
+      if (!td.oxygen && td.water) {
+        c.fillStyle = 'rgba(210,170,60,0.55)';
+        c.beginPath(); c.roundRect(x + 4, tubeTop + tubeH*0.33, tubeW - 8, tubeH*0.05, 3); c.fill();
+      }
+
+      // المسمار
+      var rustPct = Math.min(100, td.rate * S.days * 14);
+      var nailColor = _rustColor(rustPct);
+      c.fillStyle = nailColor;
+      var nailX = cx - tubeW*0.05, nailY = tubeTop + tubeH*0.10, nailW = tubeW*0.10, nailH = tubeH*0.72;
+      c.beginPath(); c.roundRect(nailX, nailY, nailW, nailH, 3); c.fill();
+      c.beginPath(); c.moveTo(nailX, nailY); c.lineTo(nailX + nailW/2, nailY - nailH*0.06); c.lineTo(nailX+nailW, nailY); c.closePath(); c.fill();
+
+      // بقع الصدأ عند الزيادة
+      if (rustPct > 15) {
+        c.fillStyle = 'rgba(120,60,20,' + Math.min(0.5, rustPct/200) + ')';
+        for (var s = 0; s < Math.floor(rustPct/20); s++) {
+          c.beginPath(); c.arc(nailX + (s%2)*nailW, nailY + nailH*0.15 + s*nailH*0.18, 3, 0, Math.PI*2); c.fill();
+        }
+      }
+
+      // فقاعات أكسجين متحركة (رمزية) في الأنابيب التي فيها أكسجين وماء
+      if (td.oxygen && td.water) {
+        for (var b = 0; b < 3; b++) {
+          var by = tubeTop + tubeH*0.9 - ((S.t*0.6 + b*30) % (tubeH*0.5));
+          c.fillStyle = 'rgba(255,255,255,0.35)';
+          c.beginPath(); c.arc(cx + (b-1)*tubeW*0.18, by, 2.4, 0, Math.PI*2); c.fill();
+        }
+      }
+
+      // تسمية أسفل الأنبوبة
+      c.fillStyle = '#5A4020'; c.font = 'bold 11px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText('أنبوبة ' + (i+1), cx, tubeTop + tubeH + 8);
+      c.font = '10.5px Tajawal'; c.fillStyle = rustPct === 0 ? '#7A8A98' : (rustPct < 100 ? '#B8780A' : '#A32D2D');
+      var statusTxt = rustPct === 0 ? 'لا صدأ' : (rustPct < 40 ? 'بداية الصدأ' : (rustPct < 100 ? 'صدأ متزايد' : 'صدأ كامل'));
+      c.fillText(statusTxt, cx, tubeTop + tubeH + 24);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
