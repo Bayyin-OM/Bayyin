@@ -230,6 +230,9 @@ async function handleLogin() {
       }
     } catch(fpErr) { console.log('fp save error:', fpErr); }
 
+    // ── تفعيل تلقائي إن كان إيميل هذا المستخدم مفعَّلاً يدويًا مسبقًا من لوحة الأدمن ──
+    try { await _db.rpc('try_auto_activate'); } catch(actErr) { console.log('auto-activate check error:', actErr); }
+
     await _checkSubscription();
 
   } catch (err) {
@@ -248,6 +251,8 @@ async function _checkSubscription() {
       _authStatus('❌ خطأ في الاتصال — يرجى تحديث الصفحة', false);
       return;
     }
+    // إعادة التحقق من التفعيل اليدوي في كل مرة (يشمل زر "أعِد المحاولة" في شاشة الدفع)
+    try { await _db.rpc('try_auto_activate'); } catch(actErr2) {}
     var userResp = await _db.auth.getUser();
     var user = userResp.data.user;
     if (!user) {
