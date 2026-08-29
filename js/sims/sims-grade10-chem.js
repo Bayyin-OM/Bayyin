@@ -1475,3 +1475,186 @@ function simG10Chem2N4() {
   }
   draw();
 }
+
+// ────────────────────────────────────────────────────────────
+// نشاط ٣-٢ · منع الصدأ — طرائق حماية الحديد
+// ────────────────────────────────────────────────────────────
+var _G10_PREV_TUBES = [
+  { n: '1', label: 'ضابطة',        icon: '🔩', rate: 1, method: 'method',  cond: 'مسمار عادٍ بدون أي معالجة (أنبوبة ضابطة للتجربة)' },
+  { n: '2', label: 'حاجز عازل',     icon: '🧴', rate: 0, method: 'barrier', cond: 'مغلَّف بورق تغليف بلاستيكي رقيق' },
+  { n: '3', label: 'حاجز عازل',     icon: '🖌️', rate: 0, method: 'barrier', cond: 'مطليّ بالدهان وتُرك ليجفّ' },
+  { n: '4', label: 'حاجز عازل',     icon: '🧈', rate: 0, method: 'barrier', cond: 'مطليّ بهلام بترولي (فازلين) / شحم' },
+  { n: '5', label: 'حماية بالتضحية', icon: '🧲', rate: 0, method: 'sacrificial', cond: 'ملفوف جزئيًا بشريط ماغنيسيوم (أو رقائق خارصين)' },
+  { n: '6', label: 'فلز أقل نشاطًا', icon: '🟠', rate: 2, method: 'copper', cond: 'ملفوف جزئيًا برقائق نحاس (فلز أقل نشاطًا من الحديد!)' },
+  { n: '7', label: 'سبيكة مقاوِمة',  icon: '⚙️', rate: 0, method: 'alloy', cond: 'مسمار (برغي) من الفولاذ المقاوم للصدأ' },
+  { n: '8', label: 'الجلفنة',       icon: '🛡️', rate: [0, 0], method: 'galvanised', cond: 'مسماران مجلفنان (مطليان بالخارصين) — أحدهما مخدوش عمدًا', dual: true }
+];
+
+function _rustColor2(pct) {
+  var from = [154,152,144], to = [163,82,29];
+  var t = pct / 100;
+  var col = from.map(function(f,i){ return Math.round(f + (to[i]-f)*t); });
+  return 'rgb(' + col.join(',') + ')';
+}
+
+var _G10_PREV_QUIZ = [
+  { q: 'ما المواد الثلاث المتفاعلة التي تشارك في عملية الصدأ؟', opts: ['الحديد والماء والأكسجين', 'الحديد والملح والحرارة', 'الحديد والزيت والهواء', 'الحديد والنحاس والماء'], ans: 0 },
+  { q: 'أي الأنابيب توقّع أن يزداد فيها الصدأ مقارنة بالأنبوبة الضابطة (١)؟', opts: ['الأنبوبة ٢ (تغليف بلاستيكي)', 'الأنبوبة ٦ (تغليف بالنحاس)', 'الأنبوبة ٧ (فولاذ مقاوم للصدأ)', 'الأنبوبة ٨ (مجلفنة)'], ans: 1 },
+  { q: 'لماذا لا يصدأ المسمار المجلفن حتى لو خُدشت طبقة الخارصين؟', opts: ['لأن الخارصين أقل نشاطًا من الحديد فيحميه', 'لأن الخارصين أكثر نشاطًا من الحديد، فيتأكسد هو بدلاً منه (حماية بالتضحية)', 'لأن الخدش لا يصل إلى الحديد أبدًا', 'لأن الماء لا يتفاعل مع الخارصين'], ans: 1 },
+  { q: 'الصدأ Rust مصطلح خاص بالحديد والفولاذ فقط. ما المصطلح الأعمّ لهذا النوع من التفاعل مع كل الفلزات؟', opts: ['الاختزال Reduction', 'الترسيب Precipitation', 'التآكل Corrosion', 'الإذابة Dissolving'], ans: 2 }
+];
+
+function _g10L9Panel() {
+  const S = simState;
+  var html = '';
+  html += '<div class="ctrl-section"><div class="ctrl-label">🧷 نشاط ٣-٢ · منع الصدأ</div>' +
+    '<div class="ctrl-name" style="font-size:13px;font-weight:400;line-height:1.9">قارن طرائق حماية مختلفة للمسامير الحديدية، وتوقّع أيها يصدأ بعد أسبوع كامل في الماء.</div></div>';
+
+  if (!S.started) {
+    html += '<div class="info-box">💧 اضغط الزر أدناه لإضافة الماء إلى الأنابيب الثمانية (بحيث يغطي نصفها) ثم اتركها في مكان ثابت.</div>' +
+      '<button class="ctrl-btn action" style="width:100%;margin-top:10px" onclick="g10L9Start()">💧 أضِف الماء وابدأ التجربة</button>';
+  } else {
+    html += '<div class="ctrl-section"><div class="ctrl-label">📅 عدد الأيام المنقضية: <b id="g10prevDaysOut">' + S.days + ' يوم</b></div>' +
+      '<input type="range" min="0" max="7" step="1" value="' + S.days + '" id="g10prevSlider" style="width:100%;accent-color:#185FA5" oninput="g10L9Days(this.value)"></div>';
+
+    html += '<div class="ctrl-section"><div class="ctrl-label">🧪 طريقة معالجة كل أنبوبة</div>';
+    _G10_PREV_TUBES.forEach(function(t) {
+      html += '<div style="padding:6px 0;border-bottom:1px dashed rgba(0,0,0,0.08)">' +
+        '<div style="font-size:12.5px;font-weight:700">' + t.icon + ' أنبوبة ' + t.n + ' — ' + t.label + '</div>' +
+        '<div style="font-size:11.5px;color:var(--text-muted)">' + t.cond + '</div></div>';
+    });
+    html += '</div>';
+
+    if (!S.showConclusion) {
+      html += '<button class="ctrl-btn action" style="width:100%;margin-top:12px" onclick="g10L9Conclude()">🎯 اطّلع على الاستنتاج</button>';
+    } else {
+      html += '<div class="info-box" style="margin-top:12px;border-color:#3B8C4A">🏆 <b>الاستنتاج:</b> طرائق الحاجز العازل (بلاستيك، دهان، شحم) تمنع الصدأ ما دامت الطبقة سليمة. الجلفنة تحمي الحديد حتى لو خُدشت (لأن الخارصين أكثر نشاطًا ويتأكسد بدلاً من الحديد — حماية بالتضحية). أما تغليف الحديد بفلز أقل نشاطًا كالنحاس فيُسرّع الصدأ بدلاً من منعه!</div>';
+      if (!S.quizShown) {
+        html += '<button class="ctrl-btn" style="width:100%;margin-top:10px" onclick="g10L9QuizStart()">🧠 أسئلة النشاط</button>';
+      }
+    }
+
+    if (S.quizShown && !S.quizDone) {
+      var Q = _G10_PREV_QUIZ[S.quizIdx];
+      html += '<div class="q-box" style="margin-top:14px"><strong>سؤال ' + (S.quizIdx+1) + ' من ' + _G10_PREV_QUIZ.length + ':</strong><br>' + Q.q +
+        '<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">' +
+        Q.opts.map(function(o, i){ return '<button class="ctrl-btn" onclick="g10L9Answer(' + i + ')">' + o + '</button>'; }).join('') +
+        '</div><div id="g10prevfb" style="margin-top:8px;font-size:13px;font-weight:700"></div></div>';
+    } else if (S.quizDone) {
+      html += '<div class="info-box" style="margin-top:14px;border-color:#3B8C4A">🏆 أنهيت أسئلة النشاط: ' + S.quizScore + ' / ' + _G10_PREV_QUIZ.length + ' إجابات صحيحة 🎉</div>';
+    }
+  }
+
+  controls(html);
+}
+
+window.g10L9Start = function() {
+  simState.started = true; simState.days = 0;
+  U9Sound.ping(420, 0.15, 0.2);
+  buddySay('أُضيف الماء! حرّك الأيام لترى ماذا يحدث 🔍', 4000);
+  _g10L9Panel();
+};
+
+window.g10L9Days = function(v) {
+  simState.days = Number(v);
+  var out = document.getElementById('g10prevDaysOut');
+  if (out) out.textContent = simState.days + ' يوم';
+};
+
+window.g10L9Conclude = function() {
+  simState.showConclusion = true;
+  U9Sound.win();
+  _g10L9Panel();
+};
+
+window.g10L9QuizStart = function() {
+  simState.quizShown = true; simState.quizIdx = 0; simState.quizScore = 0; simState.quizDone = false;
+  _g10L9Panel();
+};
+
+window.g10L9Answer = function(i) {
+  const S = simState;
+  var Q = _G10_PREV_QUIZ[S.quizIdx];
+  var fb = document.getElementById('g10prevfb');
+  if (i === Q.ans) { fb.style.color = '#1E8449'; fb.textContent = '✅ صحيح!'; S.quizScore++; U9Sound.win(); }
+  else { fb.style.color = '#C0392B'; fb.textContent = '❌ الإجابة الصحيحة: ' + Q.opts[Q.ans]; U9Sound.ping(220,0.3,0.25); }
+  setTimeout(function() {
+    S.quizIdx++;
+    if (S.quizIdx >= _G10_PREV_QUIZ.length) { S.quizDone = true; }
+    _g10L9Panel();
+  }, 1600);
+};
+
+function simG10Chem2N5() {
+  cancelAnimationFrame(animFrame);
+  simState = { t: 0, started: false, days: 0, showConclusion: false, quizShown: false, quizIdx: 0, quizScore: 0, quizDone: false };
+  const S = simState;
+  _g10L9Panel();
+  const cv = document.getElementById('simCanvas');
+
+  function draw() {
+    if (currentSim !== 'g10chem2n5') { cancelAnimationFrame(animFrame); return; }
+    var c = cv.getContext('2d'), w = cv.width, h = cv.height;
+    c.clearRect(0, 0, w, h);
+    var bg = c.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#F7F3EA'); bg.addColorStop(1, '#EDE6D6');
+    c.fillStyle = bg; c.fillRect(0, 0, w, h);
+    S.t++;
+
+    var cols = 4, rows = 2;
+    var gap = w * 0.018;
+    var tubeW = (w - gap*(cols+1)) / cols;
+    var tubeH = (h - gap*(rows+1)) * 0.86 / rows;
+
+    for (var idx = 0; idx < _G10_PREV_TUBES.length; idx++) {
+      var td = _G10_PREV_TUBES[idx];
+      var col = idx % cols, row = Math.floor(idx / cols);
+      var x = gap + col * (tubeW + gap);
+      var y = gap + row * (tubeH + gap);
+      var cx = x + tubeW / 2;
+
+      c.fillStyle = 'rgba(230,240,245,0.35)'; c.strokeStyle = '#93A6AD'; c.lineWidth = 2;
+      c.beginPath(); c.roundRect(x, y, tubeW, tubeH, tubeW*0.18); c.fill(); c.stroke();
+
+      if (S.started) {
+        c.fillStyle = 'rgba(90,160,210,0.25)';
+        c.beginPath(); c.roundRect(x + 3, y + tubeH*0.45, tubeW - 6, tubeH*0.5, 5); c.fill();
+      }
+
+      // أيقونة طريقة الحماية أعلى الأنبوبة
+      c.font = (tubeW*0.28) + 'px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText(td.icon, cx, y + tubeH*0.04);
+
+      function nailAt(nx, protRate) {
+        var rustPct = S.started ? Math.min(100, protRate * S.days * 14) : 0;
+        c.fillStyle = _rustColor2(rustPct);
+        var nw = tubeW*0.09, nh = tubeH*0.5, ny = y + tubeH*0.36;
+        c.beginPath(); c.roundRect(nx - nw/2, ny, nw, nh, 2); c.fill();
+        c.beginPath(); c.moveTo(nx-nw/2, ny); c.lineTo(nx, ny-nh*0.06); c.lineTo(nx+nw/2, ny); c.closePath(); c.fill();
+        return rustPct;
+      }
+
+      var pct;
+      if (td.dual) {
+        var p1 = nailAt(cx - tubeW*0.11, td.rate[0]);
+        var p2 = nailAt(cx + tubeW*0.11, td.rate[1]);
+        // خدش رمزي على المسمار الثاني
+        c.strokeStyle = 'rgba(120,60,20,0.5)'; c.lineWidth = 1.5;
+        c.beginPath(); c.moveTo(cx + tubeW*0.11 - 4, y + tubeH*0.55); c.lineTo(cx + tubeW*0.11 + 4, y + tubeH*0.62); c.stroke();
+        pct = Math.max(p1, p2);
+      } else {
+        pct = nailAt(cx, td.rate);
+      }
+
+      c.fillStyle = '#5A4020'; c.font = 'bold ' + (tubeW*0.11) + 'px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
+      c.fillText('أنبوبة ' + td.n, cx, y + tubeH + 4);
+      c.font = (tubeW*0.09) + 'px Tajawal';
+      c.fillStyle = pct === 0 ? '#3B8C4A' : (pct < 100 ? '#B8780A' : '#A32D2D');
+      var st = !S.started ? 'بانتظار البدء' : (pct === 0 ? 'لا صدأ ✅' : (pct < 100 ? 'صدأ جزئي' : 'صدأ كامل'));
+      c.fillText(st, cx, y + tubeH + tubeH*0.16);
+    }
+
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
