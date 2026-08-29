@@ -1145,7 +1145,6 @@ function _g10L7Panel() {
 
 window.g10L7GoTo = function(i) {
   const S = simState;
-  if (S.autoPlay) return;
   S.stage = i;
   S.oxygenActive = false;
   if (i === 0) { S.targetTilt = -16; S.scrapVisible = true; S.metalLevel = 0.32; S.slagLevel = 0; S.lanceDown = false; S.pourPhase = 0; S.hud = 'تعبئة الفرن'; }
@@ -1207,7 +1206,7 @@ function simG10Chem2N3() {
       else if (S.autoPhase === 1 && S.autoT > 40 && !S.oxygenActive && S.oxySteps === 0) { window.g10L7Oxygen(); S.autoPhase = 2; }
       else if (S.autoPhase === 2 && !S.oxygenActive && S.oxySteps > 0) { S.autoPhase = 3; S.autoT = 0; }
       else if (S.autoPhase === 3 && S.autoT > 60) { window.g10L7GoTo(2); S.autoPhase = 4; S.autoT = 0; }
-      else if (S.autoPhase === 4 && S.pourPhase === 0 && S.autoT > 30) { S.autoPlay = false; _g10L7Panel(); }
+      else if (S.autoPhase === 4 && S.pourPhase === 5) { S.autoPlay = false; S.hud = 'اكتملت الدورة — يمكنك البدء من جديد'; _g10L7Panel(); }
     }
 
     // ── نفخ الأكسجين ──
