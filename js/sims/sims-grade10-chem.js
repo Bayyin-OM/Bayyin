@@ -1517,11 +1517,16 @@ function _g10L9Panel() {
     html += '<div class="ctrl-section"><div class="ctrl-label">📅 عدد الأيام المنقضية: <b id="g10prevDaysOut">' + S.days + ' يوم</b></div>' +
       '<input type="range" min="0" max="7" step="1" value="' + S.days + '" id="g10prevSlider" style="width:100%;accent-color:#185FA5" oninput="g10L9Days(this.value)"></div>';
 
+    var _methodColorsCSS = { method:'#9AA3AF', barrier:'#3B82C4', sacrificial:'#8E6A9A', copper:'#C0632B', alloy:'#2E9E8F', galvanised:'#3B8C4A' };
     html += '<div class="ctrl-section"><div class="ctrl-label">🧪 طريقة معالجة كل أنبوبة</div>';
     _G10_PREV_TUBES.forEach(function(t) {
-      html += '<div style="padding:6px 0;border-bottom:1px dashed rgba(0,0,0,0.08)">' +
-        '<div style="font-size:12.5px;font-weight:700">' + t.icon + ' أنبوبة ' + t.n + ' — ' + t.label + '</div>' +
-        '<div style="font-size:11.5px;color:var(--text-muted)">' + t.cond + '</div></div>';
+      var ac = _methodColorsCSS[t.method] || '#9AA3AF';
+      html += '<div style="display:flex;gap:8px;align-items:flex-start;padding:7px 2px;border-bottom:1px solid rgba(0,0,0,0.05)">' +
+        '<span style="width:4px;align-self:stretch;border-radius:3px;background:' + ac + ';flex-shrink:0"></span>' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:12px;font-weight:700;color:var(--text-primary)">أنبوبة ' + t.n + ' — ' + t.mat + '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);line-height:1.6;margin-top:1px">' + t.cond + '</div>' +
+        '</div></div>';
     });
     html += '</div>';
 
@@ -1601,38 +1606,62 @@ function simG10Chem2N5() {
     c.fillStyle = bg; c.fillRect(0, 0, w, h);
     S.t++;
 
+    // ── شبكة الأنابيب: توزيع مساحة دقيق بدون أي تداخل بين الصفوف ──
     var cols = 4, rows = 2;
-    var gap = w * 0.018;
-    var tubeW = (w - gap*(cols+1)) / cols;
-    var tubeH = (h - gap*(rows+1)) * 0.86 / rows;
+    var padX = w * 0.02, padY = h * 0.03;
+    var colGap = w * 0.022, rowGap = h * 0.09; // فراغ عمودي سخي يمنع أي تداخل
+    var tubeW = (w - padX*2 - colGap*(cols-1)) / cols;
+    var rowSlotH = (h - padY*2 - rowGap*(rows-1)) / rows;
+
+    // توزيع ثابت لنسب الارتفاع داخل كل خانة (مجموعها = 1، فلا تتجاوز حدودها أبدًا)
+    var bandIcon = rowSlotH * 0.12;
+    var bandMat  = rowSlotH * 0.11;
+    var bandTube = rowSlotH * 0.48;
+    var bandNum  = rowSlotH * 0.13;
+    var bandStat = rowSlotH * 0.16;
+
+    var methodColors = {
+      method: '#9AA3AF', barrier: '#3B82C4', sacrificial: '#8E6A9A',
+      copper: '#C0632B', alloy: '#2E9E8F', galvanised: '#3B8C4A'
+    };
 
     for (var idx = 0; idx < _G10_PREV_TUBES.length; idx++) {
       var td = _G10_PREV_TUBES[idx];
       var col = idx % cols, row = Math.floor(idx / cols);
-      var x = gap + col * (tubeW + gap);
-      var y = gap + row * (tubeH + gap);
+      var x = padX + col * (tubeW + colGap);
+      var y = padY + row * (rowSlotH + rowGap);
       var cx = x + tubeW / 2;
+      var accent = methodColors[td.method] || '#9AA3AF';
 
-      c.fillStyle = 'rgba(230,240,245,0.35)'; c.strokeStyle = '#93A6AD'; c.lineWidth = 2;
-      c.beginPath(); c.roundRect(x, y, tubeW, tubeH, tubeW*0.18); c.fill(); c.stroke();
+      var tubeY = y + bandIcon + bandMat;
+      var tubeH = bandTube;
 
+      // بطاقة الخلفية + شريط لوني علوي يميّز فئة طريقة الحماية
+      c.fillStyle = '#ffffff'; c.strokeStyle = 'rgba(0,0,0,0.08)'; c.lineWidth = 1.5;
+      c.beginPath(); c.roundRect(x, y, tubeW, bandIcon+bandMat+bandTube+bandNum+bandStat, tubeW*0.08); c.fill(); c.stroke();
+      c.fillStyle = accent;
+      c.beginPath(); c.roundRect(x, y, tubeW, 5, [tubeW*0.08, tubeW*0.08, 0, 0]); c.fill();
+
+      // الأنبوبة الزجاجية
+      c.fillStyle = 'rgba(230,240,245,0.4)'; c.strokeStyle = '#93A6AD'; c.lineWidth = 2;
+      c.beginPath(); c.roundRect(x + tubeW*0.08, tubeY, tubeW*0.84, tubeH, tubeW*0.16); c.fill(); c.stroke();
       if (S.started) {
         c.fillStyle = 'rgba(90,160,210,0.25)';
-        c.beginPath(); c.roundRect(x + 3, y + tubeH*0.45, tubeW - 6, tubeH*0.5, 5); c.fill();
+        c.beginPath(); c.roundRect(x + tubeW*0.1, tubeY + tubeH*0.42, tubeW*0.8, tubeH*0.55, 4); c.fill();
       }
 
-      // أيقونة طريقة الحماية + تسمية نصية واضحة أعلى الأنبوبة
-      c.font = (tubeW*0.20) + 'px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
-      c.fillText(td.icon, cx, y + tubeH*0.035);
-      c.fillStyle = '#5A4020'; c.font = 'bold ' + (tubeW*0.085) + 'px Tajawal';
-      c.fillText(td.mat, cx, y + tubeH*0.24);
+      // أيقونة الطريقة + التسمية (كل منها بحدود مساحته فقط)
+      c.font = (bandIcon*0.85) + 'px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(td.icon, cx, y + bandIcon*0.55);
+      c.fillStyle = '#5A4020'; c.font = 'bold ' + Math.min(bandMat*0.62, tubeW*0.082) + 'px Tajawal';
+      c.fillText(td.mat, cx, y + bandIcon + bandMat*0.55);
 
       function nailAt(nx, protRate) {
         var rustPct = S.started ? Math.min(100, protRate * S.days * 14) : 0;
         c.fillStyle = _rustColor2(rustPct);
-        var nw = tubeW*0.09, nh = tubeH*0.42, ny = y + tubeH*0.44;
+        var nw = tubeW*0.075, nh = tubeH*0.62, ny = tubeY + tubeH*0.28;
         c.beginPath(); c.roundRect(nx - nw/2, ny, nw, nh, 2); c.fill();
-        c.beginPath(); c.moveTo(nx-nw/2, ny); c.lineTo(nx, ny-nh*0.06); c.lineTo(nx+nw/2, ny); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(nx-nw/2, ny); c.lineTo(nx, ny-nh*0.08); c.lineTo(nx+nw/2, ny); c.closePath(); c.fill();
         return rustPct;
       }
 
@@ -1640,20 +1669,30 @@ function simG10Chem2N5() {
       if (td.dual) {
         var p1 = nailAt(cx - tubeW*0.11, td.rate[0]);
         var p2 = nailAt(cx + tubeW*0.11, td.rate[1]);
-        // خدش رمزي على المسمار الثاني
         c.strokeStyle = 'rgba(120,60,20,0.5)'; c.lineWidth = 1.5;
-        c.beginPath(); c.moveTo(cx + tubeW*0.11 - 4, y + tubeH*0.6); c.lineTo(cx + tubeW*0.11 + 4, y + tubeH*0.67); c.stroke();
+        c.beginPath(); c.moveTo(cx + tubeW*0.11 - 4, tubeY + tubeH*0.5); c.lineTo(cx + tubeW*0.11 + 4, tubeY + tubeH*0.58); c.stroke();
         pct = Math.max(p1, p2);
       } else {
         pct = nailAt(cx, td.rate);
       }
 
-      c.fillStyle = '#5A4020'; c.font = 'bold ' + (tubeW*0.11) + 'px Tajawal'; c.textAlign = 'center'; c.textBaseline = 'top';
-      c.fillText('أنبوبة ' + td.n, cx, y + tubeH + 4);
-      c.font = (tubeW*0.09) + 'px Tajawal';
-      c.fillStyle = pct === 0 ? '#3B8C4A' : (pct < 100 ? '#B8780A' : '#A32D2D');
-      var st = !S.started ? 'بانتظار البدء' : (pct === 0 ? 'لا صدأ ✅' : (pct < 100 ? 'صدأ جزئي' : 'صدأ كامل'));
-      c.fillText(st, cx, y + tubeH + tubeH*0.16);
+      // رقم الأنبوبة (ضمن شريطه الخاص فقط)
+      c.fillStyle = '#3A3530'; c.font = 'bold ' + Math.min(bandNum*0.55, tubeW*0.1) + 'px Tajawal';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('أنبوبة ' + td.n, cx, y + bandIcon+bandMat+bandTube + bandNum*0.5);
+
+      // شارة الحالة الملوّنة (ضمن شريطها الخاص فقط)
+      var stColor = !S.started ? '#9A9890' : (pct === 0 ? '#1E8449' : (pct < 100 ? '#B8780A' : '#A32D2D'));
+      var stBg    = !S.started ? 'rgba(154,152,144,0.12)' : (pct === 0 ? 'rgba(30,132,73,0.12)' : (pct < 100 ? 'rgba(184,120,10,0.12)' : 'rgba(163,45,45,0.12)'));
+      var stTxt   = !S.started ? 'بانتظار البدء' : (pct === 0 ? '✅ لا صدأ' : (pct < 100 ? '⚠️ صدأ جزئي' : '❌ صدأ كامل'));
+      var badgeY = y + bandIcon+bandMat+bandTube+bandNum + bandStat*0.5;
+      var badgeFont = Math.min(bandStat*0.42, tubeW*0.075);
+      c.font = 'bold ' + badgeFont + 'px Tajawal';
+      var badgeW = Math.min(tubeW*0.92, c.measureText(stTxt).width + badgeFont*2.2);
+      c.fillStyle = stBg;
+      c.beginPath(); c.roundRect(cx - badgeW/2, badgeY - bandStat*0.36, badgeW, bandStat*0.72, bandStat*0.36); c.fill();
+      c.fillStyle = stColor;
+      c.fillText(stTxt, cx, badgeY);
     }
 
     animFrame = requestAnimationFrame(draw);
