@@ -82,40 +82,43 @@ function simG7Cell1a(){
   const S = simState;
   const cv = document.getElementById('simCanvas');
 
-  function items(){ return S.stage==='sort2' ? S.items : S.items; }
   function allPlaced(){ return S.items.every(it=>it.placed); }
+  function doneCount(){ return S.items.filter(it=>it.placed).length; }
 
   function renderControls(){
     const stageLabel = S.stage==='sort1' ? 'المرحلة ١: صنّف العناصر' : 'التحدّي النهائي: كن محقّقاً علمياً';
+    let html = `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🔬 ${stageLabel}</div></div>`;
     if(!allPlaced()){
-      return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🔬 ${stageLabel}</div></div>
-        <div style="font-size:13px;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:12px;margin-bottom:10px">اسحب كل عنصر إلى المجموعة الصحيحة أعلى الشاشة.</div>
+      html += `<div style="font-size:13px;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:12px;margin-bottom:10px">اسحب كل عنصر إلى المجموعة الصحيحة أعلى الشاشة.</div>
         ${S.hintT>0 ? `<div style="font-size:13px;color:#D97706;background:#FEF3C7;border-radius:8px;padding:10px;margin-bottom:10px">💡 ${S.hint}</div>` : ''}
-        <div style="font-size:12.5px;color:var(--text-secondary)">تصنيف صحيح: ${S.items.filter(i=>i.placed).length} / ${S.items.length}</div>`;
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">تصنيف صحيح: ${doneCount()} / ${S.items.length}</div>`;
+    } else {
+      html += `<div class="info-box" style="margin-bottom:10px">🎉 أحسنت! تمّ التصنيف بنجاح.</div>`;
     }
-    let html = `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🎉 أحسنت! تمّ التصنيف</div></div>
-      <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px">اضغط على أيّ عنصر في الصورة، ثمّ اضغط «افحص الكائن» لرؤية خصائص الحياة السبع.</div>`;
-    if(S.selected){
-      const it = S.items.find(x=>x.id===S.selected);
-      html += `<button class="ctrl-btn play" onclick="window._g7c1Examine()">🧪 افحص الكائن: ${it.icon} ${it.label}</button>`;
-      if(S.examined[it.id]){
-        html += `<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label" style="font-size:14px">خصائص الحياة السبع</div></div>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
-            ${TRAITS.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;font-size:13px">
-              <span>${it.traits[i]?'🟩':'🟥'}</span><span>${it.traits[i]?t:'لا '+t}</span>
-            </div>`).join('')}
-          </div>
-          <div class="info-box" style="font-size:13px">${it.group==='alive'?('إذن '+it.label+' كائن حي.'):it.group==='dead'?it.note:('بعض الأشياء غير الحيّة قد تمتلك بعض الصفات المشابهة للكائنات الحية، لكنّها لا تمتلك جميع خصائص الكائن الحي.')}</div>`;
+    if(doneCount()>0){
+      html += `<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:8px">اضغط على أيّ عنصر مُصنَّف في الصورة، ثمّ اضغط «افحص الكائن».</div>`;
+      if(S.selected){
+        const it = S.items.find(x=>x.id===S.selected);
+        html += `<button class="ctrl-btn play" onclick="window._g7c1Examine()">🧪 افحص الكائن: ${it.icon} ${it.label}</button>`;
+        if(S.examined[it.id]){
+          html += `<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label" style="font-size:14px">خصائص الحياة السبع</div></div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px">
+              ${TRAITS.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;font-size:13px">
+                <span>${it.traits[i]?'🟩':'🟥'}</span><span>${it.traits[i]?t:'لا '+t}</span>
+              </div>`).join('')}
+            </div>
+            <div class="info-box" style="font-size:13px">${it.group==='alive'?('إذن '+it.label+' كائن حي.'):it.group==='dead'?it.note:('بعض الأشياء غير الحيّة قد تمتلك بعض الصفات المشابهة للكائنات الحية، لكنّها لا تمتلك جميع خصائص الكائن الحي.')}</div>`;
+        }
       }
-    } else {
-      html += `<div class="info-box" style="font-size:12.5px">اضغط على عنصر من الصورة لاختياره.</div>`;
     }
-    if(S.stage==='sort1'){
-      html += `<button class="ctrl-btn" style="margin-top:12px" onclick="window._g7c1Next()">➡️ التحدّي النهائي: كن محقّقاً علمياً</button>`;
-    } else {
-      html += `<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label" style="font-size:15px">❓ وجد خالد جذع شجرة مقطوعاً على الأرض. إلى أيّ مجموعة ينتمي؟</div></div>
-        ${g7cMCQ('g7c1q',['كائن حي','كائن كان حيّاً وأصبح ميتاً','شيء غير حي','لا يمكن تصنيفه'])}
-        <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g7c1Restart()">↺ أعد النشاط</button>`;
+    if(allPlaced()){
+      if(S.stage==='sort1'){
+        html += `<button class="ctrl-btn" style="margin-top:12px" onclick="window._g7c1Next()">➡️ التحدّي النهائي: كن محقّقاً علمياً</button>`;
+      } else {
+        html += `<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label" style="font-size:15px">❓ وجد خالد جذع شجرة مقطوعاً على الأرض. إلى أيّ مجموعة ينتمي؟</div></div>
+          ${g7cMCQ('g7c1q',['كائن حي','كائن كان حيّاً وأصبح ميتاً','شيء غير حي','لا يمكن تصنيفه'])}
+          <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g7c1Restart()">↺ أعد النشاط</button>`;
+      }
     }
     return html;
   }
@@ -142,13 +145,13 @@ function simG7Cell1a(){
   };
 
   function layout(w,h){
-    const n = S.items.length;
+    const unplaced = S.items.filter(it=>!it.placed);
+    const n = unplaced.length || 1;
     const cols = Math.min(n,5);
     const rows = Math.ceil(n/cols);
     const gx = w*0.9/cols, gy = h*0.12;
     const startX = w*0.05+gx/2, startY = h*0.74;
-    S.items.forEach((it,i)=>{
-      if(it.placed) return;
+    unplaced.forEach((it,i)=>{
       const col = i%cols, row = Math.floor(i/cols);
       it.homeX = startX+col*gx; it.homeY = startY+row*gy - (rows>1?row*2:0);
     });
@@ -156,6 +159,16 @@ function simG7Cell1a(){
   function zoneRects(w,h){
     const zw = w*0.29, zh = h*0.16, gap=(w-zw*3)/4;
     return ZONES.map((z,i)=>({...z, x:gap+i*(zw+gap), y:h*0.1, w:zw, h:zh}));
+  }
+  function updateSlots(w,h){
+    const zones = zoneRects(w,h);
+    zones.forEach(z=>{
+      const grp = S.items.filter(i=>i.placed && i.group===z.id);
+      grp.forEach((it,i)=>{
+        it.slotX = z.x+z.w*0.16+ (i%4)*(z.w*0.22);
+        it.slotY = z.y+z.h*0.62 + Math.floor(i/4)*(z.h*0.38);
+      });
+    });
   }
   function hitItem(p,w,h){
     for(const it of S.items){ if(it.placed) continue;
@@ -170,16 +183,9 @@ function simG7Cell1a(){
     return null;
   }
   function hitPlacedItem(p,w,h){
-    if(!allPlaced()) return null;
-    const zones = zoneRects(w,h);
-    for(const z of zones){
-      const grp = S.items.filter(i=>i.group===z.id);
-      grp.forEach((it,i)=>{
-        it.slotX = z.x+z.w*0.15+ (i%4)*(z.w*0.22)+z.w*0.1;
-        it.slotY = z.y+z.h*0.65 + Math.floor(i/4)*(z.h*0.4);
-      });
-    }
+    updateSlots(w,h);
     for(const it of S.items){
+      if(!it.placed) continue;
       if(Math.hypot(p.x-it.slotX,p.y-it.slotY) < w*0.035) return it;
     }
     return null;
@@ -187,11 +193,9 @@ function simG7Cell1a(){
 
   function onDown(e){
     const p = g7cGp(cv,e), w=cv.width, h=cv.height;
-    if(allPlaced()){
-      const it = hitPlacedItem(p,w,h);
-      if(it){ _g8pPlayClick(); S.selected=it.id; controls(renderControls()); }
-      return;
-    }
+    const placedHit = hitPlacedItem(p,w,h);
+    if(placedHit){ _g8pPlayClick(); S.selected=placedHit.id; controls(renderControls()); return; }
+    if(allPlaced()) return;
     const it = hitItem(p,w,h);
     if(it){ S.dragId=it.id; S.dragX=p.x; S.dragY=p.y; }
   }
@@ -207,7 +211,7 @@ function simG7Cell1a(){
     const z = hitZone({x:S.dragX,y:S.dragY}, w, h);
     if(z && z.id===it.group){
       it.placed=true; _g8pPlayDrop();
-      if(allPlaced()){ layout(w,h); }
+      layout(w,h); updateSlots(w,h);
     } else if(z){
       _g8pPlayClick(); S.hint='ليس هذا المكان الصحيح — فكّر في خصائص الحياة السبع.'; S.hintT=120;
     }
@@ -232,33 +236,29 @@ function simG7Cell1a(){
       c.fillText(z.label, z.x+z.w/2, z.y+z.h*0.24);
     });
 
-    if(allPlaced()){
-      zones.forEach(z=>{
-        const grp = S.items.filter(i=>i.group===z.id);
-        grp.forEach((it,i)=>{
-          const ix = z.x+z.w*0.15+ (i%4)*(z.w*0.22)+z.w*0.1;
-          const iy = z.y+z.h*0.65 + Math.floor(i/4)*(z.h*0.4);
-          it.slotX=ix; it.slotY=iy;
-          if(S.selected===it.id){
-            c.fillStyle=g7cAccent(dark); c.globalAlpha=0.22;
-            c.beginPath(); c.arc(ix,iy,w*0.032,0,Math.PI*2); c.fill(); c.globalAlpha=1;
-          }
-          g7cEmoji(c,it.icon,ix,iy,Math.round(w*0.036));
-        });
-      });
-    } else {
-      layout(w,h);
-      S.items.forEach(it=>{
-        if(it.placed) return;
-        if(S.dragId===it.id) return;
-        g7cEmoji(c,it.icon,it.homeX,it.homeY,Math.round(w*0.038));
-        c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-        c.fillText(it.label, it.homeX, it.homeY+h*0.035);
-      });
-      if(S.dragId){
-        const it=S.items.find(x=>x.id===S.dragId);
-        c.globalAlpha=0.85; g7cEmoji(c,it.icon,S.dragX,S.dragY,Math.round(w*0.045)); c.globalAlpha=1;
+    // العناصر الموضوعة تبقى ظاهرة داخل مربّعها فور تصنيفها الصحيح
+    updateSlots(w,h);
+    S.items.forEach(it=>{
+      if(!it.placed) return;
+      if(S.selected===it.id){
+        c.fillStyle=g7cAccent(dark); c.globalAlpha=0.22;
+        c.beginPath(); c.arc(it.slotX,it.slotY,w*0.032,0,Math.PI*2); c.fill(); c.globalAlpha=1;
       }
+      g7cEmoji(c,it.icon,it.slotX,it.slotY,Math.round(w*0.032));
+    });
+
+    // العناصر غير المصنَّفة بعد، في صفّ الانتظار أسفل الشاشة
+    if(!allPlaced()) layout(w,h);
+    S.items.forEach(it=>{
+      if(it.placed) return;
+      if(S.dragId===it.id) return;
+      g7cEmoji(c,it.icon,it.homeX,it.homeY,Math.round(w*0.038));
+      c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+      c.fillText(it.label, it.homeX, it.homeY+h*0.035);
+    });
+    if(S.dragId){
+      const it=S.items.find(x=>x.id===S.dragId);
+      c.globalAlpha=0.85; g7cEmoji(c,it.icon,S.dragX,S.dragY,Math.round(w*0.045)); c.globalAlpha=1;
     }
 
     g7cTitle(c,w,h,dark,'٤-١ · خصائص الكائنات الحية');
@@ -604,7 +604,8 @@ function simG7Cell3a(){
 function simG7Cell4a(){
   cancelAnimationFrame(animFrame);
   const PLACES=[{id:'cold',label:'بارد ❄️',mult:0.3},{id:'mid',label:'معتدل 🌤️',mult:0.7},{id:'warm',label:'دافئ 🔥',mult:1.2}];
-  simState = { added:false, stirred:false, covered:false, place:null, hour:0, showBac:false };
+  simState = { added:false, stirred:false, covered:false, place:null, hour:0, showBac:false,
+    addAnimT:0, stirAnimT:0, coverAnimT:0 };
   const S = simState;
   const cv = document.getElementById('simCanvas');
   const STAGES=[
@@ -617,13 +618,25 @@ function simG7Cell4a(){
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">كأس حليب 150 mL — أضف ملعقة زبادي طازج.</div>
         <button class="ctrl-btn play" onclick="window._g7c4aAdd()">🥄 أضف ملعقة الزبادي</button>`;
     }
+    if(S.addAnimT>0){
+      return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🥄 جارٍ إضافة الزبادي...</div></div>
+        <div class="info-box">شاهد الملعقة وهي تُفرغ الزبادي داخل كأس الحليب.</div>`;
+    }
     if(!S.stirred){
       return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🥄 حرّك الخليط</div></div>
+        <div class="info-box" style="margin-bottom:10px">امزج الزبادي مع الحليب جيّداً حتى يتجانسا.</div>
         <button class="ctrl-btn play" onclick="window._g7c4aStir()">🌀 حرّك الخليط</button>`;
+    }
+    if(S.stirAnimT>0){
+      return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🌀 جارٍ التحريك...</div></div>
+        <div class="info-box">تُمزَج البكتيريا الموجودة في الزبادي مع الحليب بالكامل.</div>`;
     }
     if(!S.covered){
       return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🫙 غطِّ الوعاء</div></div>
         <button class="ctrl-btn play" onclick="window._g7c4aCover()">🫙 غطِّ الوعاء</button>`;
+    }
+    if(S.coverAnimT>0){
+      return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🫙 جارٍ التغطية...</div></div>`;
     }
     if(!S.place){
       return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">📍 اختر مكان الحفظ</div></div>
@@ -646,14 +659,21 @@ function simG7Cell4a(){
     return html;
   }
   controls(renderControls());
-  window._g7c4aAdd = function(){ _g8pPlayClick(); S.added=true; controls(renderControls()); };
-  window._g7c4aStir = function(){ _g8pPlayClick(); S.stirred=true; controls(renderControls()); };
-  window._g7c4aCover = function(){ _g8pPlayClick(); S.covered=true; controls(renderControls()); };
+  window._g7c4aAdd = function(){
+    _g8pPlayClick(); S.added=true; S.addAnimT=55; controls(renderControls());
+  };
+  window._g7c4aStir = function(){
+    _g8pPlayClick(); S.stirred=true; S.stirAnimT=70; controls(renderControls());
+  };
+  window._g7c4aCover = function(){
+    _g8pPlayClick(); S.covered=true; S.coverAnimT=35; controls(renderControls());
+  };
   window._g7c4aPlace = function(i){ _g8pPlayClick(); S.place=PLACES[i]; S.hour=0; controls(renderControls()); };
   window._g7c4aSeek = function(v){ _g8pPlayClick(); S.hour=+v; controls(renderControls()); };
   window._g7c4aBac = function(){ _g8pPlayClick(); S.showBac=!S.showBac; controls(renderControls()); };
   window._g7c4aRestart = function(){
     S.added=false; S.stirred=false; S.covered=false; S.place=null; S.hour=0; S.showBac=false;
+    S.addAnimT=0; S.stirAnimT=0; S.coverAnimT=0;
     controls(renderControls());
   };
 
@@ -663,26 +683,83 @@ function simG7Cell4a(){
     c.fillStyle=g7cBg(dark); c.fillRect(0,0,w,h);
 
     const cx=w*0.5, cupW=w*0.28, cupH=h*0.32, topY=h*0.3;
+
+    // إنقاص عدّادات الرسوم المتحركة
+    let anyAnim=false;
+    if(S.addAnimT>0){ S.addAnimT--; anyAnim=true; if(S.addAnimT===0) controls(renderControls()); }
+    if(S.stirAnimT>0){ S.stirAnimT--; anyAnim=true; if(S.stirAnimT===0) controls(renderControls()); }
+    if(S.coverAnimT>0){ S.coverAnimT--; anyAnim=true; if(S.coverAnimT===0) controls(renderControls()); }
+
+    // الكأس
     c.strokeStyle=g7cMut(dark); c.lineWidth=w*0.006;
     c.beginPath(); c.moveTo(cx-cupW/2,topY); c.lineTo(cx-cupW/2*0.85,topY+cupH); c.lineTo(cx+cupW/2*0.85,topY+cupH); c.lineTo(cx+cupW/2,topY); c.closePath(); c.stroke();
 
     const mult = S.place? S.place.mult : 0;
-    const prog = g7cClamp((S.hour/4)*mult/0.7, 0, 1);
-    const liquidCol = g7cLerp(0,1,prog);
+    const prog = S.place ? g7cClamp((S.hour/4)*mult/0.7, 0, 1) : 0;
     c.save();
     c.beginPath(); c.moveTo(cx-cupW/2,topY); c.lineTo(cx-cupW/2*0.85,topY+cupH); c.lineTo(cx+cupW/2*0.85,topY+cupH); c.lineTo(cx+cupW/2,topY); c.closePath(); c.clip();
-    c.fillStyle = dark? `rgba(255,255,255,${0.55+liquidCol*0.3})` : `rgba(250,250,245,${0.9})`;
-    c.fillRect(cx-cupW/2,topY,cupW,cupH);
+    // الحليب (يظهر فور إضافة الزبادي)
+    if(S.added){
+      c.fillStyle = dark? 'rgba(255,255,255,0.82)' : 'rgba(250,250,245,0.95)';
+      c.fillRect(cx-cupW/2,topY,cupW,cupH);
+    }
+    // ملعقة زبادي تسقط داخل الكأس (رسوم متحركة)
+    if(S.addAnimT>0){
+      const t = 1-(S.addAnimT/55);
+      const spoonY = g7cLerp(topY-cupH*0.6, topY+cupH*0.25, g7cClamp(t*1.3,0,1));
+      c.save(); c.globalAlpha = t<0.9?1:1-((t-0.9)/0.1);
+      g7cEmoji(c, '🥄', cx, spoonY, Math.round(w*0.05));
+      c.restore();
+      if(t>0.55){
+        c.fillStyle='#F5F0E6'; c.globalAlpha=g7cClamp((t-0.55)/0.45,0,1);
+        c.beginPath(); c.ellipse(cx,topY+cupH*0.3,cupW*0.16,cupH*0.08,0,0,Math.PI*2); c.fill();
+        c.globalAlpha=1;
+      }
+    } else if(S.added && !S.stirred){
+      c.fillStyle='#F5F0E6';
+      c.beginPath(); c.ellipse(cx,topY+cupH*0.3,cupW*0.16,cupH*0.08,0,0,Math.PI*2); c.fill();
+    }
+    // تحريك الخليط برسوم دوّامة
+    if(S.stirAnimT>0){
+      const spins = (70-S.stirAnimT)*0.35;
+      const spoonAng = spins;
+      const sx = cx+Math.cos(spoonAng)*cupW*0.22, sy=topY+cupH*0.45+Math.sin(spoonAng)*cupH*0.14;
+      c.strokeStyle=dark?'rgba(255,255,255,0.5)':'rgba(120,100,70,0.45)'; c.lineWidth=2;
+      for(let k=0;k<3;k++){
+        const rr = cupW*(0.1+k*0.06);
+        c.beginPath(); c.arc(cx,topY+cupH*0.45,rr,spoonAng+k, spoonAng+k+Math.PI*1.2); c.stroke();
+      }
+      g7cEmoji(c,'🥄', sx, sy, Math.round(w*0.038));
+    } else if(S.stirred){
+      // مزيج متجانس بعد التحريك
+      for(let i=0;i<10;i++){
+        const seed=i*13.7;
+        const px=cx-cupW*0.35+(Math.sin(seed)*0.5+0.5)*cupW*0.7;
+        const py=topY+cupH*0.25+(Math.cos(seed*1.3)*0.5+0.5)*cupH*0.55;
+        c.fillStyle=dark?'rgba(255,255,255,0.2)':'rgba(220,210,190,0.5)';
+        c.beginPath(); c.arc(px,py,cupW*0.012,0,Math.PI*2); c.fill();
+      }
+    }
+    // تجمّد/تماسك الحليب حسب مرور الوقت بعد اختيار المكان
     if(prog>0.15){
       for(let i=0;i<Math.round(prog*30);i++){
-        const seed=i*13.7;
+        const seed=i*13.7+3;
         const px=cx-cupW*0.4+(Math.sin(seed)*0.5+0.5)*cupW*0.8;
         const py=topY+cupH*0.2+(Math.cos(seed*1.3)*0.5+0.5)*cupH*0.7;
-        c.fillStyle=dark?'rgba(255,255,255,0.25)':'rgba(210,210,200,0.6)';
+        c.fillStyle=dark?'rgba(255,255,255,0.3)':'rgba(210,210,200,0.65)';
         c.beginPath(); c.arc(px,py,cupW*0.015,0,Math.PI*2); c.fill();
       }
     }
     c.restore();
+
+    // غطاء الوعاء
+    if(S.covered){
+      const lidT = S.coverAnimT>0 ? 1-(S.coverAnimT/35) : 1;
+      const lidY = g7cLerp(topY-h*0.12, topY-h*0.006, g7cClamp(lidT,0,1));
+      c.fillStyle= dark?'rgba(200,200,255,0.18)':'rgba(200,220,255,0.5)';
+      c.strokeStyle=g7cAccent(dark); c.lineWidth=w*0.005;
+      g7cRRect(c,cx-cupW/2-4,lidY,cupW+8,h*0.014,4); c.fill(); c.stroke();
+    }
 
     if(S.showBac && S.place){
       for(let i=0;i<10;i++){
@@ -694,7 +771,7 @@ function simG7Cell4a(){
     }
 
     c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
-    c.fillText(S.place? `المكان: ${S.place.label}`:'كأس حليب + ملعقة زبادي', cx, topY+cupH+h*0.05);
+    c.fillText(S.place? `المكان: ${S.place.label}`: (S.added?'كأس حليب + زبادي':'كأس حليب 150 mL'), cx, topY+cupH+h*0.05);
 
     g7cTitle(c,w,h,dark,'٤-٤ (أ) · صنع الزبادي');
     animFrame=requestAnimationFrame(draw);
@@ -836,7 +913,7 @@ function simG7Cell6a(){
     { id:'nuc',  label:'النواة',      desc:'تتحكّم في أنشطة الخلية.', x:0.32,y:0.55 },
     { id:'vac',  label:'الفجوة العصارية', desc:'تخزّن الماء والعصارة الخلوية وتحافظ على انتفاخ الخلية.', x:0.68,y:0.6 },
   ];
-  simState = { stepIdx:0, coverFast:false, coverMsg:'', zoom:4, focus:0.5, foundParts:{}, selPart:null,
+  simState = { stepIdx:0, stepAnimType:null, stepAnimT:0, coverFast:false, coverMsg:'', zoom:4, focus:0.5, foundParts:{}, selPart:null,
     magnify:false, magRot:0, dragRot:false, challengeDone:false, qAnswered:false };
   const S = simState;
   const cv = document.getElementById('simCanvas');
@@ -846,7 +923,12 @@ function simG7Cell6a(){
 
   function renderControls(){
     if(S.stepIdx < STEPS.length){
+      if(S.stepAnimT>0){
+        return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🧅 إعداد الشريحة</div></div>
+          <div class="info-box">⏳ جارٍ التنفيذ: ${STEPS[S.stepIdx].label}...</div>`;
+      }
       return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🧅 إعداد الشريحة</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:6px">الخطوة ${S.stepIdx+1} من ${STEPS.length}</div>
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">${STEPS[S.stepIdx].label}</div>
         <button class="ctrl-btn play" onclick="window._g7c6Step()">✅ نفّذ الخطوة</button>
         ${S.coverMsg? `<div class="info-box" style="margin-top:10px;color:#D97706">${S.coverMsg}</div>`:''}`;
@@ -893,10 +975,11 @@ function simG7Cell6a(){
   controls(renderControls());
 
   window._g7c6Step = function(){
+    if(S.stepAnimT>0) return;
     _g8pPlayClick();
-    if(STEPS[S.stepIdx].id==='cover' && Math.random()<0.001){ /* no-op safeguard */ }
     S.coverMsg='';
-    S.stepIdx++;
+    S.stepAnimType = STEPS[S.stepIdx].id;
+    S.stepAnimT = 55;
     controls(renderControls());
   };
   window._g7c6Zoom = function(z){ _g8pPlayClick(); S.zoom=z; controls(renderControls()); };
@@ -908,7 +991,7 @@ function simG7Cell6a(){
     g7cAnswerMCQ('g7c6q', i, 2, 'جدار الخلية قوي وصلب، ولذلك يساعد الخلايا النباتية على الحفاظ على شكلها المنتظم ويوفّر لها الدعم والحماية.');
   };
   window._g7c6Restart = function(){
-    S.stepIdx=0; S.zoom=4; S.focus=0.5; S.foundParts={}; S.selPart=null; S.magnify=false; S.magRot=0;
+    S.stepIdx=0; S.stepAnimType=null; S.stepAnimT=0; S.zoom=4; S.focus=0.5; S.foundParts={}; S.selPart=null; S.magnify=false; S.magRot=0;
     S.challengeDone=false; S.qAnswered=false; S.coverMsg='';
     controls(renderControls());
   };
@@ -1023,15 +1106,91 @@ function simG7Cell6a(){
     c.fillText('اسحب لتدوير النموذج', cx, cy+rh*0.65);
   }
 
+  function drawOnionSetupScene(c,w,h,dark){
+    const peelDone = S.stepIdx>=1, waterDone = S.stepIdx>=2, placeDone = S.stepIdx>=3, coverDone = S.stepIdx>=4;
+    const animT = S.stepAnimT>0 ? 1-(S.stepAnimT/55) : 1;
+    const anim = S.stepAnimT>0 ? S.stepAnimType : null;
+
+    const onionX=w*0.24, onionY=h*0.36, onionR=w*0.075;
+    const slideCx=w*0.6, slideCy=h*0.68, slideW=w*0.32, slideH=h*0.05;
+
+    // الشريحة الزجاجية (تظهر منذ البداية)
+    c.fillStyle= dark?'rgba(147,197,253,0.15)':'rgba(191,219,254,0.5)';
+    c.strokeStyle=g7cMut(dark); c.lineWidth=2;
+    g7cRRect(c,slideCx-slideW/2,slideCy-slideH/2,slideW,slideH,4); c.fill(); c.stroke();
+    c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشريحة الزجاجية', slideCx, slideCy+slideH/2+h*0.03);
+
+    // البصلة
+    const onionScale = peelDone? 0.85: 1;
+    g7cEmoji(c,'🧅',onionX,onionY,Math.round(onionR*2*onionScale));
+
+    // خطوة القشر: سكّين يمرّ فوق البصلة
+    if(anim==='peel'){
+      const kx = g7cLerp(onionX-onionR*1.2, onionX+onionR*1.2, animT);
+      g7cEmoji(c,'🔪',kx,onionY-onionR*0.3,Math.round(w*0.045));
+    }
+    // قطعة القشر الرقيقة (تظهر بعد خطوة القشر، وتبقى قرب البصلة قبل نقلها للشريحة)
+    let peelX = onionX+onionR*1.3, peelY = onionY+onionR*0.4;
+    if(anim==='place'){
+      const t=animT;
+      peelX = g7cLerp(onionX+onionR*1.3, slideCx, t);
+      peelY = g7cLerp(onionY+onionR*0.4, slideCy, t);
+    } else if(placeDone){
+      peelX = slideCx; peelY = slideCy;
+    }
+    if(peelDone){
+      c.save();
+      c.translate(peelX,peelY);
+      c.globalAlpha = 0.75;
+      c.fillStyle = dark? 'rgba(234,247,236,0.5)':'rgba(255,255,255,0.75)';
+      c.strokeStyle = g7cAccent(dark); c.lineWidth=1.5;
+      g7cRRect(c,-w*0.045,-h*0.018,w*0.09,h*0.036,4); c.fill(); c.stroke();
+      c.globalAlpha=1;
+      c.restore();
+    }
+
+    // قطرة الماء
+    if(anim==='water'){
+      const dy = g7cLerp(h*0.08, slideCy, g7cClamp(animT*1.15,0,1));
+      g7cEmoji(c,'💧',slideCx-slideW*0.18,dy,Math.round(w*0.04));
+    } else if(waterDone){
+      c.fillStyle= dark?'rgba(147,197,253,0.55)':'rgba(59,130,246,0.35)';
+      c.beginPath(); c.ellipse(slideCx-slideW*0.18,slideCy,slideW*0.07,slideH*0.32,0,0,Math.PI*2); c.fill();
+    }
+
+    // الغطاء الزجاجي
+    if(anim==='cover'){
+      const gy = g7cLerp(slideCy-h*0.16, slideCy-slideH*0.05, animT);
+      c.fillStyle= dark?'rgba(200,200,255,0.2)':'rgba(200,220,255,0.55)';
+      c.strokeStyle=g7cAccent(dark); c.lineWidth=1.5;
+      g7cRRect(c,slideCx-slideW*0.42,gy,slideW*0.84,slideH*0.7,4); c.fill(); c.stroke();
+      if(animT>0.75){
+        c.fillStyle='#D97706'; c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+      }
+    } else if(coverDone){
+      c.fillStyle= dark?'rgba(200,200,255,0.2)':'rgba(200,220,255,0.55)';
+      c.strokeStyle=g7cAccent(dark); c.lineWidth=1.5;
+      g7cRRect(c,slideCx-slideW*0.42,slideCy-slideH*0.35,slideW*0.84,slideH*0.7,4); c.fill(); c.stroke();
+    }
+
+    c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
+    const label = anim ? STEPS[S.stepIdx].label : (S.stepIdx<STEPS.length? STEPS[S.stepIdx].label : 'اكتملت الشريحة');
+    c.fillText(label, w/2, h*0.88);
+  }
+
   function draw(){
     if(currentSim!=='g7cell6' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g7cBg(dark); c.fillRect(0,0,w,h);
 
-    if(S.stepIdx < STEPS.length){
-      g7cEmoji(c,'🧅',w*0.5,h*0.42,Math.round(w*0.11));
-      c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
-      c.fillText(`الخطوة ${S.stepIdx+1} من ${STEPS.length}: ${STEPS[S.stepIdx].label}`, w/2, h*0.62);
+    if(S.stepAnimT>0){
+      S.stepAnimT--;
+      if(S.stepAnimT===0){ S.stepIdx++; S.stepAnimType=null; controls(renderControls()); }
+    }
+
+    if(S.stepIdx < STEPS.length || S.stepAnimT>0){
+      drawOnionSetupScene(c,w,h,dark);
     } else if(!S.magnify){
       drawOnionCell(c,w,h,dark,S.zoom,S.focus,true);
       c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
@@ -1061,7 +1220,7 @@ function simG7Cell7a(){
     { id:'cyto', label:'السيتوبلازم', desc:'تحدث داخله معظم التفاعلات الكيميائية في الخلية.', x:0.5,y:0.5,rr:0.2 },
     { id:'nuc',  label:'النواة',      desc:'مركز التحكّم في الخلية.', x:0.42,y:0.46,rr:0.09 },
   ];
-  simState = { stepIdx:0, stained:false, zoom:40, focus:0.2, foundParts:{}, selPart:null,
+  simState = { stepIdx:0, stepAnimT:0, stained:false, zoom:40, focus:0.2, foundParts:{}, selPart:null,
     challenge:false, dragId:null, placed:{}, dragX:0, dragY:0, compareMode:false, qAnswered:false };
   const S = simState;
   const cv = document.getElementById('simCanvas');
@@ -1069,7 +1228,12 @@ function simG7Cell7a(){
 
   function renderControls(){
     if(S.stepIdx < STEPS.length){
+      if(S.stepAnimT>0){
+        return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">👄 إعداد الشريحة</div></div>
+          <div class="info-box">⏳ جارٍ التنفيذ: ${STEPS[S.stepIdx].label}...</div>`;
+      }
       let html = `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">👄 إعداد الشريحة</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:6px">الخطوة ${S.stepIdx+1} من ${STEPS.length}</div>
         <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">${STEPS[S.stepIdx].label}</div>
         <button class="ctrl-btn play" onclick="window._g7c7Step()">✅ نفّذ الخطوة</button>`;
       if(STEPS[S.stepIdx].id==='stain'){
@@ -1119,7 +1283,10 @@ function simG7Cell7a(){
   }
   controls(renderControls());
 
-  window._g7c7Step = function(){ _g8pPlayClick(); S.stepIdx++; controls(renderControls()); };
+  window._g7c7Step = function(){
+    if(S.stepAnimT>0) return;
+    _g8pPlayClick(); S.stepAnimT=55; controls(renderControls());
+  };
   window._g7c7Stain = function(){ _g8pPlayClick(); S.stained=true; controls(renderControls()); };
   window._g7c7Zoom = function(z){ _g8pPlayClick(); S.zoom=z; controls(renderControls()); };
   window._g7c7Focus = function(v){ S.focus=+v; controls(renderControls()); };
@@ -1130,7 +1297,7 @@ function simG7Cell7a(){
     g7cAnswerMCQ('g7c7q', i, 1, 'تظهر النواة عادةً بلون أغمق بعد استخدام صبغة الميثيلين الأزرق، لذلك يسهل تمييزها تحت المجهر.');
   };
   window._g7c7Restart = function(){
-    S.stepIdx=0; S.stained=false; S.zoom=40; S.focus=0.2; S.foundParts={}; S.selPart=null;
+    S.stepIdx=0; S.stepAnimT=0; S.stained=false; S.zoom=40; S.focus=0.2; S.foundParts={}; S.selPart=null;
     S.challenge=false; S.dragId=null; S.placed={}; S.compareMode=false; S.qAnswered=false;
     controls(renderControls());
   };
@@ -1232,15 +1399,101 @@ function simG7Cell7a(){
     }
   }
 
+  function drawCheekSetupScene(c,w,h,dark){
+    const swabDone = S.stepIdx>=1, stainDoneStep = S.stepIdx>=2, coverDoneStep = S.stepIdx>=3, stageDone = S.stepIdx>=4;
+    const animT = S.stepAnimT>0 ? 1-(S.stepAnimT/55) : 1;
+    const anim = S.stepAnimT>0 ? STEPS[S.stepIdx].id : null;
+
+    const mouthX=w*0.2, mouthY=h*0.34;
+    const slideCx=w*0.62, slideCy=h*0.66, slideW=w*0.3, slideH=h*0.05;
+
+    // الفم (مصدر العيّنة)
+    g7cEmoji(c,'👄',mouthX,mouthY,Math.round(w*0.08));
+    c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('عيّنة من الخدّ', mouthX, mouthY+h*0.05);
+
+    // الشريحة الزجاجية
+    c.fillStyle= dark?'rgba(147,197,253,0.15)':'rgba(191,219,254,0.5)';
+    c.strokeStyle=g7cMut(dark); c.lineWidth=2;
+    g7cRRect(c,slideCx-slideW/2,slideCy-slideH/2,slideW,slideH,4); c.fill(); c.stroke();
+    c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشريحة الزجاجية', slideCx, slideCy+slideH/2+h*0.03);
+
+    // العود القطني ينقل العيّنة من الفم إلى الشريحة
+    if(anim==='swab'){
+      const sx=g7cLerp(mouthX,slideCx,animT), sy=g7cLerp(mouthY,slideCy,animT);
+      c.strokeStyle=dark?'#D6D3D1':'#78716C'; c.lineWidth=w*0.006; c.lineCap='round';
+      c.beginPath(); c.moveTo(sx-w*0.03,sy+w*0.03); c.lineTo(sx,sy); c.stroke();
+      c.fillStyle='#FDE68A'; c.beginPath(); c.arc(sx,sy,w*0.014,0,Math.PI*2); c.fill();
+    }
+    let dotAlpha = swabDone ? 1 : 0;
+    if(anim==='swab') dotAlpha = animT;
+    if(dotAlpha>0){
+      c.fillStyle= stainDoneStep||anim==='stain' ? 'rgba(59,130,246,0.55)' : (dark?'rgba(255,182,193,0.45)':'rgba(244,114,182,0.5)');
+      c.globalAlpha=dotAlpha;
+      c.beginPath(); c.arc(slideCx,slideCy,slideW*0.14,0,Math.PI*2); c.fill();
+      c.globalAlpha=1;
+    }
+
+    // قطرة الصبغة الزرقاء
+    if(anim==='stain'){
+      const dy = g7cLerp(h*0.08, slideCy, g7cClamp(animT*1.15,0,1));
+      g7cEmoji(c,'🔵',slideCx,dy,Math.round(w*0.03));
+      if(animT>0.5){
+        c.fillStyle='rgba(37,99,235,0.5)'; c.globalAlpha=(animT-0.5)*1.6;
+        c.beginPath(); c.arc(slideCx,slideCy,slideW*0.14,0,Math.PI*2); c.fill(); c.globalAlpha=1;
+      }
+    } else if(stainDoneStep){
+      c.fillStyle='rgba(29,78,216,0.55)';
+      c.beginPath(); c.arc(slideCx,slideCy,slideW*0.14,0,Math.PI*2); c.fill();
+    }
+
+    // الغطاء الزجاجي
+    if(anim==='cover'){
+      const gy = g7cLerp(slideCy-h*0.16, slideCy-slideH*0.05, animT);
+      c.fillStyle= dark?'rgba(200,200,255,0.2)':'rgba(200,220,255,0.55)';
+      c.strokeStyle=g7cAccent(dark); c.lineWidth=1.5;
+      g7cRRect(c,slideCx-slideW*0.4,gy,slideW*0.8,slideH*0.7,4); c.fill(); c.stroke();
+    } else if(coverDoneStep){
+      c.fillStyle= dark?'rgba(200,200,255,0.2)':'rgba(200,220,255,0.55)';
+      c.strokeStyle=g7cAccent(dark); c.lineWidth=1.5;
+      g7cRRect(c,slideCx-slideW*0.4,slideCy-slideH*0.35,slideW*0.8,slideH*0.7,4); c.fill(); c.stroke();
+    }
+
+    // منصّة المجهر
+    const stageY = h*0.86;
+    c.strokeStyle=g7cMut(dark); c.lineWidth=2;
+    g7cRRect(c,slideCx-w*0.11,stageY,w*0.22,h*0.025,3); c.stroke();
+    c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='center';
+    c.fillText('منصّة المجهر', slideCx, stageY+h*0.045);
+    if(anim==='stage'){
+      const sy = g7cLerp(slideCy, stageY, animT);
+      c.fillStyle= dark?'rgba(147,197,253,0.15)':'rgba(191,219,254,0.5)';
+      c.strokeStyle=g7cMut(dark); c.lineWidth=2;
+      g7cRRect(c,slideCx-slideW/2,sy-slideH/2,slideW,slideH,4); c.fill(); c.stroke();
+    } else if(stageDone){
+      c.fillStyle= dark?'rgba(147,197,253,0.2)':'rgba(191,219,254,0.6)';
+      c.strokeStyle=g7cAccent(dark); c.lineWidth=2;
+      g7cRRect(c,slideCx-slideW/2,stageY-slideH*0.3,slideW,slideH*0.6,4); c.fill(); c.stroke();
+    }
+
+    c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
+    const label = anim ? STEPS[S.stepIdx].label : (S.stepIdx<STEPS.length? STEPS[S.stepIdx].label : 'اكتملت الشريحة');
+    c.fillText(label, w/2, h*0.96);
+  }
+
   function draw(){
     if(currentSim!=='g7cell7' || currentTab!==0){ cancelAnimationFrame(animFrame); return; }
     const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle=g7cBg(dark); c.fillRect(0,0,w,h);
 
-    if(S.stepIdx < STEPS.length){
-      g7cEmoji(c,'🧫',w*0.5,h*0.42,Math.round(w*0.1));
-      c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
-      c.fillText(`الخطوة ${S.stepIdx+1} من ${STEPS.length}: ${STEPS[S.stepIdx].label}`, w/2, h*0.62);
+    if(S.stepAnimT>0){
+      S.stepAnimT--;
+      if(S.stepAnimT===0){ S.stepIdx++; controls(renderControls()); }
+    }
+
+    if(S.stepIdx < STEPS.length || S.stepAnimT>0){
+      drawCheekSetupScene(c,w,h,dark);
     } else if(!S.challenge){
       drawCheekCell(c,w,h,dark,S.zoom,S.focus,S.stained,true);
       c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.016)}px Tajawal`; c.textAlign='center';
