@@ -1583,3 +1583,200 @@ function simG7Energy8a(){
   }
   draw();
 }
+
+/* ══════════════════════════════════════════════════════════
+   ٣-٩ · الإشعاع — كيف تفقد الأجسام حرارتها؟
+   ══════════════════════════════════════════════════════════ */
+function simG7Energy9a(){
+  cancelAnimationFrame(animFrame);
+  const CUPS = [
+    { id:'black',  label:'الكوب الأسود',        color:'#2B2B2B', endTemp:65 },
+    { id:'white',  label:'الكوب الأبيض',        color:'#F4F4F4', endTemp:70 },
+    { id:'silver', label:'الكوب الفضي اللامع',  color:'#C9CFD6', endTemp:77 },
+    { id:'lid',    label:'الكوب المغطى',        color:'#7C4A2D', endTemp:80 },
+  ];
+  simState = {
+    stage:'predict', predicted:null, running:false, minute:0,
+    show:{conduction:true, convection:true, radiation:true},
+    showModes:false, qAnswered:false,
+  };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  cv.onclick=null;
+  const START_TEMP=90;
+
+  function tempAt(cup, minute){
+    const prog = g7eClamp(minute/10,0,1);
+    return START_TEMP - (START_TEMP-cup.endTemp)*prog;
+  }
+
+  function renderControls(){
+    if(S.stage==='predict'){
+      return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🔴 الإشعاع الحراري</div></div>
+        <div style="font-size:13.5px;color:var(--text-secondary);background:var(--bg-card2);border-radius:10px;padding:12px;margin-bottom:12px">أربعة أكواب متطابقة تحتوي جميعها على ماء ساخن بدرجة حرارة 90°C: كوب أسود، كوب أبيض، كوب فضي لامع، وكوب بغطاء شفاف.</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px">❓ أيّ كوب سيبرد أسرع؟</div>
+        <div class="ctrl-btns-grid-1">
+          ${CUPS.map((c,i)=>`<button onclick="window._g7e9Predict(${i})" style="padding:11px;border-radius:9px;border:2px solid #ddd;background:var(--bg-ctrl-btn);color:var(--text-secondary);font-family:Tajawal,sans-serif;font-weight:700;cursor:pointer;font-size:13.5px">${c.label}</button>`).join('')}
+        </div>`;
+    }
+    if(!S.running && S.minute===0){
+      return `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">🧪 جاهزة للتجربة</div></div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">توقّعك: <b>${CUPS[S.predicted].label}</b></div>
+        <button class="ctrl-btn play" onclick="window._g7e9Start()">▶️ ابدأ التجربة</button>`;
+    }
+    let html = `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">⏱️ الزمن: ${S.minute} دقيقة</div></div>`;
+    html += `<input type="range" min="0" max="10" step="2" value="${S.minute}" oninput="window._g7e9Seek(this.value)" style="width:100%;margin-bottom:12px">`;
+    html += `<button class="ctrl-btn" onclick="window._g7e9ToggleModes()">${S.showModes?'🔽 إخفاء':'👁️'} شاهد انتقال الحرارة</button>`;
+    if(S.showModes){
+      html += `<div class="ctrl-section" style="margin-top:10px"><div class="ctrl-label" style="font-size:14px">فعّل/أوقف طرق الانتقال</div></div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer"><input type="checkbox" ${S.show.conduction?'checked':''} onchange="window._g7e9Toggle('conduction')"> 🟠 التوصيل الحراري</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer"><input type="checkbox" ${S.show.convection?'checked':''} onchange="window._g7e9Toggle('convection')"> 🔵 الحمل الحراري</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer"><input type="checkbox" ${S.show.radiation?'checked':''} onchange="window._g7e9Toggle('radiation')"> 🔴 الإشعاع الحراري</label>
+        </div>
+        <div class="info-box">${g7e9ModeMsg()}</div>`;
+    }
+    if(S.minute>=10){
+      html += `<div class="ctrl-section" style="margin-top:12px"><div class="ctrl-label" style="font-size:15px">📊 نتائج بعد 10 دقائق</div></div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px">
+          <tr style="background:var(--bg-card2)"><th style="padding:6px;text-align:right">الكوب</th><th style="padding:6px">درجة الحرارة</th></tr>
+          ${CUPS.map(c=>`<tr><td style="padding:6px;text-align:right">${c.label}</td><td style="padding:6px;text-align:center">${c.endTemp}°C</td></tr>`).join('')}
+        </table>
+        <div class="info-box" style="font-size:12.5px;line-height:1.9">
+          🔺 <b>الكوب الأسود:</b> يشعّ الحرارة بصورة أكبر.<br>
+          ⚪ <b>الكوب الفضي اللامع:</b> يعكس جزءاً كبيراً من الإشعاع الحراري.<br>
+          🔒 <b>الكوب المغطى:</b> يقلّ فيه فقدان الحرارة بالحمل الحراري.
+        </div>
+        <div class="ctrl-section" style="margin-top:10px"><div class="ctrl-label" style="font-size:15px">❓ وضع طالبان ماءً ساخناً في كوبين متماثلين: الأول أسود، والثاني فضي لامع. بعد فترة أصبح أحدهما أبرد. أيّ الكوبين فقد حرارة أكثر بالإشعاع؟</div></div>
+        ${g7eMCQ('g7e9q',['الكوب الفضي','الكوب الأسود','الكوبان بالتساوي','لا يفقد أيّ منهما حرارة بالإشعاع'])}
+        <button class="ctrl-btn reset" style="margin-top:12px" onclick="window._g7e9Restart()">↺ أعد النشاط</button>`;
+    }
+    return html;
+  }
+
+  function g7e9ModeMsg(){
+    if(!S.show.radiation) return '🔴 تمّ إيقاف الإشعاع: أصبح فقدان الحرارة أبطأ. كان الإشعاع إحدى طرق فقدان الحرارة.';
+    if(!S.show.convection) return '🔵 تمّ إيقاف الحمل الحراري: قلّت حركة الماء داخل الكوب، وقلّت مساهمته في نقل الحرارة.';
+    if(!S.show.conduction) return '🟠 تمّ إيقاف التوصيل: لم تعد الحرارة تنتقل عبر جدار الكوب.';
+    return '🟠 التوصيل: من الماء الساخن إلى جدار الكوب. 🔵 الحمل الحراري: الماء الساخن يصعد والأبرد يهبط. 🔴 الإشعاع: موجات حرارية تخرج من سطح الكوب.';
+  }
+
+  controls(renderControls());
+
+  window._g7e9Predict = function(i){ _g8pPlayClick(); S.predicted=i; S.stage='run'; controls(renderControls()); };
+  window._g7e9Start = function(){
+    _g8pPlayClick(); S.running=true; S.minute=0; controls(renderControls());
+    S._timer = setInterval(()=>{
+      S.minute = Math.min(10, S.minute+2);
+      controls(renderControls());
+      if(S.minute>=10){ clearInterval(S._timer); S._timer=null; }
+    }, 700);
+  };
+  window._g7e9Seek = function(v){ _g8pPlayClick(); S.minute=+v; if(S._timer){clearInterval(S._timer);S._timer=null;} S.running=true; controls(renderControls()); };
+  window._g7e9ToggleModes = function(){ _g8pPlayClick(); S.showModes=!S.showModes; controls(renderControls()); };
+  window._g7e9Toggle = function(k){ _g8pPlayClick(); S.show[k]=!S.show[k]; controls(renderControls()); };
+  window._g7e9qAns = function(i){
+    if(S.qAnswered) return; S.qAnswered=true;
+    g7eAnswerMCQ('g7e9q', i, 1, 'الأسطح الداكنة تشعّ الحرارة بصورة أفضل من الأسطح اللامعة، بينما تعكس الأسطح اللامعة جزءاً أكبر من الإشعاع الحراري؛ لذلك يفقد الكوب الأسود الحرارة أسرع من الكوب الفضي.');
+  };
+  window._g7e9Restart = function(){
+    if(S._timer){ clearInterval(S._timer); S._timer=null; }
+    S.stage='predict'; S.predicted=null; S.running=false; S.minute=0; S.showModes=false; S.qAnswered=false;
+    S.show={conduction:true,convection:true,radiation:true};
+    controls(renderControls());
+  };
+
+  function draw(){
+    if(currentSim!=='g7energy9' || currentTab!==0){
+      cancelAnimationFrame(animFrame);
+      if(S._timer){ clearInterval(S._timer); S._timer=null; }
+      return;
+    }
+    const c=cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
+    c.fillStyle=g7eBg(dark); c.fillRect(0,0,w,h);
+
+    if(S.stage==='predict'){
+      c.fillStyle=g7eMut(dark); c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+      c.fillText('أربعة أكواب ماء ساخن بدرجة حرارة 90°C', w/2, h*0.5);
+      g7eTitle(c,w,h,dark,'٣-٩ · الإشعاع');
+      animFrame = requestAnimationFrame(draw);
+      return;
+    }
+
+    const n=CUPS.length, gap=w*0.06, cupW=(w-gap*(n+1))/n, cupH=h*0.36, baseY=h*0.62;
+    const t=performance.now()*0.001;
+
+    CUPS.forEach((cup,i)=>{
+      const cx = gap+cupW/2+i*(cupW+gap), topY=baseY-cupH;
+      const temp = tempAt(cup,S.minute);
+
+      // كوب
+      c.save();
+      c.strokeStyle=g7eMut(dark); c.lineWidth=w*0.006; c.lineCap='round'; c.lineJoin='round';
+      c.beginPath(); c.moveTo(cx-cupW/2,topY); c.lineTo(cx-cupW/2,baseY); c.lineTo(cx+cupW/2,baseY); c.lineTo(cx+cupW/2,topY); c.stroke();
+      c.beginPath(); c.rect(cx-cupW/2,topY,cupW,cupH); c.clip();
+      c.fillStyle=cup.color; c.globalAlpha= cup.id==='silver'?0.9:1;
+      c.fillRect(cx-cupW/2,topY,cupW,cupH);
+      c.globalAlpha=1;
+      // ماء
+      c.fillStyle= dark?'rgba(56,189,248,0.35)':'rgba(30,144,220,0.4)';
+      c.fillRect(cx-cupW/2,topY+cupH*0.15,cupW,cupH*0.85);
+      c.restore();
+
+      // غطاء للكوب الرابع
+      if(cup.id==='lid'){
+        c.strokeStyle=g7eAccent(dark); c.lineWidth=w*0.006;
+        c.beginPath(); c.moveTo(cx-cupW/2-4,topY); c.lineTo(cx+cupW/2+4,topY); c.stroke();
+        c.fillStyle= dark?'rgba(200,200,255,0.12)':'rgba(200,220,255,0.35)';
+        c.fillRect(cx-cupW/2-4,topY-h*0.012,cupW+8,h*0.012);
+      }
+
+      // التوصيل: أسهم صغيرة من الماء إلى الجدار
+      if(S.showModes && S.show.conduction && S.running){
+        c.strokeStyle='#F97316'; c.lineWidth=2;
+        for(let k=0;k<3;k++){
+          const ay=topY+cupH*(0.35+k*0.2);
+          const off=2*Math.sin(t*3+k);
+          c.beginPath(); c.moveTo(cx-cupW*0.1,ay); c.lineTo(cx-cupW/2-2+off,ay); c.stroke();
+          c.beginPath(); c.moveTo(cx+cupW*0.1,ay); c.lineTo(cx+cupW/2+2-off,ay); c.stroke();
+        }
+      }
+
+      // الحمل الحراري: دوران داخل الماء
+      if(S.showModes && S.show.convection && S.running){
+        c.save(); c.beginPath(); c.rect(cx-cupW/2,topY+cupH*0.15,cupW,cupH*0.85); c.clip();
+        for(let k=0;k<4;k++){
+          const ang=t*1.4+k*(Math.PI/2);
+          const px=cx+Math.cos(ang)*cupW*0.22, py=topY+cupH*0.55+Math.sin(ang)*cupH*0.28;
+          c.fillStyle= dark?'#7DD3FC':'#1D4ED8';
+          c.beginPath(); c.arc(px,py,w*0.006,0,Math.PI*2); c.fill();
+        }
+        c.restore();
+      }
+
+      // الإشعاع: موجات خارجة من سطح الكوب
+      if(S.showModes && S.show.radiation && S.running){
+        const strength = cup.id==='black'?1:cup.id==='silver'?0.25:cup.id==='white'?0.55:0.4;
+        c.strokeStyle='#EF4444';
+        for(let k=0;k<3;k++){
+          const rr = (w*0.02)+((t*30+k*14)%(w*0.06));
+          c.globalAlpha = strength*(1-rr/(w*0.08));
+          if(c.globalAlpha<=0) continue;
+          c.lineWidth=1.6;
+          c.beginPath(); c.arc(cx,topY-h*0.02,rr,Math.PI*1.15,Math.PI*1.85); c.stroke();
+        }
+        c.globalAlpha=1;
+      }
+
+      // مقياس حرارة رقمي
+      c.fillStyle=g7eAccent(dark); c.font=`bold ${Math.round(h*0.024)}px Tajawal`; c.textAlign='center';
+      c.fillText(`${temp.toFixed(0)}°C`, cx, topY-h*0.03);
+      c.fillStyle=g7eMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`;
+      c.fillText(cup.label, cx, baseY+h*0.03);
+    });
+
+    g7eTitle(c,w,h,dark,'٣-٩ · الإشعاع');
+    animFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
