@@ -1462,21 +1462,35 @@ function simG7Cell7a(){
     c.globalAlpha=1;
 
     if(interactive && zoom>=100 && stained && clarity>0.5){
+      const topSafe = h*0.15, bottomSafe = h*0.9, leftSafe = w*0.1;
       const anchors = {
-        mem:  { ax:cx, ay:cy-rr*0.86, lx:cx, ly:cy-rr*1.12, align:'above' },
-        cyto: { ax:cx, ay:cy+rr*0.55, lx:cx, ly:cy+rr*1.14, align:'below' },
-        nuc:  { ax:nucX, ay:nucY, lx:cx-rr*1.28, ly:nucY, align:'left' },
+        mem:  { ax:cx, ay:cy-rr*0.86, lx:cx, ly:Math.max(cy-rr*1.12, topSafe), align:'above' },
+        cyto: { ax:cx, ay:cy+rr*0.55, lx:cx, ly:Math.min(cy+rr*1.14, bottomSafe), align:'below' },
+        nuc:  { ax:nucX, ay:nucY, lx:Math.max(cx-rr*1.28, leftSafe), ly:nucY, align:'left' },
       };
+      const t = performance.now()*0.003;
       PARTS.forEach(part=>{
-        if(!S.foundParts[part.id]) return;
         const a = anchors[part.id]; if(!a) return;
+        const found = S.foundParts[part.id];
+        if(!found){
+          // مؤشّر نابض يوضّح للطالب أين يضغط لاكتشاف هذا الجزء
+          const pulse = 1+Math.sin(t+part.id.length)*0.15;
+          c.strokeStyle=g7cAccent(dark); c.globalAlpha=0.75; c.lineWidth=2; c.setLineDash([3,3]);
+          c.beginPath(); c.arc(a.ax,a.ay,w*0.02*pulse,0,Math.PI*2); c.stroke(); c.setLineDash([]);
+          c.globalAlpha=1;
+          c.fillStyle=g7cAccent(dark);
+          c.beginPath(); c.arc(a.ax,a.ay,3,0,Math.PI*2); c.fill();
+          return;
+        }
         c.strokeStyle=g7cMut(dark); c.lineWidth=1.2; c.setLineDash([3,3]);
         c.beginPath(); c.moveTo(a.ax,a.ay); c.lineTo(a.lx,a.ly); c.stroke(); c.setLineDash([]);
         c.fillStyle=g7cAccent(dark);
         c.beginPath(); c.arc(a.ax,a.ay,3.5,0,Math.PI*2); c.fill();
-        c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`;
+        c.font=`bold ${Math.round(h*0.015)}px Tajawal`;
         c.textAlign = a.align==='left' ? 'right' : 'center';
-        c.fillText(part.label, a.align==='left'? a.lx-6 : a.lx, a.align==='above'? a.ly-4 : a.ly+14);
+        const boxY = a.align==='above'? a.ly-4 : a.ly+14;
+        c.fillStyle=g7cTxt(dark);
+        c.fillText(part.label, a.align==='left'? a.lx-6 : a.lx, boxY);
         c.textAlign='center';
       });
     }
