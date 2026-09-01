@@ -908,10 +908,10 @@ function simG7Cell6a(){
     { id:'cover', label:'ضع الغطاء الزجاجي ببطء',          done:false },
   ];
   const PARTS = [
-    { id:'wall', label:'جدار الخلية', desc:'يعطي الخلية شكلها ويساعد على دعمها وحمايتها.', x:0.5,y:0.18 },
-    { id:'cyto', label:'السيتوبلازم', desc:'مادة هلامية تحدث فيها كثير من التفاعلات الكيميائية للخلية.', x:0.5,y:0.45 },
-    { id:'nuc',  label:'النواة',      desc:'تتحكّم في أنشطة الخلية.', x:0.32,y:0.55 },
-    { id:'vac',  label:'الفجوة العصارية', desc:'تخزّن الماء والعصارة الخلوية وتحافظ على انتفاخ الخلية.', x:0.68,y:0.6 },
+    { id:'wall', label:'جدار الخلية', desc:'يعطي الخلية شكلها ويساعد على دعمها وحمايتها.' },
+    { id:'cyto', label:'السيتوبلازم', desc:'مادة هلامية تحدث فيها كثير من التفاعلات الكيميائية للخلية.' },
+    { id:'nuc',  label:'النواة',      desc:'تتحكّم في أنشطة الخلية.' },
+    { id:'vac',  label:'الفجوة العصارية', desc:'تخزّن الماء والعصارة الخلوية وتحافظ على انتفاخ الخلية.' },
   ];
   simState = { stepIdx:0, stepAnimType:null, stepAnimT:0, coverFast:false, coverMsg:'', zoom:4, focus:0.5, foundParts:{}, selPart:null,
     magnify:false, magRot:0, dragRot:false, challengeDone:false, qAnswered:false };
@@ -996,10 +996,42 @@ function simG7Cell6a(){
     controls(renderControls());
   };
 
+  // مخطّط خلية نباتية واحدة واضحة عند تكبير 40x (جدار – سيتوبلازم – فجوة – نواة)
+  function onionCellLayout(w,h){
+    const cx=w*0.5, cy=h*0.5, cw=Math.min(w*0.5,h*0.62), ch=Math.min(h*0.5,w*0.4);
+    return {
+      cx,cy,cw,ch,
+      wall: {x:cx, y:cy-ch*0.44, r:w*0.032, kind:'point-top'},
+      cyto: {x:cx+cw*0.33, y:cy-ch*0.3,  r:w*0.032, kind:'point'},
+      vac:  {x:cx-cw*0.05, y:cy+ch*0.03, r:Math.min(cw,ch)*0.26, kind:'shape'},
+      nuc:  {x:cx-cw*0.33, y:cy+ch*0.32, r:Math.min(cw,ch)*0.115, kind:'shape'},
+    };
+  }
   function partHit(p,w,h){
+    const L = onionCellLayout(w,h);
     for(const part of PARTS){
-      const px=part.x*w, py=h*0.2+part.y*h*0.6;
-      if(Math.hypot(p.x-px,p.y-py) < w*0.06) return part;
+      const pos = L[part.id];
+      if(Math.hypot(p.x-pos.x,p.y-pos.y) < Math.max(pos.r*1.5, w*0.045)) return part;
+    }
+    return null;
+  }
+  // مواضع مكوّنات النموذج المُكبَّر (وضع «كبّر أكثر»)
+  function magnifyLayout(w,h){
+    const cx=w*0.5, cy=h*0.5, rw=w*0.34, rh=h*0.42;
+    const skew = Math.sin(S.magRot)*0.25;
+    return {
+      cx,cy,rw,rh,skew,
+      wall: {x:cx, y:cy-rh*0.42},
+      cyto: {x:cx+rw*0.3+skew*10, y:cy-rh*0.28},
+      vac:  {x:cx+rw*0.12+skew*10, y:cy+rh*0.05},
+      nuc:  {x:cx-rw*0.2+skew*10, y:cy+rh*0.1},
+    };
+  }
+  function magnifyHit(p,w,h){
+    const L = magnifyLayout(w,h);
+    for(const part of PARTS){
+      const pos = L[part.id];
+      if(Math.hypot(p.x-pos.x,p.y-pos.y) < w*0.05) return part;
     }
     return null;
   }
@@ -1022,7 +1054,7 @@ function simG7Cell6a(){
       const part = partHit(p,w,h);
       if(part){ _g8pPlayClick(); S.foundParts[part.id]=true; S.selPart=part.id; controls(renderControls()); }
     } else if(S.magnify){
-      const part = partHit(p,w,h);
+      const part = magnifyHit(p,w,h);
       if(part){ _g8pPlayClick(); S.selPart=part.id; controls(renderControls()); }
     }
   };
@@ -1033,6 +1065,7 @@ function simG7Cell6a(){
     c.save();
     c.beginPath(); c.arc(cx0,cy0,r0,0,Math.PI*2); c.clip();
     c.fillStyle= dark?'#123018':'#EAF7EC'; c.fillRect(0,0,w,h);
+
     if(zoomLvl===4){
       c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
       c.fillText('نسيج البصل بصورة عامّة', cx0, cy0);
@@ -1041,34 +1074,60 @@ function simG7Cell6a(){
         c.beginPath(); c.ellipse(cx0,cy0, r0*0.9-(i*8), r0*0.5-(i*4), 0,0,Math.PI*2); c.stroke();
       }
       c.globalAlpha=1;
-    } else {
-      const rows = zoomLvl===10?4:6, cols=zoomLvl===10?3:4;
-      const cw=(r0*2)/cols, ch=(r0*2)/rows;
+    } else if(zoomLvl===10){
+      const rows=4, cols=3, cw=(r0*2)/cols, ch=(r0*2)/rows;
       c.globalAlpha=g7cClamp(clarity,0.15,1);
       for(let ry=0;ry<rows;ry++){
         for(let rx=0;rx<cols;rx++){
           const x=cx0-r0+rx*cw, y=cy0-r0+ry*ch;
           c.strokeStyle=g7cAccent(dark); c.lineWidth=2;
           g7cRRect(c,x+2,y+2,cw-4,ch-4,4); c.stroke();
-          if(zoomLvl===40 && clarity>0.5){
-            // nucleus dot
-            c.fillStyle='#8B5CF6'; c.globalAlpha=0.7*clarity;
-            c.beginPath(); c.arc(x+cw*0.35,y+ch*0.55,Math.min(cw,ch)*0.14,0,Math.PI*2); c.fill();
-            c.globalAlpha=g7cClamp(clarity,0.15,1);
-          }
         }
       }
       c.globalAlpha=1;
-      if(zoomLvl===40 && clarity>0.5 && clickable){
-        PARTS.forEach(part=>{
-          const px=part.x*w, py=h*0.2+part.y*h*0.6;
-          c.fillStyle= S.foundParts[part.id]? g7cAccent(dark):'rgba(150,150,150,0.5)';
-          c.globalAlpha=0.35;
-          c.beginPath(); c.arc(px,py,w*0.05,0,Math.PI*2); c.fill();
-          c.globalAlpha=1;
-          if(S.foundParts[part.id]){
-            c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
-            c.fillText(part.label, px, py-w*0.06);
+      c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
+      c.fillText('تبدأ الخلايا بالظهور', cx0, cy0-r0*0.55);
+    } else {
+      // ── تكبير 40x: خلية نباتية واحدة واضحة، مثل الرسم التوضيحي في الكتاب ──
+      const L = onionCellLayout(w,h);
+      c.globalAlpha = g7cClamp(clarity,0.2,1);
+      // جدار الخلية (المستطيل الخارجي)
+      c.fillStyle = dark?'#0F2A17':'#DFF3E2';
+      g7cRRect(c,L.cx-L.cw/2,L.cy-L.ch/2,L.cw,L.ch,10); c.fill();
+      c.strokeStyle='#166534'; c.lineWidth=Math.max(4,w*0.008);
+      g7cRRect(c,L.cx-L.cw/2,L.cy-L.ch/2,L.cw,L.ch,10); c.stroke();
+      // السيتوبلازم (طبقة رقيقة تحت الجدار)
+      c.fillStyle= dark?'rgba(74,222,128,0.16)':'rgba(22,163,74,0.14)';
+      g7cRRect(c,L.cx-L.cw/2+6,L.cy-L.ch/2+6,L.cw-12,L.ch-12,7); c.fill();
+      // الفجوة العصارية (بيضاوية كبيرة داخل الخلية)
+      c.fillStyle='rgba(96,165,250,0.5)';
+      c.beginPath(); c.ellipse(L.vac.x,L.vac.y,L.vac.r*1.35,L.vac.r,0,0,Math.PI*2); c.fill();
+      c.strokeStyle='#2563EB'; c.lineWidth=1.5;
+      c.beginPath(); c.ellipse(L.vac.x,L.vac.y,L.vac.r*1.35,L.vac.r,0,0,Math.PI*2); c.stroke();
+      // النواة (دائرة أرجوانية صغيرة)
+      c.fillStyle='#7C3AED';
+      c.beginPath(); c.arc(L.nuc.x,L.nuc.y,L.nuc.r,0,Math.PI*2); c.fill();
+      c.strokeStyle='#5B21B6'; c.lineWidth=1.5; c.stroke();
+      c.globalAlpha=1;
+
+      // نقاط تفاعلية + خطوط رابطة + تسميات، فقط عند الوضوح الكافي
+      if(clarity>0.45 && clickable){
+        PARTS.forEach((part,i)=>{
+          const pos = L[part.id];
+          const found = S.foundParts[part.id];
+          c.fillStyle= found? g7cAccent(dark):(dark?'rgba(255,255,255,0.55)':'rgba(60,60,60,0.4)');
+          c.beginPath(); c.arc(pos.x,pos.y,Math.max(pos.r*0.22,w*0.012),0,Math.PI*2); c.fill();
+          if(S.selPart===part.id){
+            c.strokeStyle=g7cAccent(dark); c.lineWidth=2;
+            c.beginPath(); c.arc(pos.x,pos.y,Math.max(pos.r*0.22,w*0.012)+5,0,Math.PI*2); c.stroke();
+          }
+          if(found){
+            // خط رابط + تسمية خارج الخلية لتفادي التداخل
+            const labelY = pos.y < L.cy ? L.cy-L.ch/2-h*0.045-(i%2)*h*0.032 : L.cy+L.ch/2+h*0.045+(i%2)*h*0.032;
+            c.strokeStyle=g7cMut(dark); c.lineWidth=1.2; c.setLineDash([3,3]);
+            c.beginPath(); c.moveTo(pos.x,pos.y); c.lineTo(pos.x,labelY); c.stroke(); c.setLineDash([]);
+            c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+            c.fillText(part.label, pos.x, labelY + (labelY<L.cy? -h*0.012 : h*0.022));
           }
         });
       }
@@ -1079,31 +1138,37 @@ function simG7Cell6a(){
   }
 
   function drawMagnifiedModel(c,w,h,dark){
-    const cx=w*0.5, cy=h*0.5;
-    const rw=w*0.34, rh=h*0.42;
-    const skew = Math.sin(S.magRot)*0.25;
+    const L = magnifyLayout(w,h);
     c.save();
-    c.translate(cx,cy);
-    c.fillStyle= dark?'#123018':'#DCF5E3';
+    c.translate(L.cx,L.cy);
+    const lcx=L.wall.x-L.cx, rw=L.rw, rh=L.rh, skew=L.skew;
+    c.fillStyle= dark?'#0F2A17':'#DCF5E3';
     g7cRRect(c,-rw/2+skew*20,-rh/2,rw,rh,18); c.fill();
     c.strokeStyle='#166534'; c.lineWidth=6; g7cRRect(c,-rw/2+skew*20,-rh/2,rw,rh,18); c.stroke();
     // vacuole
-    c.fillStyle='#93C5FD'; c.globalAlpha=0.55;
-    c.beginPath(); c.ellipse(rw*0.12+skew*10,rh*0.05,rw*0.32,rh*0.3,0,0,Math.PI*2); c.fill(); c.globalAlpha=1;
+    c.fillStyle='rgba(96,165,250,0.55)';
+    c.beginPath(); c.ellipse(L.vac.x-L.cx,L.vac.y-L.cy,rw*0.32,rh*0.3,0,0,Math.PI*2); c.fill();
+    c.strokeStyle='#2563EB'; c.lineWidth=1.5;
+    c.beginPath(); c.ellipse(L.vac.x-L.cx,L.vac.y-L.cy,rw*0.32,rh*0.3,0,0,Math.PI*2); c.stroke();
     // nucleus
-    c.fillStyle='#8B5CF6';
-    c.beginPath(); c.ellipse(-rw*0.2+skew*10,rh*0.1,rw*0.14,rh*0.12,0,0,Math.PI*2); c.fill();
+    c.fillStyle='#7C3AED';
+    c.beginPath(); c.ellipse(L.nuc.x-L.cx,L.nuc.y-L.cy,rw*0.14,rh*0.12,0,0,Math.PI*2); c.fill();
+    c.strokeStyle='#5B21B6'; c.lineWidth=1.5; c.stroke();
     c.restore();
 
     PARTS.forEach(part=>{
-      const px = cx + (part.id==='nuc'?-rw*0.2+skew*10: part.id==='vac'? rw*0.12+skew*10 : part.id==='wall'? 0:0);
-      const py = cy + (part.id==='wall'?-rh*0.42: part.id==='cyto'? rh*0.3 : part.id==='nuc'?rh*0.1: rh*0.05);
-      c.fillStyle= S.selPart===part.id? g7cAccent(dark):'rgba(150,150,150,0.4)';
-      c.globalAlpha=0.001; // invisible hit zone marker, drawn via partHit using PARTS coords directly instead
-      c.globalAlpha=1;
+      const pos = L[part.id];
+      c.fillStyle = S.selPart===part.id? g7cAccent(dark):(dark?'rgba(255,255,255,0.5)':'rgba(60,60,60,0.4)');
+      c.beginPath(); c.arc(pos.x,pos.y,w*0.012,0,Math.PI*2); c.fill();
+      if(S.selPart===part.id){
+        c.strokeStyle=g7cAccent(dark); c.lineWidth=2;
+        c.beginPath(); c.arc(pos.x,pos.y,w*0.017,0,Math.PI*2); c.stroke();
+        c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
+        c.fillText(part.label, pos.x, pos.y - w*0.03);
+      }
     });
     c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-    c.fillText('اسحب لتدوير النموذج', cx, cy+rh*0.65);
+    c.fillText('اسحب لتدوير النموذج', L.cx, L.cy+L.rh*0.65);
   }
 
   function drawOnionSetupScene(c,w,h,dark){
@@ -1111,52 +1176,62 @@ function simG7Cell6a(){
     const animT = S.stepAnimT>0 ? 1-(S.stepAnimT/55) : 1;
     const anim = S.stepAnimT>0 ? S.stepAnimType : null;
 
-    const onionX=w*0.24, onionY=h*0.36, onionR=w*0.075;
-    const slideCx=w*0.6, slideCy=h*0.68, slideW=w*0.32, slideH=h*0.05;
+    const midY = h*0.46;
+    const onionX=w*0.27, onionY=midY, onionR=w*0.08;
+    const slideCx=w*0.68, slideCy=midY, slideW=w*0.3, slideH=h*0.055;
 
-    // الشريحة الزجاجية (تظهر منذ البداية)
-    c.fillStyle= dark?'rgba(147,197,253,0.15)':'rgba(191,219,254,0.5)';
-    c.strokeStyle=g7cMut(dark); c.lineWidth=2;
-    g7cRRect(c,slideCx-slideW/2,slideCy-slideH/2,slideW,slideH,4); c.fill(); c.stroke();
-    c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-    c.fillText('الشريحة الزجاجية', slideCx, slideCy+slideH/2+h*0.03);
+    // سهم متقطّع يربط بين البصلة والشريحة (يوضّح اتجاه نقل العيّنة)
+    c.strokeStyle=dark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.12)'; c.lineWidth=2; c.setLineDash([6,6]);
+    c.beginPath(); c.moveTo(onionX+onionR*1.1,midY); c.lineTo(slideCx-slideW/2-w*0.015,midY); c.stroke();
+    c.setLineDash([]);
 
     // البصلة
-    const onionScale = peelDone? 0.85: 1;
+    const onionScale = peelDone? 0.88: 1;
     g7cEmoji(c,'🧅',onionX,onionY,Math.round(onionR*2*onionScale));
+    c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('البصلة', onionX, onionY+onionR*1.15+h*0.03);
 
     // خطوة القشر: سكّين يمرّ فوق البصلة
     if(anim==='peel'){
-      const kx = g7cLerp(onionX-onionR*1.2, onionX+onionR*1.2, animT);
-      g7cEmoji(c,'🔪',kx,onionY-onionR*0.3,Math.round(w*0.045));
+      const kx = g7cLerp(onionX-onionR*1.1, onionX+onionR*1.1, animT);
+      g7cEmoji(c,'🔪',kx,onionY-onionR*0.4,Math.round(w*0.045));
     }
-    // قطعة القشر الرقيقة (تظهر بعد خطوة القشر، وتبقى قرب البصلة قبل نقلها للشريحة)
-    let peelX = onionX+onionR*1.3, peelY = onionY+onionR*0.4;
+
+    // قطعة القشر الرقيقة: شريط شفّاف منحنٍ ملتصق بحافّة البصلة، ثمّ ينتقل إلى الشريحة
+    let peelX = onionX+onionR*0.95, peelY = onionY-onionR*0.15, peelAngle=-0.25;
     if(anim==='place'){
       const t=animT;
-      peelX = g7cLerp(onionX+onionR*1.3, slideCx, t);
-      peelY = g7cLerp(onionY+onionR*0.4, slideCy, t);
+      peelX = g7cLerp(onionX+onionR*0.95, slideCx, t);
+      peelY = g7cLerp(onionY-onionR*0.15, slideCy, t);
+      peelAngle = g7cLerp(-0.25, 0, t);
     } else if(placeDone){
-      peelX = slideCx; peelY = slideCy;
+      peelX = slideCx; peelY = slideCy; peelAngle=0;
     }
     if(peelDone){
       c.save();
-      c.translate(peelX,peelY);
-      c.globalAlpha = 0.75;
-      c.fillStyle = dark? 'rgba(234,247,236,0.5)':'rgba(255,255,255,0.75)';
-      c.strokeStyle = g7cAccent(dark); c.lineWidth=1.5;
-      g7cRRect(c,-w*0.045,-h*0.018,w*0.09,h*0.036,4); c.fill(); c.stroke();
+      c.translate(peelX,peelY); c.rotate(peelAngle);
+      c.globalAlpha = 0.8;
+      c.fillStyle = dark? 'rgba(250,245,230,0.55)':'rgba(255,252,240,0.85)';
+      c.strokeStyle = '#C9A227'; c.lineWidth=1.5;
+      g7cRRect(c,-w*0.045,-h*0.012,w*0.09,h*0.024,10); c.fill(); c.stroke();
       c.globalAlpha=1;
       c.restore();
     }
 
+    // الشريحة الزجاجية
+    c.fillStyle= dark?'rgba(147,197,253,0.15)':'rgba(191,219,254,0.5)';
+    c.strokeStyle=g7cMut(dark); c.lineWidth=2;
+    g7cRRect(c,slideCx-slideW/2,slideCy-slideH/2,slideW,slideH,4); c.fill(); c.stroke();
+    c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
+    c.fillText('الشريحة الزجاجية', slideCx, slideCy+slideH/2+h*0.032);
+
     // قطرة الماء
     if(anim==='water'){
-      const dy = g7cLerp(h*0.08, slideCy, g7cClamp(animT*1.15,0,1));
-      g7cEmoji(c,'💧',slideCx-slideW*0.18,dy,Math.round(w*0.04));
+      const dy = g7cLerp(midY-h*0.22, slideCy, g7cClamp(animT*1.15,0,1));
+      g7cEmoji(c,'💧',slideCx-slideW*0.2,dy,Math.round(w*0.038));
     } else if(waterDone){
       c.fillStyle= dark?'rgba(147,197,253,0.55)':'rgba(59,130,246,0.35)';
-      c.beginPath(); c.ellipse(slideCx-slideW*0.18,slideCy,slideW*0.07,slideH*0.32,0,0,Math.PI*2); c.fill();
+      c.beginPath(); c.ellipse(slideCx-slideW*0.2,slideCy,slideW*0.06,slideH*0.28,0,0,Math.PI*2); c.fill();
     }
 
     // الغطاء الزجاجي
@@ -1164,14 +1239,11 @@ function simG7Cell6a(){
       const gy = g7cLerp(slideCy-h*0.16, slideCy-slideH*0.05, animT);
       c.fillStyle= dark?'rgba(200,200,255,0.2)':'rgba(200,220,255,0.55)';
       c.strokeStyle=g7cAccent(dark); c.lineWidth=1.5;
-      g7cRRect(c,slideCx-slideW*0.42,gy,slideW*0.84,slideH*0.7,4); c.fill(); c.stroke();
-      if(animT>0.75){
-        c.fillStyle='#D97706'; c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-      }
+      g7cRRect(c,slideCx-slideW*0.4,gy,slideW*0.8,slideH*0.7,4); c.fill(); c.stroke();
     } else if(coverDone){
       c.fillStyle= dark?'rgba(200,200,255,0.2)':'rgba(200,220,255,0.55)';
       c.strokeStyle=g7cAccent(dark); c.lineWidth=1.5;
-      g7cRRect(c,slideCx-slideW*0.42,slideCy-slideH*0.35,slideW*0.84,slideH*0.7,4); c.fill(); c.stroke();
+      g7cRRect(c,slideCx-slideW*0.4,slideCy-slideH*0.35,slideW*0.8,slideH*0.7,4); c.fill(); c.stroke();
     }
 
     c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
@@ -1303,7 +1375,7 @@ function simG7Cell7a(){
   };
 
   function partHit(p,w,h){
-    const cx=w*0.5, cy=h*0.48;
+    const cx=w*0.5, cy=h*0.46;
     for(const part of PARTS){
       const px=cx, py=cy - (part.id==='nuc'? h*0.02: 0);
       const rr = part.rr*Math.min(w,h);
@@ -1325,7 +1397,7 @@ function simG7Cell7a(){
     return null;
   }
   function slotFor(id,w,h){
-    const cx=w*0.5, cy=h*0.48;
+    const cx=w*0.5, cy=h*0.46;
     if(id==='nuc') return {x:cx, y:cy-h*0.02};
     if(id==='cyto') return {x:cx-w*0.09, y:cy+h*0.05};
     return {x:cx, y:cy-h*0.16};
@@ -1371,30 +1443,41 @@ function simG7Cell7a(){
   };
 
   function drawCheekCell(c,w,h,dark,zoom,focus,stained,interactive){
-    const cx=w*0.5, cy=h*0.48;
+    const cx=w*0.5, cy=h*0.46;
     const clarity = stained? g7cClamp(1-Math.abs(focus-0.2)*1.4,0.15,1) : 0.25;
-    const baseR = Math.min(w,h)*0.34 * (zoom/40>1? 1+((zoom-40)/400):1);
-    const rr = Math.min(baseR, Math.min(w,h)*0.4);
+    const baseR = Math.min(w,h)*0.32 * (zoom/40>1? 1+((zoom-40)/400):1);
+    const rr = Math.min(baseR, Math.min(w,h)*0.36);
     c.globalAlpha = clarity;
-    // membrane
+    // غشاء الخلية (حلقة خارجية واضحة اللون)
     c.fillStyle = stained? (dark?'#1E3A8A':'#93C5FD') : (dark?'#334155':'#CBD5E1');
     c.beginPath(); c.ellipse(cx,cy,rr,rr*0.86,0,0,Math.PI*2); c.fill();
     c.strokeStyle=g7cAccent(dark); c.lineWidth=2.5; c.stroke();
-    // cytoplasm
+    // السيتوبلازم (طبقة داخلية)
     c.fillStyle = stained? (dark?'#1D4ED8':'#BFDBFE') : (dark?'#3f4b5c':'#DDE3EA');
-    c.beginPath(); c.ellipse(cx,cy,rr*0.62,rr*0.55,0,0,Math.PI*2); c.fill();
-    // nucleus
+    c.beginPath(); c.ellipse(cx,cy,rr*0.66,rr*0.58,0,0,Math.PI*2); c.fill();
+    // النواة (دائرة أصغر وغير مركزية، كما تبدو حقيقةً)
+    const nucX=cx-rr*0.16, nucY=cy-rr*0.04;
     c.fillStyle = stained? '#1E1B4B' : '#64748B';
-    c.beginPath(); c.ellipse(cx-rr*0.15,cy-rr*0.06,rr*0.3,rr*0.26,0,0,Math.PI*2); c.fill();
+    c.beginPath(); c.ellipse(nucX,nucY,rr*0.22,rr*0.19,0,0,Math.PI*2); c.fill();
     c.globalAlpha=1;
 
     if(interactive && zoom>=100 && stained && clarity>0.5){
+      const anchors = {
+        mem:  { ax:cx, ay:cy-rr*0.86, lx:cx, ly:cy-rr*1.12, align:'above' },
+        cyto: { ax:cx, ay:cy+rr*0.55, lx:cx, ly:cy+rr*1.14, align:'below' },
+        nuc:  { ax:nucX, ay:nucY, lx:cx-rr*1.28, ly:nucY, align:'left' },
+      };
       PARTS.forEach(part=>{
         if(!S.foundParts[part.id]) return;
-        const px = part.id==='nuc'? cx-rr*0.15 : cx;
-        const py = part.id==='nuc'? cy-rr*0.06 : (part.id==='mem'? cy-rr*0.9 : cy-rr*0.5);
-        c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
-        c.fillText(part.label, px, py);
+        const a = anchors[part.id]; if(!a) return;
+        c.strokeStyle=g7cMut(dark); c.lineWidth=1.2; c.setLineDash([3,3]);
+        c.beginPath(); c.moveTo(a.ax,a.ay); c.lineTo(a.lx,a.ly); c.stroke(); c.setLineDash([]);
+        c.fillStyle=g7cAccent(dark);
+        c.beginPath(); c.arc(a.ax,a.ay,3.5,0,Math.PI*2); c.fill();
+        c.fillStyle=g7cTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`;
+        c.textAlign = a.align==='left' ? 'right' : 'center';
+        c.fillText(part.label, a.align==='left'? a.lx-6 : a.lx, a.align==='above'? a.ly-4 : a.ly+14);
+        c.textAlign='center';
       });
     }
   }
@@ -1404,48 +1487,55 @@ function simG7Cell7a(){
     const animT = S.stepAnimT>0 ? 1-(S.stepAnimT/55) : 1;
     const anim = S.stepAnimT>0 ? STEPS[S.stepIdx].id : null;
 
-    const mouthX=w*0.2, mouthY=h*0.34;
-    const slideCx=w*0.62, slideCy=h*0.66, slideW=w*0.3, slideH=h*0.05;
+    const midY = h*0.46;
+    const mouthX=w*0.26, mouthY=midY;
+    const slideCx=w*0.68, slideCy=midY, slideW=w*0.3, slideH=h*0.055;
+    const dotRx = slideW*0.09, dotRy = slideH*0.36;
+
+    // سهم متقطّع يربط بين الفم والشريحة
+    c.strokeStyle=dark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.12)'; c.lineWidth=2; c.setLineDash([6,6]);
+    c.beginPath(); c.moveTo(mouthX+w*0.06,midY); c.lineTo(slideCx-slideW/2-w*0.015,midY); c.stroke();
+    c.setLineDash([]);
 
     // الفم (مصدر العيّنة)
-    g7cEmoji(c,'👄',mouthX,mouthY,Math.round(w*0.08));
+    g7cEmoji(c,'👄',mouthX,mouthY,Math.round(w*0.075));
     c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-    c.fillText('عيّنة من الخدّ', mouthX, mouthY+h*0.05);
+    c.fillText('عيّنة من الخدّ', mouthX, mouthY+w*0.075*0.62+h*0.032);
 
     // الشريحة الزجاجية
     c.fillStyle= dark?'rgba(147,197,253,0.15)':'rgba(191,219,254,0.5)';
     c.strokeStyle=g7cMut(dark); c.lineWidth=2;
     g7cRRect(c,slideCx-slideW/2,slideCy-slideH/2,slideW,slideH,4); c.fill(); c.stroke();
     c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.013)}px Tajawal`; c.textAlign='center';
-    c.fillText('الشريحة الزجاجية', slideCx, slideCy+slideH/2+h*0.03);
+    c.fillText('الشريحة الزجاجية', slideCx, slideCy+slideH/2+h*0.032);
 
     // العود القطني ينقل العيّنة من الفم إلى الشريحة
     if(anim==='swab'){
-      const sx=g7cLerp(mouthX,slideCx,animT), sy=g7cLerp(mouthY,slideCy,animT);
+      const sx=g7cLerp(mouthX+w*0.05,slideCx,animT), sy=g7cLerp(mouthY,slideCy,animT);
       c.strokeStyle=dark?'#D6D3D1':'#78716C'; c.lineWidth=w*0.006; c.lineCap='round';
-      c.beginPath(); c.moveTo(sx-w*0.03,sy+w*0.03); c.lineTo(sx,sy); c.stroke();
-      c.fillStyle='#FDE68A'; c.beginPath(); c.arc(sx,sy,w*0.014,0,Math.PI*2); c.fill();
+      c.beginPath(); c.moveTo(sx-w*0.03,sy+w*0.02); c.lineTo(sx,sy); c.stroke();
+      c.fillStyle='#FDE68A'; c.beginPath(); c.arc(sx,sy,w*0.013,0,Math.PI*2); c.fill();
     }
     let dotAlpha = swabDone ? 1 : 0;
     if(anim==='swab') dotAlpha = animT;
     if(dotAlpha>0){
-      c.fillStyle= stainDoneStep||anim==='stain' ? 'rgba(59,130,246,0.55)' : (dark?'rgba(255,182,193,0.45)':'rgba(244,114,182,0.5)');
+      c.fillStyle= stainDoneStep||anim==='stain' ? 'rgba(59,130,246,0.55)' : (dark?'rgba(255,182,193,0.5)':'rgba(244,114,182,0.55)');
       c.globalAlpha=dotAlpha;
-      c.beginPath(); c.arc(slideCx,slideCy,slideW*0.14,0,Math.PI*2); c.fill();
+      c.beginPath(); c.ellipse(slideCx,slideCy,dotRx,dotRy,0,0,Math.PI*2); c.fill();
       c.globalAlpha=1;
     }
 
     // قطرة الصبغة الزرقاء
     if(anim==='stain'){
-      const dy = g7cLerp(h*0.08, slideCy, g7cClamp(animT*1.15,0,1));
-      g7cEmoji(c,'🔵',slideCx,dy,Math.round(w*0.03));
+      const dy = g7cLerp(midY-h*0.22, slideCy, g7cClamp(animT*1.15,0,1));
+      g7cEmoji(c,'🔵',slideCx,dy,Math.round(w*0.028));
       if(animT>0.5){
         c.fillStyle='rgba(37,99,235,0.5)'; c.globalAlpha=(animT-0.5)*1.6;
-        c.beginPath(); c.arc(slideCx,slideCy,slideW*0.14,0,Math.PI*2); c.fill(); c.globalAlpha=1;
+        c.beginPath(); c.ellipse(slideCx,slideCy,dotRx,dotRy,0,0,Math.PI*2); c.fill(); c.globalAlpha=1;
       }
     } else if(stainDoneStep){
       c.fillStyle='rgba(29,78,216,0.55)';
-      c.beginPath(); c.arc(slideCx,slideCy,slideW*0.14,0,Math.PI*2); c.fill();
+      c.beginPath(); c.ellipse(slideCx,slideCy,dotRx,dotRy,0,0,Math.PI*2); c.fill();
     }
 
     // الغطاء الزجاجي
@@ -1461,9 +1551,9 @@ function simG7Cell7a(){
     }
 
     // منصّة المجهر
-    const stageY = h*0.86;
+    const stageY = h*0.8;
     c.strokeStyle=g7cMut(dark); c.lineWidth=2;
-    g7cRRect(c,slideCx-w*0.11,stageY,w*0.22,h*0.025,3); c.stroke();
+    g7cRRect(c,slideCx-w*0.11,stageY,w*0.22,h*0.022,3); c.stroke();
     c.fillStyle=g7cMut(dark); c.font=`${Math.round(h*0.012)}px Tajawal`; c.textAlign='center';
     c.fillText('منصّة المجهر', slideCx, stageY+h*0.045);
     if(anim==='stage'){
