@@ -4759,5 +4759,95 @@
 <!-- Core: AI assistant -->
 <script src="/js/core/ai-assistant.js"></script>
 
+  <!-- وضع المراجعة السريعة -->
+  <div id="review-overlay">
+    <div id="rv-header">
+      <div>
+        <div id="rv-title">🏁 وضع المراجعة السريعة</div>
+        <div id="rv-subtitle"></div>
+      </div>
+      <button type="button" id="rv-close-btn" onclick="closeReview()">✖</button>
+    </div>
+    <div id="rv-progress-wrap">
+      <div id="rv-progress-bar"></div>
+    </div>
+    <div id="rv-body">
+      <div id="rv-subject-filter">
+        <button type="button" class="rv-subject-pill active" data-subject="all" onclick="rvSetSubject('all')">الكل</button>
+        <button type="button" class="rv-subject-pill" data-subject="bio" onclick="rvSetSubject('bio')">أحياء</button>
+        <button type="button" class="rv-subject-pill" data-subject="phys" onclick="rvSetSubject('phys')">فيزياء</button>
+        <button type="button" class="rv-subject-pill" data-subject="chem" onclick="rvSetSubject('chem')">كيمياء</button>
+      </div>
+      <div id="rv-stats">
+        <span class="rv-stat rv-stat-correct">✅ <span id="rv-n-correct">٠</span></span>
+        <span class="rv-stat rv-stat-wrong">❌ <span id="rv-n-wrong">٠</span></span>
+        <span class="rv-stat rv-stat-remain">⏳ <span id="rv-n-remain">٠</span></span>
+      </div>
+      <div id="rv-card">
+        <div id="rv-q-num"></div>
+        <div id="rv-q-text"></div>
+        <div id="rv-opts"></div>
+        <div id="rv-feedback"></div>
+        <button type="button" id="rv-next-btn" onclick="rvNext()" style="display:none">التالي ←</button>
+      </div>
+      <div id="rv-results">
+        <div id="rv-score-emoji"></div>
+        <div id="rv-score-num"></div>
+        <div id="rv-score-label"></div>
+        <div id="rv-score-msg"></div>
+        <div class="rv-result-btns">
+          <button type="button" class="rv-result-btn rv-btn-retry" onclick="rvStartSession()">🔄 إعادة المحاولة</button>
+          <button type="button" class="rv-result-btn rv-btn-close" onclick="closeReview()">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- البحث السريع -->
+  <div id="search-overlay" onclick="srClose(event)">
+    <div id="search-box">
+      <div id="search-input-wrap">
+        <span id="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="ابحث عن استقصاء..." oninput="srQuery(this.value)" onkeydown="srKey(event)" autocomplete="off">
+        <button type="button" id="search-clear" onclick="srClear()">✖</button>
+      </div>
+      <div id="search-results"></div>
+      <div id="search-footer">
+        <span>عدد النتائج: <span id="sr-count">0</span></span>
+        <span>Esc للإغلاق</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- السبورة التفاعلية -->
+  <div id="wb-overlay">
+    <div id="wb-card">
+      <div id="wb-toolbar">
+        <span id="wb-toolbar-title">✏️ السبورة التفاعلية</span>
+
+        <div class="wb-tool-group">
+          <span class="wb-tool-group-label">الألوان</span>
+          <button type="button" id="wb-bw-btn" class="wb-color-btn wb-active" data-color="#1E2D3D" style="background:#1E2D3D"></button>
+          <button type="button" class="wb-color-btn" data-color="#1A8FA8" style="background:#1A8FA8"></button>
+          <button type="button" class="wb-color-btn" data-color="#C0392B" style="background:#C0392B"></button>
+          <button type="button" class="wb-color-btn" data-color="#27AE60" style="background:#27AE60"></button>
+          <button type="button" class="wb-color-btn" data-color="#D4901A" style="background:#D4901A"></button>
+          <button type="button" class="wb-color-btn" data-color="#8E44AD" style="background:#8E44AD"></button>
+        </div>
+
+        <div class="wb-tool-group">
+          <span class="wb-tool-group-label">الحجم</span>
+          <input type="range" id="wb-size-slider" min="1" max="30" value="5">
+        </div>
+
+        <button type="button" id="wb-eraser-btn" class="wb-action-btn wb-eraser-btn">🧽 ممحاة</button>
+        <button type="button" id="wb-clear-btn" class="wb-action-btn wb-clear-btn">🗑️ مسح الكل</button>
+        <button type="button" id="wb-close-btn" class="wb-action-btn wb-close-btn">✖ إغلاق</button>
+      </div>
+      <div id="wb-canvas-wrap">
+        <canvas id="wb-canvas"></canvas>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
