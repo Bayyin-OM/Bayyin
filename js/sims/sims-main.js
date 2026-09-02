@@ -334,6 +334,8 @@ function openApp() {
 }
 
 function pickSemester(sem) {
+  // الفصل الدراسي الثاني مقفل حالياً — لا يُسمح بالدخول إليه إطلاقاً
+  if (sem === 2) { _semesterLockedNotice(); return; }
   window._activeSemester = sem;
   var semPicker = document.getElementById('semester-picker');
   var gradePicker = document.getElementById('grade-picker');
@@ -341,6 +343,11 @@ function pickSemester(sem) {
   _updateGradePickerBanner(sem);
   gradePicker.style.display = 'flex';
   setTimeout(_updateFooterVisibility, 50);
+}
+
+function _semesterLockedNotice() {
+  _g8pPlayClick && _g8pPlayClick();
+  alert('الفصل الدراسي الثاني غير متاح حالياً 🔒\nسيتم فتحه قريباً — تابع التحديثات.');
 }
 
 function backToSemesterPicker() {

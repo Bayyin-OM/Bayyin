@@ -745,29 +745,28 @@
         </div>
       </div>
 
-      <!-- Semester 2 -->
-      <div onclick="pickSemester(2)" style="
+      <!-- Semester 2 (LOCKED) -->
+      <div onclick="_semesterLockedNotice()" style="
         padding:32px 28px;border-radius:20px;
         border:2px solid rgba(26,143,168,0.2);
         background:var(--bg-card,#fff);
-        font-family:Tajawal;cursor:pointer;
+        font-family:Tajawal;cursor:not-allowed;
         box-shadow:0 2px 12px rgba(0,0,0,0.06);
         transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
-        position:relative;overflow:hidden;text-align:right;"
-        onmouseover="this.style.boxShadow='0 8px 28px rgba(26,143,168,0.18)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(26,143,168,0.5)'"
-        onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)';this.style.transform='';this.style.borderColor='rgba(26,143,168,0.2)'">
+        position:relative;overflow:hidden;text-align:right;opacity:0.75;">
         <!-- Top accent stripe -->
         <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#1A8FA8,#27AE60);border-radius:20px 20px 0 0"></div>
-        <div style="font-size:44px;margin-bottom:14px;line-height:1">🌿</div>
+        <div style="font-size:44px;margin-bottom:14px;line-height:1;filter:grayscale(40%)">🌿</div>
         <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الثاني</div>
         <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">فبراير — يونيو · وحدات الفصل الثاني — الصف التاسع متاح بالكامل</div>
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(26,143,168,0.08);border:1px solid rgba(26,143,168,0.2);border-radius:8px;padding:5px 10px;font-size:12px;color:#1A8FA8;font-weight:600">
             🔒 قريباً
           </div>
-          <div style="font-size:22px;color:rgba(26,143,168,0.35)">←</div>
+          <div style="font-size:22px;color:rgba(26,143,168,0.25)">⛔</div>
         </div>
       </div>
+
 
     </div>
 
