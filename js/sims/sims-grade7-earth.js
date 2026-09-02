@@ -42,6 +42,122 @@ function g7eaAnswerMCQ(id, i, correctIdx, msg){
 }
 
 /* ══════════════════════════════════════════════════════════
+   رسم صخور واقعي (بديل الإيموجي 🪨 الموحّد) + قطرة ماء متحركة
+   ══════════════════════════════════════════════════════════ */
+function g7eaSeededRand(seed){
+  let s = (seed*9301+1)%233280;
+  return function(){ s=(s*9301+49297)%233280; return s/233280; };
+}
+function g7eaRockPath(c,x,y,r,seed){
+  const rnd=g7eaSeededRand(seed); const pts=11;
+  c.beginPath();
+  for(let i=0;i<=pts;i++){
+    const ang=(i/pts)*Math.PI*2;
+    const rad=r*(0.8+rnd()*0.24);
+    const px=x+Math.cos(ang)*rad, py=y+Math.sin(ang)*rad*0.88;
+    if(i===0) c.moveTo(px,py); else c.lineTo(px,py);
+  }
+  c.closePath();
+}
+const G7EA_ROCK_PALETTE = {
+  sand:      { base:{l:'#C9A66B',d:'#8A6F45'}, edge:{l:'#8B6B3E',d:'#5E4A2E'} },
+  lime:      { base:{l:'#D8D2BE',d:'#8C8770'}, edge:{l:'#A69C7E',d:'#5C5842'} },
+  ig:        { base:{l:'#5B5B62',d:'#38383D'}, edge:{l:'#333338',d:'#1E1E21'} },
+  marble:    { base:{l:'#EDE8DE',d:'#C7C2B8'}, edge:{l:'#B8B0A0',d:'#8A8478'} },
+  quartzite: { base:{l:'#D9B896',d:'#A8825E'}, edge:{l:'#A47B54',d:'#6E5138'} },
+  granite:   { base:{l:'#BBAEA2',d:'#8F8378'}, edge:{l:'#8A7C70',d:'#5A5048'} },
+};
+function g7eaDrawRock(c,x,y,r,dark,kind,seed){
+  seed = (seed||1);
+  const pal = G7EA_ROCK_PALETTE[kind] || G7EA_ROCK_PALETTE.ig;
+  g7eaRockPath(c,x,y,r,seed);
+  c.fillStyle = dark?pal.base.d:pal.base.l; c.fill();
+  c.save(); g7eaRockPath(c,x,y,r,seed); c.clip();
+  const rnd = g7eaSeededRand(seed+11);
+  if(kind==='sand'){
+    for(let i=0;i<60;i++){
+      const gx=x+(rnd()-0.5)*r*1.9, gy=y+(rnd()-0.5)*r*1.7;
+      c.fillStyle = rnd()>0.5 ? (dark?'rgba(0,0,0,0.22)':'rgba(110,80,35,0.28)') : (dark?'rgba(255,255,255,0.08)':'rgba(255,235,190,0.45)');
+      c.beginPath(); c.arc(gx,gy,r*0.035+rnd()*r*0.02,0,Math.PI*2); c.fill();
+    }
+  } else if(kind==='lime'){
+    c.strokeStyle = dark?'rgba(0,0,0,0.28)':'rgba(120,105,70,0.32)'; c.lineWidth=Math.max(1,r*0.035);
+    for(let i=-2;i<=2;i++){
+      c.beginPath();
+      for(let px=-r*1.1;px<=r*1.1;px+=r*0.2){
+        const py=i*r*0.28+Math.sin(px*0.06+i*1.7)*r*0.05;
+        if(px<=-r*1.1) c.moveTo(x+px,y+py); else c.lineTo(x+px,y+py);
+      }
+      c.stroke();
+    }
+    for(let i=0;i<4;i++){
+      c.fillStyle = dark?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.4)';
+      c.beginPath(); c.ellipse(x+(rnd()-0.5)*r,y+(rnd()-0.5)*r*0.8,r*0.06,r*0.03,rnd()*Math.PI,0,Math.PI*2); c.fill();
+    }
+  } else if(kind==='ig'){
+    for(let i=0;i<45;i++){
+      const gx=x+(rnd()-0.5)*r*1.8, gy=y+(rnd()-0.5)*r*1.6;
+      c.fillStyle = rnd()>0.5 ? (dark?'rgba(255,255,255,0.07)':'rgba(255,255,255,0.14)') : 'rgba(0,0,0,0.28)';
+      c.beginPath(); c.arc(gx,gy,r*0.018+rnd()*r*0.012,0,Math.PI*2); c.fill();
+    }
+  } else if(kind==='marble'){
+    c.strokeStyle = dark?'rgba(140,135,120,0.45)':'rgba(150,140,120,0.55)'; c.lineWidth=Math.max(1,r*0.025);
+    for(let i=0;i<4;i++){
+      let sx=x+(rnd()-0.5)*r*1.6, sy=y-r;
+      c.beginPath(); c.moveTo(sx,sy);
+      for(let t=0;t<5;t++){ c.quadraticCurveTo(sx+(rnd()-0.5)*r*0.6,sy+r*0.4,sx+(rnd()-0.5)*r*0.4,sy+r*0.8); sy+=r*0.6; }
+      c.stroke();
+    }
+  } else if(kind==='quartzite'){
+    for(let i=0;i<38;i++){
+      const gx=x+(rnd()-0.5)*r*1.8, gy=y+(rnd()-0.5)*r*1.6;
+      c.fillStyle = dark?'rgba(255,255,255,0.06)':'rgba(255,255,255,0.28)';
+      c.beginPath(); c.arc(gx,gy,r*0.025+rnd()*r*0.015,0,Math.PI*2); c.fill();
+    }
+  } else if(kind==='granite'){
+    const cols = dark?['rgba(0,0,0,0.32)','rgba(255,255,255,0.12)','rgba(190,100,100,0.28)']:['rgba(40,40,40,0.38)','rgba(255,255,255,0.45)','rgba(200,110,110,0.42)'];
+    for(let i=0;i<42;i++){
+      const gx=x+(rnd()-0.5)*r*1.8, gy=y+(rnd()-0.5)*r*1.6;
+      c.fillStyle = cols[Math.floor(rnd()*3)];
+      c.beginPath(); c.arc(gx,gy,r*0.035+rnd()*r*0.025,0,Math.PI*2); c.fill();
+    }
+  }
+  c.restore();
+  c.strokeStyle = dark?pal.edge.d:pal.edge.l; c.lineWidth = Math.max(1,r*0.045);
+  g7eaRockPath(c,x,y,r,seed); c.stroke();
+}
+/* قطرة ماء متحركة: تسقط ثم إمّا تُمتص (تتقلّص وتشحب) أو تبقى على السطح كقطرة لامعة */
+function g7eaDrawDroplet(c,w,h,cx,cy,startY,t,porous){
+  const fallT = Math.min(t/0.35,1);
+  const dropY = startY + fallT*(cy-startY);
+  if(t<0.35){
+    c.fillStyle='#4FA8E0';
+    c.beginPath(); c.ellipse(cx,dropY,w*0.011,w*0.015,0,0,Math.PI*2); c.fill();
+    c.fillStyle='rgba(255,255,255,0.55)';
+    c.beginPath(); c.ellipse(cx-w*0.003,dropY-w*0.004,w*0.003,w*0.004,0,0,Math.PI*2); c.fill();
+  } else {
+    const postT=(t-0.35)/0.65;
+    if(porous){
+      const sc=Math.max(0,1-postT);
+      c.globalAlpha=Math.max(0,1-postT);
+      c.fillStyle='#4FA8E0';
+      c.beginPath(); c.ellipse(cx,cy,w*0.018*sc,w*0.011*sc,0,0,Math.PI*2); c.fill();
+      c.globalAlpha=1;
+      if(postT>0.15){
+        c.strokeStyle=`rgba(79,168,224,${0.35*(1-postT)})`; c.lineWidth=1.5;
+        c.beginPath(); c.ellipse(cx,cy,w*0.03*postT,w*0.014*postT,0,0,Math.PI*2); c.stroke();
+      }
+    } else {
+      const pulse=1+Math.sin(postT*Math.PI)*0.08;
+      c.fillStyle='#4FA8E0';
+      c.beginPath(); c.ellipse(cx,cy-w*0.006,w*0.02*pulse,w*0.012*pulse,0,0,Math.PI*2); c.fill();
+      c.strokeStyle='rgba(255,255,255,0.65)'; c.lineWidth=1;
+      c.beginPath(); c.ellipse(cx,cy-w*0.006,w*0.02*pulse,w*0.012*pulse,0,0,Math.PI*2); c.stroke();
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
    ٥-٢(ب) · فحص مكونات التربة — مختبر تحليل التربة
    ══════════════════════════════════════════════════════════ */
 function simG7Earth2b(){
@@ -64,7 +180,7 @@ function simG7Earth2b(){
 
   simState = {
     stage:'choose', soil:null, dragId:null, dragX:0, dragY:0,
-    watered:false, closed:false, shaking:false, shaken:false,
+    watered:false, waterAnimStart:null, closed:false, shaking:false, shaken:false,
     dayIdx:0, selLayer:null, compareOn:false,
     challenge:false, challengeSoil:null, qAnswered:false,
   };
@@ -112,7 +228,7 @@ function simG7Earth2b(){
   }
   controls(renderControls());
 
-  window._g7ea2bWater = function(){ _g8pPlayClick(); S.watered=true; controls(renderControls()); };
+  window._g7ea2bWater = function(){ _g8pPlayClick(); S.watered=true; S.waterAnimStart=performance.now(); controls(renderControls()); };
   window._g7ea2bClose = function(){ _g8pPlayClick(); S.closed=true; controls(renderControls()); };
   window._g7ea2bShake = function(){
     _g8pPlayClick(); S.shaking=true; controls(renderControls());
@@ -132,10 +248,42 @@ function simG7Earth2b(){
     g7eaAnswerMCQ('g7ea2bq', i, correctIdx, `هذه العيّنة كانت ${S.challengeSoil.icon} ${S.challengeSoil.label}. يمكن معرفة نوع التربة من حجم كل طبقة ونسبتها داخل المرطبان.`);
   };
   window._g7ea2bRestart = function(){
-    S.stage='choose'; S.soil=null; S.watered=false; S.closed=false; S.shaking=false; S.shaken=false;
+    S.stage='choose'; S.soil=null; S.watered=false; S.waterAnimStart=null; S.closed=false; S.shaking=false; S.shaken=false;
     S.dayIdx=0; S.selLayer=null; S.compareOn=false; S.challenge=false; S.challengeSoil=null; S.qAnswered=false;
     controls(renderControls());
   };
+
+  /* رسم مرحلة إضافة الماء بشكل متحرّك: تربة جافّة أولاً، ثم يرتفع منسوب الماء تدريجياً بعد الضغط على الزر */
+  function drawWaterStage(c,w,h,dark,J,soil){
+    c.strokeStyle=g7eaMut(dark); c.lineWidth=w*0.006;
+    g7eaRRect(c,J.x,J.y,J.w,J.h,10); c.stroke();
+    c.save(); g7eaRRect(c,J.x+2,J.y+2,J.w-4,J.h-4,8); c.clip();
+    c.fillStyle=dark?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.02)'; c.fillRect(J.x,J.y,J.w,J.h);
+    const soilFrac=0.56;
+    const soilTop=J.y+J.h*(1-soilFrac);
+    c.fillStyle='#9C7E52'; c.fillRect(J.x,soilTop,J.w,J.h-(soilTop-J.y));
+    let waterFrac=0, animT=1;
+    if(S.waterAnimStart!==null){
+      animT=g7eaClamp((performance.now()-S.waterAnimStart)/900,0,1);
+      waterFrac=animT*0.30;
+    }
+    if(waterFrac>0){
+      const waterTop=soilTop-waterFrac*J.h;
+      c.fillStyle='rgba(127,184,224,0.78)';
+      c.fillRect(J.x,waterTop,J.w,soilTop-waterTop);
+      c.strokeStyle='rgba(255,255,255,0.55)'; c.lineWidth=1.5;
+      c.beginPath(); c.moveTo(J.x,waterTop); c.lineTo(J.x+J.w,waterTop); c.stroke();
+    }
+    c.restore();
+    if(S.waterAnimStart!==null && animT<1){
+      const streamH=(J.y+J.h*(1-soilFrac))-(J.y-h*0.05);
+      c.fillStyle='#5FA8D3';
+      c.fillRect(J.x+J.w*0.5-2,J.y-h*0.05,4,streamH*Math.min(animT*2.5,1));
+      g7eaEmoji(c,'🚰',J.x+J.w*0.5,J.y-h*0.075,Math.round(w*0.03));
+    }
+    c.fillStyle=g7eaMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
+    c.fillText(soil.label,J.x+J.w/2,J.y+J.h+h*0.035);
+  }
 
   function drawJar(c,w,h,dark,jx,jy,jw,jh,soil,progress,label,clickable){
     c.strokeStyle=g7eaMut(dark); c.lineWidth=w*0.006;
@@ -235,7 +383,7 @@ function simG7Earth2b(){
       }
     } else if(S.stage==='water'){
       c.save(); c.translate(shakeOffset,0);
-      drawJar(c,w,h,dark,J.x,J.y,J.w,J.h,S.soil,S.watered?0.02:0,S.soil.label,false);
+      drawWaterStage(c,w,h,dark,J,S.soil);
       c.restore();
     } else {
       const progress = DAYS[S.dayIdx].p;
@@ -439,14 +587,13 @@ function simG7Earth4(){
   ];
   simState = {
     stage:'examine', examined:{}, weighed:false, soaking:false, soakDur:null, elapsed:0,
-    showInside:false, reweighed:false, challenge:false, order:[], orderChecked:false, qAnswered:false,
+    showInside:false, soakDone:false, challenge:false, order:[], orderChecked:false, qAnswered:false,
   };
   const S = simState;
   const cv = document.getElementById('simCanvas');
   const DURS=[1,3,5];
 
-  function absorbedNow(rock){
-    if(!S.reweighed) return 0;
+  function liveAbsorbed(rock){
     const frac = S.soakDur? g7eaClamp(S.elapsed/S.soakDur,0,1) : 0;
     return Math.round(rock.absorbedTarget*frac);
   }
@@ -470,14 +617,23 @@ function simG7Earth4(){
     }
     if(S.stage==='soak'){
       let html = `<div class="ctrl-section"><div class="ctrl-label" style="font-size:16px">💧 نقع الصخور</div></div>`;
-      if(!S.soaking && !S.reweighed){
+      if(!S.soaking && !S.soakDone){
         html += `<div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:8px">اختر مدّة النقع:</div>
           <div class="ctrl-btns-grid" style="margin-bottom:10px">
             ${DURS.map(d=>`<button class="ctrl-btn ${S.soakDur===d?'active':''}" onclick="window._g7ea4Dur(${d})">${d} دقيقة</button>`).join('')}
           </div>`;
         if(S.soakDur) html += `<button class="ctrl-btn play" onclick="window._g7ea4Start()">▶️ ابدأ</button>`;
       } else if(S.soaking){
+        const pct = Math.round(g7eaClamp(S.elapsed/S.soakDur,0,1)*100);
         html += `<div class="info-box">⏳ جارٍ النقع... (${S.elapsed.toFixed(1)} / ${S.soakDur} دقيقة)</div>
+          <div style="height:7px;border-radius:6px;background:var(--bg-card2);overflow:hidden;margin:8px 0">
+            <div style="height:100%;width:${pct}%;background:#3B82F6;transition:width 0.15s"></div>
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">💧 الماء الممتصّ حتى الآن (يزداد لحظياً):</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px">
+            <tr style="background:var(--bg-card2)"><th style="padding:5px">الصخرة</th><th style="padding:5px">الكتلة الآن</th></tr>
+            ${ROCKS.map(r=>`<tr><td style="padding:5px;text-align:center">${r.label}</td><td style="padding:5px;text-align:center">${100+liveAbsorbed(r)} g <span style="color:#3B82F6">(+${liveAbsorbed(r)})</span></td></tr>`).join('')}
+          </table>
           <button class="ctrl-btn" onclick="window._g7ea4Inside()">${S.showInside?'🔽 إخفاء':'👁️'} شاهد ما يحدث داخل الصخرة</button>`;
         if(S.showInside){
           html += `<div class="info-box" style="margin-top:10px;font-size:12.5px;line-height:1.9">
@@ -486,13 +642,11 @@ function simG7Earth4(){
             🪨 <b>الصخر الناري:</b> يدخل الماء بكمّية قليلة جدّاً.
           </div>`;
         }
-      } else if(!S.reweighed){
-        html += `<button class="ctrl-btn play" onclick="window._g7ea4Reweigh()">⚖️ أعد وزن الصخور</button>`;
       } else {
-        html += `<div class="ctrl-section"><div class="ctrl-label" style="font-size:14px">📊 النتائج</div></div>
+        html += `<div class="ctrl-section"><div class="ctrl-label" style="font-size:14px">📊 النتائج النهائية</div></div>
           <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px">
             <tr style="background:var(--bg-card2)"><th style="padding:5px">الصخرة</th><th style="padding:5px">قبل</th><th style="padding:5px">بعد</th><th style="padding:5px">الممتص</th></tr>
-            ${ROCKS.map(r=>`<tr><td style="padding:5px;text-align:center">${r.label}</td><td style="padding:5px;text-align:center">100 g</td><td style="padding:5px;text-align:center">${100+absorbedNow(r)} g</td><td style="padding:5px;text-align:center">${absorbedNow(r)} g</td></tr>`).join('')}
+            ${ROCKS.map(r=>`<tr><td style="padding:5px;text-align:center">${r.label}</td><td style="padding:5px;text-align:center">100 g</td><td style="padding:5px;text-align:center">${100+liveAbsorbed(r)} g</td><td style="padding:5px;text-align:center">${liveAbsorbed(r)} g</td></tr>`).join('')}
           </table>
           <div class="info-box" style="margin-bottom:10px;font-size:12.5px">الكتلة بعد النقع − الكتلة قبل النقع = كمّية الماء الممتصّة</div>`;
         if(S.soakDur<5){
@@ -537,17 +691,19 @@ function simG7Earth4(){
   window._g7ea4Weigh = function(){ _g8pPlayClick(); S.weighed=true; S.stage='soak'; controls(renderControls()); };
   window._g7ea4Dur = function(d){ _g8pPlayClick(); S.soakDur=d; controls(renderControls()); };
   window._g7ea4Start = function(){
-    _g8pPlayClick(); S.soaking=true; S.elapsed=0; controls(renderControls());
+    _g8pPlayClick(); S.soaking=true; S.soakDone=false; S.elapsed=0; controls(renderControls());
     S._timer = setInterval(()=>{
       S.elapsed += 0.2;
-      if(S.elapsed>=S.soakDur){ S.elapsed=S.soakDur; S.soaking=false; clearInterval(S._timer); S._timer=null; controls(renderControls()); }
+      if(S.elapsed>=S.soakDur){
+        S.elapsed=S.soakDur; S.soaking=false; S.soakDone=true;
+        clearInterval(S._timer); S._timer=null; _g8pPlayDrop();
+      }
       controls(renderControls());
     },150);
   };
   window._g7ea4Inside = function(){ _g8pPlayClick(); S.showInside=!S.showInside; controls(renderControls()); };
-  window._g7ea4Reweigh = function(){ _g8pPlayClick(); S.reweighed=true; controls(renderControls()); };
   window._g7ea4Redo = function(){
-    S.soaking=false; S.reweighed=false; S.showInside=false; S.elapsed=0; S.soakDur=null;
+    S.soaking=false; S.soakDone=false; S.showInside=false; S.elapsed=0; S.soakDur=null;
     controls(renderControls());
   };
   window._g7ea4Challenge = function(){ _g8pPlayClick(); S.challenge=true; controls(renderControls()); };
@@ -565,7 +721,7 @@ function simG7Earth4(){
   window._g7ea4Restart = function(){
     if(S._timer){ clearInterval(S._timer); S._timer=null; }
     S.stage='examine'; S.examined={}; S.weighed=false; S.soaking=false; S.soakDur=null; S.elapsed=0;
-    S.showInside=false; S.reweighed=false; S.challenge=false; S.order=[]; S.orderChecked=false; S.qAnswered=false;
+    S.showInside=false; S.soakDone=false; S.challenge=false; S.order=[]; S.orderChecked=false; S.qAnswered=false;
     controls(renderControls());
   };
 
@@ -587,36 +743,37 @@ function simG7Earth4(){
     if(S.stage==='examine'){
       ROCKS.forEach((r,i)=>{
         const x=w*0.22+i*w*0.28, y=h*0.45;
-        if(S.examined[r.id]){ c.fillStyle=g7eaAccent(dark); c.globalAlpha=0.15; c.beginPath(); c.arc(x,y,w*0.065,0,Math.PI*2); c.fill(); c.globalAlpha=1; }
-        g7eaEmoji(c,r.icon,x,y,Math.round(w*0.06));
+        if(S.examined[r.id]){ c.fillStyle=g7eaAccent(dark); c.globalAlpha=0.15; c.beginPath(); c.arc(x,y,w*0.075,0,Math.PI*2); c.fill(); c.globalAlpha=1; }
+        g7eaDrawRock(c,x,y,w*0.06,dark,r.id,i+1);
         c.fillStyle=g7eaMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-        c.fillText(r.label, x, y+h*0.06);
+        c.fillText(r.label, x, y+h*0.075);
       });
     } else if(S.stage==='weigh'){
       ROCKS.forEach((r,i)=>{
         const x=w*0.22+i*w*0.28, y=h*0.42;
-        g7eaEmoji(c,r.icon,x,y,Math.round(w*0.05));
+        g7eaDrawRock(c,x,y,w*0.05,dark,r.id,i+1);
         if(S.weighed){
           c.strokeStyle=g7eaMut(dark); c.lineWidth=2;
-          g7eaRRect(c,x-w*0.05,y+h*0.06,w*0.1,h*0.03,4); c.stroke();
+          g7eaRRect(c,x-w*0.05,y+h*0.07,w*0.1,h*0.03,4); c.stroke();
           c.fillStyle=g7eaTxt(dark); c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-          c.fillText('100 g', x, y+h*0.08);
+          c.fillText('100 g', x, y+h*0.09);
         }
         c.fillStyle=g7eaMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`;
-        c.fillText(r.label, x, y-h*0.055);
+        c.fillText(r.label, x, y-h*0.065);
       });
     } else if(S.stage==='soak'){
       ROCKS.forEach((r,i)=>{
         const x=w*0.22+i*w*0.28, y=h*0.42;
-        const inWater = S.soaking || S.reweighed;
+        const inWater = S.soaking || S.soakDone;
         if(inWater){
           c.fillStyle='rgba(96,165,250,0.35)';
           g7eaRRect(c,x-w*0.08,y-h*0.06,w*0.16,h*0.14,8); c.fill();
         }
-        g7eaEmoji(c,r.icon,x,y,Math.round(w*0.05));
+        g7eaDrawRock(c,x,y,w*0.05,dark,r.id,i+1);
         if(S.showInside && S.soaking){
-          const frac = r.id==='sand'?0.8:r.id==='lime'?0.4:0.1;
-          const n=Math.round(frac*10);
+          const maxFrac = r.id==='sand'?0.9:r.id==='lime'?0.45:0.12;
+          const elapsedFrac = S.soakDur? g7eaClamp(S.elapsed/S.soakDur,0,1) : 0;
+          const n=Math.round(maxFrac*10*elapsedFrac);
           for(let k=0;k<n;k++){
             const ang=k*1.3+performance.now()*0.001;
             const px=x+Math.cos(ang)*w*0.025, py=y+Math.sin(ang)*w*0.025;
@@ -624,7 +781,7 @@ function simG7Earth4(){
           }
         }
         c.fillStyle=g7eaMut(dark); c.font=`${Math.round(h*0.014)}px Tajawal`; c.textAlign='center';
-        c.fillText(r.label, x, y+h*0.075);
+        c.fillText(r.label, x, y+h*0.085);
       });
     }
     g7eaTitle(c,w,h,dark,'٥-٤ · مسامية الصخور الرسوبية');
@@ -639,20 +796,20 @@ function simG7Earth4(){
 function simG7Earth5(){
   cancelAnimationFrame(animFrame);
   const ROCKS = [
-    { id:'sand',  label:'حجر رملي', icon:'🪨', type:'رسوبية',
+    { id:'sand',  label:'حجر رملي', icon:'🪨', type:'رسوبية', porosityLevel:0.9,
       appearance:'حبيبات رمل واضحة، فراغات صغيرة بينها.', roughness:'خشنة 🔴', hardness:'أقلّ صلابة (تُخدش)', porosity:'تمتصّ القطرة بسرعة — مسامية مرتفعة' },
-    { id:'lime',  label:'حجر جيري', icon:'🪨', type:'رسوبية',
+    { id:'lime',  label:'حجر جيري', icon:'🪨', type:'رسوبية', porosityLevel:0.55,
       appearance:'طبقات، وقد تظهر أحافير صغيرة.', roughness:'متوسّطة 🟡', hardness:'أقلّ صلابة (تُخدش)', porosity:'تمتصّ القطرة نسبياً — مسامية متوسّطة' },
-    { id:'marble',label:'رخام', icon:'🪨', type:'متحوّلة',
+    { id:'marble',label:'رخام', icon:'🪨', type:'متحوّلة', porosityLevel:0.05,
       appearance:'بلورات متشابكة، سطح أكثر نعومة.', roughness:'ناعمة 🟢', hardness:'أكثر صلابة (لا تُخدش)', porosity:'تبقى القطرة على السطح — مسامية منخفضة جدّاً' },
-    { id:'quartzite',label:'كوارتزيت', icon:'🪨', type:'متحوّلة',
+    { id:'quartzite',label:'كوارتزيت', icon:'🪨', type:'متحوّلة', porosityLevel:0.08,
       appearance:'حبيبات مندمجة بشدّة، يصعب تمييزها منفصلة.', roughness:'متوسّطة 🟡', hardness:'أكثر صلابة (لا تُخدش)', porosity:'مسامية منخفضة جدّاً' },
-    { id:'granite',label:'جرانيت', icon:'🪨', type:'نارية',
+    { id:'granite',label:'جرانيت', icon:'🪨', type:'نارية', porosityLevel:0.06,
       appearance:'بلورات متشابكة بإحكام وألوان متعدّدة.', roughness:'خشنة 🔴', hardness:'أكثر صلابة (لا تُخدش)', porosity:'مسامية منخفضة جدّاً' },
   ];
   simState = {
-    stage:'choose', rock:null, tests:{}, compareStage:false, compareAnswered:false,
-    challenge:false, challengeRock:null, challengeTests:{}, challengeAnswered:false, qAnswered:false,
+    stage:'choose', rock:null, tests:{}, dropAnim:null, compareStage:false, compareAnswered:false,
+    challenge:false, challengeRock:null, challengeTests:{}, challengeDropAnim:null, challengeAnswered:false, qAnswered:false,
   };
   const S = simState;
   const cv = document.getElementById('simCanvas');
@@ -676,6 +833,8 @@ function simG7Earth5(){
       TESTS.forEach(t=>{
         if(S.tests[t.id]){
           html += `<div class="info-box" style="margin-bottom:8px"><b>${t.label}:</b> ${S.rock[t.id]}</div>`;
+        } else if(t.id==='porosity' && S.dropAnim){
+          html += `<div class="info-box" style="margin-bottom:8px">💧 راقب القطرة على الصخرة...</div>`;
         } else {
           html += `<button class="ctrl-btn" style="margin-bottom:8px" onclick="window._g7ea5Test('${t.id}')">${t.label} — ${t.btn}</button>`;
         }
@@ -709,6 +868,8 @@ function simG7Earth5(){
     TESTS.forEach(t=>{
       if(S.challengeTests[t.id]){
         html += `<div class="info-box" style="margin-bottom:8px"><b>${t.label}:</b> ${S.challengeRock[t.id]}</div>`;
+      } else if(t.id==='porosity' && S.challengeDropAnim){
+        html += `<div class="info-box" style="margin-bottom:8px">💧 راقب القطرة على الصخرة...</div>`;
       } else {
         html += `<button class="ctrl-btn" style="margin-bottom:8px" onclick="window._g7ea5CTest('${t.id}')">${t.label} — ${t.btn}</button>`;
       }
@@ -726,20 +887,40 @@ function simG7Earth5(){
   }
   controls(renderControls());
 
-  window._g7ea5Choose = function(i){ _g8pPlayClick(); S.rock=ROCKS[i]; S.tests={}; S.stage='test'; controls(renderControls()); };
-  window._g7ea5Test = function(id){ _g8pPlayClick(); S.tests[id]=true; controls(renderControls()); };
+  window._g7ea5Choose = function(i){ _g8pPlayClick(); S.rock=ROCKS[i]; S.tests={}; S.dropAnim=null; S.stage='test'; controls(renderControls()); };
+  window._g7ea5Test = function(id){
+    _g8pPlayClick();
+    if(id==='porosity'){
+      if(S.tests.porosity || S.dropAnim) return;
+      S.dropAnim={start:performance.now(), level:S.rock.porosityLevel};
+      controls(renderControls());
+      setTimeout(()=>{ S.tests.porosity=true; S.dropAnim=null; controls(renderControls()); }, 1150);
+      return;
+    }
+    S.tests[id]=true; controls(renderControls());
+  };
   window._g7ea5Compare = function(){ _g8pPlayClick(); S.stage='compare'; controls(renderControls()); };
   window._g7ea5CompareAns = function(v){
     _g8pPlayClick(); S.compareAnswered=true; controls(renderControls());
   };
-  window._g7ea5Restart2 = function(){ S.stage='choose'; S.rock=null; S.tests={}; controls(renderControls()); };
+  window._g7ea5Restart2 = function(){ S.stage='choose'; S.rock=null; S.tests={}; S.dropAnim=null; controls(renderControls()); };
   window._g7ea5StartChallenge = function(){
     _g8pPlayClick(); S.stage='challenge'; S.challenge=true;
     S.challengeRock = ROCKS[Math.floor(Math.random()*ROCKS.length)];
-    S.challengeTests={}; S.challengeAnswered=false;
+    S.challengeTests={}; S.challengeDropAnim=null; S.challengeAnswered=false;
     controls(renderControls());
   };
-  window._g7ea5CTest = function(id){ _g8pPlayClick(); S.challengeTests[id]=true; controls(renderControls()); };
+  window._g7ea5CTest = function(id){
+    _g8pPlayClick();
+    if(id==='porosity'){
+      if(S.challengeTests.porosity || S.challengeDropAnim) return;
+      S.challengeDropAnim={start:performance.now(), level:S.challengeRock.porosityLevel};
+      controls(renderControls());
+      setTimeout(()=>{ S.challengeTests.porosity=true; S.challengeDropAnim=null; controls(renderControls()); }, 1150);
+      return;
+    }
+    S.challengeTests[id]=true; controls(renderControls());
+  };
   window._g7ea5cAns = function(i){
     const types=['رسوبية','نارية','متحوّلة'];
     const correctIdx = types.indexOf(S.challengeRock.type);
@@ -751,8 +932,8 @@ function simG7Earth5(){
     g7eaAnswerMCQ('g7ea5q', i, 1, 'تؤدّي الحرارة والضغط إلى تماسك الحبيبات وإغلاق كثير من الفراغات، لذلك تكون الصخور المتحوّلة عادةً أكثر صلابة وأقلّ مسامية من الصخور التي تكوّنت منها.');
   };
   window._g7ea5Restart = function(){
-    S.stage='choose'; S.rock=null; S.tests={}; S.compareStage=false; S.compareAnswered=false;
-    S.challenge=false; S.challengeRock=null; S.challengeTests={}; S.challengeAnswered=false; S.qAnswered=false;
+    S.stage='choose'; S.rock=null; S.tests={}; S.dropAnim=null; S.compareStage=false; S.compareAnswered=false;
+    S.challenge=false; S.challengeRock=null; S.challengeTests={}; S.challengeDropAnim=null; S.challengeAnswered=false; S.qAnswered=false;
     controls(renderControls());
   };
 
@@ -764,20 +945,25 @@ function simG7Earth5(){
     if(S.stage==='choose'){
       ROCKS.forEach((r,i)=>{
         const cols=3, x=w*0.22+(i%cols)*w*0.28, y=h*0.35+Math.floor(i/cols)*h*0.32;
-        g7eaEmoji(c,r.icon,x,y,Math.round(w*0.05));
+        g7eaDrawRock(c,x,y,w*0.05,dark,r.id,i+1);
         c.fillStyle=g7eaMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`; c.textAlign='center';
-        c.fillText(r.label, x, y+h*0.06);
+        c.fillText(r.label, x, y+h*0.07);
       });
     } else if(S.stage==='test'){
-      g7eaEmoji(c,S.rock.icon,w*0.5,h*0.42,Math.round(w*0.11));
+      const rockY=h*0.42;
+      g7eaDrawRock(c,w*0.5,rockY,w*0.11,dark,S.rock.id,99);
       c.fillStyle=g7eaTxt(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
       c.fillText(S.rock.label, w*0.5, h*0.6);
       const done = Object.keys(S.tests).length;
       c.fillStyle=g7eaMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`;
       c.fillText(`الاختبارات المكتملة: ${done} / ${TESTS.length}`, w*0.5, h*0.66);
+      if(S.dropAnim){
+        const t=g7eaClamp((performance.now()-S.dropAnim.start)/1150,0,1);
+        g7eaDrawDroplet(c,w,h,w*0.5,rockY-w*0.02,h*0.16,t,S.dropAnim.level>0.3);
+      }
     } else if(S.stage==='compare'){
-      g7eaEmoji(c,'🪨',w*0.32,h*0.42,Math.round(w*0.09));
-      g7eaEmoji(c,'🪨',w*0.68,h*0.42,Math.round(w*0.09));
+      g7eaDrawRock(c,w*0.32,h*0.42,w*0.08,dark,'lime',5);
+      g7eaDrawRock(c,w*0.68,h*0.42,w*0.08,dark,'marble',6);
       c.fillStyle=g7eaMut(dark); c.font=`${Math.round(h*0.017)}px Tajawal`; c.textAlign='center';
       c.fillText('حجر جيري', w*0.32, h*0.55);
       c.fillText('رخام', w*0.68, h*0.55);
@@ -785,12 +971,19 @@ function simG7Earth5(){
       c.beginPath(); c.moveTo(w*0.42,h*0.42); c.lineTo(w*0.58,h*0.42); c.stroke(); c.setLineDash([]);
       g7eaEmoji(c,'🔥',w*0.5,h*0.36,Math.round(w*0.035));
     } else {
-      g7eaEmoji(c,'❓',w*0.5,h*0.4,Math.round(w*0.1));
-      c.fillStyle=g7eaTxt(dark); c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.textAlign='center';
+      const rockY=h*0.4;
+      if(S.challengeRock){ g7eaDrawRock(c,w*0.5,rockY,w*0.1,dark,S.challengeRock.id,77); c.globalAlpha=0.5; c.fillStyle=dark?'#000':'#fff'; c.beginPath(); c.arc(w*0.5,rockY,w*0.115,0,Math.PI*2); c.fill(); c.globalAlpha=1; }
+      c.fillStyle=g7eaTxt(dark); c.font=`bold ${Math.round(w*0.05)}px Tajawal`; c.textAlign='center';
+      c.fillText('❓', w*0.5, rockY+w*0.02);
+      c.font=`bold ${Math.round(h*0.02)}px Tajawal`;
       c.fillText('صخرة مجهولة', w*0.5, h*0.58);
       const done = Object.keys(S.challengeTests).length;
       c.fillStyle=g7eaMut(dark); c.font=`${Math.round(h*0.015)}px Tajawal`;
       c.fillText(`الاختبارات المكتملة: ${done} / ${TESTS.length}`, w*0.5, h*0.64);
+      if(S.challengeDropAnim){
+        const t=g7eaClamp((performance.now()-S.challengeDropAnim.start)/1150,0,1);
+        g7eaDrawDroplet(c,w,h,w*0.5,rockY-w*0.02,h*0.16,t,S.challengeDropAnim.level>0.3);
+      }
     }
     g7eaTitle(c,w,h,dark,'٥-٥ · خصائص الصخور');
     animFrame=requestAnimationFrame(draw);
