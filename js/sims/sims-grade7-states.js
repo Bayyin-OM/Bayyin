@@ -341,7 +341,7 @@ function simG7States2b(){
       stacks[z.id] = (stacks[z.id]||0);
       const idx = stacks[z.id]++;
       const zx=z.x*w, zy=h*0.62 + h*0.05 + idx*h*0.085;
-      drawChip(c, ch.text, zx, zy, w, h, dark, true);
+      drawChip(c, ch.text, zx, zy, w, h, dark, 'ok');
     });
 
     // البطاقات المتبقية في أماكنها الأصلية
@@ -365,17 +365,21 @@ function simG7States2b(){
     g7sTitleBar(c, w, h, dark, '٢-٢ · طابق الملاحظات');
     animFrame = requestAnimationFrame(draw);
   }
-  function drawChip(c, text, x, y, w, h, dark, warn){
+  function drawChip(c, text, x, y, w, h, dark, state){
+    // state: 'warn' (أحمر - خطأ), 'ok' (أخضر - صحيح)، أو غير ذلك (طبيعي)
     c.save();
-    c.fillStyle = warn ? 'rgba(231,76,60,0.85)' : (dark?'#12283A':'#FFFFFF');
-    c.strokeStyle = warn ? '#E74C3C' : g7sAccent(dark);
+    const isWarn = state === 'warn' || state === true;
+    const isOk = state === 'ok';
+    c.fillStyle = isWarn ? 'rgba(231,76,60,0.85)' : isOk ? 'rgba(39,174,96,0.85)' : (dark?'#12283A':'#FFFFFF');
+    c.strokeStyle = isWarn ? '#E74C3C' : isOk ? '#27AE60' : g7sAccent(dark);
     c.lineWidth = 2;
     const cw = w*0.24, ch2 = h*0.065;
     c.beginPath();
     if(c.roundRect) c.roundRect(x-cw/2, y-ch2/2, cw, ch2, 10); else c.rect(x-cw/2, y-ch2/2, cw, ch2);
     c.fill(); c.stroke();
-    c.fillStyle = warn ? '#fff' : g7sTxt(dark);
-    c.font = `bold ${Math.round(h*0.016)}px Tajawal`; c.fillStyle=g7sTxt(dark); c.textAlign='center'; c.textBaseline='middle';
+    c.font = `bold ${Math.round(h*0.016)}px Tajawal`;
+    c.fillStyle = (isWarn || isOk) ? '#fff' : g7sTxt(dark);
+    c.textAlign='center'; c.textBaseline='middle';
     c.fillText(text, x, y+1);
     c.textBaseline='alphabetic';
     c.restore();
@@ -585,7 +589,7 @@ function simG7States3a(){
    ══════════════════════════════════════════════════════════ */
 function simG7States5a(){
   cancelAnimationFrame(animFrame);
-  simState = { dropped:false, t:0, micro:false, particles:[], phase:'idle', qAnswered:false };
+  simState = { dropped:false, t:0, micro:false, particles:[], phase:'idle', qAnswered:false, zoom:1, zoomT:1 };
   const S = simState;
   const cv = document.getElementById('simCanvas');
 
@@ -632,7 +636,7 @@ function simG7States5a(){
     controls(renderControls());
   };
   window._g7s5Set = function(v){ S.t=v; controls(renderControls()); };
-  window._g7s5Micro = function(){ _g8pPlayClick(); S.micro=!S.micro; controls(renderControls()); };
+  window._g7s5Micro = function(){ _g8pPlayClick(); S.micro=!S.micro; S.zoomT = S.micro ? 2.3 : 1; controls(renderControls()); };
   window._g7s5Answer = function(i){
     if(S.qAnswered) return; S.qAnswered=true;
     const ok = i===1; _g8pPlayClick();
@@ -648,12 +652,17 @@ function simG7States5a(){
     const c = cv.getContext('2d'), w=cv.width, h=cv.height, dark=isDarkMode();
     c.fillStyle = g7sBg(dark); c.fillRect(0,0,w,h);
 
-    const dishX=w*0.5, dishY=h*0.55, dishR = S.micro ? Math.min(w,h)*0.34 : Math.min(w,h)*0.3;
+    const dishX=w*0.5, dishY=h*0.55, dishR = Math.min(w,h)*0.3;
+
+    // انتقال سلس نحو مستوى التكبير المستهدف (تأثير "زووم إن" حقيقي عند الضغط على الزر)
+    S.zoom += (S.zoomT - S.zoom) * 0.1;
 
     // طبق بتري + طبقة الأجار
     c.save();
+    c.beginPath(); c.rect(0, h*0.14, w, h*0.86); c.clip(); // قصّ منطقة الرسم كي لا يفيض التكبير خارج الكانفس
+    c.translate(dishX, dishY); c.scale(S.zoom, S.zoom); c.translate(-dishX, -dishY);
     c.fillStyle = dark? '#3A1830':'#F9D9E8';
-    c.strokeStyle = g7sMut(dark); c.lineWidth=w*0.006;
+    c.strokeStyle = g7sMut(dark); c.lineWidth=w*0.006/S.zoom;
     c.beginPath(); c.arc(dishX,dishY,dishR,0,Math.PI*2); c.fill(); c.stroke();
 
     if(S.dropped){
@@ -693,7 +702,7 @@ function simG7States5a(){
     c.restore();
 
     c.fillStyle = g7sTxt(dark); c.font=`bold ${Math.round(h*0.018)}px Tajawal`; c.textAlign='center';
-    c.fillText(S.micro ? '🔍 المستوى المجهري' : '🧪 طبق بتري (أجار)', dishX, dishY+dishR+h*0.05);
+    c.fillText(S.micro ? '🔍 المستوى المجهري' : '🧪 طبق بتري (أجار)', dishX, dishY+dishR*1.15+h*0.05);
 
     g7sTitleBar(c, w, h, dark, '٥-١ · الانتشار');
     animFrame = requestAnimationFrame(draw);
