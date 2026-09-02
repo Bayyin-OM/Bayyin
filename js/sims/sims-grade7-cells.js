@@ -1376,14 +1376,14 @@ function simG7Cell7a(){
 
   function partHit(p,w,h){
     const cx=w*0.5, cy=h*0.46;
-    for(const part of PARTS){
-      const px=cx, py=cy - (part.id==='nuc'? h*0.02: 0);
-      const rr = part.rr*Math.min(w,h);
-      const dist = Math.hypot(p.x-px,p.y-py);
-      if(part.id==='mem' && dist<rr && dist>rr*0.62) return part;
-      if(part.id==='cyto' && dist<rr*0.62 && dist>0.28*rr) return part;
-      if(part.id==='nuc' && dist<rr*0.32) return part;
-    }
+    const baseR = Math.min(w,h)*0.32 * (S.zoom/40>1? 1+((S.zoom-40)/400):1);
+    const rr = Math.min(baseR, Math.min(w,h)*0.36);
+    const nucX=cx-rr*0.16, nucY=cy-rr*0.04;
+    const inEllipse = (ex,ey,rx,ry)=> Math.pow((p.x-ex)/rx,2)+Math.pow((p.y-ey)/ry,2) <= 1;
+    // النواة أولاً (الأعلى في الرسم)، ثمّ السيتوبلازم، ثمّ غشاء الخلية
+    if(inEllipse(nucX,nucY,rr*0.22,rr*0.19)) return PARTS.find(x=>x.id==='nuc');
+    if(inEllipse(cx,cy,rr*0.66,rr*0.58)) return PARTS.find(x=>x.id==='cyto');
+    if(inEllipse(cx,cy,rr,rr*0.86)) return PARTS.find(x=>x.id==='mem');
     return null;
   }
   function labelHomes(w,h){
