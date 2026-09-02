@@ -3249,10 +3249,10 @@
     <!-- ═══ CHEMISTRY ═══ -->
     <div id="g9-chem" class="g9-subject-panel">
       <div class="panel-title">كتاب الكيمياء — الصف التاسع</div>
-      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
-      <div class="units-grid" style="margin-top:16px">
+      <div class="panel-sub" id="g9chem-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" id="g9chem-grid" style="margin-top:16px">
 
-        <div class="unit-card" onclick="openUnit('g9chem6', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9chem6', this)">
           <div class="unit-num-badge">٦</div>
           <div>
             <div class="unit-title">الأحماض والقواعد</div>
@@ -3261,7 +3261,7 @@
           </div>
         </div>
 
-        <div class="unit-card" onclick="openUnit('g9chem7', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9chem7', this)">
           <div class="unit-num-badge c-teal">٧</div>
           <div>
             <div class="unit-title">معادلات التفاعلات الكيميائية</div>
@@ -3270,7 +3270,7 @@
           </div>
         </div>
 
-        <div class="unit-card" onclick="openUnit('g9chem8', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9chem8', this)">
           <div class="unit-num-badge c-green">٨</div>
           <div>
             <div class="unit-title">تكوين الأملاح</div>
@@ -3279,7 +3279,7 @@
           </div>
         </div>
 
-        <div class="unit-card" onclick="openUnit('g9chem9', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9chem9', this)">
           <div class="unit-num-badge c-purple">٩</div>
           <div>
             <div class="unit-title">التحليل الكيميائي</div>
@@ -3288,7 +3288,14 @@
           </div>
         </div>
 
-        <div class="unit-card" onclick="openUnit('g9chem10', this)">
+        <div class="unit-card" id="g9chem-empty" data-sem="1" style="display:none;grid-column:1/-1;justify-content:center;text-align:center;cursor:default;opacity:.75">
+          <div>
+            <div class="unit-title">وحدات الفصل الأول قيد الإعداد 🚧</div>
+            <div class="unit-topics">سيتم إضافة استقصاءات كيمياء الفصل الدراسي الأول للصف التاسع قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9chem10', this)">
           <div class="unit-num-badge c-teal">١٠</div>
           <div>
             <div class="unit-title">الأرض والغلاف الجوّي</div>
@@ -3579,9 +3586,15 @@
     <!-- ═══ PHYSICS ═══ -->
     <div id="g9-phys" class="g9-subject-panel" style="display:none">
       <div class="panel-title">كتاب الفيزياء — الصف التاسع</div>
-      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
-      <div class="units-grid" style="margin-top:16px">
-        <div class="unit-card" onclick="openUnit('g9phys11', this)">
+      <div class="panel-sub" id="g9phys-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" id="g9phys-grid" style="margin-top:16px">
+        <div class="unit-card" id="g9phys-empty" data-sem="1" style="display:none;grid-column:1/-1;justify-content:center;text-align:center;cursor:default;opacity:.75">
+          <div>
+            <div class="unit-title">وحدات الفصل الأول قيد الإعداد 🚧</div>
+            <div class="unit-topics">سيتم إضافة استقصاءات فيزياء الفصل الدراسي الأول للصف التاسع قريباً</div>
+          </div>
+        </div>
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9phys11', this)">
           <div class="unit-num-badge c-green">١١</div>
           <div>
             <div class="unit-title">مصادر الطاقة</div>
@@ -3589,7 +3602,7 @@
             <div class="unit-pill avail">🔓 متاح</div>
           </div>
         </div>
-        <div class="unit-card" onclick="openUnit('g9phys12', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9phys12', this)">
           <div class="unit-num-badge c-teal">١٢</div>
           <div>
             <div class="unit-title">انعكاس الضوء</div>
@@ -3597,7 +3610,7 @@
             <div class="unit-pill avail">🔓 متاح</div>
           </div>
         </div>
-        <div class="unit-card" onclick="openUnit('g9phys13', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9phys13', this)">
           <div class="unit-num-badge c-purple">١٣</div>
           <div>
             <div class="unit-title">انكسار الضوء</div>
@@ -3605,7 +3618,7 @@
             <div class="unit-pill avail">🔓 متاح</div>
           </div>
         </div>
-        <div class="unit-card" onclick="openUnit('g9phys14', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9phys14', this)">
           <div class="unit-num-badge c-gold">١٤</div>
           <div>
             <div class="unit-title">العدسات وتكوُّن الصور</div>
@@ -3613,7 +3626,7 @@
             <div class="unit-pill avail">🔓 متاح</div>
           </div>
         </div>
-        <div class="unit-card" onclick="openUnit('g9phys15', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9phys15', this)">
           <div class="unit-num-badge c-green">١٥</div>
           <div>
             <div class="unit-title">التيار وفرق الجهد والقوة الدافعة الكهربائية</div>
@@ -3621,7 +3634,7 @@
             <div class="unit-pill avail">🔓 متاح</div>
           </div>
         </div>
-        <div class="unit-card" onclick="openUnit('g9phys16', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9phys16', this)">
           <div class="unit-num-badge c-teal">١٦</div>
           <div>
             <div class="unit-title">المقاومة الكهربائية</div>
@@ -3885,10 +3898,17 @@
     <!-- ═══ BIOLOGY ═══ -->
     <div id="g9-bio" class="g9-subject-panel" style="display:none">
       <div class="panel-title">كتاب الأحياء — الصف التاسع</div>
-      <div class="panel-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
-      <div class="units-grid" style="margin-top:16px">
+      <div class="panel-sub" id="g9bio-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية</div>
+      <div class="units-grid" id="g9bio-grid" style="margin-top:16px">
 
-        <div class="unit-card" onclick="openUnit('g9bio7', this)">
+        <div class="unit-card" id="g9bio-empty" data-sem="1" style="display:none;grid-column:1/-1;justify-content:center;text-align:center;cursor:default;opacity:.75">
+          <div>
+            <div class="unit-title">وحدات الفصل الأول قيد الإعداد 🚧</div>
+            <div class="unit-topics">سيتم إضافة استقصاءات أحياء الفصل الدراسي الأول للصف التاسع قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9bio7', this)">
           <div class="unit-num-badge c-teal">٧</div>
           <div>
             <div class="unit-title">التغذية في النبات</div>
@@ -3897,7 +3917,7 @@
           </div>
         </div>
 
-        <div class="unit-card" onclick="openUnit('g9bio8', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9bio8', this)">
           <div class="unit-num-badge c-red">٨</div>
           <div>
             <div class="unit-title">الهضم في الإنسان</div>
@@ -3906,7 +3926,7 @@
           </div>
         </div>
 
-        <div class="unit-card" onclick="openUnit('g9bio9', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9bio9', this)">
           <div class="unit-num-badge c-green">٩</div>
           <div>
             <div class="unit-title">النقل في النبات</div>
@@ -3915,7 +3935,7 @@
           </div>
         </div>
 
-        <div class="unit-card" onclick="openUnit('g9bio10', this)">
+        <div class="unit-card" data-sem="2" onclick="openUnit('g9bio10', this)">
           <div class="unit-num-badge c-purple">١٠</div>
           <div>
             <div class="unit-title">التحكم والتنظيم في النبات</div>
@@ -4275,7 +4295,14 @@
       <div class="panel-sub" id="panel10-sub">اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي الأول</div>
       <div class="units-grid" style="margin-top:16px" id="grade10-chem-units">
 
-        <div class="unit-card" onclick="openUnit('g10chem1', this)">
+        <div class="unit-card" id="g10chem-empty" data-sem="2" style="display:none;grid-column:1/-1;justify-content:center;text-align:center;cursor:default;opacity:.75">
+          <div>
+            <div class="unit-title">وحدات الفصل الثاني قيد الإعداد 🚧</div>
+            <div class="unit-topics">سيتم إضافة استقصاءات كيمياء الفصل الدراسي الثاني للصف العاشر قريباً</div>
+          </div>
+        </div>
+
+        <div class="unit-card" data-sem="1" onclick="openUnit('g10chem1', this)">
           <div class="unit-num-badge c-gold">١</div>
           <div>
             <div class="unit-title">الفلزات وخصائصها</div>
@@ -4284,7 +4311,7 @@
           </div>
         </div>
 
-        <div class="unit-card" onclick="openUnit('g10chem2', this)">
+        <div class="unit-card" data-sem="1" onclick="openUnit('g10chem2', this)">
           <div class="unit-num-badge c-gold">٢</div>
           <div>
             <div class="unit-title">استخلاص الفلزات واستخدامها</div>
@@ -4293,7 +4320,7 @@
           </div>
         </div>
 
-        <div class="unit-card" style="cursor:default;opacity:0.6" data-placeholder="1">
+        <div class="unit-card" data-sem="1" style="cursor:default;opacity:0.6" data-placeholder="1">
           <div class="unit-num-badge">⏳</div>
           <div>
             <div class="unit-title">باقي الوحدات قادمة قريباً</div>

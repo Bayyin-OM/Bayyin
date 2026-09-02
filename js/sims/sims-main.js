@@ -582,7 +582,14 @@ function switchGrade(g) {
     }
     if (g === 10) {
       var p10Sub = document.getElementById('panel10-sub');
-      if (p10Sub) p10Sub.textContent = 'المحتوى قيد الإعداد — سيتم إضافة الوحدات والاستقصاءات قريباً — الفصل الدراسي ' + (sem == 1 ? 'الأول' : 'الثاني');
+      if (p10Sub) {
+        p10Sub.textContent = (sem == 1)
+          ? 'اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي الأول'
+          : 'المحتوى قيد الإعداد — سيتم إضافة الوحدات والاستقصاءات قريباً — الفصل الدراسي الثاني';
+      }
+    }
+    if (g === 9) {
+      _applyG9ChemSemesterUI();
     }
   }
   // Force scroll reset by briefly hiding the container
@@ -665,6 +672,19 @@ function switchG9Subject(subject) {
     if(panel) panel.style.display = s === subject ? 'block' : 'none';
     var tab = document.getElementById('g9-tab-' + s);
     if(tab) tab.classList.toggle('g9-active', s === subject);
+  });
+  _applyG9ChemSemesterUI();
+}
+
+// ── Grade 9 (chem/phys/bio): show empty-state when semester 1 is active — no semester-1 units built yet ──
+function _applyG9ChemSemesterUI() {
+  var sem = window._activeSemester || 2;
+  var labels = {chem:'كيمياء', phys:'فيزياء', bio:'أحياء'};
+  ['chem','phys','bio'].forEach(function(subj){
+    var sub = document.getElementById('g9'+subj+'-sub');
+    if(sub) sub.textContent = 'اختَر الوحدة لاستكشاف استقصاءاتها التفاعلية — الفصل الدراسي ' + (sem == 1 ? 'الأول' : 'الثاني');
+    var empty = document.getElementById('g9'+subj+'-empty');
+    if(empty) empty.style.display = (sem == 1) ? 'flex' : 'none';
   });
 }
 
