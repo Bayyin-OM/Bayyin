@@ -722,50 +722,50 @@
       <!-- Semester 1 -->
       <div onclick="pickSemester(1)" style="
         padding:32px 28px;border-radius:20px;
-        border:2px solid rgba(212,144,26,0.2);
+        border:2px solid rgba(212,144,26,0.25);
         background:var(--bg-card,#fff);
         font-family:Tajawal;cursor:pointer;
-        box-shadow:0 2px 12px rgba(0,0,0,0.06);
+        box-shadow:0 2px 12px rgba(212,144,26,0.08);
         transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
         position:relative;overflow:hidden;text-align:right;"
-        onmouseover="this.style.boxShadow='0 8px 28px rgba(212,144,26,0.18)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(212,144,26,0.5)'"
-        onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)';this.style.transform='';this.style.borderColor='rgba(212,144,26,0.2)'">
+        onmouseover="this.style.boxShadow='0 8px 28px rgba(212,144,26,0.2)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(212,144,26,0.55)'"
+        onmouseout="this.style.boxShadow='0 2px 12px rgba(212,144,26,0.08)';this.style.transform='';this.style.borderColor='rgba(212,144,26,0.25)'">
         <!-- Top accent stripe -->
         <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#D4901A,#F5C842);border-radius:20px 20px 0 0"></div>
+        <!-- Active badge -->
+        <div style="position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#D4901A,#F5C842);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:Tajawal">● نشط الآن</div>
         <div style="font-size:44px;margin-bottom:14px;line-height:1">🌅</div>
         <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الأول</div>
         <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">سبتمبر — يناير · وحدات الفصل الأول لجميع الصفوف</div>
         <div style="display:flex;align-items:center;justify-content:space-between">
-          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,144,26,0.08);border:1px solid rgba(212,144,26,0.2);border-radius:8px;padding:5px 10px;font-size:12px;color:#B8780A;font-weight:600">
-            🔒 قريباً
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,144,26,0.08);border:1px solid rgba(212,144,26,0.25);border-radius:8px;padding:5px 10px;font-size:12px;color:#B8780A;font-weight:600">
+            🔓 متاح الآن
           </div>
-          <div style="font-size:22px;color:rgba(212,144,26,0.35)">←</div>
+          <div style="font-size:22px;color:rgba(212,144,26,0.5)">←</div>
         </div>
       </div>
 
       <!-- Semester 2 -->
       <div onclick="pickSemester(2)" style="
         padding:32px 28px;border-radius:20px;
-        border:2px solid rgba(26,143,168,0.25);
+        border:2px solid rgba(26,143,168,0.2);
         background:var(--bg-card,#fff);
         font-family:Tajawal;cursor:pointer;
-        box-shadow:0 2px 12px rgba(26,143,168,0.08);
+        box-shadow:0 2px 12px rgba(0,0,0,0.06);
         transition:box-shadow 0.2s,transform 0.2s,border-color 0.2s;
         position:relative;overflow:hidden;text-align:right;"
-        onmouseover="this.style.boxShadow='0 8px 28px rgba(26,143,168,0.2)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(26,143,168,0.55)'"
-        onmouseout="this.style.boxShadow='0 2px 12px rgba(26,143,168,0.08)';this.style.transform='';this.style.borderColor='rgba(26,143,168,0.25)'">
+        onmouseover="this.style.boxShadow='0 8px 28px rgba(26,143,168,0.18)';this.style.transform='translateY(-3px)';this.style.borderColor='rgba(26,143,168,0.5)'"
+        onmouseout="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)';this.style.transform='';this.style.borderColor='rgba(26,143,168,0.2)'">
         <!-- Top accent stripe -->
         <div style="position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,#1A8FA8,#27AE60);border-radius:20px 20px 0 0"></div>
-        <!-- Active badge -->
-        <div style="position:absolute;top:16px;left:16px;background:linear-gradient(135deg,#27AE60,#1A8FA8);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:Tajawal">● نشط الآن</div>
         <div style="font-size:44px;margin-bottom:14px;line-height:1">🌿</div>
         <div style="font-size:22px;font-weight:800;color:var(--text-heading,#1A2330);margin-bottom:6px">الفصل الدراسي الثاني</div>
         <div style="font-size:14px;color:var(--text-secondary,#7A8A98);line-height:1.7;margin-bottom:18px">فبراير — يونيو · وحدات الفصل الثاني — الصف التاسع متاح بالكامل</div>
         <div style="display:flex;align-items:center;justify-content:space-between">
-          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);border-radius:8px;padding:5px 10px;font-size:12px;color:#1E8A50;font-weight:600">
-            🔓 متاح الآن
+          <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(26,143,168,0.08);border:1px solid rgba(26,143,168,0.2);border-radius:8px;padding:5px 10px;font-size:12px;color:#1A8FA8;font-weight:600">
+            🔒 قريباً
           </div>
-          <div style="font-size:22px;color:rgba(26,143,168,0.5)">←</div>
+          <div style="font-size:22px;color:rgba(26,143,168,0.35)">←</div>
         </div>
       </div>
 
@@ -773,7 +773,7 @@
 
     <!-- Note -->
     <div style="margin-top:32px;text-align:center;font-size:13px;color:var(--text-secondary,#7A8A98);max-width:480px;line-height:1.8">
-      💡 سيتم إتاحة محتوى الفصل الأول تدريجياً — تابع التحديثات
+      💡 سيتم إتاحة محتوى الفصل الثاني تدريجياً — تابع التحديثات
     </div>
 
   </div>

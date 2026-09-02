@@ -139,7 +139,8 @@ function simG7States2a(){
       return;
     }
 
-    const angRad = (S.state==='solid') ? (S.tiltAngle*Math.PI/180) : 0;
+    // المادّة الصلبة لا تميل أبداً — فقط تهتزّ/تتزحزح مكانياً (shakeOff) عند الضغط على الزر
+    const angRad = 0;
     const liquidAngRad = (S.state==='liquid') ? (S.tiltAngle*Math.PI/180) : 0;
 
     // ── حالة صلبة: الوعاء + الجزيئات تدور معاً ككتلة صلبة واحدة ──
@@ -166,9 +167,12 @@ function simG7States2a(){
       c.translate(cx, cy); c.rotate(liquidAngRad);
       c.beginPath();
       c.moveTo(-cw/2, -ch/2); c.lineTo(-cw/2, ch/2); c.lineTo(cw/2, ch/2); c.lineTo(cw/2, -ch/2);
+      c.closePath();
       c.clip();
-      c.restore();
-      // بركة السائل بمستوى أفقي ثابت (فيزيائياً صحيح) داخل منطقة القصّ الدوّارة
+      // نُعيد المصفوفة إلى الإحداثيات الأصلية مع الإبقاء على منطقة القصّ فعّالة،
+      // لنرسم بركة السائل بسطح أفقي ثابت مهما كان ميل الوعاء (فيزيائياً صحيح)،
+      // وتبقى محصورة داخل حدود الوعاء تماماً ولا تطلع منه.
+      c.setTransform(1, 0, 0, 1, 0, 0);
       const poolH = ch*0.5, poolY = cy+ch/2-poolH, poolX = cx-cw*0.9, poolW = cw*1.8;
       c.fillStyle = dark ? 'rgba(56,189,248,0.28)' : 'rgba(2,132,199,0.22)';
       c.fillRect(poolX, poolY, poolW, poolH);
@@ -180,7 +184,7 @@ function simG7States2a(){
         c.fillStyle = g7sAccent(dark);
         c.beginPath(); c.arc(px, py, w*0.012, 0, Math.PI*2); c.fill();
       });
-      c.restore();
+      c.restore(); // يزيل الدوران ومنطقة القصّ معاً دفعة واحدة
       // إطار الوعاء (يُرسم فوق السائل ليبقى واضحاً)
       c.save(); c.translate(cx, cy); c.rotate(liquidAngRad);
       c.strokeStyle = g7sAccent(dark); c.lineWidth = w*0.006; c.lineCap='round';

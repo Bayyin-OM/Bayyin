@@ -216,7 +216,7 @@ function openApp() {
 // ══════════════════════════════════════════════════════════
 // NAV STATE — tracks which semester is active
 // ══════════════════════════════════════════════════════════
-window._activeSemester = 2; // default: Semester 2
+window._activeSemester = 1; // default: Semester 1
 
 // ── Semester config: what grades are available per semester ──
 var _semesterConfig = {
@@ -383,7 +383,7 @@ function goHome() {
   app.style.display = 'none';
   app.classList.remove('open');
   document.body.classList.remove('app-mode');
-  _updateGradePickerBanner(window._activeSemester || 2);
+  _updateGradePickerBanner(window._activeSemester || 1);
   document.getElementById('grade-picker').style.display = 'flex';
   var _bw = document.getElementById('buddy-wrap');
   var _br = document.getElementById('buddy-restore-btn');
@@ -570,7 +570,7 @@ function switchGrade(g) {
   document.querySelectorAll('.sims-wrap').forEach(function(el) { el.classList.remove('show'); });
   document.querySelectorAll('.unit-card').forEach(function(c) { c.classList.remove('active-unit'); });
   // Filter units by active semester (for panels that mix both semesters' content, e.g. grade 8)
-  var sem = window._activeSemester || 2;
+  var sem = window._activeSemester || 1;
   var activePanel = document.getElementById('panel-'+g);
   if (activePanel) {
     activePanel.querySelectorAll('.unit-card[data-sem]').forEach(function(card) {
@@ -678,7 +678,7 @@ function switchG9Subject(subject) {
 
 // ── Grade 9 (chem/phys/bio): show empty-state when semester 1 is active — no semester-1 units built yet ──
 function _applyG9ChemSemesterUI() {
-  var sem = window._activeSemester || 2;
+  var sem = window._activeSemester || 1;
   var labels = {chem:'كيمياء', phys:'فيزياء', bio:'أحياء'};
   ['chem','phys','bio'].forEach(function(subj){
     var sub = document.getElementById('g9'+subj+'-sub');
