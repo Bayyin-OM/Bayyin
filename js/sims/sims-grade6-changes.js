@@ -837,3 +837,647 @@ function simG6Chg2c(){
   }
   draw();
 }
+
+/* ══════════════════════════════════════════════════════════════
+   الدرس ٣-٣ + ٥-٣ (مدمجان) — يذوب أم لا يذوب؟
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── تبويب أ: توقّع ثم اختبر (٣-٣) ── */
+var G6C_DISSOLVE_ITEMS = [
+  { id:'salt',  name:'الملح',            emoji:'🧂', soluble:true  },
+  { id:'sand',  name:'الرمل',             emoji:'🏖️', soluble:false },
+  { id:'flour', name:'الدقيق (الطحين)',   emoji:'🌾', soluble:false },
+  { id:'beans', name:'حبّات الفول',       emoji:'🫘', soluble:false },
+];
+function simG6Chg3a(){
+  cancelAnimationFrame(animFrame);
+  simState = { idx:0, phase:'predict', predictChoice:null, t:0, results:[], particles:[] };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  function item(){ return G6C_DISSOLVE_ITEMS[S.idx]; }
+
+  function tableHtml(){
+    if(S.results.length===0) return '';
+    let rows = S.results.map(r=>
+      '<tr><td style="padding:4px 6px">'+r.name+'</td>' +
+      '<td style="padding:4px 6px">'+(r.predict?'قابل للذوبان':'غير قابل للذوبان')+'</td>' +
+      '<td style="padding:4px 6px;font-weight:700;color:'+(r.actual?'#27AE60':'#E74C3C')+'">'+(r.actual?'ذاب ✅':'لم يذُب ❌')+'</td></tr>'
+    ).join('');
+    return '<div style="overflow-x:auto;margin-top:8px"><table style="width:100%;font-size:11.5px;border-collapse:collapse">' +
+      '<tr style="border-bottom:2px solid var(--border-color,#ddd);font-weight:700"><td style="padding:4px 6px">المادة</td><td style="padding:4px 6px">التنبؤ</td><td style="padding:4px 6px">الملاحظة</td></tr>' +
+      rows + '</table></div>';
+  }
+
+  function panel(){
+    const it = item();
+    let html = '<div class="ctrl-section"><div class="ctrl-label">🔬 استقصاء: يذوب أم لا يذوب؟</div>' +
+      '<div style="font-size:13px;color:var(--text-secondary);line-height:1.9">المادة '+(S.idx+1)+' من '+G6C_DISSOLVE_ITEMS.length+': <b>'+it.emoji+' '+it.name+'</b></div></div>';
+    if(S.phase==='predict'){
+      html += '<div class="ctrl-section"><div class="ctrl-label">🤔 توقّع الآن</div>' +
+        '<div style="font-size:14px;font-weight:700;margin-bottom:10px">هل تتوقّع أنّ '+it.name+' سيذوب في الماء؟</div>' +
+        '<div style="display:flex;flex-direction:column;gap:8px">' +
+        '<button class="ctrl-btn" onclick="window._g6c3aPredict(true)">✅ نعم، قابل للذوبان</button>' +
+        '<button class="ctrl-btn" onclick="window._g6c3aPredict(false)">❌ لا، غير قابل للذوبان</button>' +
+        '</div></div>';
+      controls(html); return;
+    }
+    if(S.phase==='ready'){
+      html += '<div class="ctrl-section"><button class="ctrl-btn play" onclick="window._g6c3aAdd()">🥄 أضِف '+it.name+' وحرّك الماء</button></div>';
+      controls(html); return;
+    }
+    if(S.phase==='testing'){
+      html += '<div style="font-size:13px;color:var(--text-secondary)">نحرّك الماء ونراقب... 🥄</div>';
+      controls(html); return;
+    }
+    if(S.phase==='result'){
+      const r = S.results[S.results.length-1];
+      html += '<div class="info-box">'+(r.predict===r.actual
+        ? '💡 أحسنت! توقّعك كان صحيحاً.'
+        : '💡 لاحظ النتيجة الفعلية جيداً.') +
+        ' <br>'+ (r.actual
+          ? it.name+' اختفى تماماً في الماء وأصبح الماء صافياً — إذاً هو <b>قابل للذوبان</b>.'
+          : it.name+' بقي ظاهراً في الماء ولم يختفِ — إذاً هو <b>غير قابل للذوبان</b>.') + '</div>' +
+        tableHtml() +
+        '<button class="ctrl-btn action" style="margin-top:10px" onclick="window._g6c3aNext()">'+(S.idx<G6C_DISSOLVE_ITEMS.length-1?'المادة التالية ←':'عرض الملخّص ←')+'</button>';
+      controls(html); return;
+    }
+    if(S.phase==='summary'){
+      html = '<div class="ctrl-section"><div class="ctrl-label">📊 جدول النتائج الكامل</div>' + tableHtml() + '</div>' +
+        '<div class="ctrl-section"><div class="ctrl-label">🧠 ماذا تستنتج؟</div>' +
+        '<div class="info-box" style="border-color:#27AE60">المواد التي تذوب في الماء (كالملح) تُسمّى <b>قابلة للذوبان</b>، والمادّة الناتجة محلول صافٍ لا نرى فيه المادّة. أمّا المواد التي لا تذوب (كالرمل والدقيق وحبّات الفول) فتبقى ظاهرة في الماء وتُسمّى <b>غير قابلة للذوبان</b>.</div>' +
+        '<button class="ctrl-btn reset" onclick="window._g6c3aRestart()">↺ أعد النشاط</button>' +
+        '<button class="ctrl-btn action" onclick="switchSimTab(1)">التالي: المحلول 💧 ←</button></div>';
+      controls(html); return;
+    }
+  }
+
+  window._g6c3aPredict = function(v){ S.predictChoice=v; S.phase='ready'; g6cSnd(true); panel(); };
+  window._g6c3aAdd = function(){
+    S.phase='testing'; S.t=0;
+    const it = item();
+    S.particles = [];
+    for(let i=0;i<10;i++) S.particles.push({ nx:0.35+Math.random()*0.3, ny:0.35+Math.random()*0.1, settled:false });
+    g6cSnd(true); panel();
+  };
+  window._g6c3aNext = function(){
+    if(S.idx<G6C_DISSOLVE_ITEMS.length-1){ S.idx++; S.phase='predict'; S.t=0; S.particles=[]; panel(); }
+    else { S.phase='summary'; panel(); }
+  };
+  window._g6c3aRestart = function(){
+    simState = { idx:0, phase:'predict', predictChoice:null, t:0, results:[], particles:[] };
+    panel();
+  };
+  panel();
+
+  function draw(){
+    if(currentSim!=='g6changes3'||currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const dark=g6cIsDark(); const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=g6cBg(dark); c.fillRect(0,0,w,h);
+    S.t++;
+
+    const it = item();
+    if(S.phase==='testing'){
+      S.particles.forEach(p=>{
+        if(it.soluble){
+          // يذوب: الجسيمات تتباعد وتتلاشى تدريجياً
+          p.nx += (p.nx-0.5)*0.004; p.ny += (Math.random()-0.5)*0.01;
+          p.alpha = g6cLerp(p.alpha===undefined?1:p.alpha, 0, 0.03);
+        } else {
+          // لا يذوب: يستقر في القاع
+          p.ny = g6cLerp(p.ny, 0.72, 0.03);
+        }
+      });
+      if(S.t>=110){
+        S.phase='result';
+        S.results.push({ name:it.name, predict:S.predictChoice, actual:it.soluble });
+        g6cSnd(it.soluble===S.predictChoice);
+        panel();
+      }
+    }
+
+    // كأس الماء
+    const cx=w*0.5, cupL=w*0.32, cupR=w*0.68, cupTop=h*0.28, cupBot=h*0.78;
+    c.save();
+    c.beginPath(); c.moveTo(cupL,cupTop); c.lineTo(cupL+w*0.02,cupBot); c.lineTo(cupR-w*0.02,cupBot); c.lineTo(cupR,cupTop); c.closePath(); c.clip();
+    c.fillStyle = dark?'rgba(56,189,248,0.35)':'rgba(41,128,185,0.28)';
+    c.fillRect(cupL,cupTop,cupR-cupL,cupBot-cupTop);
+    // جسيمات المادة
+    if(S.phase==='testing'||S.phase==='result'){
+      c.font=`${w*0.03}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      S.particles.forEach(p=>{
+        c.save();
+        c.globalAlpha = (it.soluble && S.phase==='result') ? 0 : (p.alpha===undefined?1:p.alpha);
+        c.fillText(it.emoji, p.nx*w, p.ny*h);
+        c.restore();
+      });
+    }
+    c.restore();
+    c.strokeStyle=g6cMut(dark); c.lineWidth=w*0.006;
+    c.beginPath(); c.moveTo(cupL,cupTop); c.lineTo(cupL+w*0.02,cupBot); c.lineTo(cupR-w*0.02,cupBot); c.lineTo(cupR,cupTop); c.stroke();
+
+    // ملعقة تحريك أثناء الاختبار
+    if(S.phase==='testing'){
+      c.save();
+      c.translate(cx, (cupTop+cupBot)/2);
+      c.rotate(Math.sin(S.t*0.25)*0.9);
+      c.font=`${w*0.05}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText('🥄', 0, -h*0.05);
+      c.restore();
+    }
+
+    c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.fillStyle=g6cTxt(dark); c.textAlign='center';
+    c.fillText('كأس ماء + '+it.emoji+' '+it.name, cx, h*0.14);
+
+    g6cTitleBar(c,w,h,dark,'٣-٣ · يذوب أم لا يذوب؟');
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ── تبويب ب: المحلول (المذاب والمذيب) + محلول أم مخلوط أم مادّة نقية؟ (٥-٣) ── */
+var G6C_SOLUTION_CLASSIFY = [
+  { id:'s1', text:'ملح ذاب بالكامل في الماء',        correct:'solution', home:{x:0.18,y:0.20} },
+  { id:'s2', text:'رمل ممزوج بالماء',                  correct:'mixture',  home:{x:0.5,y:0.20} },
+  { id:'s3', text:'ماء مقطَّر نقي بدون أي إضافة',       correct:'pure',     home:{x:0.82,y:0.20} },
+];
+function simG6Chg3b(){
+  cancelAnimationFrame(animFrame);
+  simState = { stage:'label', labelPick:{}, placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, doneClassify:false, challengeDone:false };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  const ZONES = [
+    { id:'solution', label:'محلول 💧',            x:0.18, col:'#1A8FA8' },
+    { id:'mixture',  label:'مخلوط معلّق 🌫️',       x:0.5,  col:'#8E44AD' },
+    { id:'pure',     label:'مادّة نقيّة ✨',         x:0.82, col:'#27AE60' },
+  ];
+
+  function panel(){
+    if(S.stage==='label'){
+      const doneBoth = S.labelPick.solute && S.labelPick.solvent;
+      let html = '<div class="ctrl-section"><div class="ctrl-label">💧 ماذا نُسمّي كل جزء من المحلول؟</div>' +
+        '<div style="font-size:13px;color:var(--text-secondary);line-height:1.9">لدينا محلول من الملح والماء. حدِّد كل مصطلح:</div></div>';
+      if(!S.labelPick.solute){
+        html += '<div class="ctrl-section"><div style="font-size:14px;font-weight:700;margin-bottom:8px">أيّهما "المادّة المُذابة" (التي ذابت)؟</div>' +
+          '<div style="display:flex;gap:8px"><button class="ctrl-btn" onclick="window._g6c3bLabel(\'solute\',\'salt\')">🧂 الملح</button>' +
+          '<button class="ctrl-btn" onclick="window._g6c3bLabel(\'solute\',\'water\')">💧 الماء</button></div></div>';
+      } else if(!S.labelPick.solvent){
+        html += '<div class="info-box">✅ المادّة المُذابة: الملح</div>' +
+          '<div class="ctrl-section"><div style="font-size:14px;font-weight:700;margin-bottom:8px">أيّهما "المادّة المُذيبة" (السائل الذي أذاب المادّة)؟</div>' +
+          '<div style="display:flex;gap:8px"><button class="ctrl-btn" onclick="window._g6c3bLabel(\'solvent\',\'salt\')">🧂 الملح</button>' +
+          '<button class="ctrl-btn" onclick="window._g6c3bLabel(\'solvent\',\'water\')">💧 الماء</button></div></div>';
+      } else {
+        html += '<div class="info-box" style="border-color:#27AE60">✅ الملح هو <b>المادّة المُذابة</b>، والماء هو <b>المادّة المُذيبة</b>. المحلول = مادّة مُذابة + مادّة مُذيبة، ويكون متجانساً (نفس الشكل في كل أجزائه).</div>' +
+          '<button class="ctrl-btn action" onclick="window._g6c3bGoClassify()">التالي: محلول أم مخلوط؟ 🧩 ←</button>';
+      }
+      controls(html); return;
+    }
+    if(S.stage==='classify'){
+      const n = Object.keys(S.placed).length;
+      if(!S.doneClassify){
+        controls('<div class="ctrl-section"><div class="ctrl-label">🧩 صنّف كل مثال</div>' +
+          '<div style="font-size:13px;color:var(--text-secondary);line-height:1.9">اسحب كل بطاقة إلى الفئة الصحيحة. ('+n+' من '+G6C_SOLUTION_CLASSIFY.length+')</div></div>');
+      } else if(!S.challengeDone){
+        controls('<div class="ctrl-section"><div class="ctrl-label">🎉 أحسنت!</div></div>' +
+          '<div class="ctrl-section"><div class="ctrl-label">🏆 التحدي النهائي</div>' +
+          '<div style="font-size:14px;font-weight:700;line-height:1.8;margin-bottom:10px">عصير البرتقال الطازج يحتوي على قطع صغيرة من لُبّ البرتقال عالقة فيه ويمكن رؤيتها بوضوح. هل يُعدّ عصير البرتقال محلولاً أم مخلوطاً معلّقاً؟</div>' +
+          '<div style="display:flex;flex-direction:column;gap:8px">' +
+          '<button id="g6c3bOpt0" class="ctrl-btn" onclick="window._g6c3bChallenge(0)">محلول متجانس</button>' +
+          '<button id="g6c3bOpt1" class="ctrl-btn" onclick="window._g6c3bChallenge(1)">مخلوط معلّق (غير متجانس)</button>' +
+          '</div><div id="g6c3bFb" style="margin-top:10px;font-size:13px;color:var(--text-secondary);line-height:1.8"></div></div>');
+      } else {
+        controls('<div class="ctrl-section"><div class="ctrl-label">🎉 أكملت استقصاء المحاليل!</div>' +
+          '<div class="info-box">تذكّر: المحلول متجانس ولا نستطيع رؤية المادّة المُذابة بعد ذوبانها، بينما المخلوط المعلّق يبقى غير متجانس ويمكن رؤية أجزائه.</div>' +
+          '<button class="ctrl-btn reset" onclick="window._g6c3bRestart()">↺ أعد النشاط</button></div>');
+      }
+      return;
+    }
+  }
+
+  window._g6c3bLabel = function(kind, choice){
+    const correct = (kind==='solute' && choice==='salt') || (kind==='solvent' && choice==='water');
+    g6cSnd(correct);
+    if(correct){ S.labelPick[kind]=choice; }
+    panel();
+  };
+  window._g6c3bGoClassify = function(){ S.stage='classify'; panel(); };
+  window._g6c3bChallenge = function(i){
+    if(S.challengeDone) return; S.challengeDone=true;
+    const ok = i===1; g6cSnd(ok);
+    const btn = document.getElementById('g6c3bOpt'+i);
+    if(btn){ btn.style.background=ok?'#27AE60':'#E74C3C'; btn.style.color='white'; btn.style.borderColor=ok?'#27AE60':'#E74C3C'; }
+    if(!ok){ const okBtn=document.getElementById('g6c3bOpt1'); if(okBtn){ okBtn.style.background='#27AE60'; okBtn.style.color='white'; okBtn.style.borderColor='#27AE60'; } }
+    const fb=document.getElementById('g6c3bFb');
+    if(fb) fb.innerHTML='💡 صحيح! يحتوي عصير البرتقال على قطع لُبّ صلبة عالقة يمكن رؤيتها ولا تذوب تماماً في السائل، فهو ليس متجانساً بالكامل — لذلك يُعدّ مخلوطاً معلّقاً وليس محلولاً حقيقياً.';
+    setTimeout(()=>panel(), 300);
+  };
+  window._g6c3bRestart = function(){
+    simState = { stage:'label', labelPick:{}, placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, doneClassify:false, challengeDone:false };
+    panel();
+  };
+
+  function hitChip(p,w,h){
+    for(const it of G6C_SOLUTION_CLASSIFY){
+      if(S.placed[it.id]) continue;
+      const hx=it.home.x*w, hy=it.home.y*h;
+      if(Math.abs(p.x-hx)<w*0.15 && Math.abs(p.y-hy)<h*0.05) return it;
+    }
+    return null;
+  }
+  function onDown(e){ if(S.stage!=='classify'||S.doneClassify) return; const p=g6cGp(cv,e); const it=hitChip(p,cv.width,cv.height); if(it){ S.dragId=it.id; S.dragX=p.x; S.dragY=p.y; } }
+  function onMove(e){ if(!S.dragId) return; e.preventDefault&&e.preventDefault(); const p=g6cGp(cv,e); S.dragX=p.x; S.dragY=p.y; }
+  function onUp(){
+    if(!S.dragId) return;
+    const it = G6C_SOLUTION_CLASSIFY.find(x=>x.id===S.dragId);
+    const w=cv.width, h=cv.height;
+    let hitZone=null;
+    for(const z of ZONES){ if(Math.abs(S.dragX-z.x*w)<w*0.15 && S.dragY>h*0.55) { hitZone=z; break; } }
+    if(hitZone && hitZone.id===it.correct){
+      S.placed[it.id]=hitZone.id; g6cSnd(true);
+      if(Object.keys(S.placed).length===G6C_SOLUTION_CLASSIFY.length) S.doneClassify=true;
+      panel();
+    } else if(hitZone){
+      S.wrong=it.id; S.wrongT=30; g6cSnd(false);
+    }
+    S.dragId=null;
+  }
+  cv.onmousedown=onDown; cv.onmousemove=onMove; cv.onmouseup=onUp;
+  cv.ontouchstart=onDown; cv.ontouchmove=onMove; cv.ontouchend=onUp;
+  panel();
+
+  function draw(){
+    if(currentSim!=='g6changes3'||currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const dark=g6cIsDark(); const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=g6cBg(dark); c.fillRect(0,0,w,h);
+    if(S.wrongT>0) S.wrongT--; else S.wrong=null;
+
+    if(S.stage==='label'){
+      const cx=w*0.5, cupL=w*0.36,cupR=w*0.64,cupTop=h*0.28,cupBot=h*0.7;
+      c.strokeStyle=g6cMut(dark); c.lineWidth=w*0.006;
+      c.beginPath(); c.moveTo(cupL,cupTop); c.lineTo(cupL+w*0.015,cupBot); c.lineTo(cupR-w*0.015,cupBot); c.lineTo(cupR,cupTop); c.stroke();
+      c.save();
+      c.beginPath(); c.moveTo(cupL,cupTop); c.lineTo(cupL+w*0.015,cupBot); c.lineTo(cupR-w*0.015,cupBot); c.lineTo(cupR,cupTop); c.closePath(); c.clip();
+      c.fillStyle = dark?'rgba(56,189,248,0.35)':'rgba(41,128,185,0.25)';
+      c.fillRect(cupL,cupTop,cupR-cupL,cupBot-cupTop);
+      c.restore();
+      c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.fillStyle=g6cTxt(dark); c.textAlign='center';
+      c.fillText('محلول ملح + ماء', cx, h*0.18);
+      if(S.labelPick.solute) { c.fillStyle='#1A8FA8'; c.font=`bold ${Math.round(h*0.017)}px Tajawal`; c.fillText('المادّة المُذابة: 🧂 الملح', cx, cupTop-h*0.04); }
+      if(S.labelPick.solvent) { c.fillStyle='#27AE60'; c.font=`bold ${Math.round(h*0.017)}px Tajawal`; c.fillText('المادّة المُذيبة: 💧 الماء', cx, cupBot+h*0.06); }
+      g6cTitleBar(c,w,h,dark,'٥-٣ · المحلول: مذاب ومذيب');
+      animFrame=requestAnimationFrame(draw); return;
+    }
+
+    // stage classify
+    ZONES.forEach(z=>{
+      c.save();
+      c.fillStyle=z.col+'18'; c.strokeStyle=z.col+'90'; c.lineWidth=2; c.setLineDash([6,5]);
+      const zx=z.x*w, zy=h*0.58, zw=w*0.28, zh=h*0.30;
+      c.beginPath(); c.roundRect?c.roundRect(zx-zw/2,zy,zw,zh,14):c.rect(zx-zw/2,zy,zw,zh);
+      c.fill(); c.stroke(); c.setLineDash([]);
+      c.fillStyle=z.col; c.font=`bold ${Math.round(h*0.019)}px Tajawal`; c.textAlign='center';
+      c.fillText(z.label, zx, zy+zh+h*0.04);
+      c.restore();
+    });
+    const stacks={};
+    G6C_SOLUTION_CLASSIFY.forEach(it=>{
+      if(!S.placed[it.id]) return;
+      const z=ZONES.find(zz=>zz.id===S.placed[it.id]);
+      stacks[z.id]=(stacks[z.id]||0);
+      const idx=stacks[z.id]++;
+      g6cChip(c, it.text, z.x*w, h*0.58+h*0.05+idx*h*0.085, w, h, dark, 'ok');
+    });
+    G6C_SOLUTION_CLASSIFY.forEach(it=>{
+      if(S.placed[it.id]||S.dragId===it.id) return;
+      const hx=it.home.x*w, hy=it.home.y*h;
+      const shake=(S.wrong===it.id)?Math.sin(S.wrongT*2)*w*0.01:0;
+      g6cChip(c, it.text, hx+shake, hy, w, h, dark, S.wrong===it.id?'warn':null);
+    });
+    if(S.dragId){
+      const it=G6C_SOLUTION_CLASSIFY.find(x=>x.id===S.dragId);
+      g6cChip(c, it.text, S.dragX, S.dragY, w, h, dark, null);
+    }
+    g6cTitleBar(c,w,h,dark,'٥-٣ · محلول أم مخلوط أم مادّة نقيّة؟');
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   الدرس ٦-٣ + ٧-٣ (مدمجان) — سباق الذوبان: ما الذي يُسرّع الذوبان؟
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── تبويب أ: الحرارة والتحريك (٦-٣) ── */
+function _g6c4BaseTicks(){ return 180; }
+function simG6Chg4a(){
+  cancelAnimationFrame(animFrame);
+  simState = { temp:'cold', stir:false, phase:'setup', t:0, trials:[] };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+
+  function effTicks(){
+    let t = _g6c4BaseTicks();
+    if(S.temp==='hot') t *= 0.5;
+    if(S.stir) t *= 0.6;
+    return Math.round(t);
+  }
+
+  function chartHtml(){
+    if(S.trials.length===0) return '';
+    const maxT = Math.max(..._g6c4BaseTicks()?[_g6c4BaseTicks()]:[1], ...S.trials.map(t=>t.time));
+    let bars = S.trials.map((tr,i)=>{
+      const pct = Math.round((tr.time/maxT)*100);
+      return '<div style="margin-bottom:7px"><div style="font-size:11.5px;margin-bottom:2px">'+tr.label+' — <b>'+(tr.time/20).toFixed(1)+' ث</b></div>' +
+        '<div style="background:var(--border-color,#eee);border-radius:6px;overflow:hidden;height:14px"><div style="width:'+pct+'%;background:#E67E22;height:100%"></div></div></div>';
+    }).join('');
+    return '<div style="margin-top:10px"><div class="ctrl-label" style="margin-bottom:6px">📊 مقارنة زمن الذوبان (أقصر = أسرع)</div>' + bars + '</div>';
+  }
+
+  function panel(){
+    let html = '<div class="ctrl-section"><div class="ctrl-label">🔬 استقصاء: الحرارة والتحريك</div>' +
+      '<div style="font-size:13px;color:var(--text-secondary);line-height:1.9">اختر ظروف التجربة، ثم أضِف السكر وشاهد زمن الذوبان.</div></div>';
+    if(S.phase==='setup'){
+      html += '<div class="ctrl-section"><div class="ctrl-label">🌡️ درجة حرارة الماء</div>' +
+        '<div style="display:flex;gap:8px">' +
+        '<button class="ctrl-btn'+(S.temp==='cold'?' active':'')+'" onclick="window._g6c4aSet(\'temp\',\'cold\')">🧊 بارد</button>' +
+        '<button class="ctrl-btn'+(S.temp==='hot'?' active':'')+'" onclick="window._g6c4aSet(\'temp\',\'hot\')">🔥 ساخن</button>' +
+        '</div></div>' +
+        '<div class="ctrl-section"><div class="ctrl-label">🥄 التحريك</div>' +
+        '<div style="display:flex;gap:8px">' +
+        '<button class="ctrl-btn'+(!S.stir?' active':'')+'" onclick="window._g6c4aSet(\'stir\',false)">بدون تحريك</button>' +
+        '<button class="ctrl-btn'+(S.stir?' active':'')+'" onclick="window._g6c4aSet(\'stir\',true)">مع تحريك</button>' +
+        '</div></div>' +
+        '<div class="ctrl-section"><button class="ctrl-btn play" onclick="window._g6c4aRun()">🧪 أضِف السكر وابدأ</button></div>' +
+        chartHtml();
+      controls(html); return;
+    }
+    if(S.phase==='running'){
+      html += '<div style="font-size:13px;color:var(--text-secondary)">السكر يذوب... ⏱️</div>' + chartHtml();
+      controls(html); return;
+    }
+    if(S.phase==='done'){
+      const last = S.trials[S.trials.length-1];
+      html += '<div class="info-box">✅ ذاب السكر خلال <b>'+(last.time/20).toFixed(1)+' ثانية</b> ('+last.label+').</div>' +
+        chartHtml() +
+        '<button class="ctrl-btn action" style="margin-top:10px" onclick="window._g6c4aAgain()">↺ جرّب ظروفاً مختلفة</button>';
+      if(S.trials.length>=2){
+        html += '<button class="ctrl-btn action" onclick="switchSimTab(1)">التالي: حجم الحبيبات 🔎 ←</button>';
+      }
+      controls(html); return;
+    }
+  }
+
+  window._g6c4aSet = function(k,v){ if(S.phase!=='setup') return; S[k]=v; g6cSnd(true); panel(); };
+  window._g6c4aRun = function(){ S.phase='running'; S.t=0; g6cSnd(true); panel(); };
+  window._g6c4aAgain = function(){ S.phase='setup'; panel(); };
+  panel();
+
+  function draw(){
+    if(currentSim!=='g6changes4'||currentTab!==0){ cancelAnimationFrame(animFrame); return; }
+    const dark=g6cIsDark(); const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=g6cBg(dark); c.fillRect(0,0,w,h);
+    S.t++;
+
+    const total = effTicks();
+    if(S.phase==='running'){
+      if(S.t>=total){
+        S.phase='done';
+        const label = (S.temp==='hot'?'ساخن':'بارد') + ' · ' + (S.stir?'مع تحريك':'بدون تحريك');
+        S.trials.push({ label, time: total });
+        g6cSnd(true); panel();
+      }
+    }
+
+    const cx=w*0.5, cupL=w*0.32,cupR=w*0.68,cupTop=h*0.28,cupBot=h*0.78;
+    const frac = S.phase==='setup' ? 0 : g6cClamp(S.t/total,0,1);
+    c.save();
+    c.beginPath(); c.moveTo(cupL,cupTop); c.lineTo(cupL+w*0.02,cupBot); c.lineTo(cupR-w*0.02,cupBot); c.lineTo(cupR,cupTop); c.closePath(); c.clip();
+    c.fillStyle = S.temp==='hot' ? (dark?'rgba(248,113,90,0.30)':'rgba(230,126,34,0.22)') : (dark?'rgba(56,189,248,0.30)':'rgba(41,128,185,0.22)');
+    c.fillRect(cupL,cupTop,cupR-cupL,cupBot-cupTop);
+    c.restore();
+    c.strokeStyle=g6cMut(dark); c.lineWidth=w*0.006;
+    c.beginPath(); c.moveTo(cupL,cupTop); c.lineTo(cupL+w*0.02,cupBot); c.lineTo(cupR-w*0.02,cupBot); c.lineTo(cupR,cupTop); c.stroke();
+
+    // مكعّب سكّر يتقلّص أثناء التشغيل
+    if(S.phase==='running'||S.phase==='done'){
+      const size = w*0.09*(1-frac);
+      if(size>1){
+        c.save(); c.translate(cx,(cupTop+cupBot)/2+h*0.08);
+        c.fillStyle='rgba(255,255,255,0.9)'; c.strokeStyle=g6cMut(dark); c.lineWidth=1.5;
+        c.beginPath(); if(c.roundRect) c.roundRect(-size/2,-size/2,size,size,size*0.15); else c.rect(-size/2,-size/2,size,size);
+        c.fill(); c.stroke(); c.restore();
+      }
+      // فقاعات/جزيئات متناثرة تدل على الانتشار — أسرع كلما زادت الحرارة/التحريك
+      const nParticles = Math.round(frac*14);
+      for(let i=0;i<nParticles;i++){
+        const ang = (i/14)*Math.PI*2 + S.t*0.02;
+        const rad = w*0.03 + frac*w*0.16;
+        c.fillStyle='rgba(255,255,255,0.55)';
+        c.beginPath(); c.arc(cx+Math.cos(ang)*rad, (cupTop+cupBot)/2+h*0.08+Math.sin(ang)*rad*0.4, w*0.006, 0, Math.PI*2); c.fill();
+      }
+    }
+    // ملعقة عند التحريك
+    if(S.stir && (S.phase==='running')){
+      c.save(); c.translate(cx,(cupTop+cupBot)/2); c.rotate(Math.sin(S.t*0.3)*0.9);
+      c.font=`${w*0.05}px serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText('🥄',0,-h*0.05);
+      c.restore();
+    }
+    if(S.temp==='hot'){ c.font=`${w*0.04}px serif`; c.textAlign='center'; c.fillText('🔥', cx, cupBot+h*0.06); }
+
+    c.font=`bold ${Math.round(h*0.019)}px Tajawal`; c.fillStyle=g6cTxt(dark); c.textAlign='center';
+    c.fillText((S.temp==='hot'?'ماء ساخن':'ماء بارد')+' · '+(S.stir?'مع تحريك':'بدون تحريك'), cx, h*0.16);
+
+    g6cTitleBar(c,w,h,dark,'٦-٣ · الحرارة والتحريك');
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ── تبويب ب: حجم الحبيبات (٧-٣) ── */
+function simG6Chg4b(){
+  cancelAnimationFrame(animFrame);
+  simState = { grain:'coarse', phase:'setup', t:0, trials:[] };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+  function effTicks(){ return Math.round(_g6c4BaseTicks() * (S.grain==='fine' ? 0.55 : 1)); }
+
+  function chartHtml(){
+    if(S.trials.length===0) return '';
+    const maxT = _g6c4BaseTicks();
+    let bars = S.trials.map(tr=>{
+      const pct = Math.round((tr.time/maxT)*100);
+      return '<div style="margin-bottom:7px"><div style="font-size:11.5px;margin-bottom:2px">'+tr.label+' — <b>'+(tr.time/20).toFixed(1)+' ث</b></div>' +
+        '<div style="background:var(--border-color,#eee);border-radius:6px;overflow:hidden;height:14px"><div style="width:'+pct+'%;background:#8E44AD;height:100%"></div></div></div>';
+    }).join('');
+    return '<div style="margin-top:10px"><div class="ctrl-label" style="margin-bottom:6px">📊 مقارنة زمن الذوبان</div>' + bars + '</div>';
+  }
+
+  function panel(){
+    let html = '<div class="ctrl-section"><div class="ctrl-label">🔬 استقصاء: هل يؤثّر حجم الحبيبات؟</div>' +
+      '<div style="font-size:13px;color:var(--text-secondary);line-height:1.9">نفس كمية الماء (بارد، بدون تحريك) في كل مرة — العامل الوحيد الذي يتغيّر هو حجم حبيبات الملح.</div></div>';
+    if(S.phase==='setup'){
+      html += '<div class="ctrl-section"><div class="ctrl-label">🧂 نوع الملح</div>' +
+        '<div style="display:flex;gap:8px">' +
+        '<button class="ctrl-btn'+(S.grain==='coarse'?' active':'')+'" onclick="window._g6c4bSet(\'coarse\')">⬛ ملح خشن</button>' +
+        '<button class="ctrl-btn'+(S.grain==='fine'?' active':'')+'" onclick="window._g6c4bSet(\'fine\')">▪️ ملح ناعم</button>' +
+        '</div></div>' +
+        '<div class="ctrl-section"><button class="ctrl-btn play" onclick="window._g6c4bRun()">🧪 أضِف الملح وابدأ</button></div>' +
+        chartHtml();
+      controls(html); return;
+    }
+    if(S.phase==='running'){ html += '<div style="font-size:13px;color:var(--text-secondary)">الملح يذوب... ⏱️</div>' + chartHtml(); controls(html); return; }
+    if(S.phase==='done'){
+      const last=S.trials[S.trials.length-1];
+      html += '<div class="info-box">✅ ذاب الملح خلال <b>'+(last.time/20).toFixed(1)+' ثانية</b> ('+last.label+').</div>' + chartHtml() +
+        '<button class="ctrl-btn action" style="margin-top:10px" onclick="window._g6c4bAgain()">↺ جرّب حبيبات أخرى</button>';
+      if(S.trials.length>=2){
+        html += '<div class="info-box" style="border-color:#27AE60;margin-top:8px">🧠 الحبيبات الصغيرة تذوب أسرع من الحبيبات الكبيرة، لأنّ سطحها الملامس للماء أكبر نسبياً فتتّصل جزيئاتها بالماء بسرعة أكبر.</div>' +
+          '<button class="ctrl-btn action" onclick="switchSimTab(2)">التالي: التحدي الأخير 🏆 ←</button>';
+      }
+      controls(html); return;
+    }
+  }
+  window._g6c4bSet = function(v){ if(S.phase!=='setup') return; S.grain=v; g6cSnd(true); panel(); };
+  window._g6c4bRun = function(){ S.phase='running'; S.t=0; g6cSnd(true); panel(); };
+  window._g6c4bAgain = function(){ S.phase='setup'; panel(); };
+  panel();
+
+  function draw(){
+    if(currentSim!=='g6changes4'||currentTab!==1){ cancelAnimationFrame(animFrame); return; }
+    const dark=g6cIsDark(); const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=g6cBg(dark); c.fillRect(0,0,w,h);
+    S.t++;
+
+    const total=effTicks();
+    if(S.phase==='running' && S.t>=total){
+      S.phase='done';
+      S.trials.push({ label: S.grain==='fine'?'ملح ناعم':'ملح خشن', time: total });
+      g6cSnd(true); panel();
+    }
+
+    const cx=w*0.5, cupL=w*0.32,cupR=w*0.68,cupTop=h*0.28,cupBot=h*0.78;
+    const frac = S.phase==='setup'?0:g6cClamp(S.t/total,0,1);
+    c.save();
+    c.beginPath(); c.moveTo(cupL,cupTop); c.lineTo(cupL+w*0.02,cupBot); c.lineTo(cupR-w*0.02,cupBot); c.lineTo(cupR,cupTop); c.closePath(); c.clip();
+    c.fillStyle=dark?'rgba(56,189,248,0.30)':'rgba(41,128,185,0.22)';
+    c.fillRect(cupL,cupTop,cupR-cupL,cupBot-cupTop);
+    c.restore();
+    c.strokeStyle=g6cMut(dark); c.lineWidth=w*0.006;
+    c.beginPath(); c.moveTo(cupL,cupTop); c.lineTo(cupL+w*0.02,cupBot); c.lineTo(cupR-w*0.02,cupBot); c.lineTo(cupR,cupTop); c.stroke();
+
+    if(S.phase==='running'||S.phase==='done'){
+      const nGrains = S.grain==='fine' ? 22 : 8;
+      const grainSize = (S.grain==='fine'? w*0.008 : w*0.018) * (1-frac*0.9);
+      for(let i=0;i<nGrains;i++){
+        const gx = cx + Math.cos(i*2.4+i)*w*(0.05+frac*0.14);
+        const gy = (cupTop+cupBot)/2+h*0.1 + Math.sin(i*1.7+S.t*0.05)*h*0.02;
+        if(grainSize>0.5){
+          c.fillStyle='rgba(255,255,255,0.85)';
+          c.beginPath(); c.arc(gx,gy,grainSize,0,Math.PI*2); c.fill();
+        }
+      }
+    }
+
+    c.font=`bold ${Math.round(h*0.019)}px Tajawal`; c.fillStyle=g6cTxt(dark); c.textAlign='center';
+    c.fillText(S.grain==='fine'?'ملح ناعم ▪️':'ملح خشن ⬛', cx, h*0.16);
+
+    g6cTitleBar(c,w,h,dark,'٧-٣ · هل يؤثّر حجم الحبيبات؟');
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ── تبويب ج: التحدي الأخير — رتّب حسب سرعة الذوبان ── */
+var G6C_RACE_SCENARIOS = [
+  { id:'c1', label:'بارد + بدون تحريك + خشن', temp:'cold', stir:false, grain:'coarse' },
+  { id:'c2', label:'ساخن + بدون تحريك + خشن',  temp:'hot',  stir:false, grain:'coarse' },
+  { id:'c3', label:'بارد + تحريك + ناعم',       temp:'cold', stir:true,  grain:'fine'   },
+  { id:'c4', label:'ساخن + تحريك + ناعم',        temp:'hot',  stir:true,  grain:'fine'   },
+];
+function _g6c4Time(sc){
+  let t=_g6c4BaseTicks();
+  if(sc.temp==='hot') t*=0.5;
+  if(sc.stir) t*=0.6;
+  if(sc.grain==='fine') t*=0.55;
+  return Math.round(t);
+}
+function simG6Chg4c(){
+  cancelAnimationFrame(animFrame);
+  simState = { order:[], revealed:false };
+  const S = simState;
+  const cv = document.getElementById('simCanvas');
+
+  function panel(){
+    if(!S.revealed){
+      let remaining = G6C_RACE_SCENARIOS.filter(sc=>!S.order.includes(sc.id));
+      let html = '<div class="ctrl-section"><div class="ctrl-label">🏆 التحدي الأخير: رتّب حسب السرعة</div>' +
+        '<div style="font-size:13px;color:var(--text-secondary);line-height:1.9">اضغط على المواقف بالترتيب من الأسرع ذوباناً إلى الأبطأ.</div></div>' +
+        '<div class="ctrl-section"><div class="ctrl-label">ترتيبك حتى الآن:</div>' +
+        (S.order.length? '<ol style="padding-right:18px;font-size:13px;line-height:2">'+S.order.map(id=>'<li>'+G6C_RACE_SCENARIOS.find(s=>s.id===id).label+'</li>').join('')+'</ol>' : '<div style="font-size:13px;color:var(--text-secondary)">لم تختر شيئاً بعد</div>') +
+        '</div>' +
+        '<div class="ctrl-section"><div style="display:flex;flex-direction:column;gap:8px">' +
+        remaining.map(sc=>'<button class="ctrl-btn" onclick="window._g6c4cPick(\''+sc.id+'\')">'+sc.label+'</button>').join('') +
+        '</div></div>';
+      controls(html); return;
+    }
+    const correctOrder = [...G6C_RACE_SCENARIOS].sort((a,b)=>_g6c4Time(a)-_g6c4Time(b)).map(s=>s.id);
+    const matchCount = S.order.filter((id,i)=>id===correctOrder[i]).length;
+    let html = '<div class="ctrl-section"><div class="ctrl-label">📊 الترتيب الصحيح فعلياً</div>' +
+      '<ol style="padding-right:18px;font-size:13px;line-height:2">' +
+      correctOrder.map(id=>{ const sc=G6C_RACE_SCENARIOS.find(s=>s.id===id); return '<li>'+sc.label+' — <b>'+(_g6c4Time(sc)/20).toFixed(1)+' ث</b></li>'; }).join('') +
+      '</ol></div>' +
+      '<div class="info-box">'+(matchCount===4
+        ? '🎉 رائع! رتّبتها بشكل صحيح تماماً!'
+        : 'حصلت على '+matchCount+' من ٤ في المكان الصحيح. ') +
+      ' لاحظ أنّ كل عامل (الحرارة، التحريك، حجم الحبيبات) يُسرّع الذوبان على حدة، فإذا اجتمعت كل العوامل المُسرِّعة معاً (ساخن + تحريك + ناعم) كان الذوبان أسرع ما يمكن!</div>' +
+      '<button class="ctrl-btn reset" onclick="window._g6c4cRestart()">↺ أعد التحدي</button>';
+    controls(html);
+  }
+  window._g6c4cPick = function(id){
+    if(S.order.includes(id)) return;
+    S.order.push(id); g6cSnd(true);
+    if(S.order.length===G6C_RACE_SCENARIOS.length){ S.revealed=true; }
+    panel();
+  };
+  window._g6c4cRestart = function(){ simState={order:[],revealed:false}; panel(); };
+  panel();
+
+  function draw(){
+    if(currentSim!=='g6changes4'||currentTab!==2){ cancelAnimationFrame(animFrame); return; }
+    const dark=g6cIsDark(); const c=cv.getContext('2d'), w=cv.width, h=cv.height;
+    c.clearRect(0,0,w,h);
+    c.fillStyle=g6cBg(dark); c.fillRect(0,0,w,h);
+
+    const cols=2, rows=2;
+    G6C_RACE_SCENARIOS.forEach((sc,i)=>{
+      const col=i%cols, row=Math.floor(i/cols);
+      const cx=w*(0.28+col*0.44), cy=h*(0.32+row*0.4);
+      const picked = S.order.includes(sc.id);
+      const rank = S.order.indexOf(sc.id);
+      c.save();
+      c.fillStyle = picked ? 'rgba(230,126,34,0.18)' : g6cCard(dark);
+      c.strokeStyle = picked ? g6cAccent() : g6cMut(dark); c.lineWidth=2;
+      const bw=w*0.36, bh=h*0.28;
+      c.beginPath(); c.roundRect?c.roundRect(cx-bw/2,cy-bh/2,bw,bh,12):c.rect(cx-bw/2,cy-bh/2,bw,bh);
+      c.fill(); c.stroke();
+      c.font=`${w*0.045}px serif`; c.textAlign='center'; c.textBaseline='middle';
+      c.fillText(sc.temp==='hot'?'🔥':'🧊', cx-bw*0.22, cy-bh*0.12);
+      c.fillText(sc.stir?'🥄':'🚫', cx, cy-bh*0.12);
+      c.fillText(sc.grain==='fine'?'▪️':'⬛', cx+bw*0.22, cy-bh*0.12);
+      c.font=`bold ${Math.round(h*0.015)}px Tajawal`; c.fillStyle=g6cTxt(dark);
+      c.fillText(sc.label, cx, cy+bh*0.22);
+      if(picked){
+        c.fillStyle=g6cAccent(); c.font=`bold ${Math.round(h*0.028)}px Tajawal`;
+        c.fillText('#'+(rank+1), cx, cy+bh*0.38);
+      }
+      c.restore();
+    });
+
+    g6cTitleBar(c,w,h,dark,'التحدي الأخير · رتّب حسب سرعة الذوبان');
+    animFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
