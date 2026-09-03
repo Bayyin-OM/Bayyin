@@ -22,11 +22,10 @@ function g6cShuffle(arr){
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
   return a;
 }
-// نقاط انتشار غير منتظمة (لا تتماشى في عمودين مرتّبين) — تُستخدم لتوزيع بطاقات السحب والإفلات عشوائياً في كل مرة
+// نقاط انتشار مضبوطة (غير محاذاة بعمودين، لكن بدون تداخل بين البطاقات) — تُستخدم لتوزيع بطاقات السحب والإفلات
 var G6C_SCATTER_POOL = [
-  {x:0.16,y:0.15},{x:0.42,y:0.12},{x:0.68,y:0.17},{x:0.86,y:0.28},
-  {x:0.26,y:0.26},{x:0.52,y:0.24},{x:0.76,y:0.40},{x:0.34,y:0.40},
-  {x:0.58,y:0.42},{x:0.14,y:0.36},
+  {x:0.17,y:0.17},{x:0.50,y:0.14},{x:0.83,y:0.18},
+  {x:0.20,y:0.35},{x:0.52,y:0.39},{x:0.84,y:0.34},
 ];
 function g6cScatterHomes(items){
   const pool = g6cShuffle(G6C_SCATTER_POOL).slice(0, items.length);
@@ -34,8 +33,8 @@ function g6cScatterHomes(items){
   items.forEach((it,i)=>{
     const p = pool[i] || {x:0.5,y:0.3};
     homes[it.id] = {
-      x: g6cClamp(p.x + (Math.random()-0.5)*0.05, 0.13, 0.87),
-      y: g6cClamp(p.y + (Math.random()-0.5)*0.04, 0.12, 0.47)
+      x: g6cClamp(p.x + (Math.random()-0.5)*0.012, 0.14, 0.86),
+      y: g6cClamp(p.y + (Math.random()-0.5)*0.01, 0.12, 0.42)
     };
   });
   return homes;
