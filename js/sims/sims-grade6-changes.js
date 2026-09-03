@@ -17,6 +17,72 @@ function g6cIsDark(){ return document.documentElement.classList.contains('dark-m
 function g6cSnd(ok){ try{ ok ? _g8pPlayDrop() : _g8pPlayClick(); }catch(e){} }
 function g6cLerp(a,b,t){ return a+(b-a)*Math.max(0,Math.min(1,t)); }
 function g6cClamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function g6cShuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+// نقاط انتشار غير منتظمة (لا تتماشى في عمودين مرتّبين) — تُستخدم لتوزيع بطاقات السحب والإفلات عشوائياً في كل مرة
+var G6C_SCATTER_POOL = [
+  {x:0.16,y:0.15},{x:0.42,y:0.12},{x:0.68,y:0.17},{x:0.86,y:0.28},
+  {x:0.26,y:0.26},{x:0.52,y:0.24},{x:0.76,y:0.40},{x:0.34,y:0.40},
+  {x:0.58,y:0.42},{x:0.14,y:0.36},
+];
+function g6cScatterHomes(items){
+  const pool = g6cShuffle(G6C_SCATTER_POOL).slice(0, items.length);
+  const homes = {};
+  items.forEach((it,i)=>{
+    const p = pool[i] || {x:0.5,y:0.3};
+    homes[it.id] = {
+      x: g6cClamp(p.x + (Math.random()-0.5)*0.05, 0.13, 0.87),
+      y: g6cClamp(p.y + (Math.random()-0.5)*0.04, 0.12, 0.47)
+    };
+  });
+  return homes;
+}
+// رسم أشكال بسيطة للمواد بدل الرموز التعبيرية (إيموجي)
+function g6cDrawMaterial(c, id, x, y, size, alpha){
+  c.save(); c.globalAlpha = (alpha===undefined?1:alpha);
+  switch(id){
+    case 'salt': // بلّورات ملح بيضاء صغيرة
+      c.save(); c.translate(x,y); c.rotate(0.35);
+      c.fillStyle='#F7F6F2'; c.strokeStyle='#C9C4B4'; c.lineWidth=Math.max(1,size*0.06);
+      c.beginPath(); c.rect(-size*0.32,-size*0.32,size*0.64,size*0.64); c.fill(); c.stroke();
+      c.restore();
+      break;
+    case 'sand': // حبيبات رمل بنّية دقيقة
+      c.fillStyle='#C9A063';
+      c.beginPath(); c.arc(x,y,size*0.28,0,Math.PI*2); c.fill();
+      break;
+    case 'flour': // دقيق أبيض ناعم
+      c.fillStyle='#FBF8F1'; c.strokeStyle='#E8DFC9'; c.lineWidth=Math.max(1,size*0.05);
+      c.beginPath(); c.arc(x,y,size*0.32,0,Math.PI*2); c.fill(); c.stroke();
+      break;
+    case 'beans': // حبّة فول بنيّة بيضاوية
+      c.fillStyle='#8B5A2B';
+      c.save(); c.translate(x,y); c.rotate(0.5);
+      c.beginPath(); c.ellipse(0,0,size*0.42,size*0.26,0,0,Math.PI*2); c.fill();
+      c.restore();
+      break;
+    case 'rock': // حصاة رمادية
+      c.fillStyle='#9C9C96'; c.strokeStyle='#7A7A74'; c.lineWidth=Math.max(1,size*0.05);
+      c.beginPath(); c.arc(x,y,size*0.42,0,Math.PI*2); c.fill(); c.stroke();
+      break;
+    case 'peanut': // فول سوداني بنّي فاتح بيضاوي
+      c.fillStyle='#D2A56A';
+      c.save(); c.translate(x,y); c.rotate(0.2);
+      c.beginPath(); c.ellipse(0,0,size*0.4,size*0.24,0,0,Math.PI*2); c.fill();
+      c.restore();
+      break;
+    case 'raisin': // زبيب بنّي داكن صغير
+      c.fillStyle='#4A2E1E';
+      c.beginPath(); c.arc(x,y,size*0.26,0,Math.PI*2); c.fill();
+      break;
+    default:
+      c.fillStyle='#999'; c.beginPath(); c.arc(x,y,size*0.3,0,Math.PI*2); c.fill();
+  }
+  c.restore();
+}
 
 /* ══════════════════════════════════════════════════════════
    ١-٣ (أ) — استقصاء: ذوبان الثلج وتجمّده (تغيّر قابل للعكس)
@@ -283,7 +349,7 @@ var G6C_ITEMS = [
 ];
 function simG6Chg1c(){
   cancelAnimationFrame(animFrame);
-  simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false, challengeAnswered:false };
+  simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false, challengeAnswered:false, homes:g6cScatterHomes(G6C_ITEMS) };
   const S = simState;
   const cv = document.getElementById('simCanvas');
   const ZONES = [
@@ -326,14 +392,14 @@ function simG6Chg1c(){
     setTimeout(()=>panel(), 300);
   };
   window._g6c1cRestart = function(){
-    simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false, challengeAnswered:false };
+    simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false, challengeAnswered:false, homes:g6cScatterHomes(G6C_ITEMS) };
     panel();
   };
 
   function hitChip(p,w,h){
     for(const it of G6C_ITEMS){
       if(S.placed[it.id]) continue;
-      const hx=it.home.x*w, hy=it.home.y*h;
+      const hx=S.homes[it.id].x*w, hy=S.homes[it.id].y*h;
       if(Math.abs(p.x-hx)<w*0.16 && Math.abs(p.y-hy)<h*0.05) return it;
     }
     return null;
@@ -406,7 +472,7 @@ function simG6Chg1c(){
 
     G6C_ITEMS.forEach(it=>{
       if(S.placed[it.id]||S.dragId===it.id) return;
-      const hx=it.home.x*w, hy=it.home.y*h;
+      const hx=S.homes[it.id].x*w, hy=S.homes[it.id].y*h;
       const shake = (S.wrong===it.id) ? Math.sin(S.wrongT*2)*w*0.01 : 0;
       drawChip(c, it.text, hx+shake, hy, w, h, dark, S.wrong===it.id?'warn':null);
     });
@@ -459,13 +525,13 @@ function g6cChip(c,text,x,y,w,h,dark,state){
 
 /* ── تبويب أ: غربال أم فرز باليد؟ (٢-٣) ── */
 var G6C_SIEVE_ROUNDS = [
-  { id:'r1', label:'حصى كبير + رمل ناعم', big:{emoji:'🪨',name:'حصى'}, small:{emoji:'🟤',name:'رمل'}, correct:'sieve' },
-  { id:'r2', label:'حبّات فول سوداني + زبيب', big:{emoji:'🥜',name:'فول سوداني'}, small:{emoji:'🍇',name:'زبيب'}, correct:'hand' },
+  { id:'r1', label:'حصى كبير + رمل ناعم', big:{matId:'rock',name:'حصى'}, small:{matId:'sand',name:'رمل'}, correct:'sieve' },
+  { id:'r2', label:'حبّات فول سوداني + زبيب', big:{matId:'peanut',name:'فول سوداني'}, small:{matId:'raisin',name:'زبيب'}, correct:'hand' },
 ];
 function _g6c2aBuildParticles(round){
   const arr=[];
-  for(let i=0;i<7;i++) arr.push({ type:'big', emoji:round.big.emoji, nx:0.2+Math.random()*0.6, ny:0.22+Math.random()*0.18, t:0, done:false });
-  for(let i=0;i<7;i++) arr.push({ type:'small', emoji:round.small.emoji, nx:0.2+Math.random()*0.6, ny:0.22+Math.random()*0.18, t:0, done:false });
+  for(let i=0;i<7;i++) arr.push({ type:'big', matId:round.big.matId, size:1.4, nx:0.2+Math.random()*0.6, ny:0.22+Math.random()*0.18, t:0, done:false });
+  for(let i=0;i<7;i++) arr.push({ type:'small', matId:round.small.matId, size:0.75, nx:0.2+Math.random()*0.6, ny:0.22+Math.random()*0.18, t:0, done:false });
   return arr;
 }
 function simG6Chg2a(){
@@ -592,8 +658,7 @@ function simG6Chg2a(){
     }
 
     S.particles.forEach(p=>{
-      c.font=`${w*0.028}px serif`; c.textAlign='center'; c.textBaseline='middle';
-      c.fillText(p.emoji, p.nx*w, p.ny*h);
+      g6cDrawMaterial(c, p.matId, p.nx*w, p.ny*h, w*0.045*p.size, 1);
     });
 
     c.font=`bold ${Math.round(h*0.02)}px Tajawal`; c.fillStyle=g6cTxt(dark); c.textAlign='center';
@@ -734,7 +799,7 @@ var G6C_TOOL_ITEMS = [
 ];
 function simG6Chg2c(){
   cancelAnimationFrame(animFrame);
-  simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false };
+  simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false, homes:g6cScatterHomes(G6C_TOOL_ITEMS) };
   const S = simState;
   const cv = document.getElementById('simCanvas');
   const ZONES = [
@@ -757,14 +822,14 @@ function simG6Chg2c(){
       '<button class="ctrl-btn reset" onclick="window._g6c2cRestart()">↺ أعد النشاط</button></div>');
   }
   window._g6c2cRestart = function(){
-    simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false };
+    simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false, homes:g6cScatterHomes(G6C_TOOL_ITEMS) };
     panel();
   };
 
   function hitChip(p,w,h){
     for(const it of G6C_TOOL_ITEMS){
       if(S.placed[it.id]) continue;
-      const hx=it.home.x*w, hy=it.home.y*h;
+      const hx=S.homes[it.id].x*w, hy=S.homes[it.id].y*h;
       if(Math.abs(p.x-hx)<w*0.15 && Math.abs(p.y-hy)<h*0.05) return it;
     }
     return null;
@@ -819,7 +884,7 @@ function simG6Chg2c(){
 
     G6C_TOOL_ITEMS.forEach(it=>{
       if(S.placed[it.id]||S.dragId===it.id) return;
-      const hx=it.home.x*w, hy=it.home.y*h;
+      const hx=S.homes[it.id].x*w, hy=S.homes[it.id].y*h;
       const shake=(S.wrong===it.id)?Math.sin(S.wrongT*2)*w*0.01:0;
       g6cChip(c, it.text, hx+shake, hy, w, h, dark, S.wrong===it.id?'warn':null);
     });
@@ -964,12 +1029,9 @@ function simG6Chg3a(){
     c.fillRect(cupL,cupTop,cupR-cupL,cupBot-cupTop);
     // جسيمات المادة
     if(S.phase==='testing'||S.phase==='result'){
-      c.font=`${w*0.03}px serif`; c.textAlign='center'; c.textBaseline='middle';
       S.particles.forEach(p=>{
-        c.save();
-        c.globalAlpha = (it.soluble && S.phase==='result') ? 0 : (p.alpha===undefined?1:p.alpha);
-        c.fillText(it.emoji, p.nx*w, p.ny*h);
-        c.restore();
+        const alpha = (it.soluble && S.phase==='result') ? 0 : (p.alpha===undefined?1:p.alpha);
+        g6cDrawMaterial(c, it.id, p.nx*w, p.ny*h, w*0.045, alpha);
       });
     }
     c.restore();
@@ -1003,7 +1065,7 @@ var G6C_SOLUTION_CLASSIFY = [
 ];
 function simG6Chg3b(){
   cancelAnimationFrame(animFrame);
-  simState = { stage:'label', labelPick:{}, placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, doneClassify:false, challengeDone:false };
+  simState = { stage:'label', labelPick:{}, placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, doneClassify:false, challengeDone:false, homes:g6cScatterHomes(G6C_SOLUTION_CLASSIFY) };
   const S = simState;
   const cv = document.getElementById('simCanvas');
   const ZONES = [
@@ -1072,14 +1134,14 @@ function simG6Chg3b(){
     setTimeout(()=>panel(), 300);
   };
   window._g6c3bRestart = function(){
-    simState = { stage:'label', labelPick:{}, placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, doneClassify:false, challengeDone:false };
+    simState = { stage:'label', labelPick:{}, placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, doneClassify:false, challengeDone:false, homes:g6cScatterHomes(G6C_SOLUTION_CLASSIFY) };
     panel();
   };
 
   function hitChip(p,w,h){
     for(const it of G6C_SOLUTION_CLASSIFY){
       if(S.placed[it.id]) continue;
-      const hx=it.home.x*w, hy=it.home.y*h;
+      const hx=S.homes[it.id].x*w, hy=S.homes[it.id].y*h;
       if(Math.abs(p.x-hx)<w*0.15 && Math.abs(p.y-hy)<h*0.05) return it;
     }
     return null;
@@ -1150,7 +1212,7 @@ function simG6Chg3b(){
     });
     G6C_SOLUTION_CLASSIFY.forEach(it=>{
       if(S.placed[it.id]||S.dragId===it.id) return;
-      const hx=it.home.x*w, hy=it.home.y*h;
+      const hx=S.homes[it.id].x*w, hy=S.homes[it.id].y*h;
       const shake=(S.wrong===it.id)?Math.sin(S.wrongT*2)*w*0.01:0;
       g6cChip(c, it.text, hx+shake, hy, w, h, dark, S.wrong===it.id?'warn':null);
     });
