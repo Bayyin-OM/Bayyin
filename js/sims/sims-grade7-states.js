@@ -231,14 +231,30 @@ function simG7States2b(){
     { id:'gas',    label:'غازية', x:0.82, icon:'💨' },
   ];
   const CHIPS = [
-    { id:'c1', text:'تهتزّ في مكانها',        correct:'solid',  home:{x:0.14,y:0.24} },
-    { id:'c2', text:'جزيئات متراصّة',         correct:'solid',  home:{x:0.14,y:0.40} },
-    { id:'c3', text:'تنزلق بجوار بعضها',      correct:'liquid', home:{x:0.42,y:0.24} },
-    { id:'c4', text:'جزيئات متقاربة',         correct:'liquid', home:{x:0.42,y:0.40} },
-    { id:'c5', text:'تتحرّك بحرّية',           correct:'gas',    home:{x:0.70,y:0.24} },
-    { id:'c6', text:'جزيئات متباعدة',         correct:'gas',    home:{x:0.70,y:0.40} },
+    { id:'c1', text:'تهتزّ في مكانها',        correct:'solid'  },
+    { id:'c2', text:'جزيئات متراصّة',         correct:'solid'  },
+    { id:'c3', text:'تنزلق بجوار بعضها',      correct:'liquid' },
+    { id:'c4', text:'جزيئات متقاربة',         correct:'liquid' },
+    { id:'c5', text:'تتحرّك بحرّية',           correct:'gas'    },
+    { id:'c6', text:'جزيئات متباعدة',         correct:'gas'    },
   ];
-  simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false, qAnswered:false };
+  // نقاط انتشار مضبوطة (بدون تداخل بين البطاقات) — تُخلط عشوائياً في كل مرة كي لا يتطابق ترتيبها مع ترتيب المناطق أدناه
+  const G7S2B_SCATTER_POOL = [
+    {x:0.20,y:0.16},{x:0.50,y:0.13},{x:0.80,y:0.17},
+    {x:0.23,y:0.35},{x:0.52,y:0.39},{x:0.79,y:0.34},
+  ];
+  function g7s2bShuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+    return a;
+  }
+  function g7s2bScatterHomes(){
+    const pool = g7s2bShuffle(G7S2B_SCATTER_POOL);
+    const homes = {};
+    CHIPS.forEach((ch,i)=>{ homes[ch.id] = pool[i]; });
+    return homes;
+  }
+  simState = { placed:{}, dragId:null, dragX:0, dragY:0, wrong:null, wrongT:0, done:false, qAnswered:false, homes:g7s2bScatterHomes() };
   const S = simState;
   const cv = document.getElementById('simCanvas');
 
@@ -276,13 +292,13 @@ function simG7States2b(){
     setTimeout(()=>controls(renderControls()), 400);
   };
   window._g7s2bRestart = function(){
-    S.placed={}; S.dragId=null; S.done=false; S.qAnswered=false; controls(renderControls());
+    S.placed={}; S.dragId=null; S.done=false; S.qAnswered=false; S.homes=g7s2bScatterHomes(); controls(renderControls());
   };
 
   function hitChip(p, w, h){
     for(const ch of CHIPS){
       if(S.placed[ch.id]) continue;
-      const hx=ch.home.x*w, hy=ch.home.y*h;
+      const hx=S.homes[ch.id].x*w, hy=S.homes[ch.id].y*h;
       if(Math.abs(p.x-hx) < w*0.13 && Math.abs(p.y-hy) < h*0.055) return ch;
     }
     return null;
@@ -347,7 +363,7 @@ function simG7States2b(){
     // البطاقات المتبقية في أماكنها الأصلية
     CHIPS.forEach(ch=>{
       if(S.placed[ch.id] || S.dragId===ch.id) return;
-      const hx=ch.home.x*w, hy=ch.home.y*h;
+      const hx=S.homes[ch.id].x*w, hy=S.homes[ch.id].y*h;
       const shake = (S.wrong===ch.id) ? Math.sin(S.wrongT*2)*w*0.01 : 0;
       drawChip(c, ch.text, hx+shake, hy, w, h, dark, S.wrong===ch.id);
     });
