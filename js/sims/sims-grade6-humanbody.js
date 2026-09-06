@@ -308,14 +308,14 @@ function simG6Body1a(){
   cancelAnimationFrame(animFrame);
 
   const ORGANS = [
-    { id:'brain',  name:'الدماغ',   emoji:'🧠', color:'#F4A6A0', tx:0.50, ty:0.10, fn:'يتحكّم في كل شيء يقوم به الجسم ويستقبل رسائل الحواس.' },
-    { id:'heart',  name:'القلب',    emoji:'❤️', color:'#E74C3C', tx:0.44, ty:0.265, fn:'يضخّ الدم ليصل إلى جميع أجزاء الجسم.' },
-    { id:'lungs',  name:'الرئتان',  emoji:'🫁', color:'#5DADE2', tx:0.57, ty:0.255, fn:'تُستخدَمان للتنفّس — دخول الأكسجين وخروج ثاني أكسيد الكربون.' },
-    { id:'liver',  name:'الكبد',    emoji:'🟤', color:'#A0522D', tx:0.58, ty:0.375, fn:'يخزّن الطاقة وينقّي الدم من السموم.' },
-    { id:'stomach',name:'المعدة',   emoji:'🍽️', color:'#F5B041', tx:0.41, ty:0.38,  fn:'تهضم الطعام بمزجه مع العصارات الهضمية.' },
-    { id:'sintestine',name:'الأمعاء الدقيقة', emoji:'🌀', color:'#58D68D', tx:0.50, ty:0.49, fn:'تُكمل هضم الطعام وتنقل الغذاء الممتص إلى الدم.' },
-    { id:'lintestine',name:'الأمعاء الغليظة', emoji:'⭕', color:'#C08552', tx:0.50, ty:0.60, fn:'تمتص الماء المتبقي وتُخرج فضلات الطعام غير المهضوم.' },
-    { id:'kidneys',name:'الكليتان', emoji:'🫘', color:'#AF7AC5', tx:0.50, ty:0.70, fn:'تُرشِّحان الدم وتُخرجان الفضلات على شكل بول.' },
+    { id:'brain',  name:'الدماغ',   emoji:'🧠', color:'#F4A6A0', tx:0.50, ty:0.09,  fn:'يتحكّم في كل شيء يقوم به الجسم ويستقبل رسائل الحواس.' },
+    { id:'lungs',  name:'الرئتان',  emoji:'🫁', color:'#5DADE2', tx:0.50, ty:0.185, fn:'تُستخدَمان للتنفّس — دخول الأكسجين وخروج ثاني أكسيد الكربون. تحيطان بالقلب من الجانبين داخل القفص الصدري.' },
+    { id:'heart',  name:'القلب',    emoji:'❤️', color:'#E74C3C', tx:0.465,ty:0.235, fn:'يضخّ الدم ليصل إلى جميع أجزاء الجسم. يقع في مُنتصف الصدر تقريباً، مائلاً قليلاً لليسار، بين الرئتين.' },
+    { id:'liver',  name:'الكبد',    emoji:'🟤', color:'#A0522D', tx:0.585,ty:0.305, fn:'يخزّن الطاقة وينقّي الدم من السموم. يقع أعلى يمين البطن، أسفل الرئة اليمنى مباشرة.' },
+    { id:'stomach',name:'المعدة',   emoji:'🍽️', color:'#F5B041', tx:0.415,ty:0.315, fn:'تهضم الطعام بمزجه مع العصارات الهضمية. تقع أعلى يسار البطن، أسفل القلب.' },
+    { id:'kidneys',name:'الكليتان', emoji:'🫘', color:'#AF7AC5', tx:0.44, ty:0.375, fn:'تُرشِّحان الدم وتُخرجان الفضلات على شكل بول. تقعان في مُنتصف البطن تقريباً، بالقرب من الظهر.' },
+    { id:'sintestine',name:'الأمعاء الدقيقة', emoji:'🌀', color:'#58D68D', tx:0.565,ty:0.395, fn:'تُكمل هضم الطعام وتنقل الغذاء الممتص إلى الدم. تملأ مُعظم أسفل البطن.' },
+    { id:'lintestine',name:'الأمعاء الغليظة', emoji:'⭕', color:'#C08552', tx:0.50, ty:0.435, fn:'تمتص الماء المتبقي وتُخرج فضلات الطعام غير المهضوم. تُحيط بالأمعاء الدقيقة كإطار في أسفل البطن.' },
   ];
 
   simState = { placed:{}, dragId:null, dragX:0, dragY:0, tray:[], done:false };
@@ -1192,7 +1192,7 @@ function simG6Body4b(){
   controls(renderControls());
 
   const cv = document.getElementById('simCanvas');
-  const zones = { blood: {x:0.22, y:0.75}, out: {x:0.78, y:0.75} };
+  const zones = { blood: {x:0.22, y:0.64}, out: {x:0.78, y:0.64} };
 
   function relPos(e){
     const rect = cv.getBoundingClientRect();
@@ -1248,17 +1248,21 @@ function simG6Body4b(){
 
     Object.entries(zones).forEach(([k,z])=>{
       const isBlood = k==='blood';
+      const circleR = Math.min(w,h)*0.16;
       c.strokeStyle = isBlood ? '#E74C3C' : '#5DADE2'; c.lineWidth=2.5; c.setLineDash([6,5]);
-      c.beginPath(); c.arc(z.x*w, z.y*h, w*0.1, 0, Math.PI*2); c.stroke(); c.setLineDash([]);
+      c.beginPath(); c.arc(z.x*w, z.y*h, circleR, 0, Math.PI*2); c.stroke(); c.setLineDash([]);
       c.fillStyle = isBlood ? 'rgba(231,76,60,0.10)' : 'rgba(93,173,226,0.10)';
-      c.beginPath(); c.arc(z.x*w, z.y*h, w*0.1, 0, Math.PI*2); c.fill();
+      c.beginPath(); c.arc(z.x*w, z.y*h, circleR, 0, Math.PI*2); c.fill();
       // عنوان واضح فوق كل دائرة داخل شارة (pill) بلون مميّز
       const label = isBlood ? '🩸 دم' : '🌬️ خارج الجسم';
       c.font = `bold ${Math.round(h*0.024)}px Tajawal`;
       const tw = c.measureText(label).width;
-      const py = z.y*h + w*0.135;
+      const py = Math.min(z.y*h + circleR + h*0.05, h*0.96);
       c.fillStyle = isBlood ? '#E74C3C' : '#3498DB';
-      c.beginPath(); c.roundRect(z.x*w - tw/2 - 12, py - h*0.022, tw+24, h*0.044, 999); c.fill();
+      c.beginPath();
+      if(c.roundRect) c.roundRect(z.x*w - tw/2 - 12, py - h*0.022, tw+24, h*0.044, 999);
+      else c.rect(z.x*w - tw/2 - 12, py - h*0.022, tw+24, h*0.044);
+      c.fill();
       c.fillStyle = '#FFFFFF'; c.textAlign='center'; c.textBaseline='middle';
       c.fillText(label, z.x*w, py + 1);
       c.textBaseline='alphabetic';
